@@ -18,7 +18,7 @@ number of features exposed.
 cargo add vk-rs-bindings \
   --git https://github.com/JakubCzarlinski/vk-rs-bindings \
   --rename vk \
-  --tag v0.1.5
+  --tag v0.1.8
 ```
 
 See [https://blog.rust-lang.org/2023/10/26/broken-badges-and-23k-keywords.html](https://blog.rust-lang.org/2023/10/26/broken-badges-and-23k-keywords.html)
