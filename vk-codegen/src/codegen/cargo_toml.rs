@@ -29,20 +29,19 @@ pub fn gen_cargo_toml(reg: &Registry) -> String {
     let mut lines: Vec<String> = vec![
         "[package]".into(),
         "name = \"vk-rs-bindings\"".into(),
-        "version = \"0.1.7\"".into(),
+        "version = \"0.1.8\"".into(),
         "edition = \"2024\"".into(),
         "license = \"MIT\"".into(),
         "repository = \"https://github.com/JakubCzarlinski/vk-rs-bindings\"".into(),
         "homepage = \"https://github.com/JakubCzarlinski/vk-rs-bindings\"".into(),
-        "documentation = \"https://docs.rs/vk-rs-bindings\"".into(),
         "authors = [\"Jakub Czarlinski <jakubczarlinski@gmail.com>\"]".into(),
         "keywords = [\"vulkan\", \"ffi\", \"bindings\", \"graphics\"]".into(),
         "categories = [\"api-bindings\", \"external-ffi-bindings\", \"graphics\"]".into(),
-        "rust-version = \"1.85\"".into(),
+        "rust-version = \"1.95\"".into(),
         "description = \"Auto-generated Vulkan FFI (vk-codegen)\"".into(),
         String::new(),
         "[dependencies]".into(),
-        "libloading = \"0.9.0\"\n".into(),
+        "libloading = { version = \"0.9.0\", default-features = false }\n".into(),
         "[features]".into(),
         "# Vulkan 1.0 enabled by default".into(),
         "default = [\"VK_VERSION_1_0\"]".into(),
@@ -102,6 +101,7 @@ pub fn gen_cargo_toml(reg: &Registry) -> String {
         }
         lines.push(format!("{} = [{}]", ext.name, toml_feat_list(&common_deps)));
     }
+    lines.push(String::new());
 
     lines.join("\n")
 }
