@@ -1,4 +1,4 @@
-use crate::cfggen::{cfg_availability, cfg_availability_expr};
+use crate::cfggen::{cfg_availability, cfg_availability_expr, cfg_availability_implies};
 use crate::codegen::utils::{
     ExplicitImports, base_type_tokens_for_registry, ctype_to_tokens_for_registry,
     rewrite_member_types_for_providers, struct_name_has_lifetime,
@@ -362,6 +362,43 @@ fn member_cfg(m: &Member) -> TokenStream {
     quote! {}
 }
 
+fn member_gated_handle_cfg_expr(m: &Member, s: &Struct, reg: &Registry) -> Option<TokenStream> {
+    if m.ty.pointer_depth != 0 || m.ty.is_array.is_some() {
+        return None;
+    }
+
+    let td = reg
+        .typedefs
+        .get(&m.ty.base)
+        .and_then(|items| items.first())?;
+    if !matches!(td.kind, TypedefKind::Handle { .. })
+        || cfg_availability_implies(
+            &s.availability,
+            &s.provided_by,
+            s.dep.as_ref(),
+            &td.availability,
+            &td.provided_by,
+            td.dep.as_ref(),
+        )
+    {
+        return None;
+    }
+
+    Some(cfg_availability_expr(
+        &td.availability,
+        &td.provided_by,
+        td.dep.as_ref(),
+    ))
+}
+
+fn member_field_ty(m: &Member, reg: &Registry, has_lifetime: bool) -> TokenStream {
+    if has_lifetime {
+        ctype_to_tokens_for_registry(&m.ty, reg, quote! { 'a })
+    } else {
+        parse_ty(&ctype_to_rust_str(&m.ty))
+    }
+}
+
 #[derive(Clone, Copy, Debug)]
 struct RequiredSliceMemberPair {
     count_idx: usize,
@@ -713,11 +750,8 @@ fn gen_builder_setters(s: &Struct, reg: &Registry) -> TokenStream {
         let fcfg = member_cfg(m);
         let fdepr = deprecate_attr(&m.depr);
 
-        let ftype = if has_lifetime {
-            ctype_to_tokens_for_registry(&m.ty, reg, quote! { 'a })
-        } else {
-            parse_ty(&ctype_to_rust_str(&m.ty))
-        };
+        let ftype = member_field_ty(m, reg, has_lifetime);
+        let handle_cfg_expr = member_gated_handle_cfg_expr(m, s, reg);
 
         if let Some(pair) = required_slice_pairs
             .iter()
@@ -809,8 +843,12 @@ fn gen_builder_setters(s: &Struct, reg: &Registry) -> TokenStream {
             });
         } else {
             // Non-pointer setter: const fn, always safe.
+            let handle_cfg = handle_cfg_expr
+                .as_ref()
+                .map(|expr| quote! { #[cfg(#expr)] });
             ts.extend(quote! {
                 #fcfg
+                #handle_cfg
                 #fdepr
                 #[inline]
                 pub const fn #method_name(mut self, val: #ftype) -> Self {
@@ -1107,15 +1145,28 @@ fn gen_struct_ts(s: &Struct, reg: &Registry) -> TokenStream {
                 format!("{} ({})", fdoc, extra.join(", "))
             };
 
-            let ftype = if has_lifetime {
-                ctype_to_tokens_for_registry(&m.ty, reg, quote! { 'a })
+            let ftype = member_field_ty(m, reg, has_lifetime);
+            let field_doc = if full_doc.is_empty() {
+                quote! {}
             } else {
-                parse_ty(&ctype_to_rust_str(&m.ty))
+                quote! { #[doc = #full_doc] }
             };
-            if full_doc.is_empty() {
-                quote! { #fcfg #fdepr pub #fname: #ftype, }
+
+            if let Some(handle_cfg_expr) = member_gated_handle_cfg_expr(m, s, reg) {
+                quote! {
+                    #fcfg
+                    #[cfg(#handle_cfg_expr)]
+                    #field_doc
+                    #fdepr
+                    pub #fname: #ftype,
+                    #fcfg
+                    #[cfg(not(#handle_cfg_expr))]
+                    #field_doc
+                    #fdepr
+                    pub #fname: *mut core::ffi::c_void,
+                }
             } else {
-                quote! { #fcfg #[doc = #full_doc] #fdepr pub #fname: #ftype, }
+                quote! { #fcfg #field_doc #fdepr pub #fname: #ftype, }
             }
         })
         .collect();
@@ -1136,7 +1187,18 @@ fn gen_struct_ts(s: &Struct, reg: &Registry) -> TokenStream {
             let fcfg = member_cfg(m);
 
             let def = parse_expr(&def_str);
-            quote! { #fcfg #fname: #def, }
+            if let Some(handle_cfg_expr) = member_gated_handle_cfg_expr(m, s, reg) {
+                quote! {
+                    #fcfg
+                    #[cfg(#handle_cfg_expr)]
+                    #fname: #def,
+                    #fcfg
+                    #[cfg(not(#handle_cfg_expr))]
+                    #fname: core::ptr::null_mut(),
+                }
+            } else {
+                quote! { #fcfg #fname: #def, }
+            }
         })
         .collect();
     let marker_field = has_lifetime.then_some(quote! {

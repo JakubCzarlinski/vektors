@@ -93,6 +93,34 @@ pub fn cfg_availability_expr(
     cfg_expr_from_dnf(&clauses)
 }
 
+#[must_use]
+pub fn cfg_availability_implies(
+    lhs_availability: &[Availability],
+    lhs_fallback_features: &[String],
+    lhs_fallback_dep: Option<&DepExpr>,
+    rhs_availability: &[Availability],
+    rhs_fallback_features: &[String],
+    rhs_fallback_dep: Option<&DepExpr>,
+) -> bool {
+    let mut lhs_clauses =
+        availability_clauses(lhs_availability, lhs_fallback_features, lhs_fallback_dep);
+    let mut rhs_clauses =
+        availability_clauses(rhs_availability, rhs_fallback_features, rhs_fallback_dep);
+
+    if lhs_clauses.is_empty() {
+        lhs_clauses.push(Vec::new());
+    }
+    if rhs_clauses.is_empty() {
+        rhs_clauses.push(Vec::new());
+    }
+
+    lhs_clauses.iter().all(|lhs_clause| {
+        rhs_clauses
+            .iter()
+            .any(|rhs_clause| clause_implies(lhs_clause, rhs_clause))
+    })
+}
+
 pub fn push_availability(
     availability: &mut Vec<Availability>,
     provider: &str,

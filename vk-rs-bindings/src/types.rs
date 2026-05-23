@@ -3200,10 +3200,18 @@ pub struct VkExecutionGraphPipelineCreateInfoAMDX<'a> {
   pub pStages: *const VkPipelineShaderStageCreateInfo<'a>,
   /// Optional: true
   pub pLibraryInfo: *const VkPipelineLibraryCreateInfoKHR<'a>,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   /// Optional: true
   pub layout: VkPipelineLayout,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  /// Optional: true
+  pub layout: *mut core::ffi::c_void,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   /// Optional: true,  No Auto-Validity
   pub basePipelineHandle: VkPipeline,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  /// Optional: true,  No Auto-Validity
+  pub basePipelineHandle: *mut core::ffi::c_void,
   pub basePipelineIndex: i32,
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
@@ -3221,8 +3229,14 @@ impl<'a> VkExecutionGraphPipelineCreateInfoAMDX<'a> {
     stageCount: 0,
     pStages: core::ptr::null(),
     pLibraryInfo: core::ptr::null(),
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     layout: VkPipelineLayout::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    layout: core::ptr::null_mut(),
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     basePipelineHandle: VkPipeline::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    basePipelineHandle: core::ptr::null_mut(),
     basePipelineIndex: 0,
     _marker: core::marker::PhantomData,
   };
@@ -3265,11 +3279,13 @@ impl<'a> VkExecutionGraphPipelineCreateInfoAMDX<'a> {
     self.pLibraryInfo = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_layout(mut self, val: VkPipelineLayout) -> Self {
     self.layout = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_basePipelineHandle(mut self, val: VkPipeline) -> Self {
     self.basePipelineHandle = val;
@@ -22558,11 +22574,19 @@ pub struct VkCommandBufferInheritanceInfo<'a> {
   pub sType: VkStructureType,
   /// Optional: true
   pub pNext: *const core::ffi::c_void,
+  #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
   /// Optional: true,  No Auto-Validity
   pub renderPass: VkRenderPass,
+  #[cfg(not(feature = "VK_GRAPHICS_VERSION_1_0"))]
+  /// Optional: true,  No Auto-Validity
+  pub renderPass: *mut core::ffi::c_void,
   pub subpass: u32,
+  #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
   /// Optional: true,  No Auto-Validity
   pub framebuffer: VkFramebuffer,
+  #[cfg(not(feature = "VK_GRAPHICS_VERSION_1_0"))]
+  /// Optional: true,  No Auto-Validity
+  pub framebuffer: *mut core::ffi::c_void,
   pub occlusionQueryEnable: VkBool32,
   /// Optional: true,  No Auto-Validity
   pub queryFlags: VkQueryControlFlags,
@@ -22580,9 +22604,15 @@ impl<'a> VkCommandBufferInheritanceInfo<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO,
     pNext: core::ptr::null(),
+    #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
     renderPass: VkRenderPass::DEFAULT,
+    #[cfg(not(feature = "VK_GRAPHICS_VERSION_1_0"))]
+    renderPass: core::ptr::null_mut(),
     subpass: 0,
+    #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
     framebuffer: VkFramebuffer::DEFAULT,
+    #[cfg(not(feature = "VK_GRAPHICS_VERSION_1_0"))]
+    framebuffer: core::ptr::null_mut(),
     occlusionQueryEnable: 0,
     queryFlags: VkQueryControlFlagBits(0),
     pipelineStatistics: VkQueryPipelineStatisticFlagBits(0),
@@ -22600,6 +22630,7 @@ impl<'a> VkCommandBufferInheritanceInfo<'a> {
     self.pNext = val;
     self
   }
+  #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
   #[inline]
   pub const fn with_renderPass(mut self, val: VkRenderPass) -> Self {
     self.renderPass = val;
@@ -22610,6 +22641,7 @@ impl<'a> VkCommandBufferInheritanceInfo<'a> {
     self.subpass = val;
     self
   }
+  #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
   #[inline]
   pub const fn with_framebuffer(mut self, val: VkFramebuffer) -> Self {
     self.framebuffer = val;
@@ -56784,7 +56816,10 @@ pub struct VkSamplerCaptureDescriptorDataInfoEXT<'a> {
   pub sType: VkStructureType,
   /// Optional: true
   pub pNext: *const core::ffi::c_void,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   pub sampler: VkSampler,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  pub sampler: *mut core::ffi::c_void,
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
@@ -56797,7 +56832,10 @@ impl<'a> VkSamplerCaptureDescriptorDataInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::VK_STRUCTURE_TYPE_SAMPLER_CAPTURE_DESCRIPTOR_DATA_INFO_EXT,
     pNext: core::ptr::null(),
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     sampler: VkSampler::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    sampler: core::ptr::null_mut(),
     _marker: core::marker::PhantomData,
   };
   #[inline]
@@ -56812,6 +56850,7 @@ impl<'a> VkSamplerCaptureDescriptorDataInfoEXT<'a> {
     self.pNext = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_sampler(mut self, val: VkSampler) -> Self {
     self.sampler = val;
@@ -56850,10 +56889,18 @@ pub struct VkAccelerationStructureCaptureDescriptorDataInfoEXT<'a> {
   pub sType: VkStructureType,
   /// Optional: true
   pub pNext: *const core::ffi::c_void,
+  #[cfg(feature = "VK_KHR_acceleration_structure")]
   /// Optional: true
   pub accelerationStructure: VkAccelerationStructureKHR,
+  #[cfg(not(feature = "VK_KHR_acceleration_structure"))]
+  /// Optional: true
+  pub accelerationStructure: *mut core::ffi::c_void,
+  #[cfg(feature = "VK_NV_ray_tracing")]
   /// Optional: true
   pub accelerationStructureNV: VkAccelerationStructureNV,
+  #[cfg(not(feature = "VK_NV_ray_tracing"))]
+  /// Optional: true
+  pub accelerationStructureNV: *mut core::ffi::c_void,
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
@@ -56885,8 +56932,14 @@ impl<'a> VkAccelerationStructureCaptureDescriptorDataInfoEXT<'a> {
     sType:
       VkStructureType::VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CAPTURE_DESCRIPTOR_DATA_INFO_EXT,
     pNext: core::ptr::null(),
+    #[cfg(feature = "VK_KHR_acceleration_structure")]
     accelerationStructure: VkAccelerationStructureKHR::DEFAULT,
+    #[cfg(not(feature = "VK_KHR_acceleration_structure"))]
+    accelerationStructure: core::ptr::null_mut(),
+    #[cfg(feature = "VK_NV_ray_tracing")]
     accelerationStructureNV: VkAccelerationStructureNV::DEFAULT,
+    #[cfg(not(feature = "VK_NV_ray_tracing"))]
+    accelerationStructureNV: core::ptr::null_mut(),
     _marker: core::marker::PhantomData,
   };
   #[inline]
@@ -56901,11 +56954,13 @@ impl<'a> VkAccelerationStructureCaptureDescriptorDataInfoEXT<'a> {
     self.pNext = val;
     self
   }
+  #[cfg(feature = "VK_KHR_acceleration_structure")]
   #[inline]
   pub const fn with_accelerationStructure(mut self, val: VkAccelerationStructureKHR) -> Self {
     self.accelerationStructure = val;
     self
   }
+  #[cfg(feature = "VK_NV_ray_tracing")]
   #[inline]
   pub const fn with_accelerationStructureNV(mut self, val: VkAccelerationStructureNV) -> Self {
     self.accelerationStructureNV = val;
@@ -61008,7 +61063,10 @@ pub struct VkGeneratedCommandsPipelineInfoEXT<'a> {
   pub sType: VkStructureType,
   /// Optional: true
   pub pNext: *mut core::ffi::c_void,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   pub pipeline: VkPipeline,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  pub pipeline: *mut core::ffi::c_void,
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
@@ -61037,7 +61095,10 @@ impl<'a> VkGeneratedCommandsPipelineInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::VK_STRUCTURE_TYPE_GENERATED_COMMANDS_PIPELINE_INFO_EXT,
     pNext: core::ptr::null_mut(),
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     pipeline: VkPipeline::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    pipeline: core::ptr::null_mut(),
     _marker: core::marker::PhantomData,
   };
   #[inline]
@@ -61052,6 +61113,7 @@ impl<'a> VkGeneratedCommandsPipelineInfoEXT<'a> {
     self.pNext = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_pipeline(mut self, val: VkPipeline) -> Self {
     self.pipeline = val;
@@ -61306,7 +61368,10 @@ pub struct VkIndirectExecutionSetPipelineInfoEXT<'a> {
   pub sType: VkStructureType,
   /// Optional: true,  No Auto-Validity
   pub pNext: *const core::ffi::c_void,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   pub initialPipeline: VkPipeline,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  pub initialPipeline: *mut core::ffi::c_void,
   pub maxPipelineCount: u32,
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
@@ -61320,7 +61385,10 @@ impl<'a> VkIndirectExecutionSetPipelineInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_PIPELINE_INFO_EXT,
     pNext: core::ptr::null(),
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     initialPipeline: VkPipeline::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    initialPipeline: core::ptr::null_mut(),
     maxPipelineCount: 0,
     _marker: core::marker::PhantomData,
   };
@@ -61336,6 +61404,7 @@ impl<'a> VkIndirectExecutionSetPipelineInfoEXT<'a> {
     self.pNext = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_initialPipeline(mut self, val: VkPipeline) -> Self {
     self.initialPipeline = val;
@@ -61818,7 +61887,10 @@ pub struct VkWriteIndirectExecutionSetPipelineEXT<'a> {
   /// Optional: true,  No Auto-Validity
   pub pNext: *const core::ffi::c_void,
   pub index: u32,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   pub pipeline: VkPipeline,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  pub pipeline: *mut core::ffi::c_void,
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
@@ -61832,7 +61904,10 @@ impl<'a> VkWriteIndirectExecutionSetPipelineEXT<'a> {
     sType: VkStructureType::VK_STRUCTURE_TYPE_WRITE_INDIRECT_EXECUTION_SET_PIPELINE_EXT,
     pNext: core::ptr::null(),
     index: 0,
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     pipeline: VkPipeline::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    pipeline: core::ptr::null_mut(),
     _marker: core::marker::PhantomData,
   };
   #[inline]
@@ -61852,6 +61927,7 @@ impl<'a> VkWriteIndirectExecutionSetPipelineEXT<'a> {
     self.index = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_pipeline(mut self, val: VkPipeline) -> Self {
     self.pipeline = val;
@@ -61968,8 +62044,12 @@ pub struct VkIndirectCommandsLayoutCreateInfoEXT<'a> {
   pub flags: VkIndirectCommandsLayoutUsageFlagsEXT,
   pub shaderStages: VkShaderStageFlags,
   pub indirectStride: u32,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   /// Optional: true
   pub pipelineLayout: VkPipelineLayout,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  /// Optional: true
+  pub pipelineLayout: *mut core::ffi::c_void,
   pub tokenCount: u32,
   /// Length: tokenCount
   pub pTokens: *const VkIndirectCommandsLayoutTokenEXT<'a>,
@@ -61988,7 +62068,10 @@ impl<'a> VkIndirectCommandsLayoutCreateInfoEXT<'a> {
     flags: VkIndirectCommandsLayoutUsageFlagBitsEXT(0),
     shaderStages: VkShaderStageFlagBits(0),
     indirectStride: 0,
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     pipelineLayout: VkPipelineLayout::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    pipelineLayout: core::ptr::null_mut(),
     tokenCount: 0,
     pTokens: core::ptr::null(),
     _marker: core::marker::PhantomData,
@@ -62020,6 +62103,7 @@ impl<'a> VkIndirectCommandsLayoutCreateInfoEXT<'a> {
     self.indirectStride = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_pipelineLayout(mut self, val: VkPipelineLayout) -> Self {
     self.pipelineLayout = val;
@@ -72933,8 +73017,12 @@ pub struct VkExportMetalTextureInfoEXT<'a> {
   pub image: VkImage,
   /// Optional: true
   pub imageView: VkImageView,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   /// Optional: true
   pub bufferView: VkBufferView,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  /// Optional: true
+  pub bufferView: *mut core::ffi::c_void,
   pub plane: VkImageAspectFlagBits,
   pub mtlTexture: MTLTexture_id,
   #[doc(hidden)]
@@ -72956,7 +73044,10 @@ impl<'a> VkExportMetalTextureInfoEXT<'a> {
     pNext: core::ptr::null(),
     image: VkImage::DEFAULT,
     imageView: VkImageView::DEFAULT,
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     bufferView: VkBufferView::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    bufferView: core::ptr::null_mut(),
     plane: VkImageAspectFlagBits(0),
     mtlTexture: MTLTexture_id::NULL,
     _marker: core::marker::PhantomData,
@@ -72983,6 +73074,7 @@ impl<'a> VkExportMetalTextureInfoEXT<'a> {
     self.imageView = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_bufferView(mut self, val: VkBufferView) -> Self {
     self.bufferView = val;
@@ -73237,8 +73329,12 @@ pub struct VkExportMetalSharedEventInfoEXT<'a> {
   pub pNext: *const core::ffi::c_void,
   /// Optional: true
   pub semaphore: VkSemaphore,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   /// Optional: true
   pub event: VkEvent,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  /// Optional: true
+  pub event: *mut core::ffi::c_void,
   pub mtlSharedEvent: MTLSharedEvent_id,
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
@@ -73258,7 +73354,10 @@ impl<'a> VkExportMetalSharedEventInfoEXT<'a> {
     sType: VkStructureType::VK_STRUCTURE_TYPE_EXPORT_METAL_SHARED_EVENT_INFO_EXT,
     pNext: core::ptr::null(),
     semaphore: VkSemaphore::DEFAULT,
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     event: VkEvent::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    event: core::ptr::null_mut(),
     mtlSharedEvent: MTLSharedEvent_id::NULL,
     _marker: core::marker::PhantomData,
   };
@@ -73279,6 +73378,7 @@ impl<'a> VkExportMetalSharedEventInfoEXT<'a> {
     self.semaphore = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_event(mut self, val: VkEvent) -> Self {
     self.event = val;
@@ -76247,7 +76347,10 @@ pub struct VkPipelineInfoEXT<'a> {
   pub sType: VkStructureType,
   /// Optional: true
   pub pNext: *const core::ffi::c_void,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   pub pipeline: VkPipeline,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  pub pipeline: *mut core::ffi::c_void,
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
@@ -76260,7 +76363,10 @@ impl<'a> VkPipelineInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_INFO_EXT,
     pNext: core::ptr::null(),
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     pipeline: VkPipeline::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    pipeline: core::ptr::null_mut(),
     _marker: core::marker::PhantomData,
   };
   #[inline]
@@ -76275,6 +76381,7 @@ impl<'a> VkPipelineInfoEXT<'a> {
     self.pNext = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_pipeline(mut self, val: VkPipeline) -> Self {
     self.pipeline = val;
@@ -96193,7 +96300,10 @@ pub struct VkSubpassShadingPipelineCreateInfoHUAWEI<'a> {
   pub sType: VkStructureType,
   /// Optional: true
   pub pNext: *mut core::ffi::c_void,
+  #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
   pub renderPass: VkRenderPass,
+  #[cfg(not(feature = "VK_GRAPHICS_VERSION_1_0"))]
+  pub renderPass: *mut core::ffi::c_void,
   pub subpass: u32,
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
@@ -96215,7 +96325,10 @@ impl<'a> VkSubpassShadingPipelineCreateInfoHUAWEI<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::VK_STRUCTURE_TYPE_SUBPASS_SHADING_PIPELINE_CREATE_INFO_HUAWEI,
     pNext: core::ptr::null_mut(),
+    #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
     renderPass: VkRenderPass::DEFAULT,
+    #[cfg(not(feature = "VK_GRAPHICS_VERSION_1_0"))]
+    renderPass: core::ptr::null_mut(),
     subpass: 0,
     _marker: core::marker::PhantomData,
   };
@@ -96231,6 +96344,7 @@ impl<'a> VkSubpassShadingPipelineCreateInfoHUAWEI<'a> {
     self.pNext = val;
     self
   }
+  #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
   #[inline]
   pub const fn with_renderPass(mut self, val: VkRenderPass) -> Self {
     self.renderPass = val;
@@ -103013,12 +103127,20 @@ pub struct VkDescriptorUpdateTemplateCreateInfoKHR<'a> {
   /// Length: descriptorUpdateEntryCount
   pub pDescriptorUpdateEntries: *const VkDescriptorUpdateTemplateEntryKHR,
   pub templateType: VkDescriptorUpdateTemplateTypeKHR,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   /// No Auto-Validity
   pub descriptorSetLayout: VkDescriptorSetLayout,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  /// No Auto-Validity
+  pub descriptorSetLayout: *mut core::ffi::c_void,
   /// No Auto-Validity
   pub pipelineBindPoint: VkPipelineBindPoint,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   /// No Auto-Validity
   pub pipelineLayout: VkPipelineLayout,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  /// No Auto-Validity
+  pub pipelineLayout: *mut core::ffi::c_void,
   /// No Auto-Validity
   pub set: u32,
   #[doc(hidden)]
@@ -103037,9 +103159,15 @@ impl<'a> VkDescriptorUpdateTemplateCreateInfoKHR<'a> {
     descriptorUpdateEntryCount: 0,
     pDescriptorUpdateEntries: core::ptr::null(),
     templateType: VkDescriptorUpdateTemplateTypeKHR(0),
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     descriptorSetLayout: VkDescriptorSetLayout::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    descriptorSetLayout: core::ptr::null_mut(),
     pipelineBindPoint: VkPipelineBindPoint(0),
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     pipelineLayout: VkPipelineLayout::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    pipelineLayout: core::ptr::null_mut(),
     set: 0,
     _marker: core::marker::PhantomData,
   };
@@ -103082,6 +103210,7 @@ impl<'a> VkDescriptorUpdateTemplateCreateInfoKHR<'a> {
     self.templateType = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_descriptorSetLayout(mut self, val: VkDescriptorSetLayout) -> Self {
     self.descriptorSetLayout = val;
@@ -103092,6 +103221,7 @@ impl<'a> VkDescriptorUpdateTemplateCreateInfoKHR<'a> {
     self.pipelineBindPoint = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_pipelineLayout(mut self, val: VkPipelineLayout) -> Self {
     self.pipelineLayout = val;
@@ -120125,8 +120255,12 @@ pub struct VkPipelineBinaryCreateInfoKHR<'a> {
   pub pNext: *const core::ffi::c_void,
   /// Optional: true
   pub pKeysAndDataInfo: *const VkPipelineBinaryKeysAndDataKHR<'a>,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   /// Optional: true
   pub pipeline: VkPipeline,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  /// Optional: true
+  pub pipeline: *mut core::ffi::c_void,
   /// Optional: true
   pub pPipelineCreateInfo: *const VkPipelineCreateInfoKHR<'a>,
   #[doc(hidden)]
@@ -120142,7 +120276,10 @@ impl<'a> VkPipelineBinaryCreateInfoKHR<'a> {
     sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_BINARY_CREATE_INFO_KHR,
     pNext: core::ptr::null(),
     pKeysAndDataInfo: core::ptr::null(),
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     pipeline: VkPipeline::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    pipeline: core::ptr::null_mut(),
     pPipelineCreateInfo: core::ptr::null(),
     _marker: core::marker::PhantomData,
   };
@@ -120169,6 +120306,7 @@ impl<'a> VkPipelineBinaryCreateInfoKHR<'a> {
     self.pKeysAndDataInfo = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_pipeline(mut self, val: VkPipeline) -> Self {
     self.pipeline = val;
@@ -120576,7 +120714,10 @@ pub struct VkReleaseCapturedPipelineDataInfoKHR<'a> {
   pub sType: VkStructureType,
   /// Optional: true
   pub pNext: *mut core::ffi::c_void,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   pub pipeline: VkPipeline,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  pub pipeline: *mut core::ffi::c_void,
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
@@ -120589,7 +120730,10 @@ impl<'a> VkReleaseCapturedPipelineDataInfoKHR<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::VK_STRUCTURE_TYPE_RELEASE_CAPTURED_PIPELINE_DATA_INFO_KHR,
     pNext: core::ptr::null_mut(),
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     pipeline: VkPipeline::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    pipeline: core::ptr::null_mut(),
     _marker: core::marker::PhantomData,
   };
   #[inline]
@@ -120604,6 +120748,7 @@ impl<'a> VkReleaseCapturedPipelineDataInfoKHR<'a> {
     self.pNext = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_pipeline(mut self, val: VkPipeline) -> Self {
     self.pipeline = val;
@@ -121087,7 +121232,10 @@ pub struct VkPipelineInfoKHR<'a> {
   pub sType: VkStructureType,
   /// Optional: true
   pub pNext: *const core::ffi::c_void,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   pub pipeline: VkPipeline,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  pub pipeline: *mut core::ffi::c_void,
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
@@ -121100,7 +121248,10 @@ impl<'a> VkPipelineInfoKHR<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_INFO_KHR,
     pNext: core::ptr::null(),
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     pipeline: VkPipeline::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    pipeline: core::ptr::null_mut(),
     _marker: core::marker::PhantomData,
   };
   #[inline]
@@ -121115,6 +121266,7 @@ impl<'a> VkPipelineInfoKHR<'a> {
     self.pNext = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_pipeline(mut self, val: VkPipeline) -> Self {
     self.pipeline = val;
@@ -121234,7 +121386,10 @@ pub struct VkPipelineExecutableInfoKHR<'a> {
   pub sType: VkStructureType,
   /// Optional: true
   pub pNext: *const core::ffi::c_void,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   pub pipeline: VkPipeline,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  pub pipeline: *mut core::ffi::c_void,
   pub executableIndex: u32,
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
@@ -121248,7 +121403,10 @@ impl<'a> VkPipelineExecutableInfoKHR<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_INFO_KHR,
     pNext: core::ptr::null(),
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     pipeline: VkPipeline::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    pipeline: core::ptr::null_mut(),
     executableIndex: 0,
     _marker: core::marker::PhantomData,
   };
@@ -121264,6 +121422,7 @@ impl<'a> VkPipelineExecutableInfoKHR<'a> {
     self.pNext = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_pipeline(mut self, val: VkPipeline) -> Self {
     self.pipeline = val;
@@ -123143,10 +123302,18 @@ pub struct VkRayTracingPipelineCreateInfoKHR<'a> {
   pub pLibraryInterface: *const VkRayTracingPipelineInterfaceCreateInfoKHR<'a>,
   /// Optional: true
   pub pDynamicState: *const VkPipelineDynamicStateCreateInfo<'a>,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   /// Optional: true
   pub layout: VkPipelineLayout,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  /// Optional: true
+  pub layout: *mut core::ffi::c_void,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   /// Optional: true,  No Auto-Validity
   pub basePipelineHandle: VkPipeline,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  /// Optional: true,  No Auto-Validity
+  pub basePipelineHandle: *mut core::ffi::c_void,
   pub basePipelineIndex: i32,
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
@@ -123169,8 +123336,14 @@ impl<'a> VkRayTracingPipelineCreateInfoKHR<'a> {
     pLibraryInfo: core::ptr::null(),
     pLibraryInterface: core::ptr::null(),
     pDynamicState: core::ptr::null(),
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     layout: VkPipelineLayout::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    layout: core::ptr::null_mut(),
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     basePipelineHandle: VkPipeline::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    basePipelineHandle: core::ptr::null_mut(),
     basePipelineIndex: 0,
     _marker: core::marker::PhantomData,
   };
@@ -123254,11 +123427,13 @@ impl<'a> VkRayTracingPipelineCreateInfoKHR<'a> {
     self.pDynamicState = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_layout(mut self, val: VkPipelineLayout) -> Self {
     self.layout = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_basePipelineHandle(mut self, val: VkPipeline) -> Self {
     self.basePipelineHandle = val;
@@ -153838,8 +154013,12 @@ pub struct VkImageViewHandleInfoNVX<'a> {
   pub pNext: *const core::ffi::c_void,
   pub imageView: VkImageView,
   pub descriptorType: VkDescriptorType,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   /// Optional: true
   pub sampler: VkSampler,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  /// Optional: true
+  pub sampler: *mut core::ffi::c_void,
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
@@ -153854,7 +154033,10 @@ impl<'a> VkImageViewHandleInfoNVX<'a> {
     pNext: core::ptr::null(),
     imageView: VkImageView::DEFAULT,
     descriptorType: VkDescriptorType(0),
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     sampler: VkSampler::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    sampler: core::ptr::null_mut(),
     _marker: core::marker::PhantomData,
   };
   #[inline]
@@ -153879,6 +154061,7 @@ impl<'a> VkImageViewHandleInfoNVX<'a> {
     self.descriptorType = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_sampler(mut self, val: VkSampler) -> Self {
     self.sampler = val;
@@ -159812,8 +159995,12 @@ pub struct VkIndirectCommandsLayoutTokenNV<'a> {
   pub offset: u32,
   pub vertexBindingUnit: u32,
   pub vertexDynamicStride: VkBool32,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   /// Optional: true
   pub pushconstantPipelineLayout: VkPipelineLayout,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  /// Optional: true
+  pub pushconstantPipelineLayout: *mut core::ffi::c_void,
   /// Optional: true
   pub pushconstantShaderStageFlags: VkShaderStageFlags,
   pub pushconstantOffset: u32,
@@ -159843,7 +160030,10 @@ impl<'a> VkIndirectCommandsLayoutTokenNV<'a> {
     offset: 0,
     vertexBindingUnit: 0,
     vertexDynamicStride: 0,
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     pushconstantPipelineLayout: VkPipelineLayout::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    pushconstantPipelineLayout: core::ptr::null_mut(),
     pushconstantShaderStageFlags: VkShaderStageFlagBits(0),
     pushconstantOffset: 0,
     pushconstantSize: 0,
@@ -159890,6 +160080,7 @@ impl<'a> VkIndirectCommandsLayoutTokenNV<'a> {
     self.vertexDynamicStride = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_pushconstantPipelineLayout(mut self, val: VkPipelineLayout) -> Self {
     self.pushconstantPipelineLayout = val;
@@ -160098,8 +160289,12 @@ pub struct VkGeneratedCommandsInfoNV<'a> {
   /// Optional: true
   pub pNext: *const core::ffi::c_void,
   pub pipelineBindPoint: VkPipelineBindPoint,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   /// Optional: true
   pub pipeline: VkPipeline,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  /// Optional: true
+  pub pipeline: *mut core::ffi::c_void,
   pub indirectCommandsLayout: VkIndirectCommandsLayoutNV,
   pub streamCount: u32,
   /// Length: streamCount
@@ -160127,7 +160322,10 @@ impl<'a> VkGeneratedCommandsInfoNV<'a> {
     sType: VkStructureType::VK_STRUCTURE_TYPE_GENERATED_COMMANDS_INFO_NV,
     pNext: core::ptr::null(),
     pipelineBindPoint: VkPipelineBindPoint(0),
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     pipeline: VkPipeline::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    pipeline: core::ptr::null_mut(),
     indirectCommandsLayout: VkIndirectCommandsLayoutNV::DEFAULT,
     streamCount: 0,
     pStreams: core::ptr::null(),
@@ -160158,6 +160356,7 @@ impl<'a> VkGeneratedCommandsInfoNV<'a> {
     self.pipelineBindPoint = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_pipeline(mut self, val: VkPipeline) -> Self {
     self.pipeline = val;
@@ -160248,8 +160447,12 @@ pub struct VkGeneratedCommandsMemoryRequirementsInfoNV<'a> {
   /// Optional: true
   pub pNext: *const core::ffi::c_void,
   pub pipelineBindPoint: VkPipelineBindPoint,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   /// Optional: true
   pub pipeline: VkPipeline,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  /// Optional: true
+  pub pipeline: *mut core::ffi::c_void,
   pub indirectCommandsLayout: VkIndirectCommandsLayoutNV,
   pub maxSequencesCount: u32,
   #[doc(hidden)]
@@ -160265,7 +160468,10 @@ impl<'a> VkGeneratedCommandsMemoryRequirementsInfoNV<'a> {
     sType: VkStructureType::VK_STRUCTURE_TYPE_GENERATED_COMMANDS_MEMORY_REQUIREMENTS_INFO_NV,
     pNext: core::ptr::null(),
     pipelineBindPoint: VkPipelineBindPoint(0),
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     pipeline: VkPipeline::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    pipeline: core::ptr::null_mut(),
     indirectCommandsLayout: VkIndirectCommandsLayoutNV::DEFAULT,
     maxSequencesCount: 0,
     _marker: core::marker::PhantomData,
@@ -160287,6 +160493,7 @@ impl<'a> VkGeneratedCommandsMemoryRequirementsInfoNV<'a> {
     self.pipelineBindPoint = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_pipeline(mut self, val: VkPipeline) -> Self {
     self.pipeline = val;
@@ -160516,7 +160723,10 @@ pub struct VkPipelineIndirectDeviceAddressInfoNV<'a> {
   /// Optional: true
   pub pNext: *const core::ffi::c_void,
   pub pipelineBindPoint: VkPipelineBindPoint,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   pub pipeline: VkPipeline,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  pub pipeline: *mut core::ffi::c_void,
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
@@ -160530,7 +160740,10 @@ impl<'a> VkPipelineIndirectDeviceAddressInfoNV<'a> {
     sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_INDIRECT_DEVICE_ADDRESS_INFO_NV,
     pNext: core::ptr::null(),
     pipelineBindPoint: VkPipelineBindPoint(0),
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     pipeline: VkPipeline::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    pipeline: core::ptr::null_mut(),
     _marker: core::marker::PhantomData,
   };
   #[inline]
@@ -160550,6 +160763,7 @@ impl<'a> VkPipelineIndirectDeviceAddressInfoNV<'a> {
     self.pipelineBindPoint = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_pipeline(mut self, val: VkPipeline) -> Self {
     self.pipeline = val;
@@ -168310,10 +168524,18 @@ pub struct VkRayTracingPipelineCreateInfoNV<'a> {
   /// Length: groupCount
   pub pGroups: *const VkRayTracingShaderGroupCreateInfoNV<'a>,
   pub maxRecursionDepth: u32,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   /// Optional: true
   pub layout: VkPipelineLayout,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  /// Optional: true
+  pub layout: *mut core::ffi::c_void,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   /// Optional: true,  No Auto-Validity
   pub basePipelineHandle: VkPipeline,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  /// Optional: true,  No Auto-Validity
+  pub basePipelineHandle: *mut core::ffi::c_void,
   pub basePipelineIndex: i32,
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
@@ -168333,8 +168555,14 @@ impl<'a> VkRayTracingPipelineCreateInfoNV<'a> {
     groupCount: 0,
     pGroups: core::ptr::null(),
     maxRecursionDepth: 0,
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     layout: VkPipelineLayout::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    layout: core::ptr::null_mut(),
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     basePipelineHandle: VkPipeline::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    basePipelineHandle: core::ptr::null_mut(),
     basePipelineIndex: 0,
     _marker: core::marker::PhantomData,
   };
@@ -168388,11 +168616,13 @@ impl<'a> VkRayTracingPipelineCreateInfoNV<'a> {
     self.maxRecursionDepth = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_layout(mut self, val: VkPipelineLayout) -> Self {
     self.layout = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_basePipelineHandle(mut self, val: VkPipeline) -> Self {
     self.basePipelineHandle = val;
@@ -177826,7 +178056,10 @@ pub struct VkDescriptorSetBindingReferenceVALVE<'a> {
   pub sType: VkStructureType,
   /// Optional: true
   pub pNext: *const core::ffi::c_void,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   pub descriptorSetLayout: VkDescriptorSetLayout,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  pub descriptorSetLayout: *mut core::ffi::c_void,
   pub binding: u32,
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
@@ -177840,7 +178073,10 @@ impl<'a> VkDescriptorSetBindingReferenceVALVE<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::VK_STRUCTURE_TYPE_DESCRIPTOR_SET_BINDING_REFERENCE_VALVE,
     pNext: core::ptr::null(),
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     descriptorSetLayout: VkDescriptorSetLayout::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    descriptorSetLayout: core::ptr::null_mut(),
     binding: 0,
     _marker: core::marker::PhantomData,
   };
@@ -177856,6 +178092,7 @@ impl<'a> VkDescriptorSetBindingReferenceVALVE<'a> {
     self.pNext = val;
     self
   }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline]
   pub const fn with_descriptorSetLayout(mut self, val: VkDescriptorSetLayout) -> Self {
     self.descriptorSetLayout = val;
