@@ -67,20 +67,17 @@ impl ExplicitImports {
         self.types.extend(reg.typedefs.keys().cloned());
     }
 
-    pub fn add_ctype_external_to_types_rs(&mut self, reg: &Registry, ty: &CType) {
-        self.add_enum_name(reg, &ty.base);
-        if let Some(array_size) = &ty.is_array
-            && array_size.parse::<u64>().is_err()
-        {
-            self.add_const_name(reg, array_size);
-        }
-    }
-
     pub fn add_type_name(&mut self, reg: &Registry, name: &str) {
         if reg.enums.contains_key(name) {
             self.enums.insert(name.to_owned());
         } else if reg.structs.contains_key(name) || reg.typedefs.contains_key(name) {
             self.types.insert(name.to_owned());
+        }
+    }
+
+    pub fn remove_type_names<'a>(&mut self, names: impl IntoIterator<Item = &'a String>) {
+        for name in names {
+            self.types.remove(name);
         }
     }
 

@@ -25,7 +25,7 @@ use crate::codegen::handles_rs::gen_handles;
 use crate::codegen::instance_rs::gen_instance_rs;
 use crate::codegen::lib_rs::gen_lib_rs;
 use crate::codegen::physical_device_rs::gen_physical_device_rs;
-use crate::codegen::types_rs::gen_types_rs;
+use crate::codegen::types_rs::{GeneratedTypes, gen_types_rs};
 use crate::codegen::utils::build_handle_type_set;
 use crate::codegen::validation_rs::gen_validation_rs;
 use crate::ir::{DeprecationInfo, Registry};
@@ -36,7 +36,7 @@ use std::collections::{BTreeMap, BTreeSet};
 pub struct GeneratedFiles {
     pub cargo_toml: String,
     pub lib_rs: String,
-    pub types_rs: String,
+    pub types: GeneratedTypes,
     pub enums_rs: String,
     pub consts_rs: String,
     pub commands_rs: String,
@@ -64,7 +64,7 @@ pub fn generate(reg: &Registry) -> GeneratedFiles {
     GeneratedFiles {
         cargo_toml: gen_cargo_toml(reg),
         lib_rs: gen_lib_rs(&handles.keys().cloned().collect::<Vec<_>>()),
-        types_rs: gen_types_rs(reg),
+        types: gen_types_rs(reg),
         enums_rs: gen_enums_rs(reg),
         consts_rs: gen_consts_rs(reg),
         commands_rs: gen_commands_rs(reg),

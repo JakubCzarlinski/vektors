@@ -94,7 +94,12 @@ fn main() {
     let files = codegen::generate(&registry);
     write_file(&args.out, "Cargo.toml", &files.cargo_toml);
     write_file(&src_dir, "lib.rs", &files.lib_rs);
-    write_file(&src_dir, "types.rs", &files.types_rs);
+    remove_path_if_exists(&src_dir.join("types.rs"));
+    remove_path_if_exists(&src_dir.join("types"));
+    write_file(&src_dir, "types/mod.rs", &files.types.mod_rs);
+    for (name, content) in files.types.files {
+        write_file(&src_dir, &format!("types/{name}"), &content);
+    }
     write_file(&src_dir, "enums.rs", &files.enums_rs);
     write_file(&src_dir, "consts.rs", &files.consts_rs);
     write_file(&src_dir, "commands.rs", &files.commands_rs);
@@ -121,9 +126,36 @@ fn main() {
 /// - `content`: The string content to write.
 fn write_file(dir: &Path, name: &str, content: &str) {
     let path = dir.join(name);
+    if let Some(parent) = path.parent()
+        && let Err(e) = fs::create_dir_all(parent)
+    {
+        eprintln!(
+            "Error: cannot create output directory {}: {}",
+            parent.display(),
+            e
+        );
+        std::process::exit(1);
+    }
     if let Err(e) = fs::write(&path, content) {
         eprintln!("Error: cannot write {}: {}", path.display(), e);
         std::process::exit(1);
     }
     eprintln!("  wrote {} ({} bytes)", path.display(), content.len());
+}
+
+fn remove_path_if_exists(path: &Path) {
+    let Ok(metadata) = fs::metadata(path) else {
+        return;
+    };
+
+    let result = if metadata.is_dir() {
+        fs::remove_dir_all(path)
+    } else {
+        fs::remove_file(path)
+    };
+
+    if let Err(e) = result {
+        eprintln!("Error: cannot remove {}: {}", path.display(), e);
+        std::process::exit(1);
+    }
 }

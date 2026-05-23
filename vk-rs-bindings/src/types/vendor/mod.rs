@@ -1,0 +1,1235 @@
+mod amd;
+mod amdx;
+mod android;
+mod arm;
+mod fuchsia;
+mod ggp;
+mod google;
+mod huawei;
+mod img;
+mod intel;
+mod lunarg;
+mod mesa;
+mod msft;
+mod mvk;
+mod nn;
+mod nv;
+mod nvx;
+mod ohos;
+mod qcom;
+mod qnx;
+mod sec;
+mod valve;
+#[cfg(feature = "VK_AMD_anti_lag")]
+pub use amd::VkAntiLagDataAMD;
+#[cfg(feature = "VK_AMD_anti_lag")]
+pub use amd::VkAntiLagPresentationInfoAMD;
+#[cfg(any(
+  all(
+    feature = "VK_AMD_mixed_attachment_samples",
+    feature = "VK_VERSION_1_3"
+  ),
+  all(
+    feature = "VK_AMD_mixed_attachment_samples",
+    feature = "VK_KHR_dynamic_rendering"
+  )
+))]
+pub use amd::VkAttachmentSampleCountInfoAMD;
+#[cfg(feature = "VK_AMD_memory_overallocation_behavior")]
+pub use amd::VkDeviceMemoryOverallocationCreateInfoAMD;
+#[cfg(feature = "VK_AMD_display_native_hdr")]
+pub use amd::VkDisplayNativeHdrSurfaceCapabilitiesAMD;
+#[cfg(feature = "VK_AMD_gpa_interface")]
+pub use amd::VkGpaDeviceClockModeInfoAMD;
+#[cfg(feature = "VK_AMD_gpa_interface")]
+pub use amd::VkGpaDeviceGetClockInfoAMD;
+#[cfg(feature = "VK_AMD_gpa_interface")]
+pub use amd::VkGpaPerfBlockPropertiesAMD;
+#[cfg(feature = "VK_AMD_gpa_interface")]
+pub use amd::VkGpaPerfBlockPropertiesFlagsAMD;
+#[cfg(feature = "VK_AMD_gpa_interface")]
+pub use amd::VkGpaPerfCounterAMD;
+#[cfg(feature = "VK_AMD_gpa_interface")]
+pub use amd::VkGpaSampleBeginInfoAMD;
+#[cfg(feature = "VK_AMD_gpa_interface")]
+pub use amd::VkGpaSessionAMD;
+#[cfg(feature = "VK_AMD_gpa_interface")]
+pub use amd::VkGpaSessionCreateInfoAMD;
+#[cfg(feature = "VK_AMD_gpa_interface")]
+pub use amd::VkGpaSqShaderStageFlagsAMD;
+#[cfg(feature = "VK_AMD_anti_lag")]
+pub use amd::VkPhysicalDeviceAntiLagFeaturesAMD;
+#[cfg(feature = "VK_AMD_device_coherent_memory")]
+pub use amd::VkPhysicalDeviceCoherentMemoryFeaturesAMD;
+#[cfg(feature = "VK_AMD_gpa_interface")]
+pub use amd::VkPhysicalDeviceGpaFeaturesAMD;
+#[cfg(feature = "VK_AMD_gpa_interface")]
+pub use amd::VkPhysicalDeviceGpaProperties2AMD;
+#[cfg(feature = "VK_AMD_gpa_interface")]
+pub use amd::VkPhysicalDeviceGpaPropertiesAMD;
+#[cfg(feature = "VK_AMD_gpa_interface")]
+pub use amd::VkPhysicalDeviceGpaPropertiesFlagsAMD;
+#[cfg(feature = "VK_AMD_shader_core_properties2")]
+pub use amd::VkPhysicalDeviceShaderCoreProperties2AMD;
+#[cfg(feature = "VK_AMD_shader_core_properties")]
+pub use amd::VkPhysicalDeviceShaderCorePropertiesAMD;
+#[cfg(feature = "VK_AMD_shader_early_and_late_fragment_tests")]
+pub use amd::VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD;
+#[cfg(feature = "VK_AMD_pipeline_compiler_control")]
+pub use amd::VkPipelineCompilerControlCreateInfoAMD;
+#[cfg(feature = "VK_AMD_pipeline_compiler_control")]
+pub use amd::VkPipelineCompilerControlFlagsAMD;
+#[cfg(feature = "VK_AMD_rasterization_order")]
+pub use amd::VkPipelineRasterizationStateRasterizationOrderAMD;
+#[cfg(feature = "VK_AMD_shader_core_properties2")]
+pub use amd::VkShaderCorePropertiesFlagsAMD;
+#[cfg(feature = "VK_AMD_shader_info")]
+pub use amd::VkShaderResourceUsageAMD;
+#[cfg(feature = "VK_AMD_shader_info")]
+pub use amd::VkShaderStatisticsInfoAMD;
+#[cfg(feature = "VK_AMD_display_native_hdr")]
+pub use amd::VkSwapchainDisplayNativeHdrCreateInfoAMD;
+#[cfg(feature = "VK_AMD_texture_gather_bias_lod")]
+pub use amd::VkTextureLODGatherFormatPropertiesAMD;
+#[cfg(feature = "VK_AMDX_dense_geometry_format")]
+pub use amdx::VkAccelerationStructureDenseGeometryFormatTrianglesDataAMDX;
+#[cfg(feature = "VK_AMDX_shader_enqueue")]
+pub use amdx::VkDeviceOrHostAddressConstAMDX;
+#[cfg(feature = "VK_AMDX_shader_enqueue")]
+pub use amdx::VkDispatchGraphCountInfoAMDX;
+#[cfg(feature = "VK_AMDX_shader_enqueue")]
+pub use amdx::VkDispatchGraphInfoAMDX;
+#[cfg(feature = "VK_AMDX_shader_enqueue")]
+pub use amdx::VkExecutionGraphPipelineCreateInfoAMDX;
+#[cfg(feature = "VK_AMDX_shader_enqueue")]
+pub use amdx::VkExecutionGraphPipelineScratchSizeAMDX;
+#[cfg(feature = "VK_AMDX_dense_geometry_format")]
+pub use amdx::VkPhysicalDeviceDenseGeometryFormatFeaturesAMDX;
+#[cfg(feature = "VK_AMDX_shader_enqueue")]
+pub use amdx::VkPhysicalDeviceShaderEnqueueFeaturesAMDX;
+#[cfg(feature = "VK_AMDX_shader_enqueue")]
+pub use amdx::VkPhysicalDeviceShaderEnqueuePropertiesAMDX;
+#[cfg(feature = "VK_AMDX_shader_enqueue")]
+pub use amdx::VkPipelineShaderStageNodeCreateInfoAMDX;
+#[cfg(feature = "VK_ANDROID_external_memory_android_hardware_buffer")]
+pub use android::AHardwareBuffer;
+#[cfg(any(
+  all(
+    feature = "VK_ANDROID_external_memory_android_hardware_buffer",
+    feature = "VK_KHR_format_feature_flags2"
+  ),
+  all(
+    feature = "VK_ANDROID_external_memory_android_hardware_buffer",
+    feature = "VK_VERSION_1_3"
+  )
+))]
+pub use android::VkAndroidHardwareBufferFormatProperties2ANDROID;
+#[cfg(feature = "VK_ANDROID_external_memory_android_hardware_buffer")]
+pub use android::VkAndroidHardwareBufferFormatPropertiesANDROID;
+#[cfg(feature = "VK_ANDROID_external_format_resolve")]
+pub use android::VkAndroidHardwareBufferFormatResolvePropertiesANDROID;
+#[cfg(feature = "VK_ANDROID_external_memory_android_hardware_buffer")]
+pub use android::VkAndroidHardwareBufferPropertiesANDROID;
+#[cfg(feature = "VK_ANDROID_external_memory_android_hardware_buffer")]
+pub use android::VkAndroidHardwareBufferUsageANDROID;
+#[cfg(feature = "VK_ANDROID_external_memory_android_hardware_buffer")]
+pub use android::VkExternalFormatANDROID;
+#[cfg(feature = "VK_ANDROID_external_memory_android_hardware_buffer")]
+pub use android::VkImportAndroidHardwareBufferInfoANDROID;
+#[cfg(feature = "VK_ANDROID_external_memory_android_hardware_buffer")]
+pub use android::VkMemoryGetAndroidHardwareBufferInfoANDROID;
+#[cfg(feature = "VK_ANDROID_external_format_resolve")]
+pub use android::VkPhysicalDeviceExternalFormatResolveFeaturesANDROID;
+#[cfg(feature = "VK_ANDROID_external_format_resolve")]
+pub use android::VkPhysicalDeviceExternalFormatResolvePropertiesANDROID;
+#[cfg(feature = "VK_ARM_data_graph")]
+pub use arm::VkBindDataGraphPipelineSessionMemoryInfoARM;
+#[cfg(feature = "VK_ARM_tensors")]
+pub use arm::VkBindTensorMemoryInfoARM;
+#[cfg(feature = "VK_ARM_tensors")]
+pub use arm::VkCopyTensorInfoARM;
+#[cfg(feature = "VK_ARM_data_graph_optical_flow")]
+pub use arm::VkDataGraphOpticalFlowCreateFlagsARM;
+#[cfg(feature = "VK_ARM_data_graph_optical_flow")]
+pub use arm::VkDataGraphOpticalFlowExecuteFlagsARM;
+#[cfg(feature = "VK_ARM_data_graph_optical_flow")]
+pub use arm::VkDataGraphOpticalFlowGridSizeFlagsARM;
+#[cfg(feature = "VK_ARM_data_graph_optical_flow")]
+pub use arm::VkDataGraphOpticalFlowImageFormatInfoARM;
+#[cfg(feature = "VK_ARM_data_graph_optical_flow")]
+pub use arm::VkDataGraphOpticalFlowImageFormatPropertiesARM;
+#[cfg(feature = "VK_ARM_data_graph_optical_flow")]
+pub use arm::VkDataGraphOpticalFlowImageUsageFlagsARM;
+#[cfg(feature = "VK_ARM_data_graph")]
+pub use arm::VkDataGraphPipelineCompilerControlCreateInfoARM;
+#[cfg(feature = "VK_ARM_data_graph")]
+pub use arm::VkDataGraphPipelineConstantARM;
+#[cfg(all(feature = "VK_ARM_data_graph", feature = "VK_ARM_tensors"))]
+pub use arm::VkDataGraphPipelineConstantTensorSemiStructuredSparsityInfoARM;
+#[cfg(feature = "VK_ARM_data_graph")]
+pub use arm::VkDataGraphPipelineCreateInfoARM;
+#[cfg(feature = "VK_ARM_data_graph")]
+pub use arm::VkDataGraphPipelineDispatchFlagsARM;
+#[cfg(feature = "VK_ARM_data_graph")]
+pub use arm::VkDataGraphPipelineDispatchInfoARM;
+#[cfg(feature = "VK_ARM_data_graph")]
+pub use arm::VkDataGraphPipelineIdentifierCreateInfoARM;
+#[cfg(feature = "VK_ARM_data_graph")]
+pub use arm::VkDataGraphPipelineInfoARM;
+#[cfg(feature = "VK_ARM_data_graph_neural_accelerator_statistics")]
+pub use arm::VkDataGraphPipelineNeuralStatisticsCreateInfoARM;
+#[cfg(feature = "VK_ARM_data_graph_optical_flow")]
+pub use arm::VkDataGraphPipelineOpticalFlowCreateInfoARM;
+#[cfg(feature = "VK_ARM_data_graph_optical_flow")]
+pub use arm::VkDataGraphPipelineOpticalFlowDispatchInfoARM;
+#[cfg(feature = "VK_ARM_data_graph")]
+pub use arm::VkDataGraphPipelinePropertyQueryResultARM;
+#[cfg(feature = "VK_ARM_data_graph")]
+pub use arm::VkDataGraphPipelineResourceInfoARM;
+#[cfg(feature = "VK_ARM_data_graph_optical_flow")]
+pub use arm::VkDataGraphPipelineResourceInfoImageLayoutARM;
+#[cfg(feature = "VK_ARM_data_graph")]
+pub use arm::VkDataGraphPipelineSessionARM;
+#[cfg(feature = "VK_ARM_data_graph")]
+pub use arm::VkDataGraphPipelineSessionBindPointRequirementARM;
+#[cfg(feature = "VK_ARM_data_graph")]
+pub use arm::VkDataGraphPipelineSessionBindPointRequirementsInfoARM;
+#[cfg(feature = "VK_ARM_data_graph")]
+pub use arm::VkDataGraphPipelineSessionCreateFlagsARM;
+#[cfg(feature = "VK_ARM_data_graph")]
+pub use arm::VkDataGraphPipelineSessionCreateInfoARM;
+#[cfg(feature = "VK_ARM_data_graph")]
+pub use arm::VkDataGraphPipelineSessionMemoryRequirementsInfoARM;
+#[cfg(feature = "VK_ARM_data_graph_neural_accelerator_statistics")]
+pub use arm::VkDataGraphPipelineSessionNeuralStatisticsCreateInfoARM;
+#[cfg(feature = "VK_ARM_data_graph")]
+pub use arm::VkDataGraphPipelineShaderModuleCreateInfoARM;
+#[cfg(feature = "VK_ARM_data_graph_optical_flow")]
+pub use arm::VkDataGraphPipelineSingleNodeConnectionARM;
+#[cfg(feature = "VK_ARM_data_graph_optical_flow")]
+pub use arm::VkDataGraphPipelineSingleNodeCreateInfoARM;
+#[cfg(feature = "VK_ARM_data_graph")]
+pub use arm::VkDataGraphProcessingEngineCreateInfoARM;
+#[cfg(feature = "VK_ARM_data_graph_instruction_set_tosa")]
+pub use arm::VkDataGraphTOSANameQualityARM;
+#[cfg(feature = "VK_ARM_data_graph_instruction_set_tosa")]
+pub use arm::VkDataGraphTOSAQualityFlagsARM;
+#[cfg(all(feature = "VK_ARM_tensors", feature = "VK_EXT_descriptor_buffer"))]
+pub use arm::VkDescriptorGetTensorInfoARM;
+#[cfg(feature = "VK_ARM_scheduling_controls")]
+pub use arm::VkDeviceQueueShaderCoreControlCreateInfoARM;
+#[cfg(feature = "VK_ARM_tensors")]
+pub use arm::VkDeviceTensorMemoryRequirementsARM;
+#[cfg(feature = "VK_ARM_scheduling_controls")]
+pub use arm::VkDispatchParametersARM;
+#[cfg(feature = "VK_ARM_tensors")]
+pub use arm::VkExternalMemoryTensorCreateInfoARM;
+#[cfg(feature = "VK_ARM_tensors")]
+pub use arm::VkExternalTensorPropertiesARM;
+#[cfg(all(feature = "VK_ARM_tensors", feature = "VK_EXT_frame_boundary"))]
+pub use arm::VkFrameBoundaryTensorsARM;
+#[cfg(feature = "VK_ARM_tensors")]
+pub use arm::VkMemoryDedicatedAllocateInfoTensorARM;
+#[cfg(feature = "VK_ARM_performance_counters_by_region")]
+pub use arm::VkPerformanceCounterARM;
+#[cfg(feature = "VK_ARM_performance_counters_by_region")]
+pub use arm::VkPerformanceCounterDescriptionARM;
+#[cfg(feature = "VK_ARM_performance_counters_by_region")]
+pub use arm::VkPerformanceCounterDescriptionFlagsARM;
+#[cfg(feature = "VK_ARM_data_graph")]
+pub use arm::VkPhysicalDeviceDataGraphFeaturesARM;
+#[cfg(feature = "VK_ARM_data_graph_neural_accelerator_statistics")]
+pub use arm::VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM;
+#[cfg(feature = "VK_ARM_data_graph")]
+pub use arm::VkPhysicalDeviceDataGraphOperationSupportARM;
+#[cfg(feature = "VK_ARM_data_graph_optical_flow")]
+pub use arm::VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM;
+#[cfg(feature = "VK_ARM_data_graph")]
+pub use arm::VkPhysicalDeviceDataGraphProcessingEngineARM;
+#[cfg(all(feature = "VK_ARM_tensors", feature = "VK_EXT_descriptor_buffer"))]
+pub use arm::VkPhysicalDeviceDescriptorBufferTensorFeaturesARM;
+#[cfg(all(feature = "VK_ARM_tensors", feature = "VK_EXT_descriptor_buffer"))]
+pub use arm::VkPhysicalDeviceDescriptorBufferTensorPropertiesARM;
+#[cfg(feature = "VK_ARM_tensors")]
+pub use arm::VkPhysicalDeviceExternalTensorInfoARM;
+#[cfg(feature = "VK_ARM_format_pack")]
+pub use arm::VkPhysicalDeviceFormatPackFeaturesARM;
+#[cfg(feature = "VK_ARM_performance_counters_by_region")]
+pub use arm::VkPhysicalDevicePerformanceCountersByRegionFeaturesARM;
+#[cfg(feature = "VK_ARM_performance_counters_by_region")]
+pub use arm::VkPhysicalDevicePerformanceCountersByRegionPropertiesARM;
+#[cfg(feature = "VK_ARM_pipeline_opacity_micromap")]
+pub use arm::VkPhysicalDevicePipelineOpacityMicromapFeaturesARM;
+#[cfg(feature = "VK_ARM_data_graph")]
+pub use arm::VkPhysicalDeviceQueueFamilyDataGraphProcessingEngineInfoARM;
+#[cfg(feature = "VK_ARM_rasterization_order_attachment_access")]
+pub use arm::VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesARM;
+#[cfg(feature = "VK_ARM_render_pass_striped")]
+pub use arm::VkPhysicalDeviceRenderPassStripedFeaturesARM;
+#[cfg(feature = "VK_ARM_render_pass_striped")]
+pub use arm::VkPhysicalDeviceRenderPassStripedPropertiesARM;
+#[cfg(feature = "VK_ARM_scheduling_controls")]
+pub use arm::VkPhysicalDeviceSchedulingControlsDispatchParametersPropertiesARM;
+#[cfg(feature = "VK_ARM_scheduling_controls")]
+pub use arm::VkPhysicalDeviceSchedulingControlsFeaturesARM;
+#[cfg(feature = "VK_ARM_scheduling_controls")]
+pub use arm::VkPhysicalDeviceSchedulingControlsFlagsARM;
+#[cfg(feature = "VK_ARM_scheduling_controls")]
+pub use arm::VkPhysicalDeviceSchedulingControlsPropertiesARM;
+#[cfg(feature = "VK_ARM_shader_core_builtins")]
+pub use arm::VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM;
+#[cfg(feature = "VK_ARM_shader_core_builtins")]
+pub use arm::VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM;
+#[cfg(feature = "VK_ARM_shader_core_properties")]
+pub use arm::VkPhysicalDeviceShaderCorePropertiesARM;
+#[cfg(feature = "VK_ARM_shader_instrumentation")]
+pub use arm::VkPhysicalDeviceShaderInstrumentationFeaturesARM;
+#[cfg(feature = "VK_ARM_shader_instrumentation")]
+pub use arm::VkPhysicalDeviceShaderInstrumentationPropertiesARM;
+#[cfg(feature = "VK_ARM_tensors")]
+pub use arm::VkPhysicalDeviceTensorFeaturesARM;
+#[cfg(feature = "VK_ARM_tensors")]
+pub use arm::VkPhysicalDeviceTensorPropertiesARM;
+#[cfg(feature = "VK_ARM_data_graph_optical_flow")]
+pub use arm::VkQueueFamilyDataGraphOpticalFlowPropertiesARM;
+#[cfg(feature = "VK_ARM_data_graph")]
+pub use arm::VkQueueFamilyDataGraphProcessingEnginePropertiesARM;
+#[cfg(feature = "VK_ARM_data_graph")]
+pub use arm::VkQueueFamilyDataGraphPropertiesARM;
+#[cfg(feature = "VK_ARM_data_graph_instruction_set_tosa")]
+pub use arm::VkQueueFamilyDataGraphTOSAPropertiesARM;
+#[cfg(feature = "VK_ARM_performance_counters_by_region")]
+pub use arm::VkRenderPassPerformanceCountersByRegionBeginInfoARM;
+#[cfg(feature = "VK_ARM_render_pass_striped")]
+pub use arm::VkRenderPassStripeBeginInfoARM;
+#[cfg(feature = "VK_ARM_render_pass_striped")]
+pub use arm::VkRenderPassStripeInfoARM;
+#[cfg(feature = "VK_ARM_render_pass_striped")]
+pub use arm::VkRenderPassStripeSubmitInfoARM;
+#[cfg(feature = "VK_ARM_shader_instrumentation")]
+pub use arm::VkShaderInstrumentationARM;
+#[cfg(feature = "VK_ARM_shader_instrumentation")]
+pub use arm::VkShaderInstrumentationCreateInfoARM;
+#[cfg(feature = "VK_ARM_shader_instrumentation")]
+pub use arm::VkShaderInstrumentationMetricDataHeaderARM;
+#[cfg(feature = "VK_ARM_shader_instrumentation")]
+pub use arm::VkShaderInstrumentationMetricDescriptionARM;
+#[cfg(feature = "VK_ARM_shader_instrumentation")]
+pub use arm::VkShaderInstrumentationValuesFlagsARM;
+#[cfg(all(feature = "VK_ARM_tensors", feature = "VK_EXT_descriptor_buffer"))]
+pub use arm::VkTensorCaptureDescriptorDataInfoARM;
+#[cfg(feature = "VK_ARM_tensors")]
+pub use arm::VkTensorCopyARM;
+#[cfg(feature = "VK_ARM_tensors")]
+pub use arm::VkTensorCreateFlagsARM;
+#[cfg(feature = "VK_ARM_tensors")]
+pub use arm::VkTensorCreateInfoARM;
+#[cfg(feature = "VK_ARM_tensors")]
+pub use arm::VkTensorDependencyInfoARM;
+#[cfg(feature = "VK_ARM_tensors")]
+pub use arm::VkTensorDescriptionARM;
+#[cfg(feature = "VK_ARM_tensors")]
+pub use arm::VkTensorFormatPropertiesARM;
+#[cfg(feature = "VK_ARM_tensors")]
+pub use arm::VkTensorMemoryBarrierARM;
+#[cfg(feature = "VK_ARM_tensors")]
+pub use arm::VkTensorMemoryRequirementsInfoARM;
+#[cfg(feature = "VK_ARM_tensors")]
+pub use arm::VkTensorUsageFlagsARM;
+#[cfg(feature = "VK_ARM_tensors")]
+pub use arm::VkTensorViewARM;
+#[cfg(all(feature = "VK_ARM_tensors", feature = "VK_EXT_descriptor_buffer"))]
+pub use arm::VkTensorViewCaptureDescriptorDataInfoARM;
+#[cfg(feature = "VK_ARM_tensors")]
+pub use arm::VkWriteDescriptorSetTensorARM;
+#[cfg(feature = "VK_FUCHSIA_buffer_collection")]
+pub use fuchsia::VkBufferCollectionBufferCreateInfoFUCHSIA;
+#[cfg(feature = "VK_FUCHSIA_buffer_collection")]
+pub use fuchsia::VkBufferCollectionConstraintsInfoFUCHSIA;
+#[cfg(feature = "VK_FUCHSIA_buffer_collection")]
+pub use fuchsia::VkBufferCollectionCreateInfoFUCHSIA;
+#[cfg(feature = "VK_FUCHSIA_buffer_collection")]
+pub use fuchsia::VkBufferCollectionFUCHSIA;
+#[cfg(feature = "VK_FUCHSIA_buffer_collection")]
+pub use fuchsia::VkBufferCollectionImageCreateInfoFUCHSIA;
+#[cfg(feature = "VK_FUCHSIA_buffer_collection")]
+pub use fuchsia::VkBufferCollectionPropertiesFUCHSIA;
+#[cfg(feature = "VK_FUCHSIA_buffer_collection")]
+pub use fuchsia::VkBufferConstraintsInfoFUCHSIA;
+#[cfg(feature = "VK_FUCHSIA_buffer_collection")]
+pub use fuchsia::VkImageConstraintsInfoFUCHSIA;
+#[cfg(feature = "VK_FUCHSIA_buffer_collection")]
+pub use fuchsia::VkImageConstraintsInfoFlagsFUCHSIA;
+#[cfg(feature = "VK_FUCHSIA_buffer_collection")]
+pub use fuchsia::VkImageFormatConstraintsFlagsFUCHSIA;
+#[cfg(feature = "VK_FUCHSIA_buffer_collection")]
+pub use fuchsia::VkImageFormatConstraintsInfoFUCHSIA;
+#[cfg(feature = "VK_FUCHSIA_imagepipe_surface")]
+pub use fuchsia::VkImagePipeSurfaceCreateFlagsFUCHSIA;
+#[cfg(feature = "VK_FUCHSIA_imagepipe_surface")]
+pub use fuchsia::VkImagePipeSurfaceCreateInfoFUCHSIA;
+#[cfg(feature = "VK_FUCHSIA_buffer_collection")]
+pub use fuchsia::VkImportMemoryBufferCollectionFUCHSIA;
+#[cfg(feature = "VK_FUCHSIA_external_memory")]
+pub use fuchsia::VkImportMemoryZirconHandleInfoFUCHSIA;
+#[cfg(feature = "VK_FUCHSIA_external_semaphore")]
+pub use fuchsia::VkImportSemaphoreZirconHandleInfoFUCHSIA;
+#[cfg(feature = "VK_FUCHSIA_external_memory")]
+pub use fuchsia::VkMemoryGetZirconHandleInfoFUCHSIA;
+#[cfg(feature = "VK_FUCHSIA_external_memory")]
+pub use fuchsia::VkMemoryZirconHandlePropertiesFUCHSIA;
+#[cfg(feature = "VK_FUCHSIA_external_semaphore")]
+pub use fuchsia::VkSemaphoreGetZirconHandleInfoFUCHSIA;
+#[cfg(feature = "VK_FUCHSIA_buffer_collection")]
+pub use fuchsia::VkSysmemColorSpaceFUCHSIA;
+#[cfg(any(
+  feature = "VK_FUCHSIA_imagepipe_surface",
+  feature = "VK_FUCHSIA_external_memory",
+  feature = "VK_FUCHSIA_external_semaphore"
+))]
+pub use fuchsia::zx_handle_t;
+#[cfg(feature = "VK_GGP_frame_token")]
+pub use ggp::GgpFrameToken;
+#[cfg(feature = "VK_GGP_stream_descriptor_surface")]
+pub use ggp::GgpStreamDescriptor;
+#[cfg(feature = "VK_GGP_frame_token")]
+pub use ggp::VkPresentFrameTokenGGP;
+#[cfg(feature = "VK_GGP_stream_descriptor_surface")]
+pub use ggp::VkStreamDescriptorSurfaceCreateFlagsGGP;
+#[cfg(feature = "VK_GGP_stream_descriptor_surface")]
+pub use ggp::VkStreamDescriptorSurfaceCreateInfoGGP;
+#[cfg(feature = "VK_GOOGLE_display_timing")]
+pub use google::VkPastPresentationTimingGOOGLE;
+#[cfg(feature = "VK_GOOGLE_display_timing")]
+pub use google::VkPresentTimeGOOGLE;
+#[cfg(feature = "VK_GOOGLE_display_timing")]
+pub use google::VkPresentTimesInfoGOOGLE;
+#[cfg(feature = "VK_GOOGLE_display_timing")]
+pub use google::VkRefreshCycleDurationGOOGLE;
+#[cfg(feature = "VK_HUAWEI_hdr_vivid")]
+pub use huawei::VkHdrVividDynamicMetadataHUAWEI;
+#[cfg(feature = "VK_HUAWEI_cluster_culling_shader")]
+pub use huawei::VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI;
+#[cfg(feature = "VK_HUAWEI_cluster_culling_shader")]
+pub use huawei::VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI;
+#[cfg(feature = "VK_HUAWEI_cluster_culling_shader")]
+pub use huawei::VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI;
+#[cfg(feature = "VK_HUAWEI_hdr_vivid")]
+pub use huawei::VkPhysicalDeviceHdrVividFeaturesHUAWEI;
+#[cfg(feature = "VK_HUAWEI_invocation_mask")]
+pub use huawei::VkPhysicalDeviceInvocationMaskFeaturesHUAWEI;
+#[cfg(feature = "VK_HUAWEI_subpass_shading")]
+pub use huawei::VkPhysicalDeviceSubpassShadingFeaturesHUAWEI;
+#[cfg(feature = "VK_HUAWEI_subpass_shading")]
+pub use huawei::VkPhysicalDeviceSubpassShadingPropertiesHUAWEI;
+#[cfg(feature = "VK_HUAWEI_subpass_shading")]
+pub use huawei::VkSubpassShadingPipelineCreateInfoHUAWEI;
+#[cfg(feature = "VK_IMG_relaxed_line_rasterization")]
+pub use img::VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG;
+#[cfg(feature = "VK_INTEL_performance_query")]
+pub use intel::VkInitializePerformanceApiInfoINTEL;
+#[cfg(feature = "VK_INTEL_performance_query")]
+pub use intel::VkPerformanceConfigurationAcquireInfoINTEL;
+#[cfg(feature = "VK_INTEL_performance_query")]
+pub use intel::VkPerformanceConfigurationINTEL;
+#[cfg(feature = "VK_INTEL_performance_query")]
+pub use intel::VkPerformanceMarkerInfoINTEL;
+#[cfg(feature = "VK_INTEL_performance_query")]
+pub use intel::VkPerformanceOverrideInfoINTEL;
+#[cfg(feature = "VK_INTEL_performance_query")]
+pub use intel::VkPerformanceStreamMarkerInfoINTEL;
+#[cfg(feature = "VK_INTEL_performance_query")]
+pub use intel::VkPerformanceValueDataINTEL;
+#[cfg(feature = "VK_INTEL_performance_query")]
+pub use intel::VkPerformanceValueINTEL;
+#[cfg(feature = "VK_INTEL_shader_integer_functions2")]
+pub use intel::VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL;
+#[cfg(feature = "VK_INTEL_performance_query")]
+pub use intel::VkQueryPoolCreateInfoINTEL;
+#[cfg(feature = "VK_INTEL_performance_query")]
+pub use intel::VkQueryPoolPerformanceQueryCreateInfoINTEL;
+#[cfg(feature = "VK_LUNARG_direct_driver_loading")]
+pub use lunarg::PFN_vkGetInstanceProcAddrLUNARG;
+#[cfg(feature = "VK_LUNARG_direct_driver_loading")]
+pub use lunarg::VkDirectDriverLoadingFlagsLUNARG;
+#[cfg(feature = "VK_LUNARG_direct_driver_loading")]
+pub use lunarg::VkDirectDriverLoadingInfoLUNARG;
+#[cfg(feature = "VK_LUNARG_direct_driver_loading")]
+pub use lunarg::VkDirectDriverLoadingListLUNARG;
+#[cfg(feature = "VK_MESA_image_alignment_control")]
+pub use mesa::VkImageAlignmentControlCreateInfoMESA;
+#[cfg(feature = "VK_MESA_image_alignment_control")]
+pub use mesa::VkPhysicalDeviceImageAlignmentControlFeaturesMESA;
+#[cfg(feature = "VK_MESA_image_alignment_control")]
+pub use mesa::VkPhysicalDeviceImageAlignmentControlPropertiesMESA;
+#[cfg(feature = "VK_MSFT_layered_driver")]
+pub use msft::VkPhysicalDeviceLayeredDriverPropertiesMSFT;
+#[cfg(feature = "VK_MVK_ios_surface")]
+pub use mvk::VkIOSSurfaceCreateFlagsMVK;
+#[cfg(feature = "VK_MVK_ios_surface")]
+pub use mvk::VkIOSSurfaceCreateInfoMVK;
+#[cfg(feature = "VK_MVK_macos_surface")]
+pub use mvk::VkMacOSSurfaceCreateFlagsMVK;
+#[cfg(feature = "VK_MVK_macos_surface")]
+pub use mvk::VkMacOSSurfaceCreateInfoMVK;
+#[cfg(feature = "VK_NN_vi_surface")]
+pub use nn::VkViSurfaceCreateFlagsNN;
+#[cfg(feature = "VK_NN_vi_surface")]
+pub use nn::VkViSurfaceCreateInfoNN;
+#[cfg(feature = "VK_NV_external_memory_sci_buf")]
+pub use nv::NvSciBufAttrList;
+#[cfg(feature = "VK_NV_external_memory_sci_buf")]
+pub use nv::NvSciBufObj;
+#[cfg(any(
+  feature = "VK_NV_external_sci_sync",
+  feature = "VK_NV_external_sci_sync2"
+))]
+pub use nv::NvSciSyncAttrList;
+#[cfg(feature = "VK_NV_external_sci_sync2")]
+pub use nv::NvSciSyncFence;
+#[cfg(feature = "VK_NV_external_sci_sync2")]
+pub use nv::NvSciSyncObj;
+#[cfg(feature = "VK_NV_ray_tracing")]
+pub use nv::VkAabbPositionsNV;
+#[cfg(feature = "VK_NV_ray_tracing")]
+pub use nv::VkAccelerationStructureCreateInfoNV;
+#[cfg(feature = "VK_NV_ray_tracing_linear_swept_spheres")]
+pub use nv::VkAccelerationStructureGeometryLinearSweptSpheresDataNV;
+#[cfg(feature = "VK_NV_ray_tracing_motion_blur")]
+pub use nv::VkAccelerationStructureGeometryMotionTrianglesDataNV;
+#[cfg(feature = "VK_NV_ray_tracing_linear_swept_spheres")]
+pub use nv::VkAccelerationStructureGeometrySpheresDataNV;
+#[cfg(feature = "VK_NV_ray_tracing")]
+pub use nv::VkAccelerationStructureInfoNV;
+#[cfg(feature = "VK_NV_ray_tracing")]
+pub use nv::VkAccelerationStructureInstanceNV;
+#[cfg(feature = "VK_NV_ray_tracing_motion_blur")]
+pub use nv::VkAccelerationStructureMatrixMotionInstanceNV;
+#[cfg(feature = "VK_NV_ray_tracing")]
+pub use nv::VkAccelerationStructureMemoryRequirementsInfoNV;
+#[cfg(feature = "VK_NV_ray_tracing_motion_blur")]
+pub use nv::VkAccelerationStructureMotionInfoFlagsNV;
+#[cfg(feature = "VK_NV_ray_tracing_motion_blur")]
+pub use nv::VkAccelerationStructureMotionInfoNV;
+#[cfg(feature = "VK_NV_ray_tracing_motion_blur")]
+pub use nv::VkAccelerationStructureMotionInstanceDataNV;
+#[cfg(feature = "VK_NV_ray_tracing_motion_blur")]
+pub use nv::VkAccelerationStructureMotionInstanceFlagsNV;
+#[cfg(feature = "VK_NV_ray_tracing_motion_blur")]
+pub use nv::VkAccelerationStructureMotionInstanceNV;
+#[cfg(feature = "VK_NV_ray_tracing")]
+pub use nv::VkAccelerationStructureNV;
+#[cfg(feature = "VK_NV_ray_tracing_motion_blur")]
+pub use nv::VkAccelerationStructureSRTMotionInstanceNV;
+#[cfg(feature = "VK_NV_displacement_micromap")]
+pub use nv::VkAccelerationStructureTrianglesDisplacementMicromapNV;
+#[cfg(any(
+  all(
+    feature = "VK_NV_framebuffer_mixed_samples",
+    feature = "VK_VERSION_1_3"
+  ),
+  all(
+    feature = "VK_KHR_dynamic_rendering",
+    feature = "VK_NV_framebuffer_mixed_samples"
+  )
+))]
+pub use nv::VkAttachmentSampleCountInfoNV;
+#[cfg(feature = "VK_NV_ray_tracing")]
+pub use nv::VkBindAccelerationStructureMemoryInfoNV;
+#[cfg(feature = "VK_NV_device_generated_commands")]
+pub use nv::VkBindIndexBufferIndirectCommandNV;
+#[cfg(feature = "VK_NV_device_generated_commands_compute")]
+pub use nv::VkBindPipelineIndirectCommandNV;
+#[cfg(feature = "VK_NV_device_generated_commands")]
+pub use nv::VkBindShaderGroupIndirectCommandNV;
+#[cfg(feature = "VK_NV_device_generated_commands")]
+pub use nv::VkBindVertexBufferIndirectCommandNV;
+#[cfg(feature = "VK_NV_ray_tracing")]
+pub use nv::VkBuildAccelerationStructureFlagsNV;
+#[cfg(feature = "VK_NV_partitioned_acceleration_structure")]
+pub use nv::VkBuildPartitionedAccelerationStructureIndirectCommandNV;
+#[cfg(feature = "VK_NV_partitioned_acceleration_structure")]
+pub use nv::VkBuildPartitionedAccelerationStructureInfoNV;
+#[cfg(any(
+  all(
+    feature = "VK_NV_device_diagnostic_checkpoints",
+    feature = "VK_VERSION_1_3"
+  ),
+  all(
+    feature = "VK_KHR_synchronization2",
+    feature = "VK_NV_device_diagnostic_checkpoints"
+  )
+))]
+pub use nv::VkCheckpointData2NV;
+#[cfg(feature = "VK_NV_device_diagnostic_checkpoints")]
+pub use nv::VkCheckpointDataNV;
+#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
+pub use nv::VkClusterAccelerationStructureAddressResolutionFlagsNV;
+#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
+pub use nv::VkClusterAccelerationStructureBuildClustersBottomLevelInfoNV;
+#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
+pub use nv::VkClusterAccelerationStructureBuildTriangleClusterInfoNV;
+#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
+pub use nv::VkClusterAccelerationStructureBuildTriangleClusterTemplateInfoNV;
+#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
+pub use nv::VkClusterAccelerationStructureClusterFlagsNV;
+#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
+pub use nv::VkClusterAccelerationStructureClustersBottomLevelInputNV;
+#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
+pub use nv::VkClusterAccelerationStructureCommandsInfoNV;
+#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
+pub use nv::VkClusterAccelerationStructureGeometryFlagsNV;
+#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
+pub use nv::VkClusterAccelerationStructureGeometryIndexAndGeometryFlagsNV;
+#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
+pub use nv::VkClusterAccelerationStructureGetTemplateIndicesInfoNV;
+#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
+pub use nv::VkClusterAccelerationStructureIndexFormatFlagsNV;
+#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
+pub use nv::VkClusterAccelerationStructureInputInfoNV;
+#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
+pub use nv::VkClusterAccelerationStructureInstantiateClusterInfoNV;
+#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
+pub use nv::VkClusterAccelerationStructureMoveObjectsInfoNV;
+#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
+pub use nv::VkClusterAccelerationStructureMoveObjectsInputNV;
+#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
+pub use nv::VkClusterAccelerationStructureOpInputNV;
+#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
+pub use nv::VkClusterAccelerationStructureTriangleClusterInputNV;
+#[cfg(feature = "VK_NV_shading_rate_image")]
+pub use nv::VkCoarseSampleLocationNV;
+#[cfg(feature = "VK_NV_shading_rate_image")]
+pub use nv::VkCoarseSampleOrderCustomNV;
+#[cfg(feature = "VK_NV_inherited_viewport_scissor")]
+pub use nv::VkCommandBufferInheritanceViewportScissorInfoNV;
+#[cfg(feature = "VK_NV_compute_occupancy_priority")]
+pub use nv::VkComputeOccupancyPriorityParametersNV;
+#[cfg(feature = "VK_NV_device_generated_commands_compute")]
+pub use nv::VkComputePipelineIndirectBufferInfoNV;
+#[cfg(feature = "VK_NV_cooperative_vector")]
+pub use nv::VkConvertCooperativeVectorMatrixInfoNV;
+#[cfg(feature = "VK_NV_cooperative_matrix2")]
+pub use nv::VkCooperativeMatrixFlexibleDimensionsPropertiesNV;
+#[cfg(feature = "VK_NV_cooperative_matrix")]
+pub use nv::VkCooperativeMatrixPropertiesNV;
+#[cfg(feature = "VK_NV_cooperative_vector")]
+pub use nv::VkCooperativeVectorPropertiesNV;
+#[cfg(feature = "VK_NV_copy_memory_indirect")]
+pub use nv::VkCopyMemoryIndirectCommandNV;
+#[cfg(feature = "VK_NV_copy_memory_indirect")]
+pub use nv::VkCopyMemoryToImageIndirectCommandNV;
+#[cfg(feature = "VK_NV_cuda_kernel_launch")]
+pub use nv::VkCudaFunctionCreateInfoNV;
+#[cfg(feature = "VK_NV_cuda_kernel_launch")]
+pub use nv::VkCudaFunctionNV;
+#[cfg(feature = "VK_NV_cuda_kernel_launch")]
+pub use nv::VkCudaLaunchInfoNV;
+#[cfg(feature = "VK_NV_cuda_kernel_launch")]
+pub use nv::VkCudaModuleCreateInfoNV;
+#[cfg(feature = "VK_NV_cuda_kernel_launch")]
+pub use nv::VkCudaModuleNV;
+#[cfg(feature = "VK_NV_memory_decompression")]
+pub use nv::VkDecompressMemoryRegionNV;
+#[cfg(feature = "VK_NV_dedicated_allocation")]
+pub use nv::VkDedicatedAllocationBufferCreateInfoNV;
+#[cfg(feature = "VK_NV_dedicated_allocation")]
+pub use nv::VkDedicatedAllocationImageCreateInfoNV;
+#[cfg(feature = "VK_NV_dedicated_allocation")]
+pub use nv::VkDedicatedAllocationMemoryAllocateInfoNV;
+#[cfg(feature = "VK_NV_device_diagnostics_config")]
+pub use nv::VkDeviceDiagnosticsConfigCreateInfoNV;
+#[cfg(feature = "VK_NV_device_diagnostics_config")]
+pub use nv::VkDeviceDiagnosticsConfigFlagsNV;
+#[cfg(all(feature = "VKSC_VERSION_1_0", feature = "VK_NV_external_sci_sync2"))]
+pub use nv::VkDeviceSemaphoreSciSyncPoolReservationCreateInfoNV;
+#[cfg(feature = "VK_NV_display_stereo")]
+pub use nv::VkDisplayModeStereoPropertiesNV;
+#[cfg(feature = "VK_NV_display_stereo")]
+pub use nv::VkDisplaySurfaceStereoCreateInfoNV;
+#[cfg(feature = "VK_NV_mesh_shader")]
+pub use nv::VkDrawMeshTasksIndirectCommandNV;
+#[cfg(any(
+  feature = "VK_NV_external_sci_sync",
+  feature = "VK_NV_external_sci_sync2"
+))]
+pub use nv::VkExportFenceSciSyncInfoNV;
+#[cfg(feature = "VK_NV_external_memory")]
+pub use nv::VkExportMemoryAllocateInfoNV;
+#[cfg(feature = "VK_NV_external_memory_sci_buf")]
+pub use nv::VkExportMemorySciBufInfoNV;
+#[cfg(feature = "VK_NV_external_memory_win32")]
+pub use nv::VkExportMemoryWin32HandleInfoNV;
+#[cfg(feature = "VK_NV_external_sci_sync")]
+pub use nv::VkExportSemaphoreSciSyncInfoNV;
+#[cfg(feature = "VK_NV_external_compute_queue")]
+pub use nv::VkExternalComputeQueueCreateInfoNV;
+#[cfg(feature = "VK_NV_external_compute_queue")]
+pub use nv::VkExternalComputeQueueDataParamsNV;
+#[cfg(feature = "VK_NV_external_compute_queue")]
+pub use nv::VkExternalComputeQueueDeviceCreateInfoNV;
+#[cfg(feature = "VK_NV_external_compute_queue")]
+pub use nv::VkExternalComputeQueueNV;
+#[cfg(feature = "VK_NV_external_memory_capabilities")]
+pub use nv::VkExternalImageFormatPropertiesNV;
+#[cfg(feature = "VK_NV_external_memory_capabilities")]
+pub use nv::VkExternalMemoryFeatureFlagsNV;
+#[cfg(feature = "VK_NV_external_memory_capabilities")]
+pub use nv::VkExternalMemoryHandleTypeFlagsNV;
+#[cfg(feature = "VK_NV_external_memory")]
+pub use nv::VkExternalMemoryImageCreateInfoNV;
+#[cfg(any(
+  feature = "VK_NV_external_sci_sync",
+  feature = "VK_NV_external_sci_sync2"
+))]
+pub use nv::VkFenceGetSciSyncInfoNV;
+#[cfg(feature = "VK_NV_coverage_reduction_mode")]
+pub use nv::VkFramebufferMixedSamplesCombinationNV;
+#[cfg(feature = "VK_NV_device_generated_commands")]
+pub use nv::VkGeneratedCommandsInfoNV;
+#[cfg(feature = "VK_NV_device_generated_commands")]
+pub use nv::VkGeneratedCommandsMemoryRequirementsInfoNV;
+#[cfg(feature = "VK_NV_ray_tracing")]
+pub use nv::VkGeometryAABBNV;
+#[cfg(feature = "VK_NV_ray_tracing")]
+pub use nv::VkGeometryDataNV;
+#[cfg(feature = "VK_NV_ray_tracing")]
+pub use nv::VkGeometryFlagsNV;
+#[cfg(feature = "VK_NV_ray_tracing")]
+pub use nv::VkGeometryInstanceFlagsNV;
+#[cfg(feature = "VK_NV_ray_tracing")]
+pub use nv::VkGeometryNV;
+#[cfg(feature = "VK_NV_ray_tracing")]
+pub use nv::VkGeometryTrianglesNV;
+#[cfg(feature = "VK_NV_low_latency2")]
+pub use nv::VkGetLatencyMarkerInfoNV;
+#[cfg(feature = "VK_NV_device_generated_commands")]
+pub use nv::VkGraphicsPipelineShaderGroupsCreateInfoNV;
+#[cfg(feature = "VK_NV_device_generated_commands")]
+pub use nv::VkGraphicsShaderGroupCreateInfoNV;
+#[cfg(any(
+  feature = "VK_NV_external_sci_sync",
+  feature = "VK_NV_external_sci_sync2"
+))]
+pub use nv::VkImportFenceSciSyncInfoNV;
+#[cfg(feature = "VK_NV_external_memory_sci_buf")]
+pub use nv::VkImportMemorySciBufInfoNV;
+#[cfg(feature = "VK_NV_external_memory_win32")]
+pub use nv::VkImportMemoryWin32HandleInfoNV;
+#[cfg(feature = "VK_NV_external_sci_sync")]
+pub use nv::VkImportSemaphoreSciSyncInfoNV;
+#[cfg(feature = "VK_NV_device_generated_commands")]
+pub use nv::VkIndirectCommandsLayoutCreateInfoNV;
+#[cfg(feature = "VK_NV_device_generated_commands")]
+pub use nv::VkIndirectCommandsLayoutNV;
+#[cfg(feature = "VK_NV_device_generated_commands")]
+pub use nv::VkIndirectCommandsLayoutTokenNV;
+#[cfg(feature = "VK_NV_device_generated_commands")]
+pub use nv::VkIndirectCommandsLayoutUsageFlagsNV;
+#[cfg(feature = "VK_NV_device_generated_commands")]
+pub use nv::VkIndirectCommandsStreamNV;
+#[cfg(feature = "VK_NV_device_generated_commands")]
+pub use nv::VkIndirectStateFlagsNV;
+#[cfg(feature = "VK_NV_low_latency2")]
+pub use nv::VkLatencySleepInfoNV;
+#[cfg(feature = "VK_NV_low_latency2")]
+pub use nv::VkLatencySleepModeInfoNV;
+#[cfg(feature = "VK_NV_low_latency2")]
+pub use nv::VkLatencySubmissionPresentIdNV;
+#[cfg(feature = "VK_NV_low_latency2")]
+pub use nv::VkLatencySurfaceCapabilitiesNV;
+#[cfg(feature = "VK_NV_low_latency2")]
+pub use nv::VkLatencyTimingsFrameReportNV;
+#[cfg(feature = "VK_NV_memory_decompression")]
+pub use nv::VkMemoryDecompressionMethodFlagsNV;
+#[cfg(feature = "VK_NV_external_memory_rdma")]
+pub use nv::VkMemoryGetRemoteAddressInfoNV;
+#[cfg(feature = "VK_NV_external_memory_sci_buf")]
+pub use nv::VkMemoryGetSciBufInfoNV;
+#[cfg(feature = "VK_NV_external_memory_sci_buf")]
+pub use nv::VkMemorySciBufPropertiesNV;
+#[cfg(feature = "VK_NV_optical_flow")]
+pub use nv::VkOpticalFlowExecuteFlagsNV;
+#[cfg(feature = "VK_NV_optical_flow")]
+pub use nv::VkOpticalFlowExecuteInfoNV;
+#[cfg(feature = "VK_NV_optical_flow")]
+pub use nv::VkOpticalFlowGridSizeFlagsNV;
+#[cfg(feature = "VK_NV_optical_flow")]
+pub use nv::VkOpticalFlowImageFormatInfoNV;
+#[cfg(feature = "VK_NV_optical_flow")]
+pub use nv::VkOpticalFlowImageFormatPropertiesNV;
+#[cfg(feature = "VK_NV_optical_flow")]
+pub use nv::VkOpticalFlowSessionCreateFlagsNV;
+#[cfg(feature = "VK_NV_optical_flow")]
+pub use nv::VkOpticalFlowSessionCreateInfoNV;
+#[cfg(feature = "VK_NV_optical_flow")]
+pub use nv::VkOpticalFlowSessionCreatePrivateDataInfoNV;
+#[cfg(feature = "VK_NV_optical_flow")]
+pub use nv::VkOpticalFlowSessionNV;
+#[cfg(feature = "VK_NV_optical_flow")]
+pub use nv::VkOpticalFlowUsageFlagsNV;
+#[cfg(feature = "VK_NV_low_latency2")]
+pub use nv::VkOutOfBandQueueTypeInfoNV;
+#[cfg(feature = "VK_NV_partitioned_acceleration_structure")]
+pub use nv::VkPartitionedAccelerationStructureFlagsNV;
+#[cfg(feature = "VK_NV_partitioned_acceleration_structure")]
+pub use nv::VkPartitionedAccelerationStructureInstanceFlagsNV;
+#[cfg(feature = "VK_NV_partitioned_acceleration_structure")]
+pub use nv::VkPartitionedAccelerationStructureInstancesInputNV;
+#[cfg(feature = "VK_NV_partitioned_acceleration_structure")]
+pub use nv::VkPartitionedAccelerationStructureUpdateInstanceDataNV;
+#[cfg(feature = "VK_NV_partitioned_acceleration_structure")]
+pub use nv::VkPartitionedAccelerationStructureWriteInstanceDataNV;
+#[cfg(feature = "VK_NV_partitioned_acceleration_structure")]
+pub use nv::VkPartitionedAccelerationStructureWritePartitionTranslationDataNV;
+#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
+pub use nv::VkPhysicalDeviceClusterAccelerationStructureFeaturesNV;
+#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
+pub use nv::VkPhysicalDeviceClusterAccelerationStructurePropertiesNV;
+#[cfg(feature = "VK_NV_command_buffer_inheritance")]
+pub use nv::VkPhysicalDeviceCommandBufferInheritanceFeaturesNV;
+#[cfg(feature = "VK_NV_compute_occupancy_priority")]
+pub use nv::VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV;
+#[cfg(feature = "VK_NV_compute_shader_derivatives")]
+pub use nv::VkPhysicalDeviceComputeShaderDerivativesFeaturesNV;
+#[cfg(feature = "VK_NV_cooperative_matrix2")]
+pub use nv::VkPhysicalDeviceCooperativeMatrix2FeaturesNV;
+#[cfg(feature = "VK_NV_cooperative_matrix2")]
+pub use nv::VkPhysicalDeviceCooperativeMatrix2PropertiesNV;
+#[cfg(feature = "VK_NV_cooperative_matrix_decode_vector")]
+pub use nv::VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV;
+#[cfg(feature = "VK_NV_cooperative_matrix")]
+pub use nv::VkPhysicalDeviceCooperativeMatrixFeaturesNV;
+#[cfg(feature = "VK_NV_cooperative_matrix")]
+pub use nv::VkPhysicalDeviceCooperativeMatrixPropertiesNV;
+#[cfg(feature = "VK_NV_cooperative_vector")]
+pub use nv::VkPhysicalDeviceCooperativeVectorFeaturesNV;
+#[cfg(feature = "VK_NV_cooperative_vector")]
+pub use nv::VkPhysicalDeviceCooperativeVectorPropertiesNV;
+#[cfg(feature = "VK_NV_copy_memory_indirect")]
+pub use nv::VkPhysicalDeviceCopyMemoryIndirectFeaturesNV;
+#[cfg(feature = "VK_NV_copy_memory_indirect")]
+pub use nv::VkPhysicalDeviceCopyMemoryIndirectPropertiesNV;
+#[cfg(feature = "VK_NV_corner_sampled_image")]
+pub use nv::VkPhysicalDeviceCornerSampledImageFeaturesNV;
+#[cfg(feature = "VK_NV_coverage_reduction_mode")]
+pub use nv::VkPhysicalDeviceCoverageReductionModeFeaturesNV;
+#[cfg(feature = "VK_NV_cuda_kernel_launch")]
+pub use nv::VkPhysicalDeviceCudaKernelLaunchFeaturesNV;
+#[cfg(feature = "VK_NV_cuda_kernel_launch")]
+pub use nv::VkPhysicalDeviceCudaKernelLaunchPropertiesNV;
+#[cfg(feature = "VK_NV_dedicated_allocation_image_aliasing")]
+pub use nv::VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV;
+#[cfg(feature = "VK_NV_descriptor_pool_overallocation")]
+pub use nv::VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV;
+#[cfg(feature = "VK_NV_device_generated_commands_compute")]
+pub use nv::VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV;
+#[cfg(feature = "VK_NV_device_generated_commands")]
+pub use nv::VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV;
+#[cfg(feature = "VK_NV_device_generated_commands")]
+pub use nv::VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV;
+#[cfg(feature = "VK_NV_device_diagnostics_config")]
+pub use nv::VkPhysicalDeviceDiagnosticsConfigFeaturesNV;
+#[cfg(feature = "VK_NV_displacement_micromap")]
+pub use nv::VkPhysicalDeviceDisplacementMicromapFeaturesNV;
+#[cfg(feature = "VK_NV_displacement_micromap")]
+pub use nv::VkPhysicalDeviceDisplacementMicromapPropertiesNV;
+#[cfg(feature = "VK_NV_scissor_exclusive")]
+pub use nv::VkPhysicalDeviceExclusiveScissorFeaturesNV;
+#[cfg(feature = "VK_NV_extended_sparse_address_space")]
+pub use nv::VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV;
+#[cfg(feature = "VK_NV_extended_sparse_address_space")]
+pub use nv::VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV;
+#[cfg(feature = "VK_NV_external_compute_queue")]
+pub use nv::VkPhysicalDeviceExternalComputeQueuePropertiesNV;
+#[cfg(feature = "VK_NV_external_memory_rdma")]
+pub use nv::VkPhysicalDeviceExternalMemoryRDMAFeaturesNV;
+#[cfg(feature = "VK_NV_external_memory_sci_buf")]
+pub use nv::VkPhysicalDeviceExternalMemorySciBufFeaturesNV;
+#[cfg(feature = "VK_NV_external_memory_sci_buf")]
+pub use nv::VkPhysicalDeviceExternalSciBufFeaturesNV;
+#[cfg(feature = "VK_NV_external_sci_sync2")]
+pub use nv::VkPhysicalDeviceExternalSciSync2FeaturesNV;
+#[cfg(feature = "VK_NV_external_sci_sync")]
+pub use nv::VkPhysicalDeviceExternalSciSyncFeaturesNV;
+#[cfg(feature = "VK_NV_fragment_shader_barycentric")]
+pub use nv::VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV;
+#[cfg(feature = "VK_NV_fragment_shading_rate_enums")]
+pub use nv::VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV;
+#[cfg(feature = "VK_NV_fragment_shading_rate_enums")]
+pub use nv::VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV;
+#[cfg(feature = "VK_NV_inherited_viewport_scissor")]
+pub use nv::VkPhysicalDeviceInheritedViewportScissorFeaturesNV;
+#[cfg(feature = "VK_NV_linear_color_attachment")]
+pub use nv::VkPhysicalDeviceLinearColorAttachmentFeaturesNV;
+#[cfg(feature = "VK_NV_memory_decompression")]
+pub use nv::VkPhysicalDeviceMemoryDecompressionFeaturesNV;
+#[cfg(feature = "VK_NV_memory_decompression")]
+pub use nv::VkPhysicalDeviceMemoryDecompressionPropertiesNV;
+#[cfg(feature = "VK_NV_mesh_shader")]
+pub use nv::VkPhysicalDeviceMeshShaderFeaturesNV;
+#[cfg(feature = "VK_NV_mesh_shader")]
+pub use nv::VkPhysicalDeviceMeshShaderPropertiesNV;
+#[cfg(feature = "VK_NV_optical_flow")]
+pub use nv::VkPhysicalDeviceOpticalFlowFeaturesNV;
+#[cfg(feature = "VK_NV_optical_flow")]
+pub use nv::VkPhysicalDeviceOpticalFlowPropertiesNV;
+#[cfg(feature = "VK_NV_partitioned_acceleration_structure")]
+pub use nv::VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV;
+#[cfg(feature = "VK_NV_partitioned_acceleration_structure")]
+pub use nv::VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV;
+#[cfg(feature = "VK_NV_per_stage_descriptor_set")]
+pub use nv::VkPhysicalDevicePerStageDescriptorSetFeaturesNV;
+#[cfg(feature = "VK_NV_present_barrier")]
+pub use nv::VkPhysicalDevicePresentBarrierFeaturesNV;
+#[cfg(feature = "VK_NV_present_metering")]
+pub use nv::VkPhysicalDevicePresentMeteringFeaturesNV;
+#[cfg(feature = "VK_NV_push_constant_bank")]
+pub use nv::VkPhysicalDevicePushConstantBankFeaturesNV;
+#[cfg(feature = "VK_NV_push_constant_bank")]
+pub use nv::VkPhysicalDevicePushConstantBankPropertiesNV;
+#[cfg(feature = "VK_NV_raw_access_chains")]
+pub use nv::VkPhysicalDeviceRawAccessChainsFeaturesNV;
+#[cfg(feature = "VK_NV_ray_tracing_invocation_reorder")]
+pub use nv::VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV;
+#[cfg(feature = "VK_NV_ray_tracing_invocation_reorder")]
+pub use nv::VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV;
+#[cfg(feature = "VK_NV_ray_tracing_linear_swept_spheres")]
+pub use nv::VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV;
+#[cfg(feature = "VK_NV_ray_tracing_motion_blur")]
+pub use nv::VkPhysicalDeviceRayTracingMotionBlurFeaturesNV;
+#[cfg(feature = "VK_NV_ray_tracing")]
+pub use nv::VkPhysicalDeviceRayTracingPropertiesNV;
+#[cfg(feature = "VK_NV_ray_tracing_validation")]
+pub use nv::VkPhysicalDeviceRayTracingValidationFeaturesNV;
+#[cfg(feature = "VK_NV_representative_fragment_test")]
+pub use nv::VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV;
+#[cfg(feature = "VK_NV_shader_atomic_float16_vector")]
+pub use nv::VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV;
+#[cfg(feature = "VK_NV_shader_image_footprint")]
+pub use nv::VkPhysicalDeviceShaderImageFootprintFeaturesNV;
+#[cfg(feature = "VK_NV_shader_sm_builtins")]
+pub use nv::VkPhysicalDeviceShaderSMBuiltinsFeaturesNV;
+#[cfg(feature = "VK_NV_shader_sm_builtins")]
+pub use nv::VkPhysicalDeviceShaderSMBuiltinsPropertiesNV;
+#[cfg(feature = "VK_NV_shading_rate_image")]
+pub use nv::VkPhysicalDeviceShadingRateImageFeaturesNV;
+#[cfg(feature = "VK_NV_shading_rate_image")]
+pub use nv::VkPhysicalDeviceShadingRateImagePropertiesNV;
+#[cfg(feature = "VK_NV_framebuffer_mixed_samples")]
+pub use nv::VkPipelineCoverageModulationStateCreateFlagsNV;
+#[cfg(feature = "VK_NV_framebuffer_mixed_samples")]
+pub use nv::VkPipelineCoverageModulationStateCreateInfoNV;
+#[cfg(feature = "VK_NV_coverage_reduction_mode")]
+pub use nv::VkPipelineCoverageReductionStateCreateFlagsNV;
+#[cfg(feature = "VK_NV_coverage_reduction_mode")]
+pub use nv::VkPipelineCoverageReductionStateCreateInfoNV;
+#[cfg(feature = "VK_NV_fragment_coverage_to_color")]
+pub use nv::VkPipelineCoverageToColorStateCreateFlagsNV;
+#[cfg(feature = "VK_NV_fragment_coverage_to_color")]
+pub use nv::VkPipelineCoverageToColorStateCreateInfoNV;
+#[cfg(feature = "VK_NV_fragment_shading_rate_enums")]
+pub use nv::VkPipelineFragmentShadingRateEnumStateCreateInfoNV;
+#[cfg(feature = "VK_NV_device_generated_commands_compute")]
+pub use nv::VkPipelineIndirectDeviceAddressInfoNV;
+#[cfg(feature = "VK_NV_representative_fragment_test")]
+pub use nv::VkPipelineRepresentativeFragmentTestStateCreateInfoNV;
+#[cfg(feature = "VK_NV_shading_rate_image")]
+pub use nv::VkPipelineViewportCoarseSampleOrderStateCreateInfoNV;
+#[cfg(feature = "VK_NV_scissor_exclusive")]
+pub use nv::VkPipelineViewportExclusiveScissorStateCreateInfoNV;
+#[cfg(feature = "VK_NV_shading_rate_image")]
+pub use nv::VkPipelineViewportShadingRateImageStateCreateInfoNV;
+#[cfg(feature = "VK_NV_viewport_swizzle")]
+pub use nv::VkPipelineViewportSwizzleStateCreateFlagsNV;
+#[cfg(feature = "VK_NV_viewport_swizzle")]
+pub use nv::VkPipelineViewportSwizzleStateCreateInfoNV;
+#[cfg(feature = "VK_NV_clip_space_w_scaling")]
+pub use nv::VkPipelineViewportWScalingStateCreateInfoNV;
+#[cfg(feature = "VK_NV_push_constant_bank")]
+pub use nv::VkPushConstantBankInfoNV;
+#[cfg(feature = "VK_NV_low_latency")]
+pub use nv::VkQueryLowLatencySupportNV;
+#[cfg(any(
+  all(
+    feature = "VK_NV_device_diagnostic_checkpoints",
+    feature = "VK_VERSION_1_3"
+  ),
+  all(
+    feature = "VK_KHR_synchronization2",
+    feature = "VK_NV_device_diagnostic_checkpoints"
+  )
+))]
+pub use nv::VkQueueFamilyCheckpointProperties2NV;
+#[cfg(feature = "VK_NV_device_diagnostic_checkpoints")]
+pub use nv::VkQueueFamilyCheckpointPropertiesNV;
+#[cfg(all(
+  feature = "VK_KHR_ray_tracing_pipeline",
+  feature = "VK_NV_cluster_acceleration_structure"
+))]
+pub use nv::VkRayTracingPipelineClusterAccelerationStructureCreateInfoNV;
+#[cfg(feature = "VK_NV_ray_tracing")]
+pub use nv::VkRayTracingPipelineCreateInfoNV;
+#[cfg(feature = "VK_NV_ray_tracing")]
+pub use nv::VkRayTracingShaderGroupCreateInfoNV;
+#[cfg(feature = "VK_NV_external_memory_rdma")]
+pub use nv::VkRemoteAddressNV;
+#[cfg(feature = "VK_NV_ray_tracing_motion_blur")]
+pub use nv::VkSRTDataNV;
+#[cfg(any(
+  feature = "VK_NV_external_sci_sync",
+  feature = "VK_NV_external_sci_sync2"
+))]
+pub use nv::VkSciSyncAttributesInfoNV;
+#[cfg(feature = "VK_NV_external_sci_sync")]
+pub use nv::VkSemaphoreGetSciSyncInfoNV;
+#[cfg(feature = "VK_NV_external_sci_sync2")]
+pub use nv::VkSemaphoreSciSyncCreateInfoNV;
+#[cfg(feature = "VK_NV_external_sci_sync2")]
+pub use nv::VkSemaphoreSciSyncPoolCreateInfoNV;
+#[cfg(feature = "VK_NV_external_sci_sync2")]
+pub use nv::VkSemaphoreSciSyncPoolNV;
+#[cfg(feature = "VK_NV_low_latency2")]
+pub use nv::VkSetLatencyMarkerInfoNV;
+#[cfg(feature = "VK_NV_present_metering")]
+pub use nv::VkSetPresentConfigNV;
+#[cfg(feature = "VK_NV_device_generated_commands")]
+pub use nv::VkSetStateFlagsIndirectCommandNV;
+#[cfg(feature = "VK_NV_shading_rate_image")]
+pub use nv::VkShadingRatePaletteNV;
+#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
+pub use nv::VkStridedDeviceAddressNV;
+#[cfg(feature = "VK_NV_present_barrier")]
+pub use nv::VkSurfaceCapabilitiesPresentBarrierNV;
+#[cfg(feature = "VK_NV_low_latency2")]
+pub use nv::VkSwapchainLatencyCreateInfoNV;
+#[cfg(feature = "VK_NV_present_barrier")]
+pub use nv::VkSwapchainPresentBarrierCreateInfoNV;
+#[cfg(feature = "VK_NV_ray_tracing")]
+pub use nv::VkTransformMatrixNV;
+#[cfg(feature = "VK_NV_viewport_swizzle")]
+pub use nv::VkViewportSwizzleNV;
+#[cfg(feature = "VK_NV_clip_space_w_scaling")]
+pub use nv::VkViewportWScalingNV;
+#[cfg(feature = "VK_NV_win32_keyed_mutex")]
+pub use nv::VkWin32KeyedMutexAcquireReleaseInfoNV;
+#[cfg(feature = "VK_NV_ray_tracing")]
+pub use nv::VkWriteDescriptorSetAccelerationStructureNV;
+#[cfg(feature = "VK_NV_partitioned_acceleration_structure")]
+pub use nv::VkWriteDescriptorSetPartitionedAccelerationStructureNV;
+#[cfg(feature = "VK_NVX_binary_import")]
+pub use nvx::VkCuFunctionCreateInfoNVX;
+#[cfg(feature = "VK_NVX_binary_import")]
+pub use nvx::VkCuFunctionNVX;
+#[cfg(feature = "VK_NVX_binary_import")]
+pub use nvx::VkCuLaunchInfoNVX;
+#[cfg(feature = "VK_NVX_binary_import")]
+pub use nvx::VkCuModuleCreateInfoNVX;
+#[cfg(feature = "VK_NVX_binary_import")]
+pub use nvx::VkCuModuleNVX;
+#[cfg(feature = "VK_NVX_binary_import")]
+pub use nvx::VkCuModuleTexturingModeCreateInfoNVX;
+#[cfg(feature = "VK_NVX_image_view_handle")]
+pub use nvx::VkImageViewAddressPropertiesNVX;
+#[cfg(feature = "VK_NVX_image_view_handle")]
+pub use nvx::VkImageViewHandleInfoNVX;
+#[cfg(any(
+  all(
+    feature = "VK_NVX_multiview_per_view_attributes",
+    feature = "VK_VERSION_1_3"
+  ),
+  all(
+    feature = "VK_KHR_dynamic_rendering",
+    feature = "VK_NVX_multiview_per_view_attributes"
+  )
+))]
+pub use nvx::VkMultiviewPerViewAttributesInfoNVX;
+#[cfg(feature = "VK_NVX_multiview_per_view_attributes")]
+pub use nvx::VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX;
+#[cfg(feature = "VK_OHOS_external_memory")]
+pub use ohos::OH_NativeBuffer;
+#[cfg(feature = "VK_OHOS_surface")]
+pub use ohos::OHNativeWindow;
+#[cfg(feature = "VK_OHOS_external_memory")]
+pub use ohos::VkExternalFormatOHOS;
+#[cfg(feature = "VK_OHOS_external_memory")]
+pub use ohos::VkImportNativeBufferInfoOHOS;
+#[cfg(feature = "VK_OHOS_external_memory")]
+pub use ohos::VkMemoryGetNativeBufferInfoOHOS;
+#[cfg(feature = "VK_OHOS_external_memory")]
+pub use ohos::VkNativeBufferFormatPropertiesOHOS;
+#[cfg(feature = "VK_OHOS_external_memory")]
+pub use ohos::VkNativeBufferPropertiesOHOS;
+#[cfg(feature = "VK_OHOS_external_memory")]
+pub use ohos::VkNativeBufferUsageOHOS;
+#[cfg(feature = "VK_OHOS_surface")]
+pub use ohos::VkSurfaceCreateFlagsOHOS;
+#[cfg(feature = "VK_OHOS_surface")]
+pub use ohos::VkSurfaceCreateInfoOHOS;
+#[cfg(feature = "VK_QCOM_filter_cubic_weights")]
+pub use qcom::VkBlitImageCubicWeightsInfoQCOM;
+#[cfg(feature = "VK_QCOM_render_pass_transform")]
+pub use qcom::VkCommandBufferInheritanceRenderPassTransformInfoQCOM;
+#[cfg(feature = "VK_QCOM_rotated_copy_commands")]
+pub use qcom::VkCopyCommandTransformInfoQCOM;
+#[cfg(feature = "VK_QCOM_data_graph_model")]
+pub use qcom::VkDataGraphPipelineBuiltinModelCreateInfoQCOM;
+#[cfg(feature = "VK_QCOM_tile_shading")]
+pub use qcom::VkDispatchTileInfoQCOM;
+#[cfg(feature = "VK_QCOM_image_processing")]
+pub use qcom::VkImageViewSampleWeightCreateInfoQCOM;
+#[cfg(feature = "VK_QCOM_multiview_per_view_render_areas")]
+pub use qcom::VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM;
+#[cfg(feature = "VK_QCOM_tile_shading")]
+pub use qcom::VkPerTileBeginInfoQCOM;
+#[cfg(feature = "VK_QCOM_tile_shading")]
+pub use qcom::VkPerTileEndInfoQCOM;
+#[cfg(feature = "VK_QCOM_queue_perf_hint")]
+pub use qcom::VkPerfHintInfoQCOM;
+#[cfg(feature = "VK_QCOM_cooperative_matrix_conversion")]
+pub use qcom::VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM;
+#[cfg(feature = "VK_QCOM_filter_cubic_clamp")]
+pub use qcom::VkPhysicalDeviceCubicClampFeaturesQCOM;
+#[cfg(feature = "VK_QCOM_filter_cubic_weights")]
+pub use qcom::VkPhysicalDeviceCubicWeightsFeaturesQCOM;
+#[cfg(feature = "VK_QCOM_data_graph_model")]
+pub use qcom::VkPhysicalDeviceDataGraphModelFeaturesQCOM;
+#[cfg(feature = "VK_QCOM_elapsed_timer_query")]
+pub use qcom::VkPhysicalDeviceElapsedTimerQueryFeaturesQCOM;
+#[cfg(feature = "VK_QCOM_fragment_density_map_offset")]
+pub use qcom::VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM;
+#[cfg(feature = "VK_QCOM_fragment_density_map_offset")]
+pub use qcom::VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM;
+#[cfg(feature = "VK_QCOM_image_processing2")]
+pub use qcom::VkPhysicalDeviceImageProcessing2FeaturesQCOM;
+#[cfg(feature = "VK_QCOM_image_processing2")]
+pub use qcom::VkPhysicalDeviceImageProcessing2PropertiesQCOM;
+#[cfg(feature = "VK_QCOM_image_processing3")]
+pub use qcom::VkPhysicalDeviceImageProcessing3FeaturesQCOM;
+#[cfg(feature = "VK_QCOM_image_processing")]
+pub use qcom::VkPhysicalDeviceImageProcessingFeaturesQCOM;
+#[cfg(feature = "VK_QCOM_image_processing")]
+pub use qcom::VkPhysicalDeviceImageProcessingPropertiesQCOM;
+#[cfg(feature = "VK_QCOM_multiview_per_view_render_areas")]
+pub use qcom::VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM;
+#[cfg(feature = "VK_QCOM_multiview_per_view_viewports")]
+pub use qcom::VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM;
+#[cfg(feature = "VK_QCOM_queue_perf_hint")]
+pub use qcom::VkPhysicalDeviceQueuePerfHintFeaturesQCOM;
+#[cfg(feature = "VK_QCOM_queue_perf_hint")]
+pub use qcom::VkPhysicalDeviceQueuePerfHintPropertiesQCOM;
+#[cfg(feature = "VK_QCOM_shader_multiple_wait_queues")]
+pub use qcom::VkPhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM;
+#[cfg(feature = "VK_QCOM_shader_multiple_wait_queues")]
+pub use qcom::VkPhysicalDeviceShaderMultipleWaitQueuesPropertiesQCOM;
+#[cfg(feature = "VK_QCOM_tile_memory_heap")]
+pub use qcom::VkPhysicalDeviceTileMemoryHeapFeaturesQCOM;
+#[cfg(feature = "VK_QCOM_tile_memory_heap")]
+pub use qcom::VkPhysicalDeviceTileMemoryHeapPropertiesQCOM;
+#[cfg(feature = "VK_QCOM_tile_properties")]
+pub use qcom::VkPhysicalDeviceTilePropertiesFeaturesQCOM;
+#[cfg(feature = "VK_QCOM_tile_shading")]
+pub use qcom::VkPhysicalDeviceTileShadingFeaturesQCOM;
+#[cfg(feature = "VK_QCOM_tile_shading")]
+pub use qcom::VkPhysicalDeviceTileShadingPropertiesQCOM;
+#[cfg(feature = "VK_QCOM_ycbcr_degamma")]
+pub use qcom::VkPhysicalDeviceYcbcrDegammaFeaturesQCOM;
+#[cfg(feature = "VK_QCOM_data_graph_model")]
+pub use qcom::VkPipelineCacheHeaderVersionDataGraphQCOM;
+#[cfg(feature = "VK_QCOM_tile_shading")]
+pub use qcom::VkRenderPassTileShadingCreateInfoQCOM;
+#[cfg(feature = "VK_QCOM_render_pass_transform")]
+pub use qcom::VkRenderPassTransformBeginInfoQCOM;
+#[cfg(feature = "VK_QCOM_image_processing2")]
+pub use qcom::VkSamplerBlockMatchWindowCreateInfoQCOM;
+#[cfg(feature = "VK_QCOM_filter_cubic_weights")]
+pub use qcom::VkSamplerCubicWeightsCreateInfoQCOM;
+#[cfg(feature = "VK_QCOM_ycbcr_degamma")]
+pub use qcom::VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM;
+#[cfg(feature = "VK_QCOM_fragment_density_map_offset")]
+pub use qcom::VkSubpassFragmentDensityMapOffsetEndInfoQCOM;
+#[cfg(feature = "VK_QCOM_tile_memory_heap")]
+pub use qcom::VkTileMemoryBindInfoQCOM;
+#[cfg(feature = "VK_QCOM_tile_memory_heap")]
+pub use qcom::VkTileMemoryRequirementsQCOM;
+#[cfg(all(
+  feature = "VK_QCOM_tile_memory_heap",
+  feature = "VK_QCOM_tile_properties"
+))]
+pub use qcom::VkTileMemorySizeInfoQCOM;
+#[cfg(feature = "VK_QCOM_tile_properties")]
+pub use qcom::VkTilePropertiesQCOM;
+#[cfg(feature = "VK_QCOM_tile_shading")]
+pub use qcom::VkTileShadingRenderPassFlagsQCOM;
+#[cfg(feature = "VK_QNX_external_memory_screen_buffer")]
+pub use qnx::_screen_buffer;
+#[cfg(feature = "VK_QNX_screen_surface")]
+pub use qnx::_screen_context;
+#[cfg(feature = "VK_QNX_screen_surface")]
+pub use qnx::_screen_window;
+#[cfg(feature = "VK_QNX_external_memory_screen_buffer")]
+pub use qnx::VkExternalFormatQNX;
+#[cfg(feature = "VK_QNX_external_memory_screen_buffer")]
+pub use qnx::VkImportScreenBufferInfoQNX;
+#[cfg(feature = "VK_QNX_external_memory_screen_buffer")]
+pub use qnx::VkPhysicalDeviceExternalMemoryScreenBufferFeaturesQNX;
+#[cfg(feature = "VK_QNX_external_memory_screen_buffer")]
+pub use qnx::VkScreenBufferFormatPropertiesQNX;
+#[cfg(feature = "VK_QNX_external_memory_screen_buffer")]
+pub use qnx::VkScreenBufferPropertiesQNX;
+#[cfg(feature = "VK_QNX_screen_surface")]
+pub use qnx::VkScreenSurfaceCreateFlagsQNX;
+#[cfg(feature = "VK_QNX_screen_surface")]
+pub use qnx::VkScreenSurfaceCreateInfoQNX;
+#[cfg(feature = "VK_SEC_amigo_profiling")]
+pub use sec::VkAmigoProfilingSubmitInfoSEC;
+#[cfg(feature = "VK_SEC_amigo_profiling")]
+pub use sec::VkPhysicalDeviceAmigoProfilingFeaturesSEC;
+#[cfg(feature = "VK_SEC_pipeline_cache_incremental_mode")]
+pub use sec::VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC;
+#[cfg(feature = "VK_SEC_throttle_hint")]
+pub use sec::VkPhysicalDeviceThrottleHintFeaturesSEC;
+#[cfg(feature = "VK_SEC_throttle_hint")]
+pub use sec::VkThrottleHintSubmitInfoSEC;
+#[cfg(feature = "VK_SEC_ubm_surface")]
+pub use sec::VkUbmSurfaceCreateFlagsSEC;
+#[cfg(feature = "VK_SEC_ubm_surface")]
+pub use sec::VkUbmSurfaceCreateInfoSEC;
+#[cfg(feature = "VK_SEC_ubm_surface")]
+pub use sec::ubm_device;
+#[cfg(feature = "VK_SEC_ubm_surface")]
+pub use sec::ubm_surface;
+#[cfg(feature = "VK_VALVE_descriptor_set_host_mapping")]
+pub use valve::VkDescriptorSetBindingReferenceVALVE;
+#[cfg(feature = "VK_VALVE_descriptor_set_host_mapping")]
+pub use valve::VkDescriptorSetLayoutHostMappingInfoVALVE;
+#[cfg(feature = "VK_VALVE_mutable_descriptor_type")]
+pub use valve::VkMutableDescriptorTypeCreateInfoVALVE;
+#[cfg(feature = "VK_VALVE_mutable_descriptor_type")]
+pub use valve::VkMutableDescriptorTypeListVALVE;
+#[cfg(feature = "VK_VALVE_descriptor_set_host_mapping")]
+pub use valve::VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE;
+#[cfg(feature = "VK_VALVE_fragment_density_map_layered")]
+pub use valve::VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE;
+#[cfg(feature = "VK_VALVE_fragment_density_map_layered")]
+pub use valve::VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE;
+#[cfg(feature = "VK_VALVE_mutable_descriptor_type")]
+pub use valve::VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE;
+#[cfg(feature = "VK_VALVE_shader_mixed_float_dot_product")]
+pub use valve::VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE;
+#[cfg(feature = "VK_VALVE_video_encode_rgb_conversion")]
+pub use valve::VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE;
+#[cfg(feature = "VK_VALVE_fragment_density_map_layered")]
+pub use valve::VkPipelineFragmentDensityMapLayeredCreateInfoVALVE;
+#[cfg(feature = "VK_VALVE_video_encode_rgb_conversion")]
+pub use valve::VkVideoEncodeProfileRgbConversionInfoVALVE;
+#[cfg(feature = "VK_VALVE_video_encode_rgb_conversion")]
+pub use valve::VkVideoEncodeRgbChromaOffsetFlagsVALVE;
+#[cfg(feature = "VK_VALVE_video_encode_rgb_conversion")]
+pub use valve::VkVideoEncodeRgbConversionCapabilitiesVALVE;
+#[cfg(feature = "VK_VALVE_video_encode_rgb_conversion")]
+pub use valve::VkVideoEncodeRgbModelConversionFlagsVALVE;
+#[cfg(feature = "VK_VALVE_video_encode_rgb_conversion")]
+pub use valve::VkVideoEncodeRgbRangeCompressionFlagsVALVE;
+#[cfg(feature = "VK_VALVE_video_encode_rgb_conversion")]
+pub use valve::VkVideoEncodeSessionRgbConversionCreateInfoVALVE;

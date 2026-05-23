@@ -6,9 +6,22 @@ use crate::codegen::utils::{
 use crate::codegen::{deprecate_attr, feature_key, pretty, refpage_url, sanitize_ident};
 use crate::ir::{Member, Optional, Registry, Struct, Typedef, TypedefKind};
 use crate::types::{c_type_to_rust, ctype_to_rust_str};
-use proc_macro2::TokenStream;
+use proc_macro2::{TokenStream, TokenTree};
 use quote::{format_ident, quote};
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashSet};
+
+pub struct GeneratedTypes {
+    pub mod_rs: String,
+    pub files: BTreeMap<String, String>,
+}
+
+#[derive(Default)]
+struct TypeBucket {
+    items: TokenStream,
+    names: BTreeSet<String>,
+    exports: BTreeMap<String, TokenStream>,
+    refs: BTreeSet<String>,
+}
 
 /// Parse a Rust type string into a `TokenStream`, falling back to a raw identifier.
 fn parse_ty(s: &str) -> TokenStream {
@@ -55,31 +68,33 @@ fn typed_bitmask_target(td: &Typedef, reg: &Registry) -> Option<String> {
         .then(|| bits.to_owned())
 }
 
-pub fn gen_types_rs(reg: &Registry) -> String {
+pub fn gen_types_rs(reg: &Registry) -> GeneratedTypes {
     // Collect all items keyed by feature group, then emit groups sorted
     // so identical #[cfg(...)] attributes are adjacent - the compiler
     // evaluates each unique cfg expression once rather than per-item.
 
-    let mut groups: BTreeMap<Vec<String>, TokenStream> = BTreeMap::new();
+    let mut groups: BTreeMap<Vec<String>, TypeBucket> = BTreeMap::new();
     let mut seen = HashSet::new();
-    let mut imports = ExplicitImports::default();
-    imports.add_all_enum_names(reg);
 
     for td in reg.typedefs.values().flatten() {
         if td.provided_by.is_empty() || seen.contains(&td.name) {
             continue;
         }
         seen.insert(td.name.clone());
-        if let Some(bits) = typed_bitmask_target(td, reg) {
-            imports.add_enum_name(reg, &bits);
-        }
-        collect_encoded_type_imports(&mut imports, reg, td.ty.as_deref());
         let ts = gen_typedef_ts(td, reg);
         if !ts.is_empty() {
-            groups
-                .entry(feature_key(&td.provided_by))
-                .or_default()
-                .extend(ts);
+            let bucket = groups.entry(feature_key(&td.provided_by)).or_default();
+            bucket.names.insert(td.name.clone());
+            bucket.exports.insert(
+                td.name.clone(),
+                cfg_availability(&td.availability, &td.provided_by, td.dep.as_ref()),
+            );
+            collect_token_idents(&ts, &mut bucket.refs);
+            if let Some(bits) = typed_bitmask_target(td, reg) {
+                bucket.refs.insert(bits);
+            }
+            collect_encoded_type_refs(&mut bucket.refs, reg, td.ty.as_deref());
+            bucket.items.extend(ts);
         }
     }
     for s in reg.structs.values().flatten() {
@@ -87,46 +102,231 @@ pub fn gen_types_rs(reg: &Registry) -> String {
             continue;
         }
         seen.insert(s.name.clone());
-        for member in &s.members {
-            imports.add_ctype_external_to_types_rs(reg, &member.ty);
-        }
         let ts = gen_struct_ts(s, reg);
         if !ts.is_empty() {
-            groups
-                .entry(feature_key(&s.provided_by))
-                .or_default()
-                .extend(ts);
+            let bucket = groups.entry(feature_key(&s.provided_by)).or_default();
+            bucket.names.insert(s.name.clone());
+            bucket.exports.insert(
+                s.name.clone(),
+                cfg_availability(&s.availability, &s.provided_by, s.dep.as_ref()),
+            );
+            collect_token_idents(&ts, &mut bucket.refs);
+            bucket.items.extend(ts);
         }
     }
-    let imports = imports.to_tokens(reg);
 
-    let mut out = TokenStream::new();
-    out.extend(quote! {
-        //! Struct, union, handle, typedef, and platform handle definitions.
-        #[allow(unused_imports)] use core::ffi::{c_char, c_void};
-        #imports
-        /// Marker trait for Vulkan structs that are valid in the `pNext` chain rooted at `Root`.
-        ///
-        /// # Safety
-        /// Implementors must be Vulkan structs whose `structextends` metadata includes `Root`.
-        pub unsafe trait VkPNextExtends<Root> {}
-    });
-    for (_key, items) in groups {
-        out.extend(items);
+    let mut buckets: BTreeMap<String, TypeBucket> = BTreeMap::new();
+    buckets
+        .entry("global.rs".to_owned())
+        .or_default()
+        .items
+        .extend(quote! {
+            /// Marker trait for Vulkan structs that are valid in the `pNext` chain rooted at `Root`.
+            ///
+            /// # Safety
+            /// Implementors must be Vulkan structs whose `structextends` metadata includes `Root`.
+            pub unsafe trait VkPNextExtends<Root> {}
+        });
+    buckets
+        .entry("global.rs".to_owned())
+        .or_default()
+        .names
+        .insert("VkPNextExtends".to_owned());
+    buckets
+        .entry("global.rs".to_owned())
+        .or_default()
+        .exports
+        .insert("VkPNextExtends".to_owned(), quote! {});
+    for (key, group) in groups {
+        let bucket = buckets.entry(type_bucket_path(&key)).or_default();
+        bucket.items.extend(group.items);
+        bucket.names.extend(group.names);
+        bucket.exports.extend(group.exports);
+        bucket.refs.extend(group.refs);
     }
-    pretty(&out)
+
+    let mut files = BTreeMap::new();
+    for (path, bucket) in &buckets {
+        let header = type_file_header(path, reg, bucket);
+        let mut out = TokenStream::new();
+        out.extend(header);
+        out.extend(bucket.items.clone());
+        files.insert(path.clone(), pretty(&out));
+    }
+
+    let (mod_rs, vendor_mod_rs) = gen_types_mod_rs(&buckets);
+    if let Some(vendor_mod_rs) = vendor_mod_rs {
+        files.insert("vendor/mod.rs".to_owned(), vendor_mod_rs);
+    }
+
+    GeneratedTypes { mod_rs, files }
 }
 
-fn collect_encoded_type_imports(
-    imports: &mut ExplicitImports,
-    reg: &Registry,
-    encoded: Option<&str>,
-) {
+fn type_file_header(_path: &str, reg: &Registry, bucket: &TypeBucket) -> TokenStream {
+    let mut imports = ExplicitImports::default();
+    let mut pnext_import = None;
+    for name in &bucket.refs {
+        imports.add_const_name(reg, name);
+        imports.add_enum_name(reg, name);
+        imports.add_type_name(reg, name);
+        if name == "VkPNextExtends" && !bucket.names.contains(name) {
+            pnext_import = Some(quote! { use crate::types::VkPNextExtends; });
+        }
+    }
+    imports.remove_type_names(&bucket.names);
+    let imports = imports.to_tokens(reg);
+    let ffi_import = ffi_import_tokens(&bucket.refs);
+    quote! {
+        #ffi_import
+        #imports
+        #pnext_import
+    }
+}
+
+fn ffi_import_tokens(refs: &BTreeSet<String>) -> TokenStream {
+    match (refs.contains("c_char"), refs.contains("c_void")) {
+        (true, true) => quote! { use core::ffi::{c_char, c_void}; },
+        (true, false) => quote! { use core::ffi::c_char; },
+        (false, true) => quote! { use core::ffi::c_void; },
+        (false, false) => quote! {},
+    }
+}
+
+fn gen_types_mod_rs(buckets: &BTreeMap<String, TypeBucket>) -> (String, Option<String>) {
+    let mut root_mods = Vec::new();
+    let mut root_uses = Vec::new();
+    let mut vendor_mods = Vec::new();
+    let mut vendor_uses = Vec::new();
+    let mut vendor_exports = BTreeMap::<String, TokenStream>::new();
+
+    for (path, bucket) in buckets {
+        if let Some(vendor_name) = path
+            .strip_prefix("vendor/")
+            .and_then(|p| p.strip_suffix(".rs"))
+        {
+            let ident = format_ident!("{}", vendor_name);
+            vendor_mods.push(quote! { mod #ident; });
+            for (name, cfg) in &bucket.exports {
+                let name = format_ident!("{}", name);
+                vendor_uses.push(quote! { #cfg pub use #ident::#name; });
+            }
+            vendor_exports.extend(bucket.exports.clone());
+        } else if let Some(module_name) = path.strip_suffix(".rs") {
+            let ident = format_ident!("{}", module_name);
+            root_mods.push(quote! { mod #ident; });
+            for (name, cfg) in &bucket.exports {
+                let name = format_ident!("{}", name);
+                root_uses.push(quote! { #cfg pub use #ident::#name; });
+            }
+        }
+    }
+
+    let vendor_exports = vendor_exports.iter().map(|(name, cfg)| {
+        let name = format_ident!("{}", name);
+        quote! { #cfg pub use vendor::#name; }
+    });
+    let vendor = (!vendor_mods.is_empty()).then_some(quote! {
+        mod vendor;
+        #(#vendor_exports)*
+    });
+
+    let mut root = TokenStream::new();
+    root.extend(quote! {
+        //! Struct, union, handle, typedef, and platform handle definitions.
+        #(#root_mods)*
+        #vendor
+        #(#root_uses)*
+    });
+
+    let mut vendor_file = TokenStream::new();
+    vendor_file.extend(quote! {
+        #(#vendor_mods)*
+        #(#vendor_uses)*
+    });
+
+    let vendor = (!vendor_mods.is_empty()).then(|| pretty(&vendor_file));
+    (pretty(&root), vendor)
+}
+
+fn type_bucket_path(providers: &[String]) -> String {
+    let Some(provider) = providers
+        .iter()
+        .find(|p| is_core_type_provider(p))
+        .or_else(|| providers.iter().find(|p| p.starts_with("VK_KHR_")))
+        .or_else(|| providers.iter().find(|p| p.starts_with("VK_EXT_")))
+        .or_else(|| providers.first())
+    else {
+        return "global.rs".to_owned();
+    };
+
+    if is_core_type_provider(provider) {
+        return format!("{}.rs", core_type_module_name(provider));
+    }
+    if provider.starts_with("VK_KHR_") {
+        return "khr.rs".to_owned();
+    }
+    if provider.starts_with("VK_EXT_") {
+        return "ext.rs".to_owned();
+    }
+
+    format!("vendor/{}.rs", vendor_type_module_name(provider))
+}
+
+fn is_core_type_provider(provider: &str) -> bool {
+    provider.starts_with("VK_BASE_VERSION_")
+        || provider.starts_with("VK_COMPUTE_VERSION_")
+        || provider.starts_with("VK_GRAPHICS_VERSION_")
+        || provider.starts_with("VK_VERSION_")
+        || provider.starts_with("VKSC_VERSION_")
+}
+
+fn core_type_module_name(provider: &str) -> String {
+    if let Some(version) = provider.strip_prefix("VK_BASE_VERSION_") {
+        return format!("base_{}", version.to_ascii_lowercase());
+    }
+    if let Some(version) = provider.strip_prefix("VK_COMPUTE_VERSION_") {
+        return format!("compute_{}", version.to_ascii_lowercase());
+    }
+    if let Some(version) = provider.strip_prefix("VK_GRAPHICS_VERSION_") {
+        return format!("graphics_{}", version.to_ascii_lowercase());
+    }
+    if let Some(version) = provider.strip_prefix("VK_VERSION_") {
+        return format!("version_{}", version.to_ascii_lowercase());
+    }
+    if let Some(version) = provider.strip_prefix("VKSC_VERSION_") {
+        return format!("vksc_{}", version.to_ascii_lowercase());
+    }
+    provider.to_ascii_lowercase()
+}
+
+fn vendor_type_module_name(provider: &str) -> String {
+    provider
+        .strip_prefix("VK_")
+        .and_then(|rest| rest.split('_').next())
+        .unwrap_or(provider)
+        .to_ascii_lowercase()
+}
+
+fn collect_token_idents(ts: &TokenStream, refs: &mut BTreeSet<String>) {
+    for tt in ts.clone() {
+        match tt {
+            TokenTree::Ident(ident) => {
+                refs.insert(ident.to_string());
+            }
+            TokenTree::Group(group) => collect_token_idents(&group.stream(), refs),
+            TokenTree::Punct(_) | TokenTree::Literal(_) => {}
+        }
+    }
+}
+
+fn collect_encoded_type_refs(refs: &mut BTreeSet<String>, reg: &Registry, encoded: Option<&str>) {
     let Some(encoded) = encoded else {
         return;
     };
     for token in encoded.split(|ch: char| !ch.is_ascii_alphanumeric() && ch != '_') {
-        imports.add_enum_name(reg, token);
+        if reg.enums.contains_key(token) || reg.constants.contains_key(token) {
+            refs.insert(token.to_owned());
+        }
     }
 }
 
