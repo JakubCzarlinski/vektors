@@ -54,7 +54,7 @@ unsafe impl<'a> Sync for VkRenderingAreaInfo<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_4")]
 impl<'a> VkRenderingAreaInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RENDERING_AREA_INFO,
+    sType: VkStructureType::RENDERING_AREA_INFO,
     pNext: core::ptr::null(),
     viewMask: 0,
     colorAttachmentCount: 0,
@@ -185,7 +185,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPipelineVertexInputStateCreateInfo<'
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_4")]
 impl<'a> VkPipelineVertexInputDivisorStateCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO,
+    sType: VkStructureType::PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO,
     pNext: core::ptr::null(),
     vertexBindingDivisorCount: 0,
     pVertexBindingDivisors: core::ptr::null(),
@@ -270,7 +270,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_4")]
 impl<'a> VkPhysicalDeviceVertexAttributeDivisorProperties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES,
     pNext: core::ptr::null_mut(),
     maxVertexAttribDivisor: 0,
     supportsNonZeroFirstInstance: 0,
@@ -347,7 +347,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_4")]
 impl<'a> VkPhysicalDeviceVertexAttributeDivisorFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES,
     pNext: core::ptr::null_mut(),
     vertexAttributeInstanceRateDivisor: 0,
     vertexAttributeInstanceRateZeroDivisor: 0,
@@ -443,7 +443,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_4")]
 impl<'a> VkPhysicalDeviceLineRasterizationFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_LINE_RASTERIZATION_FEATURES,
     pNext: core::ptr::null_mut(),
     rectangularLines: 0,
     bresenhamLines: 0,
@@ -558,7 +558,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_4")]
 impl<'a> VkPhysicalDeviceLineRasterizationProperties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_LINE_RASTERIZATION_PROPERTIES,
     pNext: core::ptr::null_mut(),
     lineSubPixelPrecisionBits: 0,
     _marker: core::marker::PhantomData,
@@ -629,7 +629,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPipelineRasterizationStateCreateInfo
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_4")]
 impl<'a> VkPipelineRasterizationLineStateCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_LINE_STATE_CREATE_INFO,
+    sType: VkStructureType::PIPELINE_RASTERIZATION_LINE_STATE_CREATE_INFO,
     pNext: core::ptr::null(),
     lineRasterizationMode: VkLineRasterizationMode(0),
     stippledLineEnable: 0,
@@ -717,7 +717,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_4")]
 impl<'a> VkPhysicalDeviceDynamicRenderingLocalReadFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_LOCAL_READ_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_DYNAMIC_RENDERING_LOCAL_READ_FEATURES,
     pNext: core::ptr::null_mut(),
     dynamicRenderingLocalRead: 0,
     _marker: core::marker::PhantomData,
@@ -808,7 +808,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkCommandBufferInheritanceInfo<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_4")]
 impl<'a> VkRenderingAttachmentLocationInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_LOCATION_INFO,
+    sType: VkStructureType::RENDERING_ATTACHMENT_LOCATION_INFO,
     pNext: core::ptr::null(),
     colorAttachmentCount: 0,
     pColorAttachmentLocations: core::ptr::null(),
@@ -913,7 +913,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkCommandBufferInheritanceInfo<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_4")]
 impl<'a> VkRenderingInputAttachmentIndexInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RENDERING_INPUT_ATTACHMENT_INDEX_INFO,
+    sType: VkStructureType::RENDERING_INPUT_ATTACHMENT_INDEX_INFO,
     pNext: core::ptr::null(),
     colorAttachmentCount: 0,
     pColorAttachmentInputIndices: core::ptr::null(),

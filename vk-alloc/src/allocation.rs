@@ -135,7 +135,7 @@ impl HostImportBufferCreateInfo {
     pub const DEFAULT: Self = Self {
         host_ptr: null_mut(),
         size: 0,
-        handle_type: vk::VkExternalMemoryHandleTypeFlagBits::VK_EXTERNAL_MEMORY_HANDLE_TYPE_HOST_ALLOCATION_BIT_EXT,
+        handle_type: vk::VkExternalMemoryHandleTypeFlagBits::HOST_ALLOCATION_BIT_EXT,
     };
 
     pub const fn new(host_ptr: *mut u8, size: u64) -> Self {

@@ -158,7 +158,7 @@ impl<'dev> Event<'dev> {
   pub fn vkGetEventStatus(&self) -> Result<VkResult, VkResult> {
     let r =
       unsafe { (self.table).vkGetEventStatus.unwrap_unchecked()(self.device().raw(), self.raw) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -189,7 +189,7 @@ impl<'dev> Event<'dev> {
   #[inline(always)]
   pub fn vkResetEvent(&self) -> Result<VkResult, VkResult> {
     let r = unsafe { (self.table).vkResetEvent.unwrap_unchecked()(self.device().raw(), self.raw) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -221,7 +221,7 @@ impl<'dev> Event<'dev> {
   #[inline(always)]
   pub fn vkSetEvent(&self) -> Result<VkResult, VkResult> {
     let r = unsafe { (self.table).vkSetEvent.unwrap_unchecked()(self.device().raw(), self.raw) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();

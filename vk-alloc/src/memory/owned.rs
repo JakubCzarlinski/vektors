@@ -70,7 +70,7 @@ impl OwnedMemory {
                 &raw mut out,
             )
         };
-        if result >= vk::VkResult::VK_SUCCESS {
+        if result >= vk::VkResult::SUCCESS {
             let out = out.cast::<u8>();
             self.mapped.store(out, Ordering::Release);
             out
@@ -118,7 +118,7 @@ pub(crate) fn allocate_owned_memory(
     }
     if let Some(mask) = device_mask {
         flags_info = flags_info
-            .with_flags(vk::VkMemoryAllocateFlagBits::VK_MEMORY_ALLOCATE_DEVICE_MASK_BIT)
+            .with_flags(vk::VkMemoryAllocateFlagBits::DEVICE_MASK)
             .with_deviceMask(mask)
             .with_pNext(next);
         next = (&raw const flags_info).cast::<c_void>();
@@ -131,13 +131,13 @@ pub(crate) fn allocate_owned_memory(
         .vkAllocateMemory(&allocate_info, null())
         .map_err(AllocatorError::Vulkan)?;
     let free_memory = memory.table().vkFreeMemory.ok_or(AllocatorError::Vulkan(
-        vk::VkResult::VK_ERROR_INITIALIZATION_FAILED,
+        vk::VkResult::ERROR_INITIALIZATION_FAILED,
     ))?;
     let map_memory = memory.table().vkMapMemory.ok_or(AllocatorError::Vulkan(
-        vk::VkResult::VK_ERROR_INITIALIZATION_FAILED,
+        vk::VkResult::ERROR_INITIALIZATION_FAILED,
     ))?;
     let unmap_memory = memory.table().vkUnmapMemory.ok_or(AllocatorError::Vulkan(
-        vk::VkResult::VK_ERROR_INITIALIZATION_FAILED,
+        vk::VkResult::ERROR_INITIALIZATION_FAILED,
     ))?;
     let device_fns = Arc::new(DeviceFns {
         device: memory.parent().raw(),

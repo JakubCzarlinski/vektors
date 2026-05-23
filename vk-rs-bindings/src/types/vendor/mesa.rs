@@ -50,7 +50,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_MESA_image_alignment_control")]
 impl<'a> VkPhysicalDeviceImageAlignmentControlFeaturesMESA<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_FEATURES_MESA,
+    sType: VkStructureType::PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_FEATURES_MESA,
     pNext: core::ptr::null_mut(),
     imageAlignmentControl: 0,
     _marker: core::marker::PhantomData,
@@ -138,8 +138,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_MESA_image_alignment_control")]
 impl<'a> VkPhysicalDeviceImageAlignmentControlPropertiesMESA<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_PROPERTIES_MESA,
+    sType: VkStructureType::PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_PROPERTIES_MESA,
     pNext: core::ptr::null_mut(),
     supportedImageAlignmentMask: 0,
     _marker: core::marker::PhantomData,
@@ -207,7 +206,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkImageCreateInfo<'root>>
 #[cfg(feature = "VK_MESA_image_alignment_control")]
 impl<'a> VkImageAlignmentControlCreateInfoMESA<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_ALIGNMENT_CONTROL_CREATE_INFO_MESA,
+    sType: VkStructureType::IMAGE_ALIGNMENT_CONTROL_CREATE_INFO_MESA,
     pNext: core::ptr::null(),
     maximumRequestedAlignment: 0,
     _marker: core::marker::PhantomData,

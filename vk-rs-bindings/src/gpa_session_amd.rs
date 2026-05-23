@@ -179,7 +179,7 @@ impl<'dev> GpaSessionAMD<'dev> {
         pData,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -212,7 +212,7 @@ impl<'dev> GpaSessionAMD<'dev> {
     let r = unsafe {
       (self.table).vkGetGpaSessionStatusAMD.unwrap_unchecked()(self.device().raw(), self.raw)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -245,7 +245,7 @@ impl<'dev> GpaSessionAMD<'dev> {
     let r = unsafe {
       (self.table).vkResetGpaSessionAMD.unwrap_unchecked()(self.device().raw(), self.raw)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();

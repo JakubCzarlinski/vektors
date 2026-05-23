@@ -192,7 +192,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkDevicePrivateDataCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEVICE_PRIVATE_DATA_CREATE_INFO,
+    sType: VkStructureType::DEVICE_PRIVATE_DATA_CREATE_INFO,
     pNext: core::ptr::null(),
     privateDataSlotRequestCount: 0,
     _marker: core::marker::PhantomData,
@@ -250,7 +250,7 @@ unsafe impl<'a> Sync for VkPrivateDataSlotCreateInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkPrivateDataSlotCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PRIVATE_DATA_SLOT_CREATE_INFO,
+    sType: VkStructureType::PRIVATE_DATA_SLOT_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: 0,
     _marker: core::marker::PhantomData,
@@ -320,7 +320,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkPhysicalDevicePrivateDataFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_PRIVATE_DATA_FEATURES,
     pNext: core::ptr::null_mut(),
     privateData: 0,
     _marker: core::marker::PhantomData,
@@ -393,7 +393,7 @@ unsafe impl<'a> Sync for VkDeviceBufferMemoryRequirements<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkDeviceBufferMemoryRequirements<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEVICE_BUFFER_MEMORY_REQUIREMENTS,
+    sType: VkStructureType::DEVICE_BUFFER_MEMORY_REQUIREMENTS,
     pNext: core::ptr::null(),
     pCreateInfo: core::ptr::null(),
     _marker: core::marker::PhantomData,
@@ -456,7 +456,7 @@ unsafe impl<'a> Sync for VkDeviceImageMemoryRequirements<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkDeviceImageMemoryRequirements<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEVICE_IMAGE_MEMORY_REQUIREMENTS,
+    sType: VkStructureType::DEVICE_IMAGE_MEMORY_REQUIREMENTS,
     pNext: core::ptr::null(),
     pCreateInfo: core::ptr::null(),
     planeAspect: VkImageAspectFlagBits(0),
@@ -535,7 +535,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkPhysicalDeviceMaintenance4Features<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_MAINTENANCE_4_FEATURES,
     pNext: core::ptr::null_mut(),
     maintenance4: 0,
     _marker: core::marker::PhantomData,
@@ -620,7 +620,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkPhysicalDeviceMaintenance4Properties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_MAINTENANCE_4_PROPERTIES,
     pNext: core::ptr::null_mut(),
     maxBufferSize: 0,
     _marker: core::marker::PhantomData,
@@ -690,7 +690,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkPhysicalDeviceTextureCompressionASTCHDRFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXTURE_COMPRESSION_ASTC_HDR_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_TEXTURE_COMPRESSION_ASTC_HDR_FEATURES,
     pNext: core::ptr::null_mut(),
     textureCompressionASTC_HDR: 0,
     _marker: core::marker::PhantomData,
@@ -789,7 +789,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkPhysicalDeviceVulkan13Features<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_VULKAN_1_3_FEATURES,
     pNext: core::ptr::null_mut(),
     robustImageAccess: 0,
     inlineUniformBlock: 0,
@@ -1049,7 +1049,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkPhysicalDeviceVulkan13Properties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_VULKAN_1_3_PROPERTIES,
     pNext: core::ptr::null_mut(),
     minSubgroupSize: 0,
     maxSubgroupSize: 0,
@@ -1450,7 +1450,7 @@ unsafe impl<'a> Sync for VkPhysicalDeviceToolProperties<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkPhysicalDeviceToolProperties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TOOL_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_TOOL_PROPERTIES,
     pNext: core::ptr::null_mut(),
     name: [0i8; VK_MAX_EXTENSION_NAME_SIZE as usize],
     version: [0i8; VK_MAX_EXTENSION_NAME_SIZE as usize],
@@ -1536,7 +1536,7 @@ unsafe impl<'a> Sync for VkBufferCopy2<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkBufferCopy2<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BUFFER_COPY_2,
+    sType: VkStructureType::BUFFER_COPY_2,
     pNext: core::ptr::null(),
     srcOffset: 0,
     dstOffset: 0,
@@ -1607,7 +1607,7 @@ unsafe impl<'a> Sync for VkImageCopy2<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkImageCopy2<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_COPY_2,
+    sType: VkStructureType::IMAGE_COPY_2,
     pNext: core::ptr::null(),
     srcSubresource: VkImageSubresourceLayers::DEFAULT,
     srcOffset: VkOffset3D::DEFAULT,
@@ -1692,7 +1692,7 @@ unsafe impl<'a> Sync for VkBufferImageCopy2<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkBufferImageCopy2<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2,
+    sType: VkStructureType::BUFFER_IMAGE_COPY_2,
     pNext: core::ptr::null(),
     bufferOffset: 0,
     bufferRowLength: 0,
@@ -1797,7 +1797,7 @@ unsafe impl<'a> Sync for VkCopyBufferInfo2<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkCopyBufferInfo2<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COPY_BUFFER_INFO_2,
+    sType: VkStructureType::COPY_BUFFER_INFO_2,
     pNext: core::ptr::null(),
     srcBuffer: VkBuffer::DEFAULT,
     dstBuffer: VkBuffer::DEFAULT,
@@ -1883,7 +1883,7 @@ unsafe impl<'a> Sync for VkCopyImageInfo2<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkCopyImageInfo2<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COPY_IMAGE_INFO_2,
+    sType: VkStructureType::COPY_IMAGE_INFO_2,
     pNext: core::ptr::null(),
     srcImage: VkImage::DEFAULT,
     srcImageLayout: VkImageLayout(0),
@@ -1981,7 +1981,7 @@ unsafe impl<'a> Sync for VkCopyBufferToImageInfo2<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkCopyBufferToImageInfo2<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COPY_BUFFER_TO_IMAGE_INFO_2,
+    sType: VkStructureType::COPY_BUFFER_TO_IMAGE_INFO_2,
     pNext: core::ptr::null(),
     srcBuffer: VkBuffer::DEFAULT,
     dstImage: VkImage::DEFAULT,
@@ -2073,7 +2073,7 @@ unsafe impl<'a> Sync for VkCopyImageToBufferInfo2<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkCopyImageToBufferInfo2<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COPY_IMAGE_TO_BUFFER_INFO_2,
+    sType: VkStructureType::COPY_IMAGE_TO_BUFFER_INFO_2,
     pNext: core::ptr::null(),
     srcImage: VkImage::DEFAULT,
     srcImageLayout: VkImageLayout(0),
@@ -2173,7 +2173,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSubpassDependency2<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkMemoryBarrier2<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MEMORY_BARRIER_2,
+    sType: VkStructureType::MEMORY_BARRIER_2,
     pNext: core::ptr::null(),
     srcStageMask: VkPipelineStageFlagBits2(0),
     srcAccessMask: VkAccessFlagBits2(0),
@@ -2262,7 +2262,7 @@ unsafe impl<'a> Sync for VkImageMemoryBarrier2<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkImageMemoryBarrier2<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
+    sType: VkStructureType::IMAGE_MEMORY_BARRIER_2,
     pNext: core::ptr::null(),
     srcStageMask: VkPipelineStageFlagBits2(0),
     srcAccessMask: VkAccessFlagBits2(0),
@@ -2423,7 +2423,7 @@ unsafe impl<'a> Sync for VkBufferMemoryBarrier2<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkBufferMemoryBarrier2<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2,
+    sType: VkStructureType::BUFFER_MEMORY_BARRIER_2,
     pNext: core::ptr::null(),
     srcStageMask: VkPipelineStageFlagBits2(0),
     srcAccessMask: VkAccessFlagBits2(0),
@@ -2566,7 +2566,7 @@ unsafe impl<'a> Sync for VkDependencyInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkDependencyInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
+    sType: VkStructureType::DEPENDENCY_INFO,
     pNext: core::ptr::null(),
     dependencyFlags: VkDependencyFlagBits(0),
     memoryBarrierCount: 0,
@@ -2712,7 +2712,7 @@ unsafe impl<'a> Sync for VkSemaphoreSubmitInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkSemaphoreSubmitInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+    sType: VkStructureType::SEMAPHORE_SUBMIT_INFO,
     pNext: core::ptr::null(),
     semaphore: VkSemaphore::DEFAULT,
     value: 0,
@@ -2789,7 +2789,7 @@ unsafe impl<'a> Sync for VkCommandBufferSubmitInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkCommandBufferSubmitInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO,
+    sType: VkStructureType::COMMAND_BUFFER_SUBMIT_INFO,
     pNext: core::ptr::null(),
     commandBuffer: VkCommandBuffer::DEFAULT,
     deviceMask: 0,
@@ -2878,7 +2878,7 @@ unsafe impl<'a> Sync for VkSubmitInfo2<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkSubmitInfo2<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
+    sType: VkStructureType::SUBMIT_INFO_2,
     pNext: core::ptr::null(),
     flags: VkSubmitFlagBits(0),
     waitSemaphoreInfoCount: 0,
@@ -3068,7 +3068,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkPhysicalDeviceSynchronization2Features<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES,
     pNext: core::ptr::null_mut(),
     synchronization2: 0,
     _marker: core::marker::PhantomData,
@@ -3157,7 +3157,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkFormatProperties2<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'a> VkFormatProperties3<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_3,
+    sType: VkStructureType::FORMAT_PROPERTIES_3,
     pNext: core::ptr::null_mut(),
     linearTilingFeatures: VkFormatFeatureFlagBits2(0),
     optimalTilingFeatures: VkFormatFeatureFlagBits2(0),

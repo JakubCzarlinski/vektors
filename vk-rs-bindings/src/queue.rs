@@ -304,7 +304,7 @@ impl<'dev> Queue<'dev> {
         fence,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -351,7 +351,7 @@ impl<'dev> Queue<'dev> {
         fence,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -383,7 +383,7 @@ impl<'dev> Queue<'dev> {
   #[inline(always)]
   pub fn vkQueueWaitIdle(&self) -> Result<VkResult, VkResult> {
     let r = unsafe { (self.table).vkQueueWaitIdle.unwrap_unchecked()(self.raw) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -429,7 +429,7 @@ impl<'dev> Queue<'dev> {
         fence,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -521,7 +521,7 @@ impl<'dev> Queue<'dev> {
         .vkQueueSetPerformanceConfigurationINTEL
         .unwrap_unchecked()(self.raw, configuration)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -561,7 +561,7 @@ impl<'dev> Queue<'dev> {
     pPresentInfo: &VkPresentInfoKHR<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe { (self.table).vkQueuePresentKHR.unwrap_unchecked()(self.raw, pPresentInfo) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -607,7 +607,7 @@ impl<'dev> Queue<'dev> {
         fence,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -720,7 +720,7 @@ impl<'dev> Queue<'dev> {
   ) -> Result<VkResult, VkResult> {
     let r =
       unsafe { (self.table).vkQueueSetPerfHintQCOM.unwrap_unchecked()(self.raw, pPerfHintInfo) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();

@@ -30,7 +30,7 @@ unsafe impl<'a> Sync for VkViSurfaceCreateInfoNN<'a> {}
 #[cfg(feature = "VK_NN_vi_surface")]
 impl<'a> VkViSurfaceCreateInfoNN<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_VI_SURFACE_CREATE_INFO_NN,
+    sType: VkStructureType::VI_SURFACE_CREATE_INFO_NN,
     pNext: core::ptr::null(),
     flags: 0,
     window: core::ptr::null_mut(),

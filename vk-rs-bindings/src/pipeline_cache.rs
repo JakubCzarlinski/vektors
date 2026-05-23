@@ -174,7 +174,7 @@ impl<'dev> PipelineCache<'dev> {
         pPipelines.as_mut_ptr(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -247,7 +247,7 @@ impl<'dev> PipelineCache<'dev> {
         pData,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -291,7 +291,7 @@ impl<'dev> PipelineCache<'dev> {
         pSrcCaches.as_ptr(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -346,7 +346,7 @@ impl<'dev> PipelineCache<'dev> {
         pPipelines.as_mut_ptr(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();

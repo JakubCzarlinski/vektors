@@ -96,12 +96,19 @@ TODO(czarlinski): discuss optionals and arrays.
 
 ### Naming
 
-The naming in these bindings is designed to be as close to the original C API as
-possible. This is largely motivated by the fact that cross-referencing the
-Vulkan specification is a common part of Vulkan development, and having the same
-names in Rust makes this marginally simpler as you can copy-paste. It may be
-more idiomatic to use Rust naming conventions, but to me, the benefits of
-web-search and grepping outweighs aesthetics.
+Type, function, member, and top-level constant names stay close to the original
+C API so cross-referencing the Vulkan specification remains straightforward.
+
+Associated constants on enum and bitmask newtypes intentionally drop redundant
+type prefixes. For example, use `VkStructureType::BUFFER_CREATE_INFO` instead
+of `VkStructureType::VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO`, and
+`VkResult::SUCCESS` instead of `VkResult::VK_SUCCESS`.
+
+Bitmask constants also drop the trailing `_BIT` when it is redundant in Rust:
+`VkBufferUsageFlagBits::STORAGE_BUFFER`,
+`VkPipelineStageFlagBits2::COMPUTE_SHADER`, and
+`VkImageCompressionFixedRateFlagBitsEXT::RATE_1BPC`. Vendor suffixes are kept
+when they distinguish extension-provided values.
 
 ### Feature Gating
 

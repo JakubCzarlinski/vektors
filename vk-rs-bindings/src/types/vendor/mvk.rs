@@ -30,7 +30,7 @@ unsafe impl<'a> Sync for VkIOSSurfaceCreateInfoMVK<'a> {}
 #[cfg(feature = "VK_MVK_ios_surface")]
 impl<'a> VkIOSSurfaceCreateInfoMVK<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IOS_SURFACE_CREATE_INFO_MVK,
+    sType: VkStructureType::IOS_SURFACE_CREATE_INFO_MVK,
     pNext: core::ptr::null(),
     flags: 0,
     pView: core::ptr::null(),
@@ -103,7 +103,7 @@ unsafe impl<'a> Sync for VkMacOSSurfaceCreateInfoMVK<'a> {}
 #[cfg(feature = "VK_MVK_macos_surface")]
 impl<'a> VkMacOSSurfaceCreateInfoMVK<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK,
+    sType: VkStructureType::MACOS_SURFACE_CREATE_INFO_MVK,
     pNext: core::ptr::null(),
     flags: 0,
     pView: core::ptr::null(),

@@ -169,7 +169,7 @@ fn sparse_buffer_base<'vk>(
     }
     if !buffer_info
         .flags
-        .intersects(vk::VkBufferCreateFlagBits::VK_BUFFER_CREATE_SPARSE_BINDING_BIT)
+        .intersects(vk::VkBufferCreateFlagBits::SPARSE_BINDING)
     {
         return Err(AllocatorError::SparseBindingUnsupported);
     }
@@ -204,7 +204,7 @@ fn sparse_image_base<'vk>(
     }
     if !image_info
         .flags
-        .intersects(vk::VkImageCreateFlagBits::VK_IMAGE_CREATE_SPARSE_BINDING_BIT)
+        .intersects(vk::VkImageCreateFlagBits::SPARSE_BINDING)
     {
         return Err(AllocatorError::SparseBindingUnsupported);
     }

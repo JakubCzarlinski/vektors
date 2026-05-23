@@ -93,7 +93,7 @@ unsafe impl<'a> Sync for VkCuModuleCreateInfoNVX<'a> {}
 #[cfg(feature = "VK_NVX_binary_import")]
 impl<'a> VkCuModuleCreateInfoNVX<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_CU_MODULE_CREATE_INFO_NVX,
+    sType: VkStructureType::CU_MODULE_CREATE_INFO_NVX,
     pNext: core::ptr::null(),
     dataSize: 0,
     pData: core::ptr::null(),
@@ -180,7 +180,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkCuModuleCreateInfoNVX<'root>>
 #[cfg(feature = "VK_NVX_binary_import")]
 impl<'a> VkCuModuleTexturingModeCreateInfoNVX<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_CU_MODULE_TEXTURING_MODE_CREATE_INFO_NVX,
+    sType: VkStructureType::CU_MODULE_TEXTURING_MODE_CREATE_INFO_NVX,
     pNext: core::ptr::null(),
     use64bitTexturing: 0,
     _marker: core::marker::PhantomData,
@@ -240,7 +240,7 @@ unsafe impl<'a> Sync for VkCuFunctionCreateInfoNVX<'a> {}
 #[cfg(feature = "VK_NVX_binary_import")]
 impl<'a> VkCuFunctionCreateInfoNVX<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_CU_FUNCTION_CREATE_INFO_NVX,
+    sType: VkStructureType::CU_FUNCTION_CREATE_INFO_NVX,
     pNext: core::ptr::null(),
     module: VkCuModuleNVX::DEFAULT,
     pName: core::ptr::null(),
@@ -322,7 +322,7 @@ unsafe impl<'a> Sync for VkCuLaunchInfoNVX<'a> {}
 #[cfg(feature = "VK_NVX_binary_import")]
 impl<'a> VkCuLaunchInfoNVX<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_CU_LAUNCH_INFO_NVX,
+    sType: VkStructureType::CU_LAUNCH_INFO_NVX,
     pNext: core::ptr::null(),
     function: VkCuFunctionNVX::DEFAULT,
     gridDimX: 0,
@@ -461,7 +461,7 @@ unsafe impl<'a> Sync for VkImageViewHandleInfoNVX<'a> {}
 #[cfg(feature = "VK_NVX_image_view_handle")]
 impl<'a> VkImageViewHandleInfoNVX<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_VIEW_HANDLE_INFO_NVX,
+    sType: VkStructureType::IMAGE_VIEW_HANDLE_INFO_NVX,
     pNext: core::ptr::null(),
     imageView: VkImageView::DEFAULT,
     descriptorType: VkDescriptorType(0),
@@ -538,7 +538,7 @@ unsafe impl<'a> Sync for VkImageViewAddressPropertiesNVX<'a> {}
 #[cfg(feature = "VK_NVX_image_view_handle")]
 impl<'a> VkImageViewAddressPropertiesNVX<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_VIEW_ADDRESS_PROPERTIES_NVX,
+    sType: VkStructureType::IMAGE_VIEW_ADDRESS_PROPERTIES_NVX,
     pNext: core::ptr::null_mut(),
     deviceAddress: 0,
     size: 0,
@@ -617,11 +617,11 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_NVX_multiview_per_view_attributes")]
 impl<'a> VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_ATTRIBUTES_PROPERTIES_NVX,
-        pNext: core::ptr::null_mut(),
-        perViewPositionAllComponents: 0,
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_ATTRIBUTES_PROPERTIES_NVX,
+    pNext: core::ptr::null_mut(),
+    perViewPositionAllComponents: 0,
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -767,7 +767,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkRenderingInfo<'root>>
 ))]
 impl<'a> VkMultiviewPerViewAttributesInfoNVX<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_ATTRIBUTES_INFO_NVX,
+    sType: VkStructureType::MULTIVIEW_PER_VIEW_ATTRIBUTES_INFO_NVX,
     pNext: core::ptr::null(),
     perViewAttributes: 0,
     perViewAttributesPositionXOnly: 0,

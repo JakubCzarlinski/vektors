@@ -3445,7 +3445,7 @@ impl<'inst> Device<'inst> {
         pFaults,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3507,7 +3507,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::gpa_session_amd::GpaSessionAMD {
         raw: handle,
         parent: self,
@@ -3545,7 +3545,7 @@ impl<'inst> Device<'inst> {
     pInfo: &mut VkGpaDeviceGetClockInfoAMD<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe { (self.table).vkGetGpaDeviceClockInfoAMD.unwrap_unchecked()(self.raw, pInfo) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3579,7 +3579,7 @@ impl<'inst> Device<'inst> {
     pInfo: &mut VkGpaDeviceClockModeInfoAMD<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe { (self.table).vkSetGpaDeviceClockModeAMD.unwrap_unchecked()(self.raw, pInfo) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3619,7 +3619,7 @@ impl<'inst> Device<'inst> {
         .vkGetAndroidHardwareBufferPropertiesANDROID
         .unwrap_unchecked()(self.raw, buffer, pProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3659,7 +3659,7 @@ impl<'inst> Device<'inst> {
         .vkGetMemoryAndroidHardwareBufferANDROID
         .unwrap_unchecked()(self.raw, pInfo, pBuffer)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3698,7 +3698,7 @@ impl<'inst> Device<'inst> {
         .vkBindDataGraphPipelineSessionMemoryARM
         .unwrap_unchecked()(self.raw, pBindInfos.len() as u32, pBindInfos.as_ptr())
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3741,7 +3741,7 @@ impl<'inst> Device<'inst> {
         .vkCreateDataGraphPipelineSessionARM
         .unwrap_unchecked()(self.raw, pCreateInfo, pAllocator, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(
         crate::data_graph_pipeline_session_arm::DataGraphPipelineSessionARM {
           raw: handle,
@@ -3790,7 +3790,7 @@ impl<'inst> Device<'inst> {
         .vkGetDataGraphPipelineAvailablePropertiesARM
         .unwrap_unchecked()(self.raw, pPipelineInfo, pPropertiesCount, pProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3837,7 +3837,7 @@ impl<'inst> Device<'inst> {
         pProperties.as_mut_ptr(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3885,7 +3885,7 @@ impl<'inst> Device<'inst> {
         pBindPointRequirements,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3951,7 +3951,7 @@ impl<'inst> Device<'inst> {
         .vkCreateShaderInstrumentationARM
         .unwrap_unchecked()(self.raw, pCreateInfo, pAllocator, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(
         crate::shader_instrumentation_arm::ShaderInstrumentationARM {
           raw: handle,
@@ -3998,7 +3998,7 @@ impl<'inst> Device<'inst> {
         pBindInfos.as_ptr(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4043,7 +4043,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::tensor_arm::TensorARM {
         raw: handle,
         parent: self,
@@ -4092,7 +4092,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::tensor_view_arm::TensorViewARM {
         raw: handle,
         parent: self,
@@ -4185,7 +4185,7 @@ impl<'inst> Device<'inst> {
         .vkGetTensorOpaqueCaptureDescriptorDataARM
         .unwrap_unchecked()(self.raw, pInfo, pData)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4226,7 +4226,7 @@ impl<'inst> Device<'inst> {
         .vkGetTensorViewOpaqueCaptureDescriptorDataARM
         .unwrap_unchecked()(self.raw, pInfo, pData)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4274,7 +4274,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::device_memory::DeviceMemory {
         raw: handle,
         parent: self,
@@ -4320,7 +4320,7 @@ impl<'inst> Device<'inst> {
     let r = unsafe {
       (self.table).vkCreateBuffer.unwrap_unchecked()(self.raw, pCreateInfo, pAllocator, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::buffer::Buffer {
         raw: handle,
         parent: self,
@@ -4370,7 +4370,7 @@ impl<'inst> Device<'inst> {
         &mut raw,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::command_pool::CommandPool {
         raw,
         parent: self,
@@ -4415,7 +4415,7 @@ impl<'inst> Device<'inst> {
     let r = unsafe {
       (self.table).vkCreateFence.unwrap_unchecked()(self.raw, pCreateInfo, pAllocator, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::fence::Fence {
         raw: handle,
         parent: self,
@@ -4462,7 +4462,7 @@ impl<'inst> Device<'inst> {
     let r = unsafe {
       (self.table).vkCreateImage.unwrap_unchecked()(self.raw, pCreateInfo, pAllocator, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::image::Image {
         raw: handle,
         parent: self,
@@ -4513,7 +4513,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::image_view::ImageView {
         raw: handle,
         parent: self,
@@ -4563,7 +4563,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::query_pool::QueryPool {
         raw: handle,
         parent: self,
@@ -4613,7 +4613,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::semaphore::Semaphore {
         raw: handle,
         parent: self,
@@ -4671,7 +4671,7 @@ impl<'inst> Device<'inst> {
   #[inline(always)]
   pub fn vkDeviceWaitIdle(&self) -> Result<VkResult, VkResult> {
     let r = unsafe { (self.table).vkDeviceWaitIdle.unwrap_unchecked()(self.raw) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4713,7 +4713,7 @@ impl<'inst> Device<'inst> {
         pMemoryRanges.as_ptr(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4787,7 +4787,7 @@ impl<'inst> Device<'inst> {
         .vkInvalidateMappedMemoryRanges
         .unwrap_unchecked()(self.raw, pMemoryRanges.len() as u32, pMemoryRanges.as_ptr())
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4825,7 +4825,7 @@ impl<'inst> Device<'inst> {
         pFences.as_ptr(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4875,7 +4875,7 @@ impl<'inst> Device<'inst> {
         timeout,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4918,7 +4918,7 @@ impl<'inst> Device<'inst> {
         pBindInfos.as_ptr(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4960,7 +4960,7 @@ impl<'inst> Device<'inst> {
         pBindInfos.as_ptr(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -5192,7 +5192,7 @@ impl<'inst> Device<'inst> {
     pSignalInfo: &VkSemaphoreSignalInfo<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe { (self.table).vkSignalSemaphore.unwrap_unchecked()(self.raw, pSignalInfo) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -5232,7 +5232,7 @@ impl<'inst> Device<'inst> {
   ) -> Result<VkResult, VkResult> {
     let r =
       unsafe { (self.table).vkWaitSemaphores.unwrap_unchecked()(self.raw, pWaitInfo, timeout) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -5277,7 +5277,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::private_data_slot::PrivateDataSlot {
         raw: handle,
         parent: self,
@@ -5444,7 +5444,7 @@ impl<'inst> Device<'inst> {
         data,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -5483,7 +5483,7 @@ impl<'inst> Device<'inst> {
     let r = unsafe {
       (self.table).vkCopyImageToImage.unwrap_unchecked()(self.raw, pCopyImageToImageInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -5522,7 +5522,7 @@ impl<'inst> Device<'inst> {
     let r = unsafe {
       (self.table).vkCopyImageToMemory.unwrap_unchecked()(self.raw, pCopyImageToMemoryInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -5561,7 +5561,7 @@ impl<'inst> Device<'inst> {
     let r = unsafe {
       (self.table).vkCopyMemoryToImage.unwrap_unchecked()(self.raw, pCopyMemoryToImageInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -5625,7 +5625,7 @@ impl<'inst> Device<'inst> {
   ) -> Result<VkResult, VkResult> {
     let r =
       unsafe { (self.table).vkMapMemory2.unwrap_unchecked()(self.raw, pMemoryMapInfo, ppData) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -5669,7 +5669,7 @@ impl<'inst> Device<'inst> {
         pTransitions.as_ptr(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -5703,7 +5703,7 @@ impl<'inst> Device<'inst> {
     pMemoryUnmapInfo: &VkMemoryUnmapInfo<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe { (self.table).vkUnmapMemory2.unwrap_unchecked()(self.raw, pMemoryUnmapInfo) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -5749,7 +5749,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::buffer_view::BufferView {
         raw: handle,
         parent: self,
@@ -5810,7 +5810,7 @@ impl<'inst> Device<'inst> {
           raw_pipelines.as_mut_ptr().cast(),
         )
       };
-      if r < VkResult::VK_SUCCESS {
+      if r < VkResult::SUCCESS {
         core::hint::cold_path();
         return Err(r);
       }
@@ -5867,7 +5867,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::descriptor_pool::DescriptorPool {
         raw: handle,
         parent: self,
@@ -5918,7 +5918,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::descriptor_set_layout::DescriptorSetLayout {
         raw: handle,
         parent: self,
@@ -5963,7 +5963,7 @@ impl<'inst> Device<'inst> {
     let r = unsafe {
       (self.table).vkCreateEvent.unwrap_unchecked()(self.raw, pCreateInfo, pAllocator, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::event::Event {
         raw: handle,
         parent: self,
@@ -6015,7 +6015,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::pipeline_cache::PipelineCache {
         raw: handle,
         parent: self,
@@ -6066,7 +6066,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::pipeline_layout::PipelineLayout {
         raw: handle,
         parent: self,
@@ -6118,7 +6118,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::sampler::Sampler {
         raw: handle,
         parent: self,
@@ -6170,7 +6170,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::shader_module::ShaderModule {
         raw: handle,
         parent: self,
@@ -6248,7 +6248,7 @@ impl<'inst> Device<'inst> {
         .vkCreateDescriptorUpdateTemplate
         .unwrap_unchecked()(self.raw, pCreateInfo, pAllocator, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(
         crate::descriptor_update_template::DescriptorUpdateTemplate {
           raw: handle,
@@ -6298,7 +6298,7 @@ impl<'inst> Device<'inst> {
         .vkCreateSamplerYcbcrConversion
         .unwrap_unchecked()(self.raw, pCreateInfo, pAllocator, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::sampler_ycbcr_conversion::SamplerYcbcrConversion {
         raw: handle,
         parent: self,
@@ -6395,7 +6395,7 @@ impl<'inst> Device<'inst> {
         pMaxDeviation,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -6433,7 +6433,7 @@ impl<'inst> Device<'inst> {
         .vkDebugMarkerSetObjectNameEXT
         .unwrap_unchecked()(self.raw, pNameInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -6468,7 +6468,7 @@ impl<'inst> Device<'inst> {
   ) -> Result<VkResult, VkResult> {
     let r =
       unsafe { (self.table).vkDebugMarkerSetObjectTagEXT.unwrap_unchecked()(self.raw, pTagInfo) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -6503,7 +6503,7 @@ impl<'inst> Device<'inst> {
   ) -> Result<VkResult, VkResult> {
     let r =
       unsafe { (self.table).vkSetDebugUtilsObjectNameEXT.unwrap_unchecked()(self.raw, pNameInfo) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -6538,7 +6538,7 @@ impl<'inst> Device<'inst> {
   ) -> Result<VkResult, VkResult> {
     let r =
       unsafe { (self.table).vkSetDebugUtilsObjectTagEXT.unwrap_unchecked()(self.raw, pTagInfo) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -6585,7 +6585,7 @@ impl<'inst> Device<'inst> {
         .vkGetAccelerationStructureOpaqueCaptureDescriptorDataEXT
         .unwrap_unchecked()(self.raw, pInfo, pData)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -6625,7 +6625,7 @@ impl<'inst> Device<'inst> {
         .vkGetBufferOpaqueCaptureDescriptorDataEXT
         .unwrap_unchecked()(self.raw, pInfo, pData)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -6693,7 +6693,7 @@ impl<'inst> Device<'inst> {
         .vkGetImageOpaqueCaptureDescriptorDataEXT
         .unwrap_unchecked()(self.raw, pInfo, pData)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -6733,7 +6733,7 @@ impl<'inst> Device<'inst> {
         .vkGetImageViewOpaqueCaptureDescriptorDataEXT
         .unwrap_unchecked()(self.raw, pInfo, pData)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -6773,7 +6773,7 @@ impl<'inst> Device<'inst> {
         .vkGetSamplerOpaqueCaptureDescriptorDataEXT
         .unwrap_unchecked()(self.raw, pInfo, pData)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -6819,7 +6819,7 @@ impl<'inst> Device<'inst> {
         pDatas.as_mut_ptr(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -6866,7 +6866,7 @@ impl<'inst> Device<'inst> {
         pDatas.as_mut_ptr(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -6914,7 +6914,7 @@ impl<'inst> Device<'inst> {
         .vkRegisterCustomBorderColorEXT
         .unwrap_unchecked()(self.raw, pBorderColor, requestIndex, pIndex)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -6983,7 +6983,7 @@ impl<'inst> Device<'inst> {
         pDescriptors.as_ptr(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -7027,7 +7027,7 @@ impl<'inst> Device<'inst> {
         pDescriptors.as_ptr(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -7065,7 +7065,7 @@ impl<'inst> Device<'inst> {
     let r = unsafe {
       (self.table).vkGetDeviceFaultInfoEXT.unwrap_unchecked()(self.raw, pFaultCounts, pFaultInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -7107,7 +7107,7 @@ impl<'inst> Device<'inst> {
         .vkCreateIndirectCommandsLayoutEXT
         .unwrap_unchecked()(self.raw, pCreateInfo, pAllocator, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(
         crate::indirect_commands_layout_ext::IndirectCommandsLayoutEXT {
           raw: handle,
@@ -7155,7 +7155,7 @@ impl<'inst> Device<'inst> {
         .vkCreateIndirectExecutionSetEXT
         .unwrap_unchecked()(self.raw, pCreateInfo, pAllocator, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::indirect_execution_set_ext::IndirectExecutionSetEXT {
         raw: handle,
         parent: self,
@@ -7227,7 +7227,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::fence::Fence {
         raw: handle,
         parent: self,
@@ -7278,7 +7278,7 @@ impl<'inst> Device<'inst> {
         pMemoryHostPointerProperties,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -7320,7 +7320,7 @@ impl<'inst> Device<'inst> {
         pHandle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -7362,7 +7362,7 @@ impl<'inst> Device<'inst> {
         .vkGetMemoryMetalHandlePropertiesEXT
         .unwrap_unchecked()(self.raw, handleType, pHandle, pMemoryMetalHandleProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -7410,7 +7410,7 @@ impl<'inst> Device<'inst> {
         .vkGetDeviceGroupSurfacePresentModes2EXT
         .unwrap_unchecked()(self.raw, pSurfaceInfo, pModes)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -7477,7 +7477,7 @@ impl<'inst> Device<'inst> {
     let r = unsafe {
       (self.table).vkCopyImageToImageEXT.unwrap_unchecked()(self.raw, pCopyImageToImageInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -7516,7 +7516,7 @@ impl<'inst> Device<'inst> {
     let r = unsafe {
       (self.table).vkCopyImageToMemoryEXT.unwrap_unchecked()(self.raw, pCopyImageToMemoryInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -7555,7 +7555,7 @@ impl<'inst> Device<'inst> {
     let r = unsafe {
       (self.table).vkCopyMemoryToImageEXT.unwrap_unchecked()(self.raw, pCopyMemoryToImageInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -7599,7 +7599,7 @@ impl<'inst> Device<'inst> {
         pTransitions.as_ptr(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -7661,7 +7661,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::micromap_ext::MicromapEXT {
         raw: handle,
         parent: self,
@@ -7769,7 +7769,7 @@ impl<'inst> Device<'inst> {
         stride,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -7810,7 +7810,7 @@ impl<'inst> Device<'inst> {
         pPipelineProperties,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -7856,7 +7856,7 @@ impl<'inst> Device<'inst> {
         pPastPresentationTimingProperties,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -7901,7 +7901,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::private_data_slot_ext::PrivateDataSlotEXT {
         raw: handle,
         parent: self,
@@ -7986,7 +7986,7 @@ impl<'inst> Device<'inst> {
         data,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -8060,7 +8060,7 @@ impl<'inst> Device<'inst> {
         pShaders.as_mut_ptr(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -8095,7 +8095,7 @@ impl<'inst> Device<'inst> {
     let r = unsafe {
       (self.table).vkReleaseSwapchainImagesEXT.unwrap_unchecked()(self.raw, pReleaseInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -8139,7 +8139,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::validation_cache_ext::ValidationCacheEXT {
         raw: handle,
         parent: self,
@@ -8186,7 +8186,7 @@ impl<'inst> Device<'inst> {
         .vkCreateBufferCollectionFUCHSIA
         .unwrap_unchecked()(self.raw, pCreateInfo, pAllocator, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::buffer_collection_fuchsia::BufferCollectionFUCHSIA {
         raw: handle,
         parent: self,
@@ -8230,7 +8230,7 @@ impl<'inst> Device<'inst> {
         .vkGetMemoryZirconHandleFUCHSIA
         .unwrap_unchecked()(self.raw, pGetZirconHandleInfo, pZirconHandle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -8276,7 +8276,7 @@ impl<'inst> Device<'inst> {
         pMemoryZirconHandleProperties,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -8316,7 +8316,7 @@ impl<'inst> Device<'inst> {
         .vkGetSemaphoreZirconHandleFUCHSIA
         .unwrap_unchecked()(self.raw, pGetZirconHandleInfo, pZirconHandle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -8354,7 +8354,7 @@ impl<'inst> Device<'inst> {
         .vkImportSemaphoreZirconHandleFUCHSIA
         .unwrap_unchecked()(self.raw, pImportSemaphoreZirconHandleInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -8400,7 +8400,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::framebuffer::Framebuffer {
         raw: handle,
         parent: self,
@@ -8461,7 +8461,7 @@ impl<'inst> Device<'inst> {
           raw_pipelines.as_mut_ptr().cast(),
         )
       };
-      if r < VkResult::VK_SUCCESS {
+      if r < VkResult::SUCCESS {
         core::hint::cold_path();
         return Err(r);
       }
@@ -8519,7 +8519,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::render_pass::RenderPass {
         raw: handle,
         parent: self,
@@ -8570,7 +8570,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::render_pass::RenderPass {
         raw: handle,
         parent: self,
@@ -8640,7 +8640,7 @@ impl<'inst> Device<'inst> {
         .vkAcquirePerformanceConfigurationINTEL
         .unwrap_unchecked()(self.raw, pAcquireInfo, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(
         crate::performance_configuration_intel::PerformanceConfigurationINTEL {
           raw: handle,
@@ -8686,7 +8686,7 @@ impl<'inst> Device<'inst> {
         .vkGetPerformanceParameterINTEL
         .unwrap_unchecked()(self.raw, parameter, pValue)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -8724,7 +8724,7 @@ impl<'inst> Device<'inst> {
         .vkInitializePerformanceApiINTEL
         .unwrap_unchecked()(self.raw, pInitializeInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -8785,7 +8785,7 @@ impl<'inst> Device<'inst> {
         .vkCreateAccelerationStructureKHR
         .unwrap_unchecked()(self.raw, pCreateInfo, pAllocator, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(
         crate::acceleration_structure_khr::AccelerationStructureKHR {
           raw: handle,
@@ -8925,7 +8925,7 @@ impl<'inst> Device<'inst> {
         stride,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -8968,7 +8968,7 @@ impl<'inst> Device<'inst> {
         pBindInfos.as_ptr(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -9010,7 +9010,7 @@ impl<'inst> Device<'inst> {
         pBindInfos.as_ptr(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -9124,7 +9124,7 @@ impl<'inst> Device<'inst> {
         pMaxDeviation,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -9171,7 +9171,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::render_pass::RenderPass {
         raw: handle,
         parent: self,
@@ -9216,7 +9216,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::deferred_operation_khr::DeferredOperationKHR {
         raw: handle,
         parent: self,
@@ -9264,7 +9264,7 @@ impl<'inst> Device<'inst> {
         .vkCreateDescriptorUpdateTemplateKHR
         .unwrap_unchecked()(self.raw, pCreateInfo, pAllocator, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(
         crate::descriptor_update_template_khr::DescriptorUpdateTemplateKHR {
           raw: handle,
@@ -9316,7 +9316,7 @@ impl<'inst> Device<'inst> {
         .vkCreateAccelerationStructure2KHR
         .unwrap_unchecked()(self.raw, pCreateInfo, pAllocator, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(
         crate::acceleration_structure_khr::AccelerationStructureKHR {
           raw: handle,
@@ -9358,7 +9358,7 @@ impl<'inst> Device<'inst> {
   ) -> Result<VkResult, VkResult> {
     let r =
       unsafe { (self.table).vkGetDeviceFaultDebugInfoKHR.unwrap_unchecked()(self.raw, pDebugInfo) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -9404,7 +9404,7 @@ impl<'inst> Device<'inst> {
         pFaultInfo,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -9454,7 +9454,7 @@ impl<'inst> Device<'inst> {
     let r = unsafe {
       (self.table).vkAcquireNextImage2KHR.unwrap_unchecked()(self.raw, pAcquireInfo, pImageIndex)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -9532,7 +9532,7 @@ impl<'inst> Device<'inst> {
         .vkGetDeviceGroupPresentCapabilitiesKHR
         .unwrap_unchecked()(self.raw, pDeviceGroupPresentCapabilities)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -9582,7 +9582,7 @@ impl<'inst> Device<'inst> {
         pSwapchains.as_mut_ptr(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -9618,7 +9618,7 @@ impl<'inst> Device<'inst> {
     pFd: &mut core::ffi::c_int,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe { (self.table).vkGetFenceFdKHR.unwrap_unchecked()(self.raw, pGetFdInfo, pFd) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -9653,7 +9653,7 @@ impl<'inst> Device<'inst> {
   ) -> Result<VkResult, VkResult> {
     let r =
       unsafe { (self.table).vkImportFenceFdKHR.unwrap_unchecked()(self.raw, pImportFenceFdInfo) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -9695,7 +9695,7 @@ impl<'inst> Device<'inst> {
         pHandle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -9734,7 +9734,7 @@ impl<'inst> Device<'inst> {
         pImportFenceWin32HandleInfo,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -9770,7 +9770,7 @@ impl<'inst> Device<'inst> {
     pFd: &mut core::ffi::c_int,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe { (self.table).vkGetMemoryFdKHR.unwrap_unchecked()(self.raw, pGetFdInfo, pFd) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -9815,7 +9815,7 @@ impl<'inst> Device<'inst> {
         pMemoryFdProperties,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -9857,7 +9857,7 @@ impl<'inst> Device<'inst> {
         pHandle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -9899,7 +9899,7 @@ impl<'inst> Device<'inst> {
         .vkGetMemoryWin32HandlePropertiesKHR
         .unwrap_unchecked()(self.raw, handleType, handle, pMemoryWin32HandleProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -9936,7 +9936,7 @@ impl<'inst> Device<'inst> {
   ) -> Result<VkResult, VkResult> {
     let r =
       unsafe { (self.table).vkGetSemaphoreFdKHR.unwrap_unchecked()(self.raw, pGetFdInfo, pFd) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -9972,7 +9972,7 @@ impl<'inst> Device<'inst> {
     let r = unsafe {
       (self.table).vkImportSemaphoreFdKHR.unwrap_unchecked()(self.raw, pImportSemaphoreFdInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -10014,7 +10014,7 @@ impl<'inst> Device<'inst> {
         pHandle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -10052,7 +10052,7 @@ impl<'inst> Device<'inst> {
         .vkImportSemaphoreWin32HandleKHR
         .unwrap_unchecked()(self.raw, pImportSemaphoreWin32HandleInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -10330,7 +10330,7 @@ impl<'inst> Device<'inst> {
   ) -> Result<VkResult, VkResult> {
     let r =
       unsafe { (self.table).vkMapMemory2KHR.unwrap_unchecked()(self.raw, pMemoryMapInfo, ppData) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -10365,7 +10365,7 @@ impl<'inst> Device<'inst> {
   ) -> Result<VkResult, VkResult> {
     let r =
       unsafe { (self.table).vkUnmapMemory2KHR.unwrap_unchecked()(self.raw, pMemoryUnmapInfo) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -10399,7 +10399,7 @@ impl<'inst> Device<'inst> {
     pInfo: &VkAcquireProfilingLockInfoKHR<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe { (self.table).vkAcquireProfilingLockKHR.unwrap_unchecked()(self.raw, pInfo) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -10464,7 +10464,7 @@ impl<'inst> Device<'inst> {
         pBinaries,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -10513,7 +10513,7 @@ impl<'inst> Device<'inst> {
         pPipelineBinaryData,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -10555,7 +10555,7 @@ impl<'inst> Device<'inst> {
         pPipelineKey,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -10593,7 +10593,7 @@ impl<'inst> Device<'inst> {
         .vkReleaseCapturedPipelineDataKHR
         .unwrap_unchecked()(self.raw, pInfo, pAllocator)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -10641,7 +10641,7 @@ impl<'inst> Device<'inst> {
         pInternalRepresentations,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -10684,7 +10684,7 @@ impl<'inst> Device<'inst> {
         .vkGetPipelineExecutablePropertiesKHR
         .unwrap_unchecked()(self.raw, pPipelineInfo, pExecutableCount, pProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -10727,7 +10727,7 @@ impl<'inst> Device<'inst> {
         .vkGetPipelineExecutableStatisticsKHR
         .unwrap_unchecked()(self.raw, pExecutableInfo, pStatisticCount, pStatistics)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -10771,7 +10771,7 @@ impl<'inst> Device<'inst> {
         .vkCreateSamplerYcbcrConversionKHR
         .unwrap_unchecked()(self.raw, pCreateInfo, pAllocator, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(
         crate::sampler_ycbcr_conversion_khr::SamplerYcbcrConversionKHR {
           raw: handle,
@@ -10827,7 +10827,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::swapchain_khr::SwapchainKHR {
         raw: handle,
         parent: self,
@@ -10866,7 +10866,7 @@ impl<'inst> Device<'inst> {
     let r = unsafe {
       (self.table).vkReleaseSwapchainImagesKHR.unwrap_unchecked()(self.raw, pReleaseInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -10901,7 +10901,7 @@ impl<'inst> Device<'inst> {
     pSignalInfo: &VkSemaphoreSignalInfoKHR<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe { (self.table).vkSignalSemaphoreKHR.unwrap_unchecked()(self.raw, pSignalInfo) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -10941,7 +10941,7 @@ impl<'inst> Device<'inst> {
   ) -> Result<VkResult, VkResult> {
     let r =
       unsafe { (self.table).vkWaitSemaphoresKHR.unwrap_unchecked()(self.raw, pWaitInfo, timeout) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -10992,7 +10992,7 @@ impl<'inst> Device<'inst> {
         pData,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -11040,7 +11040,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::video_session_khr::VideoSessionKHR {
         raw: handle,
         parent: self,
@@ -11088,7 +11088,7 @@ impl<'inst> Device<'inst> {
         .vkCreateVideoSessionParametersKHR
         .unwrap_unchecked()(self.raw, pCreateInfo, pAllocator, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(
         crate::video_session_parameters_khr::VideoSessionParametersKHR {
           raw: handle,
@@ -11139,7 +11139,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::cu_function_nvx::CuFunctionNVX {
         raw: handle,
         parent: self,
@@ -11188,7 +11188,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::cu_module_nvx::CuModuleNVX {
         raw: handle,
         parent: self,
@@ -11312,7 +11312,7 @@ impl<'inst> Device<'inst> {
         .vkConvertCooperativeVectorMatrixNV
         .unwrap_unchecked()(self.raw, pInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -11357,7 +11357,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::cuda_function_nv::CudaFunctionNV {
         raw: handle,
         parent: self,
@@ -11406,7 +11406,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::cuda_module_nv::CudaModuleNV {
         raw: handle,
         parent: self,
@@ -11452,7 +11452,7 @@ impl<'inst> Device<'inst> {
         .vkCreateIndirectCommandsLayoutNV
         .unwrap_unchecked()(self.raw, pCreateInfo, pAllocator, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(
         crate::indirect_commands_layout_nv::IndirectCommandsLayoutNV {
           raw: handle,
@@ -11570,7 +11570,7 @@ impl<'inst> Device<'inst> {
         .vkCreateExternalComputeQueueNV
         .unwrap_unchecked()(self.raw, pCreateInfo, pAllocator, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::external_compute_queue_nv::ExternalComputeQueueNV {
         raw: handle,
         parent: self,
@@ -11615,7 +11615,7 @@ impl<'inst> Device<'inst> {
         pAddress,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -11652,7 +11652,7 @@ impl<'inst> Device<'inst> {
     let r = unsafe {
       (self.table).vkGetMemorySciBufNV.unwrap_unchecked()(self.raw, pGetSciBufInfo, pHandle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -11698,7 +11698,7 @@ impl<'inst> Device<'inst> {
         pHandle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -11744,7 +11744,7 @@ impl<'inst> Device<'inst> {
         pHandle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -11782,7 +11782,7 @@ impl<'inst> Device<'inst> {
     let r = unsafe {
       (self.table).vkGetSemaphoreSciSyncObjNV.unwrap_unchecked()(self.raw, pGetSciSyncInfo, pHandle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -11822,7 +11822,7 @@ impl<'inst> Device<'inst> {
     let r = unsafe {
       (self.table).vkImportFenceSciSyncFenceNV.unwrap_unchecked()(self.raw, pImportFenceSciSyncInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -11862,7 +11862,7 @@ impl<'inst> Device<'inst> {
     let r = unsafe {
       (self.table).vkImportFenceSciSyncObjNV.unwrap_unchecked()(self.raw, pImportFenceSciSyncInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -11901,7 +11901,7 @@ impl<'inst> Device<'inst> {
         .vkImportSemaphoreSciSyncObjNV
         .unwrap_unchecked()(self.raw, pImportSemaphoreSciSyncInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -11943,7 +11943,7 @@ impl<'inst> Device<'inst> {
         .vkCreateSemaphoreSciSyncPoolNV
         .unwrap_unchecked()(self.raw, pCreateInfo, pAllocator, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::semaphore_sci_sync_pool_nv::SemaphoreSciSyncPoolNV {
         raw: handle,
         parent: self,
@@ -11992,7 +11992,7 @@ impl<'inst> Device<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::optical_flow_session_nv::OpticalFlowSessionNV {
         raw: handle,
         parent: self,
@@ -12059,7 +12059,7 @@ impl<'inst> Device<'inst> {
         .vkBindAccelerationStructureMemoryNV
         .unwrap_unchecked()(self.raw, pBindInfos.len() as u32, pBindInfos.as_ptr())
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -12100,7 +12100,7 @@ impl<'inst> Device<'inst> {
         .vkCreateAccelerationStructureNV
         .unwrap_unchecked()(self.raw, pCreateInfo, pAllocator, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::acceleration_structure_nv::AccelerationStructureNV {
         raw: handle,
         parent: self,
@@ -12165,7 +12165,7 @@ impl<'inst> Device<'inst> {
     let r = unsafe {
       (self.table).vkGetMemoryNativeBufferOHOS.unwrap_unchecked()(self.raw, pInfo, pBuffer)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -12205,7 +12205,7 @@ impl<'inst> Device<'inst> {
         .vkGetNativeBufferPropertiesOHOS
         .unwrap_unchecked()(self.raw, buffer, pProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -12243,7 +12243,7 @@ impl<'inst> Device<'inst> {
         .vkGetDynamicRenderingTilePropertiesQCOM
         .unwrap_unchecked()(self.raw, pRenderingInfo, pProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -12283,7 +12283,7 @@ impl<'inst> Device<'inst> {
         .vkGetScreenBufferPropertiesQNX
         .unwrap_unchecked()(self.raw, buffer, pProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();

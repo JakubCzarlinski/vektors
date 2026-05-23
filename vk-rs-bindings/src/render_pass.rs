@@ -188,7 +188,7 @@ impl<'dev> RenderPass<'dev> {
         .vkGetDeviceSubpassShadingMaxWorkgroupSizeHUAWEI
         .unwrap_unchecked()(self.device().raw(), self.raw, pMaxWorkgroupSize)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();

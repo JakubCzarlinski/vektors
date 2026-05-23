@@ -77,7 +77,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_3")]
 impl<'a> VkPhysicalDeviceInlineUniformBlockFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_FEATURES,
     pNext: core::ptr::null_mut(),
     inlineUniformBlock: 0,
     descriptorBindingInlineUniformBlockUpdateAfterBind: 0,
@@ -179,7 +179,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_3")]
 impl<'a> VkPhysicalDeviceInlineUniformBlockProperties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_PROPERTIES,
     pNext: core::ptr::null_mut(),
     maxInlineUniformBlockSize: 0,
     maxPerStageDescriptorInlineUniformBlocks: 0,
@@ -273,7 +273,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkWriteDescriptorSet<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_3")]
 impl<'a> VkWriteDescriptorSetInlineUniformBlock<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK,
+    sType: VkStructureType::WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK,
     pNext: core::ptr::null(),
     dataSize: 0,
     pData: core::ptr::null(),
@@ -348,7 +348,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDescriptorPoolCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_3")]
 impl<'a> VkDescriptorPoolInlineUniformBlockCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_INLINE_UNIFORM_BLOCK_CREATE_INFO,
+    sType: VkStructureType::DESCRIPTOR_POOL_INLINE_UNIFORM_BLOCK_CREATE_INFO,
     pNext: core::ptr::null(),
     maxInlineUniformBlockBindings: 0,
     _marker: core::marker::PhantomData,
@@ -483,7 +483,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDataGraphPipelineCreateInfoARM<'root
 #[cfg(feature = "VK_COMPUTE_VERSION_1_3")]
 impl<'a> VkPipelineCreationFeedbackCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_CREATION_FEEDBACK_CREATE_INFO,
+    sType: VkStructureType::PIPELINE_CREATION_FEEDBACK_CREATE_INFO,
     pNext: core::ptr::null(),
     pPipelineCreationFeedback: core::ptr::null_mut(),
     pipelineStageCreationFeedbackCount: 0,
@@ -653,8 +653,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_3")]
 impl<'a> VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DEMOTE_TO_HELPER_INVOCATION_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_DEMOTE_TO_HELPER_INVOCATION_FEATURES,
     pNext: core::ptr::null_mut(),
     shaderDemoteToHelperInvocation: 0,
     _marker: core::marker::PhantomData,
@@ -745,7 +744,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_3")]
 impl<'a> VkPhysicalDeviceTexelBufferAlignmentProperties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_PROPERTIES,
     pNext: core::ptr::null_mut(),
     storageTexelBufferOffsetAlignmentBytes: 0,
     storageTexelBufferOffsetSingleTexelAlignment: 0,
@@ -834,7 +833,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_3")]
 impl<'a> VkPhysicalDeviceSubgroupSizeControlFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_FEATURES,
     pNext: core::ptr::null_mut(),
     subgroupSizeControl: 0,
     computeFullSubgroups: 0,
@@ -931,7 +930,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_3")]
 impl<'a> VkPhysicalDeviceSubgroupSizeControlProperties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_PROPERTIES,
     pNext: core::ptr::null_mut(),
     minSubgroupSize: 0,
     maxSubgroupSize: 0,
@@ -1019,8 +1018,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkShaderCreateInfoEXT<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_3")]
 impl<'a> VkPipelineShaderStageRequiredSubgroupSizeCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_REQUIRED_SUBGROUP_SIZE_CREATE_INFO,
+    sType: VkStructureType::PIPELINE_SHADER_STAGE_REQUIRED_SUBGROUP_SIZE_CREATE_INFO,
     pNext: core::ptr::null(),
     requiredSubgroupSize: 0,
     _marker: core::marker::PhantomData,
@@ -1105,8 +1103,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_3")]
 impl<'a> VkPhysicalDevicePipelineCreationCacheControlFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES,
     pNext: core::ptr::null_mut(),
     pipelineCreationCacheControl: 0,
     _marker: core::marker::PhantomData,
@@ -1191,8 +1188,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_3")]
 impl<'a> VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_WORKGROUP_MEMORY_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_ZERO_INITIALIZE_WORKGROUP_MEMORY_FEATURES,
     pNext: core::ptr::null_mut(),
     shaderZeroInitializeWorkgroupMemory: 0,
     _marker: core::marker::PhantomData,
@@ -1277,7 +1273,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_3")]
 impl<'a> VkPhysicalDeviceImageRobustnessFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ROBUSTNESS_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_IMAGE_ROBUSTNESS_FEATURES,
     pNext: core::ptr::null_mut(),
     robustImageAccess: 0,
     _marker: core::marker::PhantomData,
@@ -1362,7 +1358,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_3")]
 impl<'a> VkPhysicalDeviceShaderTerminateInvocationFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TERMINATE_INVOCATION_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_TERMINATE_INVOCATION_FEATURES,
     pNext: core::ptr::null_mut(),
     shaderTerminateInvocation: 0,
     _marker: core::marker::PhantomData,
@@ -1447,7 +1443,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_3")]
 impl<'a> VkPhysicalDeviceShaderIntegerDotProductFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_DOT_PRODUCT_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_INTEGER_DOT_PRODUCT_FEATURES,
     pNext: core::ptr::null_mut(),
     shaderIntegerDotProduct: 0,
     _marker: core::marker::PhantomData,
@@ -1590,7 +1586,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_3")]
 impl<'a> VkPhysicalDeviceShaderIntegerDotProductProperties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_DOT_PRODUCT_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_INTEGER_DOT_PRODUCT_PROPERTIES,
     pNext: core::ptr::null_mut(),
     integerDotProduct8BitUnsignedAccelerated: 0,
     integerDotProduct8BitSignedAccelerated: 0,

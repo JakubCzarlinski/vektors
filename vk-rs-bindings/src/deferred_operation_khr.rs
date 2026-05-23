@@ -283,7 +283,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
         pPipelines.as_mut_ptr(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -328,7 +328,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
         pInfos.as_ptr(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -371,7 +371,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
         pInfo,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -407,7 +407,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
     let r = unsafe {
       (self.table).vkCopyMicromapEXT.unwrap_unchecked()(self.device().raw(), self.raw, pInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -450,7 +450,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
         pInfo,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -500,7 +500,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
         ppBuildRangeInfos,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -541,7 +541,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
         .vkCopyAccelerationStructureKHR
         .unwrap_unchecked()(self.device().raw(), self.raw, pInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -582,7 +582,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
         .vkCopyAccelerationStructureToMemoryKHR
         .unwrap_unchecked()(self.device().raw(), self.raw, pInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -623,7 +623,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
         .vkCopyMemoryToAccelerationStructureKHR
         .unwrap_unchecked()(self.device().raw(), self.raw, pInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -658,7 +658,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
     let r = unsafe {
       (self.table).vkDeferredOperationJoinKHR.unwrap_unchecked()(self.device().raw(), self.raw)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -735,7 +735,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
         .vkGetDeferredOperationResultKHR
         .unwrap_unchecked()(self.device().raw(), self.raw)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -796,7 +796,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
         pPipelines.as_mut_ptr(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();

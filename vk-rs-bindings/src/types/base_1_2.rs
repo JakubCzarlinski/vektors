@@ -175,7 +175,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
 impl<'a> VkPhysicalDeviceDriverProperties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_DRIVER_PROPERTIES,
     pNext: core::ptr::null_mut(),
     driverID: VkDriverId(0),
     driverName: [0i8; VK_MAX_DRIVER_NAME_SIZE as usize],
@@ -271,7 +271,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceImageFormatInfo2<'root
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
 impl<'a> VkImageFormatListCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO,
+    sType: VkStructureType::IMAGE_FORMAT_LIST_CREATE_INFO,
     pNext: core::ptr::null(),
     viewFormatCount: 0,
     pViewFormats: core::ptr::null(),
@@ -381,7 +381,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
 impl<'a> VkPhysicalDeviceHostQueryResetFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_QUERY_RESET_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_HOST_QUERY_RESET_FEATURES,
     pNext: core::ptr::null_mut(),
     hostQueryReset: 0,
     _marker: core::marker::PhantomData,
@@ -466,7 +466,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
 impl<'a> VkPhysicalDeviceTimelineSemaphoreFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES,
     pNext: core::ptr::null_mut(),
     timelineSemaphore: 0,
     _marker: core::marker::PhantomData,
@@ -551,7 +551,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
 impl<'a> VkPhysicalDeviceTimelineSemaphoreProperties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_PROPERTIES,
     pNext: core::ptr::null_mut(),
     maxTimelineSemaphoreValueDifference: 0,
     _marker: core::marker::PhantomData,
@@ -622,7 +622,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceExternalSemaphoreInfo<
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
 impl<'a> VkSemaphoreTypeCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO,
+    sType: VkStructureType::SEMAPHORE_TYPE_CREATE_INFO,
     pNext: core::ptr::null(),
     semaphoreType: VkSemaphoreType(0),
     initialValue: 0,
@@ -720,7 +720,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkBindSparseInfo<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
 impl<'a> VkTimelineSemaphoreSubmitInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO,
+    sType: VkStructureType::TIMELINE_SEMAPHORE_SUBMIT_INFO,
     pNext: core::ptr::null(),
     waitSemaphoreValueCount: 0,
     pWaitSemaphoreValues: core::ptr::null(),
@@ -822,7 +822,7 @@ unsafe impl<'a> Sync for VkSemaphoreWaitInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
 impl<'a> VkSemaphoreWaitInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO,
+    sType: VkStructureType::SEMAPHORE_WAIT_INFO,
     pNext: core::ptr::null(),
     flags: VkSemaphoreWaitFlagBits(0),
     semaphoreCount: 0,
@@ -921,7 +921,7 @@ unsafe impl<'a> Sync for VkSemaphoreSignalInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
 impl<'a> VkSemaphoreSignalInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SEMAPHORE_SIGNAL_INFO,
+    sType: VkStructureType::SEMAPHORE_SIGNAL_INFO,
     pNext: core::ptr::null(),
     semaphore: VkSemaphore::DEFAULT,
     value: 0,
@@ -999,7 +999,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
 impl<'a> VkPhysicalDeviceVulkanMemoryModelFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_MEMORY_MODEL_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_VULKAN_MEMORY_MODEL_FEATURES,
     pNext: core::ptr::null_mut(),
     vulkanMemoryModel: 0,
     vulkanMemoryModelDeviceScope: 0,
@@ -1098,7 +1098,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
 impl<'a> VkPhysicalDeviceBufferDeviceAddressFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES,
     pNext: core::ptr::null_mut(),
     bufferDeviceAddress: 0,
     bufferDeviceAddressCaptureReplay: 0,
@@ -1183,7 +1183,7 @@ unsafe impl<'a> Sync for VkBufferDeviceAddressInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
 impl<'a> VkBufferDeviceAddressInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
+    sType: VkStructureType::BUFFER_DEVICE_ADDRESS_INFO,
     pNext: core::ptr::null(),
     buffer: VkBuffer::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -1248,7 +1248,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkBufferCreateInfo<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
 impl<'a> VkBufferOpaqueCaptureAddressCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BUFFER_OPAQUE_CAPTURE_ADDRESS_CREATE_INFO,
+    sType: VkStructureType::BUFFER_OPAQUE_CAPTURE_ADDRESS_CREATE_INFO,
     pNext: core::ptr::null(),
     opaqueCaptureAddress: 0,
     _marker: core::marker::PhantomData,
@@ -1313,7 +1313,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkMemoryAllocateInfo<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
 impl<'a> VkMemoryOpaqueCaptureAddressAllocateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO,
+    sType: VkStructureType::MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO,
     pNext: core::ptr::null(),
     opaqueCaptureAddress: 0,
     _marker: core::marker::PhantomData,
@@ -1371,7 +1371,7 @@ unsafe impl<'a> Sync for VkDeviceMemoryOpaqueCaptureAddressInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
 impl<'a> VkDeviceMemoryOpaqueCaptureAddressInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEVICE_MEMORY_OPAQUE_CAPTURE_ADDRESS_INFO,
+    sType: VkStructureType::DEVICE_MEMORY_OPAQUE_CAPTURE_ADDRESS_INFO,
     pNext: core::ptr::null(),
     memory: VkDeviceMemory::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -1452,7 +1452,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
 impl<'a> VkPhysicalDeviceVulkan11Features<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_VULKAN_1_1_FEATURES,
     pNext: core::ptr::null_mut(),
     storageBuffer16BitAccess: 0,
     uniformAndStorageBuffer16BitAccess: 0,
@@ -1631,7 +1631,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
 impl<'a> VkPhysicalDeviceVulkan11Properties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_VULKAN_1_1_PROPERTIES,
     pNext: core::ptr::null_mut(),
     deviceUUID: [0u8; VK_UUID_SIZE as usize],
     driverUUID: [0u8; VK_UUID_SIZE as usize],
@@ -1831,7 +1831,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
 impl<'a> VkPhysicalDeviceVulkan12Features<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_VULKAN_1_2_FEATURES,
     pNext: core::ptr::null_mut(),
     samplerMirrorClampToEdge: 0,
     drawIndirectCount: 0,
@@ -2306,7 +2306,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
 impl<'a> VkPhysicalDeviceVulkan12Properties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_VULKAN_1_2_PROPERTIES,
     pNext: core::ptr::null_mut(),
     driverID: VkDriverId(0),
     driverName: [0i8; VK_MAX_DRIVER_NAME_SIZE as usize],

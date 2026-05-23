@@ -183,7 +183,7 @@ impl<'dev> BufferCollectionFUCHSIA<'dev> {
         .vkGetBufferCollectionPropertiesFUCHSIA
         .unwrap_unchecked()(self.device().raw(), self.raw, pProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -223,7 +223,7 @@ impl<'dev> BufferCollectionFUCHSIA<'dev> {
         .vkSetBufferCollectionBufferConstraintsFUCHSIA
         .unwrap_unchecked()(self.device().raw(), self.raw, pBufferConstraintsInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -263,7 +263,7 @@ impl<'dev> BufferCollectionFUCHSIA<'dev> {
         .vkSetBufferCollectionImageConstraintsFUCHSIA
         .unwrap_unchecked()(self.device().raw(), self.raw, pImageConstraintsInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();

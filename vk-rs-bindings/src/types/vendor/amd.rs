@@ -92,7 +92,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_AMD_anti_lag")]
 impl<'a> VkPhysicalDeviceAntiLagFeaturesAMD<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ANTI_LAG_FEATURES_AMD,
+    sType: VkStructureType::PHYSICAL_DEVICE_ANTI_LAG_FEATURES_AMD,
     pNext: core::ptr::null_mut(),
     antiLag: 0,
     _marker: core::marker::PhantomData,
@@ -168,7 +168,7 @@ unsafe impl<'a> Sync for VkAntiLagDataAMD<'a> {}
 #[cfg(feature = "VK_AMD_anti_lag")]
 impl<'a> VkAntiLagDataAMD<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_ANTI_LAG_DATA_AMD,
+    sType: VkStructureType::ANTI_LAG_DATA_AMD,
     pNext: core::ptr::null(),
     mode: VkAntiLagModeAMD(0),
     maxFPS: 0,
@@ -245,7 +245,7 @@ unsafe impl<'a> Sync for VkAntiLagPresentationInfoAMD<'a> {}
 #[cfg(feature = "VK_AMD_anti_lag")]
 impl<'a> VkAntiLagPresentationInfoAMD<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_ANTI_LAG_PRESENTATION_INFO_AMD,
+    sType: VkStructureType::ANTI_LAG_PRESENTATION_INFO_AMD,
     pNext: core::ptr::null_mut(),
     stage: VkAntiLagStageAMD(0),
     frameIndex: 0,
@@ -327,7 +327,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_AMD_device_coherent_memory")]
 impl<'a> VkPhysicalDeviceCoherentMemoryFeaturesAMD<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COHERENT_MEMORY_FEATURES_AMD,
+    sType: VkStructureType::PHYSICAL_DEVICE_COHERENT_MEMORY_FEATURES_AMD,
     pNext: core::ptr::null_mut(),
     deviceCoherentMemory: 0,
     _marker: core::marker::PhantomData,
@@ -412,7 +412,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSurfaceCapabilities2KHR<'root>>
 #[cfg(feature = "VK_AMD_display_native_hdr")]
 impl<'a> VkDisplayNativeHdrSurfaceCapabilitiesAMD<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DISPLAY_NATIVE_HDR_SURFACE_CAPABILITIES_AMD,
+    sType: VkStructureType::DISPLAY_NATIVE_HDR_SURFACE_CAPABILITIES_AMD,
     pNext: core::ptr::null_mut(),
     localDimmingSupport: 0,
     _marker: core::marker::PhantomData,
@@ -477,7 +477,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSwapchainCreateInfoKHR<'root>>
 #[cfg(feature = "VK_AMD_display_native_hdr")]
 impl<'a> VkSwapchainDisplayNativeHdrCreateInfoAMD<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SWAPCHAIN_DISPLAY_NATIVE_HDR_CREATE_INFO_AMD,
+    sType: VkStructureType::SWAPCHAIN_DISPLAY_NATIVE_HDR_CREATE_INFO_AMD,
     pNext: core::ptr::null(),
     localDimmingEnable: 0,
     _marker: core::marker::PhantomData,
@@ -647,7 +647,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_AMD_gpa_interface")]
 impl<'a> VkPhysicalDeviceGpaFeaturesAMD<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_FEATURES_AMD,
+    sType: VkStructureType::PHYSICAL_DEVICE_GPA_FEATURES_AMD,
     pNext: core::ptr::null_mut(),
     perfCounters: 0,
     streamingPerfCounters: 0,
@@ -758,7 +758,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_AMD_gpa_interface")]
 impl<'a> VkPhysicalDeviceGpaPropertiesAMD<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_AMD,
+    sType: VkStructureType::PHYSICAL_DEVICE_GPA_PROPERTIES_AMD,
     pNext: core::ptr::null_mut(),
     flags: 0,
     maxSqttSeBufferSize: 0,
@@ -856,7 +856,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_AMD_gpa_interface")]
 impl<'a> VkPhysicalDeviceGpaProperties2AMD<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_2_AMD,
+    sType: VkStructureType::PHYSICAL_DEVICE_GPA_PROPERTIES_2_AMD,
     pNext: core::ptr::null_mut(),
     revisionId: 0,
     _marker: core::marker::PhantomData,
@@ -968,7 +968,7 @@ unsafe impl<'a> Sync for VkGpaSampleBeginInfoAMD<'a> {}
 #[cfg(feature = "VK_AMD_gpa_interface")]
 impl<'a> VkGpaSampleBeginInfoAMD<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_GPA_SAMPLE_BEGIN_INFO_AMD,
+    sType: VkStructureType::GPA_SAMPLE_BEGIN_INFO_AMD,
     pNext: core::ptr::null(),
     sampleType: VkGpaSampleTypeAMD(0),
     sampleInternalOperations: 0,
@@ -1110,7 +1110,7 @@ unsafe impl<'a> Sync for VkGpaDeviceClockModeInfoAMD<'a> {}
 #[cfg(feature = "VK_AMD_gpa_interface")]
 impl<'a> VkGpaDeviceClockModeInfoAMD<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_GPA_DEVICE_CLOCK_MODE_INFO_AMD,
+    sType: VkStructureType::GPA_DEVICE_CLOCK_MODE_INFO_AMD,
     pNext: core::ptr::null(),
     clockMode: VkGpaDeviceClockModeAMD(0),
     memoryClockRatioToPeak: 0.0f32,
@@ -1183,7 +1183,7 @@ unsafe impl<'a> Sync for VkGpaDeviceGetClockInfoAMD<'a> {}
 #[cfg(feature = "VK_AMD_gpa_interface")]
 impl<'a> VkGpaDeviceGetClockInfoAMD<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_GPA_DEVICE_GET_CLOCK_INFO_AMD,
+    sType: VkStructureType::GPA_DEVICE_GET_CLOCK_INFO_AMD,
     pNext: core::ptr::null_mut(),
     memoryClockRatioToPeak: 0.0f32,
     engineClockRatioToPeak: 0.0f32,
@@ -1260,7 +1260,7 @@ unsafe impl<'a> Sync for VkGpaSessionCreateInfoAMD<'a> {}
 #[cfg(feature = "VK_AMD_gpa_interface")]
 impl<'a> VkGpaSessionCreateInfoAMD<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_GPA_SESSION_CREATE_INFO_AMD,
+    sType: VkStructureType::GPA_SESSION_CREATE_INFO_AMD,
     pNext: core::ptr::null(),
     secondaryCopySource: VkGpaSessionAMD::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -1328,7 +1328,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_AMD_memory_overallocation_behavior")]
 impl<'a> VkDeviceMemoryOverallocationCreateInfoAMD<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEVICE_MEMORY_OVERALLOCATION_CREATE_INFO_AMD,
+    sType: VkStructureType::DEVICE_MEMORY_OVERALLOCATION_CREATE_INFO_AMD,
     pNext: core::ptr::null(),
     overallocationBehavior: VkMemoryOverallocationBehaviorAMD(0),
     _marker: core::marker::PhantomData,
@@ -1468,7 +1468,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkGraphicsPipelineCreateInfo<'root>>
 ))]
 impl<'a> VkAttachmentSampleCountInfoAMD<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_ATTACHMENT_SAMPLE_COUNT_INFO_AMD,
+    sType: VkStructureType::ATTACHMENT_SAMPLE_COUNT_INFO_AMD,
     pNext: core::ptr::null(),
     colorAttachmentCount: 0,
     pColorAttachmentSamples: core::ptr::null(),
@@ -1587,7 +1587,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkExecutionGraphPipelineCreateInfoAMDX
 #[cfg(feature = "VK_AMD_pipeline_compiler_control")]
 impl<'a> VkPipelineCompilerControlCreateInfoAMD<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_COMPILER_CONTROL_CREATE_INFO_AMD,
+    sType: VkStructureType::PIPELINE_COMPILER_CONTROL_CREATE_INFO_AMD,
     pNext: core::ptr::null(),
     compilerControlFlags: VkPipelineCompilerControlFlagBitsAMD(0),
     _marker: core::marker::PhantomData,
@@ -1685,7 +1685,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPipelineRasterizationStateCreateInfo
 #[cfg(feature = "VK_AMD_rasterization_order")]
 impl<'a> VkPipelineRasterizationStateRasterizationOrderAMD<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_RASTERIZATION_ORDER_AMD,
+    sType: VkStructureType::PIPELINE_RASTERIZATION_STATE_RASTERIZATION_ORDER_AMD,
     pNext: core::ptr::null(),
     rasterizationOrder: VkRasterizationOrderAMD(0),
     _marker: core::marker::PhantomData,
@@ -1784,7 +1784,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_AMD_shader_core_properties")]
 impl<'a> VkPhysicalDeviceShaderCorePropertiesAMD<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_AMD,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_AMD,
     pNext: core::ptr::null_mut(),
     shaderEngineCount: 0,
     shaderArraysPerEngineCount: 0,
@@ -1940,7 +1940,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_AMD_shader_core_properties2")]
 impl<'a> VkPhysicalDeviceShaderCoreProperties2AMD<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_2_AMD,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_2_AMD,
     pNext: core::ptr::null_mut(),
     shaderCoreFeatures: VkShaderCorePropertiesFlagBitsAMD(0),
     activeComputeUnitCount: 0,
@@ -2022,11 +2022,11 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_AMD_shader_early_and_late_fragment_tests")]
 impl<'a> VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_EARLY_AND_LATE_FRAGMENT_TESTS_FEATURES_AMD,
-        pNext: core::ptr::null_mut(),
-        shaderEarlyAndLateFragmentTests: 0,
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_EARLY_AND_LATE_FRAGMENT_TESTS_FEATURES_AMD,
+    pNext: core::ptr::null_mut(),
+    shaderEarlyAndLateFragmentTests: 0,
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -2233,7 +2233,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkImageFormatProperties2<'root>>
 #[cfg(feature = "VK_AMD_texture_gather_bias_lod")]
 impl<'a> VkTextureLODGatherFormatPropertiesAMD<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_TEXTURE_LOD_GATHER_FORMAT_PROPERTIES_AMD,
+    sType: VkStructureType::TEXTURE_LOD_GATHER_FORMAT_PROPERTIES_AMD,
     pNext: core::ptr::null_mut(),
     supportsTextureGatherLODBiasAMD: 0,
     _marker: core::marker::PhantomData,

@@ -115,7 +115,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPresentInfoKHR<'root>>
 #[cfg(feature = "VK_GOOGLE_display_timing")]
 impl<'a> VkPresentTimesInfoGOOGLE<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PRESENT_TIMES_INFO_GOOGLE,
+    sType: VkStructureType::PRESENT_TIMES_INFO_GOOGLE,
     pNext: core::ptr::null(),
     swapchainCount: 0,
     pTimes: core::ptr::null(),

@@ -569,7 +569,7 @@ unsafe impl<'a> Sync for VkWriteDescriptorSet<'a> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl<'a> VkWriteDescriptorSet<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+    sType: VkStructureType::WRITE_DESCRIPTOR_SET,
     pNext: core::ptr::null(),
     dstSet: VkDescriptorSet::DEFAULT,
     dstBinding: 0,
@@ -766,7 +766,7 @@ unsafe impl<'a> Sync for VkCopyDescriptorSet<'a> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl<'a> VkCopyDescriptorSet<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET,
+    sType: VkStructureType::COPY_DESCRIPTOR_SET,
     pNext: core::ptr::null(),
     srcSet: VkDescriptorSet::DEFAULT,
     srcBinding: 0,
@@ -865,7 +865,7 @@ unsafe impl<'a> Sync for VkBufferViewCreateInfo<'a> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl<'a> VkBufferViewCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO,
+    sType: VkStructureType::BUFFER_VIEW_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: 0,
     buffer: VkBuffer::DEFAULT,
@@ -987,7 +987,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDataGraphPipelineCreateInfoARM<'root
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl<'a> VkShaderModuleCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+    sType: VkStructureType::SHADER_MODULE_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: 0,
     codeSize: 0,
@@ -1170,7 +1170,7 @@ unsafe impl<'a> Sync for VkDescriptorSetLayoutCreateInfo<'a> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl<'a> VkDescriptorSetLayoutCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+    sType: VkStructureType::DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: VkDescriptorSetLayoutCreateFlagBits(0),
     bindingCount: 0,
@@ -1308,7 +1308,7 @@ unsafe impl<'a> Sync for VkDescriptorPoolCreateInfo<'a> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl<'a> VkDescriptorPoolCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+    sType: VkStructureType::DESCRIPTOR_POOL_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: VkDescriptorPoolCreateFlagBits(0),
     maxSets: 0,
@@ -1428,7 +1428,7 @@ unsafe impl<'a> Sync for VkDescriptorSetAllocateInfo<'a> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl<'a> VkDescriptorSetAllocateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+    sType: VkStructureType::DESCRIPTOR_SET_ALLOCATE_INFO,
     pNext: core::ptr::null(),
     descriptorPool: VkDescriptorPool::DEFAULT,
     descriptorSetCount: 0,
@@ -1630,7 +1630,7 @@ unsafe impl<'a> Sync for VkPipelineShaderStageCreateInfo<'a> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl<'a> VkPipelineShaderStageCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+    sType: VkStructureType::PIPELINE_SHADER_STAGE_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: VkPipelineShaderStageCreateFlagBits(0),
     stage: VkShaderStageFlagBits(0),
@@ -1838,7 +1838,7 @@ unsafe impl<'a> Sync for VkComputePipelineCreateInfo<'a> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl<'a> VkComputePipelineCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
+    sType: VkStructureType::COMPUTE_PIPELINE_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: VkPipelineCreateFlagBits(0),
     stage: VkPipelineShaderStageCreateInfo::DEFAULT,
@@ -2024,7 +2024,7 @@ unsafe impl<'a> Sync for VkPipelineCacheCreateInfo<'a> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl<'a> VkPipelineCacheCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO,
+    sType: VkStructureType::PIPELINE_CACHE_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: VkPipelineCacheCreateFlagBits(0),
     #[cfg(not(feature = "VKSC_VERSION_1_0"))]
@@ -2257,7 +2257,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkIndirectCommandsLayoutCreateInfoEXT<
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl<'a> VkPipelineLayoutCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+    sType: VkStructureType::PIPELINE_LAYOUT_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: VkPipelineLayoutCreateFlagBits(0),
     setLayoutCount: 0,
@@ -2455,7 +2455,7 @@ unsafe impl<'a> Sync for VkSamplerCreateInfo<'a> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl<'a> VkSamplerCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
+    sType: VkStructureType::SAMPLER_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: VkSamplerCreateFlagBits(0),
     magFilter: VkFilter(0),
@@ -2753,7 +2753,7 @@ unsafe impl<'a> Sync for VkEventCreateInfo<'a> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl<'a> VkEventCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_EVENT_CREATE_INFO,
+    sType: VkStructureType::EVENT_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: VkEventCreateFlagBits(0),
     _marker: core::marker::PhantomData,

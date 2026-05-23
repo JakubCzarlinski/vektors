@@ -340,7 +340,7 @@ impl<'dev> SwapchainKHR<'dev> {
         pCounterValue,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -377,7 +377,7 @@ impl<'dev> SwapchainKHR<'dev> {
         .vkAcquireFullScreenExclusiveModeEXT
         .unwrap_unchecked()(self.device().raw(), self.raw)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -413,7 +413,7 @@ impl<'dev> SwapchainKHR<'dev> {
         .vkReleaseFullScreenExclusiveModeEXT
         .unwrap_unchecked()(self.device().raw(), self.raw)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -461,7 +461,7 @@ impl<'dev> SwapchainKHR<'dev> {
         pTimeDomainsCounter,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -509,7 +509,7 @@ impl<'dev> SwapchainKHR<'dev> {
         pSwapchainTimingPropertiesCounter,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -546,7 +546,7 @@ impl<'dev> SwapchainKHR<'dev> {
         .vkSetSwapchainPresentTimingQueueSizeEXT
         .unwrap_unchecked()(self.device().raw(), self.raw, size)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -595,7 +595,7 @@ impl<'dev> SwapchainKHR<'dev> {
         pPresentationTimings,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -635,7 +635,7 @@ impl<'dev> SwapchainKHR<'dev> {
         .vkGetRefreshCycleDurationGOOGLE
         .unwrap_unchecked()(self.device().raw(), self.raw, pDisplayTimingProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -681,7 +681,7 @@ impl<'dev> SwapchainKHR<'dev> {
         timeout,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -728,7 +728,7 @@ impl<'dev> SwapchainKHR<'dev> {
         pPresentWait2Info,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -766,7 +766,7 @@ impl<'dev> SwapchainKHR<'dev> {
     let r = unsafe {
       (self.table).vkGetSwapchainStatusKHR.unwrap_unchecked()(self.device().raw(), self.raw)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -823,7 +823,7 @@ impl<'dev> SwapchainKHR<'dev> {
         pImageIndex,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -894,7 +894,7 @@ impl<'dev> SwapchainKHR<'dev> {
         pSwapchainImages,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -951,7 +951,7 @@ impl<'dev> SwapchainKHR<'dev> {
     let r = unsafe {
       (self.table).vkLatencySleepNV.unwrap_unchecked()(self.device().raw(), self.raw, pSleepInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -1013,7 +1013,7 @@ impl<'dev> SwapchainKHR<'dev> {
         pSleepModeInfo,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();

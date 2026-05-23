@@ -37,14 +37,14 @@ const INSTANCE_CREATE_INFO: VkInstanceCreateInfo = VkInstanceCreateInfo::DEFAULT
 const BINDINGS: [VkDescriptorSetLayoutBinding; 2] = [
     VkDescriptorSetLayoutBinding::DEFAULT
         .with_binding(0)
-        .with_descriptorType(VkDescriptorType::VK_DESCRIPTOR_TYPE_STORAGE_BUFFER)
+        .with_descriptorType(VkDescriptorType::STORAGE_BUFFER)
         .with_descriptorCount(1)
-        .with_stageFlags(VkShaderStageFlagBits::VK_SHADER_STAGE_COMPUTE_BIT),
+        .with_stageFlags(VkShaderStageFlagBits::COMPUTE),
     VkDescriptorSetLayoutBinding::DEFAULT
         .with_binding(1)
-        .with_descriptorType(VkDescriptorType::VK_DESCRIPTOR_TYPE_STORAGE_BUFFER)
+        .with_descriptorType(VkDescriptorType::STORAGE_BUFFER)
         .with_descriptorCount(1)
-        .with_stageFlags(VkShaderStageFlagBits::VK_SHADER_STAGE_COMPUTE_BIT),
+        .with_stageFlags(VkShaderStageFlagBits::COMPUTE),
 ];
 
 const DSL_INFO: VkDescriptorSetLayoutCreateInfo =
@@ -62,8 +62,7 @@ fn main() {
     let memory_type_index = find_host_visible_memory_type(
         &physical_device,
         u32::MAX,
-        VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
-            | VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        VkMemoryPropertyFlagBits::HOST_VISIBLE | VkMemoryPropertyFlagBits::HOST_COHERENT,
     )
     .expect("Failed to find suitable memory type");
 
@@ -140,9 +139,7 @@ fn find_queue_family(physical_device: &PhysicalDevice) -> Option<u32> {
     let props = unsafe { props.assume_init() };
 
     props.iter().enumerate().find_map(|(i, p)| {
-        if p.queueFlags
-            .intersects(VkQueueFlagBits::VK_QUEUE_COMPUTE_BIT)
-        {
+        if p.queueFlags.intersects(VkQueueFlagBits::COMPUTE) {
             Some(i as u32)
         } else {
             None
@@ -187,7 +184,7 @@ fn create_compute_pipeline<'a>(
     let shader_module = device.vkCreateShaderModule(&SHADER_MODULE_INFO, null())?;
 
     let stage = VkPipelineShaderStageCreateInfo::DEFAULT
-        .with_stage(VkShaderStageFlagBits::VK_SHADER_STAGE_COMPUTE_BIT)
+        .with_stage(VkShaderStageFlagBits::COMPUTE)
         .with_pName(c"main".as_ptr())
         .with_module(shader_module.raw());
     let pipe_info = &[VkComputePipelineCreateInfo::DEFAULT
@@ -212,8 +209,8 @@ impl HostVisibleBuffer<'_> {
         let buffer: Buffer<'_> = {
             #[allow(deprecated)]
             let buffer_info = VkBufferCreateInfo::DEFAULT
-                .with_usage(VkBufferUsageFlagBits::VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
-                .with_sharingMode(VkSharingMode::VK_SHARING_MODE_EXCLUSIVE)
+                .with_usage(VkBufferUsageFlagBits::STORAGE_BUFFER)
+                .with_sharingMode(VkSharingMode::EXCLUSIVE)
                 .with_size(size);
             device.vkCreateBuffer(&buffer_info, null())
         }?;
@@ -285,11 +282,9 @@ fn read_from_buffer(memory: &DeviceMemory<'_>) -> Result<u32, VkResult> {
 fn create_descriptor_pool<'a>(device: &'a Device<'a>) -> Result<DescriptorPool<'a>, VkResult> {
     const POOL_INFO: VkDescriptorPoolCreateInfo = VkDescriptorPoolCreateInfo::DEFAULT
         .with_maxSets(1)
-        .with_flags(
-            VkDescriptorPoolCreateFlagBits::VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
-        )
+        .with_flags(VkDescriptorPoolCreateFlagBits::FREE_DESCRIPTOR_SET)
         .with_pPoolSizes(&[VkDescriptorPoolSize::DEFAULT
-            .with_type(VkDescriptorType::VK_DESCRIPTOR_TYPE_STORAGE_BUFFER)
+            .with_type(VkDescriptorType::STORAGE_BUFFER)
             .with_descriptorCount(2)]);
     device.vkCreateDescriptorPool(&POOL_INFO, null())
 }
@@ -324,12 +319,12 @@ fn create_descriptor_set<'a>(
     ];
     let writes = [
         VkWriteDescriptorSet::DEFAULT
-            .with_descriptorType(VkDescriptorType::VK_DESCRIPTOR_TYPE_STORAGE_BUFFER)
+            .with_descriptorType(VkDescriptorType::STORAGE_BUFFER)
             .with_dstBinding(0)
             .with_pBufferInfo(&b_infos[0..1])
             .with_dstSet(first_ds.raw()),
         VkWriteDescriptorSet::DEFAULT
-            .with_descriptorType(VkDescriptorType::VK_DESCRIPTOR_TYPE_STORAGE_BUFFER)
+            .with_descriptorType(VkDescriptorType::STORAGE_BUFFER)
             .with_dstBinding(1)
             .with_pBufferInfo(&b_infos[1..2])
             .with_dstSet(first_ds.raw()),
@@ -350,15 +345,13 @@ fn run_compute<'a>(
 ) -> Result<(), VkResult> {
     let cmd_pool = {
         let pool_info = VkCommandPoolCreateInfo::DEFAULT
-            .with_flags(
-                VkCommandPoolCreateFlagBits::VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-            )
+            .with_flags(VkCommandPoolCreateFlagBits::RESET_COMMAND_BUFFER)
             .with_queueFamilyIndex(queue_familiy_index);
         device.vkCreateCommandPool(&pool_info, null())
     }?;
     let cmd_buffers = {
         let cmd_buffer_info = VkCommandBufferAllocateInfo::DEFAULT
-            .with_level(VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+            .with_level(VkCommandBufferLevel::PRIMARY)
             .with_commandBufferCount(1)
             .with_commandPool(cmd_pool.raw());
         cmd_pool.vkAllocateCommandBuffers(&cmd_buffer_info)
@@ -366,14 +359,11 @@ fn run_compute<'a>(
     let cmd_buffer = &cmd_buffers[0];
 
     cmd_buffer.vkBeginCommandBuffer(&VkCommandBufferBeginInfo::DEFAULT)?;
-    cmd_buffer.vkCmdBindPipeline(
-        VkPipelineBindPoint::VK_PIPELINE_BIND_POINT_COMPUTE,
-        pipeline.raw(),
-    );
+    cmd_buffer.vkCmdBindPipeline(VkPipelineBindPoint::COMPUTE, pipeline.raw());
     {
         let raw_ds = [descriptor_set.raw()];
         cmd_buffer.vkCmdBindDescriptorSets(
-            VkPipelineBindPoint::VK_PIPELINE_BIND_POINT_COMPUTE,
+            VkPipelineBindPoint::COMPUTE,
             layout.raw(),
             0,
             &raw_ds,

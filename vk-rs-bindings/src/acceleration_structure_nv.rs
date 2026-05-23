@@ -154,7 +154,7 @@ impl<'dev> AccelerationStructureNV<'dev> {
         pData.as_mut_ptr().cast::<c_void>(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();

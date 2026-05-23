@@ -108,7 +108,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkRayTracingPipelineCreateInfoKHR<'roo
 #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
 impl<'a> VkPipelineCreateFlags2CreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_CREATE_FLAGS_2_CREATE_INFO,
+    sType: VkStructureType::PIPELINE_CREATE_FLAGS_2_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: VkPipelineCreateFlagBits2(0),
     _marker: core::marker::PhantomData,
@@ -223,7 +223,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
 impl<'a> VkPhysicalDevicePushDescriptorProperties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_DESCRIPTOR_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_PUSH_DESCRIPTOR_PROPERTIES,
     pNext: core::ptr::null_mut(),
     maxPushDescriptors: 0,
     _marker: core::marker::PhantomData,
@@ -293,7 +293,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
 impl<'a> VkPhysicalDevicePipelineProtectedAccessFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES,
     pNext: core::ptr::null_mut(),
     pipelineProtectedAccess: 0,
     _marker: core::marker::PhantomData,
@@ -378,7 +378,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
 impl<'a> VkPhysicalDevicePipelineRobustnessFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_FEATURES,
     pNext: core::ptr::null_mut(),
     pipelineRobustness: 0,
     _marker: core::marker::PhantomData,
@@ -482,7 +482,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkRayTracingPipelineCreateInfoKHR<'roo
 #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
 impl<'a> VkPipelineRobustnessCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_ROBUSTNESS_CREATE_INFO,
+    sType: VkStructureType::PIPELINE_ROBUSTNESS_CREATE_INFO,
     pNext: core::ptr::null(),
     storageBuffers: VkPipelineRobustnessBufferBehavior(0),
     uniformBuffers: VkPipelineRobustnessBufferBehavior(0),
@@ -621,7 +621,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
 impl<'a> VkPhysicalDevicePipelineRobustnessProperties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_PROPERTIES,
     pNext: core::ptr::null_mut(),
     defaultRobustnessStorageBuffers: VkPipelineRobustnessBufferBehavior(0),
     defaultRobustnessUniformBuffers: VkPipelineRobustnessBufferBehavior(0),
@@ -720,7 +720,7 @@ unsafe impl<'a> Sync for VkBindDescriptorSetsInfo<'a> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
 impl<'a> VkBindDescriptorSetsInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BIND_DESCRIPTOR_SETS_INFO,
+    sType: VkStructureType::BIND_DESCRIPTOR_SETS_INFO,
     pNext: core::ptr::null(),
     stageFlags: VkShaderStageFlagBits(0),
     layout: VkPipelineLayout::DEFAULT,
@@ -841,7 +841,7 @@ unsafe impl<'a> Sync for VkPushConstantsInfo<'a> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
 impl<'a> VkPushConstantsInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PUSH_CONSTANTS_INFO,
+    sType: VkStructureType::PUSH_CONSTANTS_INFO,
     pNext: core::ptr::null(),
     layout: VkPipelineLayout::DEFAULT,
     stageFlags: VkShaderStageFlagBits(0),
@@ -958,7 +958,7 @@ unsafe impl<'a> Sync for VkPushDescriptorSetInfo<'a> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
 impl<'a> VkPushDescriptorSetInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_INFO,
+    sType: VkStructureType::PUSH_DESCRIPTOR_SET_INFO,
     pNext: core::ptr::null(),
     stageFlags: VkShaderStageFlagBits(0),
     layout: VkPipelineLayout::DEFAULT,
@@ -1061,7 +1061,7 @@ unsafe impl<'a> Sync for VkPushDescriptorSetWithTemplateInfo<'a> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
 impl<'a> VkPushDescriptorSetWithTemplateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE_INFO,
+    sType: VkStructureType::PUSH_DESCRIPTOR_SET_WITH_TEMPLATE_INFO,
     pNext: core::ptr::null(),
     descriptorUpdateTemplate: VkDescriptorUpdateTemplate::DEFAULT,
     layout: VkPipelineLayout::DEFAULT,
@@ -1165,7 +1165,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
 impl<'a> VkPhysicalDeviceShaderSubgroupRotateFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_ROTATE_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_SUBGROUP_ROTATE_FEATURES,
     pNext: core::ptr::null_mut(),
     shaderSubgroupRotate: 0,
     shaderSubgroupRotateClustered: 0,
@@ -1256,7 +1256,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
 impl<'a> VkPhysicalDeviceShaderExpectAssumeFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_EXPECT_ASSUME_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_EXPECT_ASSUME_FEATURES,
     pNext: core::ptr::null_mut(),
     shaderExpectAssume: 0,
     _marker: core::marker::PhantomData,
@@ -1341,7 +1341,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
 impl<'a> VkPhysicalDeviceShaderFloatControls2Features<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT_CONTROLS_2_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_FLOAT_CONTROLS_2_FEATURES,
     pNext: core::ptr::null_mut(),
     shaderFloatControls2: 0,
     _marker: core::marker::PhantomData,

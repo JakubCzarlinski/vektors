@@ -217,7 +217,7 @@ impl<'dev> CommandPool<'dev> {
           raw_buffers.as_mut_ptr().cast(),
         )
       };
-      if r < VkResult::VK_SUCCESS {
+      if r < VkResult::SUCCESS {
         core::hint::cold_path();
         return Err(r);
       }
@@ -312,7 +312,7 @@ impl<'dev> CommandPool<'dev> {
     let r = unsafe {
       (self.table).vkResetCommandPool.unwrap_unchecked()(self.device().raw(), self.raw, flags)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();

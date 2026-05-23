@@ -286,7 +286,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_ARM_data_graph")]
 impl<'a> VkPhysicalDeviceDataGraphFeaturesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_FEATURES_ARM,
+    sType: VkStructureType::PHYSICAL_DEVICE_DATA_GRAPH_FEATURES_ARM,
     pNext: core::ptr::null_mut(),
     dataGraph: 0,
     dataGraphUpdateAfterBind: 0,
@@ -397,13 +397,13 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDataGraphPipelineConstantARM<'root>>
 #[cfg(all(feature = "VK_ARM_data_graph", feature = "VK_ARM_tensors"))]
 impl<'a> VkDataGraphPipelineConstantTensorSemiStructuredSparsityInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_CONSTANT_TENSOR_SEMI_STRUCTURED_SPARSITY_INFO_ARM,
-        pNext: core::ptr::null(),
-        dimension: 0,
-        zeroCount: 0,
-        groupSize: 0,
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::DATA_GRAPH_PIPELINE_CONSTANT_TENSOR_SEMI_STRUCTURED_SPARSITY_INFO_ARM,
+    pNext: core::ptr::null(),
+    dimension: 0,
+    zeroCount: 0,
+    groupSize: 0,
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -468,7 +468,7 @@ unsafe impl<'a> Sync for VkDataGraphPipelineConstantARM<'a> {}
 #[cfg(feature = "VK_ARM_data_graph")]
 impl<'a> VkDataGraphPipelineConstantARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_CONSTANT_ARM,
+    sType: VkStructureType::DATA_GRAPH_PIPELINE_CONSTANT_ARM,
     pNext: core::ptr::null(),
     id: 0,
     pConstantData: core::ptr::null(),
@@ -564,7 +564,7 @@ unsafe impl<'a> Sync for VkDataGraphPipelineResourceInfoARM<'a> {}
 #[cfg(feature = "VK_ARM_data_graph")]
 impl<'a> VkDataGraphPipelineResourceInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_RESOURCE_INFO_ARM,
+    sType: VkStructureType::DATA_GRAPH_PIPELINE_RESOURCE_INFO_ARM,
     pNext: core::ptr::null(),
     descriptorSet: 0,
     binding: 0,
@@ -667,7 +667,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDataGraphPipelineCreateInfoARM<'root
 #[cfg(feature = "VK_ARM_data_graph")]
 impl<'a> VkDataGraphPipelineCompilerControlCreateInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_COMPILER_CONTROL_CREATE_INFO_ARM,
+    sType: VkStructureType::DATA_GRAPH_PIPELINE_COMPILER_CONTROL_CREATE_INFO_ARM,
     pNext: core::ptr::null(),
     pVendorOptions: core::ptr::null(),
     _marker: core::marker::PhantomData,
@@ -734,7 +734,7 @@ unsafe impl<'a> Sync for VkDataGraphPipelineCreateInfoARM<'a> {}
 #[cfg(feature = "VK_ARM_data_graph")]
 impl<'a> VkDataGraphPipelineCreateInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_CREATE_INFO_ARM,
+    sType: VkStructureType::DATA_GRAPH_PIPELINE_CREATE_INFO_ARM,
     pNext: core::ptr::null(),
     flags: VkPipelineCreateFlagBits2(0),
     layout: VkPipelineLayout::DEFAULT,
@@ -960,7 +960,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDataGraphPipelineCreateInfoARM<'root
 #[cfg(feature = "VK_ARM_data_graph")]
 impl<'a> VkDataGraphPipelineShaderModuleCreateInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SHADER_MODULE_CREATE_INFO_ARM,
+    sType: VkStructureType::DATA_GRAPH_PIPELINE_SHADER_MODULE_CREATE_INFO_ARM,
     pNext: core::ptr::null(),
     module: VkShaderModule::DEFAULT,
     pName: core::ptr::null(),
@@ -1054,7 +1054,7 @@ unsafe impl<'a> Sync for VkDataGraphPipelineSessionCreateInfoARM<'a> {}
 #[cfg(feature = "VK_ARM_data_graph")]
 impl<'a> VkDataGraphPipelineSessionCreateInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_CREATE_INFO_ARM,
+    sType: VkStructureType::DATA_GRAPH_PIPELINE_SESSION_CREATE_INFO_ARM,
     pNext: core::ptr::null(),
     flags: VkDataGraphPipelineSessionCreateFlagBitsARM(0),
     dataGraphPipeline: VkPipeline::DEFAULT,
@@ -1131,11 +1131,11 @@ unsafe impl<'a> Sync for VkDataGraphPipelineSessionBindPointRequirementsInfoARM<
 #[cfg(feature = "VK_ARM_data_graph")]
 impl<'a> VkDataGraphPipelineSessionBindPointRequirementsInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_REQUIREMENTS_INFO_ARM,
-        pNext: core::ptr::null(),
-        session: VkDataGraphPipelineSessionARM::DEFAULT,
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_REQUIREMENTS_INFO_ARM,
+    pNext: core::ptr::null(),
+    session: VkDataGraphPipelineSessionARM::DEFAULT,
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -1193,8 +1193,7 @@ unsafe impl<'a> Sync for VkDataGraphPipelineSessionBindPointRequirementARM<'a> {
 #[cfg(feature = "VK_ARM_data_graph")]
 impl<'a> VkDataGraphPipelineSessionBindPointRequirementARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_REQUIREMENT_ARM,
+    sType: VkStructureType::DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_REQUIREMENT_ARM,
     pNext: core::ptr::null_mut(),
     bindPoint: VkDataGraphPipelineSessionBindPointARM(0),
     bindPointType: VkDataGraphPipelineSessionBindPointTypeARM(0),
@@ -1269,8 +1268,7 @@ unsafe impl<'a> Sync for VkDataGraphPipelineSessionMemoryRequirementsInfoARM<'a>
 #[cfg(feature = "VK_ARM_data_graph")]
 impl<'a> VkDataGraphPipelineSessionMemoryRequirementsInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_MEMORY_REQUIREMENTS_INFO_ARM,
+    sType: VkStructureType::DATA_GRAPH_PIPELINE_SESSION_MEMORY_REQUIREMENTS_INFO_ARM,
     pNext: core::ptr::null(),
     session: VkDataGraphPipelineSessionARM::DEFAULT,
     bindPoint: VkDataGraphPipelineSessionBindPointARM(0),
@@ -1344,7 +1342,7 @@ unsafe impl<'a> Sync for VkBindDataGraphPipelineSessionMemoryInfoARM<'a> {}
 #[cfg(feature = "VK_ARM_data_graph")]
 impl<'a> VkBindDataGraphPipelineSessionMemoryInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BIND_DATA_GRAPH_PIPELINE_SESSION_MEMORY_INFO_ARM,
+    sType: VkStructureType::BIND_DATA_GRAPH_PIPELINE_SESSION_MEMORY_INFO_ARM,
     pNext: core::ptr::null(),
     session: VkDataGraphPipelineSessionARM::DEFAULT,
     bindPoint: VkDataGraphPipelineSessionBindPointARM(0),
@@ -1426,7 +1424,7 @@ unsafe impl<'a> Sync for VkDataGraphPipelineInfoARM<'a> {}
 #[cfg(feature = "VK_ARM_data_graph")]
 impl<'a> VkDataGraphPipelineInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_INFO_ARM,
+    sType: VkStructureType::DATA_GRAPH_PIPELINE_INFO_ARM,
     pNext: core::ptr::null(),
     dataGraphPipeline: VkPipeline::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -1489,7 +1487,7 @@ unsafe impl<'a> Sync for VkDataGraphPipelinePropertyQueryResultARM<'a> {}
 #[cfg(feature = "VK_ARM_data_graph")]
 impl<'a> VkDataGraphPipelinePropertyQueryResultARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_PROPERTY_QUERY_RESULT_ARM,
+    sType: VkStructureType::DATA_GRAPH_PIPELINE_PROPERTY_QUERY_RESULT_ARM,
     pNext: core::ptr::null_mut(),
     property: VkDataGraphPipelinePropertyARM(0),
     isText: 0,
@@ -1578,7 +1576,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDataGraphPipelineCreateInfoARM<'root
 #[cfg(feature = "VK_ARM_data_graph")]
 impl<'a> VkDataGraphPipelineIdentifierCreateInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_IDENTIFIER_CREATE_INFO_ARM,
+    sType: VkStructureType::DATA_GRAPH_PIPELINE_IDENTIFIER_CREATE_INFO_ARM,
     pNext: core::ptr::null(),
     identifierSize: 0,
     pIdentifier: core::ptr::null(),
@@ -1647,7 +1645,7 @@ unsafe impl<'a> Sync for VkDataGraphPipelineDispatchInfoARM<'a> {}
 #[cfg(feature = "VK_ARM_data_graph")]
 impl<'a> VkDataGraphPipelineDispatchInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_DISPATCH_INFO_ARM,
+    sType: VkStructureType::DATA_GRAPH_PIPELINE_DISPATCH_INFO_ARM,
     pNext: core::ptr::null_mut(),
     flags: VkDataGraphPipelineDispatchFlagBitsARM(0),
     _marker: core::marker::PhantomData,
@@ -1803,7 +1801,7 @@ unsafe impl<'a> Sync for VkQueueFamilyDataGraphPropertiesARM<'a> {}
 #[cfg(feature = "VK_ARM_data_graph")]
 impl<'a> VkQueueFamilyDataGraphPropertiesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_PROPERTIES_ARM,
+    sType: VkStructureType::QUEUE_FAMILY_DATA_GRAPH_PROPERTIES_ARM,
     pNext: core::ptr::null_mut(),
     engine: VkPhysicalDeviceDataGraphProcessingEngineARM::DEFAULT,
     operation: VkPhysicalDeviceDataGraphOperationSupportARM::DEFAULT,
@@ -1868,12 +1866,12 @@ unsafe impl<'a> Sync for VkPhysicalDeviceQueueFamilyDataGraphProcessingEngineInf
 #[cfg(feature = "VK_ARM_data_graph")]
 impl<'a> VkPhysicalDeviceQueueFamilyDataGraphProcessingEngineInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_QUEUE_FAMILY_DATA_GRAPH_PROCESSING_ENGINE_INFO_ARM,
-        pNext: core::ptr::null(),
-        queueFamilyIndex: 0,
-        engineType: VkPhysicalDeviceDataGraphProcessingEngineTypeARM(0),
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::PHYSICAL_DEVICE_QUEUE_FAMILY_DATA_GRAPH_PROCESSING_ENGINE_INFO_ARM,
+    pNext: core::ptr::null(),
+    queueFamilyIndex: 0,
+    engineType: VkPhysicalDeviceDataGraphProcessingEngineTypeARM(0),
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -1938,8 +1936,7 @@ unsafe impl<'a> Sync for VkQueueFamilyDataGraphProcessingEnginePropertiesARM<'a>
 #[cfg(feature = "VK_ARM_data_graph")]
 impl<'a> VkQueueFamilyDataGraphProcessingEnginePropertiesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_PROCESSING_ENGINE_PROPERTIES_ARM,
+    sType: VkStructureType::QUEUE_FAMILY_DATA_GRAPH_PROCESSING_ENGINE_PROPERTIES_ARM,
     pNext: core::ptr::null_mut(),
     foreignSemaphoreHandleTypes: VkExternalSemaphoreHandleTypeFlagBits(0),
     foreignMemoryHandleTypes: VkExternalMemoryHandleTypeFlagBits(0),
@@ -2028,7 +2025,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkCommandPoolCreateInfo<'root>>
 #[cfg(feature = "VK_ARM_data_graph")]
 impl<'a> VkDataGraphProcessingEngineCreateInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DATA_GRAPH_PROCESSING_ENGINE_CREATE_INFO_ARM,
+    sType: VkStructureType::DATA_GRAPH_PROCESSING_ENGINE_CREATE_INFO_ARM,
     pNext: core::ptr::null(),
     processingEngineCount: 0,
     pProcessingEngines: core::ptr::null_mut(),
@@ -2179,7 +2176,7 @@ unsafe impl<'a> Sync for VkQueueFamilyDataGraphTOSAPropertiesARM<'a> {}
 #[cfg(feature = "VK_ARM_data_graph_instruction_set_tosa")]
 impl<'a> VkQueueFamilyDataGraphTOSAPropertiesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_TOSA_PROPERTIES_ARM,
+    sType: VkStructureType::QUEUE_FAMILY_DATA_GRAPH_TOSA_PROPERTIES_ARM,
     pNext: core::ptr::null_mut(),
     profileCount: 0,
     pProfiles: core::ptr::null(),
@@ -2287,11 +2284,11 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_ARM_data_graph_neural_accelerator_statistics")]
 impl<'a> VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_NEURAL_ACCELERATOR_STATISTICS_FEATURES_ARM,
-        pNext: core::ptr::null_mut(),
-        dataGraphNeuralAcceleratorStatistics: 0,
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::PHYSICAL_DEVICE_DATA_GRAPH_NEURAL_ACCELERATOR_STATISTICS_FEATURES_ARM,
+    pNext: core::ptr::null_mut(),
+    dataGraphNeuralAcceleratorStatistics: 0,
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -2370,7 +2367,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDataGraphPipelineCreateInfoARM<'root
 #[cfg(feature = "VK_ARM_data_graph_neural_accelerator_statistics")]
 impl<'a> VkDataGraphPipelineNeuralStatisticsCreateInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_NEURAL_STATISTICS_CREATE_INFO_ARM,
+    sType: VkStructureType::DATA_GRAPH_PIPELINE_NEURAL_STATISTICS_CREATE_INFO_ARM,
     pNext: core::ptr::null(),
     allowNeuralStatistics: 0,
     _marker: core::marker::PhantomData,
@@ -2438,11 +2435,11 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDataGraphPipelineSessionCreateInfoAR
 #[cfg(feature = "VK_ARM_data_graph_neural_accelerator_statistics")]
 impl<'a> VkDataGraphPipelineSessionNeuralStatisticsCreateInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_NEURAL_STATISTICS_CREATE_INFO_ARM,
-        pNext: core::ptr::null(),
-        mode: VkNeuralAcceleratorStatisticsModeARM(0),
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::DATA_GRAPH_PIPELINE_SESSION_NEURAL_STATISTICS_CREATE_INFO_ARM,
+    pNext: core::ptr::null(),
+    mode: VkNeuralAcceleratorStatisticsModeARM(0),
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -2518,7 +2515,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDataGraphPipelineResourceInfoARM<'ro
 #[cfg(feature = "VK_ARM_data_graph_optical_flow")]
 impl<'a> VkDataGraphPipelineResourceInfoImageLayoutARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_RESOURCE_INFO_IMAGE_LAYOUT_ARM,
+    sType: VkStructureType::DATA_GRAPH_PIPELINE_RESOURCE_INFO_IMAGE_LAYOUT_ARM,
     pNext: core::ptr::null(),
     layout: VkImageLayout(0),
     _marker: core::marker::PhantomData,
@@ -2578,7 +2575,7 @@ unsafe impl<'a> Sync for VkDataGraphPipelineSingleNodeConnectionARM<'a> {}
 #[cfg(feature = "VK_ARM_data_graph_optical_flow")]
 impl<'a> VkDataGraphPipelineSingleNodeConnectionARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SINGLE_NODE_CONNECTION_ARM,
+    sType: VkStructureType::DATA_GRAPH_PIPELINE_SINGLE_NODE_CONNECTION_ARM,
     pNext: core::ptr::null_mut(),
     set: 0,
     binding: 0,
@@ -2666,7 +2663,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_ARM_data_graph_optical_flow")]
 impl<'a> VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_OPTICAL_FLOW_FEATURES_ARM,
+    sType: VkStructureType::PHYSICAL_DEVICE_DATA_GRAPH_OPTICAL_FLOW_FEATURES_ARM,
     pNext: core::ptr::null_mut(),
     dataGraphOpticalFlow: 0,
     _marker: core::marker::PhantomData,
@@ -2758,7 +2755,7 @@ unsafe impl<'a> Sync for VkQueueFamilyDataGraphOpticalFlowPropertiesARM<'a> {}
 #[cfg(feature = "VK_ARM_data_graph_optical_flow")]
 impl<'a> VkQueueFamilyDataGraphOpticalFlowPropertiesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_OPTICAL_FLOW_PROPERTIES_ARM,
+    sType: VkStructureType::QUEUE_FAMILY_DATA_GRAPH_OPTICAL_FLOW_PROPERTIES_ARM,
     pNext: core::ptr::null_mut(),
     supportedOutputGridSizes: VkDataGraphOpticalFlowGridSizeFlagBitsARM(0),
     supportedHintGridSizes: VkDataGraphOpticalFlowGridSizeFlagBitsARM(0),
@@ -2882,7 +2879,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkImageCreateInfo<'root>>
 #[cfg(feature = "VK_ARM_data_graph_optical_flow")]
 impl<'a> VkDataGraphOpticalFlowImageFormatInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DATA_GRAPH_OPTICAL_FLOW_IMAGE_FORMAT_INFO_ARM,
+    sType: VkStructureType::DATA_GRAPH_OPTICAL_FLOW_IMAGE_FORMAT_INFO_ARM,
     pNext: core::ptr::null(),
     usage: VkDataGraphOpticalFlowImageUsageFlagBitsARM(0),
     _marker: core::marker::PhantomData,
@@ -2957,7 +2954,7 @@ unsafe impl<'a> Sync for VkDataGraphOpticalFlowImageFormatPropertiesARM<'a> {}
 #[cfg(feature = "VK_ARM_data_graph_optical_flow")]
 impl<'a> VkDataGraphOpticalFlowImageFormatPropertiesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DATA_GRAPH_OPTICAL_FLOW_IMAGE_FORMAT_PROPERTIES_ARM,
+    sType: VkStructureType::DATA_GRAPH_OPTICAL_FLOW_IMAGE_FORMAT_PROPERTIES_ARM,
     pNext: core::ptr::null_mut(),
     format: VkFormat(0),
     _marker: core::marker::PhantomData,
@@ -3028,7 +3025,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDataGraphPipelineCreateInfoARM<'root
 #[cfg(feature = "VK_ARM_data_graph_optical_flow")]
 impl<'a> VkDataGraphPipelineSingleNodeCreateInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SINGLE_NODE_CREATE_INFO_ARM,
+    sType: VkStructureType::DATA_GRAPH_PIPELINE_SINGLE_NODE_CREATE_INFO_ARM,
     pNext: core::ptr::null_mut(),
     nodeType: VkDataGraphPipelineNodeTypeARM(0),
     connectionCount: 0,
@@ -3128,7 +3125,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDataGraphPipelineCreateInfoARM<'root
 #[cfg(feature = "VK_ARM_data_graph_optical_flow")]
 impl<'a> VkDataGraphPipelineOpticalFlowCreateInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_OPTICAL_FLOW_CREATE_INFO_ARM,
+    sType: VkStructureType::DATA_GRAPH_PIPELINE_OPTICAL_FLOW_CREATE_INFO_ARM,
     pNext: core::ptr::null_mut(),
     width: 0,
     height: 0,
@@ -3250,7 +3247,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDataGraphPipelineDispatchInfoARM<'ro
 #[cfg(feature = "VK_ARM_data_graph_optical_flow")]
 impl<'a> VkDataGraphPipelineOpticalFlowDispatchInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_OPTICAL_FLOW_DISPATCH_INFO_ARM,
+    sType: VkStructureType::DATA_GRAPH_PIPELINE_OPTICAL_FLOW_DISPATCH_INFO_ARM,
     pNext: core::ptr::null_mut(),
     flags: VkDataGraphOpticalFlowExecuteFlagBitsARM(0),
     meanFlowL1NormHint: 0,
@@ -3326,7 +3323,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_ARM_format_pack")]
 impl<'a> VkPhysicalDeviceFormatPackFeaturesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FORMAT_PACK_FEATURES_ARM,
+    sType: VkStructureType::PHYSICAL_DEVICE_FORMAT_PACK_FEATURES_ARM,
     pNext: core::ptr::null_mut(),
     formatPack: 0,
     _marker: core::marker::PhantomData,
@@ -3420,8 +3417,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_ARM_performance_counters_by_region")]
 impl<'a> VkPhysicalDevicePerformanceCountersByRegionFeaturesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PERFORMANCE_COUNTERS_BY_REGION_FEATURES_ARM,
+    sType: VkStructureType::PHYSICAL_DEVICE_PERFORMANCE_COUNTERS_BY_REGION_FEATURES_ARM,
     pNext: core::ptr::null_mut(),
     performanceCountersByRegion: 0,
     _marker: core::marker::PhantomData,
@@ -3517,15 +3513,15 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_ARM_performance_counters_by_region")]
 impl<'a> VkPhysicalDevicePerformanceCountersByRegionPropertiesARM<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PERFORMANCE_COUNTERS_BY_REGION_PROPERTIES_ARM,
-        pNext: core::ptr::null_mut(),
-        maxPerRegionPerformanceCounters: 0,
-        performanceCounterRegionSize: VkExtent2D::DEFAULT,
-        rowStrideAlignment: 0,
-        regionAlignment: 0,
-        identityTransformOrder: 0,
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::PHYSICAL_DEVICE_PERFORMANCE_COUNTERS_BY_REGION_PROPERTIES_ARM,
+    pNext: core::ptr::null_mut(),
+    maxPerRegionPerformanceCounters: 0,
+    performanceCounterRegionSize: VkExtent2D::DEFAULT,
+    rowStrideAlignment: 0,
+    regionAlignment: 0,
+    identityTransformOrder: 0,
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -3601,7 +3597,7 @@ unsafe impl<'a> Sync for VkPerformanceCounterARM<'a> {}
 #[cfg(feature = "VK_ARM_performance_counters_by_region")]
 impl<'a> VkPerformanceCounterARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PERFORMANCE_COUNTER_ARM,
+    sType: VkStructureType::PERFORMANCE_COUNTER_ARM,
     pNext: core::ptr::null_mut(),
     counterID: 0,
     _marker: core::marker::PhantomData,
@@ -3664,7 +3660,7 @@ unsafe impl<'a> Sync for VkPerformanceCounterDescriptionARM<'a> {}
 #[cfg(feature = "VK_ARM_performance_counters_by_region")]
 impl<'a> VkPerformanceCounterDescriptionARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PERFORMANCE_COUNTER_DESCRIPTION_ARM,
+    sType: VkStructureType::PERFORMANCE_COUNTER_DESCRIPTION_ARM,
     pNext: core::ptr::null_mut(),
     flags: 0,
     name: [0i8; VK_MAX_DESCRIPTION_SIZE as usize],
@@ -3752,8 +3748,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkRenderingInfo<'root>>
 #[cfg(feature = "VK_ARM_performance_counters_by_region")]
 impl<'a> VkRenderPassPerformanceCountersByRegionBeginInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_RENDER_PASS_PERFORMANCE_COUNTERS_BY_REGION_BEGIN_INFO_ARM,
+    sType: VkStructureType::RENDER_PASS_PERFORMANCE_COUNTERS_BY_REGION_BEGIN_INFO_ARM,
     pNext: core::ptr::null_mut(),
     counterAddressCount: 0,
     pCounterAddresses: core::ptr::null(),
@@ -3876,8 +3871,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_ARM_pipeline_opacity_micromap")]
 impl<'a> VkPhysicalDevicePipelineOpacityMicromapFeaturesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_OPACITY_MICROMAP_FEATURES_ARM,
+    sType: VkStructureType::PHYSICAL_DEVICE_PIPELINE_OPACITY_MICROMAP_FEATURES_ARM,
     pNext: core::ptr::null_mut(),
     pipelineOpacityMicromap: 0,
     _marker: core::marker::PhantomData,
@@ -3970,13 +3964,13 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_ARM_rasterization_order_attachment_access")]
 impl<'a> VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesARM<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_ARM,
-        pNext: core::ptr::null_mut(),
-        rasterizationOrderColorAttachmentAccess: 0,
-        rasterizationOrderDepthAttachmentAccess: 0,
-        rasterizationOrderStencilAttachmentAccess: 0,
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_ARM,
+    pNext: core::ptr::null_mut(),
+    rasterizationOrderColorAttachmentAccess: 0,
+    rasterizationOrderDepthAttachmentAccess: 0,
+    rasterizationOrderStencilAttachmentAccess: 0,
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -4073,7 +4067,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_ARM_render_pass_striped")]
 impl<'a> VkPhysicalDeviceRenderPassStripedFeaturesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RENDER_PASS_STRIPED_FEATURES_ARM,
+    sType: VkStructureType::PHYSICAL_DEVICE_RENDER_PASS_STRIPED_FEATURES_ARM,
     pNext: core::ptr::null_mut(),
     renderPassStriped: 0,
     _marker: core::marker::PhantomData,
@@ -4163,7 +4157,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_ARM_render_pass_striped")]
 impl<'a> VkPhysicalDeviceRenderPassStripedPropertiesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RENDER_PASS_STRIPED_PROPERTIES_ARM,
+    sType: VkStructureType::PHYSICAL_DEVICE_RENDER_PASS_STRIPED_PROPERTIES_ARM,
     pNext: core::ptr::null_mut(),
     renderPassStripeGranularity: VkExtent2D::DEFAULT,
     maxRenderPassStripes: 0,
@@ -4227,7 +4221,7 @@ unsafe impl<'a> Sync for VkRenderPassStripeInfoARM<'a> {}
 #[cfg(feature = "VK_ARM_render_pass_striped")]
 impl<'a> VkRenderPassStripeInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_INFO_ARM,
+    sType: VkStructureType::RENDER_PASS_STRIPE_INFO_ARM,
     pNext: core::ptr::null(),
     stripeArea: VkRect2D::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -4305,7 +4299,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkRenderPassBeginInfo<'root>>
 #[cfg(feature = "VK_ARM_render_pass_striped")]
 impl<'a> VkRenderPassStripeBeginInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_BEGIN_INFO_ARM,
+    sType: VkStructureType::RENDER_PASS_STRIPE_BEGIN_INFO_ARM,
     pNext: core::ptr::null(),
     stripeInfoCount: 0,
     pStripeInfos: core::ptr::null(),
@@ -4400,7 +4394,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkCommandBufferSubmitInfo<'root>>
 #[cfg(feature = "VK_ARM_render_pass_striped")]
 impl<'a> VkRenderPassStripeSubmitInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_SUBMIT_INFO_ARM,
+    sType: VkStructureType::RENDER_PASS_STRIPE_SUBMIT_INFO_ARM,
     pNext: core::ptr::null(),
     stripeSemaphoreInfoCount: 0,
     pStripeSemaphoreInfos: core::ptr::null(),
@@ -4489,7 +4483,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_ARM_scheduling_controls")]
 impl<'a> VkDeviceQueueShaderCoreControlCreateInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEVICE_QUEUE_SHADER_CORE_CONTROL_CREATE_INFO_ARM,
+    sType: VkStructureType::DEVICE_QUEUE_SHADER_CORE_CONTROL_CREATE_INFO_ARM,
     pNext: core::ptr::null_mut(),
     shaderCoreCount: 0,
     _marker: core::marker::PhantomData,
@@ -4580,7 +4574,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_ARM_scheduling_controls")]
 impl<'a> VkPhysicalDeviceSchedulingControlsFeaturesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_FEATURES_ARM,
+    sType: VkStructureType::PHYSICAL_DEVICE_SCHEDULING_CONTROLS_FEATURES_ARM,
     pNext: core::ptr::null_mut(),
     schedulingControls: 0,
     _marker: core::marker::PhantomData,
@@ -4668,7 +4662,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_ARM_scheduling_controls")]
 impl<'a> VkPhysicalDeviceSchedulingControlsPropertiesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_PROPERTIES_ARM,
+    sType: VkStructureType::PHYSICAL_DEVICE_SCHEDULING_CONTROLS_PROPERTIES_ARM,
     pNext: core::ptr::null_mut(),
     schedulingControlsFlags: VkPhysicalDeviceSchedulingControlsFlagBitsARM(0),
     _marker: core::marker::PhantomData,
@@ -4748,13 +4742,13 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_ARM_scheduling_controls")]
 impl<'a> VkPhysicalDeviceSchedulingControlsDispatchParametersPropertiesARM<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_DISPATCH_PARAMETERS_PROPERTIES_ARM,
-        pNext: core::ptr::null_mut(),
-        schedulingControlsMaxWarpsCount: 0,
-        schedulingControlsMaxQueuedBatchesCount: 0,
-        schedulingControlsMaxWorkGroupBatchSize: 0,
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::PHYSICAL_DEVICE_SCHEDULING_CONTROLS_DISPATCH_PARAMETERS_PROPERTIES_ARM,
+    pNext: core::ptr::null_mut(),
+    schedulingControlsMaxWarpsCount: 0,
+    schedulingControlsMaxQueuedBatchesCount: 0,
+    schedulingControlsMaxWorkGroupBatchSize: 0,
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -4823,7 +4817,7 @@ unsafe impl<'a> Sync for VkDispatchParametersARM<'a> {}
 #[cfg(feature = "VK_ARM_scheduling_controls")]
 impl<'a> VkDispatchParametersARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DISPATCH_PARAMETERS_ARM,
+    sType: VkStructureType::DISPATCH_PARAMETERS_ARM,
     pNext: core::ptr::null_mut(),
     workGroupBatchSize: 0,
     maxQueuedWorkGroupBatches: 0,
@@ -4912,7 +4906,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_ARM_shader_core_builtins")]
 impl<'a> VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_PROPERTIES_ARM,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_PROPERTIES_ARM,
     pNext: core::ptr::null_mut(),
     shaderCoreMask: 0,
     shaderCoreCount: 0,
@@ -5000,7 +4994,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_ARM_shader_core_builtins")]
 impl<'a> VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_FEATURES_ARM,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_FEATURES_ARM,
     pNext: core::ptr::null_mut(),
     shaderCoreBuiltins: 0,
     _marker: core::marker::PhantomData,
@@ -5092,7 +5086,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_ARM_shader_core_properties")]
 impl<'a> VkPhysicalDeviceShaderCorePropertiesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_ARM,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_ARM,
     pNext: core::ptr::null_mut(),
     pixelRate: 0,
     texelRate: 0,
@@ -5203,7 +5197,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_ARM_shader_instrumentation")]
 impl<'a> VkPhysicalDeviceShaderInstrumentationFeaturesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INSTRUMENTATION_FEATURES_ARM,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_INSTRUMENTATION_FEATURES_ARM,
     pNext: core::ptr::null_mut(),
     shaderInstrumentation: 0,
     _marker: core::marker::PhantomData,
@@ -5293,7 +5287,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_ARM_shader_instrumentation")]
 impl<'a> VkPhysicalDeviceShaderInstrumentationPropertiesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INSTRUMENTATION_PROPERTIES_ARM,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_INSTRUMENTATION_PROPERTIES_ARM,
     pNext: core::ptr::null_mut(),
     numMetrics: 0,
     perBasicBlockGranularity: 0,
@@ -5356,7 +5350,7 @@ unsafe impl<'a> Sync for VkShaderInstrumentationCreateInfoARM<'a> {}
 #[cfg(feature = "VK_ARM_shader_instrumentation")]
 impl<'a> VkShaderInstrumentationCreateInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SHADER_INSTRUMENTATION_CREATE_INFO_ARM,
+    sType: VkStructureType::SHADER_INSTRUMENTATION_CREATE_INFO_ARM,
     pNext: core::ptr::null_mut(),
     _marker: core::marker::PhantomData,
   };
@@ -5411,7 +5405,7 @@ unsafe impl<'a> Sync for VkShaderInstrumentationMetricDescriptionARM<'a> {}
 #[cfg(feature = "VK_ARM_shader_instrumentation")]
 impl<'a> VkShaderInstrumentationMetricDescriptionARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SHADER_INSTRUMENTATION_METRIC_DESCRIPTION_ARM,
+    sType: VkStructureType::SHADER_INSTRUMENTATION_METRIC_DESCRIPTION_ARM,
     pNext: core::ptr::null_mut(),
     name: [0i8; VK_MAX_DESCRIPTION_SIZE as usize],
     description: [0i8; VK_MAX_DESCRIPTION_SIZE as usize],
@@ -5567,7 +5561,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDataGraphPipelineConstantARM<'root>>
 #[cfg(feature = "VK_ARM_tensors")]
 impl<'a> VkTensorDescriptionARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_TENSOR_DESCRIPTION_ARM,
+    sType: VkStructureType::TENSOR_DESCRIPTION_ARM,
     pNext: core::ptr::null(),
     tiling: VkTensorTilingARM(0),
     format: VkFormat(0),
@@ -5699,7 +5693,7 @@ unsafe impl<'a> Sync for VkTensorCreateInfoARM<'a> {}
 #[cfg(feature = "VK_ARM_tensors")]
 impl<'a> VkTensorCreateInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_TENSOR_CREATE_INFO_ARM,
+    sType: VkStructureType::TENSOR_CREATE_INFO_ARM,
     pNext: core::ptr::null(),
     flags: VkTensorCreateFlagBitsARM(0),
     pDescription: core::ptr::null(),
@@ -5825,7 +5819,7 @@ unsafe impl<'a> Sync for VkTensorMemoryRequirementsInfoARM<'a> {}
 #[cfg(feature = "VK_ARM_tensors")]
 impl<'a> VkTensorMemoryRequirementsInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_TENSOR_MEMORY_REQUIREMENTS_INFO_ARM,
+    sType: VkStructureType::TENSOR_MEMORY_REQUIREMENTS_INFO_ARM,
     pNext: core::ptr::null(),
     tensor: VkTensorARM::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -5885,7 +5879,7 @@ unsafe impl<'a> Sync for VkBindTensorMemoryInfoARM<'a> {}
 #[cfg(feature = "VK_ARM_tensors")]
 impl<'a> VkBindTensorMemoryInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BIND_TENSOR_MEMORY_INFO_ARM,
+    sType: VkStructureType::BIND_TENSOR_MEMORY_INFO_ARM,
     pNext: core::ptr::null(),
     tensor: VkTensorARM::DEFAULT,
     memory: VkDeviceMemory::DEFAULT,
@@ -5964,7 +5958,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkWriteDescriptorSet<'root>>
 #[cfg(feature = "VK_ARM_tensors")]
 impl<'a> VkWriteDescriptorSetTensorARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_TENSOR_ARM,
+    sType: VkStructureType::WRITE_DESCRIPTOR_SET_TENSOR_ARM,
     pNext: core::ptr::null(),
     tensorViewCount: 0,
     pTensorViews: core::ptr::null(),
@@ -6046,7 +6040,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkFormatProperties2<'root>>
 #[cfg(feature = "VK_ARM_tensors")]
 impl<'a> VkTensorFormatPropertiesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_TENSOR_FORMAT_PROPERTIES_ARM,
+    sType: VkStructureType::TENSOR_FORMAT_PROPERTIES_ARM,
     pNext: core::ptr::null_mut(),
     optimalTilingTensorFeatures: VkFormatFeatureFlagBits2(0),
     linearTilingTensorFeatures: VkFormatFeatureFlagBits2(0),
@@ -6146,7 +6140,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_ARM_tensors")]
 impl<'a> VkPhysicalDeviceTensorPropertiesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TENSOR_PROPERTIES_ARM,
+    sType: VkStructureType::PHYSICAL_DEVICE_TENSOR_PROPERTIES_ARM,
     pNext: core::ptr::null_mut(),
     maxTensorDimensionCount: 0,
     maxTensorElements: 0,
@@ -6296,7 +6290,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDependencyInfo<'root>>
 #[cfg(feature = "VK_ARM_tensors")]
 impl<'a> VkTensorMemoryBarrierARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_TENSOR_MEMORY_BARRIER_ARM,
+    sType: VkStructureType::TENSOR_MEMORY_BARRIER_ARM,
     pNext: core::ptr::null(),
     srcStageMask: VkPipelineStageFlagBits2(0),
     srcAccessMask: VkAccessFlagBits2(0),
@@ -6399,7 +6393,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDependencyInfo<'root>>
 #[cfg(feature = "VK_ARM_tensors")]
 impl<'a> VkTensorDependencyInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_TENSOR_DEPENDENCY_INFO_ARM,
+    sType: VkStructureType::TENSOR_DEPENDENCY_INFO_ARM,
     pNext: core::ptr::null(),
     tensorMemoryBarrierCount: 0,
     pTensorMemoryBarriers: core::ptr::null(),
@@ -6487,7 +6481,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_ARM_tensors")]
 impl<'a> VkPhysicalDeviceTensorFeaturesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TENSOR_FEATURES_ARM,
+    sType: VkStructureType::PHYSICAL_DEVICE_TENSOR_FEATURES_ARM,
     pNext: core::ptr::null_mut(),
     tensorNonPacked: 0,
     shaderTensorAccess: 0,
@@ -6590,7 +6584,7 @@ unsafe impl<'a> Sync for VkDeviceTensorMemoryRequirementsARM<'a> {}
 #[cfg(feature = "VK_ARM_tensors")]
 impl<'a> VkDeviceTensorMemoryRequirementsARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEVICE_TENSOR_MEMORY_REQUIREMENTS_ARM,
+    sType: VkStructureType::DEVICE_TENSOR_MEMORY_REQUIREMENTS_ARM,
     pNext: core::ptr::null(),
     pCreateInfo: core::ptr::null(),
     _marker: core::marker::PhantomData,
@@ -6655,7 +6649,7 @@ unsafe impl<'a> Sync for VkCopyTensorInfoARM<'a> {}
 #[cfg(feature = "VK_ARM_tensors")]
 impl<'a> VkCopyTensorInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COPY_TENSOR_INFO_ARM,
+    sType: VkStructureType::COPY_TENSOR_INFO_ARM,
     pNext: core::ptr::null(),
     srcTensor: VkTensorARM::DEFAULT,
     dstTensor: VkTensorARM::DEFAULT,
@@ -6742,7 +6736,7 @@ unsafe impl<'a> Sync for VkTensorCopyARM<'a> {}
 #[cfg(feature = "VK_ARM_tensors")]
 impl<'a> VkTensorCopyARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_TENSOR_COPY_ARM,
+    sType: VkStructureType::TENSOR_COPY_ARM,
     pNext: core::ptr::null(),
     dimensionCount: 0,
     pSrcOffset: core::ptr::null(),
@@ -6837,7 +6831,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkMemoryAllocateInfo<'root>>
 #[cfg(feature = "VK_ARM_tensors")]
 impl<'a> VkMemoryDedicatedAllocateInfoTensorARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO_TENSOR_ARM,
+    sType: VkStructureType::MEMORY_DEDICATED_ALLOCATE_INFO_TENSOR_ARM,
     pNext: core::ptr::null(),
     tensor: VkTensorARM::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -6914,8 +6908,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(all(feature = "VK_ARM_tensors", feature = "VK_EXT_descriptor_buffer"))]
 impl<'a> VkPhysicalDeviceDescriptorBufferTensorPropertiesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_TENSOR_PROPERTIES_ARM,
+    sType: VkStructureType::PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_TENSOR_PROPERTIES_ARM,
     pNext: core::ptr::null_mut(),
     tensorCaptureReplayDescriptorDataSize: 0,
     tensorViewCaptureReplayDescriptorDataSize: 0,
@@ -7005,7 +6998,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(all(feature = "VK_ARM_tensors", feature = "VK_EXT_descriptor_buffer"))]
 impl<'a> VkPhysicalDeviceDescriptorBufferTensorFeaturesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_TENSOR_FEATURES_ARM,
+    sType: VkStructureType::PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_TENSOR_FEATURES_ARM,
     pNext: core::ptr::null_mut(),
     descriptorBufferTensorDescriptors: 0,
     _marker: core::marker::PhantomData,
@@ -7080,7 +7073,7 @@ unsafe impl<'a> Sync for VkTensorCaptureDescriptorDataInfoARM<'a> {}
 #[cfg(all(feature = "VK_ARM_tensors", feature = "VK_EXT_descriptor_buffer"))]
 impl<'a> VkTensorCaptureDescriptorDataInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_TENSOR_CAPTURE_DESCRIPTOR_DATA_INFO_ARM,
+    sType: VkStructureType::TENSOR_CAPTURE_DESCRIPTOR_DATA_INFO_ARM,
     pNext: core::ptr::null(),
     tensor: VkTensorARM::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -7140,7 +7133,7 @@ unsafe impl<'a> Sync for VkTensorViewCaptureDescriptorDataInfoARM<'a> {}
 #[cfg(all(feature = "VK_ARM_tensors", feature = "VK_EXT_descriptor_buffer"))]
 impl<'a> VkTensorViewCaptureDescriptorDataInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_TENSOR_VIEW_CAPTURE_DESCRIPTOR_DATA_INFO_ARM,
+    sType: VkStructureType::TENSOR_VIEW_CAPTURE_DESCRIPTOR_DATA_INFO_ARM,
     pNext: core::ptr::null(),
     tensorView: VkTensorViewARM::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -7211,7 +7204,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDescriptorGetInfoEXT<'root>>
 #[cfg(all(feature = "VK_ARM_tensors", feature = "VK_EXT_descriptor_buffer"))]
 impl<'a> VkDescriptorGetTensorInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DESCRIPTOR_GET_TENSOR_INFO_ARM,
+    sType: VkStructureType::DESCRIPTOR_GET_TENSOR_INFO_ARM,
     pNext: core::ptr::null(),
     tensorView: VkTensorViewARM::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -7307,7 +7300,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkBindSparseInfo<'root>>
 #[cfg(all(feature = "VK_ARM_tensors", feature = "VK_EXT_frame_boundary"))]
 impl<'a> VkFrameBoundaryTensorsARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_FRAME_BOUNDARY_TENSORS_ARM,
+    sType: VkStructureType::FRAME_BOUNDARY_TENSORS_ARM,
     pNext: core::ptr::null(),
     tensorCount: 0,
     pTensors: core::ptr::null(),
@@ -7417,7 +7410,7 @@ unsafe impl<'a> Sync for VkPhysicalDeviceExternalTensorInfoARM<'a> {}
 #[cfg(feature = "VK_ARM_tensors")]
 impl<'a> VkPhysicalDeviceExternalTensorInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_TENSOR_INFO_ARM,
+    sType: VkStructureType::PHYSICAL_DEVICE_EXTERNAL_TENSOR_INFO_ARM,
     pNext: core::ptr::null(),
     flags: VkTensorCreateFlagBitsARM(0),
     pDescription: core::ptr::null(),
@@ -7490,7 +7483,7 @@ unsafe impl<'a> Sync for VkExternalTensorPropertiesARM<'a> {}
 #[cfg(feature = "VK_ARM_tensors")]
 impl<'a> VkExternalTensorPropertiesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_EXTERNAL_TENSOR_PROPERTIES_ARM,
+    sType: VkStructureType::EXTERNAL_TENSOR_PROPERTIES_ARM,
     pNext: core::ptr::null(),
     externalMemoryProperties: VkExternalMemoryProperties::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -7556,7 +7549,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkTensorCreateInfoARM<'root>>
 #[cfg(feature = "VK_ARM_tensors")]
 impl<'a> VkExternalMemoryTensorCreateInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_TENSOR_CREATE_INFO_ARM,
+    sType: VkStructureType::EXTERNAL_MEMORY_TENSOR_CREATE_INFO_ARM,
     pNext: core::ptr::null(),
     handleTypes: VkExternalMemoryHandleTypeFlagBits(0),
     _marker: core::marker::PhantomData,

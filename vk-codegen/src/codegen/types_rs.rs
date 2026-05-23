@@ -1299,7 +1299,7 @@ fn gen_struct_ts(s: &Struct, reg: &Registry) -> TokenStream {
         .filter(|v| !v.is_empty())
         .map(|v| {
             let stype = structure_type_value_for_providers(reg, &v, &s.provided_by);
-            let const_name = format_ident!("{}", stype);
+            let const_name = format_ident!("{}", structure_type_const_name(&stype));
             quote! { VkStructureType::#const_name }
         });
 
@@ -1567,6 +1567,12 @@ fn structure_type_value_for_providers(
         }
     }
     target_name.to_owned()
+}
+
+fn structure_type_const_name(name: &str) -> String {
+    name.strip_prefix("VK_STRUCTURE_TYPE_")
+        .unwrap_or(name)
+        .to_owned()
 }
 
 /// Classify a base type name against the registry to determine how to zero-initialize it.

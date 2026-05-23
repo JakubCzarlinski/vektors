@@ -442,7 +442,7 @@ impl<'lib> Instance<'lib> {
     let mut count = 0;
     {
       let r = unsafe { fp(self.raw, &mut count, core::ptr::null_mut()) };
-      if r < VkResult::VK_SUCCESS {
+      if r < VkResult::SUCCESS {
         core::hint::cold_path();
         return Err(r);
       }
@@ -453,7 +453,7 @@ impl<'lib> Instance<'lib> {
     let mut raw_gpus = alloc::boxed::Box::<[VkPhysicalDevice]>::new_uninit_slice(count as usize);
     {
       let r = unsafe { fp(self.raw, &mut count, raw_gpus.as_mut_ptr().cast()) };
-      if r < VkResult::VK_SUCCESS {
+      if r < VkResult::SUCCESS {
         core::hint::cold_path();
         return Err(r);
       }
@@ -528,7 +528,7 @@ impl<'lib> Instance<'lib> {
         pPhysicalDeviceGroupProperties,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -569,7 +569,7 @@ impl<'lib> Instance<'lib> {
         .vkCreateDebugReportCallbackEXT
         .unwrap_unchecked()(self.raw, pCreateInfo, pAllocator, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::debug_report_callback_ext::DebugReportCallbackEXT {
         raw: handle,
         parent: self,
@@ -614,7 +614,7 @@ impl<'lib> Instance<'lib> {
         .vkCreateDebugUtilsMessengerEXT
         .unwrap_unchecked()(self.raw, pCreateInfo, pAllocator, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::debug_utils_messenger_ext::DebugUtilsMessengerEXT {
         raw: handle,
         parent: self,
@@ -663,7 +663,7 @@ impl<'lib> Instance<'lib> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
@@ -712,7 +712,7 @@ impl<'lib> Instance<'lib> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
@@ -762,7 +762,7 @@ impl<'lib> Instance<'lib> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
@@ -808,7 +808,7 @@ impl<'lib> Instance<'lib> {
         .vkCreateImagePipeSurfaceFUCHSIA
         .unwrap_unchecked()(self.raw, pCreateInfo, pAllocator, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
@@ -855,7 +855,7 @@ impl<'lib> Instance<'lib> {
         .vkCreateStreamDescriptorSurfaceGGP
         .unwrap_unchecked()(self.raw, pCreateInfo, pAllocator, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
@@ -905,7 +905,7 @@ impl<'lib> Instance<'lib> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
@@ -956,7 +956,7 @@ impl<'lib> Instance<'lib> {
         pPhysicalDeviceGroupProperties,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -998,7 +998,7 @@ impl<'lib> Instance<'lib> {
         .vkCreateDisplayPlaneSurfaceKHR
         .unwrap_unchecked()(self.raw, pCreateInfo, pAllocator, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
@@ -1047,7 +1047,7 @@ impl<'lib> Instance<'lib> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
@@ -1096,7 +1096,7 @@ impl<'lib> Instance<'lib> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
@@ -1145,7 +1145,7 @@ impl<'lib> Instance<'lib> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
@@ -1194,7 +1194,7 @@ impl<'lib> Instance<'lib> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
@@ -1244,7 +1244,7 @@ impl<'lib> Instance<'lib> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
@@ -1294,7 +1294,7 @@ impl<'lib> Instance<'lib> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
@@ -1344,7 +1344,7 @@ impl<'lib> Instance<'lib> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
@@ -1393,7 +1393,7 @@ impl<'lib> Instance<'lib> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
@@ -1442,7 +1442,7 @@ impl<'lib> Instance<'lib> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
@@ -1491,7 +1491,7 @@ impl<'lib> Instance<'lib> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,

@@ -146,7 +146,7 @@ impl<'dev> VideoSessionKHR<'dev> {
         pBindSessionMemoryInfos.as_ptr(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -217,7 +217,7 @@ impl<'dev> VideoSessionKHR<'dev> {
         pMemoryRequirements,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();

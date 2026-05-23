@@ -44,7 +44,7 @@ pub(crate) fn select_device_group<'inst>(
                     supports_queue_family(
                         physical_device,
                         queue_family_index,
-                        vk::VkQueueFlagBits::VK_QUEUE_COMPUTE_BIT,
+                        vk::VkQueueFlagBits::COMPUTE,
                     )
                 })
         });

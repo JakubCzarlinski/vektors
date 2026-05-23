@@ -1465,7 +1465,7 @@ impl<'inst> PhysicalDevice<'inst> {
         pQueueFamilyDataGraphProperties,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -1516,7 +1516,7 @@ impl<'inst> PhysicalDevice<'inst> {
         pProperties,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -1571,7 +1571,7 @@ impl<'inst> PhysicalDevice<'inst> {
         pImageFormatProperties,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -1623,7 +1623,7 @@ impl<'inst> PhysicalDevice<'inst> {
         pCounterDescriptions,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -1665,7 +1665,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM
         .unwrap_unchecked()(self.raw, pDescriptionCount, pDescriptions)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -1738,7 +1738,7 @@ impl<'inst> PhysicalDevice<'inst> {
       let r = unsafe {
         (self.table.vkCreateDevice.unwrap_unchecked())(self.raw, pCreateInfo, pAllocator, &mut raw)
       };
-      if r < VkResult::VK_SUCCESS {
+      if r < VkResult::SUCCESS {
         core::hint::cold_path();
         return Err(r);
       }
@@ -1940,7 +1940,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkEnumerateDeviceExtensionProperties
         .unwrap_unchecked()(self.raw, pLayerName, pPropertyCount, pProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -1980,7 +1980,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkEnumerateDeviceLayerProperties
         .unwrap_unchecked()(self.raw, pPropertyCount, pProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -2084,7 +2084,7 @@ impl<'inst> PhysicalDevice<'inst> {
         pImageFormatProperties,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -2369,7 +2369,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceImageFormatProperties2
         .unwrap_unchecked()(self.raw, pImageFormatInfo, pImageFormatProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -2505,7 +2505,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceToolProperties
         .unwrap_unchecked()(self.raw, pToolCount, pToolProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -2541,7 +2541,7 @@ impl<'inst> PhysicalDevice<'inst> {
   ) -> Result<VkResult, VkResult> {
     let r =
       unsafe { (self.table).vkAcquireDrmDisplayEXT.unwrap_unchecked()(self.raw, drmFd, display) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -2577,7 +2577,7 @@ impl<'inst> PhysicalDevice<'inst> {
     let r = unsafe {
       (self.table).vkGetDrmDisplayEXT.unwrap_unchecked()(self.raw, drmFd, connectorId, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(handle)
     } else {
       core::hint::cold_path();
@@ -2614,7 +2614,7 @@ impl<'inst> PhysicalDevice<'inst> {
   ) -> Result<VkResult, VkResult> {
     let r =
       unsafe { (self.table).vkAcquireXlibDisplayEXT.unwrap_unchecked()(self.raw, dpy, display) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -2658,7 +2658,7 @@ impl<'inst> PhysicalDevice<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(handle)
     } else {
       core::hint::cold_path();
@@ -2699,7 +2699,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceCalibrateableTimeDomainsEXT
         .unwrap_unchecked()(self.raw, pTimeDomainCount, pTimeDomains)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -2750,7 +2750,7 @@ impl<'inst> PhysicalDevice<'inst> {
   #[inline(always)]
   pub fn vkReleaseDisplayEXT(&self, display: VkDisplayKHR) -> Result<VkResult, VkResult> {
     let r = unsafe { (self.table).vkReleaseDisplayEXT.unwrap_unchecked()(self.raw, display) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -2815,7 +2815,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceSurfaceCapabilities2EXT
         .unwrap_unchecked()(self.raw, surface, pSurfaceCapabilities)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -2859,7 +2859,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceSurfacePresentModes2EXT
         .unwrap_unchecked()(self.raw, pSurfaceInfo, pPresentModeCount, pPresentModes)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -2924,7 +2924,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceToolPropertiesEXT
         .unwrap_unchecked()(self.raw, pToolCount, pToolProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -2965,7 +2965,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceCalibrateableTimeDomainsKHR
         .unwrap_unchecked()(self.raw, pTimeDomainCount, pTimeDomains)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3006,7 +3006,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR
         .unwrap_unchecked()(self.raw, pPropertyCount, pProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3054,7 +3054,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDevicePresentRectanglesKHR
         .unwrap_unchecked()(self.raw, surface, pRectCount, pRects)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3103,7 +3103,7 @@ impl<'inst> PhysicalDevice<'inst> {
         &mut handle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(handle)
     } else {
       core::hint::cold_path();
@@ -3146,7 +3146,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetDisplayModePropertiesKHR
         .unwrap_unchecked()(self.raw, display, pPropertyCount, pProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3188,7 +3188,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetDisplayPlaneCapabilitiesKHR
         .unwrap_unchecked()(self.raw, mode, planeIndex, pCapabilities)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3231,7 +3231,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetDisplayPlaneSupportedDisplaysKHR
         .unwrap_unchecked()(self.raw, planeIndex, pDisplayCount, pDisplays)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3272,7 +3272,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceDisplayPlanePropertiesKHR
         .unwrap_unchecked()(self.raw, pPropertyCount, pProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3313,7 +3313,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceDisplayPropertiesKHR
         .unwrap_unchecked()(self.raw, pPropertyCount, pProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3432,7 +3432,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceFragmentShadingRatesKHR
         .unwrap_unchecked()(self.raw, pFragmentShadingRateCount, pFragmentShadingRates)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3475,7 +3475,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetDisplayModeProperties2KHR
         .unwrap_unchecked()(self.raw, display, pPropertyCount, pProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3515,7 +3515,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetDisplayPlaneCapabilities2KHR
         .unwrap_unchecked()(self.raw, pDisplayPlaneInfo, pCapabilities)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3556,7 +3556,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceDisplayPlaneProperties2KHR
         .unwrap_unchecked()(self.raw, pPropertyCount, pProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3597,7 +3597,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceDisplayProperties2KHR
         .unwrap_unchecked()(self.raw, pPropertyCount, pProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3689,7 +3689,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceImageFormatProperties2KHR
         .unwrap_unchecked()(self.raw, pImageFormatInfo, pImageFormatProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3828,7 +3828,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceSurfaceCapabilities2KHR
         .unwrap_unchecked()(self.raw, pSurfaceInfo, pSurfaceCapabilities)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3872,7 +3872,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceSurfaceFormats2KHR
         .unwrap_unchecked()(self.raw, pSurfaceInfo, pSurfaceFormatCount, pSurfaceFormats)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3915,7 +3915,7 @@ impl<'inst> PhysicalDevice<'inst> {
         pRefreshableObjectTypes,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -3967,7 +3967,7 @@ impl<'inst> PhysicalDevice<'inst> {
         pCounterDescriptions,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4032,7 +4032,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceSurfaceCapabilitiesKHR
         .unwrap_unchecked()(self.raw, surface, pSurfaceCapabilities)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4076,7 +4076,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceSurfaceFormatsKHR
         .unwrap_unchecked()(self.raw, surface, pSurfaceFormatCount, pSurfaceFormats)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4120,7 +4120,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceSurfacePresentModesKHR
         .unwrap_unchecked()(self.raw, surface, pPresentModeCount, pPresentModes)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4163,7 +4163,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceSurfaceSupportKHR
         .unwrap_unchecked()(self.raw, queueFamilyIndex, surface, pSupported)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4207,7 +4207,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR
         .unwrap_unchecked()(self.raw, pQualityLevelInfo, pQualityLevelProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4251,7 +4251,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceVideoCapabilitiesKHR
         .unwrap_unchecked()(self.raw, pVideoProfile, pCapabilities)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4304,7 +4304,7 @@ impl<'inst> PhysicalDevice<'inst> {
         pVideoFormatProperties,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4431,7 +4431,7 @@ impl<'inst> PhysicalDevice<'inst> {
   #[inline(always)]
   pub fn vkAcquireWinrtDisplayNV(&self, display: VkDisplayKHR) -> Result<VkResult, VkResult> {
     let r = unsafe { (self.table).vkAcquireWinrtDisplayNV.unwrap_unchecked()(self.raw, display) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4467,7 +4467,7 @@ impl<'inst> PhysicalDevice<'inst> {
     let r = unsafe {
       (self.table).vkGetWinrtDisplayNV.unwrap_unchecked()(self.raw, deviceRelativeId, &mut handle)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(handle)
     } else {
       core::hint::cold_path();
@@ -4508,7 +4508,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceCooperativeMatrixPropertiesNV
         .unwrap_unchecked()(self.raw, pPropertyCount, pProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4549,7 +4549,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV
         .unwrap_unchecked()(self.raw, pPropertyCount, pProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4590,7 +4590,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceCooperativeVectorPropertiesNV
         .unwrap_unchecked()(self.raw, pPropertyCount, pProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4631,7 +4631,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV
         .unwrap_unchecked()(self.raw, pCombinationCount, pCombinations)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4691,7 +4691,7 @@ impl<'inst> PhysicalDevice<'inst> {
         pExternalImageFormatProperties,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4733,7 +4733,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceExternalMemorySciBufPropertiesNV
         .unwrap_unchecked()(self.raw, handleType, handle, pMemorySciBufProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4771,7 +4771,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceSciBufAttributesNV
         .unwrap_unchecked()(self.raw, pAttributes)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4814,7 +4814,7 @@ impl<'inst> PhysicalDevice<'inst> {
         .vkGetPhysicalDeviceSciSyncAttributesNV
         .unwrap_unchecked()(self.raw, pSciSyncAttributesInfo, pAttributes)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -4863,7 +4863,7 @@ impl<'inst> PhysicalDevice<'inst> {
         pImageFormatProperties,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();

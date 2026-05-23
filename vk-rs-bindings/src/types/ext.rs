@@ -537,7 +537,7 @@ unsafe impl<'a> Sync for VkTensorViewCreateInfoARM<'a> {}
 #[cfg(any(feature = "VK_EXT_descriptor_heap", feature = "VK_ARM_tensors"))]
 impl<'a> VkTensorViewCreateInfoARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_TENSOR_VIEW_CREATE_INFO_ARM,
+    sType: VkStructureType::TENSOR_VIEW_CREATE_INFO_ARM,
     pNext: core::ptr::null(),
     flags: VkTensorViewCreateFlagBitsARM(0),
     tensor: VkTensorARM::DEFAULT,
@@ -633,7 +633,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_4444_formats")]
 impl<'a> VkPhysicalDevice4444FormatsFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_4444_FORMATS_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_4444_FORMATS_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     formatA4R4G4B4: 0,
     formatA4B4G4R4: 0,
@@ -748,7 +748,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_application_parameters")]
 impl<'a> VkApplicationParametersEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_APPLICATION_PARAMETERS_EXT,
+    sType: VkStructureType::APPLICATION_PARAMETERS_EXT,
     pNext: core::ptr::null(),
     vendorID: 0,
     deviceID: 0,
@@ -846,7 +846,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkImageViewCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_astc_decode_mode")]
 impl<'a> VkImageViewASTCDecodeModeEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_VIEW_ASTC_DECODE_MODE_EXT,
+    sType: VkStructureType::IMAGE_VIEW_ASTC_DECODE_MODE_EXT,
     pNext: core::ptr::null(),
     decodeMode: VkFormat(0),
     _marker: core::marker::PhantomData,
@@ -916,7 +916,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_astc_decode_mode")]
 impl<'a> VkPhysicalDeviceASTCDecodeFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ASTC_DECODE_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_ASTC_DECODE_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     decodeModeSharedExponent: 0,
     _marker: core::marker::PhantomData,
@@ -1007,11 +1007,11 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_attachment_feedback_loop_dynamic_state")]
 impl<'a> VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_DYNAMIC_STATE_FEATURES_EXT,
-        pNext: core::ptr::null_mut(),
-        attachmentFeedbackLoopDynamicState: 0,
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_DYNAMIC_STATE_FEATURES_EXT,
+    pNext: core::ptr::null_mut(),
+    attachmentFeedbackLoopDynamicState: 0,
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -1098,11 +1098,11 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_attachment_feedback_loop_layout")]
 impl<'a> VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_LAYOUT_FEATURES_EXT,
-        pNext: core::ptr::null_mut(),
-        attachmentFeedbackLoopLayout: 0,
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_LAYOUT_FEATURES_EXT,
+    pNext: core::ptr::null_mut(),
+    attachmentFeedbackLoopLayout: 0,
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -1189,7 +1189,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_blend_operation_advanced")]
 impl<'a> VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     advancedBlendCoherentOperations: 0,
     _marker: core::marker::PhantomData,
@@ -1287,8 +1287,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_blend_operation_advanced")]
 impl<'a> VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     advancedBlendMaxColorAttachments: 0,
     advancedBlendIndependentBlend: 0,
@@ -1388,7 +1387,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPipelineColorBlendStateCreateInfo<'r
 #[cfg(feature = "VK_EXT_blend_operation_advanced")]
 impl<'a> VkPipelineColorBlendAdvancedStateCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_ADVANCED_STATE_CREATE_INFO_EXT,
+    sType: VkStructureType::PIPELINE_COLOR_BLEND_ADVANCED_STATE_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     srcPremultiplied: 0,
     dstPremultiplied: 0,
@@ -1469,8 +1468,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSamplerCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_border_color_swizzle")]
 impl<'a> VkSamplerBorderColorComponentMappingCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_SAMPLER_BORDER_COLOR_COMPONENT_MAPPING_CREATE_INFO_EXT,
+    sType: VkStructureType::SAMPLER_BORDER_COLOR_COMPONENT_MAPPING_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     components: VkComponentMapping::DEFAULT,
     srgb: 0,
@@ -1553,7 +1551,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_border_color_swizzle")]
 impl<'a> VkPhysicalDeviceBorderColorSwizzleFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BORDER_COLOR_SWIZZLE_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_BORDER_COLOR_SWIZZLE_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     borderColorSwizzle: 0,
     borderColorSwizzleFromImage: 0,
@@ -1652,7 +1650,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_buffer_device_address")]
 impl<'a> VkPhysicalDeviceBufferDeviceAddressFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     bufferDeviceAddress: 0,
     bufferDeviceAddressCaptureReplay: 0,
@@ -1757,7 +1755,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_buffer_device_address")]
 impl<'a> VkPhysicalDeviceBufferAddressFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     bufferDeviceAddress: 0,
     bufferDeviceAddressCaptureReplay: 0,
@@ -1842,7 +1840,7 @@ unsafe impl<'a> Sync for VkBufferDeviceAddressInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_buffer_device_address")]
 impl<'a> VkBufferDeviceAddressInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_EXT,
+    sType: VkStructureType::BUFFER_DEVICE_ADDRESS_INFO_EXT,
     pNext: core::ptr::null(),
     buffer: VkBuffer::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -1911,7 +1909,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkBufferCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_buffer_device_address")]
 impl<'a> VkBufferDeviceAddressCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_CREATE_INFO_EXT,
+    sType: VkStructureType::BUFFER_DEVICE_ADDRESS_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     deviceAddress: 0,
     _marker: core::marker::PhantomData,
@@ -1969,7 +1967,7 @@ unsafe impl<'a> Sync for VkCalibratedTimestampInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_calibrated_timestamps")]
 impl<'a> VkCalibratedTimestampInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_EXT,
+    sType: VkStructureType::CALIBRATED_TIMESTAMP_INFO_EXT,
     pNext: core::ptr::null(),
     timeDomain: VkTimeDomainEXT(0),
     _marker: core::marker::PhantomData,
@@ -2039,7 +2037,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_color_write_enable")]
 impl<'a> VkPhysicalDeviceColorWriteEnableFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COLOR_WRITE_ENABLE_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_COLOR_WRITE_ENABLE_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     colorWriteEnable: 0,
     _marker: core::marker::PhantomData,
@@ -2125,7 +2123,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPipelineColorBlendStateCreateInfo<'r
 #[cfg(feature = "VK_EXT_color_write_enable")]
 impl<'a> VkPipelineColorWriteCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_COLOR_WRITE_CREATE_INFO_EXT,
+    sType: VkStructureType::PIPELINE_COLOR_WRITE_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     attachmentCount: 0,
     pColorWriteEnables: core::ptr::null(),
@@ -2200,7 +2198,7 @@ unsafe impl<'a> Sync for VkConditionalRenderingBeginInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_conditional_rendering")]
 impl<'a> VkConditionalRenderingBeginInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_CONDITIONAL_RENDERING_BEGIN_INFO_EXT,
+    sType: VkStructureType::CONDITIONAL_RENDERING_BEGIN_INFO_EXT,
     pNext: core::ptr::null(),
     buffer: VkBuffer::DEFAULT,
     offset: 0,
@@ -2280,8 +2278,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkCommandBufferInheritanceInfo<'root>>
 #[cfg(feature = "VK_EXT_conditional_rendering")]
 impl<'a> VkCommandBufferInheritanceConditionalRenderingInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_CONDITIONAL_RENDERING_INFO_EXT,
+    sType: VkStructureType::COMMAND_BUFFER_INHERITANCE_CONDITIONAL_RENDERING_INFO_EXT,
     pNext: core::ptr::null(),
     conditionalRenderingEnable: 0,
     _marker: core::marker::PhantomData,
@@ -2358,7 +2355,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_conditional_rendering")]
 impl<'a> VkPhysicalDeviceConditionalRenderingFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CONDITIONAL_RENDERING_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_CONDITIONAL_RENDERING_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     conditionalRendering: 0,
     inheritedConditionalRendering: 0,
@@ -2471,8 +2468,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_conservative_rasterization")]
 impl<'a> VkPhysicalDeviceConservativeRasterizationPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CONSERVATIVE_RASTERIZATION_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_CONSERVATIVE_RASTERIZATION_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     primitiveOverestimationSize: 0.0f32,
     maxExtraPrimitiveOverestimationSize: 0.0f32,
@@ -2591,8 +2587,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPipelineRasterizationStateCreateInfo
 #[cfg(feature = "VK_EXT_conservative_rasterization")]
 impl<'a> VkPipelineRasterizationConservativeStateCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_CONSERVATIVE_STATE_CREATE_INFO_EXT,
+    sType: VkStructureType::PIPELINE_RASTERIZATION_CONSERVATIVE_STATE_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     flags: 0,
     conservativeRasterizationMode: VkConservativeRasterizationModeEXT(0),
@@ -2680,7 +2675,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSamplerCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_custom_border_color")]
 impl<'a> VkSamplerCustomBorderColorCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT,
+    sType: VkStructureType::SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     customBorderColor: VkClearColorValue::DEFAULT,
     format: VkFormat(0),
@@ -2759,7 +2754,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_custom_border_color")]
 impl<'a> VkPhysicalDeviceCustomBorderColorPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     maxCustomBorderColorSamplers: 0,
     _marker: core::marker::PhantomData,
@@ -2836,7 +2831,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_custom_border_color")]
 impl<'a> VkPhysicalDeviceCustomBorderColorFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     customBorderColors: 0,
     customBorderColorWithoutFormat: 0,
@@ -2940,7 +2935,7 @@ unsafe impl<'a> Sync for VkBeginCustomResolveInfoEXT<'a> {}
 ))]
 impl<'a> VkBeginCustomResolveInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BEGIN_CUSTOM_RESOLVE_INFO_EXT,
+    sType: VkStructureType::BEGIN_CUSTOM_RESOLVE_INFO_EXT,
     pNext: core::ptr::null_mut(),
     _marker: core::marker::PhantomData,
   };
@@ -3010,7 +3005,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_custom_resolve")]
 impl<'a> VkPhysicalDeviceCustomResolveFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_RESOLVE_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_CUSTOM_RESOLVE_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     customResolve: 0,
     _marker: core::marker::PhantomData,
@@ -3161,7 +3156,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkShaderCreateInfoEXT<'root>>
 ))]
 impl<'a> VkCustomResolveCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_CUSTOM_RESOLVE_CREATE_INFO_EXT,
+    sType: VkStructureType::CUSTOM_RESOLVE_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     customResolve: 0,
     colorAttachmentCount: 0,
@@ -3281,7 +3276,7 @@ unsafe impl<'a> Sync for VkDebugMarkerObjectNameInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_debug_marker")]
 impl<'a> VkDebugMarkerObjectNameInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_NAME_INFO_EXT,
+    sType: VkStructureType::DEBUG_MARKER_OBJECT_NAME_INFO_EXT,
     pNext: core::ptr::null(),
     objectType: VkDebugReportObjectTypeEXT(0),
     object: 0,
@@ -3360,7 +3355,7 @@ unsafe impl<'a> Sync for VkDebugMarkerObjectTagInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_debug_marker")]
 impl<'a> VkDebugMarkerObjectTagInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_TAG_INFO_EXT,
+    sType: VkStructureType::DEBUG_MARKER_OBJECT_TAG_INFO_EXT,
     pNext: core::ptr::null(),
     objectType: VkDebugReportObjectTypeEXT(0),
     object: 0,
@@ -3448,7 +3443,7 @@ unsafe impl<'a> Sync for VkDebugMarkerMarkerInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_debug_marker")]
 impl<'a> VkDebugMarkerMarkerInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT,
+    sType: VkStructureType::DEBUG_MARKER_MARKER_INFO_EXT,
     pNext: core::ptr::null(),
     pMarkerName: core::ptr::null(),
     color: [0.0f32; 4],
@@ -3563,7 +3558,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkInstanceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_debug_report")]
 impl<'a> VkDebugReportCallbackCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT,
+    sType: VkStructureType::DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     flags: VkDebugReportFlagBitsEXT(0),
     pfnCallback: None,
@@ -3699,7 +3694,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSamplerCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_debug_utils")]
 impl<'a> VkDebugUtilsObjectNameInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
+    sType: VkStructureType::DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
     pNext: core::ptr::null(),
     objectType: VkObjectType(0),
     objectHandle: 0,
@@ -3808,7 +3803,7 @@ unsafe impl<'a> Sync for VkDebugUtilsObjectTagInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_debug_utils")]
 impl<'a> VkDebugUtilsObjectTagInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_TAG_INFO_EXT,
+    sType: VkStructureType::DEBUG_UTILS_OBJECT_TAG_INFO_EXT,
     pNext: core::ptr::null(),
     objectType: VkObjectType(0),
     objectHandle: 0,
@@ -3896,7 +3891,7 @@ unsafe impl<'a> Sync for VkDebugUtilsLabelEXT<'a> {}
 #[cfg(feature = "VK_EXT_debug_utils")]
 impl<'a> VkDebugUtilsLabelEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT,
+    sType: VkStructureType::DEBUG_UTILS_LABEL_EXT,
     pNext: core::ptr::null(),
     pLabelName: core::ptr::null(),
     color: [0.0f32; 4],
@@ -3976,7 +3971,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkInstanceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_debug_utils")]
 impl<'a> VkDebugUtilsMessengerCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+    sType: VkStructureType::DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     flags: 0,
     messageSeverity: VkDebugUtilsMessageSeverityFlagBitsEXT(0),
@@ -4079,7 +4074,7 @@ unsafe impl<'a> Sync for VkDebugUtilsMessengerCallbackDataEXT<'a> {}
 #[cfg(feature = "VK_EXT_debug_utils")]
 impl<'a> VkDebugUtilsMessengerCallbackDataEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CALLBACK_DATA_EXT,
+    sType: VkStructureType::DEBUG_UTILS_MESSENGER_CALLBACK_DATA_EXT,
     pNext: core::ptr::null(),
     flags: 0,
     pMessageIdName: core::ptr::null(),
@@ -4223,7 +4218,7 @@ unsafe impl<'a> Sync for VkDepthBiasInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_depth_bias_control")]
 impl<'a> VkDepthBiasInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEPTH_BIAS_INFO_EXT,
+    sType: VkStructureType::DEPTH_BIAS_INFO_EXT,
     pNext: core::ptr::null(),
     depthBiasConstantFactor: 0.0f32,
     depthBiasClamp: 0.0f32,
@@ -4324,7 +4319,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPipelineRasterizationStateCreateInfo
 #[cfg(feature = "VK_EXT_depth_bias_control")]
 impl<'a> VkDepthBiasRepresentationInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEPTH_BIAS_REPRESENTATION_INFO_EXT,
+    sType: VkStructureType::DEPTH_BIAS_REPRESENTATION_INFO_EXT,
     pNext: core::ptr::null(),
     depthBiasRepresentation: VkDepthBiasRepresentationEXT(0),
     depthBiasExact: 0,
@@ -4418,7 +4413,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_depth_bias_control")]
 impl<'a> VkPhysicalDeviceDepthBiasControlFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_BIAS_CONTROL_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_DEPTH_BIAS_CONTROL_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     depthBiasControl: 0,
     leastRepresentableValueForceUnormRepresentation: 0,
@@ -4530,7 +4525,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_depth_clamp_control")]
 impl<'a> VkPhysicalDeviceDepthClampControlFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_CONTROL_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_DEPTH_CLAMP_CONTROL_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     depthClampControl: 0,
     _marker: core::marker::PhantomData,
@@ -4615,7 +4610,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPipelineViewportStateCreateInfo<'roo
 #[cfg(feature = "VK_EXT_depth_clamp_control")]
 impl<'a> VkPipelineViewportDepthClampControlCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_DEPTH_CLAMP_CONTROL_CREATE_INFO_EXT,
+    sType: VkStructureType::PIPELINE_VIEWPORT_DEPTH_CLAMP_CONTROL_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     depthClampMode: VkDepthClampModeEXT(0),
     pDepthClampRange: core::ptr::null(),
@@ -4733,7 +4728,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_depth_clamp_zero_one")]
 impl<'a> VkPhysicalDeviceDepthClampZeroOneFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_ZERO_ONE_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_DEPTH_CLAMP_ZERO_ONE_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     depthClampZeroOne: 0,
     _marker: core::marker::PhantomData,
@@ -4818,7 +4813,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_depth_clip_control")]
 impl<'a> VkPhysicalDeviceDepthClipControlFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLIP_CONTROL_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_DEPTH_CLIP_CONTROL_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     depthClipControl: 0,
     _marker: core::marker::PhantomData,
@@ -4901,7 +4896,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPipelineViewportStateCreateInfo<'roo
 #[cfg(feature = "VK_EXT_depth_clip_control")]
 impl<'a> VkPipelineViewportDepthClipControlCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_DEPTH_CLIP_CONTROL_CREATE_INFO_EXT,
+    sType: VkStructureType::PIPELINE_VIEWPORT_DEPTH_CLIP_CONTROL_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     negativeOneToOne: 0,
     _marker: core::marker::PhantomData,
@@ -4974,7 +4969,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_depth_clip_enable")]
 impl<'a> VkPhysicalDeviceDepthClipEnableFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLIP_ENABLE_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_DEPTH_CLIP_ENABLE_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     depthClipEnable: 0,
     _marker: core::marker::PhantomData,
@@ -5059,8 +5054,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPipelineRasterizationStateCreateInfo
 #[cfg(feature = "VK_EXT_depth_clip_enable")]
 impl<'a> VkPipelineRasterizationDepthClipStateCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_DEPTH_CLIP_STATE_CREATE_INFO_EXT,
+    sType: VkStructureType::PIPELINE_RASTERIZATION_DEPTH_CLIP_STATE_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     flags: 0,
     depthClipEnable: 0,
@@ -5142,7 +5136,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_descriptor_buffer")]
 impl<'a> VkPhysicalDeviceDescriptorBufferFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     descriptorBuffer: 0,
     descriptorBufferCaptureReplay: 0,
@@ -5309,7 +5303,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_descriptor_buffer")]
 impl<'a> VkPhysicalDeviceDescriptorBufferPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     combinedImageSamplerDescriptorSingleArray: 0,
     bufferlessPushDescriptors: 0,
@@ -5594,11 +5588,11 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 ))]
 impl<'a> VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_DENSITY_MAP_PROPERTIES_EXT,
-        pNext: core::ptr::null_mut(),
-        combinedImageSamplerDensityMapDescriptorSize: 0,
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_DENSITY_MAP_PROPERTIES_EXT,
+    pNext: core::ptr::null_mut(),
+    combinedImageSamplerDensityMapDescriptorSize: 0,
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -5655,7 +5649,7 @@ unsafe impl<'a> Sync for VkDescriptorAddressInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_descriptor_buffer")]
 impl<'a> VkDescriptorAddressInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DESCRIPTOR_ADDRESS_INFO_EXT,
+    sType: VkStructureType::DESCRIPTOR_ADDRESS_INFO_EXT,
     pNext: core::ptr::null_mut(),
     address: 0,
     range: 0,
@@ -5727,7 +5721,7 @@ unsafe impl<'a> Sync for VkDescriptorBufferBindingInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_descriptor_buffer")]
 impl<'a> VkDescriptorBufferBindingInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_INFO_EXT,
+    sType: VkStructureType::DESCRIPTOR_BUFFER_BINDING_INFO_EXT,
     pNext: core::ptr::null(),
     address: 0,
     usage: VkBufferUsageFlagBits(0),
@@ -5826,8 +5820,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDescriptorBufferBindingInfoEXT<'root
 #[cfg(feature = "VK_EXT_descriptor_buffer")]
 impl<'a> VkDescriptorBufferBindingPushDescriptorBufferHandleEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_PUSH_DESCRIPTOR_BUFFER_HANDLE_EXT,
+    sType: VkStructureType::DESCRIPTOR_BUFFER_BINDING_PUSH_DESCRIPTOR_BUFFER_HANDLE_EXT,
     pNext: core::ptr::null(),
     buffer: VkBuffer::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -5934,7 +5927,7 @@ unsafe impl<'a> Sync for VkDescriptorGetInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_descriptor_buffer")]
 impl<'a> VkDescriptorGetInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DESCRIPTOR_GET_INFO_EXT,
+    sType: VkStructureType::DESCRIPTOR_GET_INFO_EXT,
     pNext: core::ptr::null(),
     type_: VkDescriptorType(0),
     data: VkDescriptorDataEXT::DEFAULT,
@@ -6010,7 +6003,7 @@ unsafe impl<'a> Sync for VkBufferCaptureDescriptorDataInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_descriptor_buffer")]
 impl<'a> VkBufferCaptureDescriptorDataInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BUFFER_CAPTURE_DESCRIPTOR_DATA_INFO_EXT,
+    sType: VkStructureType::BUFFER_CAPTURE_DESCRIPTOR_DATA_INFO_EXT,
     pNext: core::ptr::null(),
     buffer: VkBuffer::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -6068,7 +6061,7 @@ unsafe impl<'a> Sync for VkImageCaptureDescriptorDataInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_descriptor_buffer")]
 impl<'a> VkImageCaptureDescriptorDataInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_CAPTURE_DESCRIPTOR_DATA_INFO_EXT,
+    sType: VkStructureType::IMAGE_CAPTURE_DESCRIPTOR_DATA_INFO_EXT,
     pNext: core::ptr::null(),
     image: VkImage::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -6126,7 +6119,7 @@ unsafe impl<'a> Sync for VkImageViewCaptureDescriptorDataInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_descriptor_buffer")]
 impl<'a> VkImageViewCaptureDescriptorDataInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_VIEW_CAPTURE_DESCRIPTOR_DATA_INFO_EXT,
+    sType: VkStructureType::IMAGE_VIEW_CAPTURE_DESCRIPTOR_DATA_INFO_EXT,
     pNext: core::ptr::null(),
     imageView: VkImageView::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -6187,7 +6180,7 @@ unsafe impl<'a> Sync for VkSamplerCaptureDescriptorDataInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_descriptor_buffer")]
 impl<'a> VkSamplerCaptureDescriptorDataInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SAMPLER_CAPTURE_DESCRIPTOR_DATA_INFO_EXT,
+    sType: VkStructureType::SAMPLER_CAPTURE_DESCRIPTOR_DATA_INFO_EXT,
     pNext: core::ptr::null(),
     #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     sampler: VkSampler::DEFAULT,
@@ -6286,8 +6279,7 @@ unsafe impl<'a> Sync for VkAccelerationStructureCaptureDescriptorDataInfoEXT<'a>
 ))]
 impl<'a> VkAccelerationStructureCaptureDescriptorDataInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CAPTURE_DESCRIPTOR_DATA_INFO_EXT,
+    sType: VkStructureType::ACCELERATION_STRUCTURE_CAPTURE_DESCRIPTOR_DATA_INFO_EXT,
     pNext: core::ptr::null(),
     #[cfg(feature = "VK_KHR_acceleration_structure")]
     accelerationStructure: VkAccelerationStructureKHR::DEFAULT,
@@ -6427,7 +6419,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkAccelerationStructureCreateInfo2KHR<
 #[cfg(feature = "VK_EXT_descriptor_buffer")]
 impl<'a> VkOpaqueCaptureDescriptorDataCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DESCRIPTOR_DATA_CREATE_INFO_EXT,
+    sType: VkStructureType::OPAQUE_CAPTURE_DESCRIPTOR_DATA_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     opaqueCaptureDescriptorData: core::ptr::null(),
     _marker: core::marker::PhantomData,
@@ -6697,7 +6689,7 @@ unsafe impl<'a> Sync for VkTexelBufferDescriptorInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_descriptor_heap")]
 impl<'a> VkTexelBufferDescriptorInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_TEXEL_BUFFER_DESCRIPTOR_INFO_EXT,
+    sType: VkStructureType::TEXEL_BUFFER_DESCRIPTOR_INFO_EXT,
     pNext: core::ptr::null(),
     format: VkFormat(0),
     addressRange: VkDeviceAddressRangeEXT::DEFAULT,
@@ -6762,7 +6754,7 @@ unsafe impl<'a> Sync for VkImageDescriptorInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_descriptor_heap")]
 impl<'a> VkImageDescriptorInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_DESCRIPTOR_INFO_EXT,
+    sType: VkStructureType::IMAGE_DESCRIPTOR_INFO_EXT,
     pNext: core::ptr::null(),
     pView: core::ptr::null(),
     layout: VkImageLayout(0),
@@ -6869,7 +6861,7 @@ unsafe impl<'a> Sync for VkResourceDescriptorInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_descriptor_heap")]
 impl<'a> VkResourceDescriptorInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RESOURCE_DESCRIPTOR_INFO_EXT,
+    sType: VkStructureType::RESOURCE_DESCRIPTOR_INFO_EXT,
     pNext: core::ptr::null(),
     type_: VkDescriptorType(0),
     data: VkResourceDescriptorDataEXT::DEFAULT,
@@ -6947,7 +6939,7 @@ unsafe impl<'a> Sync for VkBindHeapInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_descriptor_heap")]
 impl<'a> VkBindHeapInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BIND_HEAP_INFO_EXT,
+    sType: VkStructureType::BIND_HEAP_INFO_EXT,
     pNext: core::ptr::null(),
     heapRange: VkDeviceAddressRangeEXT::DEFAULT,
     reservedRangeOffset: 0,
@@ -7018,7 +7010,7 @@ unsafe impl<'a> Sync for VkPushDataInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_descriptor_heap")]
 impl<'a> VkPushDataInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PUSH_DATA_INFO_EXT,
+    sType: VkStructureType::PUSH_DATA_INFO_EXT,
     pNext: core::ptr::null(),
     offset: 0,
     data: VkHostAddressRangeConstEXT::DEFAULT,
@@ -7666,7 +7658,7 @@ unsafe impl<'a> Sync for VkDescriptorSetAndBindingMappingEXT<'a> {}
 #[cfg(feature = "VK_EXT_descriptor_heap")]
 impl<'a> VkDescriptorSetAndBindingMappingEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DESCRIPTOR_SET_AND_BINDING_MAPPING_EXT,
+    sType: VkStructureType::DESCRIPTOR_SET_AND_BINDING_MAPPING_EXT,
     pNext: core::ptr::null(),
     descriptorSet: 0,
     firstBinding: 0,
@@ -7781,7 +7773,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkShaderCreateInfoEXT<'root>>
 #[cfg(feature = "VK_EXT_descriptor_heap")]
 impl<'a> VkShaderDescriptorSetAndBindingMappingInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SHADER_DESCRIPTOR_SET_AND_BINDING_MAPPING_INFO_EXT,
+    sType: VkStructureType::SHADER_DESCRIPTOR_SET_AND_BINDING_MAPPING_INFO_EXT,
     pNext: core::ptr::null(),
     mappingCount: 0,
     pMappings: core::ptr::null(),
@@ -7894,7 +7886,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSamplerCreateInfo<'root>>
 ))]
 impl<'a> VkSamplerCustomBorderColorIndexCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_INDEX_CREATE_INFO_EXT,
+    sType: VkStructureType::SAMPLER_CUSTOM_BORDER_COLOR_INDEX_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     index: 0,
     _marker: core::marker::PhantomData,
@@ -7965,7 +7957,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkTensorCreateInfoARM<'root>>
 #[cfg(feature = "VK_EXT_descriptor_heap")]
 impl<'a> VkOpaqueCaptureDataCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DATA_CREATE_INFO_EXT,
+    sType: VkStructureType::OPAQUE_CAPTURE_DATA_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     pData: core::ptr::null(),
     _marker: core::marker::PhantomData,
@@ -8069,7 +8061,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkIndirectCommandsLayoutTokenNV<'root>
 ))]
 impl<'a> VkIndirectCommandsLayoutPushDataTokenNV<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_PUSH_DATA_TOKEN_NV,
+    sType: VkStructureType::INDIRECT_COMMANDS_LAYOUT_PUSH_DATA_TOKEN_NV,
     pNext: core::ptr::null(),
     pushDataOffset: 0,
     pushDataSize: 0,
@@ -8160,7 +8152,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkImageFormatProperties2<'root>>
 ))]
 impl<'a> VkSubsampledImageFormatPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SUBSAMPLED_IMAGE_FORMAT_PROPERTIES_EXT,
+    sType: VkStructureType::SUBSAMPLED_IMAGE_FORMAT_PROPERTIES_EXT,
     pNext: core::ptr::null(),
     subsampledImageDescriptorCount: 0,
     _marker: core::marker::PhantomData,
@@ -8231,7 +8223,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_descriptor_heap")]
 impl<'a> VkPhysicalDeviceDescriptorHeapFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_DESCRIPTOR_HEAP_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     descriptorHeap: 0,
     descriptorHeapCaptureReplay: 0,
@@ -8358,7 +8350,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_descriptor_heap")]
 impl<'a> VkPhysicalDeviceDescriptorHeapPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_DESCRIPTOR_HEAP_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     samplerHeapAlignment: 0,
     resourceHeapAlignment: 0,
@@ -8534,7 +8526,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkCommandBufferInheritanceInfo<'root>>
 #[cfg(feature = "VK_EXT_descriptor_heap")]
 impl<'a> VkCommandBufferInheritanceDescriptorHeapInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_DESCRIPTOR_HEAP_INFO_EXT,
+    sType: VkStructureType::COMMAND_BUFFER_INHERITANCE_DESCRIPTOR_HEAP_INFO_EXT,
     pNext: core::ptr::null(),
     pSamplerHeapBindInfo: core::ptr::null(),
     pResourceHeapBindInfo: core::ptr::null(),
@@ -8625,7 +8617,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(all(feature = "VK_ARM_tensors", feature = "VK_EXT_descriptor_heap"))]
 impl<'a> VkPhysicalDeviceDescriptorHeapTensorPropertiesARM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_TENSOR_PROPERTIES_ARM,
+    sType: VkStructureType::PHYSICAL_DEVICE_DESCRIPTOR_HEAP_TENSOR_PROPERTIES_ARM,
     pNext: core::ptr::null_mut(),
     tensorDescriptorSize: 0,
     tensorDescriptorAlignment: 0,
@@ -8769,7 +8761,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_descriptor_indexing")]
 impl<'a> VkPhysicalDeviceDescriptorIndexingFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     shaderInputAttachmentArrayDynamicIndexing: 0,
     shaderUniformTexelBufferArrayDynamicIndexing: 0,
@@ -9027,7 +9019,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_descriptor_indexing")]
 impl<'a> VkPhysicalDeviceDescriptorIndexingPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     maxUpdateAfterBindDescriptorsInAllPools: 0,
     shaderUniformBufferArrayNonUniformIndexingNative: 0,
@@ -9254,7 +9246,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDescriptorSetLayoutCreateInfo<'root>
 #[cfg(feature = "VK_EXT_descriptor_indexing")]
 impl<'a> VkDescriptorSetLayoutBindingFlagsCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT,
+    sType: VkStructureType::DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     bindingCount: 0,
     pBindingFlags: core::ptr::null(),
@@ -9335,8 +9327,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDescriptorSetAllocateInfo<'root>>
 #[cfg(feature = "VK_EXT_descriptor_indexing")]
 impl<'a> VkDescriptorSetVariableDescriptorCountAllocateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO_EXT,
+    sType: VkStructureType::DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO_EXT,
     pNext: core::ptr::null(),
     descriptorSetCount: 0,
     pDescriptorCounts: core::ptr::null(),
@@ -9416,8 +9407,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDescriptorSetLayoutSupport<'root>>
 #[cfg(feature = "VK_EXT_descriptor_indexing")]
 impl<'a> VkDescriptorSetVariableDescriptorCountLayoutSupportEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_LAYOUT_SUPPORT_EXT,
+    sType: VkStructureType::DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_LAYOUT_SUPPORT_EXT,
     pNext: core::ptr::null_mut(),
     maxVariableDescriptorCount: 0,
     _marker: core::marker::PhantomData,
@@ -9496,7 +9486,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_device_address_binding_report")]
 impl<'a> VkPhysicalDeviceAddressBindingReportFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ADDRESS_BINDING_REPORT_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_ADDRESS_BINDING_REPORT_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     reportAddressBinding: 0,
     _marker: core::marker::PhantomData,
@@ -9583,7 +9573,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDebugUtilsMessengerCallbackDataEXT<'
 #[cfg(feature = "VK_EXT_device_address_binding_report")]
 impl<'a> VkDeviceAddressBindingCallbackDataEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEVICE_ADDRESS_BINDING_CALLBACK_DATA_EXT,
+    sType: VkStructureType::DEVICE_ADDRESS_BINDING_CALLBACK_DATA_EXT,
     pNext: core::ptr::null_mut(),
     flags: VkDeviceAddressBindingFlagBitsEXT(0),
     baseAddress: 0,
@@ -9672,7 +9662,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_device_fault")]
 impl<'a> VkPhysicalDeviceFaultFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FAULT_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_FAULT_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     deviceFault: 0,
     deviceFaultVendorBinary: 0,
@@ -9841,7 +9831,7 @@ unsafe impl<'a> Sync for VkDeviceFaultCountsEXT<'a> {}
 #[cfg(feature = "VK_EXT_device_fault")]
 impl<'a> VkDeviceFaultCountsEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEVICE_FAULT_COUNTS_EXT,
+    sType: VkStructureType::DEVICE_FAULT_COUNTS_EXT,
     pNext: core::ptr::null_mut(),
     addressInfoCount: 0,
     vendorInfoCount: 0,
@@ -9920,7 +9910,7 @@ unsafe impl<'a> Sync for VkDeviceFaultInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_device_fault")]
 impl<'a> VkDeviceFaultInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEVICE_FAULT_INFO_EXT,
+    sType: VkStructureType::DEVICE_FAULT_INFO_EXT,
     pNext: core::ptr::null_mut(),
     description: [0i8; VK_MAX_DESCRIPTION_SIZE as usize],
     pAddressInfos: core::ptr::null_mut(),
@@ -10169,8 +10159,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_device_generated_commands")]
 impl<'a> VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     deviceGeneratedCommands: 0,
     dynamicGeneratedPipelineLayout: 0,
@@ -10286,8 +10275,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_device_generated_commands")]
 impl<'a> VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     maxIndirectPipelineCount: 0,
     maxIndirectShaderObjectCount: 0,
@@ -10444,7 +10432,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkGeneratedCommandsMemoryRequirementsI
 #[cfg(feature = "VK_EXT_device_generated_commands")]
 impl<'a> VkGeneratedCommandsPipelineInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_GENERATED_COMMANDS_PIPELINE_INFO_EXT,
+    sType: VkStructureType::GENERATED_COMMANDS_PIPELINE_INFO_EXT,
     pNext: core::ptr::null_mut(),
     #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     pipeline: VkPipeline::DEFAULT,
@@ -10541,7 +10529,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkGeneratedCommandsMemoryRequirementsI
 #[cfg(feature = "VK_EXT_device_generated_commands")]
 impl<'a> VkGeneratedCommandsShaderInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_GENERATED_COMMANDS_SHADER_INFO_EXT,
+    sType: VkStructureType::GENERATED_COMMANDS_SHADER_INFO_EXT,
     pNext: core::ptr::null_mut(),
     shaderCount: 0,
     pShaders: core::ptr::null(),
@@ -10628,7 +10616,7 @@ unsafe impl<'a> Sync for VkGeneratedCommandsMemoryRequirementsInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_device_generated_commands")]
 impl<'a> VkGeneratedCommandsMemoryRequirementsInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_GENERATED_COMMANDS_MEMORY_REQUIREMENTS_INFO_EXT,
+    sType: VkStructureType::GENERATED_COMMANDS_MEMORY_REQUIREMENTS_INFO_EXT,
     pNext: core::ptr::null(),
     indirectExecutionSet: VkIndirectExecutionSetEXT::DEFAULT,
     indirectCommandsLayout: VkIndirectCommandsLayoutEXT::DEFAULT,
@@ -10732,7 +10720,7 @@ unsafe impl<'a> Sync for VkIndirectExecutionSetPipelineInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_device_generated_commands")]
 impl<'a> VkIndirectExecutionSetPipelineInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_PIPELINE_INFO_EXT,
+    sType: VkStructureType::INDIRECT_EXECUTION_SET_PIPELINE_INFO_EXT,
     pNext: core::ptr::null(),
     #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     initialPipeline: VkPipeline::DEFAULT,
@@ -10803,7 +10791,7 @@ unsafe impl<'a> Sync for VkIndirectExecutionSetShaderLayoutInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_device_generated_commands")]
 impl<'a> VkIndirectExecutionSetShaderLayoutInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_SHADER_LAYOUT_INFO_EXT,
+    sType: VkStructureType::INDIRECT_EXECUTION_SET_SHADER_LAYOUT_INFO_EXT,
     pNext: core::ptr::null(),
     setLayoutCount: 0,
     pSetLayouts: core::ptr::null(),
@@ -10880,7 +10868,7 @@ unsafe impl<'a> Sync for VkIndirectExecutionSetShaderInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_device_generated_commands")]
 impl<'a> VkIndirectExecutionSetShaderInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_SHADER_INFO_EXT,
+    sType: VkStructureType::INDIRECT_EXECUTION_SET_SHADER_INFO_EXT,
     pNext: core::ptr::null(),
     shaderCount: 0,
     pInitialShaders: core::ptr::null(),
@@ -11032,7 +11020,7 @@ unsafe impl<'a> Sync for VkIndirectExecutionSetCreateInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_device_generated_commands")]
 impl<'a> VkIndirectExecutionSetCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_CREATE_INFO_EXT,
+    sType: VkStructureType::INDIRECT_EXECUTION_SET_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     type_: VkIndirectExecutionSetInfoTypeEXT(0),
     info: VkIndirectExecutionSetInfoEXT::DEFAULT,
@@ -11108,7 +11096,7 @@ unsafe impl<'a> Sync for VkGeneratedCommandsInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_device_generated_commands")]
 impl<'a> VkGeneratedCommandsInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_GENERATED_COMMANDS_INFO_EXT,
+    sType: VkStructureType::GENERATED_COMMANDS_INFO_EXT,
     pNext: core::ptr::null(),
     shaderStages: VkShaderStageFlagBits(0),
     indirectExecutionSet: VkIndirectExecutionSetEXT::DEFAULT,
@@ -11248,7 +11236,7 @@ unsafe impl<'a> Sync for VkWriteIndirectExecutionSetPipelineEXT<'a> {}
 #[cfg(feature = "VK_EXT_device_generated_commands")]
 impl<'a> VkWriteIndirectExecutionSetPipelineEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_WRITE_INDIRECT_EXECUTION_SET_PIPELINE_EXT,
+    sType: VkStructureType::WRITE_INDIRECT_EXECUTION_SET_PIPELINE_EXT,
     pNext: core::ptr::null(),
     index: 0,
     #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
@@ -11331,7 +11319,7 @@ unsafe impl<'a> Sync for VkWriteIndirectExecutionSetShaderEXT<'a> {}
 ))]
 impl<'a> VkWriteIndirectExecutionSetShaderEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_WRITE_INDIRECT_EXECUTION_SET_SHADER_EXT,
+    sType: VkStructureType::WRITE_INDIRECT_EXECUTION_SET_SHADER_EXT,
     pNext: core::ptr::null(),
     index: 0,
     shader: VkShaderEXT::DEFAULT,
@@ -11410,7 +11398,7 @@ unsafe impl<'a> Sync for VkIndirectCommandsLayoutCreateInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_device_generated_commands")]
 impl<'a> VkIndirectCommandsLayoutCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_CREATE_INFO_EXT,
+    sType: VkStructureType::INDIRECT_COMMANDS_LAYOUT_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     flags: VkIndirectCommandsLayoutUsageFlagBitsEXT(0),
     shaderStages: VkShaderStageFlagBits(0),
@@ -11521,7 +11509,7 @@ unsafe impl<'a> Sync for VkIndirectCommandsLayoutTokenEXT<'a> {}
 #[cfg(feature = "VK_EXT_device_generated_commands")]
 impl<'a> VkIndirectCommandsLayoutTokenEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_TOKEN_EXT,
+    sType: VkStructureType::INDIRECT_COMMANDS_LAYOUT_TOKEN_EXT,
     pNext: core::ptr::null(),
     type_: VkIndirectCommandsTokenTypeEXT(0),
     data: VkIndirectCommandsTokenDataEXT::DEFAULT,
@@ -11898,7 +11886,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_device_memory_report")]
 impl<'a> VkPhysicalDeviceDeviceMemoryReportFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_MEMORY_REPORT_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_DEVICE_MEMORY_REPORT_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     deviceMemoryReport: 0,
     _marker: core::marker::PhantomData,
@@ -11984,7 +11972,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_device_memory_report")]
 impl<'a> VkDeviceDeviceMemoryReportCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEVICE_DEVICE_MEMORY_REPORT_CREATE_INFO_EXT,
+    sType: VkStructureType::DEVICE_DEVICE_MEMORY_REPORT_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     flags: 0,
     pfnUserCallback: None,
@@ -12066,7 +12054,7 @@ unsafe impl<'a> Sync for VkDeviceMemoryReportCallbackDataEXT<'a> {}
 #[cfg(feature = "VK_EXT_device_memory_report")]
 impl<'a> VkDeviceMemoryReportCallbackDataEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEVICE_MEMORY_REPORT_CALLBACK_DATA_EXT,
+    sType: VkStructureType::DEVICE_MEMORY_REPORT_CALLBACK_DATA_EXT,
     pNext: core::ptr::null_mut(),
     flags: 0,
     type_: VkDeviceMemoryReportEventTypeEXT(0),
@@ -12196,7 +12184,7 @@ unsafe impl<'a> Sync for VkDirectFBSurfaceCreateInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_directfb_surface")]
 impl<'a> VkDirectFBSurfaceCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DIRECTFB_SURFACE_CREATE_INFO_EXT,
+    sType: VkStructureType::DIRECTFB_SURFACE_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     flags: 0,
     dfb: core::ptr::null_mut(),
@@ -12287,7 +12275,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_discard_rectangles")]
 impl<'a> VkPhysicalDeviceDiscardRectanglePropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISCARD_RECTANGLE_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_DISCARD_RECTANGLE_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     maxDiscardRectangles: 0,
     _marker: core::marker::PhantomData,
@@ -12361,7 +12349,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkGraphicsPipelineCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_discard_rectangles")]
 impl<'a> VkPipelineDiscardRectangleStateCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_DISCARD_RECTANGLE_STATE_CREATE_INFO_EXT,
+    sType: VkStructureType::PIPELINE_DISCARD_RECTANGLE_STATE_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     flags: 0,
     discardRectangleMode: VkDiscardRectangleModeEXT(0),
@@ -12441,7 +12429,7 @@ unsafe impl<'a> Sync for VkDisplayPowerInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_display_control")]
 impl<'a> VkDisplayPowerInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DISPLAY_POWER_INFO_EXT,
+    sType: VkStructureType::DISPLAY_POWER_INFO_EXT,
     pNext: core::ptr::null(),
     powerState: VkDisplayPowerStateEXT(0),
     _marker: core::marker::PhantomData,
@@ -12499,7 +12487,7 @@ unsafe impl<'a> Sync for VkDeviceEventInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_display_control")]
 impl<'a> VkDeviceEventInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEVICE_EVENT_INFO_EXT,
+    sType: VkStructureType::DEVICE_EVENT_INFO_EXT,
     pNext: core::ptr::null(),
     deviceEvent: VkDeviceEventTypeEXT(0),
     _marker: core::marker::PhantomData,
@@ -12557,7 +12545,7 @@ unsafe impl<'a> Sync for VkDisplayEventInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_display_control")]
 impl<'a> VkDisplayEventInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DISPLAY_EVENT_INFO_EXT,
+    sType: VkStructureType::DISPLAY_EVENT_INFO_EXT,
     pNext: core::ptr::null(),
     displayEvent: VkDisplayEventTypeEXT(0),
     _marker: core::marker::PhantomData,
@@ -12623,7 +12611,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSwapchainCreateInfoKHR<'root>>
 #[cfg(feature = "VK_EXT_display_control")]
 impl<'a> VkSwapchainCounterCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SWAPCHAIN_COUNTER_CREATE_INFO_EXT,
+    sType: VkStructureType::SWAPCHAIN_COUNTER_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     surfaceCounters: VkSurfaceCounterFlagBitsEXT(0),
     _marker: core::marker::PhantomData,
@@ -12697,7 +12685,7 @@ unsafe impl<'a> Sync for VkSurfaceCapabilities2EXT<'a> {}
 #[cfg(feature = "VK_EXT_display_surface_counter")]
 impl<'a> VkSurfaceCapabilities2EXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_EXT,
+    sType: VkStructureType::SURFACE_CAPABILITIES_2_EXT,
     pNext: core::ptr::null_mut(),
     minImageCount: 0,
     maxImageCount: 0,
@@ -12833,11 +12821,11 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_dynamic_rendering_unused_attachments")]
 impl<'a> VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_FEATURES_EXT,
-        pNext: core::ptr::null_mut(),
-        dynamicRenderingUnusedAttachments: 0,
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::PHYSICAL_DEVICE_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_FEATURES_EXT,
+    pNext: core::ptr::null_mut(),
+    dynamicRenderingUnusedAttachments: 0,
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -12924,7 +12912,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_extended_dynamic_state")]
 impl<'a> VkPhysicalDeviceExtendedDynamicStateFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     extendedDynamicState: 0,
     _marker: core::marker::PhantomData,
@@ -13017,7 +13005,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_extended_dynamic_state2")]
 impl<'a> VkPhysicalDeviceExtendedDynamicState2FeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     extendedDynamicState2: 0,
     extendedDynamicState2LogicOp: 0,
@@ -13150,7 +13138,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_extended_dynamic_state3")]
 impl<'a> VkPhysicalDeviceExtendedDynamicState3FeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     extendedDynamicState3TessellationDomainOrigin: 0,
     extendedDynamicState3DepthClampEnable: 0,
@@ -13433,8 +13421,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_extended_dynamic_state3")]
 impl<'a> VkPhysicalDeviceExtendedDynamicState3PropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     dynamicPrimitiveTopologyUnrestricted: 0,
     _marker: core::marker::PhantomData,
@@ -13665,7 +13652,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkImageMemoryBarrier2<'root>>
 #[cfg(feature = "VK_EXT_external_memory_acquire_unmodified")]
 impl<'a> VkExternalMemoryAcquireUnmodifiedEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_ACQUIRE_UNMODIFIED_EXT,
+    sType: VkStructureType::EXTERNAL_MEMORY_ACQUIRE_UNMODIFIED_EXT,
     pNext: core::ptr::null(),
     acquireUnmodifiedMemory: 0,
     _marker: core::marker::PhantomData,
@@ -13779,7 +13766,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkMemoryAllocateInfo<'root>>
 #[cfg(feature = "VK_EXT_external_memory_host")]
 impl<'a> VkImportMemoryHostPointerInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT,
+    sType: VkStructureType::IMPORT_MEMORY_HOST_POINTER_INFO_EXT,
     pNext: core::ptr::null(),
     handleType: VkExternalMemoryHandleTypeFlagBits(0),
     pHostPointer: core::ptr::null_mut(),
@@ -13848,7 +13835,7 @@ unsafe impl<'a> Sync for VkMemoryHostPointerPropertiesEXT<'a> {}
 #[cfg(feature = "VK_EXT_external_memory_host")]
 impl<'a> VkMemoryHostPointerPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MEMORY_HOST_POINTER_PROPERTIES_EXT,
+    sType: VkStructureType::MEMORY_HOST_POINTER_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     memoryTypeBits: 0,
     _marker: core::marker::PhantomData,
@@ -13921,7 +13908,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_external_memory_host")]
 impl<'a> VkPhysicalDeviceExternalMemoryHostPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_HOST_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_EXTERNAL_MEMORY_HOST_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     minImportedHostPointerAlignment: 0,
     _marker: core::marker::PhantomData,
@@ -13992,7 +13979,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkMemoryAllocateInfo<'root>>
 #[cfg(feature = "VK_EXT_external_memory_metal")]
 impl<'a> VkImportMemoryMetalHandleInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMPORT_MEMORY_METAL_HANDLE_INFO_EXT,
+    sType: VkStructureType::IMPORT_MEMORY_METAL_HANDLE_INFO_EXT,
     pNext: core::ptr::null(),
     handleType: VkExternalMemoryHandleTypeFlagBits(0),
     handle: core::ptr::null_mut(),
@@ -14061,7 +14048,7 @@ unsafe impl<'a> Sync for VkMemoryMetalHandlePropertiesEXT<'a> {}
 #[cfg(feature = "VK_EXT_external_memory_metal")]
 impl<'a> VkMemoryMetalHandlePropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MEMORY_METAL_HANDLE_PROPERTIES_EXT,
+    sType: VkStructureType::MEMORY_METAL_HANDLE_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     memoryTypeBits: 0,
     _marker: core::marker::PhantomData,
@@ -14120,7 +14107,7 @@ unsafe impl<'a> Sync for VkMemoryGetMetalHandleInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_external_memory_metal")]
 impl<'a> VkMemoryGetMetalHandleInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MEMORY_GET_METAL_HANDLE_INFO_EXT,
+    sType: VkStructureType::MEMORY_GET_METAL_HANDLE_INFO_EXT,
     pNext: core::ptr::null(),
     memory: VkDeviceMemory::DEFAULT,
     handleType: VkExternalMemoryHandleTypeFlagBits(0),
@@ -14191,7 +14178,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceImageFormatInfo2<'root
 #[cfg(feature = "VK_EXT_filter_cubic")]
 impl<'a> VkPhysicalDeviceImageViewImageFormatInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_IMAGE_FORMAT_INFO_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_IMAGE_VIEW_IMAGE_FORMAT_INFO_EXT,
     pNext: core::ptr::null_mut(),
     imageViewType: VkImageViewType(0),
     _marker: core::marker::PhantomData,
@@ -14259,7 +14246,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkImageFormatProperties2<'root>>
 #[cfg(feature = "VK_EXT_filter_cubic")]
 impl<'a> VkFilterCubicImageViewImageFormatPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_FILTER_CUBIC_IMAGE_VIEW_IMAGE_FORMAT_PROPERTIES_EXT,
+    sType: VkStructureType::FILTER_CUBIC_IMAGE_VIEW_IMAGE_FORMAT_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     filterCubic: 0,
     filterCubicMinmax: 0,
@@ -14343,7 +14330,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_fragment_density_map")]
 impl<'a> VkPhysicalDeviceFragmentDensityMapFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     fragmentDensityMap: 0,
     fragmentDensityMapDynamic: 0,
@@ -14447,7 +14434,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_fragment_density_map")]
 impl<'a> VkPhysicalDeviceFragmentDensityMapPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     minFragmentDensityTexelSize: VkExtent2D::DEFAULT,
     maxFragmentDensityTexelSize: VkExtent2D::DEFAULT,
@@ -14535,7 +14522,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkRenderPassCreateInfo2<'root>>
 #[cfg(feature = "VK_EXT_fragment_density_map")]
 impl<'a> VkRenderPassFragmentDensityMapCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RENDER_PASS_FRAGMENT_DENSITY_MAP_CREATE_INFO_EXT,
+    sType: VkStructureType::RENDER_PASS_FRAGMENT_DENSITY_MAP_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     fragmentDensityMapAttachment: VkAttachmentReference::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -14651,7 +14638,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkRenderingInfo<'root>>
 ))]
 impl<'a> VkRenderingFragmentDensityMapAttachmentInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT,
+    sType: VkStructureType::RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT,
     pNext: core::ptr::null(),
     imageView: VkImageView::DEFAULT,
     imageLayout: VkImageLayout(0),
@@ -14733,7 +14720,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_fragment_density_map2")]
 impl<'a> VkPhysicalDeviceFragmentDensityMap2FeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_2_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_2_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     fragmentDensityMapDeferred: 0,
     _marker: core::marker::PhantomData,
@@ -14827,7 +14814,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_fragment_density_map2")]
 impl<'a> VkPhysicalDeviceFragmentDensityMap2PropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_2_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_2_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     subsampledLoads: 0,
     subsampledCoarseReconstructionEarlyAccess: 0,
@@ -14921,8 +14908,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_fragment_density_map_offset")]
 impl<'a> VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     fragmentDensityMapOffset: 0,
     _marker: core::marker::PhantomData,
@@ -15010,8 +14996,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_fragment_density_map_offset")]
 impl<'a> VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     fragmentDensityOffsetGranularity: VkExtent2D::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -15090,7 +15075,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkRenderingEndInfoKHR<'root>>
 #[cfg(feature = "VK_EXT_fragment_density_map_offset")]
 impl<'a> VkRenderPassFragmentDensityMapOffsetEndInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RENDER_PASS_FRAGMENT_DENSITY_MAP_OFFSET_END_INFO_EXT,
+    sType: VkStructureType::RENDER_PASS_FRAGMENT_DENSITY_MAP_OFFSET_END_INFO_EXT,
     pNext: core::ptr::null(),
     fragmentDensityOffsetCount: 0,
     pFragmentDensityOffsets: core::ptr::null(),
@@ -15172,7 +15157,7 @@ unsafe impl<'a> Sync for VkRenderingEndInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_fragment_density_map_offset")]
 impl<'a> VkRenderingEndInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RENDERING_END_INFO_EXT,
+    sType: VkStructureType::RENDERING_END_INFO_EXT,
     pNext: core::ptr::null(),
     _marker: core::marker::PhantomData,
   };
@@ -15244,8 +15229,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_fragment_shader_interlock")]
 impl<'a> VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_INTERLOCK_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_FRAGMENT_SHADER_INTERLOCK_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     fragmentShaderSampleInterlock: 0,
     fragmentShaderPixelInterlock: 0,
@@ -15359,7 +15343,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkBindSparseInfo<'root>> for VkFrameBo
 #[cfg(feature = "VK_EXT_frame_boundary")]
 impl<'a> VkFrameBoundaryEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT,
+    sType: VkStructureType::FRAME_BOUNDARY_EXT,
     pNext: core::ptr::null(),
     flags: VkFrameBoundaryFlagBitsEXT(0),
     frameID: 0,
@@ -15528,7 +15512,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_frame_boundary")]
 impl<'a> VkPhysicalDeviceFrameBoundaryFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAME_BOUNDARY_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_FRAME_BOUNDARY_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     frameBoundary: 0,
     _marker: core::marker::PhantomData,
@@ -15630,7 +15614,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSwapchainCreateInfoKHR<'root>>
 #[cfg(feature = "VK_EXT_full_screen_exclusive")]
 impl<'a> VkSurfaceFullScreenExclusiveInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SURFACE_FULL_SCREEN_EXCLUSIVE_INFO_EXT,
+    sType: VkStructureType::SURFACE_FULL_SCREEN_EXCLUSIVE_INFO_EXT,
     pNext: core::ptr::null_mut(),
     fullScreenExclusive: VkFullScreenExclusiveEXT(0),
     _marker: core::marker::PhantomData,
@@ -15741,7 +15725,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSwapchainCreateInfoKHR<'root>>
 ))]
 impl<'a> VkSurfaceFullScreenExclusiveWin32InfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SURFACE_FULL_SCREEN_EXCLUSIVE_WIN32_INFO_EXT,
+    sType: VkStructureType::SURFACE_FULL_SCREEN_EXCLUSIVE_WIN32_INFO_EXT,
     pNext: core::ptr::null(),
     hmonitor: HMONITOR::NULL,
     _marker: core::marker::PhantomData,
@@ -15826,7 +15810,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSurfaceCapabilities2KHR<'root>>
 #[cfg(feature = "VK_EXT_full_screen_exclusive")]
 impl<'a> VkSurfaceCapabilitiesFullScreenExclusiveEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_FULL_SCREEN_EXCLUSIVE_EXT,
+    sType: VkStructureType::SURFACE_CAPABILITIES_FULL_SCREEN_EXCLUSIVE_EXT,
     pNext: core::ptr::null_mut(),
     fullScreenExclusiveSupported: 0,
     _marker: core::marker::PhantomData,
@@ -15891,7 +15875,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceQueueCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_global_priority")]
 impl<'a> VkDeviceQueueGlobalPriorityCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO_EXT,
+    sType: VkStructureType::DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     globalPriority: VkQueueGlobalPriorityEXT(0),
     _marker: core::marker::PhantomData,
@@ -15967,7 +15951,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_global_priority_query")]
 impl<'a> VkPhysicalDeviceGlobalPriorityQueryFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GLOBAL_PRIORITY_QUERY_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_GLOBAL_PRIORITY_QUERY_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     globalPriorityQuery: 0,
     _marker: core::marker::PhantomData,
@@ -16057,7 +16041,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkQueueFamilyProperties2<'root>>
 #[cfg(feature = "VK_EXT_global_priority_query")]
 impl<'a> VkQueueFamilyGlobalPriorityPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_QUEUE_FAMILY_GLOBAL_PRIORITY_PROPERTIES_EXT,
+    sType: VkStructureType::QUEUE_FAMILY_GLOBAL_PRIORITY_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     priorityCount: 0,
     priorities: [VkQueueGlobalPriority(0); VK_MAX_GLOBAL_PRIORITY_SIZE as usize],
@@ -16145,8 +16129,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_graphics_pipeline_library")]
 impl<'a> VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     graphicsPipelineLibrary: 0,
     _marker: core::marker::PhantomData,
@@ -16236,8 +16219,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_graphics_pipeline_library")]
 impl<'a> VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     graphicsPipelineLibraryFastLinking: 0,
     graphicsPipelineLibraryIndependentInterpolationDecoration: 0,
@@ -16314,7 +16296,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkGraphicsPipelineCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_graphics_pipeline_library")]
 impl<'a> VkGraphicsPipelineLibraryCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_LIBRARY_CREATE_INFO_EXT,
+    sType: VkStructureType::GRAPHICS_PIPELINE_LIBRARY_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     flags: VkGraphicsPipelineLibraryFlagBitsEXT(0),
     _marker: core::marker::PhantomData,
@@ -16422,7 +16404,7 @@ unsafe impl<'a> Sync for VkHdrMetadataEXT<'a> {}
 #[cfg(feature = "VK_EXT_hdr_metadata")]
 impl<'a> VkHdrMetadataEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_HDR_METADATA_EXT,
+    sType: VkStructureType::HDR_METADATA_EXT,
     pNext: core::ptr::null(),
     displayPrimaryRed: VkXYColorEXT::DEFAULT,
     displayPrimaryGreen: VkXYColorEXT::DEFAULT,
@@ -16538,7 +16520,7 @@ unsafe impl<'a> Sync for VkHeadlessSurfaceCreateInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_headless_surface")]
 impl<'a> VkHeadlessSurfaceCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_HEADLESS_SURFACE_CREATE_INFO_EXT,
+    sType: VkStructureType::HEADLESS_SURFACE_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     flags: 0,
     _marker: core::marker::PhantomData,
@@ -16611,7 +16593,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_host_image_copy")]
 impl<'a> VkPhysicalDeviceHostImageCopyFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     hostImageCopy: 0,
     _marker: core::marker::PhantomData,
@@ -16704,7 +16686,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_host_image_copy")]
 impl<'a> VkPhysicalDeviceHostImageCopyPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_HOST_IMAGE_COPY_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     copySrcLayoutCount: 0,
     pCopySrcLayouts: core::ptr::null_mut(),
@@ -16805,7 +16787,7 @@ unsafe impl<'a> Sync for VkMemoryToImageCopyEXT<'a> {}
 #[cfg(feature = "VK_EXT_host_image_copy")]
 impl<'a> VkMemoryToImageCopyEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MEMORY_TO_IMAGE_COPY_EXT,
+    sType: VkStructureType::MEMORY_TO_IMAGE_COPY_EXT,
     pNext: core::ptr::null(),
     pHostPointer: core::ptr::null(),
     memoryRowLength: 0,
@@ -16901,7 +16883,7 @@ unsafe impl<'a> Sync for VkImageToMemoryCopyEXT<'a> {}
 #[cfg(feature = "VK_EXT_host_image_copy")]
 impl<'a> VkImageToMemoryCopyEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_TO_MEMORY_COPY_EXT,
+    sType: VkStructureType::IMAGE_TO_MEMORY_COPY_EXT,
     pNext: core::ptr::null(),
     pHostPointer: core::ptr::null_mut(),
     memoryRowLength: 0,
@@ -16998,7 +16980,7 @@ unsafe impl<'a> Sync for VkCopyMemoryToImageInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_host_image_copy")]
 impl<'a> VkCopyMemoryToImageInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COPY_MEMORY_TO_IMAGE_INFO_EXT,
+    sType: VkStructureType::COPY_MEMORY_TO_IMAGE_INFO_EXT,
     pNext: core::ptr::null(),
     flags: VkHostImageCopyFlagBits(0),
     dstImage: VkImage::DEFAULT,
@@ -17090,7 +17072,7 @@ unsafe impl<'a> Sync for VkCopyImageToMemoryInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_host_image_copy")]
 impl<'a> VkCopyImageToMemoryInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COPY_IMAGE_TO_MEMORY_INFO_EXT,
+    sType: VkStructureType::COPY_IMAGE_TO_MEMORY_INFO_EXT,
     pNext: core::ptr::null(),
     flags: VkHostImageCopyFlagBits(0),
     srcImage: VkImage::DEFAULT,
@@ -17184,7 +17166,7 @@ unsafe impl<'a> Sync for VkCopyImageToImageInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_host_image_copy")]
 impl<'a> VkCopyImageToImageInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COPY_IMAGE_TO_IMAGE_INFO_EXT,
+    sType: VkStructureType::COPY_IMAGE_TO_IMAGE_INFO_EXT,
     pNext: core::ptr::null(),
     flags: VkHostImageCopyFlagBits(0),
     srcImage: VkImage::DEFAULT,
@@ -17285,7 +17267,7 @@ unsafe impl<'a> Sync for VkHostImageLayoutTransitionInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_host_image_copy")]
 impl<'a> VkHostImageLayoutTransitionInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_HOST_IMAGE_LAYOUT_TRANSITION_INFO_EXT,
+    sType: VkStructureType::HOST_IMAGE_LAYOUT_TRANSITION_INFO_EXT,
     pNext: core::ptr::null(),
     image: VkImage::DEFAULT,
     oldLayout: VkImageLayout(0),
@@ -17370,7 +17352,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSubresourceLayout2<'root>>
 #[cfg(feature = "VK_EXT_host_image_copy")]
 impl<'a> VkSubresourceHostMemcpySizeEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SUBRESOURCE_HOST_MEMCPY_SIZE_EXT,
+    sType: VkStructureType::SUBRESOURCE_HOST_MEMCPY_SIZE_EXT,
     pNext: core::ptr::null_mut(),
     size: 0,
     _marker: core::marker::PhantomData,
@@ -17438,7 +17420,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkImageFormatProperties2<'root>>
 #[cfg(feature = "VK_EXT_host_image_copy")]
 impl<'a> VkHostImageCopyDevicePerformanceQueryEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_HOST_IMAGE_COPY_DEVICE_PERFORMANCE_QUERY_EXT,
+    sType: VkStructureType::HOST_IMAGE_COPY_DEVICE_PERFORMANCE_QUERY_EXT,
     pNext: core::ptr::null_mut(),
     optimalDeviceAccess: 0,
     identicalMemoryLayout: 0,
@@ -17514,7 +17496,7 @@ unsafe impl<'a> Sync for VkImageSubresource2EXT<'a> {}
 ))]
 impl<'a> VkImageSubresource2EXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_SUBRESOURCE_2_EXT,
+    sType: VkStructureType::IMAGE_SUBRESOURCE_2_EXT,
     pNext: core::ptr::null_mut(),
     imageSubresource: VkImageSubresource::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -17589,7 +17571,7 @@ unsafe impl<'a> Sync for VkSubresourceLayout2EXT<'a> {}
 ))]
 impl<'a> VkSubresourceLayout2EXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SUBRESOURCE_LAYOUT_2_EXT,
+    sType: VkStructureType::SUBRESOURCE_LAYOUT_2_EXT,
     pNext: core::ptr::null_mut(),
     subresourceLayout: VkSubresourceLayout::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -17662,7 +17644,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_host_query_reset")]
 impl<'a> VkPhysicalDeviceHostQueryResetFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_QUERY_RESET_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_HOST_QUERY_RESET_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     hostQueryReset: 0,
     _marker: core::marker::PhantomData,
@@ -17754,7 +17736,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_image_2d_view_of_3d")]
 impl<'a> VkPhysicalDeviceImage2DViewOf3DFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_2D_VIEW_OF_3D_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_IMAGE_2D_VIEW_OF_3D_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     image2DViewOf3D: 0,
     sampler2DViewOf3D: 0,
@@ -17870,7 +17852,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceImageFormatInfo2<'root
 #[cfg(feature = "VK_EXT_image_compression_control")]
 impl<'a> VkImageCompressionControlEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_CONTROL_EXT,
+    sType: VkStructureType::IMAGE_COMPRESSION_CONTROL_EXT,
     pNext: core::ptr::null(),
     flags: VkImageCompressionFlagBitsEXT(0),
     compressionControlPlaneCount: 0,
@@ -17995,8 +17977,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_image_compression_control")]
 impl<'a> VkPhysicalDeviceImageCompressionControlFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     imageCompressionControl: 0,
     _marker: core::marker::PhantomData,
@@ -18098,7 +18079,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSubresourceLayout2<'root>>
 #[cfg(feature = "VK_EXT_image_compression_control")]
 impl<'a> VkImageCompressionPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_PROPERTIES_EXT,
+    sType: VkStructureType::IMAGE_COMPRESSION_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     imageCompressionFlags: VkImageCompressionFlagBitsEXT(0),
     imageCompressionFixedRateFlags: VkImageCompressionFixedRateFlagBitsEXT(0),
@@ -18213,11 +18194,11 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_image_compression_control_swapchain")]
 impl<'a> VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_SWAPCHAIN_FEATURES_EXT,
-        pNext: core::ptr::null_mut(),
-        imageCompressionControlSwapchain: 0,
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_SWAPCHAIN_FEATURES_EXT,
+    pNext: core::ptr::null_mut(),
+    imageCompressionControlSwapchain: 0,
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -18303,7 +18284,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkFormatProperties2<'root>>
 #[cfg(feature = "VK_EXT_image_drm_format_modifier")]
 impl<'a> VkDrmFormatModifierPropertiesListEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DRM_FORMAT_MODIFIER_PROPERTIES_LIST_EXT,
+    sType: VkStructureType::DRM_FORMAT_MODIFIER_PROPERTIES_LIST_EXT,
     pNext: core::ptr::null_mut(),
     drmFormatModifierCount: 0,
     pDrmFormatModifierProperties: core::ptr::null_mut(),
@@ -18436,7 +18417,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceImageFormatInfo2<'root
 #[cfg(feature = "VK_EXT_image_drm_format_modifier")]
 impl<'a> VkPhysicalDeviceImageDrmFormatModifierInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_DRM_FORMAT_MODIFIER_INFO_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_IMAGE_DRM_FORMAT_MODIFIER_INFO_EXT,
     pNext: core::ptr::null(),
     drmFormatModifier: 0,
     sharingMode: VkSharingMode(0),
@@ -18528,7 +18509,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkImageCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_image_drm_format_modifier")]
 impl<'a> VkImageDrmFormatModifierListCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_LIST_CREATE_INFO_EXT,
+    sType: VkStructureType::IMAGE_DRM_FORMAT_MODIFIER_LIST_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     drmFormatModifierCount: 0,
     pDrmFormatModifiers: core::ptr::null(),
@@ -18609,7 +18590,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkImageCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_image_drm_format_modifier")]
 impl<'a> VkImageDrmFormatModifierExplicitCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_EXPLICIT_CREATE_INFO_EXT,
+    sType: VkStructureType::IMAGE_DRM_FORMAT_MODIFIER_EXPLICIT_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     drmFormatModifier: 0,
     drmFormatModifierPlaneCount: 0,
@@ -18685,7 +18666,7 @@ unsafe impl<'a> Sync for VkImageDrmFormatModifierPropertiesEXT<'a> {}
 #[cfg(feature = "VK_EXT_image_drm_format_modifier")]
 impl<'a> VkImageDrmFormatModifierPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_PROPERTIES_EXT,
+    sType: VkStructureType::IMAGE_DRM_FORMAT_MODIFIER_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     drmFormatModifier: 0,
     _marker: core::marker::PhantomData,
@@ -18807,7 +18788,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkFormatProperties2<'root>>
 ))]
 impl<'a> VkDrmFormatModifierPropertiesList2EXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DRM_FORMAT_MODIFIER_PROPERTIES_LIST_2_EXT,
+    sType: VkStructureType::DRM_FORMAT_MODIFIER_PROPERTIES_LIST_2_EXT,
     pNext: core::ptr::null_mut(),
     drmFormatModifierCount: 0,
     pDrmFormatModifierProperties: core::ptr::null_mut(),
@@ -18975,7 +18956,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_image_robustness")]
 impl<'a> VkPhysicalDeviceImageRobustnessFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ROBUSTNESS_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_IMAGE_ROBUSTNESS_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     robustImageAccess: 0,
     _marker: core::marker::PhantomData,
@@ -19059,7 +19040,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkImageViewCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_image_sliced_view_of_3d")]
 impl<'a> VkImageViewSlicedCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_VIEW_SLICED_CREATE_INFO_EXT,
+    sType: VkStructureType::IMAGE_VIEW_SLICED_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     sliceOffset: 0,
     sliceCount: 0,
@@ -19141,7 +19122,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_image_sliced_view_of_3d")]
 impl<'a> VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_SLICED_VIEW_OF_3D_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_IMAGE_SLICED_VIEW_OF_3D_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     imageSlicedViewOf3D: 0,
     _marker: core::marker::PhantomData,
@@ -19226,7 +19207,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_image_view_min_lod")]
 impl<'a> VkPhysicalDeviceImageViewMinLodFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_MIN_LOD_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_IMAGE_VIEW_MIN_LOD_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     minLod: 0,
     _marker: core::marker::PhantomData,
@@ -19306,7 +19287,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkImageViewCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_image_view_min_lod")]
 impl<'a> VkImageViewMinLodCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_VIEW_MIN_LOD_CREATE_INFO_EXT,
+    sType: VkStructureType::IMAGE_VIEW_MIN_LOD_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     minLod: 0.0f32,
     _marker: core::marker::PhantomData,
@@ -19376,7 +19357,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_index_type_uint8")]
 impl<'a> VkPhysicalDeviceIndexTypeUint8FeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INDEX_TYPE_UINT8_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_INDEX_TYPE_UINT8_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     indexTypeUint8: 0,
     _marker: core::marker::PhantomData,
@@ -19468,7 +19449,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_inline_uniform_block")]
 impl<'a> VkPhysicalDeviceInlineUniformBlockFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     inlineUniformBlock: 0,
     descriptorBindingInlineUniformBlockUpdateAfterBind: 0,
@@ -19573,7 +19554,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_inline_uniform_block")]
 impl<'a> VkPhysicalDeviceInlineUniformBlockPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     maxInlineUniformBlockSize: 0,
     maxPerStageDescriptorInlineUniformBlocks: 0,
@@ -19670,7 +19651,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkWriteDescriptorSet<'root>>
 #[cfg(feature = "VK_EXT_inline_uniform_block")]
 impl<'a> VkWriteDescriptorSetInlineUniformBlockEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK_EXT,
+    sType: VkStructureType::WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK_EXT,
     pNext: core::ptr::null(),
     dataSize: 0,
     pData: core::ptr::null(),
@@ -19748,7 +19729,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDescriptorPoolCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_inline_uniform_block")]
 impl<'a> VkDescriptorPoolInlineUniformBlockCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_INLINE_UNIFORM_BLOCK_CREATE_INFO_EXT,
+    sType: VkStructureType::DESCRIPTOR_POOL_INLINE_UNIFORM_BLOCK_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     maxInlineUniformBlockBindings: 0,
     _marker: core::marker::PhantomData,
@@ -19816,7 +19797,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkInstanceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_layer_settings")]
 impl<'a> VkLayerSettingsCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT,
+    sType: VkStructureType::LAYER_SETTINGS_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     settingCount: 0,
     pSettings: core::ptr::null(),
@@ -19967,7 +19948,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_legacy_dithering")]
 impl<'a> VkPhysicalDeviceLegacyDitheringFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_DITHERING_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_LEGACY_DITHERING_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     legacyDithering: 0,
     _marker: core::marker::PhantomData,
@@ -20058,7 +20039,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_legacy_vertex_attributes")]
 impl<'a> VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_VERTEX_ATTRIBUTES_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_LEGACY_VERTEX_ATTRIBUTES_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     legacyVertexAttributes: 0,
     _marker: core::marker::PhantomData,
@@ -20146,8 +20127,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_legacy_vertex_attributes")]
 impl<'a> VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_VERTEX_ATTRIBUTES_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_LEGACY_VERTEX_ATTRIBUTES_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     nativeUnalignedPerformance: 0,
     _marker: core::marker::PhantomData,
@@ -20222,7 +20202,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_line_rasterization")]
 impl<'a> VkPhysicalDeviceLineRasterizationFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_LINE_RASTERIZATION_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     rectangularLines: 0,
     bresenhamLines: 0,
@@ -20337,7 +20317,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_line_rasterization")]
 impl<'a> VkPhysicalDeviceLineRasterizationPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_LINE_RASTERIZATION_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     lineSubPixelPrecisionBits: 0,
     _marker: core::marker::PhantomData,
@@ -20408,7 +20388,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPipelineRasterizationStateCreateInfo
 #[cfg(feature = "VK_EXT_line_rasterization")]
 impl<'a> VkPipelineRasterizationLineStateCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_LINE_STATE_CREATE_INFO_EXT,
+    sType: VkStructureType::PIPELINE_RASTERIZATION_LINE_STATE_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     lineRasterizationMode: VkLineRasterizationModeEXT(0),
     stippledLineEnable: 0,
@@ -20498,7 +20478,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_map_memory_placed")]
 impl<'a> VkPhysicalDeviceMapMemoryPlacedFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_MAP_MEMORY_PLACED_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     memoryMapPlaced: 0,
     memoryMapRangePlaced: 0,
@@ -20595,7 +20575,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_map_memory_placed")]
 impl<'a> VkPhysicalDeviceMapMemoryPlacedPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_MAP_MEMORY_PLACED_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     minPlacedMemoryMapAlignment: 0,
     _marker: core::marker::PhantomData,
@@ -20661,7 +20641,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkMemoryMapInfo<'root>>
 #[cfg(feature = "VK_EXT_map_memory_placed")]
 impl<'a> VkMemoryMapPlacedInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MEMORY_MAP_PLACED_INFO_EXT,
+    sType: VkStructureType::MEMORY_MAP_PLACED_INFO_EXT,
     pNext: core::ptr::null(),
     pPlacedAddress: core::ptr::null_mut(),
     _marker: core::marker::PhantomData,
@@ -20732,7 +20712,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceMemoryProperties2<'roo
 #[cfg(feature = "VK_EXT_memory_budget")]
 impl<'a> VkPhysicalDeviceMemoryBudgetPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     heapBudget: [0; VK_MAX_MEMORY_HEAPS as usize],
     heapUsage: [0; VK_MAX_MEMORY_HEAPS as usize],
@@ -20820,7 +20800,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_memory_decompression")]
 impl<'a> VkPhysicalDeviceMemoryDecompressionFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_DECOMPRESSION_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_MEMORY_DECOMPRESSION_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     memoryDecompression: 0,
     _marker: core::marker::PhantomData,
@@ -20910,7 +20890,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_memory_decompression")]
 impl<'a> VkPhysicalDeviceMemoryDecompressionPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_DECOMPRESSION_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_MEMORY_DECOMPRESSION_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     decompressionMethods: VkMemoryDecompressionMethodFlagBitsEXT(0),
     maxDecompressionIndirectCount: 0,
@@ -21027,7 +21007,7 @@ unsafe impl<'a> Sync for VkDecompressMemoryInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_memory_decompression")]
 impl<'a> VkDecompressMemoryInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DECOMPRESS_MEMORY_INFO_EXT,
+    sType: VkStructureType::DECOMPRESS_MEMORY_INFO_EXT,
     pNext: core::ptr::null(),
     decompressionMethod: VkMemoryDecompressionMethodFlagBitsEXT(0),
     regionCount: 0,
@@ -21116,7 +21096,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_memory_priority")]
 impl<'a> VkPhysicalDeviceMemoryPriorityFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PRIORITY_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_MEMORY_PRIORITY_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     memoryPriority: 0,
     _marker: core::marker::PhantomData,
@@ -21196,7 +21176,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkMemoryAllocateInfo<'root>>
 #[cfg(feature = "VK_EXT_memory_priority")]
 impl<'a> VkMemoryPriorityAllocateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MEMORY_PRIORITY_ALLOCATE_INFO_EXT,
+    sType: VkStructureType::MEMORY_PRIORITY_ALLOCATE_INFO_EXT,
     pNext: core::ptr::null(),
     priority: 0.0f32,
     _marker: core::marker::PhantomData,
@@ -21270,7 +21250,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_mesh_shader")]
 impl<'a> VkPhysicalDeviceMeshShaderFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     taskShader: 0,
     meshShader: 0,
@@ -21433,7 +21413,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_mesh_shader")]
 impl<'a> VkPhysicalDeviceMeshShaderPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_MESH_SHADER_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     maxTaskWorkGroupTotalCount: 0,
     maxTaskWorkGroupCount: [0u32; 3],
@@ -21821,7 +21801,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkEventCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_metal_objects")]
 impl<'a> VkExportMetalObjectCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_EXPORT_METAL_OBJECT_CREATE_INFO_EXT,
+    sType: VkStructureType::EXPORT_METAL_OBJECT_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     exportObjectType: VkExportMetalObjectTypeFlagBitsEXT(0),
     _marker: core::marker::PhantomData,
@@ -21968,7 +21948,7 @@ unsafe impl<'a> Sync for VkExportMetalObjectsInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_metal_objects")]
 impl<'a> VkExportMetalObjectsInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_EXPORT_METAL_OBJECTS_INFO_EXT,
+    sType: VkStructureType::EXPORT_METAL_OBJECTS_INFO_EXT,
     pNext: core::ptr::null(),
     _marker: core::marker::PhantomData,
   };
@@ -22099,7 +22079,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkExportMetalObjectsInfoEXT<'root>>
 #[cfg(feature = "VK_EXT_metal_objects")]
 impl<'a> VkExportMetalDeviceInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_EXPORT_METAL_DEVICE_INFO_EXT,
+    sType: VkStructureType::EXPORT_METAL_DEVICE_INFO_EXT,
     pNext: core::ptr::null(),
     mtlDevice: MTLDevice_id::NULL,
     _marker: core::marker::PhantomData,
@@ -22165,7 +22145,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkExportMetalObjectsInfoEXT<'root>>
 #[cfg(feature = "VK_EXT_metal_objects")]
 impl<'a> VkExportMetalCommandQueueInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_EXPORT_METAL_COMMAND_QUEUE_INFO_EXT,
+    sType: VkStructureType::EXPORT_METAL_COMMAND_QUEUE_INFO_EXT,
     pNext: core::ptr::null(),
     queue: VkQueue::DEFAULT,
     mtlCommandQueue: MTLCommandQueue_id::NULL,
@@ -22237,7 +22217,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkExportMetalObjectsInfoEXT<'root>>
 #[cfg(feature = "VK_EXT_metal_objects")]
 impl<'a> VkExportMetalBufferInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_EXPORT_METAL_BUFFER_INFO_EXT,
+    sType: VkStructureType::EXPORT_METAL_BUFFER_INFO_EXT,
     pNext: core::ptr::null(),
     memory: VkDeviceMemory::DEFAULT,
     mtlBuffer: MTLBuffer_id::NULL,
@@ -22308,7 +22288,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkMemoryAllocateInfo<'root>>
 #[cfg(feature = "VK_EXT_metal_objects")]
 impl<'a> VkImportMetalBufferInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMPORT_METAL_BUFFER_INFO_EXT,
+    sType: VkStructureType::IMPORT_METAL_BUFFER_INFO_EXT,
     pNext: core::ptr::null(),
     mtlBuffer: MTLBuffer_id::NULL,
     _marker: core::marker::PhantomData,
@@ -22384,7 +22364,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkExportMetalObjectsInfoEXT<'root>>
 #[cfg(feature = "VK_EXT_metal_objects")]
 impl<'a> VkExportMetalTextureInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_EXPORT_METAL_TEXTURE_INFO_EXT,
+    sType: VkStructureType::EXPORT_METAL_TEXTURE_INFO_EXT,
     pNext: core::ptr::null(),
     image: VkImage::DEFAULT,
     imageView: VkImageView::DEFAULT,
@@ -22478,7 +22458,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkImageCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_metal_objects")]
 impl<'a> VkImportMetalTextureInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMPORT_METAL_TEXTURE_INFO_EXT,
+    sType: VkStructureType::IMPORT_METAL_TEXTURE_INFO_EXT,
     pNext: core::ptr::null(),
     plane: VkImageAspectFlagBits(0),
     mtlTexture: MTLTexture_id::NULL,
@@ -22550,7 +22530,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkExportMetalObjectsInfoEXT<'root>>
 #[cfg(feature = "VK_EXT_metal_objects")]
 impl<'a> VkExportMetalIOSurfaceInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_EXPORT_METAL_IO_SURFACE_INFO_EXT,
+    sType: VkStructureType::EXPORT_METAL_IO_SURFACE_INFO_EXT,
     pNext: core::ptr::null(),
     image: VkImage::DEFAULT,
     ioSurface: IOSurfaceRef::NULL,
@@ -22622,7 +22602,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkImageCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_metal_objects")]
 impl<'a> VkImportMetalIOSurfaceInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMPORT_METAL_IO_SURFACE_INFO_EXT,
+    sType: VkStructureType::IMPORT_METAL_IO_SURFACE_INFO_EXT,
     pNext: core::ptr::null(),
     ioSurface: IOSurfaceRef::NULL,
     _marker: core::marker::PhantomData,
@@ -22695,7 +22675,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkExportMetalObjectsInfoEXT<'root>>
 #[cfg(feature = "VK_EXT_metal_objects")]
 impl<'a> VkExportMetalSharedEventInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_EXPORT_METAL_SHARED_EVENT_INFO_EXT,
+    sType: VkStructureType::EXPORT_METAL_SHARED_EVENT_INFO_EXT,
     pNext: core::ptr::null(),
     semaphore: VkSemaphore::DEFAULT,
     #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
@@ -22781,7 +22761,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkEventCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_metal_objects")]
 impl<'a> VkImportMetalSharedEventInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMPORT_METAL_SHARED_EVENT_INFO_EXT,
+    sType: VkStructureType::IMPORT_METAL_SHARED_EVENT_INFO_EXT,
     pNext: core::ptr::null(),
     mtlSharedEvent: MTLSharedEvent_id::NULL,
     _marker: core::marker::PhantomData,
@@ -22874,7 +22854,7 @@ unsafe impl<'a> Sync for VkMetalSurfaceCreateInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_metal_surface")]
 impl<'a> VkMetalSurfaceCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT,
+    sType: VkStructureType::METAL_SURFACE_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     flags: 0,
     pLayer: core::ptr::null(),
@@ -23026,7 +23006,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_multi_draw")]
 impl<'a> VkPhysicalDeviceMultiDrawPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_MULTI_DRAW_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     maxMultiDrawCount: 0,
     _marker: core::marker::PhantomData,
@@ -23096,7 +23076,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_multi_draw")]
 impl<'a> VkPhysicalDeviceMultiDrawFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_MULTI_DRAW_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     multiDraw: 0,
     _marker: core::marker::PhantomData,
@@ -23187,11 +23167,11 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_multisampled_render_to_single_sampled")]
 impl<'a> VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_FEATURES_EXT,
-        pNext: core::ptr::null_mut(),
-        multisampledRenderToSingleSampled: 0,
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_FEATURES_EXT,
+    pNext: core::ptr::null_mut(),
+    multisampledRenderToSingleSampled: 0,
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -23275,7 +23255,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkFormatProperties2<'root>>
 #[cfg(feature = "VK_EXT_multisampled_render_to_single_sampled")]
 impl<'a> VkSubpassResolvePerformanceQueryEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SUBPASS_RESOLVE_PERFORMANCE_QUERY_EXT,
+    sType: VkStructureType::SUBPASS_RESOLVE_PERFORMANCE_QUERY_EXT,
     pNext: core::ptr::null_mut(),
     optimal: 0,
     _marker: core::marker::PhantomData,
@@ -23352,7 +23332,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkRenderingInfo<'root>>
 #[cfg(feature = "VK_EXT_multisampled_render_to_single_sampled")]
 impl<'a> VkMultisampledRenderToSingleSampledInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_INFO_EXT,
+    sType: VkStructureType::MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_INFO_EXT,
     pNext: core::ptr::null(),
     multisampledRenderToSingleSampledEnable: 0,
     rasterizationSamples: VkSampleCountFlagBits(0),
@@ -23449,7 +23429,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_mutable_descriptor_type")]
 impl<'a> VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     mutableDescriptorType: 0,
     _marker: core::marker::PhantomData,
@@ -23585,7 +23565,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDescriptorPoolCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_mutable_descriptor_type")]
 impl<'a> VkMutableDescriptorTypeCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_EXT,
+    sType: VkStructureType::MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     mutableDescriptorTypeListCount: 0,
     pMutableDescriptorTypeLists: core::ptr::null(),
@@ -23691,7 +23671,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_nested_command_buffer")]
 impl<'a> VkPhysicalDeviceNestedCommandBufferFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NESTED_COMMAND_BUFFER_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_NESTED_COMMAND_BUFFER_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     nestedCommandBuffer: 0,
     nestedCommandBufferRendering: 0,
@@ -23791,7 +23771,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_nested_command_buffer")]
 impl<'a> VkPhysicalDeviceNestedCommandBufferPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NESTED_COMMAND_BUFFER_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_NESTED_COMMAND_BUFFER_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     maxCommandBufferNestingLevel: 0,
     _marker: core::marker::PhantomData,
@@ -23867,7 +23847,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_non_seamless_cube_map")]
 impl<'a> VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NON_SEAMLESS_CUBE_MAP_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_NON_SEAMLESS_CUBE_MAP_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     nonSeamlessCubeMap: 0,
     _marker: core::marker::PhantomData,
@@ -23985,7 +23965,7 @@ unsafe impl<'a> Sync for VkMicromapBuildInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_opacity_micromap")]
 impl<'a> VkMicromapBuildInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MICROMAP_BUILD_INFO_EXT,
+    sType: VkStructureType::MICROMAP_BUILD_INFO_EXT,
     pNext: core::ptr::null(),
     type_: VkMicromapTypeEXT(0),
     flags: VkBuildMicromapFlagBitsEXT(0),
@@ -24118,7 +24098,7 @@ unsafe impl<'a> Sync for VkMicromapCreateInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_opacity_micromap")]
 impl<'a> VkMicromapCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MICROMAP_CREATE_INFO_EXT,
+    sType: VkStructureType::MICROMAP_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     createFlags: VkMicromapCreateFlagBitsEXT(0),
     buffer: VkBuffer::DEFAULT,
@@ -24207,7 +24187,7 @@ unsafe impl<'a> Sync for VkMicromapVersionInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_opacity_micromap")]
 impl<'a> VkMicromapVersionInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MICROMAP_VERSION_INFO_EXT,
+    sType: VkStructureType::MICROMAP_VERSION_INFO_EXT,
     pNext: core::ptr::null(),
     pVersionData: core::ptr::null(),
     _marker: core::marker::PhantomData,
@@ -24271,7 +24251,7 @@ unsafe impl<'a> Sync for VkCopyMicromapInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_opacity_micromap")]
 impl<'a> VkCopyMicromapInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COPY_MICROMAP_INFO_EXT,
+    sType: VkStructureType::COPY_MICROMAP_INFO_EXT,
     pNext: core::ptr::null(),
     src: VkMicromapEXT::DEFAULT,
     dst: VkMicromapEXT::DEFAULT,
@@ -24344,7 +24324,7 @@ unsafe impl<'a> Sync for VkCopyMicromapToMemoryInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_opacity_micromap")]
 impl<'a> VkCopyMicromapToMemoryInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COPY_MICROMAP_TO_MEMORY_INFO_EXT,
+    sType: VkStructureType::COPY_MICROMAP_TO_MEMORY_INFO_EXT,
     pNext: core::ptr::null(),
     src: VkMicromapEXT::DEFAULT,
     dst: VkDeviceOrHostAddressKHR::DEFAULT,
@@ -24417,7 +24397,7 @@ unsafe impl<'a> Sync for VkCopyMemoryToMicromapInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_opacity_micromap")]
 impl<'a> VkCopyMemoryToMicromapInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COPY_MEMORY_TO_MICROMAP_INFO_EXT,
+    sType: VkStructureType::COPY_MEMORY_TO_MICROMAP_INFO_EXT,
     pNext: core::ptr::null(),
     src: VkDeviceOrHostAddressConstKHR::DEFAULT,
     dst: VkMicromapEXT::DEFAULT,
@@ -24489,7 +24469,7 @@ unsafe impl<'a> Sync for VkMicromapBuildSizesInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_opacity_micromap")]
 impl<'a> VkMicromapBuildSizesInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MICROMAP_BUILD_SIZES_INFO_EXT,
+    sType: VkStructureType::MICROMAP_BUILD_SIZES_INFO_EXT,
     pNext: core::ptr::null(),
     micromapSize: 0,
     buildScratchSize: 0,
@@ -24653,7 +24633,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_opacity_micromap")]
 impl<'a> VkPhysicalDeviceOpacityMicromapFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_OPACITY_MICROMAP_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     micromap: 0,
     micromapCaptureReplay: 0,
@@ -24752,7 +24732,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_opacity_micromap")]
 impl<'a> VkPhysicalDeviceOpacityMicromapPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_OPACITY_MICROMAP_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     maxOpacity2StateSubdivisionLevel: 0,
     maxOpacity4StateSubdivisionLevel: 0,
@@ -24847,7 +24827,7 @@ unsafe impl<'child, 'root>
 #[cfg(feature = "VK_EXT_opacity_micromap")]
 impl<'a> VkAccelerationStructureTrianglesOpacityMicromapEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_EXT,
+    sType: VkStructureType::ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_EXT,
     pNext: core::ptr::null_mut(),
     indexType: VkIndexType(0),
     indexBuffer: VkDeviceOrHostAddressConstKHR::DEFAULT,
@@ -24988,8 +24968,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_pageable_device_local_memory")]
 impl<'a> VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PAGEABLE_DEVICE_LOCAL_MEMORY_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_PAGEABLE_DEVICE_LOCAL_MEMORY_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     pageableDeviceLocalMemory: 0,
     _marker: core::marker::PhantomData,
@@ -25080,7 +25059,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_pci_bus_info")]
 impl<'a> VkPhysicalDevicePCIBusInfoPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PCI_BUS_INFO_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_PCI_BUS_INFO_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     pciDomain: 0,
     pciBus: 0,
@@ -25181,7 +25160,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_physical_device_drm")]
 impl<'a> VkPhysicalDeviceDrmPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRM_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_DRM_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     hasPrimary: 0,
     hasRender: 0,
@@ -25287,11 +25266,11 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_pipeline_creation_cache_control")]
 impl<'a> VkPhysicalDevicePipelineCreationCacheControlFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES_EXT,
-        pNext: core::ptr::null_mut(),
-        pipelineCreationCacheControl: 0,
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES_EXT,
+    pNext: core::ptr::null_mut(),
+    pipelineCreationCacheControl: 0,
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -25452,7 +25431,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDataGraphPipelineCreateInfoARM<'root
 #[cfg(feature = "VK_EXT_pipeline_creation_feedback")]
 impl<'a> VkPipelineCreationFeedbackCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_CREATION_FEEDBACK_CREATE_INFO_EXT,
+    sType: VkStructureType::PIPELINE_CREATION_FEEDBACK_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     pPipelineCreationFeedback: core::ptr::null_mut(),
     pipelineStageCreationFeedbackCount: 0,
@@ -25628,8 +25607,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_pipeline_library_group_handles")]
 impl<'a> VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     pipelineLibraryGroupHandles: 0,
     _marker: core::marker::PhantomData,
@@ -25705,7 +25683,7 @@ unsafe impl<'a> Sync for VkPipelineInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_pipeline_properties")]
 impl<'a> VkPipelineInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_INFO_EXT,
+    sType: VkStructureType::PIPELINE_INFO_EXT,
     pNext: core::ptr::null(),
     #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     pipeline: VkPipeline::DEFAULT,
@@ -25769,7 +25747,7 @@ unsafe impl<'a> Sync for VkPipelinePropertiesIdentifierEXT<'a> {}
 #[cfg(feature = "VK_EXT_pipeline_properties")]
 impl<'a> VkPipelinePropertiesIdentifierEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_PROPERTIES_IDENTIFIER_EXT,
+    sType: VkStructureType::PIPELINE_PROPERTIES_IDENTIFIER_EXT,
     pNext: core::ptr::null_mut(),
     pipelineIdentifier: [0u8; VK_UUID_SIZE as usize],
     _marker: core::marker::PhantomData,
@@ -25845,7 +25823,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_pipeline_properties")]
 impl<'a> VkPhysicalDevicePipelinePropertiesFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROPERTIES_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_PIPELINE_PROPERTIES_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     pipelinePropertiesIdentifier: 0,
     _marker: core::marker::PhantomData,
@@ -25936,8 +25914,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_pipeline_protected_access")]
 impl<'a> VkPhysicalDevicePipelineProtectedAccessFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     pipelineProtectedAccess: 0,
     _marker: core::marker::PhantomData,
@@ -26028,7 +26005,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_pipeline_robustness")]
 impl<'a> VkPhysicalDevicePipelineRobustnessFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     pipelineRobustness: 0,
     _marker: core::marker::PhantomData,
@@ -26138,7 +26115,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkRayTracingPipelineCreateInfoKHR<'roo
 #[cfg(feature = "VK_EXT_pipeline_robustness")]
 impl<'a> VkPipelineRobustnessCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_ROBUSTNESS_CREATE_INFO_EXT,
+    sType: VkStructureType::PIPELINE_ROBUSTNESS_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     storageBuffers: VkPipelineRobustnessBufferBehaviorEXT(0),
     uniformBuffers: VkPipelineRobustnessBufferBehaviorEXT(0),
@@ -26280,7 +26257,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_pipeline_robustness")]
 impl<'a> VkPhysicalDevicePipelineRobustnessPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     defaultRobustnessStorageBuffers: VkPipelineRobustnessBufferBehaviorEXT(0),
     defaultRobustnessUniformBuffers: VkPipelineRobustnessBufferBehaviorEXT(0),
@@ -26386,8 +26363,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_present_mode_fifo_latest_ready")]
 impl<'a> VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     presentModeFifoLatestReady: 0,
     _marker: core::marker::PhantomData,
@@ -26483,7 +26459,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_present_timing")]
 impl<'a> VkPhysicalDevicePresentTimingFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_TIMING_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_PRESENT_TIMING_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     presentTiming: 0,
     presentAtAbsoluteTime: 0,
@@ -26583,7 +26559,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSurfaceCapabilities2KHR<'root>>
 #[cfg(feature = "VK_EXT_present_timing")]
 impl<'a> VkPresentTimingSurfaceCapabilitiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PRESENT_TIMING_SURFACE_CAPABILITIES_EXT,
+    sType: VkStructureType::PRESENT_TIMING_SURFACE_CAPABILITIES_EXT,
     pNext: core::ptr::null_mut(),
     presentTimingSupported: 0,
     presentAtAbsoluteTimeSupported: 0,
@@ -26662,7 +26638,7 @@ unsafe impl<'a> Sync for VkSwapchainTimingPropertiesEXT<'a> {}
 #[cfg(feature = "VK_EXT_present_timing")]
 impl<'a> VkSwapchainTimingPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SWAPCHAIN_TIMING_PROPERTIES_EXT,
+    sType: VkStructureType::SWAPCHAIN_TIMING_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     refreshDuration: 0,
     refreshInterval: 0,
@@ -26732,7 +26708,7 @@ unsafe impl<'a> Sync for VkSwapchainTimeDomainPropertiesEXT<'a> {}
 #[cfg(feature = "VK_EXT_present_timing")]
 impl<'a> VkSwapchainTimeDomainPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SWAPCHAIN_TIME_DOMAIN_PROPERTIES_EXT,
+    sType: VkStructureType::SWAPCHAIN_TIME_DOMAIN_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     timeDomainCount: 0,
     pTimeDomains: core::ptr::null_mut(),
@@ -26847,7 +26823,7 @@ unsafe impl<'a> Sync for VkPastPresentationTimingInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_present_timing")]
 impl<'a> VkPastPresentationTimingInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_INFO_EXT,
+    sType: VkStructureType::PAST_PRESENTATION_TIMING_INFO_EXT,
     pNext: core::ptr::null(),
     flags: VkPastPresentationTimingFlagBitsEXT(0),
     swapchain: VkSwapchainKHR::DEFAULT,
@@ -26917,7 +26893,7 @@ unsafe impl<'a> Sync for VkPastPresentationTimingPropertiesEXT<'a> {}
 #[cfg(feature = "VK_EXT_present_timing")]
 impl<'a> VkPastPresentationTimingPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_PROPERTIES_EXT,
+    sType: VkStructureType::PAST_PRESENTATION_TIMING_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     timingPropertiesCounter: 0,
     timeDomainsCounter: 0,
@@ -27009,7 +26985,7 @@ unsafe impl<'a> Sync for VkPastPresentationTimingEXT<'a> {}
 #[cfg(feature = "VK_EXT_present_timing")]
 impl<'a> VkPastPresentationTimingEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_EXT,
+    sType: VkStructureType::PAST_PRESENTATION_TIMING_EXT,
     pNext: core::ptr::null_mut(),
     presentId: 0,
     targetTime: 0,
@@ -27116,7 +27092,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPresentInfoKHR<'root>>
 #[cfg(feature = "VK_EXT_present_timing")]
 impl<'a> VkPresentTimingsInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PRESENT_TIMINGS_INFO_EXT,
+    sType: VkStructureType::PRESENT_TIMINGS_INFO_EXT,
     pNext: core::ptr::null(),
     swapchainCount: 0,
     pTimingInfos: core::ptr::null(),
@@ -27191,7 +27167,7 @@ unsafe impl<'a> Sync for VkPresentTimingInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_present_timing")]
 impl<'a> VkPresentTimingInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PRESENT_TIMING_INFO_EXT,
+    sType: VkStructureType::PRESENT_TIMING_INFO_EXT,
     pNext: core::ptr::null(),
     flags: VkPresentTimingInfoFlagBitsEXT(0),
     targetTime: 0,
@@ -27286,7 +27262,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkCalibratedTimestampInfoKHR<'root>>
 #[cfg(feature = "VK_EXT_present_timing")]
 impl<'a> VkSwapchainCalibratedTimestampInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SWAPCHAIN_CALIBRATED_TIMESTAMP_INFO_EXT,
+    sType: VkStructureType::SWAPCHAIN_CALIBRATED_TIMESTAMP_INFO_EXT,
     pNext: core::ptr::null(),
     swapchain: VkSwapchainKHR::DEFAULT,
     presentStage: VkPresentStageFlagBitsEXT(0),
@@ -27374,7 +27350,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_primitive_restart_index")]
 impl<'a> VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_RESTART_INDEX_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_PRIMITIVE_RESTART_INDEX_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     primitiveRestartIndex: 0,
     _marker: core::marker::PhantomData,
@@ -27466,12 +27442,12 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_primitive_topology_list_restart")]
 impl<'a> VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_TOPOLOGY_LIST_RESTART_FEATURES_EXT,
-        pNext: core::ptr::null_mut(),
-        primitiveTopologyListRestart: 0,
-        primitiveTopologyPatchListRestart: 0,
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::PHYSICAL_DEVICE_PRIMITIVE_TOPOLOGY_LIST_RESTART_FEATURES_EXT,
+    pNext: core::ptr::null_mut(),
+    primitiveTopologyListRestart: 0,
+    primitiveTopologyPatchListRestart: 0,
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -27565,8 +27541,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_primitives_generated_query")]
 impl<'a> VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVES_GENERATED_QUERY_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_PRIMITIVES_GENERATED_QUERY_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     primitivesGeneratedQuery: 0,
     primitivesGeneratedQueryWithRasterizerDiscard: 0,
@@ -27681,7 +27656,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_private_data")]
 impl<'a> VkDevicePrivateDataCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEVICE_PRIVATE_DATA_CREATE_INFO_EXT,
+    sType: VkStructureType::DEVICE_PRIVATE_DATA_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     privateDataSlotRequestCount: 0,
     _marker: core::marker::PhantomData,
@@ -27739,7 +27714,7 @@ unsafe impl<'a> Sync for VkPrivateDataSlotCreateInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_private_data")]
 impl<'a> VkPrivateDataSlotCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PRIVATE_DATA_SLOT_CREATE_INFO_EXT,
+    sType: VkStructureType::PRIVATE_DATA_SLOT_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     flags: 0,
     _marker: core::marker::PhantomData,
@@ -27809,7 +27784,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_private_data")]
 impl<'a> VkPhysicalDevicePrivateDataFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_PRIVATE_DATA_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     privateData: 0,
     _marker: core::marker::PhantomData,
@@ -27895,7 +27870,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_provoking_vertex")]
 impl<'a> VkPhysicalDeviceProvokingVertexFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROVOKING_VERTEX_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_PROVOKING_VERTEX_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     provokingVertexLast: 0,
     transformFeedbackPreservesProvokingVertex: 0,
@@ -27988,7 +27963,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_provoking_vertex")]
 impl<'a> VkPhysicalDeviceProvokingVertexPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROVOKING_VERTEX_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_PROVOKING_VERTEX_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     provokingVertexModePerPipeline: 0,
     transformFeedbackPreservesTriangleFanProvokingVertex: 0,
@@ -28065,11 +28040,11 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPipelineRasterizationStateCreateInfo
 #[cfg(feature = "VK_EXT_provoking_vertex")]
 impl<'a> VkPipelineRasterizationProvokingVertexStateCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_PROVOKING_VERTEX_STATE_CREATE_INFO_EXT,
-        pNext: core::ptr::null(),
-        provokingVertexMode: VkProvokingVertexModeEXT(0),
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::PIPELINE_RASTERIZATION_PROVOKING_VERTEX_STATE_CREATE_INFO_EXT,
+    pNext: core::ptr::null(),
+    provokingVertexMode: VkProvokingVertexModeEXT(0),
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -28143,13 +28118,13 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_rasterization_order_attachment_access")]
 impl<'a> VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT,
-        pNext: core::ptr::null_mut(),
-        rasterizationOrderColorAttachmentAccess: 0,
-        rasterizationOrderDepthAttachmentAccess: 0,
-        rasterizationOrderStencilAttachmentAccess: 0,
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT,
+    pNext: core::ptr::null_mut(),
+    rasterizationOrderColorAttachmentAccess: 0,
+    rasterizationOrderDepthAttachmentAccess: 0,
+    rasterizationOrderStencilAttachmentAccess: 0,
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -28246,8 +28221,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_ray_tracing_invocation_reorder")]
 impl<'a> VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     rayTracingInvocationReorder: 0,
     _marker: core::marker::PhantomData,
@@ -28337,14 +28311,12 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_ray_tracing_invocation_reorder")]
 impl<'a> VkPhysicalDeviceRayTracingInvocationReorderPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_PROPERTIES_EXT,
-        pNext: core::ptr::null_mut(),
-        rayTracingInvocationReorderReorderingHint: VkRayTracingInvocationReorderModeEXT(
-            0,
-        ),
-        maxShaderBindingTableRecordIndex: 0,
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_PROPERTIES_EXT,
+    pNext: core::ptr::null_mut(),
+    rayTracingInvocationReorderReorderingHint: VkRayTracingInvocationReorderModeEXT(0),
+    maxShaderBindingTableRecordIndex: 0,
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -28418,7 +28390,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_rgba10x6_formats")]
 impl<'a> VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RGBA10X6_FORMATS_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_RGBA10X6_FORMATS_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     formatRgba10x6WithoutYCbCrSampler: 0,
     _marker: core::marker::PhantomData,
@@ -28505,7 +28477,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_robustness2")]
 impl<'a> VkPhysicalDeviceRobustness2FeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     robustBufferAccess2: 0,
     robustImageAccess2: 0,
@@ -28604,7 +28576,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_robustness2")]
 impl<'a> VkPhysicalDeviceRobustness2PropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_ROBUSTNESS_2_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     robustStorageBufferAccessSizeAlignment: 0,
     robustUniformBufferAccessSizeAlignment: 0,
@@ -28719,7 +28691,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkImageMemoryBarrier2<'root>>
 #[cfg(feature = "VK_EXT_sample_locations")]
 impl<'a> VkSampleLocationsInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SAMPLE_LOCATIONS_INFO_EXT,
+    sType: VkStructureType::SAMPLE_LOCATIONS_INFO_EXT,
     pNext: core::ptr::null(),
     sampleLocationsPerPixel: VkSampleCountFlagBits(0),
     sampleLocationGridSize: VkExtent2D::DEFAULT,
@@ -28903,7 +28875,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkRenderPassBeginInfo<'root>>
 #[cfg(feature = "VK_EXT_sample_locations")]
 impl<'a> VkRenderPassSampleLocationsBeginInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RENDER_PASS_SAMPLE_LOCATIONS_BEGIN_INFO_EXT,
+    sType: VkStructureType::RENDER_PASS_SAMPLE_LOCATIONS_BEGIN_INFO_EXT,
     pNext: core::ptr::null(),
     attachmentInitialSampleLocationsCount: 0,
     pAttachmentInitialSampleLocations: core::ptr::null(),
@@ -29004,7 +28976,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPipelineMultisampleStateCreateInfo<'
 #[cfg(feature = "VK_EXT_sample_locations")]
 impl<'a> VkPipelineSampleLocationsStateCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_SAMPLE_LOCATIONS_STATE_CREATE_INFO_EXT,
+    sType: VkStructureType::PIPELINE_SAMPLE_LOCATIONS_STATE_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     sampleLocationsEnable: 0,
     sampleLocationsInfo: VkSampleLocationsInfoEXT::DEFAULT,
@@ -29088,7 +29060,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_sample_locations")]
 impl<'a> VkPhysicalDeviceSampleLocationsPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLE_LOCATIONS_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_SAMPLE_LOCATIONS_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     sampleLocationSampleCounts: VkSampleCountFlagBits(0),
     maxSampleLocationGridSize: VkExtent2D::DEFAULT,
@@ -29172,7 +29144,7 @@ unsafe impl<'a> Sync for VkMultisamplePropertiesEXT<'a> {}
 #[cfg(feature = "VK_EXT_sample_locations")]
 impl<'a> VkMultisamplePropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MULTISAMPLE_PROPERTIES_EXT,
+    sType: VkStructureType::MULTISAMPLE_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     maxSampleLocationGridSize: VkExtent2D::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -29247,7 +29219,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_sampler_filter_minmax")]
 impl<'a> VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_FILTER_MINMAX_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_SAMPLER_FILTER_MINMAX_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     filterMinmaxSingleComponentFormats: 0,
     filterMinmaxImageComponentMapping: 0,
@@ -29321,7 +29293,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSamplerCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_sampler_filter_minmax")]
 impl<'a> VkSamplerReductionModeCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SAMPLER_REDUCTION_MODE_CREATE_INFO_EXT,
+    sType: VkStructureType::SAMPLER_REDUCTION_MODE_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     reductionMode: VkSamplerReductionModeEXT(0),
     _marker: core::marker::PhantomData,
@@ -29397,7 +29369,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_scalar_block_layout")]
 impl<'a> VkPhysicalDeviceScalarBlockLayoutFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCALAR_BLOCK_LAYOUT_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_SCALAR_BLOCK_LAYOUT_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     scalarBlockLayout: 0,
     _marker: core::marker::PhantomData,
@@ -29488,7 +29460,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceImageFormatInfo2<'root
 #[cfg(feature = "VK_EXT_separate_stencil_usage")]
 impl<'a> VkImageStencilUsageCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_STENCIL_USAGE_CREATE_INFO_EXT,
+    sType: VkStructureType::IMAGE_STENCIL_USAGE_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     stencilUsage: VkImageUsageFlagBits(0),
     _marker: core::marker::PhantomData,
@@ -29579,7 +29551,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_shader_64bit_indexing")]
 impl<'a> VkPhysicalDeviceShader64BitIndexingFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_64_BIT_INDEXING_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_64_BIT_INDEXING_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     shader64BitIndexing: 0,
     _marker: core::marker::PhantomData,
@@ -29681,7 +29653,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_shader_atomic_float")]
 impl<'a> VkPhysicalDeviceShaderAtomicFloatFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     shaderBufferFloat32Atomics: 0,
     shaderBufferFloat32AtomicAdd: 0,
@@ -29849,7 +29821,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_shader_atomic_float2")]
 impl<'a> VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_2_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_2_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     shaderBufferFloat16Atomics: 0,
     shaderBufferFloat16AtomicAdd: 0,
@@ -30006,11 +29978,11 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_shader_demote_to_helper_invocation")]
 impl<'a> VkPhysicalDeviceShaderDemoteToHelperInvocationFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DEMOTE_TO_HELPER_INVOCATION_FEATURES_EXT,
-        pNext: core::ptr::null_mut(),
-        shaderDemoteToHelperInvocation: 0,
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_DEMOTE_TO_HELPER_INVOCATION_FEATURES_EXT,
+    pNext: core::ptr::null_mut(),
+    shaderDemoteToHelperInvocation: 0,
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -30092,7 +30064,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_shader_float8")]
 impl<'a> VkPhysicalDeviceShaderFloat8FeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT8_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_FLOAT8_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     shaderFloat8: 0,
     shaderFloat8CooperativeMatrix: 0,
@@ -30190,8 +30162,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_shader_image_atomic_int64")]
 impl<'a> VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_IMAGE_ATOMIC_INT64_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_IMAGE_ATOMIC_INT64_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     shaderImageInt64Atomics: 0,
     sparseImageInt64Atomics: 0,
@@ -30282,7 +30253,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_shader_long_vector")]
 impl<'a> VkPhysicalDeviceShaderLongVectorFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_LONG_VECTOR_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_LONG_VECTOR_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     longVector: 0,
     _marker: core::marker::PhantomData,
@@ -30367,7 +30338,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_shader_long_vector")]
 impl<'a> VkPhysicalDeviceShaderLongVectorPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_LONG_VECTOR_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_LONG_VECTOR_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     maxVectorComponents: 0,
     _marker: core::marker::PhantomData,
@@ -30443,7 +30414,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_shader_module_identifier")]
 impl<'a> VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     shaderModuleIdentifier: 0,
     _marker: core::marker::PhantomData,
@@ -30531,8 +30502,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_shader_module_identifier")]
 impl<'a> VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     shaderModuleIdentifierAlgorithmUUID: [0u8; VK_UUID_SIZE as usize],
     _marker: core::marker::PhantomData,
@@ -30606,8 +30576,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPipelineShaderStageCreateInfo<'root>
 #[cfg(feature = "VK_EXT_shader_module_identifier")]
 impl<'a> VkPipelineShaderStageModuleIdentifierCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_MODULE_IDENTIFIER_CREATE_INFO_EXT,
+    sType: VkStructureType::PIPELINE_SHADER_STAGE_MODULE_IDENTIFIER_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     identifierSize: 0,
     pIdentifier: core::ptr::null(),
@@ -30680,7 +30649,7 @@ unsafe impl<'a> Sync for VkShaderModuleIdentifierEXT<'a> {}
 #[cfg(feature = "VK_EXT_shader_module_identifier")]
 impl<'a> VkShaderModuleIdentifierEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SHADER_MODULE_IDENTIFIER_EXT,
+    sType: VkStructureType::SHADER_MODULE_IDENTIFIER_EXT,
     pNext: core::ptr::null_mut(),
     identifierSize: 0,
     identifier: [0u8; VK_MAX_SHADER_MODULE_IDENTIFIER_SIZE_EXT as usize],
@@ -30782,7 +30751,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkShaderCreateInfoEXT<'root>>
 #[cfg(feature = "VK_EXT_shader_object")]
 impl<'a> VkShaderRequiredSubgroupSizeCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SHADER_REQUIRED_SUBGROUP_SIZE_CREATE_INFO_EXT,
+    sType: VkStructureType::SHADER_REQUIRED_SUBGROUP_SIZE_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     requiredSubgroupSize: 0,
     _marker: core::marker::PhantomData,
@@ -30867,7 +30836,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_shader_object")]
 impl<'a> VkPhysicalDeviceShaderObjectFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_OBJECT_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     shaderObject: 0,
     _marker: core::marker::PhantomData,
@@ -30954,7 +30923,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_shader_object")]
 impl<'a> VkPhysicalDeviceShaderObjectPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_OBJECT_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     shaderBinaryUUID: [0u8; VK_UUID_SIZE as usize],
     shaderBinaryVersion: 0,
@@ -31038,7 +31007,7 @@ unsafe impl<'a> Sync for VkShaderCreateInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_shader_object")]
 impl<'a> VkShaderCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SHADER_CREATE_INFO_EXT,
+    sType: VkStructureType::SHADER_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     flags: VkShaderCreateFlagBitsEXT(0),
     stage: VkShaderStageFlagBits(0),
@@ -31251,7 +31220,7 @@ unsafe impl<'a> Sync for VkVertexInputBindingDescription2EXT<'a> {}
 ))]
 impl<'a> VkVertexInputBindingDescription2EXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_VERTEX_INPUT_BINDING_DESCRIPTION_2_EXT,
+    sType: VkStructureType::VERTEX_INPUT_BINDING_DESCRIPTION_2_EXT,
     pNext: core::ptr::null_mut(),
     binding: 0,
     stride: 0,
@@ -31345,7 +31314,7 @@ unsafe impl<'a> Sync for VkVertexInputAttributeDescription2EXT<'a> {}
 ))]
 impl<'a> VkVertexInputAttributeDescription2EXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_VERTEX_INPUT_ATTRIBUTE_DESCRIPTION_2_EXT,
+    sType: VkStructureType::VERTEX_INPUT_ATTRIBUTE_DESCRIPTION_2_EXT,
     pNext: core::ptr::null_mut(),
     location: 0,
     binding: 0,
@@ -31442,8 +31411,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_shader_replicated_composites")]
 impl<'a> VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_REPLICATED_COMPOSITES_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_REPLICATED_COMPOSITES_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     shaderReplicatedComposites: 0,
     _marker: core::marker::PhantomData,
@@ -31534,7 +31502,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_shader_split_barrier")]
 impl<'a> VkPhysicalDeviceShaderSplitBarrierFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SPLIT_BARRIER_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_SPLIT_BARRIER_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     shaderSplitBarrier: 0,
     _marker: core::marker::PhantomData,
@@ -31622,7 +31590,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_shader_split_barrier")]
 impl<'a> VkPhysicalDeviceShaderSplitBarrierPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SPLIT_BARRIER_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_SPLIT_BARRIER_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     splitBarrierReservedSharedMemory: 0,
     _marker: core::marker::PhantomData,
@@ -31698,8 +31666,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_shader_subgroup_partitioned")]
 impl<'a> VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_PARTITIONED_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_SUBGROUP_PARTITIONED_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     shaderSubgroupPartitioned: 0,
     _marker: core::marker::PhantomData,
@@ -31786,7 +31753,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_shader_tile_image")]
 impl<'a> VkPhysicalDeviceShaderTileImageFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TILE_IMAGE_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_TILE_IMAGE_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     shaderTileImageColorReadAccess: 0,
     shaderTileImageDepthReadAccess: 0,
@@ -31887,7 +31854,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_shader_tile_image")]
 impl<'a> VkPhysicalDeviceShaderTileImagePropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TILE_IMAGE_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_TILE_IMAGE_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     shaderTileImageCoherentReadAccelerated: 0,
     shaderTileImageReadSampleFromPixelRateInvocation: 0,
@@ -31978,11 +31945,11 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_shader_uniform_buffer_unsized_array")]
 impl<'a> VkPhysicalDeviceShaderUniformBufferUnsizedArrayFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_UNIFORM_BUFFER_UNSIZED_ARRAY_FEATURES_EXT,
-        pNext: core::ptr::null_mut(),
-        shaderUniformBufferUnsizedArray: 0,
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_UNIFORM_BUFFER_UNSIZED_ARRAY_FEATURES_EXT,
+    pNext: core::ptr::null_mut(),
+    shaderUniformBufferUnsizedArray: 0,
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -32070,7 +32037,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_subgroup_size_control")]
 impl<'a> VkPhysicalDeviceSubgroupSizeControlFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     subgroupSizeControl: 0,
     computeFullSubgroups: 0,
@@ -32170,7 +32137,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_subgroup_size_control")]
 impl<'a> VkPhysicalDeviceSubgroupSizeControlPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     minSubgroupSize: 0,
     maxSubgroupSize: 0,
@@ -32264,11 +32231,11 @@ unsafe impl<'child, 'root> VkPNextExtends<VkShaderCreateInfoEXT<'root>>
 #[cfg(feature = "VK_EXT_subgroup_size_control")]
 impl<'a> VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_REQUIRED_SUBGROUP_SIZE_CREATE_INFO_EXT,
-        pNext: core::ptr::null(),
-        requiredSubgroupSize: 0,
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::PIPELINE_SHADER_STAGE_REQUIRED_SUBGROUP_SIZE_CREATE_INFO_EXT,
+    pNext: core::ptr::null(),
+    requiredSubgroupSize: 0,
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -32355,7 +32322,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSubpassDescription2<'root>>
 #[cfg(feature = "VK_EXT_subpass_merge_feedback")]
 impl<'a> VkRenderPassCreationControlEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_CONTROL_EXT,
+    sType: VkStructureType::RENDER_PASS_CREATION_CONTROL_EXT,
     pNext: core::ptr::null(),
     disallowMerging: 0,
     _marker: core::marker::PhantomData,
@@ -32466,7 +32433,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkRenderPassCreateInfo2<'root>>
 #[cfg(feature = "VK_EXT_subpass_merge_feedback")]
 impl<'a> VkRenderPassCreationFeedbackCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_FEEDBACK_CREATE_INFO_EXT,
+    sType: VkStructureType::RENDER_PASS_CREATION_FEEDBACK_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     pRenderPassFeedback: core::ptr::null_mut(),
     _marker: core::marker::PhantomData,
@@ -32583,7 +32550,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSubpassDescription2<'root>>
 #[cfg(feature = "VK_EXT_subpass_merge_feedback")]
 impl<'a> VkRenderPassSubpassFeedbackCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RENDER_PASS_SUBPASS_FEEDBACK_CREATE_INFO_EXT,
+    sType: VkStructureType::RENDER_PASS_SUBPASS_FEEDBACK_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     pSubpassFeedback: core::ptr::null_mut(),
     _marker: core::marker::PhantomData,
@@ -32665,7 +32632,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_subpass_merge_feedback")]
 impl<'a> VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_MERGE_FEEDBACK_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_SUBPASS_MERGE_FEEDBACK_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     subpassMergeFeedback: 0,
     _marker: core::marker::PhantomData,
@@ -32754,7 +32721,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceSurfaceInfo2KHR<'root>
 #[cfg(feature = "VK_EXT_surface_maintenance1")]
 impl<'a> VkSurfacePresentModeEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_EXT,
+    sType: VkStructureType::SURFACE_PRESENT_MODE_EXT,
     pNext: core::ptr::null_mut(),
     presentMode: VkPresentModeKHR(0),
     _marker: core::marker::PhantomData,
@@ -32831,7 +32798,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSurfaceCapabilities2KHR<'root>>
 #[cfg(feature = "VK_EXT_surface_maintenance1")]
 impl<'a> VkSurfacePresentScalingCapabilitiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SURFACE_PRESENT_SCALING_CAPABILITIES_EXT,
+    sType: VkStructureType::SURFACE_PRESENT_SCALING_CAPABILITIES_EXT,
     pNext: core::ptr::null_mut(),
     supportedPresentScaling: 0,
     supportedPresentGravityX: 0,
@@ -32926,7 +32893,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSurfaceCapabilities2KHR<'root>>
 #[cfg(feature = "VK_EXT_surface_maintenance1")]
 impl<'a> VkSurfacePresentModeCompatibilityEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_COMPATIBILITY_EXT,
+    sType: VkStructureType::SURFACE_PRESENT_MODE_COMPATIBILITY_EXT,
     pNext: core::ptr::null_mut(),
     presentModeCount: 0,
     pPresentModes: core::ptr::null_mut(),
@@ -33012,7 +32979,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_swapchain_maintenance1")]
 impl<'a> VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     swapchainMaintenance1: 0,
     _marker: core::marker::PhantomData,
@@ -33097,7 +33064,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPresentInfoKHR<'root>>
 #[cfg(feature = "VK_EXT_swapchain_maintenance1")]
 impl<'a> VkSwapchainPresentFenceInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_EXT,
+    sType: VkStructureType::SWAPCHAIN_PRESENT_FENCE_INFO_EXT,
     pNext: core::ptr::null(),
     swapchainCount: 0,
     pFences: core::ptr::null(),
@@ -33177,7 +33144,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSwapchainCreateInfoKHR<'root>>
 #[cfg(feature = "VK_EXT_swapchain_maintenance1")]
 impl<'a> VkSwapchainPresentModesCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODES_CREATE_INFO_EXT,
+    sType: VkStructureType::SWAPCHAIN_PRESENT_MODES_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     presentModeCount: 0,
     pPresentModes: core::ptr::null(),
@@ -33257,7 +33224,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPresentInfoKHR<'root>>
 #[cfg(feature = "VK_EXT_swapchain_maintenance1")]
 impl<'a> VkSwapchainPresentModeInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODE_INFO_EXT,
+    sType: VkStructureType::SWAPCHAIN_PRESENT_MODE_INFO_EXT,
     pNext: core::ptr::null(),
     swapchainCount: 0,
     pPresentModes: core::ptr::null(),
@@ -33340,7 +33307,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSwapchainCreateInfoKHR<'root>>
 #[cfg(feature = "VK_EXT_swapchain_maintenance1")]
 impl<'a> VkSwapchainPresentScalingCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_EXT,
+    sType: VkStructureType::SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     scalingBehavior: VkPresentScalingFlagBitsKHR(0),
     presentGravityX: VkPresentGravityFlagBitsKHR(0),
@@ -33413,7 +33380,7 @@ unsafe impl<'a> Sync for VkReleaseSwapchainImagesInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_swapchain_maintenance1")]
 impl<'a> VkReleaseSwapchainImagesInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RELEASE_SWAPCHAIN_IMAGES_INFO_EXT,
+    sType: VkStructureType::RELEASE_SWAPCHAIN_IMAGES_INFO_EXT,
     pNext: core::ptr::null(),
     swapchain: VkSwapchainKHR::DEFAULT,
     imageIndexCount: 0,
@@ -33505,7 +33472,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_texel_buffer_alignment")]
 impl<'a> VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     texelBufferAlignment: 0,
     _marker: core::marker::PhantomData,
@@ -33599,7 +33566,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_texel_buffer_alignment")]
 impl<'a> VkPhysicalDeviceTexelBufferAlignmentPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     storageTexelBufferOffsetAlignmentBytes: 0,
     storageTexelBufferOffsetSingleTexelAlignment: 0,
@@ -33693,8 +33660,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_texture_compression_astc_3d")]
 impl<'a> VkPhysicalDeviceTextureCompressionASTC3DFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXTURE_COMPRESSION_ASTC_3D_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_TEXTURE_COMPRESSION_ASTC_3D_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     textureCompressionASTC_3D: 0,
     _marker: core::marker::PhantomData,
@@ -33785,8 +33751,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_texture_compression_astc_hdr")]
 impl<'a> VkPhysicalDeviceTextureCompressionASTCHDRFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXTURE_COMPRESSION_ASTC_HDR_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_TEXTURE_COMPRESSION_ASTC_HDR_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     textureCompressionASTC_HDR: 0,
     _marker: core::marker::PhantomData,
@@ -33872,7 +33837,7 @@ unsafe impl<'a> Sync for VkPhysicalDeviceToolPropertiesEXT<'a> {}
 #[cfg(feature = "VK_EXT_tooling_info")]
 impl<'a> VkPhysicalDeviceToolPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TOOL_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_TOOL_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     name: [0i8; VK_MAX_EXTENSION_NAME_SIZE as usize],
     version: [0i8; VK_MAX_EXTENSION_NAME_SIZE as usize],
@@ -33970,7 +33935,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_transform_feedback")]
 impl<'a> VkPhysicalDeviceTransformFeedbackFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     transformFeedback: 0,
     geometryStreams: 0,
@@ -34079,7 +34044,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_transform_feedback")]
 impl<'a> VkPhysicalDeviceTransformFeedbackPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     maxTransformFeedbackStreams: 0,
     maxTransformFeedbackBuffers: 0,
@@ -34203,7 +34168,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPipelineRasterizationStateCreateInfo
 #[cfg(feature = "VK_EXT_transform_feedback")]
 impl<'a> VkPipelineRasterizationStateStreamCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_STREAM_CREATE_INFO_EXT,
+    sType: VkStructureType::PIPELINE_RASTERIZATION_STATE_STREAM_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     flags: 0,
     rasterizationStream: 0,
@@ -34295,7 +34260,7 @@ unsafe impl<'a> Sync for VkValidationCacheCreateInfoEXT<'a> {}
 #[cfg(feature = "VK_EXT_validation_cache")]
 impl<'a> VkValidationCacheCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_VALIDATION_CACHE_CREATE_INFO_EXT,
+    sType: VkStructureType::VALIDATION_CACHE_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     flags: 0,
     initialDataSize: 0,
@@ -34387,7 +34352,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPipelineShaderStageCreateInfo<'root>
 #[cfg(feature = "VK_EXT_validation_cache")]
 impl<'a> VkShaderModuleValidationCacheCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SHADER_MODULE_VALIDATION_CACHE_CREATE_INFO_EXT,
+    sType: VkStructureType::SHADER_MODULE_VALIDATION_CACHE_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     validationCache: VkValidationCacheEXT::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -34493,7 +34458,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkShaderCreateInfoEXT<'root>>
 #[cfg(feature = "VK_EXT_validation_features")]
 impl<'a> VkValidationFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT,
+    sType: VkStructureType::VALIDATION_FEATURES_EXT,
     pNext: core::ptr::null(),
     enabledValidationFeatureCount: 0,
     pEnabledValidationFeatures: core::ptr::null(),
@@ -34622,7 +34587,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkInstanceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_validation_flags")]
 impl<'a> VkValidationFlagsEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT,
+    sType: VkStructureType::VALIDATION_FLAGS_EXT,
     pNext: core::ptr::null(),
     disabledValidationCheckCount: 0,
     pDisabledValidationChecks: core::ptr::null(),
@@ -34735,7 +34700,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPipelineVertexInputStateCreateInfo<'
 #[cfg(feature = "VK_EXT_vertex_attribute_divisor")]
 impl<'a> VkPipelineVertexInputDivisorStateCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_EXT,
+    sType: VkStructureType::PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_EXT,
     pNext: core::ptr::null(),
     vertexBindingDivisorCount: 0,
     pVertexBindingDivisors: core::ptr::null(),
@@ -34821,8 +34786,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_EXT_vertex_attribute_divisor")]
 impl<'a> VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
     maxVertexAttribDivisor: 0,
     _marker: core::marker::PhantomData,
@@ -34899,7 +34863,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_vertex_attribute_divisor")]
 impl<'a> VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     vertexAttributeInstanceRateDivisor: 0,
     vertexAttributeInstanceRateZeroDivisor: 0,
@@ -34996,8 +34960,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_vertex_attribute_robustness")]
 impl<'a> VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_ROBUSTNESS_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_ROBUSTNESS_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     vertexAttributeRobustness: 0,
     _marker: core::marker::PhantomData,
@@ -35088,8 +35051,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_vertex_input_dynamic_state")]
 impl<'a> VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     vertexInputDynamicState: 0,
     _marker: core::marker::PhantomData,
@@ -35180,8 +35142,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_ycbcr_2plane_444_formats")]
 impl<'a> VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_2_PLANE_444_FORMATS_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_YCBCR_2_PLANE_444_FORMATS_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     ycbcr2plane444Formats: 0,
     _marker: core::marker::PhantomData,
@@ -35266,7 +35227,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_ycbcr_image_arrays")]
 impl<'a> VkPhysicalDeviceYcbcrImageArraysFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_IMAGE_ARRAYS_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_YCBCR_IMAGE_ARRAYS_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     ycbcrImageArrays: 0,
     _marker: core::marker::PhantomData,
@@ -35357,8 +35318,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_EXT_zero_initialize_device_memory")]
 impl<'a> VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_DEVICE_MEMORY_FEATURES_EXT,
+    sType: VkStructureType::PHYSICAL_DEVICE_ZERO_INITIALIZE_DEVICE_MEMORY_FEATURES_EXT,
     pNext: core::ptr::null_mut(),
     zeroInitializeDeviceMemory: 0,
     _marker: core::marker::PhantomData,

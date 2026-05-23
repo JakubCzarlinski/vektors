@@ -59,8 +59,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_HUAWEI_cluster_culling_shader")]
 impl<'a> VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_PROPERTIES_HUAWEI,
+    sType: VkStructureType::PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_PROPERTIES_HUAWEI,
     pNext: core::ptr::null_mut(),
     maxWorkGroupCount: [0u32; 3],
     maxWorkGroupSize: [0u32; 3],
@@ -155,8 +154,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_HUAWEI_cluster_culling_shader")]
 impl<'a> VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_FEATURES_HUAWEI,
+    sType: VkStructureType::PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_FEATURES_HUAWEI,
     pNext: core::ptr::null_mut(),
     clustercullingShader: 0,
     multiviewClusterCullingShader: 0,
@@ -258,8 +256,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceClusterCullingShaderFe
 #[cfg(feature = "VK_HUAWEI_cluster_culling_shader")]
 impl<'a> VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_VRS_FEATURES_HUAWEI,
+    sType: VkStructureType::PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_VRS_FEATURES_HUAWEI,
     pNext: core::ptr::null_mut(),
     clusterShadingRate: 0,
     _marker: core::marker::PhantomData,
@@ -326,7 +323,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkHdrMetadataEXT<'root>>
 #[cfg(feature = "VK_HUAWEI_hdr_vivid")]
 impl<'a> VkHdrVividDynamicMetadataHUAWEI<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_HDR_VIVID_DYNAMIC_METADATA_HUAWEI,
+    sType: VkStructureType::HDR_VIVID_DYNAMIC_METADATA_HUAWEI,
     pNext: core::ptr::null(),
     dynamicMetadataSize: 0,
     pDynamicMetadata: core::ptr::null(),
@@ -406,7 +403,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_HUAWEI_hdr_vivid")]
 impl<'a> VkPhysicalDeviceHdrVividFeaturesHUAWEI<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_VIVID_FEATURES_HUAWEI,
+    sType: VkStructureType::PHYSICAL_DEVICE_HDR_VIVID_FEATURES_HUAWEI,
     pNext: core::ptr::null_mut(),
     hdrVivid: 0,
     _marker: core::marker::PhantomData,
@@ -491,7 +488,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_HUAWEI_invocation_mask")]
 impl<'a> VkPhysicalDeviceInvocationMaskFeaturesHUAWEI<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INVOCATION_MASK_FEATURES_HUAWEI,
+    sType: VkStructureType::PHYSICAL_DEVICE_INVOCATION_MASK_FEATURES_HUAWEI,
     pNext: core::ptr::null_mut(),
     invocationMask: 0,
     _marker: core::marker::PhantomData,
@@ -578,7 +575,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkComputePipelineCreateInfo<'root>>
 #[cfg(feature = "VK_HUAWEI_subpass_shading")]
 impl<'a> VkSubpassShadingPipelineCreateInfoHUAWEI<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SUBPASS_SHADING_PIPELINE_CREATE_INFO_HUAWEI,
+    sType: VkStructureType::SUBPASS_SHADING_PIPELINE_CREATE_INFO_HUAWEI,
     pNext: core::ptr::null_mut(),
     #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
     renderPass: VkRenderPass::DEFAULT,
@@ -658,7 +655,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_HUAWEI_subpass_shading")]
 impl<'a> VkPhysicalDeviceSubpassShadingPropertiesHUAWEI<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_SHADING_PROPERTIES_HUAWEI,
+    sType: VkStructureType::PHYSICAL_DEVICE_SUBPASS_SHADING_PROPERTIES_HUAWEI,
     pNext: core::ptr::null_mut(),
     maxSubpassShadingWorkgroupSizeAspectRatio: 0,
     _marker: core::marker::PhantomData,
@@ -728,7 +725,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_HUAWEI_subpass_shading")]
 impl<'a> VkPhysicalDeviceSubpassShadingFeaturesHUAWEI<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_SHADING_FEATURES_HUAWEI,
+    sType: VkStructureType::PHYSICAL_DEVICE_SUBPASS_SHADING_FEATURES_HUAWEI,
     pNext: core::ptr::null_mut(),
     subpassShading: 0,
     _marker: core::marker::PhantomData,

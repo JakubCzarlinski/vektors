@@ -157,7 +157,7 @@ impl<'dev> VideoSessionParametersKHR<'dev> {
         .vkUpdateVideoSessionParametersKHR
         .unwrap_unchecked()(self.device().raw(), self.raw, pUpdateInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();

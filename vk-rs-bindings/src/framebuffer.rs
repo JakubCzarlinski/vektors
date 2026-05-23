@@ -157,7 +157,7 @@ impl<'dev> Framebuffer<'dev> {
         .vkGetFramebufferTilePropertiesQCOM
         .unwrap_unchecked()(self.device().raw(), self.raw, pPropertiesCount, pProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();

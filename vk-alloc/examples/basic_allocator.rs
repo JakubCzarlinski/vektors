@@ -34,18 +34,18 @@ fn main() -> Result<(), String> {
         {
             const STAGING_USAGE: VkBufferUsageFlags2CreateInfo<'_> =
                 VkBufferUsageFlags2CreateInfo::DEFAULT
-                    .with_usage(VkBufferUsageFlagBits2::VK_BUFFER_USAGE_2_TRANSFER_SRC_BIT);
+                    .with_usage(VkBufferUsageFlagBits2::TRANSFER_SRC);
             const STAGING_INFO: VkBufferCreateInfo<'_> = VkBufferCreateInfo::DEFAULT
                 .with_size(4096)
                 .with_pNext_VkBufferUsageFlags2CreateInfo(&STAGING_USAGE)
-                .with_sharingMode(VkSharingMode::VK_SHARING_MODE_EXCLUSIVE);
+                .with_sharingMode(VkSharingMode::EXCLUSIVE);
             const DEVICE_LOCAL_USAGE: VkBufferUsageFlags2CreateInfo<'_> =
                 VkBufferUsageFlags2CreateInfo::DEFAULT
-                    .with_usage(VkBufferUsageFlagBits2::VK_BUFFER_USAGE_2_TRANSFER_DST_BIT);
+                    .with_usage(VkBufferUsageFlagBits2::TRANSFER_DST);
             const DEVICE_LOCAL_INFO: VkBufferCreateInfo<'_> = VkBufferCreateInfo::DEFAULT
                 .with_size(4096)
                 .with_pNext_VkBufferUsageFlags2CreateInfo(&DEVICE_LOCAL_USAGE)
-                .with_sharingMode(VkSharingMode::VK_SHARING_MODE_EXCLUSIVE);
+                .with_sharingMode(VkSharingMode::EXCLUSIVE);
 
             let mut staging = allocator
                 .create_buffer(

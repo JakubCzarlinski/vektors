@@ -156,10 +156,7 @@ fn select_queue_families(
 ) -> Option<QueueFamilySelection> {
     let graphics = queue_families.iter().position(|family| {
         let props = family.queueFamilyProperties;
-        props.queueCount > 0
-            && props
-                .queueFlags
-                .intersects(VkQueueFlagBits::VK_QUEUE_GRAPHICS_BIT)
+        props.queueCount > 0 && props.queueFlags.intersects(VkQueueFlagBits::GRAPHICS)
     })? as u32;
 
     let dedicated_transfer = queue_families
@@ -170,9 +167,9 @@ fn select_queue_families(
         })
         .filter(|(_, family)| {
             let flags = family.queueFamilyProperties.queueFlags;
-            flags.intersects(VkQueueFlagBits::VK_QUEUE_TRANSFER_BIT)
-                && !flags.intersects(VkQueueFlagBits::VK_QUEUE_GRAPHICS_BIT)
-                && !flags.intersects(VkQueueFlagBits::VK_QUEUE_COMPUTE_BIT)
+            flags.intersects(VkQueueFlagBits::TRANSFER)
+                && !flags.intersects(VkQueueFlagBits::GRAPHICS)
+                && !flags.intersects(VkQueueFlagBits::COMPUTE)
         })
         .map(|(index, _)| index as u32)
         .next();
@@ -187,7 +184,7 @@ fn select_queue_families(
                     && family
                         .queueFamilyProperties
                         .queueFlags
-                        .intersects(VkQueueFlagBits::VK_QUEUE_TRANSFER_BIT)
+                        .intersects(VkQueueFlagBits::TRANSFER)
             })
             .map(|(index, _)| index as u32)
     })?;
@@ -339,13 +336,13 @@ fn record_transfer_copy(
             source.raw(),
             selection.graphics,
             selection.transfer,
-            VkAccessFlagBits2::VK_ACCESS_2_TRANSFER_READ_BIT,
+            VkAccessFlagBits2::TRANSFER_READ,
         ),
         queue_acquire_barrier(
             destination.raw(),
             selection.graphics,
             selection.transfer,
-            VkAccessFlagBits2::VK_ACCESS_2_TRANSFER_WRITE_BIT,
+            VkAccessFlagBits2::TRANSFER_WRITE,
         ),
     ];
     let acquire_dependency =
@@ -387,7 +384,7 @@ fn record_graphics_readback(
         destination.raw(),
         selection.transfer,
         selection.graphics,
-        VkAccessFlagBits2::VK_ACCESS_2_TRANSFER_READ_BIT,
+        VkAccessFlagBits2::TRANSFER_READ,
     )];
     let acquire_dependency =
         VkDependencyInfo::DEFAULT.with_pBufferMemoryBarriers(&acquire_barriers);
@@ -402,10 +399,10 @@ fn record_graphics_readback(
     cmd.vkCmdCopyBuffer2(&copy_info);
 
     let host_barriers = [VkBufferMemoryBarrier2::DEFAULT
-        .with_srcStageMask(VkPipelineStageFlagBits2::VK_PIPELINE_STAGE_2_TRANSFER_BIT)
-        .with_srcAccessMask(VkAccessFlagBits2::VK_ACCESS_2_TRANSFER_WRITE_BIT)
-        .with_dstStageMask(VkPipelineStageFlagBits2::VK_PIPELINE_STAGE_2_HOST_BIT)
-        .with_dstAccessMask(VkAccessFlagBits2::VK_ACCESS_2_HOST_READ_BIT)
+        .with_srcStageMask(VkPipelineStageFlagBits2::TRANSFER)
+        .with_srcAccessMask(VkAccessFlagBits2::TRANSFER_WRITE)
+        .with_dstStageMask(VkPipelineStageFlagBits2::HOST)
+        .with_dstAccessMask(VkAccessFlagBits2::HOST_READ)
         .with_srcQueueFamilyIndex(selection.graphics)
         .with_dstQueueFamilyIndex(selection.graphics)
         .with_buffer(readback.raw())
@@ -424,10 +421,10 @@ fn queue_release_barrier(
     dst_family: u32,
 ) -> VkBufferMemoryBarrier2<'static> {
     VkBufferMemoryBarrier2::DEFAULT
-        .with_srcStageMask(VkPipelineStageFlagBits2::VK_PIPELINE_STAGE_2_TRANSFER_BIT)
-        .with_srcAccessMask(VkAccessFlagBits2::VK_ACCESS_2_TRANSFER_WRITE_BIT)
-        .with_dstStageMask(VkPipelineStageFlagBits2::VK_PIPELINE_STAGE_2_NONE)
-        .with_dstAccessMask(VkAccessFlagBits2::VK_ACCESS_2_NONE)
+        .with_srcStageMask(VkPipelineStageFlagBits2::TRANSFER)
+        .with_srcAccessMask(VkAccessFlagBits2::TRANSFER_WRITE)
+        .with_dstStageMask(VkPipelineStageFlagBits2::NONE)
+        .with_dstAccessMask(VkAccessFlagBits2::NONE)
         .with_srcQueueFamilyIndex(src_family)
         .with_dstQueueFamilyIndex(dst_family)
         .with_buffer(buffer)
@@ -441,9 +438,9 @@ fn queue_acquire_barrier(
     dst_access: VkAccessFlags2,
 ) -> VkBufferMemoryBarrier2<'static> {
     VkBufferMemoryBarrier2::DEFAULT
-        .with_srcStageMask(VkPipelineStageFlagBits2::VK_PIPELINE_STAGE_2_NONE)
-        .with_srcAccessMask(VkAccessFlagBits2::VK_ACCESS_2_NONE)
-        .with_dstStageMask(VkPipelineStageFlagBits2::VK_PIPELINE_STAGE_2_TRANSFER_BIT)
+        .with_srcStageMask(VkPipelineStageFlagBits2::NONE)
+        .with_srcAccessMask(VkAccessFlagBits2::NONE)
+        .with_dstStageMask(VkPipelineStageFlagBits2::TRANSFER)
         .with_dstAccessMask(dst_access)
         .with_srcQueueFamilyIndex(src_family)
         .with_dstQueueFamilyIndex(dst_family)
@@ -455,12 +452,10 @@ fn create_transfer_buffer<'a>(
     allocator: &'a Allocator<'a>,
     size: VkDeviceSize,
 ) -> Result<vk_alloc::AllocatedBuffer<'a>, String> {
-    let usage = VkBufferUsageFlags2CreateInfo::DEFAULT.with_usage(
-        VkBufferUsageFlagBits2::VK_BUFFER_USAGE_2_TRANSFER_SRC_BIT
-            | VkBufferUsageFlagBits2::VK_BUFFER_USAGE_2_TRANSFER_DST_BIT,
-    );
+    let usage = VkBufferUsageFlags2CreateInfo::DEFAULT
+        .with_usage(VkBufferUsageFlagBits2::TRANSFER_SRC | VkBufferUsageFlagBits2::TRANSFER_DST);
     let buffer_info = VkBufferCreateInfo::DEFAULT
-        .with_sharingMode(VkSharingMode::VK_SHARING_MODE_EXCLUSIVE)
+        .with_sharingMode(VkSharingMode::EXCLUSIVE)
         .with_pNext_VkBufferUsageFlags2CreateInfo(&usage)
         .with_size(size);
 
@@ -469,8 +464,8 @@ fn create_transfer_buffer<'a>(
             &buffer_info,
             AllocationCreateInfo::new().with_memory_type_policy(
                 MemoryTypePolicy::UPLOAD.with_required_flags(
-                    VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
-                        | VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                    VkMemoryPropertyFlagBits::HOST_VISIBLE
+                        | VkMemoryPropertyFlagBits::HOST_COHERENT,
                 ),
             ),
         )
@@ -482,7 +477,7 @@ fn create_command_pool<'a>(
     queue_family: u32,
 ) -> Result<CommandPool<'a>, String> {
     let pool_info = VkCommandPoolCreateInfo::DEFAULT
-        .with_flags(VkCommandPoolCreateFlagBits::VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
+        .with_flags(VkCommandPoolCreateFlagBits::RESET_COMMAND_BUFFER)
         .with_queueFamilyIndex(queue_family);
 
     device
@@ -492,7 +487,7 @@ fn create_command_pool<'a>(
 
 fn allocate_command_buffer<'a>(pool: &'a CommandPool<'a>) -> Result<CommandBuffer<'a>, String> {
     let info = VkCommandBufferAllocateInfo::DEFAULT
-        .with_level(VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+        .with_level(VkCommandBufferLevel::PRIMARY)
         .with_commandBufferCount(1)
         .with_commandPool(pool.raw());
     let buffers = pool
@@ -507,7 +502,7 @@ fn allocate_command_buffer<'a>(pool: &'a CommandPool<'a>) -> Result<CommandBuffe
 
 fn create_timeline_semaphore<'a>(device: &'a Device<'a>) -> Result<Semaphore<'a>, String> {
     let timeline_info = VkSemaphoreTypeCreateInfo::DEFAULT
-        .with_semaphoreType(VkSemaphoreType::VK_SEMAPHORE_TYPE_TIMELINE)
+        .with_semaphoreType(VkSemaphoreType::TIMELINE)
         .with_initialValue(0);
     let semaphore_info =
         VkSemaphoreCreateInfo::DEFAULT.with_pNext_VkSemaphoreTypeCreateInfo(&timeline_info);
@@ -530,7 +525,7 @@ fn submit(
             VkSemaphoreSubmitInfo::DEFAULT
                 .with_semaphore(semaphore)
                 .with_value(value)
-                .with_stageMask(VkPipelineStageFlagBits2::VK_PIPELINE_STAGE_2_TRANSFER_BIT)
+                .with_stageMask(VkPipelineStageFlagBits2::TRANSFER)
         })
         .collect();
     let signal_infos: Vec<_> = signals
@@ -539,7 +534,7 @@ fn submit(
             VkSemaphoreSubmitInfo::DEFAULT
                 .with_semaphore(semaphore)
                 .with_value(value)
-                .with_stageMask(VkPipelineStageFlagBits2::VK_PIPELINE_STAGE_2_TRANSFER_BIT)
+                .with_stageMask(VkPipelineStageFlagBits2::TRANSFER)
         })
         .collect();
     let command_infos =

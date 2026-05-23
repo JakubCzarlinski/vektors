@@ -43,7 +43,7 @@ pub(crate) fn buffer_usage_flags2(buffer_info: &vk::VkBufferCreateInfo) -> vk::V
     let mut next = buffer_info.pNext.cast::<vk::VkBaseInStructure>();
     while !next.is_null() {
         let base = unsafe { &*next };
-        if base.sType == vk::VkStructureType::VK_STRUCTURE_TYPE_BUFFER_USAGE_FLAGS_2_CREATE_INFO {
+        if base.sType == vk::VkStructureType::BUFFER_USAGE_FLAGS_2_CREATE_INFO {
             let usage_info = unsafe { &*next.cast::<vk::VkBufferUsageFlags2CreateInfo>() };
             return usage_info.usage;
         }
@@ -67,12 +67,12 @@ pub(crate) fn recommended_buffer_chunk_size(
     } else {
         total_size
     };
-    if usage_flags.intersects(vk::VkBufferUsageFlagBits2::VK_BUFFER_USAGE_2_STORAGE_BUFFER_BIT)
+    if usage_flags.intersects(vk::VkBufferUsageFlagBits2::STORAGE_BUFFER)
         && limits.max_storage_buffer_range != 0
     {
         chunk = chunk.min(u64::from(limits.max_storage_buffer_range));
     }
-    if usage_flags.intersects(vk::VkBufferUsageFlagBits2::VK_BUFFER_USAGE_2_UNIFORM_BUFFER_BIT)
+    if usage_flags.intersects(vk::VkBufferUsageFlagBits2::UNIFORM_BUFFER)
         && limits.max_uniform_buffer_range != 0
     {
         chunk = chunk.min(u64::from(limits.max_uniform_buffer_range));

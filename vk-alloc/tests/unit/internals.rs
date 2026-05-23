@@ -11,9 +11,9 @@ use alloc::vec::Vec;
 
 #[test]
 fn memory_type_scoring_prefers_expected_flags() {
-    let host_visible = vk::VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
-        | vk::VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-    let device_local = vk::VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+    let host_visible =
+        vk::VkMemoryPropertyFlagBits::HOST_VISIBLE | vk::VkMemoryPropertyFlagBits::HOST_COHERENT;
+    let device_local = vk::VkMemoryPropertyFlagBits::DEVICE_LOCAL;
     let gpu_only = score_memory_type(MemoryTypePolicy::DEVICE_LOCAL, device_local).unwrap();
     let cpu_only = score_memory_type(MemoryTypePolicy::HOST_VISIBLE, host_visible).unwrap();
     let cpu_to_gpu =

@@ -34,7 +34,7 @@ pub(crate) fn find_compute_queue_family(physical_device: &vk::PhysicalDevice<'_>
             if properties
                 .queueFamilyProperties
                 .queueFlags
-                .intersects(vk::VkQueueFlagBits::VK_QUEUE_COMPUTE_BIT)
+                .intersects(vk::VkQueueFlagBits::COMPUTE)
             {
                 Some(index as u32)
             } else {

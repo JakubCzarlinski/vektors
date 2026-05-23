@@ -144,7 +144,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDescriptorBufferBindingInfoEXT<'root
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkBufferUsageFlags2CreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BUFFER_USAGE_FLAGS_2_CREATE_INFO,
+    sType: VkStructureType::BUFFER_USAGE_FLAGS_2_CREATE_INFO,
     pNext: core::ptr::null(),
     usage: VkBufferUsageFlagBits2(0),
     _marker: core::marker::PhantomData,
@@ -259,7 +259,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkPhysicalDeviceMaintenance5Features<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_MAINTENANCE_5_FEATURES,
     pNext: core::ptr::null_mut(),
     maintenance5: 0,
     _marker: core::marker::PhantomData,
@@ -354,7 +354,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkPhysicalDeviceMaintenance5Properties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_MAINTENANCE_5_PROPERTIES,
     pNext: core::ptr::null_mut(),
     earlyFragmentMultisampleCoverageAfterSampleCounting: 0,
     earlyFragmentSampleMaskTestBeforeSampleCounting: 0,
@@ -460,7 +460,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkPhysicalDeviceMaintenance6Features<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_6_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_MAINTENANCE_6_FEATURES,
     pNext: core::ptr::null_mut(),
     maintenance6: 0,
     _marker: core::marker::PhantomData,
@@ -549,7 +549,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkPhysicalDeviceMaintenance6Properties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_6_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_MAINTENANCE_6_PROPERTIES,
     pNext: core::ptr::null_mut(),
     blockTexelViewCompatibleMultipleLayers: 0,
     maxCombinedImageSamplerDescriptorCount: 0,
@@ -626,7 +626,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceQueueCreateInfo<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkDeviceQueueGlobalPriorityCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO,
+    sType: VkStructureType::DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO,
     pNext: core::ptr::null(),
     globalPriority: VkQueueGlobalPriority(0),
     _marker: core::marker::PhantomData,
@@ -696,7 +696,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkPhysicalDeviceGlobalPriorityQueryFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GLOBAL_PRIORITY_QUERY_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_GLOBAL_PRIORITY_QUERY_FEATURES,
     pNext: core::ptr::null_mut(),
     globalPriorityQuery: 0,
     _marker: core::marker::PhantomData,
@@ -783,7 +783,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkQueueFamilyProperties2<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkQueueFamilyGlobalPriorityProperties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_QUEUE_FAMILY_GLOBAL_PRIORITY_PROPERTIES,
+    sType: VkStructureType::QUEUE_FAMILY_GLOBAL_PRIORITY_PROPERTIES,
     pNext: core::ptr::null_mut(),
     priorityCount: 0,
     priorities: [VkQueueGlobalPriority(0); VK_MAX_GLOBAL_PRIORITY_SIZE as usize],
@@ -862,7 +862,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkPhysicalDeviceIndexTypeUint8Features<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INDEX_TYPE_UINT8_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_INDEX_TYPE_UINT8_FEATURES,
     pNext: core::ptr::null_mut(),
     indexTypeUint8: 0,
     _marker: core::marker::PhantomData,
@@ -967,7 +967,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkPhysicalDeviceVulkan14Features<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_VULKAN_1_4_FEATURES,
     pNext: core::ptr::null_mut(),
     globalPriorityQuery: 0,
     shaderSubgroupRotate: 0,
@@ -1220,7 +1220,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkPhysicalDeviceVulkan14Properties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_VULKAN_1_4_PROPERTIES,
     pNext: core::ptr::null_mut(),
     lineSubPixelPrecisionBits: 0,
     maxVertexAttribDivisor: 0,
@@ -1466,7 +1466,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkPhysicalDeviceHostImageCopyFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES,
     pNext: core::ptr::null_mut(),
     hostImageCopy: 0,
     _marker: core::marker::PhantomData,
@@ -1559,7 +1559,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkPhysicalDeviceHostImageCopyProperties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_HOST_IMAGE_COPY_PROPERTIES,
     pNext: core::ptr::null_mut(),
     copySrcLayoutCount: 0,
     pCopySrcLayouts: core::ptr::null_mut(),
@@ -1660,7 +1660,7 @@ unsafe impl<'a> Sync for VkMemoryToImageCopy<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkMemoryToImageCopy<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MEMORY_TO_IMAGE_COPY,
+    sType: VkStructureType::MEMORY_TO_IMAGE_COPY,
     pNext: core::ptr::null(),
     pHostPointer: core::ptr::null(),
     memoryRowLength: 0,
@@ -1756,7 +1756,7 @@ unsafe impl<'a> Sync for VkImageToMemoryCopy<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkImageToMemoryCopy<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_TO_MEMORY_COPY,
+    sType: VkStructureType::IMAGE_TO_MEMORY_COPY,
     pNext: core::ptr::null(),
     pHostPointer: core::ptr::null_mut(),
     memoryRowLength: 0,
@@ -1853,7 +1853,7 @@ unsafe impl<'a> Sync for VkCopyMemoryToImageInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkCopyMemoryToImageInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COPY_MEMORY_TO_IMAGE_INFO,
+    sType: VkStructureType::COPY_MEMORY_TO_IMAGE_INFO,
     pNext: core::ptr::null(),
     flags: VkHostImageCopyFlagBits(0),
     dstImage: VkImage::DEFAULT,
@@ -1945,7 +1945,7 @@ unsafe impl<'a> Sync for VkCopyImageToMemoryInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkCopyImageToMemoryInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COPY_IMAGE_TO_MEMORY_INFO,
+    sType: VkStructureType::COPY_IMAGE_TO_MEMORY_INFO,
     pNext: core::ptr::null(),
     flags: VkHostImageCopyFlagBits(0),
     srcImage: VkImage::DEFAULT,
@@ -2039,7 +2039,7 @@ unsafe impl<'a> Sync for VkCopyImageToImageInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkCopyImageToImageInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COPY_IMAGE_TO_IMAGE_INFO,
+    sType: VkStructureType::COPY_IMAGE_TO_IMAGE_INFO,
     pNext: core::ptr::null(),
     flags: VkHostImageCopyFlagBits(0),
     srcImage: VkImage::DEFAULT,
@@ -2140,7 +2140,7 @@ unsafe impl<'a> Sync for VkHostImageLayoutTransitionInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkHostImageLayoutTransitionInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_HOST_IMAGE_LAYOUT_TRANSITION_INFO,
+    sType: VkStructureType::HOST_IMAGE_LAYOUT_TRANSITION_INFO,
     pNext: core::ptr::null(),
     image: VkImage::DEFAULT,
     oldLayout: VkImageLayout(0),
@@ -2225,7 +2225,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSubresourceLayout2<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkSubresourceHostMemcpySize<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SUBRESOURCE_HOST_MEMCPY_SIZE,
+    sType: VkStructureType::SUBRESOURCE_HOST_MEMCPY_SIZE,
     pNext: core::ptr::null_mut(),
     size: 0,
     _marker: core::marker::PhantomData,
@@ -2293,7 +2293,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkImageFormatProperties2<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkHostImageCopyDevicePerformanceQuery<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_HOST_IMAGE_COPY_DEVICE_PERFORMANCE_QUERY,
+    sType: VkStructureType::HOST_IMAGE_COPY_DEVICE_PERFORMANCE_QUERY,
     pNext: core::ptr::null_mut(),
     optimalDeviceAccess: 0,
     identicalMemoryLayout: 0,
@@ -2357,7 +2357,7 @@ unsafe impl<'a> Sync for VkImageSubresource2<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkImageSubresource2<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_SUBRESOURCE_2,
+    sType: VkStructureType::IMAGE_SUBRESOURCE_2,
     pNext: core::ptr::null_mut(),
     imageSubresource: VkImageSubresource::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -2417,7 +2417,7 @@ unsafe impl<'a> Sync for VkSubresourceLayout2<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkSubresourceLayout2<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SUBRESOURCE_LAYOUT_2,
+    sType: VkStructureType::SUBRESOURCE_LAYOUT_2,
     pNext: core::ptr::null_mut(),
     subresourceLayout: VkSubresourceLayout::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -2500,7 +2500,7 @@ unsafe impl<'a> Sync for VkDeviceImageSubresourceInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkDeviceImageSubresourceInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEVICE_IMAGE_SUBRESOURCE_INFO,
+    sType: VkStructureType::DEVICE_IMAGE_SUBRESOURCE_INFO,
     pNext: core::ptr::null(),
     pCreateInfo: core::ptr::null(),
     pSubresource: core::ptr::null(),
@@ -2574,7 +2574,7 @@ unsafe impl<'a> Sync for VkMemoryMapInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkMemoryMapInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MEMORY_MAP_INFO,
+    sType: VkStructureType::MEMORY_MAP_INFO,
     pNext: core::ptr::null(),
     flags: VkMemoryMapFlagBits(0),
     memory: VkDeviceMemory::DEFAULT,
@@ -2664,7 +2664,7 @@ unsafe impl<'a> Sync for VkMemoryUnmapInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkMemoryUnmapInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MEMORY_UNMAP_INFO,
+    sType: VkStructureType::MEMORY_UNMAP_INFO,
     pNext: core::ptr::null(),
     flags: VkMemoryUnmapFlagBits(0),
     memory: VkDeviceMemory::DEFAULT,
@@ -2740,7 +2740,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkBindImageMemoryInfo<'root>>
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 impl<'a> VkBindMemoryStatus<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BIND_MEMORY_STATUS,
+    sType: VkStructureType::BIND_MEMORY_STATUS,
     pNext: core::ptr::null(),
     pResult: core::ptr::null_mut(),
     _marker: core::marker::PhantomData,

@@ -46,11 +46,11 @@ fn main() -> Result<(), String> {
             println!("Group allocator stats: {:?}", allocator.stats());
 
             let usage = vk::VkBufferUsageFlags2CreateInfo::DEFAULT
-                .with_usage(vk::VkBufferUsageFlagBits2::VK_BUFFER_USAGE_2_STORAGE_BUFFER_BIT);
+                .with_usage(vk::VkBufferUsageFlagBits2::STORAGE_BUFFER);
             let buffer_info = vk::VkBufferCreateInfo::DEFAULT
                 .with_size(1024 * 16) // 8 KB
                 .with_pNext_VkBufferUsageFlags2CreateInfo(&usage)
-                .with_sharingMode(vk::VkSharingMode::VK_SHARING_MODE_EXCLUSIVE);
+                .with_sharingMode(vk::VkSharingMode::EXCLUSIVE);
             let buffer = allocator
                 .create_buffer_with_mode(
                     &buffer_info,

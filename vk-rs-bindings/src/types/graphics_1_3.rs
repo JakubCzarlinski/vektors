@@ -163,7 +163,7 @@ unsafe impl<'a> Sync for VkImageBlit2<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_3")]
 impl<'a> VkImageBlit2<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_BLIT_2,
+    sType: VkStructureType::IMAGE_BLIT_2,
     pNext: core::ptr::null(),
     srcSubresource: VkImageSubresourceLayers::DEFAULT,
     srcOffsets: [VkOffset3D::DEFAULT; 2],
@@ -252,7 +252,7 @@ unsafe impl<'a> Sync for VkImageResolve2<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_3")]
 impl<'a> VkImageResolve2<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_RESOLVE_2,
+    sType: VkStructureType::IMAGE_RESOLVE_2,
     pNext: core::ptr::null(),
     srcSubresource: VkImageSubresourceLayers::DEFAULT,
     srcOffset: VkOffset3D::DEFAULT,
@@ -341,7 +341,7 @@ unsafe impl<'a> Sync for VkBlitImageInfo2<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_3")]
 impl<'a> VkBlitImageInfo2<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BLIT_IMAGE_INFO_2,
+    sType: VkStructureType::BLIT_IMAGE_INFO_2,
     pNext: core::ptr::null(),
     srcImage: VkImage::DEFAULT,
     srcImageLayout: VkImageLayout(0),
@@ -457,7 +457,7 @@ unsafe impl<'a> Sync for VkResolveImageInfo2<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_3")]
 impl<'a> VkResolveImageInfo2<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RESOLVE_IMAGE_INFO_2,
+    sType: VkStructureType::RESOLVE_IMAGE_INFO_2,
     pNext: core::ptr::null(),
     srcImage: VkImage::DEFAULT,
     srcImageLayout: VkImageLayout(0),
@@ -579,7 +579,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkGraphicsPipelineCreateInfo<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_3")]
 impl<'a> VkPipelineRenderingCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO,
+    sType: VkStructureType::PIPELINE_RENDERING_CREATE_INFO,
     pNext: core::ptr::null(),
     viewMask: 0,
     colorAttachmentCount: 0,
@@ -677,7 +677,7 @@ unsafe impl<'a> Sync for VkRenderingInfo<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_3")]
 impl<'a> VkRenderingInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RENDERING_INFO,
+    sType: VkStructureType::RENDERING_INFO,
     pNext: core::ptr::null(),
     flags: VkRenderingFlagBits(0),
     renderArea: VkRect2D::DEFAULT,
@@ -949,7 +949,7 @@ unsafe impl<'a> Sync for VkRenderingAttachmentInfo<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_3")]
 impl<'a> VkRenderingAttachmentInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+    sType: VkStructureType::RENDERING_ATTACHMENT_INFO,
     pNext: core::ptr::null(),
     imageView: VkImageView::DEFAULT,
     imageLayout: VkImageLayout(0),
@@ -1096,7 +1096,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_3")]
 impl<'a> VkPhysicalDeviceDynamicRenderingFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES,
     pNext: core::ptr::null_mut(),
     dynamicRendering: 0,
     _marker: core::marker::PhantomData,
@@ -1189,7 +1189,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkCommandBufferInheritanceInfo<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_3")]
 impl<'a> VkCommandBufferInheritanceRenderingInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_RENDERING_INFO,
+    sType: VkStructureType::COMMAND_BUFFER_INHERITANCE_RENDERING_INFO,
     pNext: core::ptr::null(),
     flags: VkRenderingFlagBits(0),
     viewMask: 0,

@@ -46,8 +46,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_IMG_relaxed_line_rasterization")]
 impl<'a> VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RELAXED_LINE_RASTERIZATION_FEATURES_IMG,
+    sType: VkStructureType::PHYSICAL_DEVICE_RELAXED_LINE_RASTERIZATION_FEATURES_IMG,
     pNext: core::ptr::null_mut(),
     relaxedLineRasterization: 0,
     _marker: core::marker::PhantomData,

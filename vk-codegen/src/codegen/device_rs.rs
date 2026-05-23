@@ -324,7 +324,7 @@ fn gen_create_command_pool(cmd: &Command, providers: &[String]) -> TokenStream {
         ) -> Result<crate::command_pool::CommandPool<'dev>, VkResult> {
             let mut raw = VkCommandPool::NULL;
             let r = unsafe { (self.table.vkCreateCommandPool.unwrap_unchecked())(self.raw, pCreateInfo, pAllocator, &mut raw) };
-            if r >= VkResult::VK_SUCCESS {
+            if r >= VkResult::SUCCESS {
                 Ok(crate::command_pool::CommandPool { raw, parent: self, table: &self.command_pool_table })
             } else {
                 core::hint::cold_path();

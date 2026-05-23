@@ -142,7 +142,7 @@ impl<'dev> Fence<'dev> {
   pub fn vkGetFenceStatus(&self) -> Result<VkResult, VkResult> {
     let r =
       unsafe { (self.table).vkGetFenceStatus.unwrap_unchecked()(self.device().raw(), self.raw) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();

@@ -103,7 +103,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_AMDX_dense_geometry_format")]
 impl<'a> VkPhysicalDeviceDenseGeometryFormatFeaturesAMDX<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DENSE_GEOMETRY_FORMAT_FEATURES_AMDX,
+    sType: VkStructureType::PHYSICAL_DEVICE_DENSE_GEOMETRY_FORMAT_FEATURES_AMDX,
     pNext: core::ptr::null_mut(),
     denseGeometryFormat: 0,
     _marker: core::marker::PhantomData,
@@ -192,17 +192,17 @@ unsafe impl<'child, 'root> VkPNextExtends<VkAccelerationStructureGeometryKHR<'ro
 #[cfg(feature = "VK_AMDX_dense_geometry_format")]
 impl<'a> VkAccelerationStructureDenseGeometryFormatTrianglesDataAMDX<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DENSE_GEOMETRY_FORMAT_TRIANGLES_DATA_AMDX,
-        pNext: core::ptr::null(),
-        compressedData: VkDeviceOrHostAddressConstKHR::DEFAULT,
-        dataSize: 0,
-        numTriangles: 0,
-        numVertices: 0,
-        maxPrimitiveIndex: 0,
-        maxGeometryIndex: 0,
-        format: VkCompressedTriangleFormatAMDX(0),
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::ACCELERATION_STRUCTURE_DENSE_GEOMETRY_FORMAT_TRIANGLES_DATA_AMDX,
+    pNext: core::ptr::null(),
+    compressedData: VkDeviceOrHostAddressConstKHR::DEFAULT,
+    dataSize: 0,
+    numTriangles: 0,
+    numVertices: 0,
+    maxPrimitiveIndex: 0,
+    maxGeometryIndex: 0,
+    format: VkCompressedTriangleFormatAMDX(0),
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -371,7 +371,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_AMDX_shader_enqueue")]
 impl<'a> VkPhysicalDeviceShaderEnqueuePropertiesAMDX<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ENQUEUE_PROPERTIES_AMDX,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_ENQUEUE_PROPERTIES_AMDX,
     pNext: core::ptr::null_mut(),
     maxExecutionGraphDepth: 0,
     maxExecutionGraphShaderOutputNodes: 0,
@@ -478,7 +478,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_AMDX_shader_enqueue")]
 impl<'a> VkPhysicalDeviceShaderEnqueueFeaturesAMDX<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ENQUEUE_FEATURES_AMDX,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_ENQUEUE_FEATURES_AMDX,
     pNext: core::ptr::null_mut(),
     shaderEnqueue: 0,
     shaderMeshEnqueue: 0,
@@ -577,7 +577,7 @@ unsafe impl<'a> Sync for VkExecutionGraphPipelineCreateInfoAMDX<'a> {}
 #[cfg(feature = "VK_AMDX_shader_enqueue")]
 impl<'a> VkExecutionGraphPipelineCreateInfoAMDX<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_EXECUTION_GRAPH_PIPELINE_CREATE_INFO_AMDX,
+    sType: VkStructureType::EXECUTION_GRAPH_PIPELINE_CREATE_INFO_AMDX,
     pNext: core::ptr::null(),
     flags: VkPipelineCreateFlagBits(0),
     stageCount: 0,
@@ -719,7 +719,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPipelineShaderStageCreateInfo<'root>
 #[cfg(feature = "VK_AMDX_shader_enqueue")]
 impl<'a> VkPipelineShaderStageNodeCreateInfoAMDX<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_NODE_CREATE_INFO_AMDX,
+    sType: VkStructureType::PIPELINE_SHADER_STAGE_NODE_CREATE_INFO_AMDX,
     pNext: core::ptr::null(),
     pName: core::ptr::null(),
     index: 0,
@@ -788,7 +788,7 @@ unsafe impl<'a> Sync for VkExecutionGraphPipelineScratchSizeAMDX<'a> {}
 #[cfg(feature = "VK_AMDX_shader_enqueue")]
 impl<'a> VkExecutionGraphPipelineScratchSizeAMDX<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_EXECUTION_GRAPH_PIPELINE_SCRATCH_SIZE_AMDX,
+    sType: VkStructureType::EXECUTION_GRAPH_PIPELINE_SCRATCH_SIZE_AMDX,
     pNext: core::ptr::null_mut(),
     minSize: 0,
     maxSize: 0,

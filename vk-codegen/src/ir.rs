@@ -449,7 +449,7 @@ pub struct EnumVariant {
     pub provided_by: Vec<String>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum EnumValue {
     Integer(i64),
     Hex(u64),

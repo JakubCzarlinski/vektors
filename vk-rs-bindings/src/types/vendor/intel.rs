@@ -135,7 +135,7 @@ unsafe impl<'a> Sync for VkInitializePerformanceApiInfoINTEL<'a> {}
 #[cfg(feature = "VK_INTEL_performance_query")]
 impl<'a> VkInitializePerformanceApiInfoINTEL<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_INITIALIZE_PERFORMANCE_API_INFO_INTEL,
+    sType: VkStructureType::INITIALIZE_PERFORMANCE_API_INFO_INTEL,
     pNext: core::ptr::null(),
     pUserData: core::ptr::null_mut(),
     _marker: core::marker::PhantomData,
@@ -206,7 +206,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkQueryPoolCreateInfo<'root>>
 #[cfg(feature = "VK_INTEL_performance_query")]
 impl<'a> VkQueryPoolPerformanceQueryCreateInfoINTEL<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_QUERY_POOL_PERFORMANCE_QUERY_CREATE_INFO_INTEL,
+    sType: VkStructureType::QUERY_POOL_PERFORMANCE_QUERY_CREATE_INFO_INTEL,
     pNext: core::ptr::null(),
     performanceCountersSampling: VkQueryPoolSamplingModeINTEL(0),
     _marker: core::marker::PhantomData,
@@ -277,7 +277,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkQueryPoolCreateInfo<'root>>
 #[cfg(feature = "VK_INTEL_performance_query")]
 impl<'a> VkQueryPoolCreateInfoINTEL<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_QUERY_POOL_PERFORMANCE_QUERY_CREATE_INFO_INTEL,
+    sType: VkStructureType::QUERY_POOL_PERFORMANCE_QUERY_CREATE_INFO_INTEL,
     pNext: core::ptr::null(),
     performanceCountersSampling: VkQueryPoolSamplingModeINTEL(0),
     _marker: core::marker::PhantomData,
@@ -338,7 +338,7 @@ unsafe impl<'a> Sync for VkPerformanceMarkerInfoINTEL<'a> {}
 #[cfg(feature = "VK_INTEL_performance_query")]
 impl<'a> VkPerformanceMarkerInfoINTEL<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PERFORMANCE_MARKER_INFO_INTEL,
+    sType: VkStructureType::PERFORMANCE_MARKER_INFO_INTEL,
     pNext: core::ptr::null(),
     marker: 0,
     _marker: core::marker::PhantomData,
@@ -396,7 +396,7 @@ unsafe impl<'a> Sync for VkPerformanceStreamMarkerInfoINTEL<'a> {}
 #[cfg(feature = "VK_INTEL_performance_query")]
 impl<'a> VkPerformanceStreamMarkerInfoINTEL<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PERFORMANCE_STREAM_MARKER_INFO_INTEL,
+    sType: VkStructureType::PERFORMANCE_STREAM_MARKER_INFO_INTEL,
     pNext: core::ptr::null(),
     marker: 0,
     _marker: core::marker::PhantomData,
@@ -456,7 +456,7 @@ unsafe impl<'a> Sync for VkPerformanceOverrideInfoINTEL<'a> {}
 #[cfg(feature = "VK_INTEL_performance_query")]
 impl<'a> VkPerformanceOverrideInfoINTEL<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PERFORMANCE_OVERRIDE_INFO_INTEL,
+    sType: VkStructureType::PERFORMANCE_OVERRIDE_INFO_INTEL,
     pNext: core::ptr::null(),
     type_: VkPerformanceOverrideTypeINTEL(0),
     enable: 0,
@@ -526,7 +526,7 @@ unsafe impl<'a> Sync for VkPerformanceConfigurationAcquireInfoINTEL<'a> {}
 #[cfg(feature = "VK_INTEL_performance_query")]
 impl<'a> VkPerformanceConfigurationAcquireInfoINTEL<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PERFORMANCE_CONFIGURATION_ACQUIRE_INFO_INTEL,
+    sType: VkStructureType::PERFORMANCE_CONFIGURATION_ACQUIRE_INFO_INTEL,
     pNext: core::ptr::null(),
     type_: VkPerformanceConfigurationTypeINTEL(0),
     _marker: core::marker::PhantomData,
@@ -602,8 +602,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_INTEL_shader_integer_functions2")]
 impl<'a> VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_FUNCTIONS_2_FEATURES_INTEL,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_INTEGER_FUNCTIONS_2_FEATURES_INTEL,
     pNext: core::ptr::null_mut(),
     shaderIntegerFunctions2: 0,
     _marker: core::marker::PhantomData,

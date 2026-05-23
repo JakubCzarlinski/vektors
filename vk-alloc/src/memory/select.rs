@@ -46,7 +46,7 @@ pub(crate) fn is_host_visible(
 ) -> bool {
     properties.memoryTypes[memory_type_index as usize]
         .propertyFlags
-        .intersects(vk::VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+        .intersects(vk::VkMemoryPropertyFlagBits::HOST_VISIBLE)
 }
 
 fn is_device_local(
@@ -55,7 +55,7 @@ fn is_device_local(
 ) -> bool {
     properties.memoryTypes[memory_type_index as usize]
         .propertyFlags
-        .intersects(vk::VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
+        .intersects(vk::VkMemoryPropertyFlagBits::DEVICE_LOCAL)
 }
 
 pub(crate) fn block_size_for(

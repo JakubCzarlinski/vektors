@@ -730,7 +730,7 @@ unsafe impl<'a> Sync for VkPipelineVertexInputStateCreateInfo<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 impl<'a> VkPipelineVertexInputStateCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
+    sType: VkStructureType::PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: 0,
     vertexBindingDescriptionCount: 0,
@@ -842,7 +842,7 @@ unsafe impl<'a> Sync for VkPipelineInputAssemblyStateCreateInfo<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 impl<'a> VkPipelineInputAssemblyStateCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
+    sType: VkStructureType::PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: 0,
     topology: VkPrimitiveTopology(0),
@@ -914,7 +914,7 @@ unsafe impl<'a> Sync for VkPipelineTessellationStateCreateInfo<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 impl<'a> VkPipelineTessellationStateCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO,
+    sType: VkStructureType::PIPELINE_TESSELLATION_STATE_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: 0,
     patchControlPoints: 0,
@@ -1000,7 +1000,7 @@ unsafe impl<'a> Sync for VkPipelineViewportStateCreateInfo<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 impl<'a> VkPipelineViewportStateCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
+    sType: VkStructureType::PIPELINE_VIEWPORT_STATE_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: 0,
     viewportCount: 0,
@@ -1193,7 +1193,7 @@ unsafe impl<'a> Sync for VkPipelineRasterizationStateCreateInfo<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 impl<'a> VkPipelineRasterizationStateCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
+    sType: VkStructureType::PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: 0,
     depthClampEnable: 0,
@@ -1409,7 +1409,7 @@ unsafe impl<'a> Sync for VkPipelineMultisampleStateCreateInfo<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 impl<'a> VkPipelineMultisampleStateCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
+    sType: VkStructureType::PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: 0,
     rasterizationSamples: VkSampleCountFlagBits(0),
@@ -1643,7 +1643,7 @@ unsafe impl<'a> Sync for VkPipelineColorBlendStateCreateInfo<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 impl<'a> VkPipelineColorBlendStateCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
+    sType: VkStructureType::PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: VkPipelineColorBlendStateCreateFlagBits(0),
     logicOpEnable: 0,
@@ -1765,7 +1765,7 @@ unsafe impl<'a> Sync for VkPipelineDynamicStateCreateInfo<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 impl<'a> VkPipelineDynamicStateCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
+    sType: VkStructureType::PIPELINE_DYNAMIC_STATE_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: 0,
     dynamicStateCount: 0,
@@ -1917,7 +1917,7 @@ unsafe impl<'a> Sync for VkPipelineDepthStencilStateCreateInfo<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 impl<'a> VkPipelineDepthStencilStateCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
+    sType: VkStructureType::PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: VkPipelineDepthStencilStateCreateFlagBits(0),
     depthTestEnable: 0,
@@ -2065,7 +2065,7 @@ unsafe impl<'a> Sync for VkGraphicsPipelineCreateInfo<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 impl<'a> VkGraphicsPipelineCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
+    sType: VkStructureType::GRAPHICS_PIPELINE_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: VkPipelineCreateFlagBits(0),
     stageCount: 0,
@@ -2591,7 +2591,7 @@ unsafe impl<'a> Sync for VkRenderPassBeginInfo<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 impl<'a> VkRenderPassBeginInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+    sType: VkStructureType::RENDER_PASS_BEGIN_INFO,
     pNext: core::ptr::null(),
     renderPass: VkRenderPass::DEFAULT,
     framebuffer: VkFramebuffer::DEFAULT,
@@ -3212,7 +3212,7 @@ unsafe impl<'a> Sync for VkRenderPassCreateInfo<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 impl<'a> VkRenderPassCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
+    sType: VkStructureType::RENDER_PASS_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: VkRenderPassCreateFlagBits(0),
     attachmentCount: 0,
@@ -3392,7 +3392,7 @@ unsafe impl<'a> Sync for VkFramebufferCreateInfo<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 impl<'a> VkFramebufferCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+    sType: VkStructureType::FRAMEBUFFER_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: VkFramebufferCreateFlagBits(0),
     renderPass: VkRenderPass::DEFAULT,

@@ -50,11 +50,11 @@ fn main() -> Result<(), String> {
                 .map_err(|err| format!("failed to create readback pool: {err:?}"))?;
 
             let usage = vk::VkBufferUsageFlags2CreateInfo::DEFAULT
-                .with_usage(vk::VkBufferUsageFlagBits2::VK_BUFFER_USAGE_2_TRANSFER_SRC_BIT);
+                .with_usage(vk::VkBufferUsageFlagBits2::TRANSFER_SRC);
             let buffer_info = vk::VkBufferCreateInfo::DEFAULT
                 .with_size((WORDS_PER_FRAME * core::mem::size_of::<u32>()) as u64)
                 .with_pNext_VkBufferUsageFlags2CreateInfo(&usage)
-                .with_sharingMode(vk::VkSharingMode::VK_SHARING_MODE_EXCLUSIVE);
+                .with_sharingMode(vk::VkSharingMode::EXCLUSIVE);
             let (tx, rx) = mpsc::sync_channel::<Vec<u32>>(8);
             let producer = thread::spawn(move || -> Result<(), String> {
                 for frame in 0..STREAM_FRAMES {

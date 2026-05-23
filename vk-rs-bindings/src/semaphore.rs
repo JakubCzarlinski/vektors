@@ -160,7 +160,7 @@ impl<'dev> Semaphore<'dev> {
         pValue,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -198,7 +198,7 @@ impl<'dev> Semaphore<'dev> {
         .vkGetSemaphoreCounterValueKHR
         .unwrap_unchecked()(self.device().raw(), self.raw, pValue)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();

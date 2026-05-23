@@ -78,8 +78,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_VALVE_descriptor_set_host_mapping")]
 impl<'a> VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_SET_HOST_MAPPING_FEATURES_VALVE,
+    sType: VkStructureType::PHYSICAL_DEVICE_DESCRIPTOR_SET_HOST_MAPPING_FEATURES_VALVE,
     pNext: core::ptr::null_mut(),
     descriptorSetHostMapping: 0,
     _marker: core::marker::PhantomData,
@@ -156,7 +155,7 @@ unsafe impl<'a> Sync for VkDescriptorSetBindingReferenceVALVE<'a> {}
 #[cfg(feature = "VK_VALVE_descriptor_set_host_mapping")]
 impl<'a> VkDescriptorSetBindingReferenceVALVE<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DESCRIPTOR_SET_BINDING_REFERENCE_VALVE,
+    sType: VkStructureType::DESCRIPTOR_SET_BINDING_REFERENCE_VALVE,
     pNext: core::ptr::null(),
     #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     descriptorSetLayout: VkDescriptorSetLayout::DEFAULT,
@@ -225,7 +224,7 @@ unsafe impl<'a> Sync for VkDescriptorSetLayoutHostMappingInfoVALVE<'a> {}
 #[cfg(feature = "VK_VALVE_descriptor_set_host_mapping")]
 impl<'a> VkDescriptorSetLayoutHostMappingInfoVALVE<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_HOST_MAPPING_INFO_VALVE,
+    sType: VkStructureType::DESCRIPTOR_SET_LAYOUT_HOST_MAPPING_INFO_VALVE,
     pNext: core::ptr::null_mut(),
     descriptorOffset: 0,
     descriptorSize: 0,
@@ -304,11 +303,11 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_VALVE_fragment_density_map_layered")]
 impl<'a> VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_LAYERED_PROPERTIES_VALVE,
-        pNext: core::ptr::null_mut(),
-        maxFragmentDensityMapLayers: 0,
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_LAYERED_PROPERTIES_VALVE,
+    pNext: core::ptr::null_mut(),
+    maxFragmentDensityMapLayers: 0,
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -380,8 +379,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_VALVE_fragment_density_map_layered")]
 impl<'a> VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_LAYERED_FEATURES_VALVE,
+    sType: VkStructureType::PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_LAYERED_FEATURES_VALVE,
     pNext: core::ptr::null_mut(),
     fragmentDensityMapLayered: 0,
     _marker: core::marker::PhantomData,
@@ -464,8 +462,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkGraphicsPipelineCreateInfo<'root>>
 #[cfg(feature = "VK_VALVE_fragment_density_map_layered")]
 impl<'a> VkPipelineFragmentDensityMapLayeredCreateInfoVALVE<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_FRAGMENT_DENSITY_MAP_LAYERED_CREATE_INFO_VALVE,
+    sType: VkStructureType::PIPELINE_FRAGMENT_DENSITY_MAP_LAYERED_CREATE_INFO_VALVE,
     pNext: core::ptr::null(),
     maxFragmentDensityMapLayers: 0,
     _marker: core::marker::PhantomData,
@@ -541,8 +538,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_VALVE_mutable_descriptor_type")]
 impl<'a> VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_VALVE,
+    sType: VkStructureType::PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_VALVE,
     pNext: core::ptr::null_mut(),
     mutableDescriptorType: 0,
     _marker: core::marker::PhantomData,
@@ -678,7 +674,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDescriptorPoolCreateInfo<'root>>
 #[cfg(feature = "VK_VALVE_mutable_descriptor_type")]
 impl<'a> VkMutableDescriptorTypeCreateInfoVALVE<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_VALVE,
+    sType: VkStructureType::MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_VALVE,
     pNext: core::ptr::null(),
     mutableDescriptorTypeListCount: 0,
     pMutableDescriptorTypeLists: core::ptr::null(),
@@ -785,14 +781,14 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_VALVE_shader_mixed_float_dot_product")]
 impl<'a> VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MIXED_FLOAT_DOT_PRODUCT_FEATURES_VALVE,
-        pNext: core::ptr::null_mut(),
-        shaderMixedFloatDotProductFloat16AccFloat32: 0,
-        shaderMixedFloatDotProductFloat16AccFloat16: 0,
-        shaderMixedFloatDotProductBFloat16Acc: 0,
-        shaderMixedFloatDotProductFloat8AccFloat32: 0,
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_MIXED_FLOAT_DOT_PRODUCT_FEATURES_VALVE,
+    pNext: core::ptr::null_mut(),
+    shaderMixedFloatDotProductFloat16AccFloat32: 0,
+    shaderMixedFloatDotProductFloat16AccFloat16: 0,
+    shaderMixedFloatDotProductBFloat16Acc: 0,
+    shaderMixedFloatDotProductFloat8AccFloat32: 0,
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -903,8 +899,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_VALVE_video_encode_rgb_conversion")]
 impl<'a> VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_RGB_CONVERSION_FEATURES_VALVE,
+    sType: VkStructureType::PHYSICAL_DEVICE_VIDEO_ENCODE_RGB_CONVERSION_FEATURES_VALVE,
     pNext: core::ptr::null_mut(),
     videoEncodeRgbConversion: 0,
     _marker: core::marker::PhantomData,
@@ -998,7 +993,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkVideoCapabilitiesKHR<'root>>
 #[cfg(feature = "VK_VALVE_video_encode_rgb_conversion")]
 impl<'a> VkVideoEncodeRgbConversionCapabilitiesVALVE<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_VIDEO_ENCODE_RGB_CONVERSION_CAPABILITIES_VALVE,
+    sType: VkStructureType::VIDEO_ENCODE_RGB_CONVERSION_CAPABILITIES_VALVE,
     pNext: core::ptr::null_mut(),
     rgbModels: VkVideoEncodeRgbModelConversionFlagBitsVALVE(0),
     rgbRanges: VkVideoEncodeRgbRangeCompressionFlagBitsVALVE(0),
@@ -1084,7 +1079,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkVideoProfileInfoKHR<'root>>
 #[cfg(feature = "VK_VALVE_video_encode_rgb_conversion")]
 impl<'a> VkVideoEncodeProfileRgbConversionInfoVALVE<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_VIDEO_ENCODE_PROFILE_RGB_CONVERSION_INFO_VALVE,
+    sType: VkStructureType::VIDEO_ENCODE_PROFILE_RGB_CONVERSION_INFO_VALVE,
     pNext: core::ptr::null(),
     performEncodeRgbConversion: 0,
     _marker: core::marker::PhantomData,
@@ -1155,7 +1150,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkVideoSessionCreateInfoKHR<'root>>
 #[cfg(feature = "VK_VALVE_video_encode_rgb_conversion")]
 impl<'a> VkVideoEncodeSessionRgbConversionCreateInfoVALVE<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_RGB_CONVERSION_CREATE_INFO_VALVE,
+    sType: VkStructureType::VIDEO_ENCODE_SESSION_RGB_CONVERSION_CREATE_INFO_VALVE,
     pNext: core::ptr::null(),
     rgbModel: VkVideoEncodeRgbModelConversionFlagBitsVALVE(0),
     rgbRange: VkVideoEncodeRgbRangeCompressionFlagBitsVALVE(0),

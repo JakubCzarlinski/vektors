@@ -168,7 +168,7 @@ impl<'dev> ValidationCacheEXT<'dev> {
         pData,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -211,7 +211,7 @@ impl<'dev> ValidationCacheEXT<'dev> {
         pSrcCaches.as_ptr(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();

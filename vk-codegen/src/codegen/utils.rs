@@ -401,7 +401,7 @@ pub fn build_handle_type_set(reg: &Registry) -> HashSet<String> {
 #[must_use]
 pub fn vk_result_return_if_err() -> TokenStream {
     quote! {
-        if r < VkResult::VK_SUCCESS {
+        if r < VkResult::SUCCESS {
             core::hint::cold_path();
             return Err(r);
         }
@@ -411,7 +411,7 @@ pub fn vk_result_return_if_err() -> TokenStream {
 #[must_use]
 pub fn result_check_arms() -> TokenStream {
     quote! {
-        if r >= VkResult::VK_SUCCESS {
+        if r >= VkResult::SUCCESS {
             Ok(r)
         } else {
             core::hint::cold_path();
@@ -1166,7 +1166,7 @@ pub fn safe_method(
                     pub fn #fname<'ret>(&'ret self, #(#p_defs),*) -> Result<crate::#md::#st<'ret>, VkResult> {
                         let mut handle = #h_ty::NULL;
                         let r = unsafe { #fp(#(#fwd),*) };
-                        if r >= VkResult::VK_SUCCESS {
+                        if r >= VkResult::SUCCESS {
                             Ok(crate::#md::#st {
                                 raw: handle,
                                 parent: #parent_expr,
@@ -1185,7 +1185,7 @@ pub fn safe_method(
                     pub fn #fname(&self, #(#p_defs),*) -> Result<#h_ty, VkResult> {
                         let mut handle = #h_ty::NULL;
                         let r = unsafe { #fp(#(#fwd),*) };
-                        if r >= VkResult::VK_SUCCESS {
+                        if r >= VkResult::SUCCESS {
                             Ok(handle)
                         } else {
                             core::hint::cold_path();
@@ -1245,7 +1245,7 @@ pub fn safe_method(
                     if count == 0 { return Ok(alloc::boxed::Box::<[#elem_ty; 0]>::new([])); }
                     let mut out = alloc::boxed::Box::<[#elem_ty]>::new_uninit_slice(count as usize);
                     let r = unsafe { #fp(#(#fwd_second),*) };
-                    if r >= VkResult::VK_SUCCESS {
+                    if r >= VkResult::SUCCESS {
                         Ok(unsafe { out.assume_init() })
                     } else {
                         core::hint::cold_path();

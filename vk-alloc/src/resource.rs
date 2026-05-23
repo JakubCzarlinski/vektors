@@ -24,39 +24,39 @@ impl MemoryTypePolicy {
 
     pub const DEVICE_LOCAL: Self = Self {
         required_flags: vk::VkMemoryPropertyFlagBits::EMPTY,
-        preferred_flags: vk::VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-        avoid_flags: vk::VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+        preferred_flags: vk::VkMemoryPropertyFlagBits::DEVICE_LOCAL,
+        avoid_flags: vk::VkMemoryPropertyFlagBits::HOST_VISIBLE,
     };
 
     pub const HOST_VISIBLE: Self = Self {
-        required_flags: vk::VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-        preferred_flags: vk::VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        required_flags: vk::VkMemoryPropertyFlagBits::HOST_VISIBLE,
+        preferred_flags: vk::VkMemoryPropertyFlagBits::HOST_COHERENT,
         avoid_flags: vk::VkMemoryPropertyFlagBits::EMPTY,
     };
 
     pub const UPLOAD: Self = Self {
-        required_flags: vk::VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+        required_flags: vk::VkMemoryPropertyFlagBits::HOST_VISIBLE,
         preferred_flags: vk::VkMemoryPropertyFlagBits(
-            vk::VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_COHERENT_BIT.0
-                | vk::VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT.0,
+            vk::VkMemoryPropertyFlagBits::HOST_COHERENT.0
+                | vk::VkMemoryPropertyFlagBits::DEVICE_LOCAL.0,
         ),
         avoid_flags: vk::VkMemoryPropertyFlagBits::EMPTY,
     };
 
     pub const READBACK: Self = Self {
-        required_flags: vk::VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+        required_flags: vk::VkMemoryPropertyFlagBits::HOST_VISIBLE,
         preferred_flags: vk::VkMemoryPropertyFlagBits(
-            vk::VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_CACHED_BIT.0
-                | vk::VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_COHERENT_BIT.0,
+            vk::VkMemoryPropertyFlagBits::HOST_CACHED.0
+                | vk::VkMemoryPropertyFlagBits::HOST_COHERENT.0,
         ),
         avoid_flags: vk::VkMemoryPropertyFlagBits::EMPTY,
     };
 
     pub const UNIFIED: Self = Self {
-        required_flags: vk::VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+        required_flags: vk::VkMemoryPropertyFlagBits::HOST_VISIBLE,
         preferred_flags: vk::VkMemoryPropertyFlagBits(
-            vk::VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT.0
-                | vk::VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_COHERENT_BIT.0,
+            vk::VkMemoryPropertyFlagBits::DEVICE_LOCAL.0
+                | vk::VkMemoryPropertyFlagBits::HOST_COHERENT.0,
         ),
         avoid_flags: vk::VkMemoryPropertyFlagBits::EMPTY,
     };

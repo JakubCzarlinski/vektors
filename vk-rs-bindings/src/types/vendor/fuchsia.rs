@@ -116,7 +116,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkMemoryAllocateInfo<'root>>
 #[cfg(feature = "VK_FUCHSIA_buffer_collection")]
 impl<'a> VkImportMemoryBufferCollectionFUCHSIA<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMPORT_MEMORY_BUFFER_COLLECTION_FUCHSIA,
+    sType: VkStructureType::IMPORT_MEMORY_BUFFER_COLLECTION_FUCHSIA,
     pNext: core::ptr::null(),
     collection: VkBufferCollectionFUCHSIA::DEFAULT,
     index: 0,
@@ -191,7 +191,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkImageCreateInfo<'root>>
 #[cfg(feature = "VK_FUCHSIA_buffer_collection")]
 impl<'a> VkBufferCollectionImageCreateInfoFUCHSIA<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BUFFER_COLLECTION_IMAGE_CREATE_INFO_FUCHSIA,
+    sType: VkStructureType::BUFFER_COLLECTION_IMAGE_CREATE_INFO_FUCHSIA,
     pNext: core::ptr::null(),
     collection: VkBufferCollectionFUCHSIA::DEFAULT,
     index: 0,
@@ -266,7 +266,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkBufferCreateInfo<'root>>
 #[cfg(feature = "VK_FUCHSIA_buffer_collection")]
 impl<'a> VkBufferCollectionBufferCreateInfoFUCHSIA<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BUFFER_COLLECTION_BUFFER_CREATE_INFO_FUCHSIA,
+    sType: VkStructureType::BUFFER_COLLECTION_BUFFER_CREATE_INFO_FUCHSIA,
     pNext: core::ptr::null(),
     collection: VkBufferCollectionFUCHSIA::DEFAULT,
     index: 0,
@@ -330,7 +330,7 @@ unsafe impl<'a> Sync for VkBufferCollectionCreateInfoFUCHSIA<'a> {}
 #[cfg(feature = "VK_FUCHSIA_buffer_collection")]
 impl<'a> VkBufferCollectionCreateInfoFUCHSIA<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BUFFER_COLLECTION_CREATE_INFO_FUCHSIA,
+    sType: VkStructureType::BUFFER_COLLECTION_CREATE_INFO_FUCHSIA,
     pNext: core::ptr::null(),
     collectionToken: zx_handle_t::NULL,
     _marker: core::marker::PhantomData,
@@ -400,7 +400,7 @@ unsafe impl<'a> Sync for VkBufferCollectionPropertiesFUCHSIA<'a> {}
 #[cfg(feature = "VK_FUCHSIA_buffer_collection")]
 impl<'a> VkBufferCollectionPropertiesFUCHSIA<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BUFFER_COLLECTION_PROPERTIES_FUCHSIA,
+    sType: VkStructureType::BUFFER_COLLECTION_PROPERTIES_FUCHSIA,
     pNext: core::ptr::null_mut(),
     memoryTypeBits: 0,
     bufferCount: 0,
@@ -521,7 +521,7 @@ unsafe impl<'a> Sync for VkBufferConstraintsInfoFUCHSIA<'a> {}
 #[cfg(feature = "VK_FUCHSIA_buffer_collection")]
 impl<'a> VkBufferConstraintsInfoFUCHSIA<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BUFFER_CONSTRAINTS_INFO_FUCHSIA,
+    sType: VkStructureType::BUFFER_CONSTRAINTS_INFO_FUCHSIA,
     pNext: core::ptr::null(),
     createInfo: VkBufferCreateInfo::DEFAULT,
     requiredFormatFeatures: VkFormatFeatureFlagBits(0),
@@ -594,7 +594,7 @@ unsafe impl<'a> Sync for VkSysmemColorSpaceFUCHSIA<'a> {}
 #[cfg(feature = "VK_FUCHSIA_buffer_collection")]
 impl<'a> VkSysmemColorSpaceFUCHSIA<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SYSMEM_COLOR_SPACE_FUCHSIA,
+    sType: VkStructureType::SYSMEM_COLOR_SPACE_FUCHSIA,
     pNext: core::ptr::null(),
     colorSpace: 0,
     _marker: core::marker::PhantomData,
@@ -660,7 +660,7 @@ unsafe impl<'a> Sync for VkImageFormatConstraintsInfoFUCHSIA<'a> {}
 #[cfg(feature = "VK_FUCHSIA_buffer_collection")]
 impl<'a> VkImageFormatConstraintsInfoFUCHSIA<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_FORMAT_CONSTRAINTS_INFO_FUCHSIA,
+    sType: VkStructureType::IMAGE_FORMAT_CONSTRAINTS_INFO_FUCHSIA,
     pNext: core::ptr::null(),
     imageCreateInfo: VkImageCreateInfo::DEFAULT,
     requiredFormatFeatures: VkFormatFeatureFlagBits(0),
@@ -757,7 +757,7 @@ unsafe impl<'a> Sync for VkImageConstraintsInfoFUCHSIA<'a> {}
 #[cfg(feature = "VK_FUCHSIA_buffer_collection")]
 impl<'a> VkImageConstraintsInfoFUCHSIA<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_CONSTRAINTS_INFO_FUCHSIA,
+    sType: VkStructureType::IMAGE_CONSTRAINTS_INFO_FUCHSIA,
     pNext: core::ptr::null(),
     formatConstraintsCount: 0,
     pFormatConstraints: core::ptr::null(),
@@ -847,7 +847,7 @@ unsafe impl<'a> Sync for VkBufferCollectionConstraintsInfoFUCHSIA<'a> {}
 #[cfg(feature = "VK_FUCHSIA_buffer_collection")]
 impl<'a> VkBufferCollectionConstraintsInfoFUCHSIA<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BUFFER_COLLECTION_CONSTRAINTS_INFO_FUCHSIA,
+    sType: VkStructureType::BUFFER_COLLECTION_CONSTRAINTS_INFO_FUCHSIA,
     pNext: core::ptr::null(),
     minBufferCount: 0,
     maxBufferCount: 0,
@@ -942,7 +942,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkMemoryAllocateInfo<'root>>
 #[cfg(feature = "VK_FUCHSIA_external_memory")]
 impl<'a> VkImportMemoryZirconHandleInfoFUCHSIA<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMPORT_MEMORY_ZIRCON_HANDLE_INFO_FUCHSIA,
+    sType: VkStructureType::IMPORT_MEMORY_ZIRCON_HANDLE_INFO_FUCHSIA,
     pNext: core::ptr::null(),
     handleType: VkExternalMemoryHandleTypeFlagBits(0),
     handle: zx_handle_t::NULL,
@@ -1008,7 +1008,7 @@ unsafe impl<'a> Sync for VkMemoryZirconHandlePropertiesFUCHSIA<'a> {}
 #[cfg(feature = "VK_FUCHSIA_external_memory")]
 impl<'a> VkMemoryZirconHandlePropertiesFUCHSIA<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MEMORY_ZIRCON_HANDLE_PROPERTIES_FUCHSIA,
+    sType: VkStructureType::MEMORY_ZIRCON_HANDLE_PROPERTIES_FUCHSIA,
     pNext: core::ptr::null_mut(),
     memoryTypeBits: 0,
     _marker: core::marker::PhantomData,
@@ -1067,7 +1067,7 @@ unsafe impl<'a> Sync for VkMemoryGetZirconHandleInfoFUCHSIA<'a> {}
 #[cfg(feature = "VK_FUCHSIA_external_memory")]
 impl<'a> VkMemoryGetZirconHandleInfoFUCHSIA<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MEMORY_GET_ZIRCON_HANDLE_INFO_FUCHSIA,
+    sType: VkStructureType::MEMORY_GET_ZIRCON_HANDLE_INFO_FUCHSIA,
     pNext: core::ptr::null(),
     memory: VkDeviceMemory::DEFAULT,
     handleType: VkExternalMemoryHandleTypeFlagBits(0),
@@ -1165,7 +1165,7 @@ unsafe impl<'a> Sync for VkImportSemaphoreZirconHandleInfoFUCHSIA<'a> {}
 #[cfg(feature = "VK_FUCHSIA_external_semaphore")]
 impl<'a> VkImportSemaphoreZirconHandleInfoFUCHSIA<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_ZIRCON_HANDLE_INFO_FUCHSIA,
+    sType: VkStructureType::IMPORT_SEMAPHORE_ZIRCON_HANDLE_INFO_FUCHSIA,
     pNext: core::ptr::null(),
     semaphore: VkSemaphore::DEFAULT,
     flags: VkSemaphoreImportFlagBits(0),
@@ -1242,7 +1242,7 @@ unsafe impl<'a> Sync for VkSemaphoreGetZirconHandleInfoFUCHSIA<'a> {}
 #[cfg(feature = "VK_FUCHSIA_external_semaphore")]
 impl<'a> VkSemaphoreGetZirconHandleInfoFUCHSIA<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SEMAPHORE_GET_ZIRCON_HANDLE_INFO_FUCHSIA,
+    sType: VkStructureType::SEMAPHORE_GET_ZIRCON_HANDLE_INFO_FUCHSIA,
     pNext: core::ptr::null(),
     semaphore: VkSemaphore::DEFAULT,
     handleType: VkExternalSemaphoreHandleTypeFlagBits(0),
@@ -1311,7 +1311,7 @@ unsafe impl<'a> Sync for VkImagePipeSurfaceCreateInfoFUCHSIA<'a> {}
 #[cfg(feature = "VK_FUCHSIA_imagepipe_surface")]
 impl<'a> VkImagePipeSurfaceCreateInfoFUCHSIA<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGEPIPE_SURFACE_CREATE_INFO_FUCHSIA,
+    sType: VkStructureType::IMAGEPIPE_SURFACE_CREATE_INFO_FUCHSIA,
     pNext: core::ptr::null(),
     flags: 0,
     imagePipeHandle: zx_handle_t::NULL,

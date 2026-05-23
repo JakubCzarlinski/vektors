@@ -394,7 +394,7 @@ fn find_graphics_present_queue_family(
         let is_graphics = family
             .queueFamilyProperties
             .queueFlags
-            .intersects(VkQueueFlagBits::VK_QUEUE_GRAPHICS_BIT);
+            .intersects(VkQueueFlagBits::GRAPHICS);
         if !is_graphics {
             continue;
         }
@@ -473,8 +473,8 @@ fn create_swapchain_state<'a>(
         .with_imageColorSpace(surface_format.colorSpace)
         .with_imageExtent(extent)
         .with_imageArrayLayers(1)
-        .with_imageUsage(VkImageUsageFlagBits::VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)
-        .with_imageSharingMode(VkSharingMode::VK_SHARING_MODE_EXCLUSIVE)
+        .with_imageUsage(VkImageUsageFlagBits::COLOR_ATTACHMENT)
+        .with_imageSharingMode(VkSharingMode::EXCLUSIVE)
         .with_preTransform(caps.currentTransform)
         .with_compositeAlpha(composite_alpha)
         .with_presentMode(present_mode)
@@ -495,7 +495,7 @@ fn create_swapchain_state<'a>(
         .iter()
         .map(|image| {
             let range = VkImageSubresourceRange::DEFAULT
-                .with_aspectMask(VkImageAspectFlagBits::VK_IMAGE_ASPECT_COLOR_BIT)
+                .with_aspectMask(VkImageAspectFlagBits::COLOR)
                 .with_baseMipLevel(0)
                 .with_levelCount(1)
                 .with_baseArrayLayer(0)
@@ -503,7 +503,7 @@ fn create_swapchain_state<'a>(
 
             let view_info = VkImageViewCreateInfo::DEFAULT
                 .with_image(*image)
-                .with_viewType(VkImageViewType::VK_IMAGE_VIEW_TYPE_2D)
+                .with_viewType(VkImageViewType::VALUE_2D)
                 .with_format(surface_format.format)
                 .with_subresourceRange(range);
 
@@ -552,8 +552,7 @@ fn pick_surface_format(
         .iter()
         .copied()
         .find(|f| {
-            f.format == VkFormat::VK_FORMAT_B8G8R8A8_UNORM
-                && f.colorSpace == VkColorSpaceKHR::VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
+            f.format == VkFormat::B8G8R8A8_UNORM && f.colorSpace == VkColorSpaceKHR::SRGB_NONLINEAR
         })
         .unwrap_or_else(|| formats[0])
 }
@@ -566,14 +565,14 @@ fn pick_present_mode(
     physical_device
         .vkGetPhysicalDeviceSurfacePresentModesKHR(surface.raw(), &mut count, null_mut())
         .expect("vkGetPhysicalDeviceSurfacePresentModesKHR(count) failed");
-    let mut modes = vec![VkPresentModeKHR::VK_PRESENT_MODE_FIFO_KHR; count as usize];
+    let mut modes = vec![VkPresentModeKHR::FIFO; count as usize];
     physical_device
         .vkGetPhysicalDeviceSurfacePresentModesKHR(surface.raw(), &mut count, modes.as_mut_ptr())
         .expect("vkGetPhysicalDeviceSurfacePresentModesKHR(list) failed");
     modes
         .into_iter()
-        .find(|m| *m == VkPresentModeKHR::VK_PRESENT_MODE_MAILBOX_KHR)
-        .unwrap_or(VkPresentModeKHR::VK_PRESENT_MODE_FIFO_KHR)
+        .find(|m| *m == VkPresentModeKHR::MAILBOX)
+        .unwrap_or(VkPresentModeKHR::FIFO)
 }
 
 fn choose_extent(caps: VkSurfaceCapabilitiesKHR, window_size: PhysicalSize<u32>) -> VkExtent2D {
@@ -591,46 +590,42 @@ fn choose_extent(caps: VkSurfaceCapabilitiesKHR, window_size: PhysicalSize<u32>)
 
 fn choose_composite_alpha(supported: VkCompositeAlphaFlagsKHR) -> VkCompositeAlphaFlagBitsKHR {
     const OPTIONS: [VkCompositeAlphaFlagBitsKHR; 4] = [
-        VkCompositeAlphaFlagBitsKHR::VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
-        VkCompositeAlphaFlagBitsKHR::VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR,
-        VkCompositeAlphaFlagBitsKHR::VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR,
-        VkCompositeAlphaFlagBitsKHR::VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR,
+        VkCompositeAlphaFlagBitsKHR::OPAQUE,
+        VkCompositeAlphaFlagBitsKHR::PRE_MULTIPLIED,
+        VkCompositeAlphaFlagBitsKHR::POST_MULTIPLIED,
+        VkCompositeAlphaFlagBitsKHR::INHERIT,
     ];
     OPTIONS
         .into_iter()
         .find(|flag| supported.intersects(*flag))
-        .unwrap_or(VkCompositeAlphaFlagBitsKHR::VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR)
+        .unwrap_or(VkCompositeAlphaFlagBitsKHR::OPAQUE)
 }
 
 fn create_render_pass<'a>(device: &'a Device<'a>, color_format: VkFormat) -> RenderPass<'a> {
     let color_attachment = VkAttachmentDescription2::DEFAULT
         .with_format(color_format)
-        .with_samples(VkSampleCountFlagBits::VK_SAMPLE_COUNT_1_BIT)
-        .with_loadOp(VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_CLEAR)
-        .with_storeOp(VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_STORE)
-        .with_stencilLoadOp(VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_DONT_CARE)
-        .with_stencilStoreOp(VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_DONT_CARE)
-        .with_initialLayout(VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED)
-        .with_finalLayout(VkImageLayout::VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+        .with_samples(VkSampleCountFlagBits::BIT_1)
+        .with_loadOp(VkAttachmentLoadOp::CLEAR)
+        .with_storeOp(VkAttachmentStoreOp::STORE)
+        .with_stencilLoadOp(VkAttachmentLoadOp::DONT_CARE)
+        .with_stencilStoreOp(VkAttachmentStoreOp::DONT_CARE)
+        .with_initialLayout(VkImageLayout::UNDEFINED)
+        .with_finalLayout(VkImageLayout::PRESENT_SRC_KHR);
 
     const COLOR_REF: VkAttachmentReference2 = VkAttachmentReference2::DEFAULT
         .with_attachment(0)
-        .with_layout(VkImageLayout::VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+        .with_layout(VkImageLayout::COLOR_ATTACHMENT_OPTIMAL);
     const COLOR_ATTACHMENTS: &[VkAttachmentReference2] = &[COLOR_REF];
 
     const SUBPASS: VkSubpassDescription2 = VkSubpassDescription2::DEFAULT
-        .with_pipelineBindPoint(VkPipelineBindPoint::VK_PIPELINE_BIND_POINT_GRAPHICS)
+        .with_pipelineBindPoint(VkPipelineBindPoint::GRAPHICS)
         .with_pColorAttachments(COLOR_ATTACHMENTS);
 
     const MEMORY_BARRIER: VkMemoryBarrier2 = VkMemoryBarrier2::DEFAULT
-        .with_srcStageMask(
-            VkPipelineStageFlagBits2::VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,
-        )
-        .with_dstStageMask(
-            VkPipelineStageFlagBits2::VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,
-        )
+        .with_srcStageMask(VkPipelineStageFlagBits2::COLOR_ATTACHMENT_OUTPUT)
+        .with_dstStageMask(VkPipelineStageFlagBits2::COLOR_ATTACHMENT_OUTPUT)
         .with_srcAccessMask(VkAccessFlagBits2::EMPTY)
-        .with_dstAccessMask(VkAccessFlagBits2::VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT);
+        .with_dstAccessMask(VkAccessFlagBits2::COLOR_ATTACHMENT_WRITE);
 
     const DEPENDENCY: VkSubpassDependency2 = VkSubpassDependency2::DEFAULT
         .with_pNext_VkMemoryBarrier2(&MEMORY_BARRIER)
@@ -658,7 +653,7 @@ fn create_graphics_pipeline<'a>(
         VkPipelineVertexInputStateCreateInfo::DEFAULT;
     const INPUT_ASSEMBLY: VkPipelineInputAssemblyStateCreateInfo =
         VkPipelineInputAssemblyStateCreateInfo::DEFAULT
-            .with_topology(VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST)
+            .with_topology(VkPrimitiveTopology::TRIANGLE_LIST)
             .with_primitiveRestartEnable(0);
 
     const VIEWPORT_STATE: VkPipelineViewportStateCreateInfo =
@@ -670,27 +665,24 @@ fn create_graphics_pipeline<'a>(
         VkPipelineRasterizationStateCreateInfo::DEFAULT
             .with_depthClampEnable(0)
             .with_rasterizerDiscardEnable(0)
-            .with_polygonMode(VkPolygonMode::VK_POLYGON_MODE_FILL)
+            .with_polygonMode(VkPolygonMode::FILL)
             .with_lineWidth(1.0)
-            .with_cullMode(VkCullModeFlagBits::VK_CULL_MODE_NONE)
-            .with_frontFace(VkFrontFace::VK_FRONT_FACE_COUNTER_CLOCKWISE)
+            .with_cullMode(VkCullModeFlagBits::NONE)
+            .with_frontFace(VkFrontFace::COUNTER_CLOCKWISE)
             .with_depthBiasEnable(0);
 
     const MULTISAMPLE: VkPipelineMultisampleStateCreateInfo =
         VkPipelineMultisampleStateCreateInfo::DEFAULT
             .with_sampleShadingEnable(0)
-            .with_rasterizationSamples(VkSampleCountFlagBits::VK_SAMPLE_COUNT_1_BIT);
+            .with_rasterizationSamples(VkSampleCountFlagBits::BIT_1);
 
-    const DYNAMIC_STATES: &[VkDynamicState] = &[
-        VkDynamicState::VK_DYNAMIC_STATE_VIEWPORT,
-        VkDynamicState::VK_DYNAMIC_STATE_SCISSOR,
-    ];
+    const DYNAMIC_STATES: &[VkDynamicState] = &[VkDynamicState::VIEWPORT, VkDynamicState::SCISSOR];
     const DYNAMIC: VkPipelineDynamicStateCreateInfo = VkPipelineDynamicStateCreateInfo::DEFAULT
         .with_dynamicStateCount(DYNAMIC_STATES.len() as u32)
         .with_pDynamicStates(DYNAMIC_STATES);
 
     const PUSH_CONSTANT_RANGE: VkPushConstantRange = VkPushConstantRange::DEFAULT
-        .with_stageFlags(VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT)
+        .with_stageFlags(VkShaderStageFlagBits::VERTEX)
         .with_offset(0)
         .with_size(core::mem::size_of::<f32>() as u32);
     const PUSH_CONSTANT_RANGES: &[VkPushConstantRange] = &[PUSH_CONSTANT_RANGE];
@@ -703,10 +695,10 @@ fn create_graphics_pipeline<'a>(
 
     let color_blend_attachment = &[VkPipelineColorBlendAttachmentState::DEFAULT
         .with_colorWriteMask(
-            VkColorComponentFlagBits::VK_COLOR_COMPONENT_R_BIT
-                | VkColorComponentFlagBits::VK_COLOR_COMPONENT_G_BIT
-                | VkColorComponentFlagBits::VK_COLOR_COMPONENT_B_BIT
-                | VkColorComponentFlagBits::VK_COLOR_COMPONENT_A_BIT,
+            VkColorComponentFlagBits::R
+                | VkColorComponentFlagBits::G
+                | VkColorComponentFlagBits::B
+                | VkColorComponentFlagBits::A,
         )
         .with_blendEnable(0)];
     let color_blend = VkPipelineColorBlendStateCreateInfo::DEFAULT
@@ -719,11 +711,11 @@ fn create_graphics_pipeline<'a>(
 
     let shader_stages = [
         VkPipelineShaderStageCreateInfo::DEFAULT
-            .with_stage(VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT)
+            .with_stage(VkShaderStageFlagBits::VERTEX)
             .with_module(vert_module.raw())
             .with_pName(c"main".as_ptr()),
         VkPipelineShaderStageCreateInfo::DEFAULT
-            .with_stage(VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT)
+            .with_stage(VkShaderStageFlagBits::FRAGMENT)
             .with_module(frag_module.raw())
             .with_pName(c"main".as_ptr()),
     ];
@@ -791,8 +783,7 @@ fn create_frame_sync<'a>(device: &'a Device<'a>) -> Vec<FrameSync<'a>> {
     let mut frames = Vec::with_capacity(FRAMES_IN_FLIGHT);
     for _ in 0..FRAMES_IN_FLIGHT {
         let semaphore_info = VkSemaphoreCreateInfo::DEFAULT;
-        let fence_info = VkFenceCreateInfo::DEFAULT
-            .with_flags(VkFenceCreateFlagBits::VK_FENCE_CREATE_SIGNALED_BIT);
+        let fence_info = VkFenceCreateInfo::DEFAULT.with_flags(VkFenceCreateFlagBits::SIGNALED);
         frames.push(FrameSync {
             image_available: device
                 .vkCreateSemaphore(&semaphore_info, null())
@@ -816,9 +807,7 @@ fn create_command_pools<'a>(
     for _ in 0..FRAMES_IN_FLIGHT {
         let pool_info = VkCommandPoolCreateInfo::DEFAULT
             .with_queueFamilyIndex(queue_family_index)
-            .with_flags(
-                VkCommandPoolCreateFlagBits::VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-            );
+            .with_flags(VkCommandPoolCreateFlagBits::RESET_COMMAND_BUFFER);
         pools.push(
             device
                 .vkCreateCommandPool(&pool_info, null())
@@ -833,7 +822,7 @@ fn create_command_buffers<'p>(command_pools: &'p [CommandPool<'_>]) -> Vec<Comma
     for pool in command_pools {
         let alloc_info = VkCommandBufferAllocateInfo::DEFAULT
             .with_commandPool(pool.raw())
-            .with_level(VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+            .with_level(VkCommandBufferLevel::PRIMARY)
             .with_commandBufferCount(1);
         let command_buffer = pool
             .vkAllocateCommandBuffers(&alloc_info)
@@ -876,8 +865,8 @@ fn draw_frame(
         VkFence::NULL,
         &mut image_index,
     ) {
-        Ok(VkResult::VK_SUCCESS) | Ok(VkResult::VK_SUBOPTIMAL_KHR) => {}
-        Err(VkResult::VK_ERROR_OUT_OF_DATE_KHR) => return Err(true),
+        Ok(VkResult::SUCCESS) | Ok(VkResult::SUBOPTIMAL_KHR) => {}
+        Err(VkResult::ERROR_OUT_OF_DATE_KHR) => return Err(true),
         Err(e) => {
             eprintln!("vkAcquireNextImageKHR failed: {:?}", e);
             return Err(false);
@@ -900,9 +889,7 @@ fn draw_frame(
         .vkResetFences(&[sync.in_flight_fence.raw()])
         .expect("vkResetFences failed");
     command_buffer
-        .vkResetCommandBuffer(
-            VkCommandBufferResetFlagBits::VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT,
-        )
+        .vkResetCommandBuffer(VkCommandBufferResetFlagBits::RELEASE_RESOURCES)
         .expect("vkResetCommandBuffer failed");
 
     record_command_buffer(
@@ -917,7 +904,7 @@ fn draw_frame(
 
     let wait_infos = &[VkSemaphoreSubmitInfo::DEFAULT
         .with_semaphore(sync.image_available.raw())
-        .with_stageMask(VkPipelineStageFlagBits2::VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT)
+        .with_stageMask(VkPipelineStageFlagBits2::COLOR_ATTACHMENT_OUTPUT)
         .with_deviceIndex(0)
         .with_value(0)];
     let cmd_infos = &[VkCommandBufferSubmitInfo::DEFAULT
@@ -925,7 +912,7 @@ fn draw_frame(
         .with_deviceMask(0)];
     let signal_infos = &[VkSemaphoreSubmitInfo::DEFAULT
         .with_semaphore(sync.render_finished.raw())
-        .with_stageMask(VkPipelineStageFlagBits2::VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT)
+        .with_stageMask(VkPipelineStageFlagBits2::COLOR_ATTACHMENT_OUTPUT)
         .with_deviceIndex(0)
         .with_value(0)];
     let submit_info = &[VkSubmitInfo2::DEFAULT
@@ -948,8 +935,8 @@ fn draw_frame(
     window.pre_present_notify();
 
     match queue.vkQueuePresentKHR(&present_info) {
-        Ok(VkResult::VK_SUCCESS) => {}
-        Ok(VkResult::VK_SUBOPTIMAL_KHR) | Err(VkResult::VK_ERROR_OUT_OF_DATE_KHR) => {
+        Ok(VkResult::SUCCESS) => {}
+        Ok(VkResult::SUBOPTIMAL_KHR) | Err(VkResult::ERROR_OUT_OF_DATE_KHR) => {
             *current_frame = (*current_frame + 1) % FRAMES_IN_FLIGHT;
             return Err(true);
         }
@@ -996,15 +983,11 @@ fn record_command_buffer(
         )
         .with_pClearValues(&clear_values);
 
-    let subpass_begin =
-        VkSubpassBeginInfo::DEFAULT.with_contents(VkSubpassContents::VK_SUBPASS_CONTENTS_INLINE);
+    let subpass_begin = VkSubpassBeginInfo::DEFAULT.with_contents(VkSubpassContents::INLINE);
     let subpass_end = VkSubpassEndInfo::DEFAULT;
 
     command_buffer.vkCmdBeginRenderPass2(&render_pass_begin, &subpass_begin);
-    command_buffer.vkCmdBindPipeline(
-        VkPipelineBindPoint::VK_PIPELINE_BIND_POINT_GRAPHICS,
-        pipeline,
-    );
+    command_buffer.vkCmdBindPipeline(VkPipelineBindPoint::GRAPHICS, pipeline);
 
     let viewport = VkViewport::DEFAULT
         .with_x(0.0)
@@ -1027,7 +1010,7 @@ fn record_command_buffer(
     };
     command_buffer.vkCmdPushConstants(
         pipeline_layout,
-        VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT,
+        VkShaderStageFlagBits::VERTEX,
         0,
         angle_bytes,
     );

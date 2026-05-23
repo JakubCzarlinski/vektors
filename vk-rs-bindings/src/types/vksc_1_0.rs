@@ -229,7 +229,7 @@ unsafe impl<'a> Sync for VkFaultData<'a> {}
 #[cfg(feature = "VKSC_VERSION_1_0")]
 impl<'a> VkFaultData<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_FAULT_DATA,
+    sType: VkStructureType::FAULT_DATA,
     pNext: core::ptr::null_mut(),
     faultLevel: VkFaultLevel(0),
     faultType: VkFaultType(0),
@@ -301,7 +301,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VKSC_VERSION_1_0")]
 impl<'a> VkFaultCallbackInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_FAULT_CALLBACK_INFO,
+    sType: VkStructureType::FAULT_CALLBACK_INFO,
     pNext: core::ptr::null(),
     faultCount: 0,
     pFaults: core::ptr::null_mut(),
@@ -399,7 +399,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkRayTracingPipelineCreateInfoNV<'root
 #[cfg(feature = "VKSC_VERSION_1_0")]
 impl<'a> VkPipelineOfflineCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_OFFLINE_CREATE_INFO,
+    sType: VkStructureType::PIPELINE_OFFLINE_CREATE_INFO,
     pNext: core::ptr::null(),
     pipelineIdentifier: [0u8; VK_UUID_SIZE as usize],
     matchControl: VkPipelineMatchControl(0),
@@ -560,7 +560,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VKSC_VERSION_1_0")]
 impl<'a> VkPhysicalDeviceVulkanSC10Properties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_SC_1_0_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_VULKAN_SC_1_0_PROPERTIES,
     pNext: core::ptr::null_mut(),
     deviceNoDynamicHostAllocations: 0,
     deviceDestroyFreesMemory: 0,
@@ -724,7 +724,7 @@ unsafe impl<'a> Sync for VkPipelinePoolSize<'a> {}
 #[cfg(feature = "VKSC_VERSION_1_0")]
 impl<'a> VkPipelinePoolSize<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_POOL_SIZE,
+    sType: VkStructureType::PIPELINE_POOL_SIZE,
     pNext: core::ptr::null(),
     poolEntrySize: 0,
     poolEntryCount: 0,
@@ -868,7 +868,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VKSC_VERSION_1_0")]
 impl<'a> VkDeviceObjectReservationCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEVICE_OBJECT_RESERVATION_CREATE_INFO,
+    sType: VkStructureType::DEVICE_OBJECT_RESERVATION_CREATE_INFO,
     pNext: core::ptr::null(),
     pipelineCacheCreateInfoCount: 0,
     pPipelineCacheCreateInfos: core::ptr::null(),
@@ -1185,7 +1185,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkCommandPoolCreateInfo<'root>>
 #[cfg(feature = "VKSC_VERSION_1_0")]
 impl<'a> VkCommandPoolMemoryReservationCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COMMAND_POOL_MEMORY_RESERVATION_CREATE_INFO,
+    sType: VkStructureType::COMMAND_POOL_MEMORY_RESERVATION_CREATE_INFO,
     pNext: core::ptr::null(),
     commandPoolReservedSize: 0,
     commandPoolMaxCommandBuffers: 0,
@@ -1253,7 +1253,7 @@ unsafe impl<'a> Sync for VkCommandPoolMemoryConsumption<'a> {}
 #[cfg(feature = "VKSC_VERSION_1_0")]
 impl<'a> VkCommandPoolMemoryConsumption<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COMMAND_POOL_MEMORY_CONSUMPTION,
+    sType: VkStructureType::COMMAND_POOL_MEMORY_CONSUMPTION,
     pNext: core::ptr::null_mut(),
     commandPoolAllocated: 0,
     commandPoolReservedSize: 0,
@@ -1335,7 +1335,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VKSC_VERSION_1_0")]
 impl<'a> VkPhysicalDeviceVulkanSC10Features<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_SC_1_0_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_VULKAN_SC_1_0_FEATURES,
     pNext: core::ptr::null_mut(),
     shaderAtomicInstructions: 0,
     _marker: core::marker::PhantomData,

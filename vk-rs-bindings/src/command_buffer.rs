@@ -5091,7 +5091,7 @@ impl<'dev> CommandBuffer<'dev> {
         pSampleID,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -5126,7 +5126,7 @@ impl<'dev> CommandBuffer<'dev> {
   pub fn vkCmdBeginGpaSessionAMD(&self, gpaSession: VkGpaSessionAMD) -> Result<VkResult, VkResult> {
     let r =
       unsafe { (self.table).vkCmdBeginGpaSessionAMD.unwrap_unchecked()(self.raw, gpaSession) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -5203,7 +5203,7 @@ impl<'dev> CommandBuffer<'dev> {
   #[inline(always)]
   pub fn vkCmdEndGpaSessionAMD(&self, gpaSession: VkGpaSessionAMD) -> Result<VkResult, VkResult> {
     let r = unsafe { (self.table).vkCmdEndGpaSessionAMD.unwrap_unchecked()(self.raw, gpaSession) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -5349,7 +5349,7 @@ impl<'dev> CommandBuffer<'dev> {
     pBeginInfo: &VkCommandBufferBeginInfo<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe { (self.table).vkBeginCommandBuffer.unwrap_unchecked()(self.raw, pBeginInfo) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -5808,7 +5808,7 @@ impl<'dev> CommandBuffer<'dev> {
   #[inline(always)]
   pub fn vkEndCommandBuffer(&self) -> Result<VkResult, VkResult> {
     let r = unsafe { (self.table).vkEndCommandBuffer.unwrap_unchecked()(self.raw) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -5842,7 +5842,7 @@ impl<'dev> CommandBuffer<'dev> {
     flags: VkCommandBufferResetFlags,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe { (self.table).vkResetCommandBuffer.unwrap_unchecked()(self.raw, flags) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -10866,7 +10866,7 @@ impl<'dev> CommandBuffer<'dev> {
         .vkCmdSetPerformanceMarkerINTEL
         .unwrap_unchecked()(self.raw, pMarkerInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -10907,7 +10907,7 @@ impl<'dev> CommandBuffer<'dev> {
         .vkCmdSetPerformanceOverrideINTEL
         .unwrap_unchecked()(self.raw, pOverrideInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -10948,7 +10948,7 @@ impl<'dev> CommandBuffer<'dev> {
         .vkCmdSetPerformanceStreamMarkerINTEL
         .unwrap_unchecked()(self.raw, pMarkerInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();

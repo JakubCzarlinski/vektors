@@ -170,7 +170,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
 impl<'a> VkPhysicalDeviceVariablePointersFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VARIABLE_POINTERS_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_VARIABLE_POINTERS_FEATURES,
     pNext: core::ptr::null_mut(),
     variablePointersStorageBuffer: 0,
     variablePointers: 0,
@@ -262,7 +262,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
 impl<'a> VkPhysicalDeviceVariablePointerFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VARIABLE_POINTERS_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_VARIABLE_POINTERS_FEATURES,
     pNext: core::ptr::null_mut(),
     variablePointersStorageBuffer: 0,
     variablePointers: 0,
@@ -415,7 +415,7 @@ unsafe impl<'a> Sync for VkDescriptorUpdateTemplateCreateInfo<'a> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
 impl<'a> VkDescriptorUpdateTemplateCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO,
+    sType: VkStructureType::DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: 0,
     descriptorUpdateEntryCount: 0,
@@ -537,7 +537,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
 impl<'a> VkPhysicalDevice16BitStorageFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES,
     pNext: core::ptr::null_mut(),
     storageBuffer16BitAccess: 0,
     uniformAndStorageBuffer16BitAccess: 0,
@@ -646,7 +646,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
 impl<'a> VkPhysicalDeviceSubgroupProperties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_SUBGROUP_PROPERTIES,
     pNext: core::ptr::null_mut(),
     subgroupSize: 0,
     supportedStages: VkShaderStageFlagBits(0),
@@ -734,7 +734,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkImageViewCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
 impl<'a> VkSamplerYcbcrConversionInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO,
+    sType: VkStructureType::SAMPLER_YCBCR_CONVERSION_INFO,
     pNext: core::ptr::null(),
     conversion: VkSamplerYcbcrConversion::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -814,7 +814,7 @@ unsafe impl<'a> Sync for VkSamplerYcbcrConversionCreateInfo<'a> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
 impl<'a> VkSamplerYcbcrConversionCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_CREATE_INFO,
+    sType: VkStructureType::SAMPLER_YCBCR_CONVERSION_CREATE_INFO,
     pNext: core::ptr::null(),
     format: VkFormat(0),
     ycbcrModel: VkSamplerYcbcrModelConversion(0),
@@ -975,7 +975,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
 impl<'a> VkPhysicalDeviceSamplerYcbcrConversionFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES,
     pNext: core::ptr::null_mut(),
     samplerYcbcrConversion: 0,
     _marker: core::marker::PhantomData,
@@ -1057,7 +1057,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkImageFormatProperties2<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
 impl<'a> VkSamplerYcbcrConversionImageFormatProperties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_IMAGE_FORMAT_PROPERTIES,
+    sType: VkStructureType::SAMPLER_YCBCR_CONVERSION_IMAGE_FORMAT_PROPERTIES,
     pNext: core::ptr::null_mut(),
     combinedImageSamplerDescriptorCount: 0,
     _marker: core::marker::PhantomData,
@@ -1129,7 +1129,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
 impl<'a> VkPhysicalDeviceMaintenance3Properties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_3_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_MAINTENANCE_3_PROPERTIES,
     pNext: core::ptr::null_mut(),
     maxPerSetDescriptors: 0,
     maxMemoryAllocationSize: 0,
@@ -1195,7 +1195,7 @@ unsafe impl<'a> Sync for VkDescriptorSetLayoutSupport<'a> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
 impl<'a> VkDescriptorSetLayoutSupport<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_SUPPORT,
+    sType: VkStructureType::DESCRIPTOR_SET_LAYOUT_SUPPORT,
     pNext: core::ptr::null_mut(),
     supported: 0,
     _marker: core::marker::PhantomData,

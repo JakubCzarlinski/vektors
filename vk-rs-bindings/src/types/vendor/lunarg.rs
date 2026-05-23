@@ -42,7 +42,7 @@ unsafe impl<'a> Sync for VkDirectDriverLoadingInfoLUNARG<'a> {}
 #[cfg(feature = "VK_LUNARG_direct_driver_loading")]
 impl<'a> VkDirectDriverLoadingInfoLUNARG<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DIRECT_DRIVER_LOADING_INFO_LUNARG,
+    sType: VkStructureType::DIRECT_DRIVER_LOADING_INFO_LUNARG,
     pNext: core::ptr::null_mut(),
     flags: 0,
     pfnGetInstanceProcAddr: None,
@@ -119,7 +119,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkInstanceCreateInfo<'root>>
 #[cfg(feature = "VK_LUNARG_direct_driver_loading")]
 impl<'a> VkDirectDriverLoadingListLUNARG<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DIRECT_DRIVER_LOADING_LIST_LUNARG,
+    sType: VkStructureType::DIRECT_DRIVER_LOADING_LIST_LUNARG,
     pNext: core::ptr::null(),
     mode: VkDirectDriverLoadingModeLUNARG(0),
     driverCount: 0,

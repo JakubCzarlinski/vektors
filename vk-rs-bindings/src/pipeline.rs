@@ -216,7 +216,7 @@ impl<'dev> Pipeline<'dev> {
         .vkGetExecutionGraphPipelineNodeIndexAMDX
         .unwrap_unchecked()(self.device().raw(), self.raw, pNodeInfo, pNodeIndex)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -254,7 +254,7 @@ impl<'dev> Pipeline<'dev> {
         .vkGetExecutionGraphPipelineScratchSizeAMDX
         .unwrap_unchecked()(self.device().raw(), self.raw, pSizeInfo)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -305,7 +305,7 @@ impl<'dev> Pipeline<'dev> {
         pInfo,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -379,7 +379,7 @@ impl<'dev> Pipeline<'dev> {
         pData.as_mut_ptr().cast::<c_void>(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -430,7 +430,7 @@ impl<'dev> Pipeline<'dev> {
         pData.as_mut_ptr().cast::<c_void>(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -489,7 +489,7 @@ impl<'dev> Pipeline<'dev> {
     let r = unsafe {
       (self.table).vkCompileDeferredNV.unwrap_unchecked()(self.device().raw(), self.raw, shader)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -540,7 +540,7 @@ impl<'dev> Pipeline<'dev> {
         pData.as_mut_ptr().cast::<c_void>(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();

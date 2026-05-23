@@ -646,7 +646,7 @@ fn gen_free_descriptor_sets(cmd: &Command, providers: &[String]) -> TokenStream 
             pDescriptorSets: &[VkDescriptorSet],
         ) -> Result<VkResult, VkResult> {
             let r = unsafe { (self.table.vkFreeDescriptorSets.unwrap_unchecked())(self.device().raw, self.raw, pDescriptorSets.len() as u32, pDescriptorSets.as_ptr()) };
-            if r >= VkResult::VK_SUCCESS {
+            if r >= VkResult::SUCCESS {
                 Ok(r)
             } else {
                 core::hint::cold_path();

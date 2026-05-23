@@ -160,7 +160,7 @@ impl<'dev> DescriptorPool<'dev> {
           raw_sets.as_mut_ptr().cast(),
         )
       };
-      if r < VkResult::VK_SUCCESS {
+      if r < VkResult::SUCCESS {
         core::hint::cold_path();
         return Err(r);
       }
@@ -239,7 +239,7 @@ impl<'dev> DescriptorPool<'dev> {
         pDescriptorSets.as_ptr(),
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -275,7 +275,7 @@ impl<'dev> DescriptorPool<'dev> {
     let r = unsafe {
       (self.table).vkResetDescriptorPool.unwrap_unchecked()(self.device().raw(), self.raw, flags)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();

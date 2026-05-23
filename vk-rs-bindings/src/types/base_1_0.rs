@@ -1851,7 +1851,7 @@ unsafe impl<'a> Sync for VkApplicationInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'a> VkApplicationInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_APPLICATION_INFO,
+    sType: VkStructureType::APPLICATION_INFO,
     pNext: core::ptr::null(),
     pApplicationName: core::ptr::null(),
     applicationVersion: 0,
@@ -2032,7 +2032,7 @@ unsafe impl<'a> Sync for VkDeviceQueueCreateInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'a> VkDeviceQueueCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+    sType: VkStructureType::DEVICE_QUEUE_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: VkDeviceQueueCreateFlagBits(0),
     queueFamilyIndex: 0,
@@ -2154,7 +2154,7 @@ unsafe impl<'a> Sync for VkDeviceCreateInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'a> VkDeviceCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+    sType: VkStructureType::DEVICE_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: 0,
     queueCreateInfoCount: 0,
@@ -5934,7 +5934,7 @@ unsafe impl<'a> Sync for VkInstanceCreateInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'a> VkInstanceCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+    sType: VkStructureType::INSTANCE_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: VkInstanceCreateFlagBits(0),
     pApplicationInfo: core::ptr::null(),
@@ -6230,7 +6230,7 @@ unsafe impl<'a> Sync for VkMemoryAllocateInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'a> VkMemoryAllocateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+    sType: VkStructureType::MEMORY_ALLOCATE_INFO,
     pNext: core::ptr::null(),
     allocationSize: 0,
     memoryTypeIndex: 0,
@@ -6801,7 +6801,7 @@ unsafe impl<'a> Sync for VkMappedMemoryRange<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'a> VkMappedMemoryRange<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,
+    sType: VkStructureType::MAPPED_MEMORY_RANGE,
     pNext: core::ptr::null(),
     memory: VkDeviceMemory::DEFAULT,
     offset: 0,
@@ -6984,7 +6984,7 @@ unsafe impl<'a> Sync for VkBufferCreateInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'a> VkBufferCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+    sType: VkStructureType::BUFFER_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: VkBufferCreateFlagBits(0),
     size: 0,
@@ -7318,7 +7318,7 @@ unsafe impl<'a> Sync for VkMemoryBarrier<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'a> VkMemoryBarrier<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MEMORY_BARRIER,
+    sType: VkStructureType::MEMORY_BARRIER,
     pNext: core::ptr::null(),
     srcAccessMask: VkAccessFlagBits(0),
     dstAccessMask: VkAccessFlagBits(0),
@@ -7391,7 +7391,7 @@ unsafe impl<'a> Sync for VkBufferMemoryBarrier<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'a> VkBufferMemoryBarrier<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+    sType: VkStructureType::BUFFER_MEMORY_BARRIER,
     pNext: core::ptr::null(),
     srcAccessMask: VkAccessFlagBits(0),
     dstAccessMask: VkAccessFlagBits(0),
@@ -7507,7 +7507,7 @@ unsafe impl<'a> Sync for VkImageMemoryBarrier<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'a> VkImageMemoryBarrier<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+    sType: VkStructureType::IMAGE_MEMORY_BARRIER,
     pNext: core::ptr::null(),
     srcAccessMask: VkAccessFlagBits(0),
     dstAccessMask: VkAccessFlagBits(0),
@@ -7646,7 +7646,7 @@ unsafe impl<'a> Sync for VkImageCreateInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'a> VkImageCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+    sType: VkStructureType::IMAGE_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: VkImageCreateFlagBits(0),
     imageType: VkImageType(0),
@@ -8109,7 +8109,7 @@ unsafe impl<'a> Sync for VkImageViewCreateInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'a> VkImageViewCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+    sType: VkStructureType::IMAGE_VIEW_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: VkImageViewCreateFlagBits(0),
     image: VkImage::DEFAULT,
@@ -8617,7 +8617,7 @@ unsafe impl<'a> Sync for VkBindSparseInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'a> VkBindSparseInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BIND_SPARSE_INFO,
+    sType: VkStructureType::BIND_SPARSE_INFO,
     pNext: core::ptr::null(),
     waitSemaphoreCount: 0,
     pWaitSemaphores: core::ptr::null(),
@@ -8917,7 +8917,7 @@ unsafe impl<'a> Sync for VkCommandPoolCreateInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'a> VkCommandPoolCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+    sType: VkStructureType::COMMAND_POOL_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: VkCommandPoolCreateFlagBits(0),
     queueFamilyIndex: 0,
@@ -9007,7 +9007,7 @@ unsafe impl<'a> Sync for VkCommandBufferAllocateInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'a> VkCommandBufferAllocateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+    sType: VkStructureType::COMMAND_BUFFER_ALLOCATE_INFO,
     pNext: core::ptr::null(),
     commandPool: VkCommandPool::DEFAULT,
     level: VkCommandBufferLevel(0),
@@ -9094,7 +9094,7 @@ unsafe impl<'a> Sync for VkCommandBufferInheritanceInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'a> VkCommandBufferInheritanceInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO,
+    sType: VkStructureType::COMMAND_BUFFER_INHERITANCE_INFO,
     pNext: core::ptr::null(),
     #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
     renderPass: VkRenderPass::DEFAULT,
@@ -9389,7 +9389,7 @@ unsafe impl<'a> Sync for VkCommandBufferBeginInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'a> VkCommandBufferBeginInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+    sType: VkStructureType::COMMAND_BUFFER_BEGIN_INFO,
     pNext: core::ptr::null(),
     flags: VkCommandBufferUsageFlagBits(0),
     pInheritanceInfo: core::ptr::null(),
@@ -9472,7 +9472,7 @@ unsafe impl<'a> Sync for VkFenceCreateInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'a> VkFenceCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+    sType: VkStructureType::FENCE_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: VkFenceCreateFlagBits(0),
     _marker: core::marker::PhantomData,
@@ -10911,7 +10911,7 @@ unsafe impl<'a> Sync for VkSemaphoreCreateInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'a> VkSemaphoreCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+    sType: VkStructureType::SEMAPHORE_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: 0,
     _marker: core::marker::PhantomData,
@@ -11070,7 +11070,7 @@ unsafe impl<'a> Sync for VkQueryPoolCreateInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'a> VkQueryPoolCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO,
+    sType: VkStructureType::QUERY_POOL_CREATE_INFO,
     pNext: core::ptr::null(),
     flags: VkQueryPoolCreateFlagBits(0),
     queryType: VkQueryType(0),
@@ -11318,7 +11318,7 @@ unsafe impl<'a> Sync for VkSubmitInfo<'a> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'a> VkSubmitInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SUBMIT_INFO,
+    sType: VkStructureType::SUBMIT_INFO,
     pNext: core::ptr::null(),
     waitSemaphoreCount: 0,
     pWaitSemaphores: core::ptr::null(),

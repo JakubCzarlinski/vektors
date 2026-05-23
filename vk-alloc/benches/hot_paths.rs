@@ -117,7 +117,7 @@ fn validate_group_mode(
     match mode {
         GroupBindMode::Instance0 => true,
         GroupBindMode::PerDeviceInstance => {
-            heap_flags & vk::VkMemoryHeapFlagBits::VK_MEMORY_HEAP_MULTI_INSTANCE_BIT.0 != 0
+            heap_flags & vk::VkMemoryHeapFlagBits::MULTI_INSTANCE.0 != 0
         }
         GroupBindMode::SplitInstanceRegions => is_image && split_region_count != 0,
     }
@@ -150,9 +150,9 @@ fn bench_range_allocator_contended(c: &mut Criterion) {
 }
 
 fn bench_memory_type_scoring(c: &mut Criterion) {
-    let host_visible = vk::VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT.0
-        | vk::VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_COHERENT_BIT.0;
-    let device_local = vk::VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT.0;
+    let host_visible = vk::VkMemoryPropertyFlagBits::HOST_VISIBLE.0
+        | vk::VkMemoryPropertyFlagBits::HOST_COHERENT.0;
+    let device_local = vk::VkMemoryPropertyFlagBits::DEVICE_LOCAL.0;
     c.bench_function("memory_type_scoring", |b| {
         b.iter(|| {
             criterion::black_box(score_memory_type(
@@ -183,7 +183,7 @@ fn bench_group_validation(c: &mut Criterion) {
             criterion::black_box(validate_group_mode(
                 GroupBindMode::PerDeviceInstance,
                 0b1111,
-                vk::VkMemoryHeapFlagBits::VK_MEMORY_HEAP_MULTI_INSTANCE_BIT.0,
+                vk::VkMemoryHeapFlagBits::MULTI_INSTANCE.0,
                 false,
                 0,
             ))

@@ -15,8 +15,7 @@ pub(crate) fn validate_group_mode(
         GroupBindMode::PerDeviceInstance => {
             let active_device_count = device_mask.count_ones();
             if active_device_count > 1
-                && !heap_flags
-                    .intersects(vk::VkMemoryHeapFlagBits::VK_MEMORY_HEAP_MULTI_INSTANCE_BIT)
+                && !heap_flags.intersects(vk::VkMemoryHeapFlagBits::MULTI_INSTANCE)
             {
                 return Err(AllocatorError::GroupModeUnsupported);
             }

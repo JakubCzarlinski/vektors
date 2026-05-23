@@ -70,8 +70,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_2")]
 impl<'a> VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_EXTENDED_TYPES_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_SUBGROUP_EXTENDED_TYPES_FEATURES,
     pNext: core::ptr::null_mut(),
     shaderSubgroupExtendedTypes: 0,
     _marker: core::marker::PhantomData,
@@ -158,7 +157,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_2")]
 impl<'a> VkPhysicalDeviceSamplerFilterMinmaxProperties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_FILTER_MINMAX_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_SAMPLER_FILTER_MINMAX_PROPERTIES,
     pNext: core::ptr::null_mut(),
     filterMinmaxSingleComponentFormats: 0,
     filterMinmaxImageComponentMapping: 0,
@@ -229,7 +228,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSamplerCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_2")]
 impl<'a> VkSamplerReductionModeCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SAMPLER_REDUCTION_MODE_CREATE_INFO,
+    sType: VkStructureType::SAMPLER_REDUCTION_MODE_CREATE_INFO,
     pNext: core::ptr::null(),
     reductionMode: VkSamplerReductionMode(0),
     _marker: core::marker::PhantomData,
@@ -300,7 +299,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_2")]
 impl<'a> VkPhysicalDeviceShaderFloat16Int8Features<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT16_INT8_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_FLOAT16_INT8_FEATURES,
     pNext: core::ptr::null_mut(),
     shaderFloat16: 0,
     shaderInt8: 0,
@@ -423,7 +422,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_2")]
 impl<'a> VkPhysicalDeviceFloatControlsProperties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FLOAT_CONTROLS_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_FLOAT_CONTROLS_PROPERTIES,
     pNext: core::ptr::null_mut(),
     denormBehaviorIndependence: VkShaderFloatControlsIndependence(0),
     roundingModeIndependence: VkShaderFloatControlsIndependence(0),
@@ -614,7 +613,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_2")]
 impl<'a> VkPhysicalDeviceDescriptorIndexingFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES,
     pNext: core::ptr::null_mut(),
     shaderInputAttachmentArrayDynamicIndexing: 0,
     shaderUniformTexelBufferArrayDynamicIndexing: 0,
@@ -869,7 +868,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_2")]
 impl<'a> VkPhysicalDeviceDescriptorIndexingProperties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_PROPERTIES,
     pNext: core::ptr::null_mut(),
     maxUpdateAfterBindDescriptorsInAllPools: 0,
     shaderUniformBufferArrayNonUniformIndexingNative: 0,
@@ -1093,7 +1092,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDescriptorSetLayoutCreateInfo<'root>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_2")]
 impl<'a> VkDescriptorSetLayoutBindingFlagsCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO,
+    sType: VkStructureType::DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO,
     pNext: core::ptr::null(),
     bindingCount: 0,
     pBindingFlags: core::ptr::null(),
@@ -1171,8 +1170,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDescriptorSetAllocateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_2")]
 impl<'a> VkDescriptorSetVariableDescriptorCountAllocateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO,
+    sType: VkStructureType::DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO,
     pNext: core::ptr::null(),
     descriptorSetCount: 0,
     pDescriptorCounts: core::ptr::null(),
@@ -1249,8 +1247,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDescriptorSetLayoutSupport<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_2")]
 impl<'a> VkDescriptorSetVariableDescriptorCountLayoutSupport<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_LAYOUT_SUPPORT,
+    sType: VkStructureType::DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_LAYOUT_SUPPORT,
     pNext: core::ptr::null_mut(),
     maxVariableDescriptorCount: 0,
     _marker: core::marker::PhantomData,
@@ -1322,7 +1319,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_2")]
 impl<'a> VkPhysicalDevice8BitStorageFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_8BIT_STORAGE_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_8BIT_STORAGE_FEATURES,
     pNext: core::ptr::null_mut(),
     storageBuffer8BitAccess: 0,
     uniformAndStorageBuffer8BitAccess: 0,
@@ -1420,7 +1417,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_2")]
 impl<'a> VkPhysicalDeviceShaderAtomicInt64Features<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_INT64_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_ATOMIC_INT64_FEATURES,
     pNext: core::ptr::null_mut(),
     shaderBufferInt64Atomics: 0,
     shaderSharedInt64Atomics: 0,
@@ -1511,7 +1508,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_2")]
 impl<'a> VkPhysicalDeviceScalarBlockLayoutFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCALAR_BLOCK_LAYOUT_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_SCALAR_BLOCK_LAYOUT_FEATURES,
     pNext: core::ptr::null_mut(),
     scalarBlockLayout: 0,
     _marker: core::marker::PhantomData,
@@ -1596,8 +1593,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_COMPUTE_VERSION_1_2")]
 impl<'a> VkPhysicalDeviceUniformBufferStandardLayoutFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_UNIFORM_BUFFER_STANDARD_LAYOUT_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_UNIFORM_BUFFER_STANDARD_LAYOUT_FEATURES,
     pNext: core::ptr::null_mut(),
     uniformBufferStandardLayout: 0,
     _marker: core::marker::PhantomData,

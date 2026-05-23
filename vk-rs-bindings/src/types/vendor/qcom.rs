@@ -113,8 +113,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_QCOM_cooperative_matrix_conversion")]
 impl<'a> VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_CONVERSION_FEATURES_QCOM,
+    sType: VkStructureType::PHYSICAL_DEVICE_COOPERATIVE_MATRIX_CONVERSION_FEATURES_QCOM,
     pNext: core::ptr::null_mut(),
     cooperativeMatrixConversion: 0,
     _marker: core::marker::PhantomData,
@@ -251,7 +250,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDataGraphPipelineCreateInfoARM<'root
 #[cfg(feature = "VK_QCOM_data_graph_model")]
 impl<'a> VkDataGraphPipelineBuiltinModelCreateInfoQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_BUILTIN_MODEL_CREATE_INFO_QCOM,
+    sType: VkStructureType::DATA_GRAPH_PIPELINE_BUILTIN_MODEL_CREATE_INFO_QCOM,
     pNext: core::ptr::null(),
     pOperation: core::ptr::null(),
     _marker: core::marker::PhantomData,
@@ -327,7 +326,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_QCOM_data_graph_model")]
 impl<'a> VkPhysicalDeviceDataGraphModelFeaturesQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_MODEL_FEATURES_QCOM,
+    sType: VkStructureType::PHYSICAL_DEVICE_DATA_GRAPH_MODEL_FEATURES_QCOM,
     pNext: core::ptr::null_mut(),
     dataGraphModel: 0,
     _marker: core::marker::PhantomData,
@@ -418,7 +417,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_QCOM_elapsed_timer_query")]
 impl<'a> VkPhysicalDeviceElapsedTimerQueryFeaturesQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ELAPSED_TIMER_QUERY_FEATURES_QCOM,
+    sType: VkStructureType::PHYSICAL_DEVICE_ELAPSED_TIMER_QUERY_FEATURES_QCOM,
     pNext: core::ptr::null_mut(),
     elapsedTimerQuery: 0,
     _marker: core::marker::PhantomData,
@@ -509,7 +508,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_QCOM_filter_cubic_clamp")]
 impl<'a> VkPhysicalDeviceCubicClampFeaturesQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUBIC_CLAMP_FEATURES_QCOM,
+    sType: VkStructureType::PHYSICAL_DEVICE_CUBIC_CLAMP_FEATURES_QCOM,
     pNext: core::ptr::null_mut(),
     cubicRangeClamp: 0,
     _marker: core::marker::PhantomData,
@@ -600,7 +599,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_QCOM_filter_cubic_weights")]
 impl<'a> VkPhysicalDeviceCubicWeightsFeaturesQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUBIC_WEIGHTS_FEATURES_QCOM,
+    sType: VkStructureType::PHYSICAL_DEVICE_CUBIC_WEIGHTS_FEATURES_QCOM,
     pNext: core::ptr::null_mut(),
     selectableCubicWeights: 0,
     _marker: core::marker::PhantomData,
@@ -683,7 +682,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSamplerCreateInfo<'root>>
 #[cfg(feature = "VK_QCOM_filter_cubic_weights")]
 impl<'a> VkSamplerCubicWeightsCreateInfoQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SAMPLER_CUBIC_WEIGHTS_CREATE_INFO_QCOM,
+    sType: VkStructureType::SAMPLER_CUBIC_WEIGHTS_CREATE_INFO_QCOM,
     pNext: core::ptr::null(),
     cubicWeights: VkCubicFilterWeightsQCOM(0),
     _marker: core::marker::PhantomData,
@@ -751,7 +750,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkBlitImageInfo2<'root>>
 #[cfg(feature = "VK_QCOM_filter_cubic_weights")]
 impl<'a> VkBlitImageCubicWeightsInfoQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_BLIT_IMAGE_CUBIC_WEIGHTS_INFO_QCOM,
+    sType: VkStructureType::BLIT_IMAGE_CUBIC_WEIGHTS_INFO_QCOM,
     pNext: core::ptr::null(),
     cubicWeights: VkCubicFilterWeightsQCOM(0),
     _marker: core::marker::PhantomData,
@@ -827,8 +826,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_QCOM_fragment_density_map_offset")]
 impl<'a> VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_QCOM,
+    sType: VkStructureType::PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_QCOM,
     pNext: core::ptr::null_mut(),
     fragmentDensityMapOffset: 0,
     _marker: core::marker::PhantomData,
@@ -916,8 +914,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_QCOM_fragment_density_map_offset")]
 impl<'a> VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_PROPERTIES_QCOM,
+    sType: VkStructureType::PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_PROPERTIES_QCOM,
     pNext: core::ptr::null_mut(),
     fragmentDensityOffsetGranularity: VkExtent2D::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -996,7 +993,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkRenderingEndInfoKHR<'root>>
 #[cfg(feature = "VK_QCOM_fragment_density_map_offset")]
 impl<'a> VkSubpassFragmentDensityMapOffsetEndInfoQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SUBPASS_FRAGMENT_DENSITY_MAP_OFFSET_END_INFO_QCOM,
+    sType: VkStructureType::SUBPASS_FRAGMENT_DENSITY_MAP_OFFSET_END_INFO_QCOM,
     pNext: core::ptr::null(),
     fragmentDensityOffsetCount: 0,
     pFragmentDensityOffsets: core::ptr::null(),
@@ -1088,7 +1085,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkImageViewCreateInfo<'root>>
 #[cfg(feature = "VK_QCOM_image_processing")]
 impl<'a> VkImageViewSampleWeightCreateInfoQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_VIEW_SAMPLE_WEIGHT_CREATE_INFO_QCOM,
+    sType: VkStructureType::IMAGE_VIEW_SAMPLE_WEIGHT_CREATE_INFO_QCOM,
     pNext: core::ptr::null(),
     filterCenter: VkOffset2D::DEFAULT,
     filterSize: VkExtent2D::DEFAULT,
@@ -1172,7 +1169,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_QCOM_image_processing")]
 impl<'a> VkPhysicalDeviceImageProcessingFeaturesQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_FEATURES_QCOM,
+    sType: VkStructureType::PHYSICAL_DEVICE_IMAGE_PROCESSING_FEATURES_QCOM,
     pNext: core::ptr::null_mut(),
     textureSampleWeighted: 0,
     textureBoxFilter: 0,
@@ -1275,7 +1272,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_QCOM_image_processing")]
 impl<'a> VkPhysicalDeviceImageProcessingPropertiesQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_PROPERTIES_QCOM,
+    sType: VkStructureType::PHYSICAL_DEVICE_IMAGE_PROCESSING_PROPERTIES_QCOM,
     pNext: core::ptr::null_mut(),
     maxWeightFilterPhases: 0,
     maxWeightFilterDimension: VkExtent2D::DEFAULT,
@@ -1363,7 +1360,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_QCOM_image_processing2")]
 impl<'a> VkPhysicalDeviceImageProcessing2FeaturesQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_2_FEATURES_QCOM,
+    sType: VkStructureType::PHYSICAL_DEVICE_IMAGE_PROCESSING_2_FEATURES_QCOM,
     pNext: core::ptr::null_mut(),
     textureBlockMatch2: 0,
     _marker: core::marker::PhantomData,
@@ -1448,7 +1445,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_QCOM_image_processing2")]
 impl<'a> VkPhysicalDeviceImageProcessing2PropertiesQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_2_PROPERTIES_QCOM,
+    sType: VkStructureType::PHYSICAL_DEVICE_IMAGE_PROCESSING_2_PROPERTIES_QCOM,
     pNext: core::ptr::null_mut(),
     maxBlockMatchWindow: VkExtent2D::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -1517,7 +1514,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSamplerCreateInfo<'root>>
 #[cfg(feature = "VK_QCOM_image_processing2")]
 impl<'a> VkSamplerBlockMatchWindowCreateInfoQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SAMPLER_BLOCK_MATCH_WINDOW_CREATE_INFO_QCOM,
+    sType: VkStructureType::SAMPLER_BLOCK_MATCH_WINDOW_CREATE_INFO_QCOM,
     pNext: core::ptr::null(),
     windowExtent: VkExtent2D::DEFAULT,
     windowCompareMode: VkBlockMatchWindowCompareModeQCOM(0),
@@ -1595,7 +1592,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_QCOM_image_processing3")]
 impl<'a> VkPhysicalDeviceImageProcessing3FeaturesQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_3_FEATURES_QCOM,
+    sType: VkStructureType::PHYSICAL_DEVICE_IMAGE_PROCESSING_3_FEATURES_QCOM,
     pNext: core::ptr::null_mut(),
     imageGatherLinear: 0,
     imageGatherExtendedModes: 0,
@@ -1698,11 +1695,11 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_QCOM_multiview_per_view_render_areas")]
 impl<'a> VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_RENDER_AREAS_FEATURES_QCOM,
-        pNext: core::ptr::null_mut(),
-        multiviewPerViewRenderAreas: 0,
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_RENDER_AREAS_FEATURES_QCOM,
+    pNext: core::ptr::null_mut(),
+    multiviewPerViewRenderAreas: 0,
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -1792,8 +1789,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkRenderingInfo<'root>>
 #[cfg(feature = "VK_QCOM_multiview_per_view_render_areas")]
 impl<'a> VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM,
+    sType: VkStructureType::MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM,
     pNext: core::ptr::null(),
     perViewRenderAreaCount: 0,
     pPerViewRenderAreas: core::ptr::null(),
@@ -1894,8 +1890,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_QCOM_multiview_per_view_viewports")]
 impl<'a> VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_VIEWPORTS_FEATURES_QCOM,
+    sType: VkStructureType::PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_VIEWPORTS_FEATURES_QCOM,
     pNext: core::ptr::null_mut(),
     multiviewPerViewViewports: 0,
     _marker: core::marker::PhantomData,
@@ -1969,7 +1964,7 @@ unsafe impl<'a> Sync for VkPerfHintInfoQCOM<'a> {}
 #[cfg(feature = "VK_QCOM_queue_perf_hint")]
 impl<'a> VkPerfHintInfoQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PERF_HINT_INFO_QCOM,
+    sType: VkStructureType::PERF_HINT_INFO_QCOM,
     pNext: core::ptr::null_mut(),
     type_: VkPerfHintTypeQCOM(0),
     scale: 0,
@@ -2045,7 +2040,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_QCOM_queue_perf_hint")]
 impl<'a> VkPhysicalDeviceQueuePerfHintFeaturesQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_QUEUE_PERF_HINT_FEATURES_QCOM,
+    sType: VkStructureType::PHYSICAL_DEVICE_QUEUE_PERF_HINT_FEATURES_QCOM,
     pNext: core::ptr::null_mut(),
     queuePerfHint: 0,
     _marker: core::marker::PhantomData,
@@ -2130,7 +2125,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_QCOM_queue_perf_hint")]
 impl<'a> VkPhysicalDeviceQueuePerfHintPropertiesQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_QUEUE_PERF_HINT_PROPERTIES_QCOM,
+    sType: VkStructureType::PHYSICAL_DEVICE_QUEUE_PERF_HINT_PROPERTIES_QCOM,
     pNext: core::ptr::null_mut(),
     supportedQueues: VkQueueFlagBits(0),
     _marker: core::marker::PhantomData,
@@ -2199,7 +2194,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkRenderPassBeginInfo<'root>>
 #[cfg(feature = "VK_QCOM_render_pass_transform")]
 impl<'a> VkRenderPassTransformBeginInfoQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RENDER_PASS_TRANSFORM_BEGIN_INFO_QCOM,
+    sType: VkStructureType::RENDER_PASS_TRANSFORM_BEGIN_INFO_QCOM,
     pNext: core::ptr::null(),
     transform: VkSurfaceTransformFlagBitsKHR(0),
     _marker: core::marker::PhantomData,
@@ -2269,8 +2264,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkCommandBufferInheritanceInfo<'root>>
 #[cfg(feature = "VK_QCOM_render_pass_transform")]
 impl<'a> VkCommandBufferInheritanceRenderPassTransformInfoQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_RENDER_PASS_TRANSFORM_INFO_QCOM,
+    sType: VkStructureType::COMMAND_BUFFER_INHERITANCE_RENDER_PASS_TRANSFORM_INFO_QCOM,
     pNext: core::ptr::null(),
     transform: VkSurfaceTransformFlagBitsKHR(0),
     renderArea: VkRect2D::DEFAULT,
@@ -2361,7 +2355,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceMemoryImageCopyKHR<'root>>
 #[cfg(feature = "VK_QCOM_rotated_copy_commands")]
 impl<'a> VkCopyCommandTransformInfoQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_COPY_COMMAND_TRANSFORM_INFO_QCOM,
+    sType: VkStructureType::COPY_COMMAND_TRANSFORM_INFO_QCOM,
     pNext: core::ptr::null(),
     transform: VkSurfaceTransformFlagBitsKHR(0),
     _marker: core::marker::PhantomData,
@@ -2464,8 +2458,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_QCOM_shader_multiple_wait_queues")]
 impl<'a> VkPhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MULTIPLE_WAIT_QUEUES_FEATURES_QCOM,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_MULTIPLE_WAIT_QUEUES_FEATURES_QCOM,
     pNext: core::ptr::null_mut(),
     shaderMultipleWaitQueues: 0,
     _marker: core::marker::PhantomData,
@@ -2553,8 +2546,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_QCOM_shader_multiple_wait_queues")]
 impl<'a> VkPhysicalDeviceShaderMultipleWaitQueuesPropertiesQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MULTIPLE_WAIT_QUEUES_PROPERTIES_QCOM,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_MULTIPLE_WAIT_QUEUES_PROPERTIES_QCOM,
     pNext: core::ptr::null_mut(),
     maxShaderWaitQueues: 0,
     _marker: core::marker::PhantomData,
@@ -2619,7 +2611,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkCommandBufferInheritanceInfo<'root>>
 #[cfg(feature = "VK_QCOM_tile_memory_heap")]
 impl<'a> VkTileMemoryBindInfoQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_TILE_MEMORY_BIND_INFO_QCOM,
+    sType: VkStructureType::TILE_MEMORY_BIND_INFO_QCOM,
     pNext: core::ptr::null(),
     memory: VkDeviceMemory::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -2689,7 +2681,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_QCOM_tile_memory_heap")]
 impl<'a> VkPhysicalDeviceTileMemoryHeapFeaturesQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_MEMORY_HEAP_FEATURES_QCOM,
+    sType: VkStructureType::PHYSICAL_DEVICE_TILE_MEMORY_HEAP_FEATURES_QCOM,
     pNext: core::ptr::null_mut(),
     tileMemoryHeap: 0,
     _marker: core::marker::PhantomData,
@@ -2774,7 +2766,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_QCOM_tile_memory_heap")]
 impl<'a> VkPhysicalDeviceTileMemoryHeapPropertiesQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_MEMORY_HEAP_PROPERTIES_QCOM,
+    sType: VkStructureType::PHYSICAL_DEVICE_TILE_MEMORY_HEAP_PROPERTIES_QCOM,
     pNext: core::ptr::null_mut(),
     queueSubmitBoundary: 0,
     tileBufferTransfers: 0,
@@ -2887,7 +2879,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkRenderingInfo<'root>>
 ))]
 impl<'a> VkTileMemorySizeInfoQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_TILE_MEMORY_SIZE_INFO_QCOM,
+    sType: VkStructureType::TILE_MEMORY_SIZE_INFO_QCOM,
     pNext: core::ptr::null(),
     size: 0,
     _marker: core::marker::PhantomData,
@@ -2983,7 +2975,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkMemoryRequirements2<'root>>
 #[cfg(feature = "VK_QCOM_tile_memory_heap")]
 impl<'a> VkTileMemoryRequirementsQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_TILE_MEMORY_REQUIREMENTS_QCOM,
+    sType: VkStructureType::TILE_MEMORY_REQUIREMENTS_QCOM,
     pNext: core::ptr::null_mut(),
     size: 0,
     alignment: 0,
@@ -3059,7 +3051,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_QCOM_tile_properties")]
 impl<'a> VkPhysicalDeviceTilePropertiesFeaturesQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_PROPERTIES_FEATURES_QCOM,
+    sType: VkStructureType::PHYSICAL_DEVICE_TILE_PROPERTIES_FEATURES_QCOM,
     pNext: core::ptr::null_mut(),
     tileProperties: 0,
     _marker: core::marker::PhantomData,
@@ -3134,7 +3126,7 @@ unsafe impl<'a> Sync for VkTilePropertiesQCOM<'a> {}
 #[cfg(feature = "VK_QCOM_tile_properties")]
 impl<'a> VkTilePropertiesQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_TILE_PROPERTIES_QCOM,
+    sType: VkStructureType::TILE_PROPERTIES_QCOM,
     pNext: core::ptr::null_mut(),
     tileSize: VkExtent3D::DEFAULT,
     apronSize: VkExtent2D::DEFAULT,
@@ -3232,7 +3224,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_QCOM_tile_shading")]
 impl<'a> VkPhysicalDeviceTileShadingFeaturesQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_SHADING_FEATURES_QCOM,
+    sType: VkStructureType::PHYSICAL_DEVICE_TILE_SHADING_FEATURES_QCOM,
     pNext: core::ptr::null_mut(),
     tileShading: 0,
     tileShadingFragmentStage: 0,
@@ -3401,7 +3393,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_QCOM_tile_shading")]
 impl<'a> VkPhysicalDeviceTileShadingPropertiesQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_SHADING_PROPERTIES_QCOM,
+    sType: VkStructureType::PHYSICAL_DEVICE_TILE_SHADING_PROPERTIES_QCOM,
     pNext: core::ptr::null_mut(),
     maxApronSize: 0,
     preferNonCoherent: 0,
@@ -3502,7 +3494,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkCommandBufferInheritanceInfo<'root>>
 #[cfg(feature = "VK_QCOM_tile_shading")]
 impl<'a> VkRenderPassTileShadingCreateInfoQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RENDER_PASS_TILE_SHADING_CREATE_INFO_QCOM,
+    sType: VkStructureType::RENDER_PASS_TILE_SHADING_CREATE_INFO_QCOM,
     pNext: core::ptr::null(),
     flags: VkTileShadingRenderPassFlagBitsQCOM(0),
     tileApronSize: VkExtent2D::DEFAULT,
@@ -3610,7 +3602,7 @@ unsafe impl<'a> Sync for VkPerTileBeginInfoQCOM<'a> {}
 #[cfg(feature = "VK_QCOM_tile_shading")]
 impl<'a> VkPerTileBeginInfoQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PER_TILE_BEGIN_INFO_QCOM,
+    sType: VkStructureType::PER_TILE_BEGIN_INFO_QCOM,
     pNext: core::ptr::null(),
     _marker: core::marker::PhantomData,
   };
@@ -3661,7 +3653,7 @@ unsafe impl<'a> Sync for VkPerTileEndInfoQCOM<'a> {}
 #[cfg(feature = "VK_QCOM_tile_shading")]
 impl<'a> VkPerTileEndInfoQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PER_TILE_END_INFO_QCOM,
+    sType: VkStructureType::PER_TILE_END_INFO_QCOM,
     pNext: core::ptr::null(),
     _marker: core::marker::PhantomData,
   };
@@ -3712,7 +3704,7 @@ unsafe impl<'a> Sync for VkDispatchTileInfoQCOM<'a> {}
 #[cfg(feature = "VK_QCOM_tile_shading")]
 impl<'a> VkDispatchTileInfoQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DISPATCH_TILE_INFO_QCOM,
+    sType: VkStructureType::DISPATCH_TILE_INFO_QCOM,
     pNext: core::ptr::null(),
     _marker: core::marker::PhantomData,
   };
@@ -3776,7 +3768,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_QCOM_ycbcr_degamma")]
 impl<'a> VkPhysicalDeviceYcbcrDegammaFeaturesQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_DEGAMMA_FEATURES_QCOM,
+    sType: VkStructureType::PHYSICAL_DEVICE_YCBCR_DEGAMMA_FEATURES_QCOM,
     pNext: core::ptr::null_mut(),
     ycbcrDegamma: 0,
     _marker: core::marker::PhantomData,
@@ -3857,8 +3849,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSamplerYcbcrConversionCreateInfo<'ro
 #[cfg(feature = "VK_QCOM_ycbcr_degamma")]
 impl<'a> VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_YCBCR_DEGAMMA_CREATE_INFO_QCOM,
+    sType: VkStructureType::SAMPLER_YCBCR_CONVERSION_YCBCR_DEGAMMA_CREATE_INFO_QCOM,
     pNext: core::ptr::null_mut(),
     enableYDegamma: 0,
     enableCbCrDegamma: 0,

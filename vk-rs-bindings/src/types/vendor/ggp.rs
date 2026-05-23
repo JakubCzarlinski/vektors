@@ -47,7 +47,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPresentInfoKHR<'root>>
 #[cfg(feature = "VK_GGP_frame_token")]
 impl<'a> VkPresentFrameTokenGGP<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PRESENT_FRAME_TOKEN_GGP,
+    sType: VkStructureType::PRESENT_FRAME_TOKEN_GGP,
     pNext: core::ptr::null(),
     frameToken: GgpFrameToken::NULL,
     _marker: core::marker::PhantomData,
@@ -124,7 +124,7 @@ unsafe impl<'a> Sync for VkStreamDescriptorSurfaceCreateInfoGGP<'a> {}
 #[cfg(feature = "VK_GGP_stream_descriptor_surface")]
 impl<'a> VkStreamDescriptorSurfaceCreateInfoGGP<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_STREAM_DESCRIPTOR_SURFACE_CREATE_INFO_GGP,
+    sType: VkStructureType::STREAM_DESCRIPTOR_SURFACE_CREATE_INFO_GGP,
     pNext: core::ptr::null(),
     flags: 0,
     streamDescriptor: GgpStreamDescriptor::NULL,

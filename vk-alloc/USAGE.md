@@ -230,8 +230,8 @@ fn create_buffer<'vk>(
 
     let buffer_info = vk::VkBufferCreateInfo::DEFAULT
         .with_size(4096)
-        .with_sharingMode(vk::VkSharingMode::VK_SHARING_MODE_EXCLUSIVE)
-        .with_usage(vk::VkBufferUsageFlagBits::VK_BUFFER_USAGE_STORAGE_BUFFER_BIT.0);
+        .with_sharingMode(vk::VkSharingMode::EXCLUSIVE)
+        .with_usage(vk::VkBufferUsageFlagBits::STORAGE_BUFFER.0);
 
     allocator.create_buffer(
         &buffer_info,
@@ -287,8 +287,8 @@ fn create_group_buffer<'vk>(
 
     let buffer_info = vk::VkBufferCreateInfo::DEFAULT
         .with_size(4096)
-        .with_sharingMode(vk::VkSharingMode::VK_SHARING_MODE_EXCLUSIVE)
-        .with_usage(vk::VkBufferUsageFlagBits::VK_BUFFER_USAGE_STORAGE_BUFFER_BIT.0);
+        .with_sharingMode(vk::VkSharingMode::EXCLUSIVE)
+        .with_usage(vk::VkBufferUsageFlagBits::STORAGE_BUFFER.0);
 
     allocator.create_buffer_with_mode(
         &buffer_info,
@@ -343,8 +343,8 @@ fn import_buffer<'vk>(
     let allocator = Allocator::new(physical_device, device)?;
     let buffer_info = vk::VkBufferCreateInfo::DEFAULT
         .with_size(size)
-        .with_sharingMode(vk::VkSharingMode::VK_SHARING_MODE_EXCLUSIVE)
-        .with_usage(vk::VkBufferUsageFlagBits::VK_BUFFER_USAGE_STORAGE_BUFFER_BIT.0);
+        .with_sharingMode(vk::VkSharingMode::EXCLUSIVE)
+        .with_usage(vk::VkBufferUsageFlagBits::STORAGE_BUFFER.0);
 
     allocator.import_host_buffer(
         &buffer_info,
@@ -380,8 +380,8 @@ fn create_large_buffer<'vk>(
     let total_size = 128 * 1024 * 1024u64;
     let buffer_info = vk::VkBufferCreateInfo::DEFAULT
         .with_size(total_size)
-        .with_sharingMode(vk::VkSharingMode::VK_SHARING_MODE_EXCLUSIVE)
-        .with_usage(vk::VkBufferUsageFlagBits::VK_BUFFER_USAGE_STORAGE_BUFFER_BIT.0);
+        .with_sharingMode(vk::VkSharingMode::EXCLUSIVE)
+        .with_usage(vk::VkBufferUsageFlagBits::STORAGE_BUFFER.0);
 
     allocator.create_large_buffer(
         &buffer_info,
@@ -411,17 +411,17 @@ fn create_sparse<'vk>(
 ) -> Result<vk_alloc::PreparedBindSparseInfo, vk_alloc::AllocatorError> {
     let allocator = Allocator::new(physical_device, device)?;
     let image_info = vk::VkImageCreateInfo::DEFAULT
-        .with_flags(vk::VkImageCreateFlagBits::VK_IMAGE_CREATE_SPARSE_BINDING_BIT.0)
-        .with_imageType(vk::VkImageType::VK_IMAGE_TYPE_2D)
+        .with_flags(vk::VkImageCreateFlagBits::SPARSE_BINDING.0)
+        .with_imageType(vk::VkImageType::VALUE_2D)
         .with_extent(vk::VkExtent3D::DEFAULT.with_width(64).with_height(64).with_depth(1))
         .with_mipLevels(1)
         .with_arrayLayers(1)
-        .with_format(vk::VkFormat::VK_FORMAT_R8G8B8A8_UNORM)
-        .with_tiling(vk::VkImageTiling::VK_IMAGE_TILING_OPTIMAL)
-        .with_initialLayout(vk::VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED)
-        .with_usage(vk::VkImageUsageFlagBits::VK_IMAGE_USAGE_SAMPLED_BIT.0)
-        .with_samples(vk::VkSampleCountFlagBits::VK_SAMPLE_COUNT_1_BIT)
-        .with_sharingMode(vk::VkSharingMode::VK_SHARING_MODE_EXCLUSIVE);
+        .with_format(vk::VkFormat::R8G8B8A8_UNORM)
+        .with_tiling(vk::VkImageTiling::OPTIMAL)
+        .with_initialLayout(vk::VkImageLayout::UNDEFINED)
+        .with_usage(vk::VkImageUsageFlagBits::SAMPLED.0)
+        .with_samples(vk::VkSampleCountFlagBits::BIT_1)
+        .with_sharingMode(vk::VkSharingMode::EXCLUSIVE);
 
     let sparse = allocator.create_sparse_image(&image_info, SparseAllocationCreateInfo::new())?;
     Ok(sparse.prepare_bind_info())

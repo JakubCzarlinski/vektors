@@ -46,7 +46,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_SEC_amigo_profiling")]
 impl<'a> VkPhysicalDeviceAmigoProfilingFeaturesSEC<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_AMIGO_PROFILING_FEATURES_SEC,
+    sType: VkStructureType::PHYSICAL_DEVICE_AMIGO_PROFILING_FEATURES_SEC,
     pNext: core::ptr::null_mut(),
     amigoProfiling: 0,
     _marker: core::marker::PhantomData,
@@ -127,7 +127,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSubmitInfo<'root>>
 #[cfg(feature = "VK_SEC_amigo_profiling")]
 impl<'a> VkAmigoProfilingSubmitInfoSEC<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_AMIGO_PROFILING_SUBMIT_INFO_SEC,
+    sType: VkStructureType::AMIGO_PROFILING_SUBMIT_INFO_SEC,
     pNext: core::ptr::null(),
     firstDrawTimestamp: 0,
     swapBufferTimestamp: 0,
@@ -206,11 +206,11 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_SEC_pipeline_cache_incremental_mode")]
 impl<'a> VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC<'a> {
   pub const DEFAULT: Self = Self {
-        sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CACHE_INCREMENTAL_MODE_FEATURES_SEC,
-        pNext: core::ptr::null_mut(),
-        pipelineCacheIncrementalMode: 0,
-        _marker: core::marker::PhantomData,
-    };
+    sType: VkStructureType::PHYSICAL_DEVICE_PIPELINE_CACHE_INCREMENTAL_MODE_FEATURES_SEC,
+    pNext: core::ptr::null_mut(),
+    pipelineCacheIncrementalMode: 0,
+    _marker: core::marker::PhantomData,
+  };
   #[inline]
   pub const fn new() -> Self {
     Self::DEFAULT
@@ -291,7 +291,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_SEC_throttle_hint")]
 impl<'a> VkPhysicalDeviceThrottleHintFeaturesSEC<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_THROTTLE_HINT_FEATURES_SEC,
+    sType: VkStructureType::PHYSICAL_DEVICE_THROTTLE_HINT_FEATURES_SEC,
     pNext: core::ptr::null_mut(),
     throttleHint: 0,
     _marker: core::marker::PhantomData,
@@ -371,7 +371,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSubmitInfo<'root>>
 #[cfg(feature = "VK_SEC_throttle_hint")]
 impl<'a> VkThrottleHintSubmitInfoSEC<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_THROTTLE_HINT_SUBMIT_INFO_SEC,
+    sType: VkStructureType::THROTTLE_HINT_SUBMIT_INFO_SEC,
     pNext: core::ptr::null(),
     throttleHint: VkThrottleHintTypeSEC(0),
     _marker: core::marker::PhantomData,
@@ -462,7 +462,7 @@ unsafe impl<'a> Sync for VkUbmSurfaceCreateInfoSEC<'a> {}
 #[cfg(feature = "VK_SEC_ubm_surface")]
 impl<'a> VkUbmSurfaceCreateInfoSEC<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_UBM_SURFACE_CREATE_INFO_SEC,
+    sType: VkStructureType::UBM_SURFACE_CREATE_INFO_SEC,
     pNext: core::ptr::null(),
     flags: 0,
     device: core::ptr::null_mut(),

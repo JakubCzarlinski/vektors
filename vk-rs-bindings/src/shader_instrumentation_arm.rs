@@ -197,7 +197,7 @@ impl<'dev> ShaderInstrumentationARM<'dev> {
         flags,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();

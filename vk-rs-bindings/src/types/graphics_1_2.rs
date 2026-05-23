@@ -174,7 +174,7 @@ unsafe impl<'a> Sync for VkAttachmentDescription2<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
 impl<'a> VkAttachmentDescription2<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2,
+    sType: VkStructureType::ATTACHMENT_DESCRIPTION_2,
     pNext: core::ptr::null(),
     flags: VkAttachmentDescriptionFlagBits(0),
     format: VkFormat(0),
@@ -319,7 +319,7 @@ unsafe impl<'a> Sync for VkAttachmentReference2<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
 impl<'a> VkAttachmentReference2<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2,
+    sType: VkStructureType::ATTACHMENT_REFERENCE_2,
     pNext: core::ptr::null(),
     attachment: 0,
     layout: VkImageLayout(0),
@@ -420,7 +420,7 @@ unsafe impl<'a> Sync for VkSubpassDescription2<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
 impl<'a> VkSubpassDescription2<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_2,
+    sType: VkStructureType::SUBPASS_DESCRIPTION_2,
     pNext: core::ptr::null(),
     flags: VkSubpassDescriptionFlagBits(0),
     pipelineBindPoint: VkPipelineBindPoint(0),
@@ -647,7 +647,7 @@ unsafe impl<'a> Sync for VkSubpassDependency2<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
 impl<'a> VkSubpassDependency2<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SUBPASS_DEPENDENCY_2,
+    sType: VkStructureType::SUBPASS_DEPENDENCY_2,
     pNext: core::ptr::null(),
     srcSubpass: 0,
     dstSubpass: 0,
@@ -787,7 +787,7 @@ unsafe impl<'a> Sync for VkRenderPassCreateInfo2<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
 impl<'a> VkRenderPassCreateInfo2<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2,
+    sType: VkStructureType::RENDER_PASS_CREATE_INFO_2,
     pNext: core::ptr::null(),
     flags: VkRenderPassCreateFlagBits(0),
     attachmentCount: 0,
@@ -973,7 +973,7 @@ unsafe impl<'a> Sync for VkSubpassBeginInfo<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
 impl<'a> VkSubpassBeginInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SUBPASS_BEGIN_INFO,
+    sType: VkStructureType::SUBPASS_BEGIN_INFO,
     pNext: core::ptr::null(),
     contents: VkSubpassContents(0),
     _marker: core::marker::PhantomData,
@@ -1030,7 +1030,7 @@ unsafe impl<'a> Sync for VkSubpassEndInfo<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
 impl<'a> VkSubpassEndInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SUBPASS_END_INFO,
+    sType: VkStructureType::SUBPASS_END_INFO,
     pNext: core::ptr::null(),
     _marker: core::marker::PhantomData,
   };
@@ -1113,7 +1113,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
 impl<'a> VkPhysicalDeviceDepthStencilResolveProperties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_STENCIL_RESOLVE_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_DEPTH_STENCIL_RESOLVE_PROPERTIES,
     pNext: core::ptr::null_mut(),
     supportedDepthResolveModes: VkResolveModeFlagBits(0),
     supportedStencilResolveModes: VkResolveModeFlagBits(0),
@@ -1204,7 +1204,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSubpassDescription2<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
 impl<'a> VkSubpassDescriptionDepthStencilResolve<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_DEPTH_STENCIL_RESOLVE,
+    sType: VkStructureType::SUBPASS_DESCRIPTION_DEPTH_STENCIL_RESOLVE,
     pNext: core::ptr::null(),
     depthResolveMode: VkResolveModeFlagBits(0),
     stencilResolveMode: VkResolveModeFlagBits(0),
@@ -1292,7 +1292,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceImageFormatInfo2<'root
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
 impl<'a> VkImageStencilUsageCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMAGE_STENCIL_USAGE_CREATE_INFO,
+    sType: VkStructureType::IMAGE_STENCIL_USAGE_CREATE_INFO,
     pNext: core::ptr::null(),
     stencilUsage: VkImageUsageFlagBits(0),
     _marker: core::marker::PhantomData,
@@ -1377,7 +1377,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
 impl<'a> VkPhysicalDeviceImagelessFramebufferFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGELESS_FRAMEBUFFER_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_IMAGELESS_FRAMEBUFFER_FEATURES,
     pNext: core::ptr::null_mut(),
     imagelessFramebuffer: 0,
     _marker: core::marker::PhantomData,
@@ -1463,7 +1463,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkFramebufferCreateInfo<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
 impl<'a> VkFramebufferAttachmentsCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_FRAMEBUFFER_ATTACHMENTS_CREATE_INFO,
+    sType: VkStructureType::FRAMEBUFFER_ATTACHMENTS_CREATE_INFO,
     pNext: core::ptr::null(),
     attachmentImageInfoCount: 0,
     pAttachmentImageInfos: core::ptr::null(),
@@ -1543,7 +1543,7 @@ unsafe impl<'a> Sync for VkFramebufferAttachmentImageInfo<'a> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
 impl<'a> VkFramebufferAttachmentImageInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_FRAMEBUFFER_ATTACHMENT_IMAGE_INFO,
+    sType: VkStructureType::FRAMEBUFFER_ATTACHMENT_IMAGE_INFO,
     pNext: core::ptr::null(),
     flags: VkImageCreateFlagBits(0),
     usage: VkImageUsageFlagBits(0),
@@ -1654,7 +1654,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkRenderPassBeginInfo<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
 impl<'a> VkRenderPassAttachmentBeginInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO,
+    sType: VkStructureType::RENDER_PASS_ATTACHMENT_BEGIN_INFO,
     pNext: core::ptr::null(),
     attachmentCount: 0,
     pAttachments: core::ptr::null(),
@@ -1734,8 +1734,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
 impl<'a> VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SEPARATE_DEPTH_STENCIL_LAYOUTS_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_SEPARATE_DEPTH_STENCIL_LAYOUTS_FEATURES,
     pNext: core::ptr::null_mut(),
     separateDepthStencilLayouts: 0,
     _marker: core::marker::PhantomData,
@@ -1818,7 +1817,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkAttachmentReference2<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
 impl<'a> VkAttachmentReferenceStencilLayout<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_STENCIL_LAYOUT,
+    sType: VkStructureType::ATTACHMENT_REFERENCE_STENCIL_LAYOUT,
     pNext: core::ptr::null_mut(),
     stencilLayout: VkImageLayout(0),
     _marker: core::marker::PhantomData,
@@ -1887,7 +1886,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkAttachmentDescription2<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
 impl<'a> VkAttachmentDescriptionStencilLayout<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_STENCIL_LAYOUT,
+    sType: VkStructureType::ATTACHMENT_DESCRIPTION_STENCIL_LAYOUT,
     pNext: core::ptr::null_mut(),
     stencilInitialLayout: VkImageLayout(0),
     stencilFinalLayout: VkImageLayout(0),

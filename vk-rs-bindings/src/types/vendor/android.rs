@@ -105,8 +105,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_ANDROID_external_format_resolve")]
 impl<'a> VkPhysicalDeviceExternalFormatResolveFeaturesANDROID<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FORMAT_RESOLVE_FEATURES_ANDROID,
+    sType: VkStructureType::PHYSICAL_DEVICE_EXTERNAL_FORMAT_RESOLVE_FEATURES_ANDROID,
     pNext: core::ptr::null_mut(),
     externalFormatResolve: 0,
     _marker: core::marker::PhantomData,
@@ -198,8 +197,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_ANDROID_external_format_resolve")]
 impl<'a> VkPhysicalDeviceExternalFormatResolvePropertiesANDROID<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FORMAT_RESOLVE_PROPERTIES_ANDROID,
+    sType: VkStructureType::PHYSICAL_DEVICE_EXTERNAL_FORMAT_RESOLVE_PROPERTIES_ANDROID,
     pNext: core::ptr::null_mut(),
     nullColorAttachmentWithExternalFormatResolve: 0,
     externalFormatResolveChromaOffsetX: VkChromaLocation(0),
@@ -281,8 +279,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkAndroidHardwareBufferPropertiesANDRO
 #[cfg(feature = "VK_ANDROID_external_format_resolve")]
 impl<'a> VkAndroidHardwareBufferFormatResolvePropertiesANDROID<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_RESOLVE_PROPERTIES_ANDROID,
+    sType: VkStructureType::ANDROID_HARDWARE_BUFFER_FORMAT_RESOLVE_PROPERTIES_ANDROID,
     pNext: core::ptr::null_mut(),
     colorAttachmentFormat: VkFormat(0),
     _marker: core::marker::PhantomData,
@@ -364,7 +361,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkMemoryAllocateInfo<'root>>
 #[cfg(feature = "VK_ANDROID_external_memory_android_hardware_buffer")]
 impl<'a> VkImportAndroidHardwareBufferInfoANDROID<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID,
+    sType: VkStructureType::IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID,
     pNext: core::ptr::null(),
     buffer: core::ptr::null_mut(),
     _marker: core::marker::PhantomData,
@@ -437,7 +434,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkImageFormatProperties2<'root>>
 #[cfg(feature = "VK_ANDROID_external_memory_android_hardware_buffer")]
 impl<'a> VkAndroidHardwareBufferUsageANDROID<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_USAGE_ANDROID,
+    sType: VkStructureType::ANDROID_HARDWARE_BUFFER_USAGE_ANDROID,
     pNext: core::ptr::null_mut(),
     androidHardwareBufferUsage: 0,
     _marker: core::marker::PhantomData,
@@ -498,7 +495,7 @@ unsafe impl<'a> Sync for VkAndroidHardwareBufferPropertiesANDROID<'a> {}
 #[cfg(feature = "VK_ANDROID_external_memory_android_hardware_buffer")]
 impl<'a> VkAndroidHardwareBufferPropertiesANDROID<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID,
+    sType: VkStructureType::ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID,
     pNext: core::ptr::null_mut(),
     allocationSize: 0,
     memoryTypeBits: 0,
@@ -610,7 +607,7 @@ unsafe impl<'a> Sync for VkMemoryGetAndroidHardwareBufferInfoANDROID<'a> {}
 #[cfg(feature = "VK_ANDROID_external_memory_android_hardware_buffer")]
 impl<'a> VkMemoryGetAndroidHardwareBufferInfoANDROID<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MEMORY_GET_ANDROID_HARDWARE_BUFFER_INFO_ANDROID,
+    sType: VkStructureType::MEMORY_GET_ANDROID_HARDWARE_BUFFER_INFO_ANDROID,
     pNext: core::ptr::null(),
     memory: VkDeviceMemory::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -687,7 +684,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkAndroidHardwareBufferPropertiesANDRO
 #[cfg(feature = "VK_ANDROID_external_memory_android_hardware_buffer")]
 impl<'a> VkAndroidHardwareBufferFormatPropertiesANDROID<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_ANDROID,
+    sType: VkStructureType::ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_ANDROID,
     pNext: core::ptr::null_mut(),
     format: VkFormat(0),
     externalFormat: 0,
@@ -829,7 +826,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkCommandBufferInheritanceInfo<'root>>
 #[cfg(feature = "VK_ANDROID_external_memory_android_hardware_buffer")]
 impl<'a> VkExternalFormatANDROID<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID,
+    sType: VkStructureType::EXTERNAL_FORMAT_ANDROID,
     pNext: core::ptr::null_mut(),
     externalFormat: 0,
     _marker: core::marker::PhantomData,
@@ -1013,7 +1010,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkAndroidHardwareBufferPropertiesANDRO
 ))]
 impl<'a> VkAndroidHardwareBufferFormatProperties2ANDROID<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_2_ANDROID,
+    sType: VkStructureType::ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_2_ANDROID,
     pNext: core::ptr::null_mut(),
     format: VkFormat(0),
     externalFormat: 0,

@@ -88,7 +88,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkImageFormatProperties2<'root>>
 #[cfg(feature = "VK_OHOS_external_memory")]
 impl<'a> VkNativeBufferUsageOHOS<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_NATIVE_BUFFER_USAGE_OHOS,
+    sType: VkStructureType::NATIVE_BUFFER_USAGE_OHOS,
     pNext: core::ptr::null_mut(),
     OHOSNativeBufferUsage: 0,
     _marker: core::marker::PhantomData,
@@ -149,7 +149,7 @@ unsafe impl<'a> Sync for VkNativeBufferPropertiesOHOS<'a> {}
 #[cfg(feature = "VK_OHOS_external_memory")]
 impl<'a> VkNativeBufferPropertiesOHOS<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_NATIVE_BUFFER_PROPERTIES_OHOS,
+    sType: VkStructureType::NATIVE_BUFFER_PROPERTIES_OHOS,
     pNext: core::ptr::null_mut(),
     allocationSize: 0,
     memoryTypeBits: 0,
@@ -244,7 +244,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkNativeBufferPropertiesOHOS<'root>>
 #[cfg(feature = "VK_OHOS_external_memory")]
 impl<'a> VkNativeBufferFormatPropertiesOHOS<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_NATIVE_BUFFER_FORMAT_PROPERTIES_OHOS,
+    sType: VkStructureType::NATIVE_BUFFER_FORMAT_PROPERTIES_OHOS,
     pNext: core::ptr::null_mut(),
     format: VkFormat(0),
     externalFormat: 0,
@@ -351,7 +351,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkMemoryAllocateInfo<'root>>
 #[cfg(feature = "VK_OHOS_external_memory")]
 impl<'a> VkImportNativeBufferInfoOHOS<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMPORT_NATIVE_BUFFER_INFO_OHOS,
+    sType: VkStructureType::IMPORT_NATIVE_BUFFER_INFO_OHOS,
     pNext: core::ptr::null(),
     buffer: core::ptr::null_mut(),
     _marker: core::marker::PhantomData,
@@ -412,7 +412,7 @@ unsafe impl<'a> Sync for VkMemoryGetNativeBufferInfoOHOS<'a> {}
 #[cfg(feature = "VK_OHOS_external_memory")]
 impl<'a> VkMemoryGetNativeBufferInfoOHOS<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_MEMORY_GET_NATIVE_BUFFER_INFO_OHOS,
+    sType: VkStructureType::MEMORY_GET_NATIVE_BUFFER_INFO_OHOS,
     pNext: core::ptr::null(),
     memory: VkDeviceMemory::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -506,7 +506,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkCommandBufferInheritanceInfo<'root>>
 #[cfg(feature = "VK_OHOS_external_memory")]
 impl<'a> VkExternalFormatOHOS<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_OHOS,
+    sType: VkStructureType::EXTERNAL_FORMAT_OHOS,
     pNext: core::ptr::null_mut(),
     externalFormat: 0,
     _marker: core::marker::PhantomData,
@@ -644,7 +644,7 @@ unsafe impl<'a> Sync for VkSurfaceCreateInfoOHOS<'a> {}
 #[cfg(feature = "VK_OHOS_surface")]
 impl<'a> VkSurfaceCreateInfoOHOS<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SURFACE_CREATE_INFO_OHOS,
+    sType: VkStructureType::SURFACE_CREATE_INFO_OHOS,
     pNext: core::ptr::null(),
     flags: 0,
     window: core::ptr::null_mut(),

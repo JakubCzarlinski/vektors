@@ -62,7 +62,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_1")]
 impl<'a> VkPhysicalDeviceMultiviewFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_MULTIVIEW_FEATURES,
     pNext: core::ptr::null_mut(),
     multiview: 0,
     multiviewGeometryShader: 0,
@@ -161,7 +161,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_1")]
 impl<'a> VkPhysicalDeviceMultiviewProperties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_MULTIVIEW_PROPERTIES,
     pNext: core::ptr::null_mut(),
     maxMultiviewViewCount: 0,
     maxMultiviewInstanceIndex: 0,
@@ -246,7 +246,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkRenderPassCreateInfo<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_1")]
 impl<'a> VkRenderPassMultiviewCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO,
+    sType: VkStructureType::RENDER_PASS_MULTIVIEW_CREATE_INFO,
     pNext: core::ptr::null(),
     subpassCount: 0,
     pViewMasks: core::ptr::null(),
@@ -368,7 +368,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkRenderingInfo<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_1")]
 impl<'a> VkDeviceGroupRenderPassBeginInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO,
+    sType: VkStructureType::DEVICE_GROUP_RENDER_PASS_BEGIN_INFO,
     pNext: core::ptr::null(),
     deviceMask: 0,
     deviceRenderAreaCount: 0,
@@ -509,7 +509,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkRenderPassCreateInfo<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_1")]
 impl<'a> VkRenderPassInputAttachmentAspectCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_RENDER_PASS_INPUT_ATTACHMENT_ASPECT_CREATE_INFO,
+    sType: VkStructureType::RENDER_PASS_INPUT_ATTACHMENT_ASPECT_CREATE_INFO,
     pNext: core::ptr::null(),
     aspectReferenceCount: 0,
     pAspectReferences: core::ptr::null(),
@@ -592,7 +592,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_1")]
 impl<'a> VkPhysicalDevicePointClippingProperties<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_POINT_CLIPPING_PROPERTIES,
+    sType: VkStructureType::PHYSICAL_DEVICE_POINT_CLIPPING_PROPERTIES,
     pNext: core::ptr::null_mut(),
     pointClippingBehavior: VkPointClippingBehavior(0),
     _marker: core::marker::PhantomData,
@@ -660,7 +660,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPipelineTessellationStateCreateInfo<
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_1")]
 impl<'a> VkPipelineTessellationDomainOriginStateCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_DOMAIN_ORIGIN_STATE_CREATE_INFO,
+    sType: VkStructureType::PIPELINE_TESSELLATION_DOMAIN_ORIGIN_STATE_CREATE_INFO,
     pNext: core::ptr::null(),
     domainOrigin: VkTessellationDomainOrigin(0),
     _marker: core::marker::PhantomData,
@@ -730,7 +730,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_1")]
 impl<'a> VkPhysicalDeviceShaderDrawParametersFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES,
     pNext: core::ptr::null_mut(),
     shaderDrawParameters: 0,
     _marker: core::marker::PhantomData,
@@ -815,7 +815,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_1")]
 impl<'a> VkPhysicalDeviceShaderDrawParameterFeatures<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES,
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES,
     pNext: core::ptr::null_mut(),
     shaderDrawParameters: 0,
     _marker: core::marker::PhantomData,

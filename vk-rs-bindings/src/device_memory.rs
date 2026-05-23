@@ -228,7 +228,7 @@ impl<'dev> DeviceMemory<'dev> {
         ppData,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -312,7 +312,7 @@ impl<'dev> DeviceMemory<'dev> {
         pHandle,
       )
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();

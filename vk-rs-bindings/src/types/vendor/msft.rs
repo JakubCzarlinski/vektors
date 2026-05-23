@@ -38,7 +38,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
 #[cfg(feature = "VK_MSFT_layered_driver")]
 impl<'a> VkPhysicalDeviceLayeredDriverPropertiesMSFT<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_DRIVER_PROPERTIES_MSFT,
+    sType: VkStructureType::PHYSICAL_DEVICE_LAYERED_DRIVER_PROPERTIES_MSFT,
     pNext: core::ptr::null_mut(),
     underlyingAPI: VkLayeredDriverUnderlyingApiMSFT(0),
     _marker: core::marker::PhantomData,

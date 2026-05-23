@@ -233,7 +233,7 @@ impl<'lib> Entry<'lib> {
       let r = unsafe {
         (self.table.vkCreateInstance.unwrap_unchecked())(pCreateInfo, pAllocator, &mut raw)
       };
-      if r < VkResult::VK_SUCCESS {
+      if r < VkResult::SUCCESS {
         core::hint::cold_path();
         return Err(r);
       }
@@ -291,7 +291,7 @@ impl<'lib> Entry<'lib> {
         .vkEnumerateInstanceExtensionProperties
         .unwrap_unchecked()(pLayerName, pPropertyCount, pProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -332,7 +332,7 @@ impl<'lib> Entry<'lib> {
         .vkEnumerateInstanceLayerProperties
         .unwrap_unchecked()(pPropertyCount, pProperties)
     };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();
@@ -362,7 +362,7 @@ impl<'lib> Entry<'lib> {
   #[inline(always)]
   pub fn vkEnumerateInstanceVersion(&self, pApiVersion: &mut u32) -> Result<VkResult, VkResult> {
     let r = unsafe { (self.table).vkEnumerateInstanceVersion.unwrap_unchecked()(pApiVersion) };
-    if r >= VkResult::VK_SUCCESS {
+    if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
       core::hint::cold_path();

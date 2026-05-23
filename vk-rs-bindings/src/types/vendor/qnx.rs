@@ -86,7 +86,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkMemoryAllocateInfo<'root>>
 #[cfg(feature = "VK_QNX_external_memory_screen_buffer")]
 impl<'a> VkImportScreenBufferInfoQNX<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_IMPORT_SCREEN_BUFFER_INFO_QNX,
+    sType: VkStructureType::IMPORT_SCREEN_BUFFER_INFO_QNX,
     pNext: core::ptr::null(),
     buffer: core::ptr::null_mut(),
     _marker: core::marker::PhantomData,
@@ -150,7 +150,7 @@ unsafe impl<'a> Sync for VkScreenBufferPropertiesQNX<'a> {}
 #[cfg(feature = "VK_QNX_external_memory_screen_buffer")]
 impl<'a> VkScreenBufferPropertiesQNX<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SCREEN_BUFFER_PROPERTIES_QNX,
+    sType: VkStructureType::SCREEN_BUFFER_PROPERTIES_QNX,
     pNext: core::ptr::null_mut(),
     allocationSize: 0,
     memoryTypeBits: 0,
@@ -246,7 +246,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkScreenBufferPropertiesQNX<'root>>
 #[cfg(feature = "VK_QNX_external_memory_screen_buffer")]
 impl<'a> VkScreenBufferFormatPropertiesQNX<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SCREEN_BUFFER_FORMAT_PROPERTIES_QNX,
+    sType: VkStructureType::SCREEN_BUFFER_FORMAT_PROPERTIES_QNX,
     pNext: core::ptr::null_mut(),
     format: VkFormat(0),
     externalFormat: 0,
@@ -370,7 +370,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSamplerYcbcrConversionCreateInfo<'ro
 #[cfg(feature = "VK_QNX_external_memory_screen_buffer")]
 impl<'a> VkExternalFormatQNX<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_QNX,
+    sType: VkStructureType::EXTERNAL_FORMAT_QNX,
     pNext: core::ptr::null_mut(),
     externalFormat: 0,
     _marker: core::marker::PhantomData,
@@ -461,8 +461,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
 #[cfg(feature = "VK_QNX_external_memory_screen_buffer")]
 impl<'a> VkPhysicalDeviceExternalMemoryScreenBufferFeaturesQNX<'a> {
   pub const DEFAULT: Self = Self {
-    sType:
-      VkStructureType::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_SCREEN_BUFFER_FEATURES_QNX,
+    sType: VkStructureType::PHYSICAL_DEVICE_EXTERNAL_MEMORY_SCREEN_BUFFER_FEATURES_QNX,
     pNext: core::ptr::null_mut(),
     screenBufferImport: 0,
     _marker: core::marker::PhantomData,
@@ -571,7 +570,7 @@ unsafe impl<'a> Sync for VkScreenSurfaceCreateInfoQNX<'a> {}
 #[cfg(feature = "VK_QNX_screen_surface")]
 impl<'a> VkScreenSurfaceCreateInfoQNX<'a> {
   pub const DEFAULT: Self = Self {
-    sType: VkStructureType::VK_STRUCTURE_TYPE_SCREEN_SURFACE_CREATE_INFO_QNX,
+    sType: VkStructureType::SCREEN_SURFACE_CREATE_INFO_QNX,
     pNext: core::ptr::null(),
     flags: 0,
     context: core::ptr::null_mut(),

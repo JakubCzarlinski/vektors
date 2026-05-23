@@ -140,15 +140,24 @@ fn gen_enum(e: &Enum, reg: &Registry, disabled: &HashSet<String>) -> TokenStream
     } else {
         quote! {i32}
     };
+    let variant_names = shorten_variant_names(e, &variants, false);
     let mut variant_token_stream = TokenStream::new();
     let mut display_match_arms = TokenStream::new();
     let mut seen_features: HashSet<String> = HashSet::new();
+    let mut seen_rust_names: HashSet<String> = HashSet::new();
 
     for variant in variants {
         if !seen_features.insert(variant.name.clone()) {
             continue;
         }
-        let variant_name = format_ident!("{}", &variant.name);
+        let rust_variant_name = variant_names
+            .get(&variant.name)
+            .map(String::as_str)
+            .unwrap_or(&variant.name);
+        if !seen_rust_names.insert(rust_variant_name.to_owned()) {
+            continue;
+        }
+        let variant_name = format_ident!("{}", rust_variant_name);
         let variant_doc = variant.comment.as_deref().unwrap_or("");
         let variant_depr = deprecate_attr(&variant.depr);
         let mut variant_cfg = variant_cfg(&variant, &all_feats, disabled);
@@ -222,6 +231,8 @@ fn gen_bitmask_type(
     let mut display_token_stream = TokenStream::new();
     let mut known_bits_token_stream = TokenStream::new();
     let mut seen_features: HashSet<String> = HashSet::new();
+    let mut seen_rust_names: HashSet<String> = HashSet::new();
+    let variant_names = shorten_variant_names(e, &e.variants, true);
     let value_by_name: HashMap<String, EnumValue> = e
         .variants
         .iter()
@@ -233,7 +244,14 @@ fn gen_bitmask_type(
             continue;
         }
 
-        let variant_name = format_ident!("{}", &variant.name);
+        let rust_variant_name = variant_names
+            .get(&variant.name)
+            .map(String::as_str)
+            .unwrap_or(&variant.name);
+        if !seen_rust_names.insert(rust_variant_name.to_owned()) {
+            continue;
+        }
+        let variant_name = format_ident!("{}", rust_variant_name);
         let variant_doc = variant.comment.as_deref().unwrap_or("");
         let variant_depr = deprecate_attr(&variant.depr);
         let mut variant_cfg = variant_cfg(variant, all_feats, disabled);
@@ -360,6 +378,159 @@ fn gen_bitmask_type(
         }
     );
     doc
+}
+
+fn shorten_variant_names(
+    e: &Enum,
+    variants: &[EnumVariant],
+    strip_bit_suffix: bool,
+) -> HashMap<String, String> {
+    let variant_tokens: Vec<_> = variants
+        .iter()
+        .map(|variant| variant.name.split('_').collect::<Vec<_>>())
+        .collect();
+    let common_prefix_len = common_token_prefix_len(&variant_tokens).max(type_prefix_len(
+        e,
+        variant_tokens.first().map(Vec::as_slice).unwrap_or(&[]),
+    ));
+    let vendor_tag = vendor_tag(&e.name);
+    let value_by_name: HashMap<String, EnumValue> = e
+        .variants
+        .iter()
+        .map(|variant| (variant.name.clone(), variant.value.clone()))
+        .collect();
+    let mut used = HashMap::<String, (String, EnumValue)>::new();
+    let mut out = HashMap::new();
+
+    for variant in variants {
+        let original = &variant.name;
+        let resolved = resolve_enum_value(&variant.value, &value_by_name);
+        let mut tokens: Vec<&str> = original.split('_').skip(common_prefix_len).collect();
+        if tokens.is_empty() {
+            tokens = original.split('_').collect();
+        }
+
+        if vendor_tag.is_some_and(|tag| tokens.last() == Some(&tag)) {
+            tokens.pop();
+        }
+        if strip_bit_suffix && tokens.last() == Some(&"BIT") {
+            tokens.pop();
+        }
+        if tokens.is_empty() {
+            tokens = original.split('_').collect();
+        }
+
+        let mut shortened = tokens.join("_");
+        if shortened
+            .as_bytes()
+            .first()
+            .is_some_and(|byte| byte.is_ascii_digit())
+        {
+            shortened = format!("{}_{}", numeric_variant_prefix(e, &tokens), shortened);
+        }
+
+        if let Some((existing, existing_value)) = used.get(&shortened)
+            && existing != original
+            && existing_value != &resolved
+        {
+            out.insert(original.clone(), original.clone());
+            continue;
+        }
+
+        used.insert(shortened.clone(), (original.clone(), resolved));
+        out.insert(original.clone(), shortened);
+    }
+
+    out
+}
+
+fn common_token_prefix_len(variant_tokens: &[Vec<&str>]) -> usize {
+    if variant_tokens.len() <= 1 {
+        return 0;
+    }
+    let Some(first) = variant_tokens.first() else {
+        return 0;
+    };
+    let mut len = 0;
+    'prefix: for (idx, token) in first.iter().enumerate() {
+        for tokens in variant_tokens.iter().skip(1) {
+            if tokens.get(idx).copied() != Some(*token) {
+                break 'prefix;
+            }
+        }
+        len += 1;
+    }
+    if first.len() == len {
+        len.saturating_sub(1)
+    } else {
+        len
+    }
+}
+
+fn type_prefix_len(e: &Enum, variant_tokens: &[&str]) -> usize {
+    let mut type_tokens = type_name_tokens(&e.name);
+    if e.is_bitmask {
+        if type_tokens.ends_with(&["FLAG".to_owned(), "BITS".to_owned()]) {
+            type_tokens.truncate(type_tokens.len() - 2);
+        } else if type_tokens.ends_with(&["FLAGS".to_owned()]) {
+            type_tokens.truncate(type_tokens.len() - 1);
+        }
+    }
+    let mut len = 0;
+    for (type_token, variant_token) in type_tokens.iter().zip(variant_tokens) {
+        if type_token != variant_token {
+            break;
+        }
+        len += 1;
+    }
+    len
+}
+
+fn type_name_tokens(name: &str) -> Vec<String> {
+    let mut tokens = Vec::new();
+    let mut current = String::new();
+    let mut previous_was_lower_or_digit = false;
+    for ch in name.chars() {
+        if ch == '_' {
+            if !current.is_empty() {
+                tokens.push(current.to_ascii_uppercase());
+                current.clear();
+            }
+            previous_was_lower_or_digit = false;
+            continue;
+        }
+        if ch.is_ascii_uppercase() && previous_was_lower_or_digit && !current.is_empty() {
+            tokens.push(current.to_ascii_uppercase());
+            current.clear();
+        }
+        previous_was_lower_or_digit = ch.is_ascii_lowercase() || ch.is_ascii_digit();
+        current.push(ch);
+    }
+    if !current.is_empty() {
+        tokens.push(current.to_ascii_uppercase());
+    }
+    tokens
+}
+
+fn vendor_tag(type_name: &str) -> Option<&'static str> {
+    const TAGS: &[&str] = &[
+        "AMD", "AMDX", "ANDROID", "ARM", "EXT", "FUCHSIA", "GGP", "GOOGLE", "HUAWEI", "IMG",
+        "INTEL", "KHR", "LUNARG", "MESA", "MSFT", "MVK", "NN", "NV", "NVX", "OHOS", "QCOM", "QNX",
+        "SEC", "VALVE",
+    ];
+    TAGS.iter().copied().find(|tag| type_name.ends_with(tag))
+}
+
+fn numeric_variant_prefix(e: &Enum, tokens: &[&str]) -> &'static str {
+    if e.name == "VkImageCompressionFixedRateFlagBitsEXT"
+        || tokens.iter().any(|token| token.ends_with("BPC"))
+    {
+        "RATE"
+    } else if e.is_bitmask {
+        "BIT"
+    } else {
+        "VALUE"
+    }
 }
 
 fn variant_cfg(
