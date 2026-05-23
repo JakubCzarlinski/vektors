@@ -293,7 +293,7 @@ impl<'dev> Pipeline<'dev> {
     shaderStage: VkShaderStageFlagBits,
     infoType: VkShaderInfoTypeAMD,
     pInfoSize: &mut usize,
-    pInfo: *mut core::ffi::c_void,
+    pInfo: *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
       (self.table).vkGetShaderInfoAMD.unwrap_unchecked()(
@@ -376,7 +376,7 @@ impl<'dev> Pipeline<'dev> {
         firstGroup,
         groupCount,
         pData.len() as usize,
-        pData.as_mut_ptr().cast::<core::ffi::c_void>(),
+        pData.as_mut_ptr().cast::<c_void>(),
       )
     };
     if r >= VkResult::VK_SUCCESS {
@@ -427,7 +427,7 @@ impl<'dev> Pipeline<'dev> {
         firstGroup,
         groupCount,
         pData.len() as usize,
-        pData.as_mut_ptr().cast::<core::ffi::c_void>(),
+        pData.as_mut_ptr().cast::<c_void>(),
       )
     };
     if r >= VkResult::VK_SUCCESS {
@@ -537,7 +537,7 @@ impl<'dev> Pipeline<'dev> {
         firstGroup,
         groupCount,
         pData.len() as usize,
-        pData.as_mut_ptr().cast::<core::ffi::c_void>(),
+        pData.as_mut_ptr().cast::<c_void>(),
       )
     };
     if r >= VkResult::VK_SUCCESS {

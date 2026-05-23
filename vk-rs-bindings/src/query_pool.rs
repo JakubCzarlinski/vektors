@@ -186,7 +186,7 @@ impl<'dev> QueryPool<'dev> {
         firstQuery,
         queryCount,
         pData.len() as usize,
-        pData.as_mut_ptr().cast::<core::ffi::c_void>(),
+        pData.as_mut_ptr().cast::<c_void>(),
         stride,
         flags,
       )

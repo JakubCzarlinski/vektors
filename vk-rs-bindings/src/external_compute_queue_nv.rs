@@ -136,7 +136,7 @@ impl<'dev> ExternalComputeQueueNV<'dev> {
   pub fn vkGetExternalComputeQueueDataNV(
     &self,
     params: &mut VkExternalComputeQueueDataParamsNV<'_>,
-    pData: *mut core::ffi::c_void,
+    pData: *mut c_void,
   ) {
     unsafe {
       // SAFETY: table is fully loaded at creation.

@@ -943,11 +943,7 @@ pub fn ctype_to_tokens_for_registry(
 pub fn base_type_tokens(base: &str) -> TokenStream {
     let resolved = c_type_to_rust(base);
     let name = if resolved.is_empty() {
-        if base.is_empty() {
-            "core::ffi::c_void"
-        } else {
-            base
-        }
+        if base.is_empty() { "c_void" } else { base }
     } else {
         resolved
     };
@@ -1081,13 +1077,13 @@ pub fn safe_method(
         fwd[pair.count_full_idx] = quote! { #ptr_name.len() as #count_ty };
         fwd[pair.ptr_full_idx] = if ptr_param.ty.is_const {
             if ptr_param.ty.base == "void" {
-                quote! { #ptr_name.as_ptr().cast::<core::ffi::c_void>() }
+                quote! { #ptr_name.as_ptr().cast::<c_void>() }
             } else {
                 quote! { #ptr_name.as_ptr() }
             }
         } else {
             if ptr_param.ty.base == "void" {
-                quote! { #ptr_name.as_mut_ptr().cast::<core::ffi::c_void>() }
+                quote! { #ptr_name.as_mut_ptr().cast::<c_void>() }
             } else {
                 quote! { #ptr_name.as_mut_ptr() }
             }
@@ -1368,13 +1364,13 @@ pub fn safe_method_unit_with_overrides(
         fwd[pair.count_full_idx] = quote! { #ptr_name.len() as #count_ty };
         fwd[pair.ptr_full_idx] = if ptr_param.ty.is_const {
             if ptr_param.ty.base == "void" {
-                quote! { #ptr_name.as_ptr().cast::<core::ffi::c_void>() }
+                quote! { #ptr_name.as_ptr().cast::<c_void>() }
             } else {
                 quote! { #ptr_name.as_ptr() }
             }
         } else {
             if ptr_param.ty.base == "void" {
-                quote! { #ptr_name.as_mut_ptr().cast::<core::ffi::c_void>() }
+                quote! { #ptr_name.as_mut_ptr().cast::<c_void>() }
             } else {
                 quote! { #ptr_name.as_mut_ptr() }
             }

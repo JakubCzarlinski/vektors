@@ -4178,7 +4178,7 @@ impl<'inst> Device<'inst> {
   pub fn vkGetTensorOpaqueCaptureDescriptorDataARM(
     &self,
     pInfo: &VkTensorCaptureDescriptorDataInfoARM<'_>,
-    pData: *mut core::ffi::c_void,
+    pData: *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
       (self.table)
@@ -4219,7 +4219,7 @@ impl<'inst> Device<'inst> {
   pub fn vkGetTensorViewOpaqueCaptureDescriptorDataARM(
     &self,
     pInfo: &VkTensorViewCaptureDescriptorDataInfoARM<'_>,
-    pData: *mut core::ffi::c_void,
+    pData: *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
       (self.table)
@@ -5621,7 +5621,7 @@ impl<'inst> Device<'inst> {
   pub fn vkMapMemory2(
     &self,
     pMemoryMapInfo: &VkMemoryMapInfo<'_>,
-    ppData: &mut *mut core::ffi::c_void,
+    ppData: &mut *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r =
       unsafe { (self.table).vkMapMemory2.unwrap_unchecked()(self.raw, pMemoryMapInfo, ppData) };
@@ -6578,7 +6578,7 @@ impl<'inst> Device<'inst> {
   pub fn vkGetAccelerationStructureOpaqueCaptureDescriptorDataEXT(
     &self,
     pInfo: &VkAccelerationStructureCaptureDescriptorDataInfoEXT<'_>,
-    pData: *mut core::ffi::c_void,
+    pData: *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
       (self.table)
@@ -6618,7 +6618,7 @@ impl<'inst> Device<'inst> {
   pub fn vkGetBufferOpaqueCaptureDescriptorDataEXT(
     &self,
     pInfo: &VkBufferCaptureDescriptorDataInfoEXT<'_>,
-    pData: *mut core::ffi::c_void,
+    pData: *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
       (self.table)
@@ -6656,7 +6656,7 @@ impl<'inst> Device<'inst> {
         self.raw,
         pDescriptorInfo,
         pDescriptor.len() as usize,
-        pDescriptor.as_mut_ptr().cast::<core::ffi::c_void>(),
+        pDescriptor.as_mut_ptr().cast::<c_void>(),
       )
     }
   }
@@ -6686,7 +6686,7 @@ impl<'inst> Device<'inst> {
   pub fn vkGetImageOpaqueCaptureDescriptorDataEXT(
     &self,
     pInfo: &VkImageCaptureDescriptorDataInfoEXT<'_>,
-    pData: *mut core::ffi::c_void,
+    pData: *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
       (self.table)
@@ -6726,7 +6726,7 @@ impl<'inst> Device<'inst> {
   pub fn vkGetImageViewOpaqueCaptureDescriptorDataEXT(
     &self,
     pInfo: &VkImageViewCaptureDescriptorDataInfoEXT<'_>,
-    pData: *mut core::ffi::c_void,
+    pData: *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
       (self.table)
@@ -6766,7 +6766,7 @@ impl<'inst> Device<'inst> {
   pub fn vkGetSamplerOpaqueCaptureDescriptorDataEXT(
     &self,
     pInfo: &VkSamplerCaptureDescriptorDataInfoEXT<'_>,
-    pData: *mut core::ffi::c_void,
+    pData: *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
       (self.table)
@@ -7265,7 +7265,7 @@ impl<'inst> Device<'inst> {
   pub fn vkGetMemoryHostPointerPropertiesEXT(
     &self,
     handleType: VkExternalMemoryHandleTypeFlagBits,
-    pHostPointer: *const core::ffi::c_void,
+    pHostPointer: *const c_void,
     pMemoryHostPointerProperties: &mut VkMemoryHostPointerPropertiesEXT<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
@@ -7311,7 +7311,7 @@ impl<'inst> Device<'inst> {
   pub fn vkGetMemoryMetalHandleEXT(
     &self,
     pGetMetalHandleInfo: &VkMemoryGetMetalHandleInfoEXT<'_>,
-    pHandle: &mut *mut core::ffi::c_void,
+    pHandle: &mut *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
       (self.table).vkGetMemoryMetalHandleEXT.unwrap_unchecked()(
@@ -7354,7 +7354,7 @@ impl<'inst> Device<'inst> {
   pub fn vkGetMemoryMetalHandlePropertiesEXT(
     &self,
     handleType: VkExternalMemoryHandleTypeFlagBits,
-    pHandle: *const core::ffi::c_void,
+    pHandle: *const c_void,
     pMemoryMetalHandleProperties: &mut VkMemoryMetalHandlePropertiesEXT<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
@@ -7765,7 +7765,7 @@ impl<'inst> Device<'inst> {
         pMicromaps.as_ptr(),
         queryType,
         pData.len() as usize,
-        pData.as_mut_ptr().cast::<core::ffi::c_void>(),
+        pData.as_mut_ptr().cast::<c_void>(),
         stride,
       )
     };
@@ -8921,7 +8921,7 @@ impl<'inst> Device<'inst> {
         pAccelerationStructures.as_ptr(),
         queryType,
         pData.len() as usize,
-        pData.as_mut_ptr().cast::<core::ffi::c_void>(),
+        pData.as_mut_ptr().cast::<c_void>(),
         stride,
       )
     };
@@ -10326,7 +10326,7 @@ impl<'inst> Device<'inst> {
   pub fn vkMapMemory2KHR(
     &self,
     pMemoryMapInfo: &VkMemoryMapInfoKHR<'_>,
-    ppData: &mut *mut core::ffi::c_void,
+    ppData: &mut *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r =
       unsafe { (self.table).vkMapMemory2KHR.unwrap_unchecked()(self.raw, pMemoryMapInfo, ppData) };
@@ -10502,7 +10502,7 @@ impl<'inst> Device<'inst> {
     pInfo: &VkPipelineBinaryDataInfoKHR<'_>,
     pPipelineBinaryKey: &mut VkPipelineBinaryKeyKHR<'_>,
     pPipelineBinaryDataSize: &mut usize,
-    pPipelineBinaryData: *mut core::ffi::c_void,
+    pPipelineBinaryData: *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
       (self.table).vkGetPipelineBinaryDataKHR.unwrap_unchecked()(
@@ -10979,7 +10979,7 @@ impl<'inst> Device<'inst> {
     pVideoSessionParametersInfo: &VkVideoEncodeSessionParametersGetInfoKHR<'_>,
     pFeedbackInfo: *mut VkVideoEncodeSessionParametersFeedbackInfoKHR<'_>,
     pDataSize: &mut usize,
-    pData: *mut core::ffi::c_void,
+    pData: *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
       (self.table)
@@ -11689,7 +11689,7 @@ impl<'inst> Device<'inst> {
   pub fn vkGetFenceSciSyncFenceNV(
     &self,
     pGetSciSyncHandleInfo: &VkFenceGetSciSyncInfoNV<'_>,
-    pHandle: *mut core::ffi::c_void,
+    pHandle: *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
       (self.table).vkGetFenceSciSyncFenceNV.unwrap_unchecked()(
@@ -11735,7 +11735,7 @@ impl<'inst> Device<'inst> {
   pub fn vkGetFenceSciSyncObjNV(
     &self,
     pGetSciSyncHandleInfo: &VkFenceGetSciSyncInfoNV<'_>,
-    pHandle: *mut core::ffi::c_void,
+    pHandle: *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
       (self.table).vkGetFenceSciSyncObjNV.unwrap_unchecked()(
@@ -11777,7 +11777,7 @@ impl<'inst> Device<'inst> {
   pub fn vkGetSemaphoreSciSyncObjNV(
     &self,
     pGetSciSyncInfo: &VkSemaphoreGetSciSyncInfoNV<'_>,
-    pHandle: *mut core::ffi::c_void,
+    pHandle: *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
       (self.table).vkGetSemaphoreSciSyncObjNV.unwrap_unchecked()(self.raw, pGetSciSyncInfo, pHandle)

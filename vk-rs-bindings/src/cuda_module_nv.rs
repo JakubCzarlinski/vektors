@@ -148,7 +148,7 @@ impl<'dev> CudaModuleNV<'dev> {
   pub fn vkGetCudaModuleCacheNV(
     &self,
     pCacheSize: &mut usize,
-    pCacheData: *mut core::ffi::c_void,
+    pCacheData: *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
       (self.table).vkGetCudaModuleCacheNV.unwrap_unchecked()(

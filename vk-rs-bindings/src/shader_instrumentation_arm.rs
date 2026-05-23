@@ -183,7 +183,7 @@ impl<'dev> ShaderInstrumentationARM<'dev> {
   pub fn vkGetShaderInstrumentationValuesARM(
     &self,
     pMetricBlockCount: &mut u32,
-    pMetricValues: *mut core::ffi::c_void,
+    pMetricValues: *mut c_void,
     flags: VkShaderInstrumentationValuesFlagsARM,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {

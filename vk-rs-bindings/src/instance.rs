@@ -482,11 +482,7 @@ impl<'lib> Instance<'lib> {
   /// - `pName`: len: null-terminated
   #[cfg(feature = "VK_BASE_VERSION_1_0")]
   #[inline(always)]
-  pub fn vkGetDeviceProcAddr(
-    &self,
-    device: VkDevice,
-    pName: *const core::ffi::c_char,
-  ) -> PFN_vkVoidFunction {
+  pub fn vkGetDeviceProcAddr(&self, device: VkDevice, pName: *const c_char) -> PFN_vkVoidFunction {
     unsafe {
       // SAFETY: table is fully loaded at creation.
       (self.table).vkGetDeviceProcAddr.unwrap_unchecked()(device, pName)

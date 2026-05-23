@@ -168,7 +168,7 @@ impl<'dev> GpaSessionAMD<'dev> {
     &self,
     sampleID: u32,
     pSizeInBytes: &mut usize,
-    pData: *mut core::ffi::c_void,
+    pData: *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
       (self.table).vkGetGpaSessionResultsAMD.unwrap_unchecked()(

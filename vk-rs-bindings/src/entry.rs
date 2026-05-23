@@ -282,7 +282,7 @@ impl<'lib> Entry<'lib> {
   #[inline(always)]
   pub fn vkEnumerateInstanceExtensionProperties(
     &self,
-    pLayerName: *const core::ffi::c_char,
+    pLayerName: *const c_char,
     pPropertyCount: &mut u32,
     pProperties: *mut VkExtensionProperties,
   ) -> Result<VkResult, VkResult> {

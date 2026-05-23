@@ -182,7 +182,7 @@ fn gen_typedef_ts(td: &Typedef, reg: &Registry) -> TokenStream {
                     #cfg #depr
                     #[repr(transparent)]
                     #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-                    pub struct #name(pub *mut core::ffi::c_void);
+                    pub struct #name(pub *mut c_void);
                     #cfg #depr
                     impl #name {
                         pub const NULL: Self = Self(core::ptr::null_mut());
@@ -277,7 +277,7 @@ fn gen_typedef_ts(td: &Typedef, reg: &Registry) -> TokenStream {
                 } else {
                     mapped_ret
                 };
-                let ret_ts: TokenStream = if ret_raw2 == "core::ffi::c_void" || ret_raw2 == "void" {
+                let ret_ts: TokenStream = if ret_raw2 == "c_void" || ret_raw2 == "void" {
                     quote! {}
                 } else {
                     let r = parse_ty(ret_raw2);
@@ -310,7 +310,7 @@ fn gen_typedef_ts(td: &Typedef, reg: &Registry) -> TokenStream {
                 #cfg
                 #[repr(transparent)]
                 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-                pub struct #name(pub *mut core::ffi::c_void);
+                pub struct #name(pub *mut c_void);
                 #cfg
                 impl #name {
                     pub const NULL: Self = Self(core::ptr::null_mut());
@@ -505,14 +505,11 @@ fn shader_module_code_value_type_and_pointer_expr() -> (TokenStream, TokenStream
 fn slice_arg_type_and_pointer_expr(m: &Member, arg: &TokenStream) -> (TokenStream, TokenStream) {
     if m.ty.pointer_depth == 1 && m.ty.base == "void" {
         if m.ty.is_const {
-            return (
-                quote! { &[u8] },
-                quote! { #arg.as_ptr().cast::<core::ffi::c_void>() },
-            );
+            return (quote! { &[u8] }, quote! { #arg.as_ptr().cast::<c_void>() });
         }
         return (
             quote! { &mut [u8] },
-            quote! { #arg.as_mut_ptr().cast::<core::ffi::c_void>() },
+            quote! { #arg.as_mut_ptr().cast::<c_void>() },
         );
     }
 
@@ -554,12 +551,12 @@ fn slice_arg_type_and_pointer_expr_for_registry(
         if m.ty.is_const {
             return (
                 quote! { &'a [u8] },
-                quote! { #arg.as_ptr().cast::<core::ffi::c_void>() },
+                quote! { #arg.as_ptr().cast::<c_void>() },
             );
         }
         return (
             quote! { &'a mut [u8] },
-            quote! { #arg.as_mut_ptr().cast::<core::ffi::c_void>() },
+            quote! { #arg.as_mut_ptr().cast::<c_void>() },
         );
     }
 
@@ -788,7 +785,7 @@ fn gen_builder_setters(s: &Struct, reg: &Registry) -> TokenStream {
             && m.optional == Optional::False
             && m.len.is_none()
             && m.ty.base != "void"
-            && c_type_to_rust(&m.ty.base) != "core::ffi::c_char"
+            && c_type_to_rust(&m.ty.base) != "c_char"
             && !member_uses_opaque_extern_pointee(m, reg)
         {
             let mapped = c_type_to_rust(&m.ty.base);
@@ -958,7 +955,7 @@ fn gen_builder_setters(s: &Struct, reg: &Registry) -> TokenStream {
                     #pnext_safety_doc
                     #[inline]
                     pub const fn #method_name #child_generics(mut self, val: &'a #child_ty #child_lifetime) -> Self {
-                        self.#pnext_fname = (val as *const #child_ty #child_lifetime).cast::<core::ffi::c_void>();
+                        self.#pnext_fname = (val as *const #child_ty #child_lifetime).cast::<c_void>();
                         self
                     }
                 });
@@ -969,7 +966,7 @@ fn gen_builder_setters(s: &Struct, reg: &Registry) -> TokenStream {
                     #pnext_safety_doc
                     #[inline]
                     pub const fn #method_name #child_generics(mut self, val: &'a mut #child_ty #child_lifetime) -> Self {
-                        self.#pnext_fname = (val as *mut #child_ty #child_lifetime).cast::<core::ffi::c_void>();
+                        self.#pnext_fname = (val as *mut #child_ty #child_lifetime).cast::<c_void>();
                         self
                     }
                 });
@@ -995,7 +992,7 @@ fn gen_builder_setters(s: &Struct, reg: &Registry) -> TokenStream {
                     #pnext_safety_doc
                     #[inline]
                     pub const fn #method_name #root_generics(mut self, val: &'a T) -> Self {
-                        self.#pnext_fname = (val as *const T).cast::<core::ffi::c_void>();
+                        self.#pnext_fname = (val as *const T).cast::<c_void>();
                         self
                     }
                 });
@@ -1005,7 +1002,7 @@ fn gen_builder_setters(s: &Struct, reg: &Registry) -> TokenStream {
                     #pnext_safety_doc
                     #[inline]
                     pub const fn #method_name #root_generics(mut self, val: &'a mut T) -> Self {
-                        self.#pnext_fname = (val as *mut T).cast::<core::ffi::c_void>();
+                        self.#pnext_fname = (val as *mut T).cast::<c_void>();
                         self
                     }
                 });
@@ -1163,7 +1160,7 @@ fn gen_struct_ts(s: &Struct, reg: &Registry) -> TokenStream {
                     #[cfg(not(#handle_cfg_expr))]
                     #field_doc
                     #fdepr
-                    pub #fname: *mut core::ffi::c_void,
+                    pub #fname: *mut c_void,
                 }
             } else {
                 quote! { #fcfg #field_doc #fdepr pub #fname: #ftype, }
@@ -1407,8 +1404,7 @@ fn classify_type_inner(base: &str, reg: &Registry, depth: u8) -> (TypeClass, Str
     // Primitive Rust types
     match base {
         "u8" | "u16" | "u32" | "u64" | "u128" | "i8" | "i16" | "i32" | "i64" | "i128" | "usize"
-        | "isize" | "f32" | "f64" | "bool" | "core::ffi::c_void" | "core::ffi::c_char"
-        | "core::ffi::c_int" => {
+        | "isize" | "f32" | "f64" | "bool" | "c_void" | "c_char" | "core::ffi::c_int" => {
             return (TypeClass::PrimitiveAlias, base.to_owned());
         }
         _ => {}
@@ -1495,7 +1491,7 @@ fn member_default_const(m: &Member, reg: &Registry) -> (String, bool) {
             "u16" => Some("0u16"),
             "u32" => Some("0u32"),
             "u64" => Some("0u64"),
-            "i8" | "core::ffi::c_char" | "core::ffi::c_int" => Some("0i8"),
+            "i8" | "c_char" | "core::ffi::c_int" => Some("0i8"),
             "i16" => Some("0i16"),
             "i32" => Some("0i32"),
             "i64" => Some("0i64"),
@@ -1546,7 +1542,7 @@ fn member_default_const(m: &Member, reg: &Registry) -> (String, bool) {
         "f32" => return ("0.0f32".into(), true),
         "f64" => return ("0.0f64".into(), true),
         "bool" => return ("false".into(), true),
-        "core::ffi::c_char" | "core::ffi::c_int" => return ("0".into(), true),
+        "c_char" | "core::ffi::c_int" => return ("0".into(), true),
         _ => {}
     }
 

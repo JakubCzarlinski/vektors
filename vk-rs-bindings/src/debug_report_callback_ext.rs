@@ -119,8 +119,8 @@ impl<'dev> DebugReportCallbackEXT<'dev> {
     object: u64,
     location: usize,
     messageCode: i32,
-    pLayerPrefix: *const core::ffi::c_char,
-    pMessage: *const core::ffi::c_char,
+    pLayerPrefix: *const c_char,
+    pMessage: *const c_char,
   ) {
     unsafe {
       // SAFETY: table is fully loaded at creation.

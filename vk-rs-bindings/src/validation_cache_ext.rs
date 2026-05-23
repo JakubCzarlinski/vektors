@@ -158,7 +158,7 @@ impl<'dev> ValidationCacheEXT<'dev> {
   pub fn vkGetValidationCacheDataEXT(
     &self,
     pDataSize: &mut usize,
-    pData: *mut core::ffi::c_void,
+    pData: *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
       (self.table).vkGetValidationCacheDataEXT.unwrap_unchecked()(

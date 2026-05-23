@@ -309,7 +309,7 @@ fn parse_funcpointer(
         .children()
         .find(|n| n.is_element() && n.tag_name().name() == "proto")
         .map_or_else(
-            || "core::ffi::c_void".into(),
+            || "c_void".into(),
             |proto| ctype_to_rust_str(&parse_c_type(proto)),
         );
     let params: Vec<String> = node

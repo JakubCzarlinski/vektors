@@ -1931,7 +1931,7 @@ impl<'inst> PhysicalDevice<'inst> {
   #[inline(always)]
   pub fn vkEnumerateDeviceExtensionProperties(
     &self,
-    pLayerName: *const core::ffi::c_char,
+    pLayerName: *const c_char,
     pPropertyCount: &mut u32,
     pProperties: *mut VkExtensionProperties,
   ) -> Result<VkResult, VkResult> {

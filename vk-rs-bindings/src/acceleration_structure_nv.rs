@@ -151,7 +151,7 @@ impl<'dev> AccelerationStructureNV<'dev> {
         self.device().raw(),
         self.raw,
         pData.len() as usize,
-        pData.as_mut_ptr().cast::<core::ffi::c_void>(),
+        pData.as_mut_ptr().cast::<c_void>(),
       )
     };
     if r >= VkResult::VK_SUCCESS {

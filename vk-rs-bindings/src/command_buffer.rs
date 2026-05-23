@@ -5750,7 +5750,7 @@ impl<'dev> CommandBuffer<'dev> {
         dstBuffer,
         dstOffset,
         pData.len() as VkDeviceSize,
-        pData.as_ptr().cast::<core::ffi::c_void>(),
+        pData.as_ptr().cast::<c_void>(),
       )
     }
   }
@@ -6191,7 +6191,7 @@ impl<'dev> CommandBuffer<'dev> {
         stageFlags,
         offset,
         pValues.len() as u32,
-        pValues.as_ptr().cast::<core::ffi::c_void>(),
+        pValues.as_ptr().cast::<c_void>(),
       )
     }
   }
@@ -6531,7 +6531,7 @@ impl<'dev> CommandBuffer<'dev> {
     descriptorUpdateTemplate: VkDescriptorUpdateTemplate,
     layout: VkPipelineLayout,
     set: u32,
-    pData: *const core::ffi::c_void,
+    pData: *const c_void,
   ) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
@@ -11433,7 +11433,7 @@ impl<'dev> CommandBuffer<'dev> {
     descriptorUpdateTemplate: VkDescriptorUpdateTemplate,
     layout: VkPipelineLayout,
     set: u32,
-    pData: *const core::ffi::c_void,
+    pData: *const c_void,
   ) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
@@ -12025,7 +12025,7 @@ impl<'dev> CommandBuffer<'dev> {
         pDstRange,
         dstFlags,
         pData.len() as VkDeviceSize,
-        pData.as_ptr().cast::<core::ffi::c_void>(),
+        pData.as_ptr().cast::<c_void>(),
       )
     }
   }
@@ -13201,7 +13201,7 @@ impl<'dev> CommandBuffer<'dev> {
   /// - `pCheckpointMarker`
   #[cfg(feature = "VK_NV_device_diagnostic_checkpoints")]
   #[inline(always)]
-  pub fn vkCmdSetCheckpointNV(&self, pCheckpointMarker: *const core::ffi::c_void) {
+  pub fn vkCmdSetCheckpointNV(&self, pCheckpointMarker: *const c_void) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
       (self.table).vkCmdSetCheckpointNV.unwrap_unchecked()(self.raw, pCheckpointMarker)

@@ -13,8 +13,8 @@ use crate::ir::CType;
 #[must_use]
 pub fn c_type_to_rust(c_type_name: &str) -> &'static str {
     match c_type_name.trim() {
-        "void" => "core::ffi::c_void",
-        "char" => "core::ffi::c_char",
+        "void" => "c_void",
+        "char" => "c_char",
         "int" => "core::ffi::c_int",
         "unsigned int" | "uint32_t" => "u32",
         "unsigned long long" | "uint64_t" => "u64",
@@ -46,7 +46,7 @@ pub fn ctype_to_rust_str(type_info: &CType) -> String {
         let mapped = c_type_to_rust(&type_info.base);
         if mapped.is_empty() {
             if type_info.base.is_empty() {
-                "core::ffi::c_void".to_owned()
+                "c_void".to_owned()
             } else {
                 type_info.base.clone()
             }
