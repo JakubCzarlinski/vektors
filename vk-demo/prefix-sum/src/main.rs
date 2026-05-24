@@ -133,19 +133,21 @@ fn create_device<'inst>(
         find_compute_queue_family(&physical_device).ok_or("No compute queue family found")?;
     println!("Selected queue family index: {queue_family_index}",);
 
-    const PRIORITIES: [f32; 1] = [1.0];
-    let queue_info = VkDeviceQueueCreateInfo::DEFAULT
-        .with_queueFamilyIndex(queue_family_index)
-        .with_pQueuePriorities(&PRIORITIES);
-    let queue_infos = [queue_info];
-    const VULKAN13_FEATURES: VkPhysicalDeviceVulkan13Features<'_> =
-        VkPhysicalDeviceVulkan13Features::DEFAULT.with_synchronization2(VK_TRUE);
-    let device_info = DEVICE_CREATE_INFO
-        .with_pQueueCreateInfos(&queue_infos)
-        .with_pNext_VkPhysicalDeviceVulkan13Features(&VULKAN13_FEATURES);
-    let device = physical_device
-        .vkCreateDevice(&device_info, null())
-        .map_err(|e| format!("vkCreateDevice failed: {e:?}"))?;
+    let device = {
+        const PRIORITIES: &[f32; 1] = &[1.0];
+        const VULKAN13_FEATURES: VkPhysicalDeviceVulkan13Features<'_> =
+            VkPhysicalDeviceVulkan13Features::DEFAULT.with_synchronization2(VK_TRUE);
+
+        let queue_infos = &[VkDeviceQueueCreateInfo::DEFAULT
+            .with_queueFamilyIndex(queue_family_index)
+            .with_pQueuePriorities(PRIORITIES)];
+        let device_info = DEVICE_CREATE_INFO
+            .with_pQueueCreateInfos(queue_infos)
+            .with_pNext_VkPhysicalDeviceVulkan13Features(&VULKAN13_FEATURES);
+        physical_device
+            .vkCreateDevice(&device_info, null())
+            .map_err(|e| format!("vkCreateDevice failed: {e:?}"))
+    }?;
 
     Ok((device, physical_device, queue_family_index))
 }
@@ -176,27 +178,31 @@ fn create_compute_pipeline<'a>(
     device: &'a Device<'a>,
     descriptor_set_layout: &DescriptorSetLayout<'a>,
 ) -> Result<(PipelineLayout<'a>, Box<[Pipeline<'a>]>), String> {
-    let layouts = [descriptor_set_layout.raw()];
-    let pipeline_layout_info = VkPipelineLayoutCreateInfo::DEFAULT.with_pSetLayouts(&layouts);
-    let pipeline_layout = device
-        .vkCreatePipelineLayout(&pipeline_layout_info, null())
-        .map_err(|e| format!("vkCreatePipelineLayout failed: {e:?}"))?;
+    let pipeline_layout = {
+        let layouts = &[descriptor_set_layout.raw()];
+        let pipeline_layout_info = VkPipelineLayoutCreateInfo::DEFAULT.with_pSetLayouts(layouts);
+        device
+            .vkCreatePipelineLayout(&pipeline_layout_info, null())
+            .map_err(|e| format!("vkCreatePipelineLayout failed: {e:?}"))
+    }?;
 
-    const SHADER_MODULE_INFO: VkShaderModuleCreateInfo<'_> =
-        VkShaderModuleCreateInfo::DEFAULT.with_pCode(PREFIX_SUM_SPV);
-    let shader_module = device
-        .vkCreateShaderModule(&SHADER_MODULE_INFO, null())
-        .map_err(|e| format!("vkCreateShaderModule failed: {e:?}"))?;
-    let stage = VkPipelineShaderStageCreateInfo::DEFAULT
-        .with_stage(VkShaderStageFlagBits::COMPUTE)
-        .with_module(shader_module.raw())
-        .with_pName(c"main".as_ptr());
-    let pipeline_info = VkComputePipelineCreateInfo::DEFAULT
-        .with_stage(stage)
-        .with_layout(pipeline_layout.raw());
-    let pipelines = device
-        .vkCreateComputePipelines(VkPipelineCache::NULL, &[pipeline_info], null())
-        .map_err(|e| format!("vkCreateComputePipelines failed: {e:?}"))?;
+    let pipelines = {
+        const SHADER_MODULE_INFO: VkShaderModuleCreateInfo<'_> =
+            VkShaderModuleCreateInfo::DEFAULT.with_pCode(PREFIX_SUM_SPV);
+        let shader_module = device
+            .vkCreateShaderModule(&SHADER_MODULE_INFO, null())
+            .map_err(|e| format!("vkCreateShaderModule failed: {e:?}"))?;
+        let stage = VkPipelineShaderStageCreateInfo::DEFAULT
+            .with_stage(VkShaderStageFlagBits::COMPUTE)
+            .with_module(shader_module.raw())
+            .with_pName(c"main".as_ptr());
+        let pipeline_info = &[VkComputePipelineCreateInfo::DEFAULT
+            .with_stage(stage)
+            .with_layout(pipeline_layout.raw())];
+        device
+            .vkCreateComputePipelines(VkPipelineCache::NULL, pipeline_info, null())
+            .map_err(|e| format!("vkCreateComputePipelines failed: {e:?}"))
+    }?;
 
     Ok((pipeline_layout, pipelines))
 }
@@ -212,38 +218,45 @@ fn run_prefix_sum_benchmark(
     lookback_buffer: &Buffer<'_>,
     timestamp_period_ns: f32,
 ) -> Result<f64, String> {
-    let query_pool_info = VkQueryPoolCreateInfo::DEFAULT
-        .with_queryType(VkQueryType::TIMESTAMP)
-        .with_queryCount(TIMESTAMP_QUERY_COUNT);
-    let query_pool = device
-        .vkCreateQueryPool(&query_pool_info, null())
-        .map_err(|e| format!("vkCreateQueryPool failed: {e:?}"))?;
-
-    let pool_info = VkCommandPoolCreateInfo::DEFAULT
-        .with_queueFamilyIndex(queue_family_index)
-        .with_flags(VkCommandPoolCreateFlagBits::RESET_COMMAND_BUFFER);
-    let command_pool = device
-        .vkCreateCommandPool(&pool_info, null())
-        .map_err(|e| format!("vkCreateCommandPool failed: {e:?}"))?;
-    let alloc_info = VkCommandBufferAllocateInfo::DEFAULT
-        .with_commandPool(command_pool.raw())
-        .with_level(VkCommandBufferLevel::PRIMARY)
-        .with_commandBufferCount(1);
-    let command_buffers = command_pool
-        .vkAllocateCommandBuffers(&alloc_info)
-        .map_err(|e| format!("vkAllocateCommandBuffers failed: {e:?}"))?;
+    let query_pool = {
+        const QUERY_POOL_INFO: VkQueryPoolCreateInfo<'_> = VkQueryPoolCreateInfo::DEFAULT
+            .with_queryType(VkQueryType::TIMESTAMP)
+            .with_queryCount(TIMESTAMP_QUERY_COUNT);
+        device
+            .vkCreateQueryPool(&QUERY_POOL_INFO, null())
+            .map_err(|e| format!("vkCreateQueryPool failed: {e:?}"))
+    }?;
+    let command_pool = {
+        let pool_info = VkCommandPoolCreateInfo::DEFAULT
+            .with_queueFamilyIndex(queue_family_index)
+            .with_flags(VkCommandPoolCreateFlagBits::RESET_COMMAND_BUFFER);
+        device
+            .vkCreateCommandPool(&pool_info, null())
+            .map_err(|e| format!("vkCreateCommandPool failed: {e:?}"))
+    }?;
+    let command_buffers = {
+        let alloc_info = VkCommandBufferAllocateInfo::DEFAULT
+            .with_commandPool(command_pool.raw())
+            .with_level(VkCommandBufferLevel::PRIMARY)
+            .with_commandBufferCount(1);
+        command_pool
+            .vkAllocateCommandBuffers(&alloc_info)
+            .map_err(|e| format!("vkAllocateCommandBuffers failed: {e:?}"))
+    }?;
     let command_buffer = &command_buffers[0];
 
     command_buffer
         .vkBeginCommandBuffer(&VkCommandBufferBeginInfo::DEFAULT)
         .map_err(|e| format!("vkBeginCommandBuffer failed: {e:?}"))?;
     command_buffer.vkCmdBindPipeline(VkPipelineBindPoint::COMPUTE, pipeline.raw());
-    let raw_sets = [descriptor_set.raw()];
-    let bind_info = VkBindDescriptorSetsInfo::DEFAULT
-        .with_stageFlags(VkShaderStageFlagBits::COMPUTE)
-        .with_layout(pipeline_layout.raw())
-        .with_pDescriptorSets(&raw_sets);
-    command_buffer.vkCmdBindDescriptorSets2(&bind_info);
+    {
+        let raw_sets = &[descriptor_set.raw()];
+        let bind_info = VkBindDescriptorSetsInfo::DEFAULT
+            .with_stageFlags(VkShaderStageFlagBits::COMPUTE)
+            .with_layout(pipeline_layout.raw())
+            .with_pDescriptorSets(raw_sets);
+        command_buffer.vkCmdBindDescriptorSets2(&bind_info);
+    }
 
     command_buffer.vkCmdResetQueryPool(query_pool.raw(), 0, TIMESTAMP_QUERY_COUNT);
     for run in 0..BENCHMARK_RUNS {
@@ -272,13 +285,15 @@ fn run_prefix_sum_benchmark(
         .vkEndCommandBuffer()
         .map_err(|e| format!("vkEndCommandBuffer failed: {e:?}"))?;
 
-    let command_infos =
-        [VkCommandBufferSubmitInfo::DEFAULT.with_commandBuffer(command_buffer.raw())];
-    let submit = VkSubmitInfo2::DEFAULT.with_pCommandBufferInfos(&command_infos);
+    {
+        let command_infos =
+            &[VkCommandBufferSubmitInfo::DEFAULT.with_commandBuffer(command_buffer.raw())];
+        let submit = &[VkSubmitInfo2::DEFAULT.with_pCommandBufferInfos(command_infos)];
 
-    queue
-        .vkQueueSubmit2(&[submit], VkFence::NULL)
-        .map_err(|e| format!("vkQueueSubmit2 failed: {e:?}"))?;
+        queue
+            .vkQueueSubmit2(submit, VkFence::NULL)
+            .map_err(|e| format!("vkQueueSubmit2 failed: {e:?}"))?;
+    }
     queue
         .vkQueueWaitIdle()
         .map_err(|e| format!("vkQueueWaitIdle failed: {e:?}"))?;

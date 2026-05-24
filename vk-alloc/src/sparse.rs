@@ -155,7 +155,7 @@ struct SparseBase {
 }
 
 fn empty_box<T>() -> Box<[T]> {
-    Vec::new().into_boxed_slice()
+    Box::new([])
 }
 
 fn sparse_buffer_base<'vk>(

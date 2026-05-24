@@ -10,4 +10,4 @@ vk-alloc = { path = "../../vk-alloc" }
 [dependencies.vk]
 path = "../../vk-rs-bindings"
 package = "vk-rs-bindings"
-features = ["VK_VERSION_1_4"]
+features = ["VK_COMPUTE_VERSION_1_4"]
