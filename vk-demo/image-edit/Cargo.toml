@@ -1,0 +1,15 @@
+[package]
+name = "vk-demo-image-edit"
+version = "0.1.0"
+edition = "2024"
+description = "Vulkan compute image stitch demo"
+build = "build.rs"
+
+[dependencies]
+image = { version = "0.25", default-features = false, features = ["jpeg", "png"] }
+vk-alloc = { path = "../../vk-alloc" }
+
+[dependencies.vk]
+path = "../../vk-rs-bindings"
+package = "vk-rs-bindings"
+features = ["VK_COMPUTE_VERSION_1_4"]
