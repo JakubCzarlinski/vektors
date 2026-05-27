@@ -2,13 +2,13 @@
 name = "vk-demo-compute"
 version = "0.1.0"
 edition = "2024"
-description = "Compute demo of vk-rs-bindings"
+description = "Compute demo of vk"
 build = "build.rs"
 
 [dependencies]
 vk-alloc = { path = "../../vk-alloc" }
 
 [dependencies.vk]
-path = "../../vk-rs-bindings"
-package = "vk-rs-bindings"
+path = "../../vk"
+package = "vk"
 features = ["VK_COMPUTE_VERSION_1_4"]

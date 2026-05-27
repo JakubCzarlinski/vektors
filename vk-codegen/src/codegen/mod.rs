@@ -1,4 +1,4 @@
-//! Code generator: IR -> Rust source files for `vk-rs-bindings`.
+//! Code generator: IR -> Rust source files for `vk`.
 mod cargo_toml;
 mod commands_rs;
 mod consts_rs;
@@ -25,7 +25,7 @@ use crate::codegen::handles_rs::gen_handles;
 use crate::codegen::instance_rs::gen_instance_rs;
 use crate::codegen::lib_rs::gen_lib_rs;
 use crate::codegen::physical_device_rs::gen_physical_device_rs;
-use crate::codegen::types_rs::{GeneratedTypes, gen_types_rs};
+use crate::codegen::types_rs::{gen_types_rs, GeneratedTypes};
 use crate::codegen::utils::build_handle_type_set;
 use crate::codegen::validation_rs::gen_validation_rs;
 use crate::ir::{DeprecationInfo, Registry};

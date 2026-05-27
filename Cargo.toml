@@ -2,7 +2,7 @@
 members = [
   "vk-codegen",
   "vk-alloc",
-  "vk-rs-bindings",
+  "vk",
   "vk-demo/compute",
   "vk-demo/compute-vulkan-1-0",
   "vk-demo/image-edit",

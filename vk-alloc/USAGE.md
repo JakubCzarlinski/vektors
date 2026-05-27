@@ -1,6 +1,6 @@
 # `vk-alloc` Usage Guide
 
-`vk-alloc` is a handwritten allocator for `vk-rs-bindings`.
+`vk-alloc` is a handwritten allocator for `vk`.
 
 This crate is intended for explicit Vulkan applications that want:
 

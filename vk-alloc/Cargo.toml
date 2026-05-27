@@ -2,14 +2,14 @@
 name = "vk-alloc"
 version = "0.1.1"
 edition = "2024"
-description = "Vulkan allocator for vk-rs-bindings"
+description = "Vulkan allocator for vk"
 
 [dependencies]
 parking_lot = "0.12"
 
 [dependencies.vk]
-path = "../vk-rs-bindings"
-package = "vk-rs-bindings"
+path = "../vk"
+package = "vk"
 features = [
   "VK_VERSION_1_1",
   "VK_COMPUTE_VERSION_1_4",

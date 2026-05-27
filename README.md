@@ -1,4 +1,4 @@
-# vk-rs-bindings
+# vk
 
 Rust Vulkan bindings generated from Khronos registry XML, plus generator and
 demos.
@@ -15,9 +15,8 @@ It is not currently possible to publish this crate to crates.io due to the
 number of features exposed.
 
 ```bash
-cargo add vk-rs-bindings \
-  --git https://github.com/JakubCzarlinski/vk-rs-bindings \
-  --rename vk \
+cargo add vk \
+  --git https://github.com/JakubCzarlinski/vektors \
   --tag v0.1.8
 ```
 
@@ -33,7 +32,7 @@ runtime. Note that static linking is not planned.
 
 ```toml
 [dependencies.vk]
-package = "vk-rs-bindings"
+package = "vk"
 features = [
   "VK_VERSION_1_4",
   "VK_KHR_surface",
@@ -146,7 +145,7 @@ From the workspace root:
 cargo fmt
 ```
 
-`vk-codegen` emits all generated sources into `vk-rs-bindings/`.
+`vk-codegen` emits all generated sources into `vk/`.
 
 ## Demos
 
@@ -157,6 +156,6 @@ cargo fmt
 ## Workspace layout
 
 - `vk-codegen/`: parses `vk.xml` + `video.xml` into IR and generates Rust bindings.
-- `vk-rs-bindings/`: generated low-level Vulkan FFI crate (raw handles, structs, commands, enums, consts).
-- `vk-alloc/`: allocator utilities built on top of `vk-rs-bindings`. This is in early stages of development.
+- `vk/`: generated low-level Vulkan FFI crate (raw handles, structs, commands, enums, consts).
+- `vk-alloc/`: allocator utilities built on top of `vk`. This is in early stages of development.
 - `vk-demo/`: example applications showing end-to-end Vulkan usage. Each demo is a separate crate.

@@ -10,6 +10,6 @@ image = { version = "0.25", default-features = false, features = ["jpeg", "png"]
 vk-alloc = { path = "../../vk-alloc" }
 
 [dependencies.vk]
-path = "../../vk-rs-bindings"
-package = "vk-rs-bindings"
+path = "../../vk"
+package = "vk"
 features = ["VK_COMPUTE_VERSION_1_4"]

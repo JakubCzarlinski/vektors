@@ -5,8 +5,8 @@ edition = "2024"
 description = "Vulkan instance, physical device, queue, and device-group query demo"
 
 [dependencies.vk]
-path = "../../vk-rs-bindings"
-package = "vk-rs-bindings"
+path = "../../vk"
+package = "vk"
 features = [
   "VK_COMPUTE_VERSION_1_4",
   "VK_KHR_video_decode_queue",

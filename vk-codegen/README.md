@@ -1,6 +1,6 @@
 # vk-codegen
 
-**vk-codegen** is a Vulkan Rust FFI generator. It processes the Khronos Vulkan Registry XML files (`vk.xml` and `video.xml`) to produce a complete, feature-gated `vk-rs-bindings` Rust crate.
+**vk-codegen** is a Vulkan Rust FFI generator. It processes the Khronos Vulkan Registry XML files (`vk.xml` and `video.xml`) to produce a complete, feature-gated `vk` Rust crate.
 
 ## Overview
 
@@ -22,7 +22,7 @@ vk-codegen --vk path/to/vk.xml --video path/to/video.xml --out out_dir/
 
 - `--vk <path>`: Path to the main `vk.xml` registry file. (Default: `vk.xml`)
 - `--video <path>`: Path to the `video.xml` registry file. (Default: `video.xml`)
-- `--out <dir>`: Output directory for the generated `vk-rs-bindings` crate. (Default: `out`)
+- `--out <dir>`: Output directory for the generated `vk` crate. (Default: `out`)
 
 ## Design & Directory Structure
 

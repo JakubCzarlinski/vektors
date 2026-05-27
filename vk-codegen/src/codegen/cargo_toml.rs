@@ -28,12 +28,12 @@ pub fn gen_cargo_toml(reg: &Registry) -> String {
 
     let mut lines: Vec<String> = vec![
         "[package]".into(),
-        "name = \"vk-rs-bindings\"".into(),
+        "name = \"vk\"".into(),
         "version = \"0.1.8\"".into(),
         "edition = \"2024\"".into(),
         "license = \"MIT\"".into(),
-        "repository = \"https://github.com/JakubCzarlinski/vk-rs-bindings\"".into(),
-        "homepage = \"https://github.com/JakubCzarlinski/vk-rs-bindings\"".into(),
+        "repository = \"https://github.com/JakubCzarlinski/vk\"".into(),
+        "homepage = \"https://github.com/JakubCzarlinski/vk\"".into(),
         "authors = [\"Jakub Czarlinski <jakubczarlinski@gmail.com>\"]".into(),
         "keywords = [\"vulkan\", \"ffi\", \"bindings\", \"graphics\"]".into(),
         "categories = [\"api-bindings\", \"external-ffi-bindings\", \"graphics\"]".into(),

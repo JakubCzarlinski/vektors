@@ -1,10 +1,10 @@
 [package]
-name = "vk-rs-bindings"
+name = "vk"
 version = "0.1.8"
 edition = "2024"
 license = "MIT"
-repository = "https://github.com/JakubCzarlinski/vk-rs-bindings"
-homepage = "https://github.com/JakubCzarlinski/vk-rs-bindings"
+repository = "https://github.com/JakubCzarlinski/vk"
+homepage = "https://github.com/JakubCzarlinski/vk"
 authors = ["Jakub Czarlinski <jakubczarlinski@gmail.com>"]
 keywords = ["vulkan", "ffi", "bindings", "graphics"]
 categories = ["api-bindings", "external-ffi-bindings", "graphics"]
