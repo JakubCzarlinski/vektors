@@ -1,7 +1,7 @@
 //! vk-codegen: Vulkan Rust FFI generator
 //!
 //! Usage:
-//!   vk-codegen [--vk <vk.xml>] [--video <video.xml>] [--out <dir>]
+//!   vk-codegen [--vk <vk.xml>] [--video <video.xml>] [--out <dir>] --crate-version <version>
 //!
 //! Reads the Khronos Vulkan Registry XML files and produces a complete
 //! `vk` crate with feature-gated FFI bindings.
@@ -30,10 +30,23 @@ struct Args {
     /// Output directory for generated code
     #[arg(long, default_value = "vk")]
     out: PathBuf,
+
+    /// Version to write into the generated vk crate Cargo.toml
+    #[arg(long)]
+    crate_version: String,
+
+    /// README.md to update with the generated crate tag version
+    #[arg(long)]
+    readme: Option<PathBuf>,
 }
 
 fn main() {
     let args = Args::parse();
+    let crate_version = args.crate_version.trim_start_matches('v').to_owned();
+    if crate_version.is_empty() {
+        eprintln!("Error: --crate-version must not be empty");
+        std::process::exit(1);
+    }
 
     eprintln!("vk-codegen: reading {}", args.vk.display());
     let vk_xml = fs::read_to_string(&args.vk).unwrap_or_else(|e| {
@@ -91,7 +104,7 @@ fn main() {
         std::process::exit(1);
     }
 
-    let files = codegen::generate(&registry);
+    let files = codegen::generate(&registry, &crate_version);
     write_file(&args.out, "Cargo.toml", &files.cargo_toml);
     write_file(&src_dir, "lib.rs", &files.lib_rs);
     remove_path_if_exists(&src_dir.join("types.rs"));
@@ -112,6 +125,9 @@ fn main() {
     }
     write_file(&src_dir, "validation.rs", &files.validation_rs);
     write_file(&args.out, "vk-features.dot", &files.dot_graph);
+    if let Some(readme) = &args.readme {
+        update_readme_version(readme, &crate_version);
+    }
 
     eprintln!("vk-codegen: done -> {}", args.out.display());
     eprintln!("vk-codegen: render graph: dot -Tsvg vk-features.dot -o vk-features.svg");
@@ -158,4 +174,43 @@ fn remove_path_if_exists(path: &Path) {
         eprintln!("Error: cannot remove {}: {}", path.display(), e);
         std::process::exit(1);
     }
+}
+
+fn update_readme_version(path: &Path, crate_version: &str) {
+    let content = fs::read_to_string(path).unwrap_or_else(|e| {
+        eprintln!("Error: cannot read {}: {}", path.display(), e);
+        std::process::exit(1);
+    });
+    let tag = format!("v{crate_version}");
+    let mut changed = false;
+    let mut output = Vec::new();
+
+    for line in content.lines() {
+        let trimmed = line.trim_start();
+        if trimmed.starts_with("--tag v") {
+            let indent = &line[..line.len() - trimmed.len()];
+            output.push(format!("{indent}--tag {tag}"));
+            changed = true;
+            continue;
+        }
+        output.push(line.to_owned());
+    }
+
+    if !changed {
+        eprintln!(
+            "Error: could not find README install tag in {}",
+            path.display()
+        );
+        std::process::exit(1);
+    }
+
+    let mut output = output.join("\n");
+    if content.ends_with('\n') {
+        output.push('\n');
+    }
+    if let Err(e) = fs::write(path, output) {
+        eprintln!("Error: cannot write {}: {}", path.display(), e);
+        std::process::exit(1);
+    }
+    eprintln!("  updated {} (--tag {tag})", path.display());
 }

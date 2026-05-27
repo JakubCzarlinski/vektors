@@ -25,7 +25,7 @@ use crate::codegen::handles_rs::gen_handles;
 use crate::codegen::instance_rs::gen_instance_rs;
 use crate::codegen::lib_rs::gen_lib_rs;
 use crate::codegen::physical_device_rs::gen_physical_device_rs;
-use crate::codegen::types_rs::{gen_types_rs, GeneratedTypes};
+use crate::codegen::types_rs::{GeneratedTypes, gen_types_rs};
 use crate::codegen::utils::build_handle_type_set;
 use crate::codegen::validation_rs::gen_validation_rs;
 use crate::ir::{DeprecationInfo, Registry};
@@ -50,7 +50,7 @@ pub struct GeneratedFiles {
 }
 
 #[must_use]
-pub fn generate(reg: &Registry) -> GeneratedFiles {
+pub fn generate(reg: &Registry, crate_version: &str) -> GeneratedFiles {
     let feature_implications = reg
         .transitive_deps()
         .into_iter()
@@ -62,7 +62,7 @@ pub fn generate(reg: &Registry) -> GeneratedFiles {
     let handle_meta = crate::codegen::handles_rs::get_handle_metadata(reg);
     let handles = gen_handles(reg, &handle_types);
     GeneratedFiles {
-        cargo_toml: gen_cargo_toml(reg),
+        cargo_toml: gen_cargo_toml(reg, crate_version),
         lib_rs: gen_lib_rs(&handles.keys().cloned().collect::<Vec<_>>()),
         types: gen_types_rs(reg),
         enums_rs: gen_enums_rs(reg),

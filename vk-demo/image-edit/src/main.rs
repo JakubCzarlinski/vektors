@@ -233,7 +233,7 @@ fn write_source_cache(
         .ok_or_else(|| format!("Cache path has no parent: {}", pixels_path.display()))?;
     fs::create_dir_all(cache_dir)
         .map_err(|e| format!("Failed to create cache dir {}: {e}", cache_dir.display()))?;
-    let mut bytes = Vec::with_capacity(pixels.len() * size_of::<u32>());
+    let mut bytes = Vec::with_capacity(core::mem::size_of_val(pixels));
     for &pixel in pixels {
         bytes.extend_from_slice(&pixel.to_le_bytes());
     }

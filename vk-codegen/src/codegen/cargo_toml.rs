@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use crate::ir::DepExpr;
 use crate::ir::Registry;
 
-pub fn gen_cargo_toml(reg: &Registry) -> String {
+pub fn gen_cargo_toml(reg: &Registry, crate_version: &str) -> String {
     let feature_deps = reg.feature_deps();
     let transitive_deps = reg.transitive_deps();
     // Build the complete set of known feature names so deps can be filtered
@@ -29,7 +29,7 @@ pub fn gen_cargo_toml(reg: &Registry) -> String {
     let mut lines: Vec<String> = vec![
         "[package]".into(),
         "name = \"vk\"".into(),
-        "version = \"0.1.8\"".into(),
+        format!("version = \"{crate_version}\""),
         "edition = \"2024\"".into(),
         "license = \"MIT\"".into(),
         "repository = \"https://github.com/JakubCzarlinski/vk\"".into(),

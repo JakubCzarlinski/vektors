@@ -17,7 +17,7 @@ number of features exposed.
 ```bash
 cargo add vk \
   --git https://github.com/JakubCzarlinski/vektors \
-  --tag v0.1.8
+  --tag v0.1.9
 ```
 
 See [https://blog.rust-lang.org/2023/10/26/broken-badges-and-23k-keywords.html](https://blog.rust-lang.org/2023/10/26/broken-badges-and-23k-keywords.html)
@@ -144,6 +144,8 @@ From the workspace root:
 ./generate.sh
 cargo fmt
 ```
+
+Set `version` at the top of `generate.sh` before regenerating for a release.
 
 `vk-codegen` emits all generated sources into `vk/`.
 

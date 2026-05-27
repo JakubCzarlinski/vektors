@@ -9,13 +9,13 @@ Writing and maintaining manual Rust bindings for Vulkan is tedious and prone to 
 ## Usage
 
 ```bash
-cargo run -- [--vk <vk.xml>] [--video <video.xml>] [--out <dir>]
+cargo run -- [--vk <vk.xml>] [--video <video.xml>] [--out <dir>] --crate-version <version>
 ```
 
 Alternatively, if you have built the binary:
 
 ```bash
-vk-codegen --vk path/to/vk.xml --video path/to/video.xml --out out_dir/
+vk-codegen --vk path/to/vk.xml --video path/to/video.xml --out out_dir/ --crate-version 0.1.9
 ```
 
 ### Arguments
@@ -23,6 +23,8 @@ vk-codegen --vk path/to/vk.xml --video path/to/video.xml --out out_dir/
 - `--vk <path>`: Path to the main `vk.xml` registry file. (Default: `vk.xml`)
 - `--video <path>`: Path to the `video.xml` registry file. (Default: `video.xml`)
 - `--out <dir>`: Output directory for the generated `vk` crate. (Default: `out`)
+- `--crate-version <version>`: Version to write into the generated `vk/Cargo.toml`.
+- `--readme <path>`: Optional README to update with the matching `--tag v<version>` install example.
 
 ## Design & Directory Structure
 
