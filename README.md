@@ -1,4 +1,4 @@
-# vk
+# vektors
 
 Rust Vulkan bindings generated from Khronos registry XML, plus generator and
 demos.
