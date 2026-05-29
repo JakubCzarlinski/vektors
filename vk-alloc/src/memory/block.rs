@@ -3,9 +3,10 @@ use crate::memory::range_allocator::RangeAllocator;
 use alloc::sync::Arc;
 use core::ptr::null_mut;
 use parking_lot::Mutex;
+use vk::VkDeviceMemory;
 
 pub(crate) trait AllocationSource: Send + Sync {
-    fn raw_memory(&self) -> vk::VkDeviceMemory;
+    fn raw_memory(&self) -> VkDeviceMemory;
     fn mapped_ptr(&self) -> *mut u8;
     fn free_range(&self, offset: u64, size: u64);
 }
@@ -50,7 +51,7 @@ impl BlockMemory {
 }
 
 impl AllocationSource for BlockMemory {
-    fn raw_memory(&self) -> vk::VkDeviceMemory {
+    fn raw_memory(&self) -> VkDeviceMemory {
         self.memory.raw()
     }
 
@@ -69,7 +70,7 @@ pub(crate) struct DedicatedMemory {
 }
 
 impl AllocationSource for DedicatedMemory {
-    fn raw_memory(&self) -> vk::VkDeviceMemory {
+    fn raw_memory(&self) -> VkDeviceMemory {
         self.memory.raw()
     }
 

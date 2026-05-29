@@ -1,45 +1,59 @@
 use crate::vulkan::limits::DeviceLimits;
 use vk::{
-    Device, Image, VkBaseInStructure, VkBufferCreateInfo, VkBufferMemoryRequirementsInfo2,
+    Buffer, Device, Image, VkBaseInStructure, VkBufferCreateInfo, VkBufferMemoryRequirementsInfo2,
     VkBufferUsageFlagBits2, VkBufferUsageFlags, VkBufferUsageFlags2, VkBufferUsageFlags2CreateInfo,
     VkImageMemoryRequirementsInfo2, VkMemoryDedicatedRequirements, VkMemoryRequirements,
-    VkMemoryRequirements2,
+    VkMemoryRequirements2, VkStructureType,
 };
 
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct RequirementInfo {
     pub(crate) requirements: VkMemoryRequirements,
-    pub(crate) dedicated_required: bool,
     pub(crate) dedicated_preferred: bool,
+    pub(crate) dedicated_required: bool,
 }
 
-pub(crate) fn buffer_requirements(device: &Device<'_>, buffer: &vk::Buffer<'_>) -> RequirementInfo {
-    let mut dedicated = VkMemoryDedicatedRequirements::DEFAULT;
-    let mut req =
-        VkMemoryRequirements2::DEFAULT.with_pNext_VkMemoryDedicatedRequirements(&mut dedicated);
-    {
-        let info = VkBufferMemoryRequirementsInfo2::DEFAULT.with_buffer(buffer.raw());
-        device.vkGetBufferMemoryRequirements2(&info, &mut req);
-    }
+pub(crate) fn buffer_requirements(device: &Device<'_>, buffer: &Buffer<'_>) -> RequirementInfo {
+    let (reqs, pref, req) = {
+        let mut dedicated = VkMemoryDedicatedRequirements::DEFAULT;
+        let mut req =
+            VkMemoryRequirements2::DEFAULT.with_pNext_VkMemoryDedicatedRequirements(&mut dedicated);
+        {
+            let info = VkBufferMemoryRequirementsInfo2::DEFAULT.with_buffer(buffer.raw());
+            device.vkGetBufferMemoryRequirements2(&info, &mut req);
+        }
+        (
+            req.memoryRequirements,
+            dedicated.prefersDedicatedAllocation == vk::VK_TRUE,
+            dedicated.requiresDedicatedAllocation == vk::VK_TRUE,
+        )
+    };
     RequirementInfo {
-        requirements: req.memoryRequirements,
-        dedicated_required: dedicated.requiresDedicatedAllocation == vk::VK_TRUE,
-        dedicated_preferred: dedicated.prefersDedicatedAllocation == vk::VK_TRUE,
+        requirements: reqs,
+        dedicated_preferred: pref,
+        dedicated_required: req,
     }
 }
 
 pub(crate) fn image_requirements(device: &Device<'_>, image: &Image<'_>) -> RequirementInfo {
-    let mut dedicated = VkMemoryDedicatedRequirements::DEFAULT;
-    let mut req =
-        VkMemoryRequirements2::DEFAULT.with_pNext_VkMemoryDedicatedRequirements(&mut dedicated);
-    {
-        let info = VkImageMemoryRequirementsInfo2::DEFAULT.with_image(image.raw());
-        device.vkGetImageMemoryRequirements2(&info, &mut req);
-    }
+    let (reqs, pref, req) = {
+        let mut dedicated = VkMemoryDedicatedRequirements::DEFAULT;
+        let mut req =
+            VkMemoryRequirements2::DEFAULT.with_pNext_VkMemoryDedicatedRequirements(&mut dedicated);
+        {
+            let info = VkImageMemoryRequirementsInfo2::DEFAULT.with_image(image.raw());
+            device.vkGetImageMemoryRequirements2(&info, &mut req);
+        }
+        (
+            req.memoryRequirements,
+            dedicated.prefersDedicatedAllocation == vk::VK_TRUE,
+            dedicated.requiresDedicatedAllocation == vk::VK_TRUE,
+        )
+    };
     RequirementInfo {
-        requirements: req.memoryRequirements,
-        dedicated_required: dedicated.requiresDedicatedAllocation == vk::VK_TRUE,
-        dedicated_preferred: dedicated.prefersDedicatedAllocation == vk::VK_TRUE,
+        requirements: reqs,
+        dedicated_preferred: pref,
+        dedicated_required: req,
     }
 }
 
@@ -47,7 +61,7 @@ pub(crate) fn buffer_usage_flags2(buffer_info: &VkBufferCreateInfo) -> VkBufferU
     let mut next = buffer_info.pNext.cast::<VkBaseInStructure>();
     while !next.is_null() {
         let base = unsafe { &*next };
-        if base.sType == vk::VkStructureType::BUFFER_USAGE_FLAGS_2_CREATE_INFO {
+        if base.sType == VkStructureType::BUFFER_USAGE_FLAGS_2_CREATE_INFO {
             let usage_info = unsafe { &*next.cast::<VkBufferUsageFlags2CreateInfo>() };
             return usage_info.usage;
         }

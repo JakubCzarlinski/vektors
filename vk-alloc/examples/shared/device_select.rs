@@ -1,20 +1,24 @@
 use core::ffi::CStr;
 
+use vk::{
+    Instance, PhysicalDevice, VkPhysicalDeviceProperties2, VkQueueFamilyProperties2, VkQueueFlags,
+};
+
 pub(crate) fn queue_family_properties<'a>(
-    physical_device: &'a vk::PhysicalDevice<'a>,
-) -> Vec<vk::VkQueueFamilyProperties2<'a>> {
+    physical_device: &'a PhysicalDevice<'a>,
+) -> Vec<VkQueueFamilyProperties2<'a>> {
     let mut count = 0;
     physical_device.vkGetPhysicalDeviceQueueFamilyProperties2(&mut count, std::ptr::null_mut());
-    let mut properties = vec![vk::VkQueueFamilyProperties2::DEFAULT; count as usize];
+    let mut properties = vec![VkQueueFamilyProperties2::DEFAULT; count as usize];
     physical_device.vkGetPhysicalDeviceQueueFamilyProperties2(&mut count, properties.as_mut_ptr());
     properties.truncate(count as usize);
     properties
 }
 
 pub(crate) fn supports_queue_family(
-    physical_device: &vk::PhysicalDevice<'_>,
+    physical_device: &PhysicalDevice<'_>,
     queue_family_index: u32,
-    required_flags: vk::VkQueueFlags,
+    required_flags: VkQueueFlags,
 ) -> bool {
     queue_family_properties(physical_device)
         .get(queue_family_index as usize)
@@ -26,7 +30,7 @@ pub(crate) fn supports_queue_family(
         })
 }
 
-pub(crate) fn find_compute_queue_family(physical_device: &vk::PhysicalDevice<'_>) -> Option<u32> {
+pub(crate) fn find_compute_queue_family(physical_device: &PhysicalDevice<'_>) -> Option<u32> {
     queue_family_properties(physical_device)
         .iter()
         .enumerate()
@@ -43,16 +47,16 @@ pub(crate) fn find_compute_queue_family(physical_device: &vk::PhysicalDevice<'_>
         })
 }
 
-pub(crate) fn device_name(physical_device: &vk::PhysicalDevice<'_>) -> String {
-    let mut properties = vk::VkPhysicalDeviceProperties2::DEFAULT;
+pub(crate) fn device_name(physical_device: &PhysicalDevice<'_>) -> String {
+    let mut properties = VkPhysicalDeviceProperties2::DEFAULT;
     physical_device.vkGetPhysicalDeviceProperties2(&mut properties);
     let name = unsafe { CStr::from_ptr(properties.properties.deviceName.as_ptr()) };
     name.to_string_lossy().into_owned()
 }
 
 pub(crate) fn select_single_device<'inst>(
-    instance: &'inst vk::Instance<'inst>,
-) -> Result<(vk::PhysicalDevice<'inst>, u32), String> {
+    instance: &'inst Instance<'inst>,
+) -> Result<(PhysicalDevice<'inst>, u32), String> {
     let physical_devices = instance
         .vkEnumeratePhysicalDevices()
         .map_err(|err| format!("vkEnumeratePhysicalDevices failed: {err:?}"))?;

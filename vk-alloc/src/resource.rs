@@ -1,12 +1,13 @@
 use crate::group_allocator::GroupBindMode;
 use crate::pool::{Pool, PoolCreateInfo};
 use alloc::vec::Vec;
+use vk::{Device, PhysicalDevice, VkMemoryPropertyFlagBits, VkMemoryPropertyFlags, VkRect2D};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MemoryTypePolicy {
-    pub required_flags: vk::VkMemoryPropertyFlags,
-    pub preferred_flags: vk::VkMemoryPropertyFlags,
-    pub avoid_flags: vk::VkMemoryPropertyFlags,
+    pub required_flags: VkMemoryPropertyFlags,
+    pub preferred_flags: VkMemoryPropertyFlags,
+    pub avoid_flags: VkMemoryPropertyFlags,
 }
 
 impl Default for MemoryTypePolicy {
@@ -17,48 +18,45 @@ impl Default for MemoryTypePolicy {
 
 impl MemoryTypePolicy {
     pub const DEFAULT: Self = Self {
-        required_flags: vk::VkMemoryPropertyFlagBits::EMPTY,
-        preferred_flags: vk::VkMemoryPropertyFlagBits::EMPTY,
-        avoid_flags: vk::VkMemoryPropertyFlagBits::EMPTY,
+        required_flags: VkMemoryPropertyFlagBits::EMPTY,
+        preferred_flags: VkMemoryPropertyFlagBits::EMPTY,
+        avoid_flags: VkMemoryPropertyFlagBits::EMPTY,
     };
 
     pub const DEVICE_LOCAL: Self = Self {
-        required_flags: vk::VkMemoryPropertyFlagBits::EMPTY,
-        preferred_flags: vk::VkMemoryPropertyFlagBits::DEVICE_LOCAL,
-        avoid_flags: vk::VkMemoryPropertyFlagBits::HOST_VISIBLE,
+        required_flags: VkMemoryPropertyFlagBits::EMPTY,
+        preferred_flags: VkMemoryPropertyFlagBits::DEVICE_LOCAL,
+        avoid_flags: VkMemoryPropertyFlagBits::HOST_VISIBLE,
     };
 
     pub const HOST_VISIBLE: Self = Self {
-        required_flags: vk::VkMemoryPropertyFlagBits::HOST_VISIBLE,
-        preferred_flags: vk::VkMemoryPropertyFlagBits::HOST_COHERENT,
-        avoid_flags: vk::VkMemoryPropertyFlagBits::EMPTY,
+        required_flags: VkMemoryPropertyFlagBits::HOST_VISIBLE,
+        preferred_flags: VkMemoryPropertyFlagBits::HOST_COHERENT,
+        avoid_flags: VkMemoryPropertyFlagBits::EMPTY,
     };
 
     pub const UPLOAD: Self = Self {
-        required_flags: vk::VkMemoryPropertyFlagBits::HOST_VISIBLE,
-        preferred_flags: vk::VkMemoryPropertyFlagBits(
-            vk::VkMemoryPropertyFlagBits::HOST_COHERENT.0
-                | vk::VkMemoryPropertyFlagBits::DEVICE_LOCAL.0,
+        required_flags: VkMemoryPropertyFlagBits::HOST_VISIBLE,
+        preferred_flags: VkMemoryPropertyFlagBits(
+            VkMemoryPropertyFlagBits::HOST_COHERENT.0 | VkMemoryPropertyFlagBits::DEVICE_LOCAL.0,
         ),
-        avoid_flags: vk::VkMemoryPropertyFlagBits::EMPTY,
+        avoid_flags: VkMemoryPropertyFlagBits::EMPTY,
     };
 
     pub const READBACK: Self = Self {
-        required_flags: vk::VkMemoryPropertyFlagBits::HOST_VISIBLE,
-        preferred_flags: vk::VkMemoryPropertyFlagBits(
-            vk::VkMemoryPropertyFlagBits::HOST_CACHED.0
-                | vk::VkMemoryPropertyFlagBits::HOST_COHERENT.0,
+        required_flags: VkMemoryPropertyFlagBits::HOST_VISIBLE,
+        preferred_flags: VkMemoryPropertyFlagBits(
+            VkMemoryPropertyFlagBits::HOST_CACHED.0 | VkMemoryPropertyFlagBits::HOST_COHERENT.0,
         ),
-        avoid_flags: vk::VkMemoryPropertyFlagBits::EMPTY,
+        avoid_flags: VkMemoryPropertyFlagBits::EMPTY,
     };
 
     pub const UNIFIED: Self = Self {
-        required_flags: vk::VkMemoryPropertyFlagBits::HOST_VISIBLE,
-        preferred_flags: vk::VkMemoryPropertyFlagBits(
-            vk::VkMemoryPropertyFlagBits::DEVICE_LOCAL.0
-                | vk::VkMemoryPropertyFlagBits::HOST_COHERENT.0,
+        required_flags: VkMemoryPropertyFlagBits::HOST_VISIBLE,
+        preferred_flags: VkMemoryPropertyFlagBits(
+            VkMemoryPropertyFlagBits::DEVICE_LOCAL.0 | VkMemoryPropertyFlagBits::HOST_COHERENT.0,
         ),
-        avoid_flags: vk::VkMemoryPropertyFlagBits::EMPTY,
+        avoid_flags: VkMemoryPropertyFlagBits::EMPTY,
     };
 
     pub const fn new() -> Self {
@@ -66,19 +64,19 @@ impl MemoryTypePolicy {
     }
 
     #[must_use]
-    pub const fn with_required_flags(mut self, flags: vk::VkMemoryPropertyFlags) -> Self {
+    pub const fn with_required_flags(mut self, flags: VkMemoryPropertyFlags) -> Self {
         self.required_flags = flags;
         self
     }
 
     #[must_use]
-    pub const fn with_preferred_flags(mut self, flags: vk::VkMemoryPropertyFlags) -> Self {
+    pub const fn with_preferred_flags(mut self, flags: VkMemoryPropertyFlags) -> Self {
         self.preferred_flags = flags;
         self
     }
 
     #[must_use]
-    pub const fn with_avoid_flags(mut self, flags: vk::VkMemoryPropertyFlags) -> Self {
+    pub const fn with_avoid_flags(mut self, flags: VkMemoryPropertyFlags) -> Self {
         self.avoid_flags = flags;
         self
     }
@@ -99,17 +97,14 @@ pub(crate) enum ResourceClass {
 
 #[derive(Clone)]
 pub struct AllocatorCreateInfo<'vk> {
-    pub physical_device: &'vk vk::PhysicalDevice<'vk>,
-    pub device: &'vk vk::Device<'vk>,
+    pub physical_device: &'vk PhysicalDevice<'vk>,
+    pub device: &'vk Device<'vk>,
     pub default_pool: PoolCreateInfo,
     pub max_metadata_slots: u32,
 }
 
 impl<'vk> AllocatorCreateInfo<'vk> {
-    pub const fn new(
-        physical_device: &'vk vk::PhysicalDevice<'vk>,
-        device: &'vk vk::Device<'vk>,
-    ) -> Self {
+    pub const fn new(physical_device: &'vk PhysicalDevice<'vk>, device: &'vk Device<'vk>) -> Self {
         Self {
             physical_device,
             device,
@@ -209,7 +204,7 @@ pub struct SparseAllocationCreateInfo {
     pub queue_family_index: Option<u32>,
     pub pool: Pool,
     pub group_bind_mode: Option<GroupBindMode>,
-    pub split_instance_regions: Vec<vk::VkRect2D>,
+    pub split_instance_regions: Vec<VkRect2D>,
 }
 
 impl SparseAllocationCreateInfo {
@@ -275,10 +270,7 @@ impl SparseAllocationCreateInfo {
     }
 
     #[must_use]
-    pub fn with_split_instance_regions(
-        mut self,
-        split_instance_regions: Vec<vk::VkRect2D>,
-    ) -> Self {
+    pub fn with_split_instance_regions(mut self, split_instance_regions: Vec<VkRect2D>) -> Self {
         self.split_instance_regions = split_instance_regions;
         self
     }

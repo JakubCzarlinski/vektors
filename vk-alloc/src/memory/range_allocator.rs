@@ -13,8 +13,8 @@ impl RangeAllocator {
     }
 
     pub(crate) fn allocate(&mut self, size: u64, alignment: u64) -> Option<u64> {
-        let alignment = alignment.max(1);
         let candidate = self.free_ranges.iter().find_map(|(&offset, &len)| {
+            let alignment = alignment.max(1);
             let aligned = align_up(offset, alignment);
             let padding = aligned - offset;
             if len >= size + padding {

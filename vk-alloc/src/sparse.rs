@@ -8,6 +8,12 @@ use alloc::collections::BTreeMap;
 use alloc::sync::Arc;
 use alloc::vec::Vec;
 use parking_lot::RwLock;
+use vk::{
+    Buffer, Device, Image, VkBindSparseInfo, VkBuffer, VkBufferCreateInfo, VkExtent3D, VkImage,
+    VkImageCreateFlagBits, VkImageCreateInfo, VkMemoryRequirements, VkOffset3D,
+    VkSparseBufferMemoryBindInfo, VkSparseImageMemoryBind, VkSparseImageMemoryBindInfo,
+    VkSparseMemoryBind,
+};
 
 #[derive(Debug, Clone)]
 pub(crate) struct PageTable<K, V> {
@@ -57,51 +63,51 @@ where
 
 #[derive(Debug, Clone)]
 pub struct SparseBufferBindList {
-    binds: Box<[vk::VkSparseMemoryBind]>,
+    binds: Box<[VkSparseMemoryBind]>,
 }
 
 impl SparseBufferBindList {
-    pub fn binds(&self) -> &[vk::VkSparseMemoryBind] {
+    pub fn binds(&self) -> &[VkSparseMemoryBind] {
         &self.binds
     }
 }
 
 #[derive(Debug, Clone)]
 pub struct SparseImageBindList {
-    binds: Box<[vk::VkSparseImageMemoryBind]>,
+    binds: Box<[VkSparseImageMemoryBind]>,
 }
 
 impl SparseImageBindList {
-    pub fn binds(&self) -> &[vk::VkSparseImageMemoryBind] {
+    pub fn binds(&self) -> &[VkSparseImageMemoryBind] {
         &self.binds
     }
 }
 
 #[derive(Debug, Clone)]
 pub struct PreparedBindSparseInfo {
-    buffer_binds: Box<[vk::VkSparseMemoryBind]>,
-    buffer: Option<vk::VkBuffer>,
-    image_binds: Box<[vk::VkSparseImageMemoryBind]>,
-    image: Option<vk::VkImage>,
+    buffer_binds: Box<[VkSparseMemoryBind]>,
+    buffer: Option<VkBuffer>,
+    image_binds: Box<[VkSparseImageMemoryBind]>,
+    image: Option<VkImage>,
 }
 
 #[derive(Debug, Clone)]
 pub struct PreparedBindSparseInfoView<'a> {
-    buffer_infos: Box<[vk::VkSparseBufferMemoryBindInfo<'a>]>,
-    image_infos: Box<[vk::VkSparseImageMemoryBindInfo<'a>]>,
+    buffer_infos: Box<[VkSparseBufferMemoryBindInfo<'a>]>,
+    image_infos: Box<[VkSparseImageMemoryBindInfo<'a>]>,
 }
 
 impl<'a> PreparedBindSparseInfoView<'a> {
-    pub fn buffer_infos(&self) -> &[vk::VkSparseBufferMemoryBindInfo<'a>] {
+    pub fn buffer_infos(&self) -> &[VkSparseBufferMemoryBindInfo<'a>] {
         &self.buffer_infos
     }
 
-    pub fn image_infos(&self) -> &[vk::VkSparseImageMemoryBindInfo<'a>] {
+    pub fn image_infos(&self) -> &[VkSparseImageMemoryBindInfo<'a>] {
         &self.image_infos
     }
 
-    pub fn with_vk_info<R>(&self, f: impl FnOnce(&vk::VkBindSparseInfo<'_>) -> R) -> R {
-        let info = vk::VkBindSparseInfo::DEFAULT
+    pub fn with_vk_info<R>(&self, f: impl FnOnce(&VkBindSparseInfo<'_>) -> R) -> R {
+        let info = VkBindSparseInfo::DEFAULT
             .with_pBufferBinds(&self.buffer_infos)
             .with_pImageBinds(&self.image_infos);
         f(&info)
@@ -113,7 +119,7 @@ impl PreparedBindSparseInfo {
         let buffer_infos = self
             .buffer
             .map(|buffer| {
-                vk::VkSparseBufferMemoryBindInfo::DEFAULT
+                VkSparseBufferMemoryBindInfo::DEFAULT
                     .with_buffer(buffer)
                     .with_pBinds(&self.buffer_binds)
             })
@@ -122,7 +128,7 @@ impl PreparedBindSparseInfo {
         let image_infos = self
             .image
             .map(|image| {
-                vk::VkSparseImageMemoryBindInfo::DEFAULT
+                VkSparseImageMemoryBindInfo::DEFAULT
                     .with_image(image)
                     .with_pBinds(&self.image_binds)
             })
@@ -134,11 +140,11 @@ impl PreparedBindSparseInfo {
         }
     }
 
-    pub fn buffer_binds(&self) -> &[vk::VkSparseMemoryBind] {
+    pub fn buffer_binds(&self) -> &[VkSparseMemoryBind] {
         &self.buffer_binds
     }
 
-    pub fn image_binds(&self) -> &[vk::VkSparseImageMemoryBind] {
+    pub fn image_binds(&self) -> &[VkSparseImageMemoryBind] {
         &self.image_binds
     }
 }
@@ -159,11 +165,11 @@ fn empty_box<T>() -> Box<[T]> {
 }
 
 fn sparse_buffer_base<'vk>(
-    device: &'vk vk::Device<'vk>,
-    buffer_info: &vk::VkBufferCreateInfo,
+    device: &'vk Device<'vk>,
+    buffer_info: &VkBufferCreateInfo,
     sparse_info: SparseAllocationCreateInfo,
     group_allocator: bool,
-) -> Result<(vk::Buffer<'vk>, SparseBase), AllocatorError> {
+) -> Result<(Buffer<'vk>, SparseBase), AllocatorError> {
     if group_allocator && sparse_info.group_bind_mode == Some(GroupBindMode::SplitInstanceRegions) {
         return Err(AllocatorError::GroupModeUnsupported);
     }
@@ -176,7 +182,7 @@ fn sparse_buffer_base<'vk>(
     let buffer = device
         .vkCreateBuffer(buffer_info, vk::null())
         .map_err(AllocatorError::Vulkan)?;
-    let mut requirements = vk::VkMemoryRequirements::DEFAULT;
+    let mut requirements = VkMemoryRequirements::DEFAULT;
     buffer.vkGetBufferMemoryRequirements(&mut requirements);
     Ok((
         buffer,
@@ -191,11 +197,11 @@ fn sparse_buffer_base<'vk>(
 }
 
 fn sparse_image_base<'vk>(
-    device: &'vk vk::Device<'vk>,
-    image_info: &vk::VkImageCreateInfo,
+    device: &'vk Device<'vk>,
+    image_info: &VkImageCreateInfo,
     sparse_info: SparseAllocationCreateInfo,
     group_allocator: bool,
-) -> Result<(vk::Image<'vk>, SparseBase), AllocatorError> {
+) -> Result<(Image<'vk>, SparseBase), AllocatorError> {
     if group_allocator
         && sparse_info.group_bind_mode == Some(GroupBindMode::SplitInstanceRegions)
         && sparse_info.split_instance_regions.is_empty()
@@ -204,7 +210,7 @@ fn sparse_image_base<'vk>(
     }
     if !image_info
         .flags
-        .intersects(vk::VkImageCreateFlagBits::SPARSE_BINDING)
+        .intersects(VkImageCreateFlagBits::SPARSE_BINDING)
     {
         return Err(AllocatorError::SparseBindingUnsupported);
     }
@@ -231,7 +237,7 @@ fn sparse_image_base<'vk>(
 }
 
 pub struct SparseBufferAllocation<'vk> {
-    buffer: vk::Buffer<'vk>,
+    buffer: Buffer<'vk>,
     page_size: u64,
     pages: SparsePageTable,
     base_alloc_info: AllocationCreateInfo,
@@ -239,9 +245,9 @@ pub struct SparseBufferAllocation<'vk> {
 
 impl<'vk> SparseBufferAllocation<'vk> {
     pub(crate) fn new(
-        device: &'vk vk::Device<'vk>,
+        device: &'vk Device<'vk>,
         _allocator: &Allocator<'vk>,
-        buffer_info: &vk::VkBufferCreateInfo,
+        buffer_info: &VkBufferCreateInfo,
         sparse_info: SparseAllocationCreateInfo,
     ) -> Result<Self, AllocatorError> {
         let (buffer, base) = sparse_buffer_base(device, buffer_info, sparse_info, false)?;
@@ -254,9 +260,9 @@ impl<'vk> SparseBufferAllocation<'vk> {
     }
 
     pub(crate) fn new_group(
-        device: &'vk vk::Device<'vk>,
+        device: &'vk Device<'vk>,
         _allocator: &GroupAllocator<'vk>,
-        buffer_info: &vk::VkBufferCreateInfo,
+        buffer_info: &VkBufferCreateInfo,
         sparse_info: SparseAllocationCreateInfo,
     ) -> Result<Self, AllocatorError> {
         let (buffer, base) = sparse_buffer_base(device, buffer_info, sparse_info, true)?;
@@ -268,7 +274,7 @@ impl<'vk> SparseBufferAllocation<'vk> {
         })
     }
 
-    pub fn buffer(&self) -> &vk::Buffer<'vk> {
+    pub fn buffer(&self) -> &Buffer<'vk> {
         &self.buffer
     }
 
@@ -308,7 +314,7 @@ impl<'vk> SparseBufferAllocation<'vk> {
         let mut binds = Vec::new();
         self.pages.read().for_each(|page, allocation| {
             binds.push(
-                vk::VkSparseMemoryBind::DEFAULT
+                VkSparseMemoryBind::DEFAULT
                     .with_resourceOffset(page.0 * self.page_size)
                     .with_size(self.page_size)
                     .with_memory(allocation.memory())
@@ -332,7 +338,7 @@ impl<'vk> SparseBufferAllocation<'vk> {
 }
 
 pub struct SparseImageAllocation<'vk> {
-    image: vk::Image<'vk>,
+    image: Image<'vk>,
     page_size: u64,
     pages: SparsePageTable,
     base_alloc_info: AllocationCreateInfo,
@@ -340,9 +346,9 @@ pub struct SparseImageAllocation<'vk> {
 
 impl<'vk> SparseImageAllocation<'vk> {
     pub(crate) fn new(
-        device: &'vk vk::Device<'vk>,
+        device: &'vk Device<'vk>,
         _allocator: &Allocator<'vk>,
-        image_info: &vk::VkImageCreateInfo,
+        image_info: &VkImageCreateInfo,
         sparse_info: SparseAllocationCreateInfo,
     ) -> Result<Self, AllocatorError> {
         let (image, base) = sparse_image_base(device, image_info, sparse_info, false)?;
@@ -355,9 +361,9 @@ impl<'vk> SparseImageAllocation<'vk> {
     }
 
     pub(crate) fn new_group(
-        device: &'vk vk::Device<'vk>,
+        device: &'vk Device<'vk>,
         _allocator: &GroupAllocator<'vk>,
-        image_info: &vk::VkImageCreateInfo,
+        image_info: &VkImageCreateInfo,
         sparse_info: SparseAllocationCreateInfo,
     ) -> Result<Self, AllocatorError> {
         let (image, base) = sparse_image_base(device, image_info, sparse_info, true)?;
@@ -369,7 +375,7 @@ impl<'vk> SparseImageAllocation<'vk> {
         })
     }
 
-    pub fn image(&self) -> &vk::Image<'vk> {
+    pub fn image(&self) -> &Image<'vk> {
         &self.image
     }
 
@@ -409,10 +415,10 @@ impl<'vk> SparseImageAllocation<'vk> {
         let mut binds = Vec::new();
         self.pages.read().for_each(|page, allocation| {
             binds.push(
-                vk::VkSparseImageMemoryBind::DEFAULT
-                    .with_offset(vk::VkOffset3D::DEFAULT.with_x((page.0 * self.page_size) as i32))
+                VkSparseImageMemoryBind::DEFAULT
+                    .with_offset(VkOffset3D::DEFAULT.with_x((page.0 * self.page_size) as i32))
                     .with_extent(
-                        vk::VkExtent3D::DEFAULT
+                        VkExtent3D::DEFAULT
                             .with_width(self.page_size as u32)
                             .with_height(1)
                             .with_depth(1),
@@ -443,14 +449,11 @@ fn update_sparse_page(
     base_alloc_info: AllocationCreateInfo,
     page_index: u64,
     resident: bool,
-    allocate: impl Fn(
-        vk::VkMemoryRequirements,
-        AllocationCreateInfo,
-    ) -> Result<Allocation, AllocatorError>,
+    allocate: impl Fn(VkMemoryRequirements, AllocationCreateInfo) -> Result<Allocation, AllocatorError>, // TODO(czarlinski): this is awkward, inline.
 ) -> Result<(), AllocatorError> {
     let key = SparsePageKey(page_index);
     if resident {
-        let requirements = vk::VkMemoryRequirements::DEFAULT
+        let requirements = VkMemoryRequirements::DEFAULT
             .with_size(page_size)
             .with_alignment(page_size)
             .with_memoryTypeBits(u32::MAX);

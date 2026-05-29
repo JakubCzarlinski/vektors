@@ -7,6 +7,10 @@ use shared::bootstrap::{create_device, create_instance};
 use shared::device_select::{device_name, select_single_device};
 use std::sync::mpsc;
 use std::thread;
+use vk::{
+    Entry, VkBufferCreateInfo, VkBufferUsageFlagBits2, VkBufferUsageFlags2CreateInfo,
+    VkSharingMode, VulkanLib,
+};
 use vk_alloc::{
     AllocationCreateInfo, Allocator, AllocatorCreateInfo, MemoryTypePolicy, PoolCreateInfo,
 };
@@ -19,8 +23,8 @@ fn main() -> Result<(), String> {
     const STREAM_FRAMES: usize = 120;
     const WORDS_PER_FRAME: usize = 256;
 
-    let library = vk::VulkanLib::load().map_err(|err| format!("failed to load Vulkan: {err:?}"))?;
-    let entry = vk::Entry::new(&library);
+    let library = VulkanLib::load().map_err(|err| format!("failed to load Vulkan: {err:?}"))?;
+    let entry = Entry::new(&library);
     let mut instance = create_instance(&entry, c"vk-alloc pool example")?;
     {
         let (physical_device, queue_family_index) = select_single_device(&instance)?;
@@ -49,12 +53,12 @@ fn main() -> Result<(), String> {
                 .create_pool(PoolCreateInfo::new().with_host_visible_block_size(4 * 1024 * 1024))
                 .map_err(|err| format!("failed to create readback pool: {err:?}"))?;
 
-            let usage = vk::VkBufferUsageFlags2CreateInfo::DEFAULT
-                .with_usage(vk::VkBufferUsageFlagBits2::TRANSFER_SRC);
-            let buffer_info = vk::VkBufferCreateInfo::DEFAULT
+            let usage = VkBufferUsageFlags2CreateInfo::DEFAULT
+                .with_usage(VkBufferUsageFlagBits2::TRANSFER_SRC);
+            let buffer_info = VkBufferCreateInfo::DEFAULT
                 .with_size((WORDS_PER_FRAME * core::mem::size_of::<u32>()) as u64)
                 .with_pNext_VkBufferUsageFlags2CreateInfo(&usage)
-                .with_sharingMode(vk::VkSharingMode::EXCLUSIVE);
+                .with_sharingMode(VkSharingMode::EXCLUSIVE);
             let (tx, rx) = mpsc::sync_channel::<Vec<u32>>(8);
             let producer = thread::spawn(move || -> Result<(), String> {
                 for frame in 0..STREAM_FRAMES {

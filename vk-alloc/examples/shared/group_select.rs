@@ -1,13 +1,17 @@
+use vk::{
+    Instance, PhysicalDevice, VkPhysicalDevice, VkPhysicalDeviceGroupProperties, VkQueueFlagBits,
+};
+
 use crate::shared::device_select::{device_name, find_compute_queue_family, supports_queue_family};
 
 pub(crate) struct DeviceGroupSelection<'inst> {
-    pub(crate) leader: vk::PhysicalDevice<'inst>,
-    pub(crate) raw_devices: Box<[vk::VkPhysicalDevice]>,
+    pub(crate) leader: PhysicalDevice<'inst>,
+    pub(crate) raw_devices: Box<[VkPhysicalDevice]>,
     pub(crate) queue_family_index: u32,
 }
 
 pub(crate) fn select_device_group<'inst>(
-    instance: &'inst vk::Instance<'inst>,
+    instance: &'inst Instance<'inst>,
 ) -> Result<DeviceGroupSelection<'inst>, String> {
     let physical_devices = instance
         .vkEnumeratePhysicalDevices()
@@ -16,7 +20,7 @@ pub(crate) fn select_device_group<'inst>(
     instance
         .vkEnumeratePhysicalDeviceGroups(&mut group_count, std::ptr::null_mut())
         .map_err(|err| format!("vkEnumeratePhysicalDeviceGroups failed: {err:?}"))?;
-    let mut groups = vec![vk::VkPhysicalDeviceGroupProperties::DEFAULT; group_count as usize];
+    let mut groups = vec![VkPhysicalDeviceGroupProperties::DEFAULT; group_count as usize];
     instance
         .vkEnumeratePhysicalDeviceGroups(&mut group_count, groups.as_mut_ptr())
         .map_err(|err| format!("vkEnumeratePhysicalDeviceGroups fetch failed: {err:?}"))?;
@@ -44,7 +48,7 @@ pub(crate) fn select_device_group<'inst>(
                     supports_queue_family(
                         physical_device,
                         queue_family_index,
-                        vk::VkQueueFlagBits::COMPUTE,
+                        VkQueueFlagBits::COMPUTE,
                     )
                 })
         });

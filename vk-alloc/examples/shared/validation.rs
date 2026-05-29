@@ -1,14 +1,16 @@
 use core::ffi::CStr;
 use core::ptr::null_mut;
 
+use vk::{Entry, VkLayerProperties};
+
 pub(crate) const VALIDATION_LAYER: &CStr = c"VK_LAYER_KHRONOS_validation";
 
-pub(crate) fn require_validation_layer(entry: &vk::Entry<'_>) -> Result<(), String> {
+pub(crate) fn require_validation_layer(entry: &Entry<'_>) -> Result<(), String> {
     let mut count = 0;
     entry
         .vkEnumerateInstanceLayerProperties(&mut count, null_mut())
         .map_err(|err| format!("failed to enumerate instance layers: {err:?}"))?;
-    let mut layers = vec![vk::VkLayerProperties::DEFAULT; count as usize];
+    let mut layers = vec![VkLayerProperties::DEFAULT; count as usize];
     entry
         .vkEnumerateInstanceLayerProperties(&mut count, layers.as_mut_ptr())
         .map_err(|err| format!("failed to fetch instance layers: {err:?}"))?;

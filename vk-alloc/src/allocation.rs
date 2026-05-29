@@ -3,7 +3,7 @@ use crate::memory::block::SharedSource;
 use crate::stats::StatsState;
 use alloc::{boxed::Box, sync::Arc, vec::Vec};
 use core::ptr::null_mut;
-use vk::{Buffer, DeviceMemory, Image};
+use vk::{Buffer, DeviceMemory, Image, VkDeviceMemory, VkExternalMemoryHandleTypeFlagBits};
 
 pub struct Allocation {
     block_handle: u32,
@@ -55,7 +55,7 @@ impl Allocation {
         self.arena_id
     }
 
-    pub fn memory(&self) -> vk::VkDeviceMemory {
+    pub fn memory(&self) -> VkDeviceMemory {
         self.source.raw_memory()
     }
 
@@ -128,14 +128,14 @@ impl<'vk> AllocatedImage<'vk> {
 pub struct HostImportBufferCreateInfo {
     pub host_ptr: *mut u8,
     pub size: u64,
-    pub handle_type: vk::VkExternalMemoryHandleTypeFlagBits,
+    pub handle_type: VkExternalMemoryHandleTypeFlagBits,
 }
 
 impl HostImportBufferCreateInfo {
     pub const DEFAULT: Self = Self {
         host_ptr: null_mut(),
         size: 0,
-        handle_type: vk::VkExternalMemoryHandleTypeFlagBits::HOST_ALLOCATION_BIT_EXT,
+        handle_type: VkExternalMemoryHandleTypeFlagBits::HOST_ALLOCATION_BIT_EXT,
     };
 
     pub const fn new(host_ptr: *mut u8, size: u64) -> Self {
@@ -149,7 +149,7 @@ impl HostImportBufferCreateInfo {
     #[must_use]
     pub const fn with_handle_type(
         mut self,
-        handle_type: vk::VkExternalMemoryHandleTypeFlagBits,
+        handle_type: VkExternalMemoryHandleTypeFlagBits,
     ) -> Self {
         self.handle_type = handle_type;
         self

@@ -23,6 +23,7 @@ use crate::vulkan::requirements::RequirementInfo;
 use alloc::sync::Arc;
 use alloc::vec::Vec;
 use parking_lot::RwLock;
+use vk::{VkBuffer, VkImage, VkMemoryRequirements, VkPhysicalDeviceMemoryProperties};
 
 #[derive(Debug, Clone, Copy)]
 pub(crate) enum AllocationMode {
@@ -98,8 +99,8 @@ impl ArenaPartition {
 pub(crate) struct AllocationRequest {
     pub(crate) resource_class: ResourceClass,
     pub(crate) requirement: RequirementInfo,
-    pub(crate) dedicated_buffer: Option<vk::VkBuffer>,
-    pub(crate) dedicated_image: Option<vk::VkImage>,
+    pub(crate) dedicated_buffer: Option<VkBuffer>,
+    pub(crate) dedicated_image: Option<VkImage>,
     pub(crate) alloc_info: AllocationCreateInfo,
     pub(crate) partition: ArenaPartition,
     pub(crate) bind_behavior: BindBehavior,
@@ -107,7 +108,7 @@ pub(crate) struct AllocationRequest {
 
 pub(crate) struct AllocationContext<'a, 'vk> {
     pub(crate) device: &'vk vk::Device<'vk>,
-    pub(crate) memory_properties: &'a vk::VkPhysicalDeviceMemoryProperties,
+    pub(crate) memory_properties: &'a VkPhysicalDeviceMemoryProperties,
     pub(crate) limits: &'a DeviceLimits,
     pub(crate) pools: &'a RwLock<Vec<PoolConfig>>,
     pub(crate) arenas: &'a RwLock<ArenaRegistry>,
@@ -159,46 +160,48 @@ impl AllocationContext<'_, '_> {
         let config = self.pool_config(pool)?;
         let arena_block_size = block_size_for(self.memory_properties, memory_type_index, &config);
 
-        let mut alloc_info = request.alloc_info;
-        if alloc_info.dedicated_threshold.is_none() {
-            alloc_info.dedicated_threshold = config.dedicated_threshold;
+        {
+            let mut alloc_info = request.alloc_info;
+            if alloc_info.dedicated_threshold.is_none() {
+                alloc_info.dedicated_threshold = config.dedicated_threshold;
+            }
+            if should_dedicate(&alloc_info, request.requirement, arena_block_size)? {
+                let memory = allocate_owned_memory(
+                    self.device,
+                    &request.requirement.requirements,
+                    memory_type_index,
+                    request.dedicated_buffer,
+                    request.dedicated_image,
+                    request.partition.allocation_device_mask(),
+                    is_host_visible(self.memory_properties, memory_type_index),
+                )?;
+                self.stats
+                    .on_allocate(request.requirement.requirements.size);
+                return Ok(make_dedicated_allocation(
+                    0,
+                    ((pool.id() + 1) << 16) | memory_type_index,
+                    request.requirement.requirements.size,
+                    memory,
+                    self.stats.clone(),
+                ));
+            }
         }
 
-        if should_dedicate(&alloc_info, request.requirement, arena_block_size)? {
-            let memory = allocate_owned_memory(
-                self.device,
-                &request.requirement.requirements,
-                memory_type_index,
-                request.dedicated_buffer,
-                request.dedicated_image,
-                request.partition.allocation_device_mask(),
-                is_host_visible(self.memory_properties, memory_type_index),
-            )?;
-            self.stats
-                .on_allocate(request.requirement.requirements.size);
-            return Ok(make_dedicated_allocation(
-                0,
-                ((pool.id() + 1) << 16) | memory_type_index,
-                request.requirement.requirements.size,
-                memory,
-                self.stats.clone(),
-            ));
+        {
+            let existing = {
+                let arena = arena.read();
+                arena.allocate_from_existing(
+                    request.requirement.requirements.size,
+                    request.requirement.requirements.alignment,
+                    self.stats.clone(),
+                )
+            };
+            if let Some(allocation) = existing {
+                self.stats
+                    .on_allocate(request.requirement.requirements.size);
+                return Ok(allocation);
+            }
         }
-
-        let existing = {
-            let arena = arena.read();
-            arena.allocate_from_existing(
-                request.requirement.requirements.size,
-                request.requirement.requirements.alignment,
-                self.stats.clone(),
-            )
-        };
-        if let Some(allocation) = existing {
-            self.stats
-                .on_allocate(request.requirement.requirements.size);
-            return Ok(allocation);
-        }
-
         let mut arena = arena.write();
         if let Some(allocation) = arena.allocate_from_existing(
             request.requirement.requirements.size,
@@ -217,7 +220,7 @@ impl AllocationContext<'_, '_> {
                 .max(request.requirement.requirements.size)
                 .min(self.limits.max_memory_allocation_size)
         };
-        let block_req = vk::VkMemoryRequirements::DEFAULT
+        let block_req = VkMemoryRequirements::DEFAULT
             .with_size(block_size)
             .with_alignment(request.requirement.requirements.alignment)
             .with_memoryTypeBits(request.requirement.requirements.memoryTypeBits);

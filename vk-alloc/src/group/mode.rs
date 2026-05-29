@@ -1,3 +1,5 @@
+use vk::VkMemoryHeapFlagBits;
+
 use crate::error::AllocatorError;
 use crate::group::device_mask::{partition_device_mask, validate_device_mask};
 use crate::group_allocator::GroupBindMode;
@@ -5,7 +7,7 @@ use crate::group_allocator::GroupBindMode;
 pub(crate) fn validate_group_mode(
     mode: GroupBindMode,
     device_mask: u32,
-    heap_flags: vk::VkMemoryHeapFlags,
+    heap_flags: VkMemoryHeapFlagBits,
     is_image: bool,
     split_regions: usize,
 ) -> Result<(), AllocatorError> {
@@ -15,7 +17,7 @@ pub(crate) fn validate_group_mode(
         GroupBindMode::PerDeviceInstance => {
             let active_device_count = device_mask.count_ones();
             if active_device_count > 1
-                && !heap_flags.intersects(vk::VkMemoryHeapFlagBits::MULTI_INSTANCE)
+                && !heap_flags.intersects(VkMemoryHeapFlagBits::MULTI_INSTANCE)
             {
                 return Err(AllocatorError::GroupModeUnsupported);
             }

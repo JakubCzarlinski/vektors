@@ -1,20 +1,25 @@
+use vk::{
+    Device, Entry, Instance, PhysicalDevice, VkApplicationInfo, VkDeviceCreateInfo,
+    VkDeviceQueueCreateInfo, VkInstanceCreateInfo, VkPhysicalDevice,
+};
+
 use crate::shared::validation::{VALIDATION_LAYER, require_validation_layer};
 use core::ffi::CStr;
 use core::ptr::null;
 
 pub(crate) fn create_instance<'lib>(
-    entry: &'lib vk::Entry<'lib>,
+    entry: &'lib Entry<'lib>,
     app_name: &CStr,
-) -> Result<vk::Instance<'lib>, String> {
+) -> Result<Instance<'lib>, String> {
     require_validation_layer(entry)?;
-    let app_info = vk::VkApplicationInfo::DEFAULT
+    let app_info = VkApplicationInfo::DEFAULT
         .with_apiVersion(vk::VK_API_VERSION_1_4)
         .with_applicationVersion(vk::VK_MAKE_VERSION(0, 1, 0))
         .with_engineVersion(vk::VK_MAKE_VERSION(0, 1, 0))
         .with_pEngineName(c"vk-alloc".as_ptr())
         .with_pApplicationName(app_name.as_ptr());
     let layer_names = [VALIDATION_LAYER.as_ptr()];
-    let create_info = vk::VkInstanceCreateInfo::DEFAULT
+    let create_info = VkInstanceCreateInfo::DEFAULT
         .with_pApplicationInfo(&raw const app_info)
         .with_ppEnabledLayerNames(&layer_names);
     entry
@@ -23,32 +28,32 @@ pub(crate) fn create_instance<'lib>(
 }
 
 pub(crate) fn create_device<'inst>(
-    physical_device: &vk::PhysicalDevice<'inst>,
+    physical_device: &PhysicalDevice<'inst>,
     queue_family_index: u32,
-) -> Result<vk::Device<'inst>, String> {
+) -> Result<Device<'inst>, String> {
     let priorities = [1.0f32];
-    let queue_info = vk::VkDeviceQueueCreateInfo::DEFAULT
+    let queue_info = VkDeviceQueueCreateInfo::DEFAULT
         .with_queueFamilyIndex(queue_family_index)
         .with_pQueuePriorities(&priorities);
     let queue_infos = [queue_info];
-    let create_info = vk::VkDeviceCreateInfo::DEFAULT.with_pQueueCreateInfos(&queue_infos);
+    let create_info = VkDeviceCreateInfo::DEFAULT.with_pQueueCreateInfos(&queue_infos);
     physical_device
         .vkCreateDevice(&create_info, null())
         .map_err(|err| format!("vkCreateDevice failed: {err:?}"))
 }
 
 pub(crate) fn create_group_device<'inst>(
-    physical_device: &vk::PhysicalDevice<'inst>,
-    raw_devices: &[vk::VkPhysicalDevice],
+    physical_device: &PhysicalDevice<'inst>,
+    raw_devices: &[VkPhysicalDevice],
     queue_family_index: u32,
-) -> Result<vk::Device<'inst>, String> {
+) -> Result<Device<'inst>, String> {
     let priorities = [1.0f32];
-    let queue_info = vk::VkDeviceQueueCreateInfo::DEFAULT
+    let queue_info = VkDeviceQueueCreateInfo::DEFAULT
         .with_queueFamilyIndex(queue_family_index)
         .with_pQueuePriorities(&priorities);
     let queue_infos = [queue_info];
     let group_info = vk::VkDeviceGroupDeviceCreateInfo::DEFAULT.with_pPhysicalDevices(raw_devices);
-    let create_info = vk::VkDeviceCreateInfo::DEFAULT
+    let create_info = VkDeviceCreateInfo::DEFAULT
         .with_pNext_VkDeviceGroupDeviceCreateInfo(&group_info)
         .with_pQueueCreateInfos(&queue_infos);
     physical_device

@@ -2,10 +2,11 @@ use crate::error::AllocatorError;
 use crate::pool::PoolConfig;
 use crate::resource::{AllocationCreateInfo, AllocationStrategy, MemoryTypePolicy};
 use crate::vulkan::requirements::RequirementInfo;
+use vk::{VkMemoryPropertyFlagBits, VkMemoryPropertyFlags, VkPhysicalDeviceMemoryProperties};
 
 pub(crate) fn score_memory_type(
     policy: MemoryTypePolicy,
-    property_flags: vk::VkMemoryPropertyFlags,
+    property_flags: VkMemoryPropertyFlags,
 ) -> Option<i32> {
     if !property_flags.contains(policy.required_flags) {
         return None;
@@ -18,7 +19,7 @@ pub(crate) fn score_memory_type(
 }
 
 pub(crate) fn choose_memory_type(
-    properties: &vk::VkPhysicalDeviceMemoryProperties,
+    properties: &VkPhysicalDeviceMemoryProperties,
     memory_type_bits: u32,
     alloc_info: &AllocationCreateInfo,
 ) -> Result<u32, AllocatorError> {
@@ -40,34 +41,24 @@ pub(crate) fn choose_memory_type(
         .ok_or(AllocatorError::NoCompatibleMemoryType)
 }
 
-pub(crate) fn is_host_visible(
-    properties: &vk::VkPhysicalDeviceMemoryProperties,
+pub(crate) const fn is_host_visible(
+    properties: &VkPhysicalDeviceMemoryProperties,
     memory_type_index: u32,
 ) -> bool {
     properties.memoryTypes[memory_type_index as usize]
         .propertyFlags
-        .intersects(vk::VkMemoryPropertyFlagBits::HOST_VISIBLE)
+        .intersects(VkMemoryPropertyFlagBits::HOST_VISIBLE)
 }
 
-fn is_device_local(
-    properties: &vk::VkPhysicalDeviceMemoryProperties,
-    memory_type_index: u32,
-) -> bool {
-    properties.memoryTypes[memory_type_index as usize]
-        .propertyFlags
-        .intersects(vk::VkMemoryPropertyFlagBits::DEVICE_LOCAL)
-}
-
-pub(crate) fn block_size_for(
-    properties: &vk::VkPhysicalDeviceMemoryProperties,
+pub(crate) const fn block_size_for(
+    properties: &VkPhysicalDeviceMemoryProperties,
     memory_type_index: u32,
     pool: &PoolConfig,
 ) -> u64 {
-    let host_visible = is_host_visible(properties, memory_type_index);
-    let device_local = is_device_local(properties, memory_type_index);
-    if host_visible {
+    let memory_type = properties.memoryTypes[memory_type_index as usize].propertyFlags;
+    if memory_type.intersects(VkMemoryPropertyFlagBits::HOST_VISIBLE) {
         pool.host_visible_block_size
-    } else if device_local {
+    } else if memory_type.intersects(VkMemoryPropertyFlagBits::DEVICE_LOCAL) {
         pool.device_local_block_size
     } else {
         pool.mixed_block_size

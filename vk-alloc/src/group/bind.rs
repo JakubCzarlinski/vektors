@@ -3,14 +3,18 @@ use crate::error::AllocatorError;
 use crate::group::device_mask::partition_device_mask;
 use crate::group_allocator::GroupBindMode;
 use alloc::boxed::Box;
+use vk::{
+    Buffer, Device, Image, VkBindBufferMemoryDeviceGroupInfo, VkBindBufferMemoryInfo,
+    VkBindImageMemoryDeviceGroupInfo, VkBindImageMemoryInfo, VkRect2D,
+};
 
 fn instance0_indices() -> Box<[u32]> {
     Box::new([0])
 }
 
 pub(crate) fn bind_buffer<'vk>(
-    device: &vk::Device<'vk>,
-    buffer: &vk::Buffer<'vk>,
+    device: &Device<'vk>,
+    buffer: &Buffer<'vk>,
     allocation: &Allocation,
     mode: GroupBindMode,
     device_mask: u32,
@@ -23,9 +27,9 @@ pub(crate) fn bind_buffer<'vk>(
         }
     };
     let group_info =
-        vk::VkBindBufferMemoryDeviceGroupInfo::DEFAULT.with_pDeviceIndices(&device_indices);
-    let bind = vk::VkBindBufferMemoryInfo::DEFAULT
-        .with_pNext((&raw const group_info).cast())
+        VkBindBufferMemoryDeviceGroupInfo::DEFAULT.with_pDeviceIndices(&device_indices);
+    let bind = VkBindBufferMemoryInfo::DEFAULT
+        .with_pNext_VkBindBufferMemoryDeviceGroupInfo(&group_info)
         .with_buffer(buffer.raw())
         .with_memory(allocation.memory())
         .with_memoryOffset(allocation.offset());
@@ -36,12 +40,12 @@ pub(crate) fn bind_buffer<'vk>(
 }
 
 pub(crate) fn bind_image<'vk>(
-    device: &vk::Device<'vk>,
-    image: &vk::Image<'vk>,
+    device: &Device<'vk>,
+    image: &Image<'vk>,
     allocation: &Allocation,
     mode: GroupBindMode,
     device_mask: u32,
-    split_regions: &[vk::VkRect2D],
+    split_regions: &[VkRect2D],
 ) -> Result<(), AllocatorError> {
     let device_indices = match mode {
         GroupBindMode::Instance0 => instance0_indices(),
@@ -49,16 +53,16 @@ pub(crate) fn bind_image<'vk>(
             partition_device_mask(device_mask)
         }
     };
-    let group_info = vk::VkBindImageMemoryDeviceGroupInfo::DEFAULT
+    let group_info = VkBindImageMemoryDeviceGroupInfo::DEFAULT
         .with_pDeviceIndices(&device_indices)
         .with_pSplitInstanceBindRegions(split_regions);
-    let bind = vk::VkBindImageMemoryInfo::DEFAULT
-        .with_pNext((&raw const group_info).cast())
+    let bind = &[VkBindImageMemoryInfo::DEFAULT
+        .with_pNext_VkBindImageMemoryDeviceGroupInfo(&group_info)
         .with_image(image.raw())
         .with_memory(allocation.memory())
-        .with_memoryOffset(allocation.offset());
+        .with_memoryOffset(allocation.offset())];
     device
-        .vkBindImageMemory2(&[bind])
+        .vkBindImageMemory2(bind)
         .map_err(AllocatorError::Vulkan)?;
     Ok(())
 }

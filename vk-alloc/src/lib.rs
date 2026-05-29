@@ -1,4 +1,5 @@
 #![no_std]
+extern crate alloc;
 
 mod allocation;
 mod allocator;
@@ -11,7 +12,6 @@ mod resource;
 mod sparse;
 mod stats;
 mod vulkan;
-extern crate alloc;
 
 pub use allocation::{
     AllocatedBuffer, AllocatedImage, Allocation, HostImportBufferCreateInfo, ImportedHostBuffer,

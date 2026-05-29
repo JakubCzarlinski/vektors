@@ -22,10 +22,14 @@ use alloc::sync::Arc;
 use alloc::vec;
 use alloc::vec::Vec;
 use parking_lot::RwLock;
+use vk::{
+    Buffer, Device, Image, PhysicalDevice, VkBufferCreateInfo, VkImageCreateInfo,
+    VkMemoryRequirements, VkPhysicalDeviceMemoryProperties, null,
+};
 
 pub struct Allocator<'vk> {
-    device: &'vk vk::Device<'vk>,
-    memory_properties: vk::VkPhysicalDeviceMemoryProperties,
+    device: &'vk Device<'vk>,
+    memory_properties: VkPhysicalDeviceMemoryProperties,
     limits: DeviceLimits,
     pools: RwLock<Vec<PoolConfig>>,
     arenas: RwLock<ArenaRegistry>,
@@ -34,8 +38,8 @@ pub struct Allocator<'vk> {
 
 impl<'vk> Allocator<'vk> {
     pub fn new(
-        physical_device: &'vk vk::PhysicalDevice<'vk>,
-        device: &'vk vk::Device<'vk>,
+        physical_device: &'vk PhysicalDevice<'vk>,
+        device: &'vk Device<'vk>,
     ) -> Result<Self, AllocatorError> {
         Self::from_create_info(AllocatorCreateInfo::new(physical_device, device))
     }
@@ -55,7 +59,7 @@ impl<'vk> Allocator<'vk> {
         self.stats.snapshot()
     }
 
-    pub fn device(&self) -> &'vk vk::Device<'vk> {
+    pub fn device(&self) -> &'vk Device<'vk> {
         self.device
     }
 
@@ -74,33 +78,33 @@ impl<'vk> Allocator<'vk> {
 
     pub fn create_buffer(
         &self,
-        buffer_info: &vk::VkBufferCreateInfo,
+        buffer_info: &VkBufferCreateInfo,
         alloc_info: AllocationCreateInfo,
     ) -> Result<AllocatedBuffer<'vk>, AllocatorError> {
         let buffer = self
             .device
-            .vkCreateBuffer(buffer_info, vk::null())
+            .vkCreateBuffer(buffer_info, null())
             .map_err(AllocatorError::Vulkan)?;
-        let allocation = self.allocate_for_buffer(&buffer, alloc_info)?;
+        let allocation = self.allocate_buffer(&buffer, alloc_info)?;
         Ok(AllocatedBuffer::new(buffer, allocation))
     }
 
     pub fn create_image(
         &self,
-        image_info: &vk::VkImageCreateInfo,
+        image_info: &VkImageCreateInfo,
         alloc_info: AllocationCreateInfo,
     ) -> Result<AllocatedImage<'vk>, AllocatorError> {
         let image = self
             .device
-            .vkCreateImage(image_info, vk::null())
+            .vkCreateImage(image_info, null())
             .map_err(AllocatorError::Vulkan)?;
-        let allocation = self.allocate_for_image(&image, alloc_info)?;
+        let allocation = self.allocate_image(&image, alloc_info)?;
         Ok(AllocatedImage::new(image, allocation))
     }
 
-    pub fn allocate_for_buffer(
+    pub fn allocate_buffer(
         &self,
-        buffer: &vk::Buffer<'vk>,
+        buffer: &Buffer<'vk>,
         alloc_info: AllocationCreateInfo,
     ) -> Result<Allocation, AllocatorError> {
         let requirement = buffer_requirements(self.device, buffer);
@@ -127,9 +131,9 @@ impl<'vk> Allocator<'vk> {
         Ok(allocation)
     }
 
-    pub fn allocate_for_image(
+    pub fn allocate_image(
         &self,
-        image: &vk::Image<'vk>,
+        image: &Image<'vk>,
         alloc_info: AllocationCreateInfo,
     ) -> Result<Allocation, AllocatorError> {
         let requirement = image_requirements(self.device, image);
@@ -158,7 +162,7 @@ impl<'vk> Allocator<'vk> {
 
     pub fn create_sparse_buffer(
         &self,
-        buffer_info: &vk::VkBufferCreateInfo,
+        buffer_info: &VkBufferCreateInfo,
         sparse_info: SparseAllocationCreateInfo,
     ) -> Result<SparseBufferAllocation<'vk>, AllocatorError> {
         SparseBufferAllocation::new(self.device, self, buffer_info, sparse_info)
@@ -166,7 +170,7 @@ impl<'vk> Allocator<'vk> {
 
     pub fn create_sparse_image(
         &self,
-        image_info: &vk::VkImageCreateInfo,
+        image_info: &VkImageCreateInfo,
         sparse_info: SparseAllocationCreateInfo,
     ) -> Result<SparseImageAllocation<'vk>, AllocatorError> {
         SparseImageAllocation::new(self.device, self, image_info, sparse_info)
@@ -174,7 +178,7 @@ impl<'vk> Allocator<'vk> {
 
     pub fn create_large_buffer(
         &self,
-        buffer_info: &vk::VkBufferCreateInfo,
+        buffer_info: &VkBufferCreateInfo,
         alloc_info: AllocationCreateInfo,
         large_info: LargeBufferCreateInfo,
     ) -> Result<LargeBuffer<'vk>, AllocatorError> {
@@ -199,7 +203,7 @@ impl<'vk> Allocator<'vk> {
 
     pub fn import_host_buffer(
         &self,
-        buffer_info: &vk::VkBufferCreateInfo,
+        buffer_info: &VkBufferCreateInfo,
         import_info: HostImportBufferCreateInfo,
         alloc_info: AllocationCreateInfo,
     ) -> Result<ImportedHostBuffer<'vk>, AllocatorError> {
@@ -215,7 +219,7 @@ impl<'vk> Allocator<'vk> {
 
     pub(crate) fn allocate_page(
         &self,
-        requirements: vk::VkMemoryRequirements,
+        requirements: VkMemoryRequirements,
         alloc_info: AllocationCreateInfo,
     ) -> Result<Allocation, AllocatorError> {
         let requirement = RequirementInfo {

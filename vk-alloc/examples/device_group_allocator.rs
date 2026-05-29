@@ -5,14 +5,18 @@ use core::ptr::null;
 use shared::bootstrap::{create_group_device, create_instance};
 use shared::device_select::device_name;
 use shared::group_select::select_device_group;
+use vk::{
+    Entry, VkBufferCreateInfo, VkBufferUsageFlagBits2, VkBufferUsageFlags2CreateInfo,
+    VkSharingMode, VulkanLib,
+};
 use vk_alloc::{
     AllocationCreateInfo, GroupAllocator, GroupAllocatorCreateInfo, GroupBindMode,
     MemoryTypePolicy, PoolCreateInfo,
 };
 
 fn main() -> Result<(), String> {
-    let library = vk::VulkanLib::load().map_err(|err| format!("failed to load Vulkan: {err:?}"))?;
-    let entry = vk::Entry::new(&library);
+    let library = VulkanLib::load().map_err(|err| format!("failed to load Vulkan: {err:?}"))?;
+    let entry = Entry::new(&library);
     let mut instance = create_instance(&entry, c"vk-alloc device-group allocator example")?;
     {
         let group = select_device_group(&instance)?;
@@ -45,12 +49,12 @@ fn main() -> Result<(), String> {
                 .map_err(|err| format!("{err:?}"))?;
             println!("Group allocator stats: {:?}", allocator.stats());
 
-            let usage = vk::VkBufferUsageFlags2CreateInfo::DEFAULT
-                .with_usage(vk::VkBufferUsageFlagBits2::STORAGE_BUFFER);
-            let buffer_info = vk::VkBufferCreateInfo::DEFAULT
+            let usage = VkBufferUsageFlags2CreateInfo::DEFAULT
+                .with_usage(VkBufferUsageFlagBits2::STORAGE_BUFFER);
+            let buffer_info = VkBufferCreateInfo::DEFAULT
                 .with_size(1024 * 16) // 8 KB
                 .with_pNext_VkBufferUsageFlags2CreateInfo(&usage)
-                .with_sharingMode(vk::VkSharingMode::EXCLUSIVE);
+                .with_sharingMode(VkSharingMode::EXCLUSIVE);
             let buffer = allocator
                 .create_buffer_with_mode(
                     &buffer_info,
