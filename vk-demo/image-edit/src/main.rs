@@ -22,11 +22,15 @@ macro_rules! include_spirv_words {
 
 const IMAGE_EDIT_SPV: &[u32] = include_spirv_words!(concat!(env!("OUT_DIR"), "/image_edit.spv"));
 
-const SRC_W: u32 = 512;
-const SRC_H: u32 = 512;
+const SRC_W: u32 = 1024;
+const SRC_H: u32 = 1024;
 const OUT_W: u32 = 2400;
 const OUT_H: u32 = 1600;
-const IMAGE_COUNT: usize = 10;
+
+struct SourceStack {
+    pixels: Vec<u32>,
+    image_count: u32,
+}
 
 const VALIDATION_LAYER: &CStr = c"VK_LAYER_KHRONOS_validation";
 const APP_INFO: VkApplicationInfo = VkApplicationInfo::DEFAULT
@@ -53,7 +57,7 @@ const DSL_INFO: VkDescriptorSetLayoutCreateInfo =
 
 fn main() -> Result<(), String> {
     let started = Instant::now();
-    let input_pixels = load_images(Path::new("vk-demo/image-edit/images"))?;
+    let source_stack = load_images(Path::new("vk-demo/image-edit/images"))?;
     println!("Prepared source stack in {:.2?}", started.elapsed());
 
     let gpu_started = Instant::now();
@@ -72,12 +76,12 @@ fn main() -> Result<(), String> {
         .map_err(|e| format!("Allocator creation failed: {e:?}"))?;
     let queue = device.vkGetDeviceQueue(queue_family_index, 0);
 
-    let input_size = (input_pixels.len() * size_of::<u32>()) as u64;
+    let input_size = (source_stack.pixels.len() * size_of::<u32>()) as u64;
     let output_len = (OUT_W * OUT_H) as usize;
     let output_size = (output_len * size_of::<u32>()) as u64;
     let mut input_buffer = create_storage_buffer(&allocator, input_size)?;
     let output_buffer = create_storage_buffer(&allocator, output_size)?;
-    write_to_buffer(input_buffer.allocation_mut(), &input_pixels)?;
+    write_to_buffer(input_buffer.allocation_mut(), &source_stack.pixels)?;
 
     let descriptor_pool = create_descriptor_pool(&device)?;
     let descriptor_set_layout = device
@@ -104,29 +108,43 @@ fn main() -> Result<(), String> {
         pipeline,
         &pipeline_layout,
         descriptor_set,
+        source_stack.image_count,
     )?;
     println!("Vulkan compute finished in {:.2?}", gpu_started.elapsed());
 
     let save_started = Instant::now();
     let output_pixels = read_buffer(output_buffer.allocation(), output_len)?;
+    let balanced_pixels = histogram_balance(output_pixels);
     let out_path = Path::new("vk-demo/image-edit/edit.png");
-    save_png(out_path, output_pixels)?;
+    save_png(out_path, &balanced_pixels)?;
     println!("Saved PNG in {:.2?}", save_started.elapsed());
     println!("Wrote {}", out_path.display());
     Ok(())
 }
 
-fn load_images(dir: &Path) -> Result<Vec<u32>, String> {
+fn load_images(dir: &Path) -> Result<SourceStack, String> {
     let paths = image_paths(dir)?;
+    let image_count: u32 = paths
+        .len()
+        .try_into()
+        .map_err(|_| format!("Too many images in {}", dir.display()))?;
     let signature = source_signature(&paths)?;
     let cache_dir = Path::new("vk-demo/image-edit/.cache");
     let cache_pixels = cache_dir.join("source-512x512-rgba8.bin");
     let cache_manifest = cache_dir.join("source-512x512-rgba8.manifest");
-    if let Some(pixels) = read_source_cache(&cache_pixels, &cache_manifest, &signature)? {
-        return Ok(pixels);
+    if let Some(pixels) = read_source_cache(
+        &cache_pixels,
+        &cache_manifest,
+        &signature,
+        image_count as usize,
+    )? {
+        return Ok(SourceStack {
+            pixels,
+            image_count,
+        });
     }
 
-    let mut pixels = Vec::with_capacity(IMAGE_COUNT * (SRC_W * SRC_H) as usize);
+    let mut pixels = Vec::with_capacity(paths.len() * (SRC_W * SRC_H) as usize);
     for path in paths {
         let image = image::open(&path)
             .map_err(|e| format!("Failed to open {}: {e}", path.display()))?
@@ -138,7 +156,10 @@ fn load_images(dir: &Path) -> Result<Vec<u32>, String> {
         }
     }
     write_source_cache(&cache_pixels, &cache_manifest, &signature, &pixels)?;
-    Ok(pixels)
+    Ok(SourceStack {
+        pixels,
+        image_count,
+    })
 }
 
 fn image_paths(dir: &Path) -> Result<Vec<PathBuf>, String> {
@@ -153,18 +174,14 @@ fn image_paths(dir: &Path) -> Result<Vec<PathBuf>, String> {
             .is_some_and(|ext| matches!(ext.to_ascii_lowercase().as_str(), "jpg" | "jpeg" | "png"))
     });
     paths.sort();
-    if paths.len() != IMAGE_COUNT {
-        return Err(format!(
-            "Expected {IMAGE_COUNT} images in {}, found {}",
-            dir.display(),
-            paths.len()
-        ));
+    if paths.is_empty() {
+        return Err(format!("No images found in {}", dir.display()));
     }
     Ok(paths)
 }
 
 fn source_signature(paths: &[PathBuf]) -> Result<String, String> {
-    let mut signature = format!("v4-full-frame-cover-fill:{SRC_W}x{SRC_H}:{IMAGE_COUNT}\n");
+    let mut signature = format!("v5-full-frame-cover-fill:{SRC_W}x{SRC_H}:{}\n", paths.len());
     for path in paths {
         let metadata = fs::metadata(path)
             .map_err(|e| format!("Failed to read metadata for {}: {e}", path.display()))?;
@@ -190,6 +207,7 @@ fn read_source_cache(
     pixels_path: &Path,
     manifest_path: &Path,
     signature: &str,
+    image_count: usize,
 ) -> Result<Option<Vec<u32>>, String> {
     let manifest = match fs::read_to_string(manifest_path) {
         Ok(manifest) => manifest,
@@ -205,7 +223,7 @@ fn read_source_cache(
         return Ok(None);
     }
 
-    let expected_len = IMAGE_COUNT * (SRC_W * SRC_H) as usize;
+    let expected_len = image_count * (SRC_W * SRC_H) as usize;
     let mut bytes = Vec::new();
     fs::File::open(pixels_path)
         .map_err(|e| format!("Failed to open cache {}: {e}", pixels_path.display()))?
@@ -233,7 +251,7 @@ fn write_source_cache(
         .ok_or_else(|| format!("Cache path has no parent: {}", pixels_path.display()))?;
     fs::create_dir_all(cache_dir)
         .map_err(|e| format!("Failed to create cache dir {}: {e}", cache_dir.display()))?;
-    let mut bytes = Vec::with_capacity(core::mem::size_of_val(pixels));
+    let mut bytes = Vec::with_capacity(pixels.len() * size_of::<u32>());
     for &pixel in pixels {
         bytes.extend_from_slice(&pixel.to_le_bytes());
     }
@@ -278,6 +296,94 @@ fn fit_full_image(image: &RgbaImage) -> RgbaImage {
     let y = (SRC_H - contained.height()) / 2;
     imageops::overlay(&mut framed, &contained, i64::from(x), i64::from(y));
     framed
+}
+
+fn histogram_balance(pixels: &[u32]) -> Vec<u32> {
+    let mut histogram = [0usize; 256];
+    for &pixel in pixels {
+        histogram[luma(pixel) as usize] += 1;
+    }
+
+    let clip_limit = (pixels.len() / 96).max(1);
+    let mut overflow = 0usize;
+    for count in &mut histogram {
+        if *count > clip_limit {
+            overflow += *count - clip_limit;
+            *count = clip_limit;
+        }
+    }
+    let redistribute = overflow / histogram.len();
+    let remainder = overflow % histogram.len();
+    for (index, count) in histogram.iter_mut().enumerate() {
+        *count += redistribute + usize::from(index < remainder);
+    }
+
+    let mut cdf = [0usize; 256];
+    let mut running = 0usize;
+    for (index, count) in histogram.iter().enumerate() {
+        running += count;
+        cdf[index] = running;
+    }
+
+    let Some(cdf_min) = cdf.iter().copied().find(|&count| count != 0) else {
+        return Vec::new();
+    };
+    let denominator = pixels.len().saturating_sub(cdf_min);
+    if denominator == 0 {
+        return pixels.to_vec();
+    }
+
+    let mut luma_map = [0u8; 256];
+    for (index, mapped) in luma_map.iter_mut().enumerate() {
+        *mapped = (((cdf[index].saturating_sub(cdf_min)) * 255) / denominator) as u8;
+    }
+
+    pixels
+        .iter()
+        .map(|&pixel| {
+            let source_luma = luma(pixel);
+            let equalized_luma = luma_map[source_luma as usize];
+            let balanced_luma =
+                ((u16::from(source_luma) * 9 + u16::from(equalized_luma)) / 10) as u8;
+            let target_luma = compress_highlights(balanced_luma);
+            scale_pixel_to_luma(pixel, source_luma, target_luma)
+        })
+        .collect()
+}
+
+fn compress_highlights(luma: u8) -> u8 {
+    const KNEE: u16 = 164;
+    const MAX_LUMA: u16 = 204;
+    let luma = u16::from(luma);
+    if luma <= KNEE {
+        return luma as u8;
+    }
+
+    (KNEE + ((luma - KNEE) * (MAX_LUMA - KNEE)) / (255 - KNEE)) as u8
+}
+
+fn luma(pixel: u32) -> u8 {
+    let r = pixel & 255;
+    let g = (pixel >> 8) & 255;
+    let b = (pixel >> 16) & 255;
+    ((77 * r + 150 * g + 29 * b) >> 8) as u8
+}
+
+fn scale_pixel_to_luma(pixel: u32, source_luma: u8, target_luma: u8) -> u32 {
+    let r = pixel & 255;
+    let g = (pixel >> 8) & 255;
+    let b = (pixel >> 16) & 255;
+
+    if source_luma == 0 {
+        let v = u32::from(target_luma);
+        return v | (v << 8) | (v << 16) | 0xff000000;
+    }
+
+    let scale = u32::from(target_luma) * 256 / u32::from(source_luma);
+    let r = ((r * scale).min(255 * 256) >> 8).min(255);
+    let g = ((g * scale).min(255 * 256) >> 8).min(255);
+    let b = ((b * scale).min(255 * 256) >> 8).min(255);
+    r | (g << 8) | (b << 16) | 0xff000000
 }
 
 fn save_png(path: &Path, pixels: &[u32]) -> Result<(), String> {
@@ -477,9 +583,14 @@ fn create_compute_pipeline<'a>(
     descriptor_set_layout: &DescriptorSetLayout<'a>,
 ) -> Result<(PipelineLayout<'a>, Box<[Pipeline<'a>]>), String> {
     let layouts = [descriptor_set_layout.raw()];
+    let push_constant_ranges = [VkPushConstantRange::DEFAULT
+        .with_stageFlags(VkShaderStageFlagBits::COMPUTE)
+        .with_offset(0)
+        .with_size(size_of::<u32>() as u32)];
     let pipeline_layout_info = VkPipelineLayoutCreateInfo::DEFAULT
         .with_setLayoutCount(1)
-        .with_pSetLayouts(&layouts);
+        .with_pSetLayouts(&layouts)
+        .with_pPushConstantRanges(&push_constant_ranges);
     let pipeline_layout = device
         .vkCreatePipelineLayout(&pipeline_layout_info, null())
         .map_err(|e| format!("vkCreatePipelineLayout failed: {e:?}"))?;
@@ -507,6 +618,7 @@ fn run_compute<'a>(
     pipeline: &Pipeline<'a>,
     layout: &PipelineLayout<'a>,
     descriptor_set: &DescriptorSet<'a>,
+    image_count: u32,
 ) -> Result<(), String> {
     let pool_info = VkCommandPoolCreateInfo::DEFAULT
         .with_flags(VkCommandPoolCreateFlagBits::RESET_COMMAND_BUFFER)
@@ -533,6 +645,12 @@ fn run_compute<'a>(
         .with_pDescriptorSets(&raw_descriptor_sets)
         .with_layout(layout.raw());
     command_buffer.vkCmdBindDescriptorSets2(&bind_descriptor_sets_info);
+    command_buffer.vkCmdPushConstants(
+        layout.raw(),
+        VkShaderStageFlagBits::COMPUTE,
+        0,
+        &image_count.to_ne_bytes(),
+    );
     command_buffer.vkCmdDispatch(OUT_W.div_ceil(16), OUT_H.div_ceil(16), 1);
     command_buffer
         .vkEndCommandBuffer()
