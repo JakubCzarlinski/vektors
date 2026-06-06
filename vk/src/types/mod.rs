@@ -1364,6 +1364,8 @@ pub use ext::VkPhysicalDeviceMultiDrawFeaturesEXT;
 pub use ext::VkPhysicalDeviceMultiDrawPropertiesEXT;
 #[cfg(feature = "VK_EXT_multisampled_render_to_single_sampled")]
 pub use ext::VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT;
+#[cfg(feature = "VK_EXT_multisampled_render_to_swapchain")]
+pub use ext::VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT;
 #[cfg(feature = "VK_EXT_mutable_descriptor_type")]
 pub use ext::VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT;
 #[cfg(feature = "VK_EXT_nested_command_buffer")]
@@ -1678,6 +1680,8 @@ pub use ext::VkSurfacePresentScalingCapabilitiesEXT;
 pub use ext::VkSwapchainCalibratedTimestampInfoEXT;
 #[cfg(feature = "VK_EXT_display_control")]
 pub use ext::VkSwapchainCounterCreateInfoEXT;
+#[cfg(feature = "VK_EXT_multisampled_render_to_swapchain")]
+pub use ext::VkSwapchainFlagsSurfaceCapabilitiesEXT;
 #[cfg(feature = "VK_EXT_swapchain_maintenance1")]
 pub use ext::VkSwapchainPresentFenceInfoEXT;
 #[cfg(feature = "VK_EXT_swapchain_maintenance1")]
@@ -2287,9 +2291,9 @@ pub use khr::VkBufferMemoryBarrier2KHR;
 pub use khr::VkBufferMemoryRequirementsInfo2KHR;
 #[cfg(feature = "VK_KHR_buffer_device_address")]
 pub use khr::VkBufferOpaqueCaptureAddressCreateInfoKHR;
-#[cfg(feature = "VK_KHR_maintenance5")]
+#[cfg(any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"))]
 pub use khr::VkBufferUsageFlags2CreateInfoKHR;
-#[cfg(feature = "VK_KHR_maintenance5")]
+#[cfg(any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"))]
 pub use khr::VkBufferUsageFlags2KHR;
 #[cfg(feature = "VK_KHR_acceleration_structure")]
 pub use khr::VkBuildAccelerationStructureFlagsKHR;
@@ -2514,10 +2518,14 @@ pub use khr::VkFenceGetWin32HandleInfoKHR;
 pub use khr::VkFenceImportFlagsKHR;
 #[cfg(feature = "VK_KHR_format_feature_flags2")]
 pub use khr::VkFormatFeatureFlags2KHR;
+#[cfg(feature = "VK_KHR_extended_flags")]
+pub use khr::VkFormatFeatureFlags4KHR;
 #[cfg(feature = "VK_KHR_get_physical_device_properties2")]
 pub use khr::VkFormatProperties2KHR;
 #[cfg(feature = "VK_KHR_format_feature_flags2")]
 pub use khr::VkFormatProperties3KHR;
+#[cfg(feature = "VK_KHR_extended_flags")]
+pub use khr::VkFormatProperties4KHR;
 #[cfg(feature = "VK_KHR_fragment_shading_rate")]
 pub use khr::VkFragmentShadingRateAttachmentInfoKHR;
 #[cfg(feature = "VK_KHR_imageless_framebuffer")]
@@ -2532,6 +2540,10 @@ pub use khr::VkGeometryInstanceFlagsKHR;
 pub use khr::VkImageBlit2KHR;
 #[cfg(feature = "VK_KHR_copy_commands2")]
 pub use khr::VkImageCopy2KHR;
+#[cfg(feature = "VK_KHR_extended_flags")]
+pub use khr::VkImageCreateFlags2CreateInfoKHR;
+#[cfg(feature = "VK_KHR_extended_flags")]
+pub use khr::VkImageCreateFlags2KHR;
 #[cfg(feature = "VK_KHR_image_format_list")]
 pub use khr::VkImageFormatListCreateInfoKHR;
 #[cfg(feature = "VK_KHR_get_physical_device_properties2")]
@@ -2546,6 +2558,14 @@ pub use khr::VkImagePlaneMemoryRequirementsInfoKHR;
 pub use khr::VkImageResolve2KHR;
 #[cfg(feature = "VK_KHR_get_memory_requirements2")]
 pub use khr::VkImageSparseMemoryRequirementsInfo2KHR;
+#[cfg(any(
+  all(feature = "VK_KHR_extended_flags", feature = "VK_VERSION_1_2"),
+  all(
+    feature = "VK_EXT_separate_stencil_usage",
+    feature = "VK_KHR_extended_flags"
+  )
+))]
+pub use khr::VkImageStencilUsage2CreateInfoKHR;
 #[cfg(feature = "VK_KHR_maintenance5")]
 pub use khr::VkImageSubresource2KHR;
 #[cfg(any(
@@ -2553,6 +2573,12 @@ pub use khr::VkImageSubresource2KHR;
   all(feature = "VK_KHR_device_group", feature = "VK_KHR_swapchain")
 ))]
 pub use khr::VkImageSwapchainCreateInfoKHR;
+#[cfg(feature = "VK_KHR_extended_flags")]
+pub use khr::VkImageUsageFlags2CreateInfoKHR;
+#[cfg(feature = "VK_KHR_extended_flags")]
+pub use khr::VkImageUsageFlags2KHR;
+#[cfg(feature = "VK_KHR_extended_flags")]
+pub use khr::VkImageViewUsage2CreateInfoKHR;
 #[cfg(feature = "VK_KHR_maintenance2")]
 pub use khr::VkImageViewUsageCreateInfoKHR;
 #[cfg(feature = "VK_KHR_external_fence_fd")]
@@ -2663,6 +2689,8 @@ pub use khr::VkPhysicalDeviceDriverPropertiesKHR;
 pub use khr::VkPhysicalDeviceDynamicRenderingFeaturesKHR;
 #[cfg(feature = "VK_KHR_dynamic_rendering_local_read")]
 pub use khr::VkPhysicalDeviceDynamicRenderingLocalReadFeaturesKHR;
+#[cfg(feature = "VK_KHR_extended_flags")]
+pub use khr::VkPhysicalDeviceExtendedFlagsFeaturesKHR;
 #[cfg(feature = "VK_KHR_external_memory_capabilities")]
 pub use khr::VkPhysicalDeviceExternalBufferInfoKHR;
 #[cfg(feature = "VK_KHR_external_fence_capabilities")]
@@ -2683,7 +2711,10 @@ pub use khr::VkPhysicalDeviceFloat16Int8FeaturesKHR;
 pub use khr::VkPhysicalDeviceFloatControlsPropertiesKHR;
 #[cfg(feature = "VK_KHR_fragment_shader_barycentric")]
 pub use khr::VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR;
-#[cfg(feature = "VK_KHR_fragment_shader_barycentric")]
+#[cfg(all(
+  feature = "VK_EXT_provoking_vertex",
+  feature = "VK_KHR_fragment_shader_barycentric"
+))]
 pub use khr::VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR;
 #[cfg(feature = "VK_KHR_fragment_shading_rate")]
 pub use khr::VkPhysicalDeviceFragmentShadingRateFeaturesKHR;
@@ -2875,6 +2906,8 @@ pub use khr::VkPhysicalDeviceVertexAttributeDivisorPropertiesKHR;
 pub use khr::VkPhysicalDeviceVideoDecodeVP9FeaturesKHR;
 #[cfg(feature = "VK_KHR_video_encode_av1")]
 pub use khr::VkPhysicalDeviceVideoEncodeAV1FeaturesKHR;
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+pub use khr::VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR;
 #[cfg(feature = "VK_KHR_video_encode_intra_refresh")]
 pub use khr::VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR;
 #[cfg(feature = "VK_KHR_video_encode_queue")]
@@ -2909,9 +2942,9 @@ pub use khr::VkPipelineBinaryKHR;
 pub use khr::VkPipelineBinaryKeyKHR;
 #[cfg(feature = "VK_KHR_pipeline_binary")]
 pub use khr::VkPipelineBinaryKeysAndDataKHR;
-#[cfg(feature = "VK_KHR_maintenance5")]
+#[cfg(any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"))]
 pub use khr::VkPipelineCreateFlags2CreateInfoKHR;
-#[cfg(feature = "VK_KHR_maintenance5")]
+#[cfg(any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"))]
 pub use khr::VkPipelineCreateFlags2KHR;
 #[cfg(feature = "VK_KHR_pipeline_binary")]
 pub use khr::VkPipelineCreateInfoKHR;
@@ -2967,6 +3000,8 @@ pub use khr::VkPushDescriptorSetWithTemplateInfoKHR;
 pub use khr::VkQueryPoolPerformanceCreateInfoKHR;
 #[cfg(feature = "VK_KHR_video_encode_queue")]
 pub use khr::VkQueryPoolVideoEncodeFeedbackCreateInfoKHR;
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+pub use khr::VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR;
 #[cfg(feature = "VK_KHR_global_priority")]
 pub use khr::VkQueueFamilyGlobalPriorityPropertiesKHR;
 #[cfg(feature = "VK_KHR_maintenance11")]
@@ -3068,6 +3103,11 @@ pub use khr::VkSemaphoreWaitFlagsKHR;
 pub use khr::VkSemaphoreWaitInfoKHR;
 #[cfg(all(feature = "VK_EXT_descriptor_buffer", feature = "VK_KHR_maintenance6"))]
 pub use khr::VkSetDescriptorBufferOffsetsInfoEXT;
+#[cfg(all(
+  feature = "VK_KHR_extended_flags",
+  feature = "VK_KHR_shared_presentable_image"
+))]
+pub use khr::VkSharedPresentSurfaceCapabilities2KHR;
 #[cfg(feature = "VK_KHR_shared_presentable_image")]
 pub use khr::VkSharedPresentSurfaceCapabilitiesKHR;
 #[cfg(feature = "VK_KHR_get_physical_device_properties2")]
@@ -3278,6 +3318,8 @@ pub use khr::VkVideoEncodeCapabilitiesKHR;
 pub use khr::VkVideoEncodeCapabilityFlagsKHR;
 #[cfg(feature = "VK_KHR_video_encode_queue")]
 pub use khr::VkVideoEncodeContentFlagsKHR;
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+pub use khr::VkVideoEncodeFeedback2CapabilitiesKHR;
 #[cfg(feature = "VK_KHR_video_encode_queue")]
 pub use khr::VkVideoEncodeFeedbackFlagsKHR;
 #[cfg(feature = "VK_KHR_video_encode_queue")]
@@ -3380,6 +3422,8 @@ pub use khr::VkVideoEncodeIntraRefreshCapabilitiesKHR;
 pub use khr::VkVideoEncodeIntraRefreshInfoKHR;
 #[cfg(feature = "VK_KHR_video_encode_intra_refresh")]
 pub use khr::VkVideoEncodeIntraRefreshModeFlagsKHR;
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+pub use khr::VkVideoEncodePerPartitionFeedbackFlagsKHR;
 #[cfg(feature = "VK_KHR_video_encode_queue")]
 pub use khr::VkVideoEncodeQualityLevelInfoKHR;
 #[cfg(feature = "VK_KHR_video_encode_queue")]

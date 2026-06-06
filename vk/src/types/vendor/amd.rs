@@ -947,6 +947,7 @@ pub struct VkGpaSampleBeginInfoAMD<'a> {
   pub sampleInternalOperations: VkBool32,
   pub cacheFlushOnCounterCollection: VkBool32,
   pub sqShaderMaskEnable: VkBool32,
+  /// Optional: true
   pub sqShaderMask: VkGpaSqShaderStageFlagsAMD,
   pub perfCounterCount: u32,
   /// Length: perfCounterCount
@@ -956,7 +957,9 @@ pub struct VkGpaSampleBeginInfoAMD<'a> {
   pub sqThreadTraceEnable: VkBool32,
   pub sqThreadTraceSuppressInstructionTokens: VkBool32,
   pub sqThreadTraceDeviceMemoryLimit: VkDeviceSize,
+  /// Optional: true
   pub timingPreSample: VkPipelineStageFlags,
+  /// Optional: true
   pub timingPostSample: VkPipelineStageFlags,
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,

@@ -215,6 +215,8 @@ use crate::enums::VkSubpassMergeStatusEXT;
 use crate::enums::VkSurfaceCounterFlagBitsEXT;
 #[cfg(feature = "VK_KHR_surface")]
 use crate::enums::VkSurfaceTransformFlagBitsKHR;
+#[cfg(feature = "VK_KHR_swapchain")]
+use crate::enums::VkSwapchainCreateFlagBitsKHR;
 #[cfg(any(feature = "VK_ARM_tensors", feature = "VK_EXT_descriptor_heap"))]
 use crate::enums::VkTensorViewCreateFlagBitsARM;
 #[cfg(feature = "VK_EXT_calibrated_timestamps")]
@@ -482,6 +484,8 @@ use crate::types::VkSurfaceCapabilities2KHR;
 use crate::types::VkSurfaceFormat2KHR;
 #[cfg(feature = "VK_KHR_surface")]
 use crate::types::VkSurfaceTransformFlagsKHR;
+#[cfg(feature = "VK_KHR_swapchain")]
+use crate::types::VkSwapchainCreateFlagsKHR;
 #[cfg(feature = "VK_KHR_swapchain")]
 use crate::types::VkSwapchainCreateInfoKHR;
 #[cfg(feature = "VK_KHR_swapchain")]
@@ -23388,6 +23392,168 @@ impl<'a> VkMultisampledRenderToSingleSampledInfoEXT<'a> {
     val: &'a T,
   ) -> Self {
     self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+}
+/// [VkSwapchainFlagsSurfaceCapabilitiesEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkSwapchainFlagsSurfaceCapabilitiesEXT.html)
+///
+/// *Note: This is a **returned only** struct.*
+///
+/// **Extends:** VkSurfaceCapabilities2KHR.
+#[cfg(feature = "VK_EXT_multisampled_render_to_swapchain")]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkSwapchainFlagsSurfaceCapabilitiesEXT<'a> {
+  /// Values: VK_STRUCTURE_TYPE_SWAPCHAIN_FLAGS_SURFACE_CAPABILITIES_EXT
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  /// Optional: true
+  pub swapchainSupportedFlags: VkSwapchainCreateFlagsKHR,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(feature = "VK_EXT_multisampled_render_to_swapchain")]
+unsafe impl<'a> Send for VkSwapchainFlagsSurfaceCapabilitiesEXT<'a> {}
+#[cfg(feature = "VK_EXT_multisampled_render_to_swapchain")]
+unsafe impl<'a> Sync for VkSwapchainFlagsSurfaceCapabilitiesEXT<'a> {}
+#[cfg(all(
+  feature = "VK_EXT_multisampled_render_to_swapchain",
+  feature = "VK_KHR_get_surface_capabilities2"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkSurfaceCapabilities2KHR<'root>>
+  for VkSwapchainFlagsSurfaceCapabilitiesEXT<'child>
+{
+}
+#[cfg(feature = "VK_EXT_multisampled_render_to_swapchain")]
+impl<'a> VkSwapchainFlagsSurfaceCapabilitiesEXT<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::SWAPCHAIN_FLAGS_SURFACE_CAPABILITIES_EXT,
+    pNext: core::ptr::null_mut(),
+    swapchainSupportedFlags: VkSwapchainCreateFlagBitsKHR(0),
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_swapchainSupportedFlags(mut self, val: VkSwapchainCreateFlagsKHR) -> Self {
+    self.swapchainSupportedFlags = val;
+    self
+  }
+  #[cfg(feature = "VK_KHR_get_surface_capabilities2")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkSurfaceCapabilities2KHR<
+    'root,
+    T: VkPNextExtends<VkSurfaceCapabilities2KHR<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT.html)
+///
+/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
+#[cfg(feature = "VK_EXT_multisampled_render_to_swapchain")]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SWAPCHAIN_FEATURES_EXT
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  pub multisampledRenderToSwapchain: VkBool32,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(feature = "VK_EXT_multisampled_render_to_swapchain")]
+unsafe impl<'a> Send for VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT<'a> {}
+#[cfg(feature = "VK_EXT_multisampled_render_to_swapchain")]
+unsafe impl<'a> Sync for VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT<'a> {}
+#[cfg(all(
+  feature = "VK_EXT_multisampled_render_to_swapchain",
+  feature = "VK_BASE_VERSION_1_1"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
+  for VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT<'child>
+{
+}
+#[cfg(all(
+  feature = "VK_EXT_multisampled_render_to_swapchain",
+  feature = "VK_BASE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
+  for VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT<'child>
+{
+}
+#[cfg(feature = "VK_EXT_multisampled_render_to_swapchain")]
+impl<'a> VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SWAPCHAIN_FEATURES_EXT,
+    pNext: core::ptr::null_mut(),
+    multisampledRenderToSwapchain: 0,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_multisampledRenderToSwapchain(mut self, val: VkBool32) -> Self {
+    self.multisampledRenderToSwapchain = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkDeviceCreateInfo<
+    'root,
+    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
     self
   }
 }

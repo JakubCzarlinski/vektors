@@ -609,7 +609,7 @@ pub const VK_API_VERSION: u32 = VK_MAKE_API_VERSION(0u32, 1u32, 0u32, 0u32);
 pub const VK_API_VERSION_1_0: u32 = VK_MAKE_API_VERSION(0u32, 1u32, 0u32, 0u32);
 /// [VK_HEADER_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION.html)
 #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
-pub const VK_HEADER_VERSION: u32 = 352u32;
+pub const VK_HEADER_VERSION: u32 = 353u32;
 /// [VK_HEADER_VERSION_COMPLETE](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION_COMPLETE.html)
 #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub const VK_HEADER_VERSION_COMPLETE: u32 = VK_MAKE_API_VERSION(0u32, 1u32, 4u32, 0u32);
@@ -1512,6 +1512,17 @@ pub const VK_EXT_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_SPEC_VERSION: u32 = 1;
 #[cfg(feature = "VK_EXT_multisampled_render_to_single_sampled")]
 pub const VK_EXT_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_EXTENSION_NAME: &'static core::ffi::CStr =
   c"VK_EXT_multisampled_render_to_single_sampled";
+/// [VK_EXT_MULTISAMPLED_RENDER_TO_SWAPCHAIN_SPEC_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_multisampled_render_to_swapchain.html)
+///
+/// Extension type: device extension.
+#[cfg(feature = "VK_EXT_multisampled_render_to_swapchain")]
+pub const VK_EXT_MULTISAMPLED_RENDER_TO_SWAPCHAIN_SPEC_VERSION: u32 = 1;
+/// [VK_EXT_MULTISAMPLED_RENDER_TO_SWAPCHAIN_EXTENSION_NAME](https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_multisampled_render_to_swapchain.html)
+///
+/// Extension type: device extension.
+#[cfg(feature = "VK_EXT_multisampled_render_to_swapchain")]
+pub const VK_EXT_MULTISAMPLED_RENDER_TO_SWAPCHAIN_EXTENSION_NAME: &'static core::ffi::CStr =
+  c"VK_EXT_multisampled_render_to_swapchain";
 /// [VK_EXT_MUTABLE_DESCRIPTOR_TYPE_SPEC_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_mutable_descriptor_type.html)
 ///
 /// Extension type: device extension.
@@ -2748,6 +2759,16 @@ pub const VK_KHR_DYNAMIC_RENDERING_LOCAL_READ_SPEC_VERSION: u32 = 1;
 #[cfg(feature = "VK_KHR_dynamic_rendering_local_read")]
 pub const VK_KHR_DYNAMIC_RENDERING_LOCAL_READ_EXTENSION_NAME: &'static core::ffi::CStr =
   c"VK_KHR_dynamic_rendering_local_read";
+/// [VK_KHR_EXTENDED_FLAGS_SPEC_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_KHR_extended_flags.html)
+///
+/// Extension type: device extension.
+#[cfg(feature = "VK_KHR_extended_flags")]
+pub const VK_KHR_EXTENDED_FLAGS_SPEC_VERSION: u32 = 1;
+/// [VK_KHR_EXTENDED_FLAGS_EXTENSION_NAME](https://docs.vulkan.org/refpages/latest/refpages/source/VK_KHR_extended_flags.html)
+///
+/// Extension type: device extension.
+#[cfg(feature = "VK_KHR_extended_flags")]
+pub const VK_KHR_EXTENDED_FLAGS_EXTENSION_NAME: &'static core::ffi::CStr = c"VK_KHR_extended_flags";
 /// [VK_KHR_EXTERNAL_FENCE_SPEC_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_KHR_external_fence.html)
 ///
 /// Extension type: device extension.
@@ -3942,6 +3963,17 @@ pub const VK_STD_VULKAN_VIDEO_CODEC_AV1_ENCODE_SPEC_VERSION: u32 =
 #[cfg(feature = "VK_KHR_video_encode_av1")]
 pub const VK_STD_VULKAN_VIDEO_CODEC_AV1_ENCODE_EXTENSION_NAME: &'static core::ffi::CStr =
   c"VK_STD_vulkan_video_codec_av1_encode";
+/// [VK_KHR_VIDEO_ENCODE_FEEDBACK_2_SPEC_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_KHR_video_encode_feedback2.html)
+///
+/// Extension type: device extension.
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+pub const VK_KHR_VIDEO_ENCODE_FEEDBACK_2_SPEC_VERSION: u32 = 1;
+/// [VK_KHR_VIDEO_ENCODE_FEEDBACK_2_EXTENSION_NAME](https://docs.vulkan.org/refpages/latest/refpages/source/VK_KHR_video_encode_feedback2.html)
+///
+/// Extension type: device extension.
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+pub const VK_KHR_VIDEO_ENCODE_FEEDBACK_2_EXTENSION_NAME: &'static core::ffi::CStr =
+  c"VK_KHR_video_encode_feedback2";
 /// [VK_STD_VULKAN_VIDEO_CODEC_H264_ENCODE_API_VERSION_1_0_0](https://docs.vulkan.org/refpages/latest/refpages/source/VK_STD_VULKAN_VIDEO_CODEC_H264_ENCODE_API_VERSION_1_0_0.html)
 #[cfg(feature = "VK_KHR_video_encode_h264")]
 pub const VK_STD_VULKAN_VIDEO_CODEC_H264_ENCODE_API_VERSION_1_0_0: u32 =

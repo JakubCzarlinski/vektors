@@ -696,9 +696,19 @@ use crate::commands::PFN_vkCmdSetFrontFace;
 ))]
 use crate::commands::PFN_vkCmdSetFrontFaceEXT;
 #[cfg(any(
+  all(feature = "VK_EXT_extended_dynamic_state3", feature = "VK_VERSION_1_4"),
+  all(
+    feature = "VK_EXT_extended_dynamic_state3",
+    feature = "VK_KHR_line_rasterization"
+  ),
   all(
     feature = "VK_EXT_extended_dynamic_state3",
     feature = "VK_EXT_line_rasterization"
+  ),
+  all(feature = "VK_EXT_shader_object", feature = "VK_VERSION_1_4"),
+  all(
+    feature = "VK_EXT_shader_object",
+    feature = "VK_KHR_line_rasterization"
   ),
   all(
     feature = "VK_EXT_line_rasterization",
@@ -711,9 +721,19 @@ use crate::commands::PFN_vkCmdSetLineStipple;
 #[cfg(feature = "VK_EXT_line_rasterization")]
 use crate::commands::PFN_vkCmdSetLineStippleEXT;
 #[cfg(any(
+  all(feature = "VK_EXT_extended_dynamic_state3", feature = "VK_VERSION_1_4"),
+  all(
+    feature = "VK_EXT_extended_dynamic_state3",
+    feature = "VK_KHR_line_rasterization"
+  ),
   all(
     feature = "VK_EXT_extended_dynamic_state3",
     feature = "VK_EXT_line_rasterization"
+  ),
+  all(feature = "VK_EXT_shader_object", feature = "VK_VERSION_1_4"),
+  all(
+    feature = "VK_EXT_shader_object",
+    feature = "VK_KHR_line_rasterization"
   ),
   all(
     feature = "VK_EXT_line_rasterization",
@@ -1831,9 +1851,19 @@ pub struct CommandBufferDispatchTable {
   pub vkCmdSetExtraPrimitiveOverestimationSizeEXT:
     Option<PFN_vkCmdSetExtraPrimitiveOverestimationSizeEXT>,
   #[cfg(any(
+    all(feature = "VK_EXT_extended_dynamic_state3", feature = "VK_VERSION_1_4"),
+    all(
+      feature = "VK_EXT_extended_dynamic_state3",
+      feature = "VK_KHR_line_rasterization"
+    ),
     all(
       feature = "VK_EXT_extended_dynamic_state3",
       feature = "VK_EXT_line_rasterization"
+    ),
+    all(feature = "VK_EXT_shader_object", feature = "VK_VERSION_1_4"),
+    all(
+      feature = "VK_EXT_shader_object",
+      feature = "VK_KHR_line_rasterization"
     ),
     all(
       feature = "VK_EXT_line_rasterization",
@@ -1842,9 +1872,19 @@ pub struct CommandBufferDispatchTable {
   ))]
   pub vkCmdSetLineRasterizationModeEXT: Option<PFN_vkCmdSetLineRasterizationModeEXT>,
   #[cfg(any(
+    all(feature = "VK_EXT_extended_dynamic_state3", feature = "VK_VERSION_1_4"),
+    all(
+      feature = "VK_EXT_extended_dynamic_state3",
+      feature = "VK_KHR_line_rasterization"
+    ),
     all(
       feature = "VK_EXT_extended_dynamic_state3",
       feature = "VK_EXT_line_rasterization"
+    ),
+    all(feature = "VK_EXT_shader_object", feature = "VK_VERSION_1_4"),
+    all(
+      feature = "VK_EXT_shader_object",
+      feature = "VK_KHR_line_rasterization"
     ),
     all(
       feature = "VK_EXT_line_rasterization",
@@ -2811,9 +2851,19 @@ impl CommandBufferDispatchTable {
     ))]
     vkCmdSetExtraPrimitiveOverestimationSizeEXT: None,
     #[cfg(any(
+      all(feature = "VK_EXT_extended_dynamic_state3", feature = "VK_VERSION_1_4"),
+      all(
+        feature = "VK_EXT_extended_dynamic_state3",
+        feature = "VK_KHR_line_rasterization"
+      ),
       all(
         feature = "VK_EXT_extended_dynamic_state3",
         feature = "VK_EXT_line_rasterization"
+      ),
+      all(feature = "VK_EXT_shader_object", feature = "VK_VERSION_1_4"),
+      all(
+        feature = "VK_EXT_shader_object",
+        feature = "VK_KHR_line_rasterization"
       ),
       all(
         feature = "VK_EXT_line_rasterization",
@@ -2822,9 +2872,19 @@ impl CommandBufferDispatchTable {
     ))]
     vkCmdSetLineRasterizationModeEXT: None,
     #[cfg(any(
+      all(feature = "VK_EXT_extended_dynamic_state3", feature = "VK_VERSION_1_4"),
+      all(
+        feature = "VK_EXT_extended_dynamic_state3",
+        feature = "VK_KHR_line_rasterization"
+      ),
       all(
         feature = "VK_EXT_extended_dynamic_state3",
         feature = "VK_EXT_line_rasterization"
+      ),
+      all(feature = "VK_EXT_shader_object", feature = "VK_VERSION_1_4"),
+      all(
+        feature = "VK_EXT_shader_object",
+        feature = "VK_KHR_line_rasterization"
       ),
       all(
         feature = "VK_EXT_line_rasterization",
@@ -3913,9 +3973,19 @@ impl CommandBufferDispatchTable {
       )
       .map(|f| unsafe { core::mem::transmute(f) }),
       #[cfg(any(
+        all(feature = "VK_EXT_extended_dynamic_state3", feature = "VK_VERSION_1_4"),
+        all(
+          feature = "VK_EXT_extended_dynamic_state3",
+          feature = "VK_KHR_line_rasterization"
+        ),
         all(
           feature = "VK_EXT_extended_dynamic_state3",
           feature = "VK_EXT_line_rasterization"
+        ),
+        all(feature = "VK_EXT_shader_object", feature = "VK_VERSION_1_4"),
+        all(
+          feature = "VK_EXT_shader_object",
+          feature = "VK_KHR_line_rasterization"
         ),
         all(
           feature = "VK_EXT_line_rasterization",
@@ -3925,9 +3995,19 @@ impl CommandBufferDispatchTable {
       vkCmdSetLineRasterizationModeEXT: loader(c"vkCmdSetLineRasterizationModeEXT".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
       #[cfg(any(
+        all(feature = "VK_EXT_extended_dynamic_state3", feature = "VK_VERSION_1_4"),
+        all(
+          feature = "VK_EXT_extended_dynamic_state3",
+          feature = "VK_KHR_line_rasterization"
+        ),
         all(
           feature = "VK_EXT_extended_dynamic_state3",
           feature = "VK_EXT_line_rasterization"
+        ),
+        all(feature = "VK_EXT_shader_object", feature = "VK_VERSION_1_4"),
+        all(
+          feature = "VK_EXT_shader_object",
+          feature = "VK_KHR_line_rasterization"
         ),
         all(
           feature = "VK_EXT_line_rasterization",
@@ -8193,15 +8273,25 @@ impl<'dev> CommandBuffer<'dev> {
   /// - **Queues:** Graphics
   /// - **Render Pass:** Both
   /// - **Tasks:** State
-  /// - **Availability:** depends on `VK_EXT_line_rasterization`
+  /// - **Availability:** depends on `VK_VERSION_1_4 + VK_KHR_line_rasterization + VK_EXT_line_rasterization`
   ///
   /// # Parameters
   /// - `commandBuffer`
   /// - `lineRasterizationMode`
   #[cfg(any(
+    all(feature = "VK_EXT_extended_dynamic_state3", feature = "VK_VERSION_1_4"),
+    all(
+      feature = "VK_EXT_extended_dynamic_state3",
+      feature = "VK_KHR_line_rasterization"
+    ),
     all(
       feature = "VK_EXT_extended_dynamic_state3",
       feature = "VK_EXT_line_rasterization"
+    ),
+    all(feature = "VK_EXT_shader_object", feature = "VK_VERSION_1_4"),
+    all(
+      feature = "VK_EXT_shader_object",
+      feature = "VK_KHR_line_rasterization"
     ),
     all(
       feature = "VK_EXT_line_rasterization",
@@ -8229,15 +8319,25 @@ impl<'dev> CommandBuffer<'dev> {
   /// - **Queues:** Graphics
   /// - **Render Pass:** Both
   /// - **Tasks:** State
-  /// - **Availability:** depends on `VK_EXT_line_rasterization`
+  /// - **Availability:** depends on `VK_VERSION_1_4 + VK_KHR_line_rasterization + VK_EXT_line_rasterization`
   ///
   /// # Parameters
   /// - `commandBuffer`
   /// - `stippledLineEnable`
   #[cfg(any(
+    all(feature = "VK_EXT_extended_dynamic_state3", feature = "VK_VERSION_1_4"),
+    all(
+      feature = "VK_EXT_extended_dynamic_state3",
+      feature = "VK_KHR_line_rasterization"
+    ),
     all(
       feature = "VK_EXT_extended_dynamic_state3",
       feature = "VK_EXT_line_rasterization"
+    ),
+    all(feature = "VK_EXT_shader_object", feature = "VK_VERSION_1_4"),
+    all(
+      feature = "VK_EXT_shader_object",
+      feature = "VK_KHR_line_rasterization"
     ),
     all(
       feature = "VK_EXT_line_rasterization",

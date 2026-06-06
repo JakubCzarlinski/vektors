@@ -223,15 +223,6 @@ use crate::enums::VkBufferCreateFlagBits;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkBufferUsageFlagBits;
 #[cfg(any(
-  feature = "VK_BASE_VERSION_1_4",
-  feature = "VK_KHR_maintenance5",
-  feature = "VK_AMDX_dense_geometry_format",
-  feature = "VK_QCOM_tile_memory_heap",
-  feature = "VK_EXT_memory_decompression",
-  feature = "VK_EXT_device_generated_commands"
-))]
-use crate::enums::VkBufferUsageFlagBits2;
-#[cfg(any(
   feature = "VK_KHR_acceleration_structure",
   feature = "VK_NV_ray_tracing"
 ))]
@@ -356,6 +347,8 @@ use crate::enums::VkFormat;
   feature = "VK_KHR_video_encode_quantization_map"
 ))]
 use crate::enums::VkFormatFeatureFlagBits2;
+#[cfg(feature = "VK_KHR_extended_flags")]
+use crate::enums::VkFormatFeatureFlagBits4KHR;
 #[cfg(feature = "VK_KHR_fragment_shading_rate")]
 use crate::enums::VkFragmentShadingRateCombinerOpKHR;
 #[cfg(any(
@@ -377,6 +370,8 @@ use crate::enums::VkGeometryTypeKHR;
 use crate::enums::VkImageAspectFlagBits;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkImageCreateFlagBits;
+#[cfg(feature = "VK_KHR_extended_flags")]
+use crate::enums::VkImageCreateFlagBits2KHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkImageLayout;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -385,6 +380,8 @@ use crate::enums::VkImageTiling;
 use crate::enums::VkImageType;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkImageUsageFlagBits;
+#[cfg(feature = "VK_KHR_extended_flags")]
+use crate::enums::VkImageUsageFlagBits2KHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkIndexType;
 #[cfg(feature = "VK_KHR_line_rasterization")]
@@ -449,16 +446,6 @@ use crate::enums::VkPipelineBindPoint;
   feature = "VK_KHR_opacity_micromap"
 ))]
 use crate::enums::VkPipelineCreateFlagBits;
-#[cfg(any(
-  feature = "VK_COMPUTE_VERSION_1_4",
-  feature = "VK_KHR_ray_tracing_pipeline",
-  feature = "VK_KHR_maintenance5",
-  feature = "VK_KHR_pipeline_binary",
-  feature = "VK_EXT_device_generated_commands",
-  feature = "VK_VALVE_fragment_density_map_layered",
-  feature = "VK_EXT_shader_64bit_indexing"
-))]
-use crate::enums::VkPipelineCreateFlagBits2;
 #[cfg(feature = "VK_KHR_pipeline_executable_properties")]
 use crate::enums::VkPipelineExecutableStatisticFormatKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -637,6 +624,8 @@ use crate::enums::VkVideoEncodeH265StdFlagBitsKHR;
 use crate::enums::VkVideoEncodeH265TransformBlockSizeFlagBitsKHR;
 #[cfg(feature = "VK_KHR_video_encode_intra_refresh")]
 use crate::enums::VkVideoEncodeIntraRefreshModeFlagBitsKHR;
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+use crate::enums::VkVideoEncodePerPartitionFeedbackFlagBitsKHR;
 #[cfg(feature = "VK_KHR_video_encode_queue")]
 use crate::enums::VkVideoEncodeRateControlModeFlagBitsKHR;
 #[cfg(feature = "VK_KHR_video_encode_queue")]
@@ -755,6 +744,8 @@ use crate::types::VkFenceCreateInfo;
 use crate::types::VkFenceImportFlags;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkFlags;
+#[cfg(any(feature = "VK_BASE_VERSION_1_3", feature = "VK_KHR_synchronization2"))]
+use crate::types::VkFlags64;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkFormatProperties;
 #[cfg(feature = "VK_BASE_VERSION_1_1")]
@@ -763,6 +754,8 @@ use crate::types::VkFormatProperties2;
 use crate::types::VkFrameBoundaryEXT;
 #[cfg(all(feature = "VK_ARM_tensors", feature = "VK_EXT_frame_boundary"))]
 use crate::types::VkFrameBoundaryTensorsARM;
+#[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
+use crate::types::VkFramebufferAttachmentImageInfo;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 use crate::types::VkFramebufferCreateInfo;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
@@ -836,6 +829,8 @@ use crate::types::VkPhysicalDeviceMemoryProperties;
 use crate::types::VkPhysicalDeviceProperties;
 #[cfg(feature = "VK_BASE_VERSION_1_1")]
 use crate::types::VkPhysicalDeviceProperties2;
+#[cfg(feature = "VK_BASE_VERSION_1_1")]
+use crate::types::VkPhysicalDeviceSparseImageFormatInfo2;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 use crate::types::VkPipeline;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
@@ -956,6 +951,8 @@ use crate::types::VkSwapchainCalibratedTimestampInfoEXT;
 use crate::types::VkSwapchainCounterCreateInfoEXT;
 #[cfg(feature = "VK_AMD_display_native_hdr")]
 use crate::types::VkSwapchainDisplayNativeHdrCreateInfoAMD;
+#[cfg(feature = "VK_EXT_multisampled_render_to_swapchain")]
+use crate::types::VkSwapchainFlagsSurfaceCapabilitiesEXT;
 #[cfg(feature = "VK_NV_low_latency2")]
 use crate::types::VkSwapchainLatencyCreateInfoNV;
 #[cfg(feature = "VK_NV_present_barrier")]
@@ -11926,6 +11923,1088 @@ impl<'a> VkRenderingInputAttachmentIndexInfoKHR<'a> {
     self
   }
 }
+/// [VkFormatFeatureFlags4KHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkFormatFeatureFlags4KHR.html)
+#[cfg(feature = "VK_KHR_extended_flags")]
+pub type VkFormatFeatureFlags4KHR = VkFormatFeatureFlagBits4KHR;
+/// [VkImageUsageFlags2KHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkImageUsageFlags2KHR.html)
+#[cfg(feature = "VK_KHR_extended_flags")]
+pub type VkImageUsageFlags2KHR = VkImageUsageFlagBits2KHR;
+/// [VkImageCreateFlags2KHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkImageCreateFlags2KHR.html)
+#[cfg(feature = "VK_KHR_extended_flags")]
+pub type VkImageCreateFlags2KHR = VkImageCreateFlagBits2KHR;
+/// [VkImageCreateFlags2CreateInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkImageCreateFlags2CreateInfoKHR.html)
+///
+/// *Note: This struct has **required limit types**.*
+///
+/// **Extends:** VkImageCreateInfo, VkPhysicalDeviceImageFormatInfo2, VkFramebufferAttachmentImageInfo, VkVideoFormatPropertiesKHR.
+#[cfg(feature = "VK_KHR_extended_flags")]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkImageCreateFlags2CreateInfoKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_IMAGE_CREATE_FLAGS_2_CREATE_INFO_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  /// Limit Type: [Bitmask]
+  pub flags: VkImageCreateFlags2KHR,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(feature = "VK_KHR_extended_flags")]
+unsafe impl<'a> Send for VkImageCreateFlags2CreateInfoKHR<'a> {}
+#[cfg(feature = "VK_KHR_extended_flags")]
+unsafe impl<'a> Sync for VkImageCreateFlags2CreateInfoKHR<'a> {}
+#[cfg(all(feature = "VK_KHR_extended_flags", feature = "VK_BASE_VERSION_1_0"))]
+unsafe impl<'child, 'root> VkPNextExtends<VkImageCreateInfo<'root>>
+  for VkImageCreateFlags2CreateInfoKHR<'child>
+{
+}
+#[cfg(all(feature = "VK_KHR_extended_flags", feature = "VK_BASE_VERSION_1_1"))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceImageFormatInfo2<'root>>
+  for VkImageCreateFlags2CreateInfoKHR<'child>
+{
+}
+#[cfg(all(feature = "VK_KHR_extended_flags", feature = "VK_GRAPHICS_VERSION_1_2"))]
+unsafe impl<'child, 'root> VkPNextExtends<VkFramebufferAttachmentImageInfo<'root>>
+  for VkImageCreateFlags2CreateInfoKHR<'child>
+{
+}
+#[cfg(all(feature = "VK_KHR_extended_flags", feature = "VK_KHR_video_queue"))]
+unsafe impl<'child, 'root> VkPNextExtends<VkVideoFormatPropertiesKHR<'root>>
+  for VkImageCreateFlags2CreateInfoKHR<'child>
+{
+}
+#[cfg(feature = "VK_KHR_extended_flags")]
+impl<'a> VkImageCreateFlags2CreateInfoKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::IMAGE_CREATE_FLAGS_2_CREATE_INFO_KHR,
+    pNext: core::ptr::null_mut(),
+    flags: VkImageCreateFlagBits2KHR(0),
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_flags(mut self, val: VkImageCreateFlags2KHR) -> Self {
+    self.flags = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkImageCreateInfo<
+    'root,
+    T: VkPNextExtends<VkImageCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceImageFormatInfo2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceImageFormatInfo2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkFramebufferAttachmentImageInfo<
+    'root,
+    T: VkPNextExtends<VkFramebufferAttachmentImageInfo<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_KHR_video_queue")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkVideoFormatPropertiesKHR<
+    'root,
+    T: VkPNextExtends<VkVideoFormatPropertiesKHR<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkImageUsageFlags2CreateInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkImageUsageFlags2CreateInfoKHR.html)
+///
+/// *Note: This struct has **required limit types**.*
+///
+/// **Extends:** VkFramebufferAttachmentImageInfo, VkImageCreateInfo, VkPhysicalDeviceImageFormatInfo2, VkPhysicalDeviceSparseImageFormatInfo2, VkPhysicalDeviceVideoFormatInfoKHR, VkSurfaceCapabilities2KHR, VkSwapchainCreateInfoKHR, VkVideoFormatPropertiesKHR.
+#[cfg(feature = "VK_KHR_extended_flags")]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkImageUsageFlags2CreateInfoKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_IMAGE_USAGE_FLAGS_2_CREATE_INFO_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  /// Limit Type: [Bitmask]
+  pub usage: VkImageUsageFlags2KHR,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(feature = "VK_KHR_extended_flags")]
+unsafe impl<'a> Send for VkImageUsageFlags2CreateInfoKHR<'a> {}
+#[cfg(feature = "VK_KHR_extended_flags")]
+unsafe impl<'a> Sync for VkImageUsageFlags2CreateInfoKHR<'a> {}
+#[cfg(all(feature = "VK_KHR_extended_flags", feature = "VK_GRAPHICS_VERSION_1_2"))]
+unsafe impl<'child, 'root> VkPNextExtends<VkFramebufferAttachmentImageInfo<'root>>
+  for VkImageUsageFlags2CreateInfoKHR<'child>
+{
+}
+#[cfg(all(feature = "VK_KHR_extended_flags", feature = "VK_BASE_VERSION_1_0"))]
+unsafe impl<'child, 'root> VkPNextExtends<VkImageCreateInfo<'root>>
+  for VkImageUsageFlags2CreateInfoKHR<'child>
+{
+}
+#[cfg(all(feature = "VK_KHR_extended_flags", feature = "VK_BASE_VERSION_1_1"))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceImageFormatInfo2<'root>>
+  for VkImageUsageFlags2CreateInfoKHR<'child>
+{
+}
+#[cfg(all(feature = "VK_KHR_extended_flags", feature = "VK_BASE_VERSION_1_1"))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceSparseImageFormatInfo2<'root>>
+  for VkImageUsageFlags2CreateInfoKHR<'child>
+{
+}
+#[cfg(all(feature = "VK_KHR_extended_flags", feature = "VK_KHR_video_queue"))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceVideoFormatInfoKHR<'root>>
+  for VkImageUsageFlags2CreateInfoKHR<'child>
+{
+}
+#[cfg(all(
+  feature = "VK_KHR_extended_flags",
+  feature = "VK_KHR_get_surface_capabilities2"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkSurfaceCapabilities2KHR<'root>>
+  for VkImageUsageFlags2CreateInfoKHR<'child>
+{
+}
+#[cfg(all(feature = "VK_KHR_extended_flags", feature = "VK_KHR_swapchain"))]
+unsafe impl<'child, 'root> VkPNextExtends<VkSwapchainCreateInfoKHR<'root>>
+  for VkImageUsageFlags2CreateInfoKHR<'child>
+{
+}
+#[cfg(all(feature = "VK_KHR_extended_flags", feature = "VK_KHR_video_queue"))]
+unsafe impl<'child, 'root> VkPNextExtends<VkVideoFormatPropertiesKHR<'root>>
+  for VkImageUsageFlags2CreateInfoKHR<'child>
+{
+}
+#[cfg(feature = "VK_KHR_extended_flags")]
+impl<'a> VkImageUsageFlags2CreateInfoKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::IMAGE_USAGE_FLAGS_2_CREATE_INFO_KHR,
+    pNext: core::ptr::null_mut(),
+    usage: VkImageUsageFlagBits2KHR(0),
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_usage(mut self, val: VkImageUsageFlags2KHR) -> Self {
+    self.usage = val;
+    self
+  }
+  #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkFramebufferAttachmentImageInfo<
+    'root,
+    T: VkPNextExtends<VkFramebufferAttachmentImageInfo<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkImageCreateInfo<
+    'root,
+    T: VkPNextExtends<VkImageCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceImageFormatInfo2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceImageFormatInfo2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceSparseImageFormatInfo2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceSparseImageFormatInfo2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_KHR_video_queue")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceVideoFormatInfoKHR<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceVideoFormatInfoKHR<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_KHR_get_surface_capabilities2")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkSurfaceCapabilities2KHR<
+    'root,
+    T: VkPNextExtends<VkSurfaceCapabilities2KHR<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_KHR_swapchain")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkSwapchainCreateInfoKHR<
+    'root,
+    T: VkPNextExtends<VkSwapchainCreateInfoKHR<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_KHR_video_queue")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkVideoFormatPropertiesKHR<
+    'root,
+    T: VkPNextExtends<VkVideoFormatPropertiesKHR<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkSharedPresentSurfaceCapabilities2KHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkSharedPresentSurfaceCapabilities2KHR.html)
+///
+/// *Note: This is a **returned only** struct.*
+///
+/// **Extends:** VkSurfaceCapabilities2KHR.
+///
+/// **Availability:** depends on `VK_KHR_shared_presentable_image`.
+#[cfg(all(
+  feature = "VK_KHR_extended_flags",
+  feature = "VK_KHR_shared_presentable_image"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkSharedPresentSurfaceCapabilities2KHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_2_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  /// Optional: true
+  pub sharedPresentSupportedUsageFlags: VkImageUsageFlags2KHR,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(all(
+  feature = "VK_KHR_extended_flags",
+  feature = "VK_KHR_shared_presentable_image"
+))]
+unsafe impl<'a> Send for VkSharedPresentSurfaceCapabilities2KHR<'a> {}
+#[cfg(all(
+  feature = "VK_KHR_extended_flags",
+  feature = "VK_KHR_shared_presentable_image"
+))]
+unsafe impl<'a> Sync for VkSharedPresentSurfaceCapabilities2KHR<'a> {}
+#[cfg(all(
+  all(
+    feature = "VK_KHR_extended_flags",
+    feature = "VK_KHR_shared_presentable_image"
+  ),
+  feature = "VK_KHR_get_surface_capabilities2"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkSurfaceCapabilities2KHR<'root>>
+  for VkSharedPresentSurfaceCapabilities2KHR<'child>
+{
+}
+#[cfg(all(
+  feature = "VK_KHR_extended_flags",
+  feature = "VK_KHR_shared_presentable_image"
+))]
+impl<'a> VkSharedPresentSurfaceCapabilities2KHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::SHARED_PRESENT_SURFACE_CAPABILITIES_2_KHR,
+    pNext: core::ptr::null_mut(),
+    sharedPresentSupportedUsageFlags: VkImageUsageFlagBits2KHR(0),
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_sharedPresentSupportedUsageFlags(mut self, val: VkImageUsageFlags2KHR) -> Self {
+    self.sharedPresentSupportedUsageFlags = val;
+    self
+  }
+  #[cfg(feature = "VK_KHR_get_surface_capabilities2")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkSurfaceCapabilities2KHR<
+    'root,
+    T: VkPNextExtends<VkSurfaceCapabilities2KHR<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkImageViewUsage2CreateInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkImageViewUsage2CreateInfoKHR.html)
+///
+/// **Extends:** VkImageViewCreateInfo.
+#[cfg(feature = "VK_KHR_extended_flags")]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkImageViewUsage2CreateInfoKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_IMAGE_VIEW_USAGE_2_CREATE_INFO_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  pub usage: VkImageUsageFlags2KHR,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(feature = "VK_KHR_extended_flags")]
+unsafe impl<'a> Send for VkImageViewUsage2CreateInfoKHR<'a> {}
+#[cfg(feature = "VK_KHR_extended_flags")]
+unsafe impl<'a> Sync for VkImageViewUsage2CreateInfoKHR<'a> {}
+#[cfg(all(feature = "VK_KHR_extended_flags", feature = "VK_BASE_VERSION_1_0"))]
+unsafe impl<'child, 'root> VkPNextExtends<VkImageViewCreateInfo<'root>>
+  for VkImageViewUsage2CreateInfoKHR<'child>
+{
+}
+#[cfg(feature = "VK_KHR_extended_flags")]
+impl<'a> VkImageViewUsage2CreateInfoKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::IMAGE_VIEW_USAGE_2_CREATE_INFO_KHR,
+    pNext: core::ptr::null_mut(),
+    usage: VkImageUsageFlagBits2KHR(0),
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_usage(mut self, val: VkImageUsageFlags2KHR) -> Self {
+    self.usage = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkImageViewCreateInfo<
+    'root,
+    T: VkPNextExtends<VkImageViewCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkImageStencilUsage2CreateInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkImageStencilUsage2CreateInfoKHR.html)
+///
+/// **Extends:** VkImageCreateInfo, VkPhysicalDeviceImageFormatInfo2.
+///
+/// **Availability:** depends on `VK_VERSION_1_2 + VK_EXT_separate_stencil_usage`.
+#[cfg(any(
+  all(feature = "VK_KHR_extended_flags", feature = "VK_VERSION_1_2"),
+  all(
+    feature = "VK_EXT_separate_stencil_usage",
+    feature = "VK_KHR_extended_flags"
+  )
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkImageStencilUsage2CreateInfoKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_IMAGE_STENCIL_USAGE_2_CREATE_INFO_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  pub stencilUsage: VkImageUsageFlags2KHR,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(
+  all(feature = "VK_KHR_extended_flags", feature = "VK_VERSION_1_2"),
+  all(
+    feature = "VK_EXT_separate_stencil_usage",
+    feature = "VK_KHR_extended_flags"
+  )
+))]
+unsafe impl<'a> Send for VkImageStencilUsage2CreateInfoKHR<'a> {}
+#[cfg(any(
+  all(feature = "VK_KHR_extended_flags", feature = "VK_VERSION_1_2"),
+  all(
+    feature = "VK_EXT_separate_stencil_usage",
+    feature = "VK_KHR_extended_flags"
+  )
+))]
+unsafe impl<'a> Sync for VkImageStencilUsage2CreateInfoKHR<'a> {}
+#[cfg(all(
+  any(
+    all(feature = "VK_KHR_extended_flags", feature = "VK_VERSION_1_2"),
+    all(
+      feature = "VK_EXT_separate_stencil_usage",
+      feature = "VK_KHR_extended_flags"
+    )
+  ),
+  feature = "VK_BASE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkImageCreateInfo<'root>>
+  for VkImageStencilUsage2CreateInfoKHR<'child>
+{
+}
+#[cfg(all(
+  any(
+    all(feature = "VK_KHR_extended_flags", feature = "VK_VERSION_1_2"),
+    all(
+      feature = "VK_EXT_separate_stencil_usage",
+      feature = "VK_KHR_extended_flags"
+    )
+  ),
+  feature = "VK_BASE_VERSION_1_1"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceImageFormatInfo2<'root>>
+  for VkImageStencilUsage2CreateInfoKHR<'child>
+{
+}
+#[cfg(any(
+  all(feature = "VK_KHR_extended_flags", feature = "VK_VERSION_1_2"),
+  all(
+    feature = "VK_EXT_separate_stencil_usage",
+    feature = "VK_KHR_extended_flags"
+  )
+))]
+impl<'a> VkImageStencilUsage2CreateInfoKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::IMAGE_STENCIL_USAGE_2_CREATE_INFO_KHR,
+    pNext: core::ptr::null_mut(),
+    stencilUsage: VkImageUsageFlagBits2KHR(0),
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_stencilUsage(mut self, val: VkImageUsageFlags2KHR) -> Self {
+    self.stencilUsage = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkImageCreateInfo<
+    'root,
+    T: VkPNextExtends<VkImageCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceImageFormatInfo2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceImageFormatInfo2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkPhysicalDeviceExtendedFlagsFeaturesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceExtendedFlagsFeaturesKHR.html)
+///
+/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
+#[cfg(feature = "VK_KHR_extended_flags")]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPhysicalDeviceExtendedFlagsFeaturesKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_FLAGS_FEATURES_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  pub extendedFlags: VkBool32,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(feature = "VK_KHR_extended_flags")]
+unsafe impl<'a> Send for VkPhysicalDeviceExtendedFlagsFeaturesKHR<'a> {}
+#[cfg(feature = "VK_KHR_extended_flags")]
+unsafe impl<'a> Sync for VkPhysicalDeviceExtendedFlagsFeaturesKHR<'a> {}
+#[cfg(all(feature = "VK_KHR_extended_flags", feature = "VK_BASE_VERSION_1_1"))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
+  for VkPhysicalDeviceExtendedFlagsFeaturesKHR<'child>
+{
+}
+#[cfg(all(feature = "VK_KHR_extended_flags", feature = "VK_BASE_VERSION_1_0"))]
+unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
+  for VkPhysicalDeviceExtendedFlagsFeaturesKHR<'child>
+{
+}
+#[cfg(feature = "VK_KHR_extended_flags")]
+impl<'a> VkPhysicalDeviceExtendedFlagsFeaturesKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::PHYSICAL_DEVICE_EXTENDED_FLAGS_FEATURES_KHR,
+    pNext: core::ptr::null_mut(),
+    extendedFlags: 0,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_extendedFlags(mut self, val: VkBool32) -> Self {
+    self.extendedFlags = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkDeviceCreateInfo<
+    'root,
+    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkFormatProperties4KHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkFormatProperties4KHR.html)
+///
+/// *Note: This is a **returned only** struct.*
+///
+/// *Note: This struct has **required limit types**.*
+///
+/// **Extends:** VkFormatProperties2.
+#[cfg(feature = "VK_KHR_extended_flags")]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkFormatProperties4KHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_4_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  /// Optional: true,  Limit Type: [Bitmask]
+  pub linearTilingFeatures: VkFormatFeatureFlags4KHR,
+  /// Optional: true,  Limit Type: [Bitmask]
+  pub optimalTilingFeatures: VkFormatFeatureFlags4KHR,
+  /// Optional: true,  Limit Type: [Bitmask]
+  pub bufferFeatures: VkFormatFeatureFlags4KHR,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(feature = "VK_KHR_extended_flags")]
+unsafe impl<'a> Send for VkFormatProperties4KHR<'a> {}
+#[cfg(feature = "VK_KHR_extended_flags")]
+unsafe impl<'a> Sync for VkFormatProperties4KHR<'a> {}
+#[cfg(all(feature = "VK_KHR_extended_flags", feature = "VK_BASE_VERSION_1_1"))]
+unsafe impl<'child, 'root> VkPNextExtends<VkFormatProperties2<'root>>
+  for VkFormatProperties4KHR<'child>
+{
+}
+#[cfg(feature = "VK_KHR_extended_flags")]
+impl<'a> VkFormatProperties4KHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::FORMAT_PROPERTIES_4_KHR,
+    pNext: core::ptr::null_mut(),
+    linearTilingFeatures: VkFormatFeatureFlagBits4KHR(0),
+    optimalTilingFeatures: VkFormatFeatureFlagBits4KHR(0),
+    bufferFeatures: VkFormatFeatureFlagBits4KHR(0),
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_linearTilingFeatures(mut self, val: VkFormatFeatureFlags4KHR) -> Self {
+    self.linearTilingFeatures = val;
+    self
+  }
+  #[inline]
+  pub const fn with_optimalTilingFeatures(mut self, val: VkFormatFeatureFlags4KHR) -> Self {
+    self.optimalTilingFeatures = val;
+    self
+  }
+  #[inline]
+  pub const fn with_bufferFeatures(mut self, val: VkFormatFeatureFlags4KHR) -> Self {
+    self.bufferFeatures = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkFormatProperties2<
+    'root,
+    T: VkPNextExtends<VkFormatProperties2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkPipelineCreateFlags2KHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPipelineCreateFlags2KHR.html)
+#[cfg(any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"))]
+pub type VkPipelineCreateFlags2KHR = VkFlags64;
+/// [VkBufferUsageFlags2KHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkBufferUsageFlags2KHR.html)
+#[cfg(any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"))]
+pub type VkBufferUsageFlags2KHR = VkFlags64;
+/// [VkBufferUsageFlags2CreateInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkBufferUsageFlags2CreateInfoKHR.html)
+///
+/// **Extends:** VkBufferViewCreateInfo, VkBufferCreateInfo, VkPhysicalDeviceExternalBufferInfo, VkDescriptorBufferBindingInfoEXT.
+#[cfg(any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkBufferUsageFlags2CreateInfoKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_BUFFER_USAGE_FLAGS_2_CREATE_INFO
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *const c_void,
+  pub usage: VkBufferUsageFlags2KHR,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"))]
+unsafe impl<'a> Send for VkBufferUsageFlags2CreateInfoKHR<'a> {}
+#[cfg(any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"))]
+unsafe impl<'a> Sync for VkBufferUsageFlags2CreateInfoKHR<'a> {}
+#[cfg(all(
+  any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"),
+  feature = "VK_COMPUTE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkBufferViewCreateInfo<'root>>
+  for VkBufferUsageFlags2CreateInfoKHR<'child>
+{
+}
+#[cfg(all(
+  any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"),
+  feature = "VK_BASE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkBufferCreateInfo<'root>>
+  for VkBufferUsageFlags2CreateInfoKHR<'child>
+{
+}
+#[cfg(all(
+  any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"),
+  feature = "VK_BASE_VERSION_1_1"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceExternalBufferInfo<'root>>
+  for VkBufferUsageFlags2CreateInfoKHR<'child>
+{
+}
+#[cfg(all(
+  any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"),
+  feature = "VK_EXT_descriptor_buffer"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkDescriptorBufferBindingInfoEXT<'root>>
+  for VkBufferUsageFlags2CreateInfoKHR<'child>
+{
+}
+#[cfg(any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"))]
+impl<'a> VkBufferUsageFlags2CreateInfoKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::BUFFER_USAGE_FLAGS_2_CREATE_INFO_KHR,
+    pNext: core::ptr::null(),
+    usage: 0,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_usage(mut self, val: VkBufferUsageFlags2KHR) -> Self {
+    self.usage = val;
+    self
+  }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkBufferViewCreateInfo<
+    'root,
+    T: VkPNextExtends<VkBufferViewCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a T,
+  ) -> Self {
+    self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkBufferCreateInfo<
+    'root,
+    T: VkPNextExtends<VkBufferCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a T,
+  ) -> Self {
+    self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceExternalBufferInfo<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceExternalBufferInfo<'root>>,
+  >(
+    mut self,
+    val: &'a T,
+  ) -> Self {
+    self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_EXT_descriptor_buffer")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkDescriptorBufferBindingInfoEXT<
+    'root,
+    T: VkPNextExtends<VkDescriptorBufferBindingInfoEXT<'root>>,
+  >(
+    mut self,
+    val: &'a T,
+  ) -> Self {
+    self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+}
+/// [VkPipelineCreateFlags2CreateInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPipelineCreateFlags2CreateInfoKHR.html)
+///
+/// **Extends:** VkComputePipelineCreateInfo, VkGraphicsPipelineCreateInfo, VkRayTracingPipelineCreateInfoNV, VkRayTracingPipelineCreateInfoKHR.
+#[cfg(any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPipelineCreateFlags2CreateInfoKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PIPELINE_CREATE_FLAGS_2_CREATE_INFO
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *const c_void,
+  /// Optional: true
+  pub flags: VkPipelineCreateFlags2KHR,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"))]
+unsafe impl<'a> Send for VkPipelineCreateFlags2CreateInfoKHR<'a> {}
+#[cfg(any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"))]
+unsafe impl<'a> Sync for VkPipelineCreateFlags2CreateInfoKHR<'a> {}
+#[cfg(all(
+  any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"),
+  feature = "VK_COMPUTE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkComputePipelineCreateInfo<'root>>
+  for VkPipelineCreateFlags2CreateInfoKHR<'child>
+{
+}
+#[cfg(all(
+  any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"),
+  feature = "VK_GRAPHICS_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkGraphicsPipelineCreateInfo<'root>>
+  for VkPipelineCreateFlags2CreateInfoKHR<'child>
+{
+}
+#[cfg(all(
+  any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"),
+  feature = "VK_NV_ray_tracing"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkRayTracingPipelineCreateInfoNV<'root>>
+  for VkPipelineCreateFlags2CreateInfoKHR<'child>
+{
+}
+#[cfg(all(
+  any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"),
+  feature = "VK_KHR_ray_tracing_pipeline"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkRayTracingPipelineCreateInfoKHR<'root>>
+  for VkPipelineCreateFlags2CreateInfoKHR<'child>
+{
+}
+#[cfg(any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"))]
+impl<'a> VkPipelineCreateFlags2CreateInfoKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::PIPELINE_CREATE_FLAGS_2_CREATE_INFO_KHR,
+    pNext: core::ptr::null(),
+    flags: 0,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_flags(mut self, val: VkPipelineCreateFlags2KHR) -> Self {
+    self.flags = val;
+    self
+  }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkComputePipelineCreateInfo<
+    'root,
+    T: VkPNextExtends<VkComputePipelineCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a T,
+  ) -> Self {
+    self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkGraphicsPipelineCreateInfo<
+    'root,
+    T: VkPNextExtends<VkGraphicsPipelineCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a T,
+  ) -> Self {
+    self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_NV_ray_tracing")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkRayTracingPipelineCreateInfoNV<
+    'root,
+    T: VkPNextExtends<VkRayTracingPipelineCreateInfoNV<'root>>,
+  >(
+    mut self,
+    val: &'a T,
+  ) -> Self {
+    self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_KHR_ray_tracing_pipeline")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkRayTracingPipelineCreateInfoKHR<
+    'root,
+    T: VkPNextExtends<VkRayTracingPipelineCreateInfoKHR<'root>>,
+  >(
+    mut self,
+    val: &'a T,
+  ) -> Self {
+    self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+}
 /// [VkFenceImportFlagsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkFenceImportFlagsKHR.html)
 #[cfg(feature = "VK_KHR_external_fence")]
 pub type VkFenceImportFlagsKHR = VkFenceImportFlagBits;
@@ -14694,7 +15773,12 @@ impl<'a> VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR<'a> {
 /// *Note: This struct has **required limit types**.*
 ///
 /// **Extends:** VkPhysicalDeviceProperties2.
-#[cfg(feature = "VK_KHR_fragment_shader_barycentric")]
+///
+/// **Availability:** depends on `VK_EXT_provoking_vertex`.
+#[cfg(all(
+  feature = "VK_EXT_provoking_vertex",
+  feature = "VK_KHR_fragment_shader_barycentric"
+))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR<'a> {
@@ -14707,19 +15791,31 @@ pub struct VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR<'a> {
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
-#[cfg(feature = "VK_KHR_fragment_shader_barycentric")]
+#[cfg(all(
+  feature = "VK_EXT_provoking_vertex",
+  feature = "VK_KHR_fragment_shader_barycentric"
+))]
 unsafe impl<'a> Send for VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR<'a> {}
-#[cfg(feature = "VK_KHR_fragment_shader_barycentric")]
+#[cfg(all(
+  feature = "VK_EXT_provoking_vertex",
+  feature = "VK_KHR_fragment_shader_barycentric"
+))]
 unsafe impl<'a> Sync for VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR<'a> {}
 #[cfg(all(
-  feature = "VK_KHR_fragment_shader_barycentric",
+  all(
+    feature = "VK_EXT_provoking_vertex",
+    feature = "VK_KHR_fragment_shader_barycentric"
+  ),
   feature = "VK_BASE_VERSION_1_1"
 ))]
 unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
   for VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR<'child>
 {
 }
-#[cfg(feature = "VK_KHR_fragment_shader_barycentric")]
+#[cfg(all(
+  feature = "VK_EXT_provoking_vertex",
+  feature = "VK_KHR_fragment_shader_barycentric"
+))]
 impl<'a> VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_PROPERTIES_KHR,
@@ -16822,6 +17918,18 @@ impl<'a> VkSurfaceCapabilities2KHR<'a> {
     self.pNext = (val as *mut VkDisplayNativeHdrSurfaceCapabilitiesAMD<'child>).cast::<c_void>();
     self
   }
+  #[cfg(feature = "VK_KHR_extended_flags")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkImageUsageFlags2CreateInfoKHR<'child>(
+    mut self,
+    val: &'a mut VkImageUsageFlags2CreateInfoKHR<'child>,
+  ) -> Self {
+    self.pNext = (val as *mut VkImageUsageFlags2CreateInfoKHR<'child>).cast::<c_void>();
+    self
+  }
   #[cfg(feature = "VK_NV_low_latency2")]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
@@ -16844,6 +17952,21 @@ impl<'a> VkSurfaceCapabilities2KHR<'a> {
     val: &'a mut VkPresentTimingSurfaceCapabilitiesEXT<'child>,
   ) -> Self {
     self.pNext = (val as *mut VkPresentTimingSurfaceCapabilitiesEXT<'child>).cast::<c_void>();
+    self
+  }
+  #[cfg(all(
+    feature = "VK_KHR_extended_flags",
+    feature = "VK_KHR_shared_presentable_image"
+  ))]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkSharedPresentSurfaceCapabilities2KHR<'child>(
+    mut self,
+    val: &'a mut VkSharedPresentSurfaceCapabilities2KHR<'child>,
+  ) -> Self {
+    self.pNext = (val as *mut VkSharedPresentSurfaceCapabilities2KHR<'child>).cast::<c_void>();
     self
   }
   #[cfg(feature = "VK_KHR_shared_presentable_image")]
@@ -16940,6 +18063,18 @@ impl<'a> VkSurfaceCapabilities2KHR<'a> {
     val: &'a mut VkSurfaceProtectedCapabilitiesKHR<'child>,
   ) -> Self {
     self.pNext = (val as *mut VkSurfaceProtectedCapabilitiesKHR<'child>).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_EXT_multisampled_render_to_swapchain")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkSwapchainFlagsSurfaceCapabilitiesEXT<'child>(
+    mut self,
+    val: &'a mut VkSwapchainFlagsSurfaceCapabilitiesEXT<'child>,
+  ) -> Self {
+    self.pNext = (val as *mut VkSwapchainFlagsSurfaceCapabilitiesEXT<'child>).cast::<c_void>();
     self
   }
   #[cfg(feature = "VK_KHR_get_surface_capabilities2")]
@@ -19644,266 +20779,6 @@ impl<'a> VkPhysicalDeviceMaintenance4PropertiesKHR<'a> {
     val: &'a mut T,
   ) -> Self {
     self.pNext = (val as *mut T).cast::<c_void>();
-    self
-  }
-}
-/// [VkPipelineCreateFlags2KHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPipelineCreateFlags2KHR.html)
-#[cfg(feature = "VK_KHR_maintenance5")]
-pub type VkPipelineCreateFlags2KHR = VkPipelineCreateFlagBits2;
-/// [VkBufferUsageFlags2KHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkBufferUsageFlags2KHR.html)
-#[cfg(feature = "VK_KHR_maintenance5")]
-pub type VkBufferUsageFlags2KHR = VkBufferUsageFlagBits2;
-/// [VkBufferUsageFlags2CreateInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkBufferUsageFlags2CreateInfoKHR.html)
-///
-/// **Extends:** VkBufferViewCreateInfo, VkBufferCreateInfo, VkPhysicalDeviceExternalBufferInfo, VkDescriptorBufferBindingInfoEXT.
-#[cfg(feature = "VK_KHR_maintenance5")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkBufferUsageFlags2CreateInfoKHR<'a> {
-  /// Values: VK_STRUCTURE_TYPE_BUFFER_USAGE_FLAGS_2_CREATE_INFO
-  pub sType: VkStructureType,
-  /// Optional: true
-  pub pNext: *const c_void,
-  pub usage: VkBufferUsageFlags2KHR,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
-}
-#[cfg(feature = "VK_KHR_maintenance5")]
-unsafe impl<'a> Send for VkBufferUsageFlags2CreateInfoKHR<'a> {}
-#[cfg(feature = "VK_KHR_maintenance5")]
-unsafe impl<'a> Sync for VkBufferUsageFlags2CreateInfoKHR<'a> {}
-#[cfg(all(feature = "VK_KHR_maintenance5", feature = "VK_COMPUTE_VERSION_1_0"))]
-unsafe impl<'child, 'root> VkPNextExtends<VkBufferViewCreateInfo<'root>>
-  for VkBufferUsageFlags2CreateInfoKHR<'child>
-{
-}
-#[cfg(all(feature = "VK_KHR_maintenance5", feature = "VK_BASE_VERSION_1_0"))]
-unsafe impl<'child, 'root> VkPNextExtends<VkBufferCreateInfo<'root>>
-  for VkBufferUsageFlags2CreateInfoKHR<'child>
-{
-}
-#[cfg(all(feature = "VK_KHR_maintenance5", feature = "VK_BASE_VERSION_1_1"))]
-unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceExternalBufferInfo<'root>>
-  for VkBufferUsageFlags2CreateInfoKHR<'child>
-{
-}
-#[cfg(all(feature = "VK_KHR_maintenance5", feature = "VK_EXT_descriptor_buffer"))]
-unsafe impl<'child, 'root> VkPNextExtends<VkDescriptorBufferBindingInfoEXT<'root>>
-  for VkBufferUsageFlags2CreateInfoKHR<'child>
-{
-}
-#[cfg(feature = "VK_KHR_maintenance5")]
-impl<'a> VkBufferUsageFlags2CreateInfoKHR<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::BUFFER_USAGE_FLAGS_2_CREATE_INFO_KHR,
-    pNext: core::ptr::null(),
-    usage: VkBufferUsageFlagBits2(0),
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[inline]
-  pub const fn with_usage(mut self, val: VkBufferUsageFlags2KHR) -> Self {
-    self.usage = val;
-    self
-  }
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkBufferViewCreateInfo<
-    'root,
-    T: VkPNextExtends<VkBufferViewCreateInfo<'root>>,
-  >(
-    mut self,
-    val: &'a T,
-  ) -> Self {
-    self.pNext = (val as *const T).cast::<c_void>();
-    self
-  }
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkBufferCreateInfo<
-    'root,
-    T: VkPNextExtends<VkBufferCreateInfo<'root>>,
-  >(
-    mut self,
-    val: &'a T,
-  ) -> Self {
-    self.pNext = (val as *const T).cast::<c_void>();
-    self
-  }
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkPhysicalDeviceExternalBufferInfo<
-    'root,
-    T: VkPNextExtends<VkPhysicalDeviceExternalBufferInfo<'root>>,
-  >(
-    mut self,
-    val: &'a T,
-  ) -> Self {
-    self.pNext = (val as *const T).cast::<c_void>();
-    self
-  }
-  #[cfg(feature = "VK_EXT_descriptor_buffer")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkDescriptorBufferBindingInfoEXT<
-    'root,
-    T: VkPNextExtends<VkDescriptorBufferBindingInfoEXT<'root>>,
-  >(
-    mut self,
-    val: &'a T,
-  ) -> Self {
-    self.pNext = (val as *const T).cast::<c_void>();
-    self
-  }
-}
-/// [VkPipelineCreateFlags2CreateInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPipelineCreateFlags2CreateInfoKHR.html)
-///
-/// **Extends:** VkComputePipelineCreateInfo, VkGraphicsPipelineCreateInfo, VkRayTracingPipelineCreateInfoNV, VkRayTracingPipelineCreateInfoKHR.
-#[cfg(feature = "VK_KHR_maintenance5")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkPipelineCreateFlags2CreateInfoKHR<'a> {
-  /// Values: VK_STRUCTURE_TYPE_PIPELINE_CREATE_FLAGS_2_CREATE_INFO
-  pub sType: VkStructureType,
-  /// Optional: true
-  pub pNext: *const c_void,
-  /// Optional: true
-  pub flags: VkPipelineCreateFlags2KHR,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
-}
-#[cfg(feature = "VK_KHR_maintenance5")]
-unsafe impl<'a> Send for VkPipelineCreateFlags2CreateInfoKHR<'a> {}
-#[cfg(feature = "VK_KHR_maintenance5")]
-unsafe impl<'a> Sync for VkPipelineCreateFlags2CreateInfoKHR<'a> {}
-#[cfg(all(feature = "VK_KHR_maintenance5", feature = "VK_COMPUTE_VERSION_1_0"))]
-unsafe impl<'child, 'root> VkPNextExtends<VkComputePipelineCreateInfo<'root>>
-  for VkPipelineCreateFlags2CreateInfoKHR<'child>
-{
-}
-#[cfg(all(feature = "VK_KHR_maintenance5", feature = "VK_GRAPHICS_VERSION_1_0"))]
-unsafe impl<'child, 'root> VkPNextExtends<VkGraphicsPipelineCreateInfo<'root>>
-  for VkPipelineCreateFlags2CreateInfoKHR<'child>
-{
-}
-#[cfg(all(feature = "VK_KHR_maintenance5", feature = "VK_NV_ray_tracing"))]
-unsafe impl<'child, 'root> VkPNextExtends<VkRayTracingPipelineCreateInfoNV<'root>>
-  for VkPipelineCreateFlags2CreateInfoKHR<'child>
-{
-}
-#[cfg(all(
-  feature = "VK_KHR_maintenance5",
-  feature = "VK_KHR_ray_tracing_pipeline"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkRayTracingPipelineCreateInfoKHR<'root>>
-  for VkPipelineCreateFlags2CreateInfoKHR<'child>
-{
-}
-#[cfg(feature = "VK_KHR_maintenance5")]
-impl<'a> VkPipelineCreateFlags2CreateInfoKHR<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::PIPELINE_CREATE_FLAGS_2_CREATE_INFO_KHR,
-    pNext: core::ptr::null(),
-    flags: VkPipelineCreateFlagBits2(0),
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[inline]
-  pub const fn with_flags(mut self, val: VkPipelineCreateFlags2KHR) -> Self {
-    self.flags = val;
-    self
-  }
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkComputePipelineCreateInfo<
-    'root,
-    T: VkPNextExtends<VkComputePipelineCreateInfo<'root>>,
-  >(
-    mut self,
-    val: &'a T,
-  ) -> Self {
-    self.pNext = (val as *const T).cast::<c_void>();
-    self
-  }
-  #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkGraphicsPipelineCreateInfo<
-    'root,
-    T: VkPNextExtends<VkGraphicsPipelineCreateInfo<'root>>,
-  >(
-    mut self,
-    val: &'a T,
-  ) -> Self {
-    self.pNext = (val as *const T).cast::<c_void>();
-    self
-  }
-  #[cfg(feature = "VK_NV_ray_tracing")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkRayTracingPipelineCreateInfoNV<
-    'root,
-    T: VkPNextExtends<VkRayTracingPipelineCreateInfoNV<'root>>,
-  >(
-    mut self,
-    val: &'a T,
-  ) -> Self {
-    self.pNext = (val as *const T).cast::<c_void>();
-    self
-  }
-  #[cfg(feature = "VK_KHR_ray_tracing_pipeline")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkRayTracingPipelineCreateInfoKHR<
-    'root,
-    T: VkPNextExtends<VkRayTracingPipelineCreateInfoKHR<'root>>,
-  >(
-    mut self,
-    val: &'a T,
-  ) -> Self {
-    self.pNext = (val as *const T).cast::<c_void>();
     self
   }
 }
@@ -31900,6 +32775,18 @@ impl<'a> VkSwapchainCreateInfoKHR<'a> {
     self.pNext = (val as *const VkImageFormatListCreateInfo<'child>).cast::<c_void>();
     self
   }
+  #[cfg(feature = "VK_KHR_extended_flags")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkImageUsageFlags2CreateInfoKHR<'child>(
+    mut self,
+    val: &'a VkImageUsageFlags2CreateInfoKHR<'child>,
+  ) -> Self {
+    self.pNext = (val as *const VkImageUsageFlags2CreateInfoKHR<'child>).cast::<c_void>();
+    self
+  }
   #[cfg(feature = "VK_EXT_full_screen_exclusive")]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
@@ -40572,6 +41459,262 @@ impl<'a> StdVideoEncodeAV1ReferenceInfo<'a> {
     self
   }
 }
+/// [VkVideoEncodePerPartitionFeedbackFlagsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkVideoEncodePerPartitionFeedbackFlagsKHR.html)
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+pub type VkVideoEncodePerPartitionFeedbackFlagsKHR = VkVideoEncodePerPartitionFeedbackFlagBitsKHR;
+/// [VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR.html)
+///
+/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_FEEDBACK_2_FEATURES_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  pub videoEncodeFeedback2: VkBool32,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+unsafe impl<'a> Send for VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR<'a> {}
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+unsafe impl<'a> Sync for VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR<'a> {}
+#[cfg(all(
+  feature = "VK_KHR_video_encode_feedback2",
+  feature = "VK_BASE_VERSION_1_1"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
+  for VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR<'child>
+{
+}
+#[cfg(all(
+  feature = "VK_KHR_video_encode_feedback2",
+  feature = "VK_BASE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
+  for VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR<'child>
+{
+}
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+impl<'a> VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::PHYSICAL_DEVICE_VIDEO_ENCODE_FEEDBACK_2_FEATURES_KHR,
+    pNext: core::ptr::null_mut(),
+    videoEncodeFeedback2: 0,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_videoEncodeFeedback2(mut self, val: VkBool32) -> Self {
+    self.videoEncodeFeedback2 = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkDeviceCreateInfo<
+    'root,
+    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkVideoEncodeFeedback2CapabilitiesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkVideoEncodeFeedback2CapabilitiesKHR.html)
+///
+/// *Note: This struct has **required limit types**.*
+///
+/// **Extends:** VkVideoCapabilitiesKHR.
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkVideoEncodeFeedback2CapabilitiesKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_VIDEO_ENCODE_FEEDBACK_2_CAPABILITIES_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  /// Limit Type: [Max]
+  pub maxPerPartitionFeedbackEntries: u32,
+  /// Limit Type: [Bitmask]
+  pub supportedPerPartitionEncodeFeedbackFlags: VkVideoEncodePerPartitionFeedbackFlagsKHR,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+unsafe impl<'a> Send for VkVideoEncodeFeedback2CapabilitiesKHR<'a> {}
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+unsafe impl<'a> Sync for VkVideoEncodeFeedback2CapabilitiesKHR<'a> {}
+#[cfg(all(
+  feature = "VK_KHR_video_encode_feedback2",
+  feature = "VK_KHR_video_queue"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkVideoCapabilitiesKHR<'root>>
+  for VkVideoEncodeFeedback2CapabilitiesKHR<'child>
+{
+}
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+impl<'a> VkVideoEncodeFeedback2CapabilitiesKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::VIDEO_ENCODE_FEEDBACK_2_CAPABILITIES_KHR,
+    pNext: core::ptr::null_mut(),
+    maxPerPartitionFeedbackEntries: 0,
+    supportedPerPartitionEncodeFeedbackFlags: VkVideoEncodePerPartitionFeedbackFlagBitsKHR(0),
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_maxPerPartitionFeedbackEntries(mut self, val: u32) -> Self {
+    self.maxPerPartitionFeedbackEntries = val;
+    self
+  }
+  #[inline]
+  pub const fn with_supportedPerPartitionEncodeFeedbackFlags(
+    mut self,
+    val: VkVideoEncodePerPartitionFeedbackFlagsKHR,
+  ) -> Self {
+    self.supportedPerPartitionEncodeFeedbackFlags = val;
+    self
+  }
+  #[cfg(feature = "VK_KHR_video_queue")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkVideoCapabilitiesKHR<
+    'root,
+    T: VkPNextExtends<VkVideoCapabilitiesKHR<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR.html)
+///
+/// **Extends:** VkQueryPoolCreateInfo.
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_QUERY_POOL_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_CREATE_INFO_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *const c_void,
+  /// Optional: true
+  pub maxPerPartitionFeedbackEntries: u32,
+  /// Optional: true
+  pub perPartitionEncodeFeedbackFlags: VkVideoEncodePerPartitionFeedbackFlagsKHR,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+unsafe impl<'a> Send for VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR<'a> {}
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+unsafe impl<'a> Sync for VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR<'a> {}
+#[cfg(all(
+  feature = "VK_KHR_video_encode_feedback2",
+  feature = "VK_BASE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkQueryPoolCreateInfo<'root>>
+  for VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR<'child>
+{
+}
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+impl<'a> VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::QUERY_POOL_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_CREATE_INFO_KHR,
+    pNext: core::ptr::null(),
+    maxPerPartitionFeedbackEntries: 0,
+    perPartitionEncodeFeedbackFlags: VkVideoEncodePerPartitionFeedbackFlagBitsKHR(0),
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_maxPerPartitionFeedbackEntries(mut self, val: u32) -> Self {
+    self.maxPerPartitionFeedbackEntries = val;
+    self
+  }
+  #[inline]
+  pub const fn with_perPartitionEncodeFeedbackFlags(
+    mut self,
+    val: VkVideoEncodePerPartitionFeedbackFlagsKHR,
+  ) -> Self {
+    self.perPartitionEncodeFeedbackFlags = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkQueryPoolCreateInfo<
+    'root,
+    T: VkPNextExtends<VkQueryPoolCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a T,
+  ) -> Self {
+    self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+}
 /// [VkVideoEncodeH264CapabilityFlagsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkVideoEncodeH264CapabilityFlagsKHR.html)
 #[cfg(feature = "VK_KHR_video_encode_h264")]
 pub type VkVideoEncodeH264CapabilityFlagsKHR = VkVideoEncodeH264CapabilityFlagBitsKHR;
@@ -48691,6 +49834,18 @@ impl<'a> VkPhysicalDeviceVideoFormatInfoKHR<'a> {
     self.imageUsage = val;
     self
   }
+  #[cfg(feature = "VK_KHR_extended_flags")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkImageUsageFlags2CreateInfoKHR<'child>(
+    mut self,
+    val: &'a VkImageUsageFlags2CreateInfoKHR<'child>,
+  ) -> Self {
+    self.pNext = (val as *const VkImageUsageFlags2CreateInfoKHR<'child>).cast::<c_void>();
+    self
+  }
   #[cfg(feature = "VK_KHR_video_queue")]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
@@ -48804,6 +49959,30 @@ impl<'a> VkVideoFormatPropertiesKHR<'a> {
   #[inline]
   pub const fn with_imageUsageFlags(mut self, val: VkImageUsageFlags) -> Self {
     self.imageUsageFlags = val;
+    self
+  }
+  #[cfg(feature = "VK_KHR_extended_flags")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkImageCreateFlags2CreateInfoKHR<'child>(
+    mut self,
+    val: &'a mut VkImageCreateFlags2CreateInfoKHR<'child>,
+  ) -> Self {
+    self.pNext = (val as *mut VkImageCreateFlags2CreateInfoKHR<'child>).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_KHR_extended_flags")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkImageUsageFlags2CreateInfoKHR<'child>(
+    mut self,
+    val: &'a mut VkImageUsageFlags2CreateInfoKHR<'child>,
+  ) -> Self {
+    self.pNext = (val as *mut VkImageUsageFlags2CreateInfoKHR<'child>).cast::<c_void>();
     self
   }
   #[cfg(all(
@@ -49283,6 +50462,18 @@ impl<'a> VkVideoCapabilitiesKHR<'a> {
     val: &'a mut VkVideoEncodeCapabilitiesKHR<'child>,
   ) -> Self {
     self.pNext = (val as *mut VkVideoEncodeCapabilitiesKHR<'child>).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_KHR_video_encode_feedback2")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkVideoEncodeFeedback2CapabilitiesKHR<'child>(
+    mut self,
+    val: &'a mut VkVideoEncodeFeedback2CapabilitiesKHR<'child>,
+  ) -> Self {
+    self.pNext = (val as *mut VkVideoEncodeFeedback2CapabilitiesKHR<'child>).cast::<c_void>();
     self
   }
   #[cfg(feature = "VK_KHR_video_encode_h264")]

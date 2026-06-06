@@ -2,8 +2,10 @@ use crate::consts::VK_MAX_GLOBAL_PRIORITY_SIZE;
 use crate::consts::VK_UUID_SIZE;
 #[cfg(any(
   feature = "VK_BASE_VERSION_1_4",
+  feature = "VK_EXT_descriptor_heap",
   feature = "VK_KHR_maintenance5",
   feature = "VK_AMDX_dense_geometry_format",
+  feature = "VK_ARM_data_graph",
   feature = "VK_QCOM_tile_memory_heap",
   feature = "VK_EXT_memory_decompression",
   feature = "VK_EXT_device_generated_commands"

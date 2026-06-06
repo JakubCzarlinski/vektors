@@ -1,6 +1,6 @@
 [package]
 name = "vk"
-version = "0.1.9"
+version = "0.1.10"
 edition = "2024"
 license = "MIT"
 repository = "https://github.com/JakubCzarlinski/vk"
@@ -342,7 +342,7 @@ VK_AMD_gpa_interface = []
 # type: device
 VK_AMDX_shader_enqueue = ["VK_KHR_maintenance5", "VK_KHR_pipeline_library"]
 # type: device
-VK_EXT_descriptor_heap = ["VK_KHR_maintenance5"]
+VK_EXT_descriptor_heap = []
 # type: device
 VK_AMD_mixed_attachment_samples = []
 # type: device
@@ -961,7 +961,7 @@ VK_NV_low_latency2 = []
 # type: device
 VK_KHR_cooperative_matrix = []
 # type: device
-VK_ARM_data_graph = ["VK_VERSION_1_3", "VK_KHR_maintenance5", "VK_KHR_deferred_host_operations"]
+VK_ARM_data_graph = ["VK_VERSION_1_3", "VK_KHR_deferred_host_operations"]
 # type: device
 VK_ARM_data_graph_instruction_set_tosa = ["VK_ARM_data_graph"]
 # type: device
@@ -1083,6 +1083,8 @@ VK_NV_cooperative_matrix2 = ["VK_KHR_cooperative_matrix"]
 # type: device
 VK_ARM_pipeline_opacity_micromap = ["VK_EXT_opacity_micromap"]
 # type: device
+VK_KHR_video_encode_feedback2 = ["VK_KHR_video_encode_queue"]
+# type: device
 VK_EXT_external_memory_metal = []
 # type: device
 VK_KHR_depth_clamp_zero_one = []
@@ -1101,6 +1103,8 @@ VK_VALVE_fragment_density_map_layered = ["VK_EXT_fragment_density_map"]
 VK_KHR_robustness2 = []
 # type: device
 VK_NV_present_metering = []
+# type: device
+VK_EXT_multisampled_render_to_swapchain = ["VK_KHR_swapchain", "VK_EXT_multisampled_render_to_single_sampled"]
 # type: device
 VK_EXT_fragment_density_map_offset = ["VK_EXT_fragment_density_map"]
 # type: device
@@ -1133,6 +1137,8 @@ VK_KHR_maintenance11 = []
 VK_EXT_shader_subgroup_partitioned = []
 # type: instance
 VK_SEC_ubm_surface = ["VK_KHR_surface"]
+# type: device
+VK_KHR_extended_flags = []
 # type: device
 VK_VALVE_shader_mixed_float_dot_product = []
 # type: device

@@ -138,6 +138,8 @@ use crate::types::VkFlags;
 use crate::types::VkFormatProperties;
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 use crate::types::VkFormatProperties3;
+#[cfg(feature = "VK_KHR_extended_flags")]
+use crate::types::VkFormatProperties4KHR;
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 use crate::types::VkHostImageCopyDevicePerformanceQuery;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -148,16 +150,28 @@ use crate::types::VkImageCompressionControlEXT;
 use crate::types::VkImageCompressionPropertiesEXT;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkImageCreateFlags;
+#[cfg(feature = "VK_KHR_extended_flags")]
+use crate::types::VkImageCreateFlags2CreateInfoKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkImageCreateInfo;
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
 use crate::types::VkImageFormatListCreateInfo;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkImageFormatProperties;
+#[cfg(any(
+  all(feature = "VK_KHR_extended_flags", feature = "VK_VERSION_1_2"),
+  all(
+    feature = "VK_EXT_separate_stencil_usage",
+    feature = "VK_KHR_extended_flags"
+  )
+))]
+use crate::types::VkImageStencilUsage2CreateInfoKHR;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
 use crate::types::VkImageStencilUsageCreateInfo;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkImageUsageFlags;
+#[cfg(feature = "VK_KHR_extended_flags")]
+use crate::types::VkImageUsageFlags2CreateInfoKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkImageViewCreateInfo;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -366,6 +380,8 @@ use crate::types::VkPhysicalDeviceExtendedDynamicState3FeaturesEXT;
 use crate::types::VkPhysicalDeviceExtendedDynamicState3PropertiesEXT;
 #[cfg(feature = "VK_EXT_extended_dynamic_state")]
 use crate::types::VkPhysicalDeviceExtendedDynamicStateFeaturesEXT;
+#[cfg(feature = "VK_KHR_extended_flags")]
+use crate::types::VkPhysicalDeviceExtendedFlagsFeaturesKHR;
 #[cfg(feature = "VK_NV_extended_sparse_address_space")]
 use crate::types::VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV;
 #[cfg(feature = "VK_NV_extended_sparse_address_space")]
@@ -418,7 +434,10 @@ use crate::types::VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT;
 use crate::types::VkPhysicalDeviceFragmentDensityMapPropertiesEXT;
 #[cfg(feature = "VK_KHR_fragment_shader_barycentric")]
 use crate::types::VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR;
-#[cfg(feature = "VK_KHR_fragment_shader_barycentric")]
+#[cfg(all(
+  feature = "VK_EXT_provoking_vertex",
+  feature = "VK_KHR_fragment_shader_barycentric"
+))]
 use crate::types::VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR;
 #[cfg(feature = "VK_EXT_fragment_shader_interlock")]
 use crate::types::VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT;
@@ -570,6 +589,8 @@ use crate::types::VkPhysicalDeviceMultiDrawFeaturesEXT;
 use crate::types::VkPhysicalDeviceMultiDrawPropertiesEXT;
 #[cfg(feature = "VK_EXT_multisampled_render_to_single_sampled")]
 use crate::types::VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT;
+#[cfg(feature = "VK_EXT_multisampled_render_to_swapchain")]
+use crate::types::VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_1")]
 use crate::types::VkPhysicalDeviceMultiviewFeatures;
 #[cfg(feature = "VK_NVX_multiview_per_view_attributes")]
@@ -934,6 +955,8 @@ use crate::types::VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT;
 use crate::types::VkPhysicalDeviceVideoDecodeVP9FeaturesKHR;
 #[cfg(feature = "VK_KHR_video_encode_av1")]
 use crate::types::VkPhysicalDeviceVideoEncodeAV1FeaturesKHR;
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+use crate::types::VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR;
 #[cfg(feature = "VK_KHR_video_encode_intra_refresh")]
 use crate::types::VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR;
 #[cfg(feature = "VK_KHR_video_encode_quantization_map")]
@@ -1993,6 +2016,18 @@ impl<'a> VkPhysicalDeviceFeatures2<'a> {
       (val as *mut VkPhysicalDeviceExtendedDynamicStateFeaturesEXT<'child>).cast::<c_void>();
     self
   }
+  #[cfg(feature = "VK_KHR_extended_flags")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkPhysicalDeviceExtendedFlagsFeaturesKHR<'child>(
+    mut self,
+    val: &'a mut VkPhysicalDeviceExtendedFlagsFeaturesKHR<'child>,
+  ) -> Self {
+    self.pNext = (val as *mut VkPhysicalDeviceExtendedFlagsFeaturesKHR<'child>).cast::<c_void>();
+    self
+  }
   #[cfg(feature = "VK_NV_extended_sparse_address_space")]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
@@ -2738,6 +2773,19 @@ impl<'a> VkPhysicalDeviceFeatures2<'a> {
     val: &'a mut VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT<'child>,
   ) -> Self {
     self.pNext = (val as *mut VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT<'child>)
+      .cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_EXT_multisampled_render_to_swapchain")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT<'child>(
+    mut self,
+    val: &'a mut VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT<'child>,
+  ) -> Self {
+    self.pNext = (val as *mut VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT<'child>)
       .cast::<c_void>();
     self
   }
@@ -4344,6 +4392,19 @@ impl<'a> VkPhysicalDeviceFeatures2<'a> {
     self.pNext = (val as *mut VkPhysicalDeviceVideoEncodeAV1FeaturesKHR<'child>).cast::<c_void>();
     self
   }
+  #[cfg(feature = "VK_KHR_video_encode_feedback2")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR<'child>(
+    mut self,
+    val: &'a mut VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR<'child>,
+  ) -> Self {
+    self.pNext =
+      (val as *mut VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR<'child>).cast::<c_void>();
+    self
+  }
   #[cfg(feature = "VK_KHR_video_encode_intra_refresh")]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
@@ -5099,7 +5160,10 @@ impl<'a> VkPhysicalDeviceProperties2<'a> {
       (val as *mut VkPhysicalDeviceFragmentDensityMapPropertiesEXT<'child>).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_KHR_fragment_shader_barycentric")]
+  #[cfg(all(
+    feature = "VK_EXT_provoking_vertex",
+    feature = "VK_KHR_fragment_shader_barycentric"
+  ))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -6325,6 +6389,18 @@ impl<'a> VkFormatProperties2<'a> {
     self.pNext = (val as *mut VkFormatProperties3<'child>).cast::<c_void>();
     self
   }
+  #[cfg(feature = "VK_KHR_extended_flags")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkFormatProperties4KHR<'child>(
+    mut self,
+    val: &'a mut VkFormatProperties4KHR<'child>,
+  ) -> Self {
+    self.pNext = (val as *mut VkFormatProperties4KHR<'child>).cast::<c_void>();
+    self
+  }
   #[cfg(feature = "VK_EXT_multisampled_render_to_single_sampled")]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
@@ -6633,6 +6709,18 @@ impl<'a> VkPhysicalDeviceImageFormatInfo2<'a> {
     self.pNext = (val as *const VkImageCompressionControlEXT<'child>).cast::<c_void>();
     self
   }
+  #[cfg(feature = "VK_KHR_extended_flags")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkImageCreateFlags2CreateInfoKHR<'child>(
+    mut self,
+    val: &'a VkImageCreateFlags2CreateInfoKHR<'child>,
+  ) -> Self {
+    self.pNext = (val as *const VkImageCreateFlags2CreateInfoKHR<'child>).cast::<c_void>();
+    self
+  }
   #[cfg(feature = "VK_BASE_VERSION_1_2")]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
@@ -6645,6 +6733,24 @@ impl<'a> VkPhysicalDeviceImageFormatInfo2<'a> {
     self.pNext = (val as *const VkImageFormatListCreateInfo<'child>).cast::<c_void>();
     self
   }
+  #[cfg(any(
+    all(feature = "VK_KHR_extended_flags", feature = "VK_VERSION_1_2"),
+    all(
+      feature = "VK_EXT_separate_stencil_usage",
+      feature = "VK_KHR_extended_flags"
+    )
+  ))]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkImageStencilUsage2CreateInfoKHR<'child>(
+    mut self,
+    val: &'a VkImageStencilUsage2CreateInfoKHR<'child>,
+  ) -> Self {
+    self.pNext = (val as *const VkImageStencilUsage2CreateInfoKHR<'child>).cast::<c_void>();
+    self
+  }
   #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
@@ -6655,6 +6761,18 @@ impl<'a> VkPhysicalDeviceImageFormatInfo2<'a> {
     val: &'a VkImageStencilUsageCreateInfo<'child>,
   ) -> Self {
     self.pNext = (val as *const VkImageStencilUsageCreateInfo<'child>).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_KHR_extended_flags")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkImageUsageFlags2CreateInfoKHR<'child>(
+    mut self,
+    val: &'a VkImageUsageFlags2CreateInfoKHR<'child>,
+  ) -> Self {
+    self.pNext = (val as *const VkImageUsageFlags2CreateInfoKHR<'child>).cast::<c_void>();
     self
   }
   #[cfg(feature = "VK_NV_optical_flow")]
@@ -7095,6 +7213,18 @@ impl<'a> VkPhysicalDeviceSparseImageFormatInfo2<'a> {
   #[inline]
   pub const fn with_tiling(mut self, val: VkImageTiling) -> Self {
     self.tiling = val;
+    self
+  }
+  #[cfg(feature = "VK_KHR_extended_flags")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkImageUsageFlags2CreateInfoKHR<'child>(
+    mut self,
+    val: &'a VkImageUsageFlags2CreateInfoKHR<'child>,
+  ) -> Self {
+    self.pNext = (val as *const VkImageUsageFlags2CreateInfoKHR<'child>).cast::<c_void>();
     self
   }
   #[cfg(feature = "VK_BASE_VERSION_1_1")]

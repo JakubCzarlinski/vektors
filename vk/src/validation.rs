@@ -627,13 +627,19 @@ compile_error!(
   not(any(
     all(
       feature = "VK_KHR_buffer_device_address",
+      feature = "VK_KHR_extended_flags"
+    ),
+    all(feature = "VK_KHR_extended_flags", feature = "VK_VERSION_1_2"),
+    all(
+      feature = "VK_KHR_buffer_device_address",
       feature = "VK_KHR_maintenance5"
     ),
-    all(feature = "VK_KHR_maintenance5", feature = "VK_VERSION_1_2")
+    all(feature = "VK_KHR_maintenance5", feature = "VK_VERSION_1_2"),
+    feature = "VK_VERSION_1_4"
   ))
 ))]
 compile_error!(
-  "Feature `VK_EXT_descriptor_heap` requires `VK_KHR_maintenance5 + VK_KHR_buffer_device_address , VK_KHR_maintenance5 + VK_VERSION_1_2`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_descriptor_heap.html"
+  "Feature `VK_EXT_descriptor_heap` requires `VK_KHR_extended_flags + VK_KHR_buffer_device_address , VK_KHR_extended_flags + VK_VERSION_1_2 , VK_KHR_maintenance5 + VK_KHR_buffer_device_address , VK_KHR_maintenance5 + VK_VERSION_1_2 , VK_VERSION_1_4`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_descriptor_heap.html"
 );
 #[cfg(all(
   feature = "VK_EXT_inline_uniform_block",
@@ -2713,15 +2719,19 @@ compile_error!(
 #[cfg(all(
   feature = "VK_AMDX_dense_geometry_format",
   not(any(
+    all(feature = "VK_KHR_acceleration_structure", feature = "VK_VERSION_1_4"),
+    all(
+      feature = "VK_KHR_acceleration_structure",
+      feature = "VK_KHR_extended_flags"
+    ),
     all(
       feature = "VK_KHR_acceleration_structure",
       feature = "VK_KHR_maintenance5"
-    ),
-    all(feature = "VK_KHR_acceleration_structure", feature = "VK_VERSION_1_4")
+    )
   ))
 ))]
 compile_error!(
-  "Feature `VK_AMDX_dense_geometry_format` requires `VK_KHR_acceleration_structure + VK_KHR_maintenance5 , VK_KHR_acceleration_structure + VK_VERSION_1_4`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_AMDX_dense_geometry_format.html"
+  "Feature `VK_AMDX_dense_geometry_format` requires `VK_KHR_acceleration_structure + VK_VERSION_1_4 , VK_KHR_acceleration_structure + VK_KHR_extended_flags , VK_KHR_acceleration_structure + VK_KHR_maintenance5`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_AMDX_dense_geometry_format.html"
 );
 #[cfg(all(
   feature = "VK_KHR_present_id2",
@@ -2760,10 +2770,14 @@ compile_error!(
 );
 #[cfg(all(
   feature = "VK_KHR_pipeline_binary",
-  not(any(feature = "VK_KHR_maintenance5", feature = "VK_VERSION_1_4"))
+  not(any(
+    feature = "VK_VERSION_1_4",
+    feature = "VK_KHR_extended_flags",
+    feature = "VK_KHR_maintenance5"
+  ))
 ))]
 compile_error!(
-  "Feature `VK_KHR_pipeline_binary` requires `VK_KHR_maintenance5 , VK_VERSION_1_4`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_KHR_pipeline_binary.html"
+  "Feature `VK_KHR_pipeline_binary` requires `VK_VERSION_1_4 , VK_KHR_extended_flags , VK_KHR_maintenance5`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_KHR_pipeline_binary.html"
 );
 #[cfg(all(
   feature = "VK_QCOM_tile_properties",
@@ -2930,14 +2944,21 @@ compile_error!(
 );
 #[cfg(all(
   feature = "VK_ARM_data_graph",
-  not(all(
-    feature = "VK_KHR_deferred_host_operations",
-    feature = "VK_KHR_maintenance5",
-    feature = "VK_VERSION_1_3"
+  not(any(
+    all(
+      feature = "VK_KHR_deferred_host_operations",
+      feature = "VK_KHR_extended_flags",
+      feature = "VK_VERSION_1_3"
+    ),
+    all(
+      feature = "VK_KHR_deferred_host_operations",
+      feature = "VK_KHR_maintenance5",
+      feature = "VK_VERSION_1_3"
+    )
   ))
 ))]
 compile_error!(
-  "Feature `VK_ARM_data_graph` requires `VK_VERSION_1_3 + VK_KHR_maintenance5 + VK_KHR_deferred_host_operations`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_ARM_data_graph.html"
+  "Feature `VK_ARM_data_graph` requires `VK_VERSION_1_3 + VK_KHR_extended_flags + VK_KHR_deferred_host_operations , VK_VERSION_1_3 + VK_KHR_maintenance5 + VK_KHR_deferred_host_operations`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_ARM_data_graph.html"
 );
 #[cfg(all(
   feature = "VK_ARM_data_graph_instruction_set_tosa",
@@ -3313,14 +3334,19 @@ compile_error!(
   not(any(
     all(
       feature = "VK_KHR_buffer_device_address",
+      feature = "VK_KHR_extended_flags"
+    ),
+    all(
+      feature = "VK_KHR_buffer_device_address",
       feature = "VK_KHR_maintenance5"
     ),
+    all(feature = "VK_KHR_extended_flags", feature = "VK_VERSION_1_2"),
     all(feature = "VK_KHR_maintenance5", feature = "VK_VERSION_1_2"),
     feature = "VK_VERSION_1_3"
   ))
 ))]
 compile_error!(
-  "Feature `VK_EXT_device_generated_commands` requires `VK_KHR_buffer_device_address + VK_KHR_maintenance5 , VK_VERSION_1_2 + VK_KHR_maintenance5 , VK_VERSION_1_3`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_device_generated_commands.html"
+  "Feature `VK_EXT_device_generated_commands` requires `VK_KHR_buffer_device_address + VK_KHR_extended_flags , VK_KHR_buffer_device_address + VK_KHR_maintenance5 , VK_VERSION_1_2 + VK_KHR_extended_flags , VK_VERSION_1_2 + VK_KHR_maintenance5 , VK_VERSION_1_3`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_device_generated_commands.html"
 );
 #[cfg(all(
   feature = "VK_KHR_device_fault",
@@ -3422,6 +3448,13 @@ compile_error!(
   "Feature `VK_ARM_pipeline_opacity_micromap` requires `VK_EXT_opacity_micromap`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_ARM_pipeline_opacity_micromap.html"
 );
 #[cfg(all(
+  feature = "VK_KHR_video_encode_feedback2",
+  not(feature = "VK_KHR_video_encode_queue")
+))]
+compile_error!(
+  "Feature `VK_KHR_video_encode_feedback2` requires `VK_KHR_video_encode_queue`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_KHR_video_encode_feedback2.html"
+);
+#[cfg(all(
   feature = "VK_EXT_external_memory_metal",
   not(any(feature = "VK_KHR_external_memory", feature = "VK_VERSION_1_1"))
 ))]
@@ -3481,15 +3514,19 @@ compile_error!(
 #[cfg(all(
   feature = "VK_VALVE_fragment_density_map_layered",
   not(any(
+    all(feature = "VK_EXT_fragment_density_map", feature = "VK_VERSION_1_4"),
+    all(
+      feature = "VK_EXT_fragment_density_map",
+      feature = "VK_KHR_extended_flags"
+    ),
     all(
       feature = "VK_EXT_fragment_density_map",
       feature = "VK_KHR_maintenance5"
-    ),
-    all(feature = "VK_EXT_fragment_density_map", feature = "VK_VERSION_1_4")
+    )
   ))
 ))]
 compile_error!(
-  "Feature `VK_VALVE_fragment_density_map_layered` requires `VK_KHR_maintenance5 + VK_EXT_fragment_density_map , VK_VERSION_1_4 + VK_EXT_fragment_density_map`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_VALVE_fragment_density_map_layered.html"
+  "Feature `VK_VALVE_fragment_density_map_layered` requires `VK_VERSION_1_4 + VK_EXT_fragment_density_map , VK_KHR_extended_flags + VK_EXT_fragment_density_map , VK_KHR_maintenance5 + VK_EXT_fragment_density_map`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_VALVE_fragment_density_map_layered.html"
 );
 #[cfg(all(
   feature = "VK_KHR_robustness2",
@@ -3510,6 +3547,16 @@ compile_error!(
 ))]
 compile_error!(
   "Feature `VK_NV_present_metering` requires `VK_KHR_get_physical_device_properties2 , VK_VERSION_1_1`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_NV_present_metering.html"
+);
+#[cfg(all(
+  feature = "VK_EXT_multisampled_render_to_swapchain",
+  not(all(
+    feature = "VK_EXT_multisampled_render_to_single_sampled",
+    feature = "VK_KHR_swapchain"
+  ))
+))]
+compile_error!(
+  "Feature `VK_EXT_multisampled_render_to_swapchain` requires `VK_KHR_swapchain + VK_EXT_multisampled_render_to_single_sampled`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_multisampled_render_to_swapchain.html"
 );
 #[cfg(all(
   feature = "VK_EXT_fragment_density_map_offset",
@@ -3665,6 +3712,16 @@ compile_error!(
 #[cfg(all(feature = "VK_SEC_ubm_surface", not(feature = "VK_KHR_surface")))]
 compile_error!(
   "Feature `VK_SEC_ubm_surface` requires `VK_KHR_surface`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_SEC_ubm_surface.html"
+);
+#[cfg(all(
+  feature = "VK_KHR_extended_flags",
+  not(any(
+    feature = "VK_KHR_get_physical_device_properties2",
+    feature = "VK_VERSION_1_1"
+  ))
+))]
+compile_error!(
+  "Feature `VK_KHR_extended_flags` requires `VK_KHR_get_physical_device_properties2 , VK_VERSION_1_1`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_KHR_extended_flags.html"
 );
 #[cfg(all(
   feature = "VK_VALVE_shader_mixed_float_dot_product",

@@ -95,11 +95,23 @@ use crate::enums::VkPhysicalDeviceDataGraphProcessingEngineTypeARM;
 use crate::enums::VkPhysicalDeviceSchedulingControlsFlagBitsARM;
 #[cfg(any(
   feature = "VK_COMPUTE_VERSION_1_4",
+  feature = "VK_EXT_descriptor_heap",
   feature = "VK_KHR_ray_tracing_pipeline",
+  all(
+    feature = "VK_EXT_legacy_dithering",
+    feature = "VK_KHR_dynamic_rendering",
+    feature = "VK_KHR_extended_flags"
+  ),
+  all(
+    feature = "VK_EXT_legacy_dithering",
+    feature = "VK_KHR_extended_flags",
+    feature = "VK_VERSION_1_3"
+  ),
   feature = "VK_KHR_maintenance5",
   feature = "VK_KHR_pipeline_binary",
   feature = "VK_EXT_device_generated_commands",
   feature = "VK_VALVE_fragment_density_map_layered",
+  all(feature = "VK_KHR_extended_flags", feature = "VK_KHR_opacity_micromap"),
   feature = "VK_EXT_shader_64bit_indexing"
 ))]
 use crate::enums::VkPipelineCreateFlagBits2;

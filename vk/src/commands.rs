@@ -162,14 +162,16 @@ use crate::enums::VkBufferCreateFlagBits;
 use crate::enums::VkBufferUsageFlagBits;
 #[cfg(any(
   feature = "VK_BASE_VERSION_1_4",
+  feature = "VK_EXT_descriptor_heap",
   feature = "VK_KHR_maintenance5",
   feature = "VK_AMDX_dense_geometry_format",
+  feature = "VK_ARM_data_graph",
   feature = "VK_QCOM_tile_memory_heap",
   feature = "VK_EXT_memory_decompression",
   feature = "VK_EXT_device_generated_commands"
 ))]
 use crate::enums::VkBufferUsageFlagBits2;
-#[cfg(feature = "VK_KHR_maintenance5")]
+#[cfg(any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"))]
 use crate::enums::VkBufferUsageFlagBits2KHR;
 #[cfg(any(
   feature = "VK_KHR_acceleration_structure",
@@ -522,6 +524,8 @@ use crate::enums::VkFormatFeatureFlagBits;
 use crate::enums::VkFormatFeatureFlagBits2;
 #[cfg(feature = "VK_KHR_format_feature_flags2")]
 use crate::enums::VkFormatFeatureFlagBits2KHR;
+#[cfg(feature = "VK_KHR_extended_flags")]
+use crate::enums::VkFormatFeatureFlagBits4KHR;
 #[cfg(feature = "VK_KHR_fragment_shading_rate")]
 use crate::enums::VkFragmentShadingRateCombinerOpKHR;
 #[cfg(feature = "VK_NV_fragment_shading_rate_enums")]
@@ -584,6 +588,8 @@ use crate::enums::VkImageCompressionFlagBitsEXT;
 use crate::enums::VkImageConstraintsInfoFlagBitsFUCHSIA;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkImageCreateFlagBits;
+#[cfg(feature = "VK_KHR_extended_flags")]
+use crate::enums::VkImageCreateFlagBits2KHR;
 #[cfg(feature = "VK_FUCHSIA_buffer_collection")]
 use crate::enums::VkImageFormatConstraintsFlagBitsFUCHSIA;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -594,6 +600,8 @@ use crate::enums::VkImageTiling;
 use crate::enums::VkImageType;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkImageUsageFlagBits;
+#[cfg(feature = "VK_KHR_extended_flags")]
+use crate::enums::VkImageUsageFlagBits2KHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkImageViewCreateFlagBits;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -788,15 +796,27 @@ use crate::enums::VkPipelineCompilerControlFlagBitsAMD;
 use crate::enums::VkPipelineCreateFlagBits;
 #[cfg(any(
   feature = "VK_COMPUTE_VERSION_1_4",
+  feature = "VK_EXT_descriptor_heap",
   feature = "VK_KHR_ray_tracing_pipeline",
+  all(
+    feature = "VK_EXT_legacy_dithering",
+    feature = "VK_KHR_dynamic_rendering",
+    feature = "VK_KHR_extended_flags"
+  ),
+  all(
+    feature = "VK_EXT_legacy_dithering",
+    feature = "VK_KHR_extended_flags",
+    feature = "VK_VERSION_1_3"
+  ),
   feature = "VK_KHR_maintenance5",
   feature = "VK_KHR_pipeline_binary",
   feature = "VK_EXT_device_generated_commands",
   feature = "VK_VALVE_fragment_density_map_layered",
+  all(feature = "VK_KHR_extended_flags", feature = "VK_KHR_opacity_micromap"),
   feature = "VK_EXT_shader_64bit_indexing"
 ))]
 use crate::enums::VkPipelineCreateFlagBits2;
-#[cfg(feature = "VK_KHR_maintenance5")]
+#[cfg(any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"))]
 use crate::enums::VkPipelineCreateFlagBits2KHR;
 #[cfg(any(
   feature = "VK_COMPUTE_VERSION_1_3",
@@ -1219,6 +1239,8 @@ use crate::enums::VkVideoEncodeH265StdFlagBitsKHR;
 use crate::enums::VkVideoEncodeH265TransformBlockSizeFlagBitsKHR;
 #[cfg(feature = "VK_KHR_video_encode_intra_refresh")]
 use crate::enums::VkVideoEncodeIntraRefreshModeFlagBitsKHR;
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+use crate::enums::VkVideoEncodePerPartitionFeedbackFlagBitsKHR;
 #[cfg(feature = "VK_KHR_video_encode_queue")]
 use crate::enums::VkVideoEncodeRateControlModeFlagBitsKHR;
 #[cfg(feature = "VK_VALVE_video_encode_rgb_conversion")]
@@ -1894,9 +1916,9 @@ use crate::types::VkBufferUsageFlags;
 use crate::types::VkBufferUsageFlags2;
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 use crate::types::VkBufferUsageFlags2CreateInfo;
-#[cfg(feature = "VK_KHR_maintenance5")]
+#[cfg(any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"))]
 use crate::types::VkBufferUsageFlags2CreateInfoKHR;
-#[cfg(feature = "VK_KHR_maintenance5")]
+#[cfg(any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"))]
 use crate::types::VkBufferUsageFlags2KHR;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 use crate::types::VkBufferView;
@@ -2834,6 +2856,8 @@ use crate::types::VkFormatFeatureFlags;
 use crate::types::VkFormatFeatureFlags2;
 #[cfg(feature = "VK_KHR_format_feature_flags2")]
 use crate::types::VkFormatFeatureFlags2KHR;
+#[cfg(feature = "VK_KHR_extended_flags")]
+use crate::types::VkFormatFeatureFlags4KHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkFormatProperties;
 #[cfg(feature = "VK_BASE_VERSION_1_1")]
@@ -2844,6 +2868,8 @@ use crate::types::VkFormatProperties2KHR;
 use crate::types::VkFormatProperties3;
 #[cfg(feature = "VK_KHR_format_feature_flags2")]
 use crate::types::VkFormatProperties3KHR;
+#[cfg(feature = "VK_KHR_extended_flags")]
+use crate::types::VkFormatProperties4KHR;
 #[cfg(feature = "VK_KHR_fragment_shading_rate")]
 use crate::types::VkFragmentShadingRateAttachmentInfoKHR;
 #[cfg(feature = "VK_EXT_frame_boundary")]
@@ -2988,6 +3014,10 @@ use crate::types::VkImageCopy2;
 use crate::types::VkImageCopy2KHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkImageCreateFlags;
+#[cfg(feature = "VK_KHR_extended_flags")]
+use crate::types::VkImageCreateFlags2CreateInfoKHR;
+#[cfg(feature = "VK_KHR_extended_flags")]
+use crate::types::VkImageCreateFlags2KHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkImageCreateInfo;
 #[cfg(feature = "VK_EXT_descriptor_heap")]
@@ -3040,6 +3070,14 @@ use crate::types::VkImageResolve2KHR;
 use crate::types::VkImageSparseMemoryRequirementsInfo2;
 #[cfg(feature = "VK_KHR_get_memory_requirements2")]
 use crate::types::VkImageSparseMemoryRequirementsInfo2KHR;
+#[cfg(any(
+  all(feature = "VK_KHR_extended_flags", feature = "VK_VERSION_1_2"),
+  all(
+    feature = "VK_EXT_separate_stencil_usage",
+    feature = "VK_KHR_extended_flags"
+  )
+))]
+use crate::types::VkImageStencilUsage2CreateInfoKHR;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
 use crate::types::VkImageStencilUsageCreateInfo;
 #[cfg(feature = "VK_EXT_separate_stencil_usage")]
@@ -3070,6 +3108,10 @@ use crate::types::VkImageToMemoryCopy;
 use crate::types::VkImageToMemoryCopyEXT;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkImageUsageFlags;
+#[cfg(feature = "VK_KHR_extended_flags")]
+use crate::types::VkImageUsageFlags2CreateInfoKHR;
+#[cfg(feature = "VK_KHR_extended_flags")]
+use crate::types::VkImageUsageFlags2KHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkImageView;
 #[cfg(feature = "VK_EXT_astc_decode_mode")]
@@ -3090,6 +3132,8 @@ use crate::types::VkImageViewMinLodCreateInfoEXT;
 use crate::types::VkImageViewSampleWeightCreateInfoQCOM;
 #[cfg(feature = "VK_EXT_image_sliced_view_of_3d")]
 use crate::types::VkImageViewSlicedCreateInfoEXT;
+#[cfg(feature = "VK_KHR_extended_flags")]
+use crate::types::VkImageViewUsage2CreateInfoKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_1")]
 use crate::types::VkImageViewUsageCreateInfo;
 #[cfg(feature = "VK_KHR_maintenance2")]
@@ -3718,6 +3762,8 @@ use crate::types::VkPhysicalDeviceExtendedDynamicState3FeaturesEXT;
 use crate::types::VkPhysicalDeviceExtendedDynamicState3PropertiesEXT;
 #[cfg(feature = "VK_EXT_extended_dynamic_state")]
 use crate::types::VkPhysicalDeviceExtendedDynamicStateFeaturesEXT;
+#[cfg(feature = "VK_KHR_extended_flags")]
+use crate::types::VkPhysicalDeviceExtendedFlagsFeaturesKHR;
 #[cfg(feature = "VK_NV_extended_sparse_address_space")]
 use crate::types::VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV;
 #[cfg(feature = "VK_NV_extended_sparse_address_space")]
@@ -3804,7 +3850,10 @@ use crate::types::VkPhysicalDeviceFragmentDensityMapPropertiesEXT;
 use crate::types::VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR;
 #[cfg(feature = "VK_NV_fragment_shader_barycentric")]
 use crate::types::VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV;
-#[cfg(feature = "VK_KHR_fragment_shader_barycentric")]
+#[cfg(all(
+  feature = "VK_EXT_provoking_vertex",
+  feature = "VK_KHR_fragment_shader_barycentric"
+))]
 use crate::types::VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR;
 #[cfg(feature = "VK_EXT_fragment_shader_interlock")]
 use crate::types::VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT;
@@ -4034,6 +4083,8 @@ use crate::types::VkPhysicalDeviceMultiDrawFeaturesEXT;
 use crate::types::VkPhysicalDeviceMultiDrawPropertiesEXT;
 #[cfg(feature = "VK_EXT_multisampled_render_to_single_sampled")]
 use crate::types::VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT;
+#[cfg(feature = "VK_EXT_multisampled_render_to_swapchain")]
+use crate::types::VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_1")]
 use crate::types::VkPhysicalDeviceMultiviewFeatures;
 #[cfg(feature = "VK_KHR_multiview")]
@@ -4510,6 +4561,8 @@ use crate::types::VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT;
 use crate::types::VkPhysicalDeviceVideoDecodeVP9FeaturesKHR;
 #[cfg(feature = "VK_KHR_video_encode_av1")]
 use crate::types::VkPhysicalDeviceVideoEncodeAV1FeaturesKHR;
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+use crate::types::VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR;
 #[cfg(feature = "VK_KHR_video_encode_intra_refresh")]
 use crate::types::VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR;
 #[cfg(feature = "VK_KHR_video_encode_queue")]
@@ -4628,9 +4681,9 @@ use crate::types::VkPipelineCreateFlags;
 use crate::types::VkPipelineCreateFlags2;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
 use crate::types::VkPipelineCreateFlags2CreateInfo;
-#[cfg(feature = "VK_KHR_maintenance5")]
+#[cfg(any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"))]
 use crate::types::VkPipelineCreateFlags2CreateInfoKHR;
-#[cfg(feature = "VK_KHR_maintenance5")]
+#[cfg(any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"))]
 use crate::types::VkPipelineCreateFlags2KHR;
 #[cfg(feature = "VK_KHR_pipeline_binary")]
 use crate::types::VkPipelineCreateInfoKHR;
@@ -4886,6 +4939,8 @@ use crate::types::VkQueryPoolPerformanceCreateInfoKHR;
 use crate::types::VkQueryPoolPerformanceQueryCreateInfoINTEL;
 #[cfg(feature = "VK_KHR_video_encode_queue")]
 use crate::types::VkQueryPoolVideoEncodeFeedbackCreateInfoKHR;
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+use crate::types::VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkQueryResultFlags;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -5245,6 +5300,11 @@ use crate::types::VkShaderStageFlags;
 use crate::types::VkShaderStatisticsInfoAMD;
 #[cfg(feature = "VK_NV_shading_rate_image")]
 use crate::types::VkShadingRatePaletteNV;
+#[cfg(all(
+  feature = "VK_KHR_extended_flags",
+  feature = "VK_KHR_shared_presentable_image"
+))]
+use crate::types::VkSharedPresentSurfaceCapabilities2KHR;
 #[cfg(feature = "VK_KHR_shared_presentable_image")]
 use crate::types::VkSharedPresentSurfaceCapabilitiesKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -5421,6 +5481,8 @@ use crate::types::VkSwapchainCreateFlagsKHR;
 use crate::types::VkSwapchainCreateInfoKHR;
 #[cfg(feature = "VK_AMD_display_native_hdr")]
 use crate::types::VkSwapchainDisplayNativeHdrCreateInfoAMD;
+#[cfg(feature = "VK_EXT_multisampled_render_to_swapchain")]
+use crate::types::VkSwapchainFlagsSurfaceCapabilitiesEXT;
 #[cfg(feature = "VK_KHR_swapchain")]
 use crate::types::VkSwapchainKHR;
 #[cfg(feature = "VK_NV_low_latency2")]
@@ -5685,6 +5747,8 @@ use crate::types::VkVideoEncodeCapabilitiesKHR;
 use crate::types::VkVideoEncodeCapabilityFlagsKHR;
 #[cfg(feature = "VK_KHR_video_encode_queue")]
 use crate::types::VkVideoEncodeContentFlagsKHR;
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+use crate::types::VkVideoEncodeFeedback2CapabilitiesKHR;
 #[cfg(feature = "VK_KHR_video_encode_queue")]
 use crate::types::VkVideoEncodeFeedbackFlagsKHR;
 #[cfg(feature = "VK_KHR_video_encode_queue")]
@@ -5787,6 +5851,8 @@ use crate::types::VkVideoEncodeIntraRefreshCapabilitiesKHR;
 use crate::types::VkVideoEncodeIntraRefreshInfoKHR;
 #[cfg(feature = "VK_KHR_video_encode_intra_refresh")]
 use crate::types::VkVideoEncodeIntraRefreshModeFlagsKHR;
+#[cfg(feature = "VK_KHR_video_encode_feedback2")]
+use crate::types::VkVideoEncodePerPartitionFeedbackFlagsKHR;
 #[cfg(feature = "VK_VALVE_video_encode_rgb_conversion")]
 use crate::types::VkVideoEncodeProfileRgbConversionInfoVALVE;
 #[cfg(feature = "VK_KHR_video_encode_queue")]
@@ -11522,15 +11588,25 @@ pub type PFN_vkCmdSetFrontFaceEXT =
 /// - **Queues:** Graphics
 /// - **Render Pass:** Both
 /// - **Tasks:** State
-/// - **Availability:** depends on `VK_EXT_line_rasterization`
+/// - **Availability:** depends on `VK_VERSION_1_4 + VK_KHR_line_rasterization + VK_EXT_line_rasterization`
 ///
 /// # Parameters
 /// - `commandBuffer`
 /// - `lineRasterizationMode`
 #[cfg(any(
+  all(feature = "VK_EXT_extended_dynamic_state3", feature = "VK_VERSION_1_4"),
+  all(
+    feature = "VK_EXT_extended_dynamic_state3",
+    feature = "VK_KHR_line_rasterization"
+  ),
   all(
     feature = "VK_EXT_extended_dynamic_state3",
     feature = "VK_EXT_line_rasterization"
+  ),
+  all(feature = "VK_EXT_shader_object", feature = "VK_VERSION_1_4"),
+  all(
+    feature = "VK_EXT_shader_object",
+    feature = "VK_KHR_line_rasterization"
   ),
   all(
     feature = "VK_EXT_line_rasterization",
@@ -11581,15 +11657,25 @@ pub type PFN_vkCmdSetLineStippleEXT = unsafe extern "system" fn(
 /// - **Queues:** Graphics
 /// - **Render Pass:** Both
 /// - **Tasks:** State
-/// - **Availability:** depends on `VK_EXT_line_rasterization`
+/// - **Availability:** depends on `VK_VERSION_1_4 + VK_KHR_line_rasterization + VK_EXT_line_rasterization`
 ///
 /// # Parameters
 /// - `commandBuffer`
 /// - `stippledLineEnable`
 #[cfg(any(
+  all(feature = "VK_EXT_extended_dynamic_state3", feature = "VK_VERSION_1_4"),
+  all(
+    feature = "VK_EXT_extended_dynamic_state3",
+    feature = "VK_KHR_line_rasterization"
+  ),
   all(
     feature = "VK_EXT_extended_dynamic_state3",
     feature = "VK_EXT_line_rasterization"
+  ),
+  all(feature = "VK_EXT_shader_object", feature = "VK_VERSION_1_4"),
+  all(
+    feature = "VK_EXT_shader_object",
+    feature = "VK_KHR_line_rasterization"
   ),
   all(
     feature = "VK_EXT_line_rasterization",
@@ -18988,7 +19074,7 @@ pub type PFN_vkGetGpaDeviceClockInfoAMD = unsafe extern "system" fn(
 /// - `device`
 /// - `gpaSession`
 /// - `sampleID`
-/// - `pSizeInBytes`
+/// - `pSizeInBytes`: optional: pointer required, values optional if pointer not null
 /// - `pData`: optional: true, len: pSizeInBytes
 ///
 /// # Returns

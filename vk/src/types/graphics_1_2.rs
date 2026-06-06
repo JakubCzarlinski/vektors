@@ -98,10 +98,14 @@ use crate::types::VkFramebufferCreateInfo;
 use crate::types::VkImageAspectFlags;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkImageCreateFlags;
+#[cfg(feature = "VK_KHR_extended_flags")]
+use crate::types::VkImageCreateFlags2CreateInfoKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkImageCreateInfo;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkImageUsageFlags;
+#[cfg(feature = "VK_KHR_extended_flags")]
+use crate::types::VkImageUsageFlags2CreateInfoKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkImageView;
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
@@ -1603,6 +1607,30 @@ impl<'a> VkFramebufferAttachmentImageInfo<'a> {
   pub const fn with_pViewFormats(mut self, val: &'a [VkFormat]) -> Self {
     self.viewFormatCount = val.len() as u32;
     self.pViewFormats = val.as_ptr();
+    self
+  }
+  #[cfg(feature = "VK_KHR_extended_flags")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkImageCreateFlags2CreateInfoKHR<'child>(
+    mut self,
+    val: &'a VkImageCreateFlags2CreateInfoKHR<'child>,
+  ) -> Self {
+    self.pNext = (val as *const VkImageCreateFlags2CreateInfoKHR<'child>).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_KHR_extended_flags")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkImageUsageFlags2CreateInfoKHR<'child>(
+    mut self,
+    val: &'a VkImageUsageFlags2CreateInfoKHR<'child>,
+  ) -> Self {
+    self.pNext = (val as *const VkImageUsageFlags2CreateInfoKHR<'child>).cast::<c_void>();
     self
   }
   #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]

@@ -149,7 +149,7 @@ impl<'dev> GpaSessionAMD<'dev> {
   /// - `device`
   /// - `gpaSession`
   /// - `sampleID`
-  /// - `pSizeInBytes`
+  /// - `pSizeInBytes`: optional: pointer required, values optional if pointer not null
   /// - `pData`: optional: true, len: pSizeInBytes
   ///
   /// # Returns
