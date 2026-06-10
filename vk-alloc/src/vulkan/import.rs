@@ -65,13 +65,12 @@ pub(crate) fn import_host_buffer<'vk>(
             .with_pNext_VkImportMemoryHostPointerInfoEXT(import)
             .with_allocationSize(requirement.size)
             .with_memoryTypeIndex(memory_type_index);
-        let memory = device
+        device
             .vkAllocateMemory(allocate_info, null())
-            .map_err(AllocatorError::Vulkan)?;
-        buffer
-            .vkBindBufferMemory(memory.raw(), 0)
-            .map_err(AllocatorError::Vulkan)?;
-        memory
+            .map_err(AllocatorError::Vulkan)?
     };
+    buffer
+        .vkBindBufferMemory(memory.raw(), 0)
+        .map_err(AllocatorError::Vulkan)?;
     Ok(ImportedHostBuffer::new(buffer, memory, host_ptr, size))
 }

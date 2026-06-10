@@ -9,8 +9,8 @@ use vk::{
 pub struct DeviceLimits {
     pub max_memory_allocation_size: u64,
     pub min_imported_host_pointer_alignment: u64,
-    pub max_storage_buffer_range: u32,
     pub max_uniform_buffer_range: u32,
+    pub max_storage_buffer_range: u32,
 }
 
 pub(crate) fn memory_properties(
@@ -27,19 +27,21 @@ pub(crate) fn device_limits(physical_device: &PhysicalDevice<'_>) -> DeviceLimit
     let mut maintenance3 = VkPhysicalDeviceMaintenance3Properties::DEFAULT
         .with_pNext_chain_VkPhysicalDeviceProperties2(&mut host);
 
-    let (max_storage_buffer_range, max_uniform_buffer_range) = {
+    let (max_uniform_buffer_range, max_storage_buffer_range) = {
         let mut props = VkPhysicalDeviceProperties2::DEFAULT
             .with_pNext_VkPhysicalDeviceMaintenance3Properties(&mut maintenance3);
         physical_device.vkGetPhysicalDeviceProperties2(&mut props);
-        let max_storage_buffer_range = props.properties.limits.maxStorageBufferRange;
         let max_uniform_buffer_range = props.properties.limits.maxUniformBufferRange;
-        (max_storage_buffer_range, max_uniform_buffer_range)
+        let max_storage_buffer_range = props.properties.limits.maxStorageBufferRange;
+        (max_uniform_buffer_range, max_storage_buffer_range)
     };
+    let max_memory_allocation_size = maintenance3.maxMemoryAllocationSize;
+    let min_imported_host_pointer_alignment = host.minImportedHostPointerAlignment;
     DeviceLimits {
-        max_memory_allocation_size: maintenance3.maxMemoryAllocationSize,
-        max_storage_buffer_range,
+        max_memory_allocation_size,
+        min_imported_host_pointer_alignment,
         max_uniform_buffer_range,
-        min_imported_host_pointer_alignment: host.minImportedHostPointerAlignment,
+        max_storage_buffer_range,
     }
 }
 

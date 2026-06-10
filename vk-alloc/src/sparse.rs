@@ -26,6 +26,10 @@ impl<K, V> PageTable<K, V> {
             pages: BTreeMap::new(),
         }
     }
+
+    pub(crate) fn iter(&self) -> impl Iterator<Item = (&K, &V)> {
+        self.pages.iter()
+    }
 }
 
 impl<K, V> Default for PageTable<K, V> {
@@ -153,6 +157,34 @@ impl PreparedBindSparseInfo {
 struct SparsePageKey(u64);
 
 type SparsePageTable = Arc<RwLock<PageTable<SparsePageKey, Allocation>>>;
+
+trait SparsePageAllocator {
+    fn allocate_sparse_page(
+        &self,
+        requirements: VkMemoryRequirements,
+        alloc_info: AllocationCreateInfo,
+    ) -> Result<Allocation, AllocatorError>;
+}
+
+impl SparsePageAllocator for Allocator<'_> {
+    fn allocate_sparse_page(
+        &self,
+        requirements: VkMemoryRequirements,
+        alloc_info: AllocationCreateInfo,
+    ) -> Result<Allocation, AllocatorError> {
+        self.allocate_page(requirements, alloc_info)
+    }
+}
+
+impl SparsePageAllocator for GroupAllocator<'_> {
+    fn allocate_sparse_page(
+        &self,
+        requirements: VkMemoryRequirements,
+        alloc_info: AllocationCreateInfo,
+    ) -> Result<Allocation, AllocatorError> {
+        self.allocate_page(requirements, alloc_info)
+    }
+}
 
 struct SparseBase {
     page_size: u64,
@@ -290,7 +322,7 @@ impl<'vk> SparseBufferAllocation<'vk> {
             self.base_alloc_info.clone(),
             page_index,
             resident,
-            |requirements, alloc_info| allocator.allocate_page(requirements, alloc_info),
+            allocator,
         )
     }
 
@@ -306,7 +338,7 @@ impl<'vk> SparseBufferAllocation<'vk> {
             self.base_alloc_info.clone(),
             page_index,
             resident,
-            |requirements, alloc_info| allocator.allocate_page(requirements, alloc_info),
+            allocator,
         )
     }
 
@@ -391,7 +423,7 @@ impl<'vk> SparseImageAllocation<'vk> {
             self.base_alloc_info.clone(),
             page_index,
             resident,
-            |requirements, alloc_info| allocator.allocate_page(requirements, alloc_info),
+            allocator,
         )
     }
 
@@ -407,14 +439,16 @@ impl<'vk> SparseImageAllocation<'vk> {
             self.base_alloc_info.clone(),
             page_index,
             resident,
-            |requirements, alloc_info| allocator.allocate_page(requirements, alloc_info),
+            allocator,
         )
     }
 
     pub fn build_bind_list(&self) -> SparseImageBindList {
-        let mut binds = Vec::new();
-        self.pages.read().for_each(|page, allocation| {
-            binds.push(
+        let binds = self
+            .pages
+            .read()
+            .iter()
+            .map(|(page, allocation)| {
                 VkSparseImageMemoryBind::DEFAULT
                     .with_offset(VkOffset3D::DEFAULT.with_x((page.0 * self.page_size) as i32))
                     .with_extent(
@@ -424,12 +458,10 @@ impl<'vk> SparseImageAllocation<'vk> {
                             .with_depth(1),
                     )
                     .with_memory(allocation.memory())
-                    .with_memoryOffset(allocation.offset()),
-            );
-        });
-        SparseImageBindList {
-            binds: binds.into_boxed_slice(),
-        }
+                    .with_memoryOffset(allocation.offset())
+            })
+            .collect();
+        SparseImageBindList { binds }
     }
 
     pub fn prepare_bind_info(&self) -> PreparedBindSparseInfo {
@@ -449,7 +481,7 @@ fn update_sparse_page(
     base_alloc_info: AllocationCreateInfo,
     page_index: u64,
     resident: bool,
-    allocate: impl Fn(VkMemoryRequirements, AllocationCreateInfo) -> Result<Allocation, AllocatorError>, // TODO(czarlinski): this is awkward, inline.
+    allocator: &impl SparsePageAllocator,
 ) -> Result<(), AllocatorError> {
     let key = SparsePageKey(page_index);
     if resident {
@@ -457,7 +489,7 @@ fn update_sparse_page(
             .with_size(page_size)
             .with_alignment(page_size)
             .with_memoryTypeBits(u32::MAX);
-        let allocation = allocate(requirements, base_alloc_info)?;
+        let allocation = allocator.allocate_sparse_page(requirements, base_alloc_info)?;
         pages.write().insert(key, allocation);
     } else {
         pages.write().remove(&key);

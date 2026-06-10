@@ -1,6 +1,6 @@
 use crate::allocation::{
     AllocatedBuffer, AllocatedImage, Allocation, HostImportBufferCreateInfo, ImportedHostBuffer,
-    LargeBuffer, LargeBufferCreateInfo,
+    LargeBuffer, LargeBufferCreateInfo, LargeBufferSegmentsBuilder,
 };
 use crate::error::AllocatorError;
 use crate::memory::arena::ArenaRegistry;
@@ -190,15 +190,23 @@ impl<'vk> Allocator<'vk> {
             )
         });
         let chunk_size = chunk_size.max(1);
-        let mut segments = Vec::new();
-        let mut remaining = buffer_info.size;
-        while remaining != 0 {
-            let segment_size = remaining.min(chunk_size);
+        let segment_count = buffer_info
+            .size
+            .div_ceil(chunk_size)
+            .try_into()
+            .map_err(|_| AllocatorError::AllocationTooLarge)?;
+        let mut segments = LargeBufferSegmentsBuilder::new(segment_count);
+        for index in 0..segment_count {
+            let offset = index as u64 * chunk_size;
+            let segment_size = (buffer_info.size - offset).min(chunk_size);
             let segment_info = (*buffer_info).with_size(segment_size);
             segments.push(self.create_buffer(&segment_info, alloc_info.clone())?);
-            remaining -= segment_size;
         }
-        Ok(LargeBuffer::new(buffer_info.size, chunk_size, segments))
+        Ok(LargeBuffer::new(
+            buffer_info.size,
+            chunk_size,
+            segments.finish(),
+        ))
     }
 
     pub fn import_host_buffer(

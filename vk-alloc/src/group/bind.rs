@@ -8,6 +8,7 @@ use vk::{
     VkBindImageMemoryDeviceGroupInfo, VkBindImageMemoryInfo, VkRect2D,
 };
 
+#[inline]
 fn instance0_indices() -> Box<[u32]> {
     Box::new([0])
 }

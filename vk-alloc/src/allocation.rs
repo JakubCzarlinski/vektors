@@ -1,8 +1,10 @@
 use crate::error::AllocatorError;
 use crate::memory::block::SharedSource;
 use crate::stats::StatsState;
-use alloc::{boxed::Box, sync::Arc, vec::Vec};
-use core::ptr::null_mut;
+use alloc::{boxed::Box, sync::Arc};
+use core::mem::{self, MaybeUninit};
+use core::ptr::{self, null_mut};
+use core::slice;
 use vk::{Buffer, DeviceMemory, Image, VkDeviceMemory, VkExternalMemoryHandleTypeFlagBits};
 
 pub struct Allocation {
@@ -67,7 +69,7 @@ impl Allocation {
         if self.mapped_ptr.is_null() {
             None
         } else {
-            Some(unsafe { core::slice::from_raw_parts_mut(self.mapped_ptr.cast::<T>(), len) })
+            Some(unsafe { slice::from_raw_parts_mut(self.mapped_ptr.cast::<T>(), len) })
         }
     }
 }
@@ -142,7 +144,7 @@ impl HostImportBufferCreateInfo {
         Self {
             host_ptr,
             size,
-            ..Self::DEFAULT
+            handle_type: VkExternalMemoryHandleTypeFlagBits::HOST_ALLOCATION_BIT_EXT,
         }
     }
 
@@ -231,16 +233,53 @@ pub struct LargeBuffer<'vk> {
     segments: Box<[AllocatedBuffer<'vk>]>,
 }
 
+pub(crate) struct LargeBufferSegmentsBuilder<'vk> {
+    segments: Box<[MaybeUninit<AllocatedBuffer<'vk>>]>,
+    initialized: usize,
+}
+
+impl<'vk> LargeBufferSegmentsBuilder<'vk> {
+    pub(crate) fn new(segment_count: usize) -> Self {
+        Self {
+            segments: Box::new_uninit_slice(segment_count),
+            initialized: 0,
+        }
+    }
+
+    pub(crate) fn push(&mut self, segment: AllocatedBuffer<'vk>) {
+        debug_assert!(self.initialized < self.segments.len());
+        self.segments[self.initialized].write(segment);
+        self.initialized += 1;
+    }
+
+    pub(crate) fn finish(mut self) -> Box<[AllocatedBuffer<'vk>]> {
+        debug_assert_eq!(self.initialized, self.segments.len());
+        self.initialized = 0;
+        let segments = mem::replace(&mut self.segments, Box::new_uninit_slice(0));
+        unsafe { segments.assume_init() }
+    }
+}
+
+impl Drop for LargeBufferSegmentsBuilder<'_> {
+    fn drop(&mut self) {
+        for segment in &mut self.segments[..self.initialized] {
+            unsafe {
+                segment.assume_init_drop();
+            }
+        }
+    }
+}
+
 impl<'vk> LargeBuffer<'vk> {
     pub(crate) fn new(
         total_size: u64,
         chunk_size: u64,
-        segments: Vec<AllocatedBuffer<'vk>>,
+        segments: Box<[AllocatedBuffer<'vk>]>,
     ) -> Self {
         Self {
             total_size,
             chunk_size,
-            segments: segments.into_boxed_slice(),
+            segments,
         }
     }
 
@@ -302,7 +341,7 @@ impl<'vk> LargeBuffer<'vk> {
             let writable =
                 (segment.allocation().size() as usize - local_offset).min(remaining.len());
             unsafe {
-                core::ptr::copy_nonoverlapping(remaining.as_ptr(), ptr.add(local_offset), writable);
+                ptr::copy_nonoverlapping(remaining.as_ptr(), ptr.add(local_offset), writable);
             }
             remaining = &remaining[writable..];
             cursor += writable as u64;
