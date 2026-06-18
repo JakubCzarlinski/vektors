@@ -3455,6 +3455,13 @@ compile_error!(
   "Feature `VK_KHR_video_encode_feedback2` requires `VK_KHR_video_encode_queue`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_KHR_video_encode_feedback2.html"
 );
 #[cfg(all(
+  feature = "VK_IMG_filter_linear_2d",
+  not(any(feature = "VK_KHR_format_feature_flags2", feature = "VK_VERSION_1_3"))
+))]
+compile_error!(
+  "Feature `VK_IMG_filter_linear_2d` requires `VK_KHR_format_feature_flags2 , VK_VERSION_1_3`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_IMG_filter_linear_2d.html"
+);
+#[cfg(all(
   feature = "VK_EXT_external_memory_metal",
   not(any(feature = "VK_KHR_external_memory", feature = "VK_VERSION_1_1"))
 ))]

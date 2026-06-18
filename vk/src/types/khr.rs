@@ -344,7 +344,8 @@ use crate::enums::VkFormat;
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 use crate::enums::VkFormatFeatureFlagBits2;
 #[cfg(feature = "VK_KHR_extended_flags")]

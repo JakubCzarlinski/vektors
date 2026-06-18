@@ -1,4 +1,4 @@
-version="0.1.10"
+version="0.1.11"
 
 mkdir -p registry
 curl -o registry/video.xml https://raw.githubusercontent.com/KhronosGroup/Vulkan-Docs/refs/heads/main/xml/video.xml

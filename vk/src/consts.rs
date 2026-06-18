@@ -609,7 +609,7 @@ pub const VK_API_VERSION: u32 = VK_MAKE_API_VERSION(0u32, 1u32, 0u32, 0u32);
 pub const VK_API_VERSION_1_0: u32 = VK_MAKE_API_VERSION(0u32, 1u32, 0u32, 0u32);
 /// [VK_HEADER_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION.html)
 #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
-pub const VK_HEADER_VERSION: u32 = 353u32;
+pub const VK_HEADER_VERSION: u32 = 354u32;
 /// [VK_HEADER_VERSION_COMPLETE](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION_COMPLETE.html)
 #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub const VK_HEADER_VERSION_COMPLETE: u32 = VK_MAKE_API_VERSION(0u32, 1u32, 4u32, 0u32);
@@ -2425,6 +2425,17 @@ pub const VK_IMG_FILTER_CUBIC_SPEC_VERSION: u32 = 1;
 /// Extension type: device extension.
 #[cfg(feature = "VK_IMG_filter_cubic")]
 pub const VK_IMG_FILTER_CUBIC_EXTENSION_NAME: &'static core::ffi::CStr = c"VK_IMG_filter_cubic";
+/// [VK_IMG_FILTER_LINEAR_2D_SPEC_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_IMG_filter_linear_2d.html)
+///
+/// Extension type: device extension.
+#[cfg(feature = "VK_IMG_filter_linear_2d")]
+pub const VK_IMG_FILTER_LINEAR_2D_SPEC_VERSION: u32 = 1;
+/// [VK_IMG_FILTER_LINEAR_2D_EXTENSION_NAME](https://docs.vulkan.org/refpages/latest/refpages/source/VK_IMG_filter_linear_2d.html)
+///
+/// Extension type: device extension.
+#[cfg(feature = "VK_IMG_filter_linear_2d")]
+pub const VK_IMG_FILTER_LINEAR_2D_EXTENSION_NAME: &'static core::ffi::CStr =
+  c"VK_IMG_filter_linear_2d";
 /// [VK_IMG_FORMAT_PVRTC_SPEC_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_IMG_format_pvrtc.html)
 ///
 /// Extension type: device extension.

@@ -18829,7 +18829,8 @@ impl core::fmt::Display for VkDataGraphPipelineSessionCreateFlagBitsARM {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
@@ -18845,7 +18846,8 @@ pub struct VkFormatFeatureFlagBits2(pub u64);
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl VkFormatFeatureFlagBits2 {
   pub const EMPTY: Self = Self(0);
@@ -19078,6 +19080,8 @@ impl VkFormatFeatureFlagBits2 {
   pub const VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR: Self = Self(1 << 49u64);
   #[cfg(feature = "VK_KHR_video_encode_quantization_map")]
   pub const VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR: Self = Self(1 << 50u64);
+  #[cfg(feature = "VK_IMG_filter_linear_2d")]
+  pub const SAMPLED_IMAGE_FILTER_LINEAR_2D_BIT_IMG: Self = Self(1 << 45u64);
   #[cfg(any(
     all(
       feature = "VK_KHR_format_feature_flags2",
@@ -19140,7 +19144,8 @@ impl VkFormatFeatureFlagBits2 {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::BitOr for VkFormatFeatureFlagBits2 {
   type Output = Self;
@@ -19160,7 +19165,8 @@ impl core::ops::BitOr for VkFormatFeatureFlagBits2 {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::BitOrAssign for VkFormatFeatureFlagBits2 {
   #[inline]
@@ -19179,7 +19185,8 @@ impl core::ops::BitOrAssign for VkFormatFeatureFlagBits2 {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::BitAnd for VkFormatFeatureFlagBits2 {
   type Output = Self;
@@ -19199,7 +19206,8 @@ impl core::ops::BitAnd for VkFormatFeatureFlagBits2 {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::BitAndAssign for VkFormatFeatureFlagBits2 {
   #[inline]
@@ -19218,7 +19226,8 @@ impl core::ops::BitAndAssign for VkFormatFeatureFlagBits2 {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::BitXor for VkFormatFeatureFlagBits2 {
   type Output = Self;
@@ -19238,7 +19247,8 @@ impl core::ops::BitXor for VkFormatFeatureFlagBits2 {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::BitXorAssign for VkFormatFeatureFlagBits2 {
   #[inline]
@@ -19257,7 +19267,8 @@ impl core::ops::BitXorAssign for VkFormatFeatureFlagBits2 {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::Not for VkFormatFeatureFlagBits2 {
   type Output = Self;
@@ -19277,7 +19288,8 @@ impl core::ops::Not for VkFormatFeatureFlagBits2 {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::BitOr<u64> for VkFormatFeatureFlagBits2 {
   type Output = Self;
@@ -19297,7 +19309,8 @@ impl core::ops::BitOr<u64> for VkFormatFeatureFlagBits2 {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::BitOrAssign<u64> for VkFormatFeatureFlagBits2 {
   #[inline]
@@ -19316,7 +19329,8 @@ impl core::ops::BitOrAssign<u64> for VkFormatFeatureFlagBits2 {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::BitAnd<u64> for VkFormatFeatureFlagBits2 {
   type Output = Self;
@@ -19336,7 +19350,8 @@ impl core::ops::BitAnd<u64> for VkFormatFeatureFlagBits2 {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::BitAndAssign<u64> for VkFormatFeatureFlagBits2 {
   #[inline]
@@ -19355,7 +19370,8 @@ impl core::ops::BitAndAssign<u64> for VkFormatFeatureFlagBits2 {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::BitXor<u64> for VkFormatFeatureFlagBits2 {
   type Output = Self;
@@ -19375,7 +19391,8 @@ impl core::ops::BitXor<u64> for VkFormatFeatureFlagBits2 {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::BitXorAssign<u64> for VkFormatFeatureFlagBits2 {
   #[inline]
@@ -19394,7 +19411,8 @@ impl core::ops::BitXorAssign<u64> for VkFormatFeatureFlagBits2 {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::fmt::Display for VkFormatFeatureFlagBits2 {
   #[allow(unused_mut)]
@@ -20119,6 +20137,14 @@ impl core::fmt::Display for VkFormatFeatureFlagBits2 {
         f.write_str("VK_FORMAT_FEATURE_2_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR")?;
         wrote = true;
       }
+      #[cfg(feature = "VK_IMG_filter_linear_2d")]
+      if self.intersects(Self::SAMPLED_IMAGE_FILTER_LINEAR_2D_BIT_IMG) {
+        if wrote {
+          f.write_str(" | ")?;
+        }
+        f.write_str("VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_FILTER_LINEAR_2D_BIT_IMG")?;
+        wrote = true;
+      }
       #[cfg(any(
         all(
           feature = "VK_KHR_format_feature_flags2",
@@ -20581,6 +20607,10 @@ impl core::fmt::Display for VkFormatFeatureFlagBits2 {
         #[cfg(feature = "VK_KHR_video_encode_quantization_map")]
         {
           bits |= Self::VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR.0;
+        }
+        #[cfg(feature = "VK_IMG_filter_linear_2d")]
+        {
+          bits |= Self::SAMPLED_IMAGE_FILTER_LINEAR_2D_BIT_IMG.0;
         }
         #[cfg(any(
           all(
@@ -67563,7 +67593,8 @@ impl core::fmt::Display for VkExternalSemaphoreFeatureFlagBitsKHR {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
@@ -67579,7 +67610,8 @@ pub struct VkFormatFeatureFlagBits2KHR(pub u64);
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl VkFormatFeatureFlagBits2KHR {
   pub const EMPTY: Self = Self(0);
@@ -67751,6 +67783,8 @@ impl VkFormatFeatureFlagBits2KHR {
   pub const VIDEO_ENCODE_QUANTIZATION_DELTA_MAP: Self = Self(1 << 49u64);
   #[cfg(feature = "VK_KHR_video_encode_quantization_map")]
   pub const VIDEO_ENCODE_EMPHASIS_MAP: Self = Self(1 << 50u64);
+  #[cfg(feature = "VK_IMG_filter_linear_2d")]
+  pub const SAMPLED_IMAGE_FILTER_LINEAR_2D_BIT_IMG: Self = Self(1 << 45u64);
   #[cfg(any(
     all(
       feature = "VK_KHR_format_feature_flags2",
@@ -67813,7 +67847,8 @@ impl VkFormatFeatureFlagBits2KHR {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::BitOr for VkFormatFeatureFlagBits2KHR {
   type Output = Self;
@@ -67833,7 +67868,8 @@ impl core::ops::BitOr for VkFormatFeatureFlagBits2KHR {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::BitOrAssign for VkFormatFeatureFlagBits2KHR {
   #[inline]
@@ -67852,7 +67888,8 @@ impl core::ops::BitOrAssign for VkFormatFeatureFlagBits2KHR {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::BitAnd for VkFormatFeatureFlagBits2KHR {
   type Output = Self;
@@ -67872,7 +67909,8 @@ impl core::ops::BitAnd for VkFormatFeatureFlagBits2KHR {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::BitAndAssign for VkFormatFeatureFlagBits2KHR {
   #[inline]
@@ -67891,7 +67929,8 @@ impl core::ops::BitAndAssign for VkFormatFeatureFlagBits2KHR {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::BitXor for VkFormatFeatureFlagBits2KHR {
   type Output = Self;
@@ -67911,7 +67950,8 @@ impl core::ops::BitXor for VkFormatFeatureFlagBits2KHR {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::BitXorAssign for VkFormatFeatureFlagBits2KHR {
   #[inline]
@@ -67930,7 +67970,8 @@ impl core::ops::BitXorAssign for VkFormatFeatureFlagBits2KHR {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::Not for VkFormatFeatureFlagBits2KHR {
   type Output = Self;
@@ -67950,7 +67991,8 @@ impl core::ops::Not for VkFormatFeatureFlagBits2KHR {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::BitOr<u64> for VkFormatFeatureFlagBits2KHR {
   type Output = Self;
@@ -67970,7 +68012,8 @@ impl core::ops::BitOr<u64> for VkFormatFeatureFlagBits2KHR {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::BitOrAssign<u64> for VkFormatFeatureFlagBits2KHR {
   #[inline]
@@ -67989,7 +68032,8 @@ impl core::ops::BitOrAssign<u64> for VkFormatFeatureFlagBits2KHR {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::BitAnd<u64> for VkFormatFeatureFlagBits2KHR {
   type Output = Self;
@@ -68009,7 +68053,8 @@ impl core::ops::BitAnd<u64> for VkFormatFeatureFlagBits2KHR {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::BitAndAssign<u64> for VkFormatFeatureFlagBits2KHR {
   #[inline]
@@ -68028,7 +68073,8 @@ impl core::ops::BitAndAssign<u64> for VkFormatFeatureFlagBits2KHR {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::BitXor<u64> for VkFormatFeatureFlagBits2KHR {
   type Output = Self;
@@ -68048,7 +68094,8 @@ impl core::ops::BitXor<u64> for VkFormatFeatureFlagBits2KHR {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::ops::BitXorAssign<u64> for VkFormatFeatureFlagBits2KHR {
   #[inline]
@@ -68067,7 +68114,8 @@ impl core::ops::BitXorAssign<u64> for VkFormatFeatureFlagBits2KHR {
   feature = "VK_NV_ray_tracing_linear_swept_spheres",
   feature = "VK_NV_optical_flow",
   feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_KHR_video_encode_quantization_map"
+  feature = "VK_KHR_video_encode_quantization_map",
+  feature = "VK_IMG_filter_linear_2d"
 ))]
 impl core::fmt::Display for VkFormatFeatureFlagBits2KHR {
   #[allow(unused_mut)]
@@ -68566,6 +68614,14 @@ impl core::fmt::Display for VkFormatFeatureFlagBits2KHR {
         f.write_str("VK_FORMAT_FEATURE_2_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR")?;
         wrote = true;
       }
+      #[cfg(feature = "VK_IMG_filter_linear_2d")]
+      if self.intersects(Self::SAMPLED_IMAGE_FILTER_LINEAR_2D_BIT_IMG) {
+        if wrote {
+          f.write_str(" | ")?;
+        }
+        f.write_str("VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_FILTER_LINEAR_2D_BIT_IMG")?;
+        wrote = true;
+      }
       #[cfg(any(
         all(
           feature = "VK_KHR_format_feature_flags2",
@@ -68917,6 +68973,10 @@ impl core::fmt::Display for VkFormatFeatureFlagBits2KHR {
         #[cfg(feature = "VK_KHR_video_encode_quantization_map")]
         {
           bits |= Self::VIDEO_ENCODE_EMPHASIS_MAP.0;
+        }
+        #[cfg(feature = "VK_IMG_filter_linear_2d")]
+        {
+          bits |= Self::SAMPLED_IMAGE_FILTER_LINEAR_2D_BIT_IMG.0;
         }
         #[cfg(any(
           all(

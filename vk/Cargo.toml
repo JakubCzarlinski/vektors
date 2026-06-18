@@ -1,6 +1,6 @@
 [package]
 name = "vk"
-version = "0.1.10"
+version = "0.1.11"
 edition = "2024"
 license = "MIT"
 repository = "https://github.com/JakubCzarlinski/vk"
@@ -1084,6 +1084,8 @@ VK_NV_cooperative_matrix2 = ["VK_KHR_cooperative_matrix"]
 VK_ARM_pipeline_opacity_micromap = ["VK_EXT_opacity_micromap"]
 # type: device
 VK_KHR_video_encode_feedback2 = ["VK_KHR_video_encode_queue"]
+# type: device
+VK_IMG_filter_linear_2d = []
 # type: device
 VK_EXT_external_memory_metal = []
 # type: device
