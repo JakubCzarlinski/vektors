@@ -3024,6 +3024,10 @@ impl VkStructureType {
   pub const PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT16_VECTOR_FEATURES_NV: Self = Self(1000563000);
   #[cfg(feature = "VK_EXT_shader_replicated_composites")]
   pub const PHYSICAL_DEVICE_SHADER_REPLICATED_COMPOSITES_FEATURES_EXT: Self = Self(1000564000);
+  #[cfg(feature = "VK_ARM_tensor_controls")]
+  pub const TENSOR_EXPLICIT_TILING_FORMAT_PROPERTIES_ARM: Self = Self(1000565000);
+  #[cfg(feature = "VK_ARM_tensor_controls")]
+  pub const TENSOR_ROLLING_BACKING_CREATE_INFO_ARM: Self = Self(1000565001);
   #[cfg(feature = "VK_EXT_shader_float8")]
   pub const PHYSICAL_DEVICE_SHADER_FLOAT8_FEATURES_EXT: Self = Self(1000567000);
   #[cfg(feature = "VK_NV_ray_tracing_validation")]
@@ -10699,6 +10703,16 @@ impl core::fmt::Display for VkStructureType {
                 f.write_str(
                     "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_REPLICATED_COMPOSITES_FEATURES_EXT",
                 )
+            }
+            #[cfg(feature = "VK_ARM_tensor_controls")]
+            value if value == Self::TENSOR_EXPLICIT_TILING_FORMAT_PROPERTIES_ARM.0 => {
+                f.write_str(
+                    "VK_STRUCTURE_TYPE_TENSOR_EXPLICIT_TILING_FORMAT_PROPERTIES_ARM",
+                )
+            }
+            #[cfg(feature = "VK_ARM_tensor_controls")]
+            value if value == Self::TENSOR_ROLLING_BACKING_CREATE_INFO_ARM.0 => {
+                f.write_str("VK_STRUCTURE_TYPE_TENSOR_ROLLING_BACKING_CREATE_INFO_ARM")
             }
             #[cfg(feature = "VK_EXT_shader_float8")]
             value if value == Self::PHYSICAL_DEVICE_SHADER_FLOAT8_FEATURES_EXT.0 => {
@@ -28127,6 +28141,16 @@ pub struct VkTensorTilingARM(pub i32);
 impl VkTensorTilingARM {
   pub const OPTIMAL: Self = Self(0);
   pub const LINEAR: Self = Self(1);
+  #[cfg(feature = "VK_ARM_tensor_controls")]
+  pub const BRICK_16_WIDE: Self = Self(1000565000);
+  #[cfg(feature = "VK_ARM_tensor_controls")]
+  pub const BRICK_8_WIDE: Self = Self(1000565001);
+  #[cfg(feature = "VK_ARM_tensor_controls")]
+  pub const BRICK_4_WIDE: Self = Self(1000565002);
+  #[cfg(feature = "VK_ARM_tensor_controls")]
+  pub const BLOCK_U_INTERLEAVED: Self = Self(1000565003);
+  #[cfg(feature = "VK_ARM_tensor_controls")]
+  pub const BLOCK_U_INTERLEAVED_64K: Self = Self(1000565004);
 }
 #[cfg(feature = "VK_ARM_tensors")]
 impl core::fmt::Display for VkTensorTilingARM {
@@ -28134,6 +28158,20 @@ impl core::fmt::Display for VkTensorTilingARM {
     match self.0 {
       value if value == Self::OPTIMAL.0 => f.write_str("VK_TENSOR_TILING_OPTIMAL_ARM"),
       value if value == Self::LINEAR.0 => f.write_str("VK_TENSOR_TILING_LINEAR_ARM"),
+      #[cfg(feature = "VK_ARM_tensor_controls")]
+      value if value == Self::BRICK_16_WIDE.0 => f.write_str("VK_TENSOR_TILING_BRICK_16_WIDE_ARM"),
+      #[cfg(feature = "VK_ARM_tensor_controls")]
+      value if value == Self::BRICK_8_WIDE.0 => f.write_str("VK_TENSOR_TILING_BRICK_8_WIDE_ARM"),
+      #[cfg(feature = "VK_ARM_tensor_controls")]
+      value if value == Self::BRICK_4_WIDE.0 => f.write_str("VK_TENSOR_TILING_BRICK_4_WIDE_ARM"),
+      #[cfg(feature = "VK_ARM_tensor_controls")]
+      value if value == Self::BLOCK_U_INTERLEAVED.0 => {
+        f.write_str("VK_TENSOR_TILING_BLOCK_U_INTERLEAVED_ARM")
+      }
+      #[cfg(feature = "VK_ARM_tensor_controls")]
+      value if value == Self::BLOCK_U_INTERLEAVED_64K.0 => {
+        f.write_str("VK_TENSOR_TILING_BLOCK_U_INTERLEAVED_64K_ARM")
+      }
       _ => write!(f, "{}({})", stringify!(VkTensorTilingARM), self.0),
     }
   }

@@ -1,6 +1,7 @@
 use crate::consts::VK_MAX_DATA_GRAPH_TOSA_NAME_SIZE_ARM;
 use crate::consts::VK_MAX_DESCRIPTION_SIZE;
 use crate::consts::VK_MAX_PHYSICAL_DEVICE_DATA_GRAPH_OPERATION_SET_NAME_SIZE_ARM;
+use crate::consts::VK_MAX_TENSOR_CREATE_INFO_ROLLING_BACKING_WRAP_COUNT_ARM;
 #[cfg(any(
   feature = "VK_BASE_VERSION_1_3",
   feature = "VK_KHR_video_decode_queue",
@@ -5509,6 +5510,176 @@ impl VkShaderInstrumentationMetricDataHeaderARM {
     self
   }
 }
+/// [VkTensorExplicitTilingFormatPropertiesARM](https://docs.vulkan.org/refpages/latest/refpages/source/VkTensorExplicitTilingFormatPropertiesARM.html)
+///
+/// *Note: This is a **returned only** struct.*
+///
+/// *Note: This struct has **required limit types**.*
+///
+/// **Extends:** VkFormatProperties2.
+#[cfg(feature = "VK_ARM_tensor_controls")]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkTensorExplicitTilingFormatPropertiesARM<'a> {
+  /// Values: VK_STRUCTURE_TYPE_TENSOR_EXPLICIT_TILING_FORMAT_PROPERTIES_ARM
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  /// Limit Type: [Bitmask]
+  pub brick16TilingTensorFeatures: VkFormatFeatureFlags2,
+  /// Limit Type: [Bitmask]
+  pub brick8TilingTensorFeatures: VkFormatFeatureFlags2,
+  /// Limit Type: [Bitmask]
+  pub brick4TilingTensorFeatures: VkFormatFeatureFlags2,
+  /// Limit Type: [Bitmask]
+  pub blockUTilingTensorFeatures: VkFormatFeatureFlags2,
+  /// Limit Type: [Bitmask]
+  pub blockU64kTilingTensorFeatures: VkFormatFeatureFlags2,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(feature = "VK_ARM_tensor_controls")]
+unsafe impl<'a> Send for VkTensorExplicitTilingFormatPropertiesARM<'a> {}
+#[cfg(feature = "VK_ARM_tensor_controls")]
+unsafe impl<'a> Sync for VkTensorExplicitTilingFormatPropertiesARM<'a> {}
+#[cfg(all(feature = "VK_ARM_tensor_controls", feature = "VK_BASE_VERSION_1_1"))]
+unsafe impl<'child, 'root> VkPNextExtends<VkFormatProperties2<'root>>
+  for VkTensorExplicitTilingFormatPropertiesARM<'child>
+{
+}
+#[cfg(feature = "VK_ARM_tensor_controls")]
+impl<'a> VkTensorExplicitTilingFormatPropertiesARM<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::TENSOR_EXPLICIT_TILING_FORMAT_PROPERTIES_ARM,
+    pNext: core::ptr::null_mut(),
+    brick16TilingTensorFeatures: VkFormatFeatureFlagBits2(0),
+    brick8TilingTensorFeatures: VkFormatFeatureFlagBits2(0),
+    brick4TilingTensorFeatures: VkFormatFeatureFlagBits2(0),
+    blockUTilingTensorFeatures: VkFormatFeatureFlagBits2(0),
+    blockU64kTilingTensorFeatures: VkFormatFeatureFlagBits2(0),
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_brick16TilingTensorFeatures(mut self, val: VkFormatFeatureFlags2) -> Self {
+    self.brick16TilingTensorFeatures = val;
+    self
+  }
+  #[inline]
+  pub const fn with_brick8TilingTensorFeatures(mut self, val: VkFormatFeatureFlags2) -> Self {
+    self.brick8TilingTensorFeatures = val;
+    self
+  }
+  #[inline]
+  pub const fn with_brick4TilingTensorFeatures(mut self, val: VkFormatFeatureFlags2) -> Self {
+    self.brick4TilingTensorFeatures = val;
+    self
+  }
+  #[inline]
+  pub const fn with_blockUTilingTensorFeatures(mut self, val: VkFormatFeatureFlags2) -> Self {
+    self.blockUTilingTensorFeatures = val;
+    self
+  }
+  #[inline]
+  pub const fn with_blockU64kTilingTensorFeatures(mut self, val: VkFormatFeatureFlags2) -> Self {
+    self.blockU64kTilingTensorFeatures = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkFormatProperties2<
+    'root,
+    T: VkPNextExtends<VkFormatProperties2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkTensorRollingBackingCreateInfoARM](https://docs.vulkan.org/refpages/latest/refpages/source/VkTensorRollingBackingCreateInfoARM.html)
+///
+/// **Extends:** VkTensorCreateInfoARM.
+#[cfg(feature = "VK_ARM_tensor_controls")]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkTensorRollingBackingCreateInfoARM<'a> {
+  /// Values: VK_STRUCTURE_TYPE_TENSOR_ROLLING_BACKING_CREATE_INFO_ARM
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *const c_void,
+  pub wraps: [u32; VK_MAX_TENSOR_CREATE_INFO_ROLLING_BACKING_WRAP_COUNT_ARM as usize],
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(feature = "VK_ARM_tensor_controls")]
+unsafe impl<'a> Send for VkTensorRollingBackingCreateInfoARM<'a> {}
+#[cfg(feature = "VK_ARM_tensor_controls")]
+unsafe impl<'a> Sync for VkTensorRollingBackingCreateInfoARM<'a> {}
+#[cfg(all(feature = "VK_ARM_tensor_controls", feature = "VK_ARM_tensors"))]
+unsafe impl<'child, 'root> VkPNextExtends<VkTensorCreateInfoARM<'root>>
+  for VkTensorRollingBackingCreateInfoARM<'child>
+{
+}
+#[cfg(feature = "VK_ARM_tensor_controls")]
+impl<'a> VkTensorRollingBackingCreateInfoARM<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::TENSOR_ROLLING_BACKING_CREATE_INFO_ARM,
+    pNext: core::ptr::null(),
+    wraps: [0u32; VK_MAX_TENSOR_CREATE_INFO_ROLLING_BACKING_WRAP_COUNT_ARM as usize],
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_wraps(
+    mut self,
+    val: [u32; VK_MAX_TENSOR_CREATE_INFO_ROLLING_BACKING_WRAP_COUNT_ARM as usize],
+  ) -> Self {
+    self.wraps = val;
+    self
+  }
+  #[cfg(feature = "VK_ARM_tensors")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkTensorCreateInfoARM<
+    'root,
+    T: VkPNextExtends<VkTensorCreateInfoARM<'root>>,
+  >(
+    mut self,
+    val: &'a T,
+  ) -> Self {
+    self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+}
 /// [VkTensorCreateFlagsARM](https://docs.vulkan.org/refpages/latest/refpages/source/VkTensorCreateFlagsARM.html)
 #[cfg(feature = "VK_ARM_tensors")]
 pub type VkTensorCreateFlagsARM = VkTensorCreateFlagBitsARM;
@@ -5794,6 +5965,18 @@ impl<'a> VkTensorCreateInfoARM<'a> {
   ) -> Self {
     self.pNext =
       (val as *const VkOpaqueCaptureDescriptorDataCreateInfoEXT<'child>).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_ARM_tensor_controls")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkTensorRollingBackingCreateInfoARM<'child>(
+    mut self,
+    val: &'a VkTensorRollingBackingCreateInfoARM<'child>,
+  ) -> Self {
+    self.pNext = (val as *const VkTensorRollingBackingCreateInfoARM<'child>).cast::<c_void>();
     self
   }
   #[cfg(feature = "VK_ARM_tensors")]

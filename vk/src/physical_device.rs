@@ -4021,6 +4021,7 @@ impl<'inst> PhysicalDevice<'inst> {
   ///   - `VK_ERROR_UNKNOWN`
   ///   - `VK_ERROR_VALIDATION_FAILED`
   #[cfg(feature = "VK_KHR_surface")]
+  #[deprecated(note = "superseded by `vkGetPhysicalDeviceSurfaceCapabilities2KHR`")]
   #[inline(always)]
   pub fn vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
     &self,
@@ -4064,6 +4065,7 @@ impl<'inst> PhysicalDevice<'inst> {
   ///   - `VK_ERROR_UNKNOWN`
   ///   - `VK_ERROR_VALIDATION_FAILED`
   #[cfg(feature = "VK_KHR_surface")]
+  #[deprecated(note = "superseded by `vkGetPhysicalDeviceSurfaceFormats2KHR`")]
   #[inline(always)]
   pub fn vkGetPhysicalDeviceSurfaceFormatsKHR(
     &self,

@@ -328,12 +328,16 @@ pub use arm::VkTensorCreateInfoARM;
 pub use arm::VkTensorDependencyInfoARM;
 #[cfg(feature = "VK_ARM_tensors")]
 pub use arm::VkTensorDescriptionARM;
+#[cfg(feature = "VK_ARM_tensor_controls")]
+pub use arm::VkTensorExplicitTilingFormatPropertiesARM;
 #[cfg(feature = "VK_ARM_tensors")]
 pub use arm::VkTensorFormatPropertiesARM;
 #[cfg(feature = "VK_ARM_tensors")]
 pub use arm::VkTensorMemoryBarrierARM;
 #[cfg(feature = "VK_ARM_tensors")]
 pub use arm::VkTensorMemoryRequirementsInfoARM;
+#[cfg(feature = "VK_ARM_tensor_controls")]
+pub use arm::VkTensorRollingBackingCreateInfoARM;
 #[cfg(feature = "VK_ARM_tensors")]
 pub use arm::VkTensorUsageFlagsARM;
 #[cfg(feature = "VK_ARM_tensors")]

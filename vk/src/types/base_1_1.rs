@@ -1047,6 +1047,8 @@ use crate::types::VkSubpassResolvePerformanceQueryEXT;
   feature = "VK_EXT_fragment_density_map"
 ))]
 use crate::types::VkSubsampledImageFormatPropertiesEXT;
+#[cfg(feature = "VK_ARM_tensor_controls")]
+use crate::types::VkTensorExplicitTilingFormatPropertiesARM;
 #[cfg(feature = "VK_ARM_tensors")]
 use crate::types::VkTensorFormatPropertiesARM;
 #[cfg(feature = "VK_AMD_texture_gather_bias_lod")]
@@ -6411,6 +6413,18 @@ impl<'a> VkFormatProperties2<'a> {
     val: &'a mut VkSubpassResolvePerformanceQueryEXT<'child>,
   ) -> Self {
     self.pNext = (val as *mut VkSubpassResolvePerformanceQueryEXT<'child>).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_ARM_tensor_controls")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkTensorExplicitTilingFormatPropertiesARM<'child>(
+    mut self,
+    val: &'a mut VkTensorExplicitTilingFormatPropertiesARM<'child>,
+  ) -> Self {
+    self.pNext = (val as *mut VkTensorExplicitTilingFormatPropertiesARM<'child>).cast::<c_void>();
     self
   }
   #[cfg(feature = "VK_ARM_tensors")]

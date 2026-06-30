@@ -82,6 +82,8 @@ pub const VK_COMPUTE_OCCUPANCY_PRIORITY_NORMAL_NV: f32 = 0.50f32;
 pub const VK_COMPUTE_OCCUPANCY_PRIORITY_HIGH_NV: f32 = 0.75f32;
 /// [VK_MAX_DATA_GRAPH_TOSA_NAME_SIZE_ARM](https://docs.vulkan.org/refpages/latest/refpages/source/VK_MAX_DATA_GRAPH_TOSA_NAME_SIZE_ARM.html)
 pub const VK_MAX_DATA_GRAPH_TOSA_NAME_SIZE_ARM: u32 = 128;
+/// [VK_MAX_TENSOR_CREATE_INFO_ROLLING_BACKING_WRAP_COUNT_ARM](https://docs.vulkan.org/refpages/latest/refpages/source/VK_MAX_TENSOR_CREATE_INFO_ROLLING_BACKING_WRAP_COUNT_ARM.html)
+pub const VK_MAX_TENSOR_CREATE_INFO_ROLLING_BACKING_WRAP_COUNT_ARM: u32 = 4;
 /// [VKSC_API_VARIANT](https://docs.vulkan.org/refpages/latest/refpages/source/VKSC_API_VARIANT.html)
 #[cfg(feature = "VKSC_VERSION_1_0")]
 pub const VKSC_API_VARIANT: u32 = 1u32;
@@ -537,6 +539,17 @@ pub const VK_ARM_SHADER_INSTRUMENTATION_SPEC_VERSION: u32 = 1;
 #[cfg(feature = "VK_ARM_shader_instrumentation")]
 pub const VK_ARM_SHADER_INSTRUMENTATION_EXTENSION_NAME: &'static core::ffi::CStr =
   c"VK_ARM_shader_instrumentation";
+/// [VK_ARM_TENSOR_CONTROLS_SPEC_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_ARM_tensor_controls.html)
+///
+/// Extension type: device extension.
+#[cfg(feature = "VK_ARM_tensor_controls")]
+pub const VK_ARM_TENSOR_CONTROLS_SPEC_VERSION: u32 = 1;
+/// [VK_ARM_TENSOR_CONTROLS_EXTENSION_NAME](https://docs.vulkan.org/refpages/latest/refpages/source/VK_ARM_tensor_controls.html)
+///
+/// Extension type: device extension.
+#[cfg(feature = "VK_ARM_tensor_controls")]
+pub const VK_ARM_TENSOR_CONTROLS_EXTENSION_NAME: &'static core::ffi::CStr =
+  c"VK_ARM_tensor_controls";
 /// [VK_ARM_TENSORS_SPEC_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_ARM_tensors.html)
 ///
 /// Extension type: device extension.
@@ -609,7 +622,7 @@ pub const VK_API_VERSION: u32 = VK_MAKE_API_VERSION(0u32, 1u32, 0u32, 0u32);
 pub const VK_API_VERSION_1_0: u32 = VK_MAKE_API_VERSION(0u32, 1u32, 0u32, 0u32);
 /// [VK_HEADER_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION.html)
 #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
-pub const VK_HEADER_VERSION: u32 = 354u32;
+pub const VK_HEADER_VERSION: u32 = 355u32;
 /// [VK_HEADER_VERSION_COMPLETE](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION_COMPLETE.html)
 #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub const VK_HEADER_VERSION_COMPLETE: u32 = VK_MAKE_API_VERSION(0u32, 1u32, 4u32, 0u32);

@@ -5526,12 +5526,16 @@ use crate::types::VkTensorCreateInfoARM;
 use crate::types::VkTensorDependencyInfoARM;
 #[cfg(feature = "VK_ARM_tensors")]
 use crate::types::VkTensorDescriptionARM;
+#[cfg(feature = "VK_ARM_tensor_controls")]
+use crate::types::VkTensorExplicitTilingFormatPropertiesARM;
 #[cfg(feature = "VK_ARM_tensors")]
 use crate::types::VkTensorFormatPropertiesARM;
 #[cfg(feature = "VK_ARM_tensors")]
 use crate::types::VkTensorMemoryBarrierARM;
 #[cfg(feature = "VK_ARM_tensors")]
 use crate::types::VkTensorMemoryRequirementsInfoARM;
+#[cfg(feature = "VK_ARM_tensor_controls")]
+use crate::types::VkTensorRollingBackingCreateInfoARM;
 #[cfg(feature = "VK_ARM_tensors")]
 use crate::types::VkTensorUsageFlagsARM;
 #[cfg(feature = "VK_ARM_tensors")]
@@ -21282,6 +21286,7 @@ pub type PFN_vkGetPhysicalDeviceSurfaceCapabilities2KHR = unsafe extern "system"
 ///   - `VK_ERROR_UNKNOWN`
 ///   - `VK_ERROR_VALIDATION_FAILED`
 #[cfg(feature = "VK_KHR_surface")]
+#[deprecated(note = "superseded by `vkGetPhysicalDeviceSurfaceCapabilities2KHR`")]
 pub type PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR = unsafe extern "system" fn(
   physicalDevice: VkPhysicalDevice,
   surface: VkSurfaceKHR,
@@ -21343,6 +21348,7 @@ pub type PFN_vkGetPhysicalDeviceSurfaceFormats2KHR = unsafe extern "system" fn(
 ///   - `VK_ERROR_UNKNOWN`
 ///   - `VK_ERROR_VALIDATION_FAILED`
 #[cfg(feature = "VK_KHR_surface")]
+#[deprecated(note = "superseded by `vkGetPhysicalDeviceSurfaceFormats2KHR`")]
 pub type PFN_vkGetPhysicalDeviceSurfaceFormatsKHR = unsafe extern "system" fn(
   physicalDevice: VkPhysicalDevice,
   surface: VkSurfaceKHR,

@@ -1,6 +1,6 @@
 [package]
 name = "vk"
-version = "0.1.11"
+version = "0.1.12"
 edition = "2024"
 license = "MIT"
 repository = "https://github.com/JakubCzarlinski/vk"
@@ -1045,6 +1045,8 @@ VK_KHR_maintenance7 = ["VK_VERSION_1_1"]
 VK_NV_shader_atomic_float16_vector = []
 # type: device
 VK_EXT_shader_replicated_composites = []
+# type: device
+VK_ARM_tensor_controls = ["VK_ARM_tensors"]
 # type: device
 VK_EXT_shader_float8 = []
 # type: device

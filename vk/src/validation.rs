@@ -3295,6 +3295,10 @@ compile_error!(
 compile_error!(
   "Feature `VK_EXT_shader_replicated_composites` requires `VK_KHR_get_physical_device_properties2 , VK_VERSION_1_1`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_shader_replicated_composites.html"
 );
+#[cfg(all(feature = "VK_ARM_tensor_controls", not(feature = "VK_ARM_tensors")))]
+compile_error!(
+  "Feature `VK_ARM_tensor_controls` requires `VK_ARM_tensors`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_ARM_tensor_controls.html"
+);
 #[cfg(all(
   feature = "VK_EXT_shader_float8",
   not(any(
