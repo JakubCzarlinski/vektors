@@ -7748,6 +7748,7 @@ impl<'inst> Device<'inst> {
   ///   - `VK_ERROR_UNKNOWN`
   ///   - `VK_ERROR_VALIDATION_FAILED`
   #[cfg(feature = "VK_EXT_opacity_micromap")]
+  #[deprecated(note = "superseded by `vkCmdWriteMicromapsPropertiesEXT`")]
   #[inline(always)]
   pub fn vkWriteMicromapsPropertiesEXT(
     &self,
@@ -8904,6 +8905,7 @@ impl<'inst> Device<'inst> {
   ///   - `VK_ERROR_UNKNOWN`
   ///   - `VK_ERROR_VALIDATION_FAILED`
   #[cfg(feature = "VK_KHR_acceleration_structure")]
+  #[deprecated(note = "superseded by `vkCmdWriteAccelerationStructuresPropertiesKHR`")]
   #[inline(always)]
   pub fn vkWriteAccelerationStructuresPropertiesKHR(
     &self,

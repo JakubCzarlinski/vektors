@@ -777,6 +777,8 @@ use crate::types::VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE;
 use crate::types::VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT;
 #[cfg(feature = "VK_QCOM_shader_multiple_wait_queues")]
 use crate::types::VkPhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM;
+#[cfg(feature = "VK_EXT_shader_ocp_microscaling_types")]
+use crate::types::VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT;
 #[cfg(feature = "VK_EXT_shader_object")]
 use crate::types::VkPhysicalDeviceShaderObjectFeaturesEXT;
 #[cfg(feature = "VK_KHR_shader_quad_control")]
@@ -5231,6 +5233,19 @@ impl<'a> VkDeviceCreateInfo<'a> {
   ) -> Self {
     self.pNext =
       (val as *const VkPhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM<'child>).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_EXT_shader_ocp_microscaling_types")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT<'child>(
+    mut self,
+    val: &'a VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT<'child>,
+  ) -> Self {
+    self.pNext = (val as *const VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT<'child>)
+      .cast::<c_void>();
     self
   }
   #[cfg(feature = "VK_EXT_shader_object")]

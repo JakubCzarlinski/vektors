@@ -4406,6 +4406,8 @@ use crate::types::VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT;
 use crate::types::VkPhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM;
 #[cfg(feature = "VK_QCOM_shader_multiple_wait_queues")]
 use crate::types::VkPhysicalDeviceShaderMultipleWaitQueuesPropertiesQCOM;
+#[cfg(feature = "VK_EXT_shader_ocp_microscaling_types")]
+use crate::types::VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT;
 #[cfg(feature = "VK_EXT_shader_object")]
 use crate::types::VkPhysicalDeviceShaderObjectFeaturesEXT;
 #[cfg(feature = "VK_EXT_shader_object")]
@@ -6685,6 +6687,7 @@ pub type PFN_vkBindVideoSessionMemoryKHR = unsafe extern "system" fn(
 ///   - `VK_ERROR_UNKNOWN`
 ///   - `VK_ERROR_VALIDATION_FAILED`
 #[cfg(feature = "VK_KHR_acceleration_structure")]
+#[deprecated(note = "superseded by `vkCmdBuildAccelerationStructuresKHR`")]
 pub type PFN_vkBuildAccelerationStructuresKHR = unsafe extern "system" fn(
   device: VkDevice,
   deferredOperation: VkDeferredOperationKHR,
@@ -6717,6 +6720,7 @@ pub type PFN_vkBuildAccelerationStructuresKHR = unsafe extern "system" fn(
 ///   - `VK_ERROR_UNKNOWN`
 ///   - `VK_ERROR_VALIDATION_FAILED`
 #[cfg(feature = "VK_EXT_opacity_micromap")]
+#[deprecated(note = "superseded by `vkCmdBuildMicromapsEXT`")]
 pub type PFN_vkBuildMicromapsEXT = unsafe extern "system" fn(
   device: VkDevice,
   deferredOperation: VkDeferredOperationKHR,
@@ -13170,6 +13174,7 @@ pub type PFN_vkConvertCooperativeVectorMatrixNV = unsafe extern "system" fn(
 ///   - `VK_ERROR_UNKNOWN`
 ///   - `VK_ERROR_VALIDATION_FAILED`
 #[cfg(feature = "VK_KHR_acceleration_structure")]
+#[deprecated(note = "superseded by `vkCmdCopyAccelerationStructureKHR`")]
 pub type PFN_vkCopyAccelerationStructureKHR = unsafe extern "system" fn(
   device: VkDevice,
   deferredOperation: VkDeferredOperationKHR,
@@ -13199,6 +13204,7 @@ pub type PFN_vkCopyAccelerationStructureKHR = unsafe extern "system" fn(
 ///   - `VK_ERROR_UNKNOWN`
 ///   - `VK_ERROR_VALIDATION_FAILED`
 #[cfg(feature = "VK_KHR_acceleration_structure")]
+#[deprecated(note = "superseded by `vkCmdCopyAccelerationStructureToMemoryKHR`")]
 pub type PFN_vkCopyAccelerationStructureToMemoryKHR = unsafe extern "system" fn(
   device: VkDevice,
   deferredOperation: VkDeferredOperationKHR,
@@ -13304,6 +13310,7 @@ pub type PFN_vkCopyImageToMemoryEXT = unsafe extern "system" fn(
 ///   - `VK_ERROR_UNKNOWN`
 ///   - `VK_ERROR_VALIDATION_FAILED`
 #[cfg(feature = "VK_KHR_acceleration_structure")]
+#[deprecated(note = "superseded by `vkCmdCopyMemoryToAccelerationStructureKHR`")]
 pub type PFN_vkCopyMemoryToAccelerationStructureKHR = unsafe extern "system" fn(
   device: VkDevice,
   deferredOperation: VkDeferredOperationKHR,
@@ -13371,6 +13378,7 @@ pub type PFN_vkCopyMemoryToImageEXT = unsafe extern "system" fn(
 ///   - `VK_ERROR_UNKNOWN`
 ///   - `VK_ERROR_VALIDATION_FAILED`
 #[cfg(feature = "VK_EXT_opacity_micromap")]
+#[deprecated(note = "superseded by `vkCmdCopyMemoryToMicromapEXT`")]
 pub type PFN_vkCopyMemoryToMicromapEXT = unsafe extern "system" fn(
   device: VkDevice,
   deferredOperation: VkDeferredOperationKHR,
@@ -13400,6 +13408,7 @@ pub type PFN_vkCopyMemoryToMicromapEXT = unsafe extern "system" fn(
 ///   - `VK_ERROR_UNKNOWN`
 ///   - `VK_ERROR_VALIDATION_FAILED`
 #[cfg(feature = "VK_EXT_opacity_micromap")]
+#[deprecated(note = "superseded by `vkCmdCopyMicromapEXT`")]
 pub type PFN_vkCopyMicromapEXT = unsafe extern "system" fn(
   device: VkDevice,
   deferredOperation: VkDeferredOperationKHR,
@@ -13429,6 +13438,7 @@ pub type PFN_vkCopyMicromapEXT = unsafe extern "system" fn(
 ///   - `VK_ERROR_UNKNOWN`
 ///   - `VK_ERROR_VALIDATION_FAILED`
 #[cfg(feature = "VK_EXT_opacity_micromap")]
+#[deprecated(note = "superseded by `vkCmdCopyMicromapToMemoryEXT`")]
 pub type PFN_vkCopyMicromapToMemoryEXT = unsafe extern "system" fn(
   device: VkDevice,
   deferredOperation: VkDeferredOperationKHR,
@@ -24758,6 +24768,7 @@ pub type PFN_vkWaitSemaphoresKHR = unsafe extern "system" fn(
 ///   - `VK_ERROR_UNKNOWN`
 ///   - `VK_ERROR_VALIDATION_FAILED`
 #[cfg(feature = "VK_KHR_acceleration_structure")]
+#[deprecated(note = "superseded by `vkCmdWriteAccelerationStructuresPropertiesKHR`")]
 pub type PFN_vkWriteAccelerationStructuresPropertiesKHR = unsafe extern "system" fn(
   device: VkDevice,
   accelerationStructureCount: u32,
@@ -24793,6 +24804,7 @@ pub type PFN_vkWriteAccelerationStructuresPropertiesKHR = unsafe extern "system"
 ///   - `VK_ERROR_UNKNOWN`
 ///   - `VK_ERROR_VALIDATION_FAILED`
 #[cfg(feature = "VK_EXT_opacity_micromap")]
+#[deprecated(note = "superseded by `vkCmdWriteMicromapsPropertiesEXT`")]
 pub type PFN_vkWriteMicromapsPropertiesEXT = unsafe extern "system" fn(
   device: VkDevice,
   micromapCount: u32,

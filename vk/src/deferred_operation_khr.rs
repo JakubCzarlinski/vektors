@@ -315,6 +315,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
   ///   - `VK_ERROR_UNKNOWN`
   ///   - `VK_ERROR_VALIDATION_FAILED`
   #[cfg(feature = "VK_EXT_opacity_micromap")]
+  #[deprecated(note = "superseded by `vkCmdBuildMicromapsEXT`")]
   #[inline(always)]
   pub fn vkBuildMicromapsEXT(
     &self,
@@ -359,6 +360,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
   ///   - `VK_ERROR_UNKNOWN`
   ///   - `VK_ERROR_VALIDATION_FAILED`
   #[cfg(feature = "VK_EXT_opacity_micromap")]
+  #[deprecated(note = "superseded by `vkCmdCopyMemoryToMicromapEXT`")]
   #[inline(always)]
   pub fn vkCopyMemoryToMicromapEXT(
     &self,
@@ -402,6 +404,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
   ///   - `VK_ERROR_UNKNOWN`
   ///   - `VK_ERROR_VALIDATION_FAILED`
   #[cfg(feature = "VK_EXT_opacity_micromap")]
+  #[deprecated(note = "superseded by `vkCmdCopyMicromapEXT`")]
   #[inline(always)]
   pub fn vkCopyMicromapEXT(&self, pInfo: &VkCopyMicromapInfoEXT<'_>) -> Result<VkResult, VkResult> {
     let r = unsafe {
@@ -438,6 +441,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
   ///   - `VK_ERROR_UNKNOWN`
   ///   - `VK_ERROR_VALIDATION_FAILED`
   #[cfg(feature = "VK_EXT_opacity_micromap")]
+  #[deprecated(note = "superseded by `vkCmdCopyMicromapToMemoryEXT`")]
   #[inline(always)]
   pub fn vkCopyMicromapToMemoryEXT(
     &self,
@@ -483,6 +487,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
   ///   - `VK_ERROR_UNKNOWN`
   ///   - `VK_ERROR_VALIDATION_FAILED`
   #[cfg(feature = "VK_KHR_acceleration_structure")]
+  #[deprecated(note = "superseded by `vkCmdBuildAccelerationStructuresKHR`")]
   #[inline(always)]
   pub fn vkBuildAccelerationStructuresKHR(
     &self,
@@ -531,6 +536,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
   ///   - `VK_ERROR_UNKNOWN`
   ///   - `VK_ERROR_VALIDATION_FAILED`
   #[cfg(feature = "VK_KHR_acceleration_structure")]
+  #[deprecated(note = "superseded by `vkCmdCopyAccelerationStructureKHR`")]
   #[inline(always)]
   pub fn vkCopyAccelerationStructureKHR(
     &self,
@@ -572,6 +578,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
   ///   - `VK_ERROR_UNKNOWN`
   ///   - `VK_ERROR_VALIDATION_FAILED`
   #[cfg(feature = "VK_KHR_acceleration_structure")]
+  #[deprecated(note = "superseded by `vkCmdCopyAccelerationStructureToMemoryKHR`")]
   #[inline(always)]
   pub fn vkCopyAccelerationStructureToMemoryKHR(
     &self,
@@ -613,6 +620,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
   ///   - `VK_ERROR_UNKNOWN`
   ///   - `VK_ERROR_VALIDATION_FAILED`
   #[cfg(feature = "VK_KHR_acceleration_structure")]
+  #[deprecated(note = "superseded by `vkCmdCopyMemoryToAccelerationStructureKHR`")]
   #[inline(always)]
   pub fn vkCopyMemoryToAccelerationStructureKHR(
     &self,

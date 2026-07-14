@@ -3331,6 +3331,8 @@ impl VkStructureType {
     feature = "VK_KHR_shared_presentable_image"
   ))]
   pub const SHARED_PRESENT_SURFACE_CAPABILITIES_2_KHR: Self = Self(1000668006);
+  #[cfg(feature = "VK_EXT_shader_ocp_microscaling_types")]
+  pub const PHYSICAL_DEVICE_SHADER_OCP_MICROSCALING_TYPES_FEATURES_EXT: Self = Self(1000672000);
   #[cfg(feature = "VK_VALVE_shader_mixed_float_dot_product")]
   pub const PHYSICAL_DEVICE_SHADER_MIXED_FLOAT_DOT_PRODUCT_FEATURES_VALVE: Self = Self(1000673000);
   #[cfg(feature = "VK_SEC_throttle_hint")]
@@ -11562,6 +11564,13 @@ impl core::fmt::Display for VkStructureType {
             value if value == Self::SHARED_PRESENT_SURFACE_CAPABILITIES_2_KHR.0 => {
                 f.write_str(
                     "VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_2_KHR",
+                )
+            }
+            #[cfg(feature = "VK_EXT_shader_ocp_microscaling_types")]
+            value if value
+                == Self::PHYSICAL_DEVICE_SHADER_OCP_MICROSCALING_TYPES_FEATURES_EXT.0 => {
+                f.write_str(
+                    "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OCP_MICROSCALING_TYPES_FEATURES_EXT",
                 )
             }
             #[cfg(feature = "VK_VALVE_shader_mixed_float_dot_product")]
@@ -55730,6 +55739,31 @@ impl VkComponentTypeKHR {
     feature = "VK_KHR_cooperative_matrix"
   ))]
   pub const FLOAT8_E5M2_EXT: Self = Self(1000491003);
+  #[cfg(all(
+    feature = "VK_EXT_shader_ocp_microscaling_types",
+    feature = "VK_KHR_cooperative_matrix"
+  ))]
+  pub const FLOAT6_E2M3_EXT: Self = Self(1000672000);
+  #[cfg(all(
+    feature = "VK_EXT_shader_ocp_microscaling_types",
+    feature = "VK_KHR_cooperative_matrix"
+  ))]
+  pub const FLOAT6_E3M2_EXT: Self = Self(1000672001);
+  #[cfg(all(
+    feature = "VK_EXT_shader_ocp_microscaling_types",
+    feature = "VK_KHR_cooperative_matrix"
+  ))]
+  pub const FLOAT4_E2M1_EXT: Self = Self(1000672002);
+  #[cfg(all(
+    feature = "VK_EXT_shader_ocp_microscaling_types",
+    feature = "VK_KHR_cooperative_matrix"
+  ))]
+  pub const FLOAT8_UNSIGNED_E8M0_EXT: Self = Self(1000672003);
+  #[cfg(all(
+    feature = "VK_EXT_shader_ocp_microscaling_types",
+    feature = "VK_KHR_cooperative_matrix"
+  ))]
+  pub const MXINT8_EXT: Self = Self(1000672004);
 }
 #[cfg(any(
   feature = "VK_NV_cooperative_vector",
@@ -55795,6 +55829,33 @@ impl core::fmt::Display for VkComponentTypeKHR {
         feature = "VK_KHR_cooperative_matrix"
       ))]
       value if value == Self::FLOAT8_E5M2_EXT.0 => f.write_str("VK_COMPONENT_TYPE_FLOAT8_E5M2_EXT"),
+      #[cfg(all(
+        feature = "VK_EXT_shader_ocp_microscaling_types",
+        feature = "VK_KHR_cooperative_matrix"
+      ))]
+      value if value == Self::FLOAT6_E2M3_EXT.0 => f.write_str("VK_COMPONENT_TYPE_FLOAT6_E2M3_EXT"),
+      #[cfg(all(
+        feature = "VK_EXT_shader_ocp_microscaling_types",
+        feature = "VK_KHR_cooperative_matrix"
+      ))]
+      value if value == Self::FLOAT6_E3M2_EXT.0 => f.write_str("VK_COMPONENT_TYPE_FLOAT6_E3M2_EXT"),
+      #[cfg(all(
+        feature = "VK_EXT_shader_ocp_microscaling_types",
+        feature = "VK_KHR_cooperative_matrix"
+      ))]
+      value if value == Self::FLOAT4_E2M1_EXT.0 => f.write_str("VK_COMPONENT_TYPE_FLOAT4_E2M1_EXT"),
+      #[cfg(all(
+        feature = "VK_EXT_shader_ocp_microscaling_types",
+        feature = "VK_KHR_cooperative_matrix"
+      ))]
+      value if value == Self::FLOAT8_UNSIGNED_E8M0_EXT.0 => {
+        f.write_str("VK_COMPONENT_TYPE_FLOAT8_UNSIGNED_E8M0_EXT")
+      }
+      #[cfg(all(
+        feature = "VK_EXT_shader_ocp_microscaling_types",
+        feature = "VK_KHR_cooperative_matrix"
+      ))]
+      value if value == Self::MXINT8_EXT.0 => f.write_str("VK_COMPONENT_TYPE_MXINT8_EXT"),
       _ => write!(f, "{}({})", stringify!(VkComponentTypeKHR), self.0),
     }
   }
@@ -83844,6 +83905,10 @@ impl core::fmt::Display for VkScopeNV {
   all(
     feature = "VK_EXT_shader_float8",
     feature = "VK_KHR_cooperative_matrix"
+  ),
+  all(
+    feature = "VK_EXT_shader_ocp_microscaling_types",
+    feature = "VK_KHR_cooperative_matrix"
   )
 ))]
 #[repr(transparent)]
@@ -83858,6 +83923,10 @@ pub struct VkComponentTypeNV(pub i32);
   feature = "VK_NV_cooperative_vector",
   all(
     feature = "VK_EXT_shader_float8",
+    feature = "VK_KHR_cooperative_matrix"
+  ),
+  all(
+    feature = "VK_EXT_shader_ocp_microscaling_types",
     feature = "VK_KHR_cooperative_matrix"
   )
 ))]
@@ -83918,6 +83987,31 @@ impl VkComponentTypeNV {
     feature = "VK_KHR_cooperative_matrix"
   ))]
   pub const FLOAT8_E5M2_EXT: Self = Self(1000491003);
+  #[cfg(all(
+    feature = "VK_EXT_shader_ocp_microscaling_types",
+    feature = "VK_KHR_cooperative_matrix"
+  ))]
+  pub const FLOAT6_E2M3_EXT: Self = Self(1000672000);
+  #[cfg(all(
+    feature = "VK_EXT_shader_ocp_microscaling_types",
+    feature = "VK_KHR_cooperative_matrix"
+  ))]
+  pub const FLOAT6_E3M2_EXT: Self = Self(1000672001);
+  #[cfg(all(
+    feature = "VK_EXT_shader_ocp_microscaling_types",
+    feature = "VK_KHR_cooperative_matrix"
+  ))]
+  pub const FLOAT4_E2M1_EXT: Self = Self(1000672002);
+  #[cfg(all(
+    feature = "VK_EXT_shader_ocp_microscaling_types",
+    feature = "VK_KHR_cooperative_matrix"
+  ))]
+  pub const FLOAT8_UNSIGNED_E8M0_EXT: Self = Self(1000672003);
+  #[cfg(all(
+    feature = "VK_EXT_shader_ocp_microscaling_types",
+    feature = "VK_KHR_cooperative_matrix"
+  ))]
+  pub const MXINT8_EXT: Self = Self(1000672004);
 }
 #[cfg(any(
   feature = "VK_NV_cooperative_matrix",
@@ -83928,6 +84022,10 @@ impl VkComponentTypeNV {
   feature = "VK_NV_cooperative_vector",
   all(
     feature = "VK_EXT_shader_float8",
+    feature = "VK_KHR_cooperative_matrix"
+  ),
+  all(
+    feature = "VK_EXT_shader_ocp_microscaling_types",
     feature = "VK_KHR_cooperative_matrix"
   )
 ))]
@@ -83990,6 +84088,33 @@ impl core::fmt::Display for VkComponentTypeNV {
         feature = "VK_KHR_cooperative_matrix"
       ))]
       value if value == Self::FLOAT8_E5M2_EXT.0 => f.write_str("VK_COMPONENT_TYPE_FLOAT8_E5M2_EXT"),
+      #[cfg(all(
+        feature = "VK_EXT_shader_ocp_microscaling_types",
+        feature = "VK_KHR_cooperative_matrix"
+      ))]
+      value if value == Self::FLOAT6_E2M3_EXT.0 => f.write_str("VK_COMPONENT_TYPE_FLOAT6_E2M3_EXT"),
+      #[cfg(all(
+        feature = "VK_EXT_shader_ocp_microscaling_types",
+        feature = "VK_KHR_cooperative_matrix"
+      ))]
+      value if value == Self::FLOAT6_E3M2_EXT.0 => f.write_str("VK_COMPONENT_TYPE_FLOAT6_E3M2_EXT"),
+      #[cfg(all(
+        feature = "VK_EXT_shader_ocp_microscaling_types",
+        feature = "VK_KHR_cooperative_matrix"
+      ))]
+      value if value == Self::FLOAT4_E2M1_EXT.0 => f.write_str("VK_COMPONENT_TYPE_FLOAT4_E2M1_EXT"),
+      #[cfg(all(
+        feature = "VK_EXT_shader_ocp_microscaling_types",
+        feature = "VK_KHR_cooperative_matrix"
+      ))]
+      value if value == Self::FLOAT8_UNSIGNED_E8M0_EXT.0 => {
+        f.write_str("VK_COMPONENT_TYPE_FLOAT8_UNSIGNED_E8M0_EXT")
+      }
+      #[cfg(all(
+        feature = "VK_EXT_shader_ocp_microscaling_types",
+        feature = "VK_KHR_cooperative_matrix"
+      ))]
+      value if value == Self::MXINT8_EXT.0 => f.write_str("VK_COMPONENT_TYPE_MXINT8_EXT"),
       _ => write!(f, "{}({})", stringify!(VkComponentTypeNV), self.0),
     }
   }

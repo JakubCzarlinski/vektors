@@ -96,7 +96,7 @@ fn gen_enum(e: &Enum, reg: &Registry, disabled: &HashSet<String>) -> TokenStream
     }
     let cfg = cfg_availability(&availability, &all_feats, e.dep.as_ref());
     let name = format_ident!("{}", &e.name);
-    let url_str = format!(" [{}]({})", &e.name, refpage_url(&e.name));
+    let url_str = format!(" [{}]({})", e.name, refpage_url(&e.name));
     let mut doc = quote! { #[doc = #url_str] };
     if let Some(ref comment) = e.comment {
         let comment = comment.trim();

@@ -1144,6 +1144,8 @@ VK_SEC_ubm_surface = ["VK_KHR_surface"]
 # type: device
 VK_KHR_extended_flags = []
 # type: device
+VK_EXT_shader_ocp_microscaling_types = []
+# type: device
 VK_VALVE_shader_mixed_float_dot_product = []
 # type: device
 VK_SEC_throttle_hint = []

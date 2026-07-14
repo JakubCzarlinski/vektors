@@ -622,7 +622,7 @@ pub const VK_API_VERSION: u32 = VK_MAKE_API_VERSION(0u32, 1u32, 0u32, 0u32);
 pub const VK_API_VERSION_1_0: u32 = VK_MAKE_API_VERSION(0u32, 1u32, 0u32, 0u32);
 /// [VK_HEADER_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION.html)
 #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
-pub const VK_HEADER_VERSION: u32 = 355u32;
+pub const VK_HEADER_VERSION: u32 = 356u32;
 /// [VK_HEADER_VERSION_COMPLETE](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION_COMPLETE.html)
 #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub const VK_HEADER_VERSION_COMPLETE: u32 = VK_MAKE_API_VERSION(0u32, 1u32, 4u32, 0u32);
@@ -1959,6 +1959,17 @@ pub const VK_EXT_SHADER_OBJECT_SPEC_VERSION: u32 = 1;
 /// Extension type: device extension.
 #[cfg(feature = "VK_EXT_shader_object")]
 pub const VK_EXT_SHADER_OBJECT_EXTENSION_NAME: &'static core::ffi::CStr = c"VK_EXT_shader_object";
+/// [VK_EXT_SHADER_OCP_MICROSCALING_TYPES_SPEC_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_shader_ocp_microscaling_types.html)
+///
+/// Extension type: device extension.
+#[cfg(feature = "VK_EXT_shader_ocp_microscaling_types")]
+pub const VK_EXT_SHADER_OCP_MICROSCALING_TYPES_SPEC_VERSION: u32 = 1;
+/// [VK_EXT_SHADER_OCP_MICROSCALING_TYPES_EXTENSION_NAME](https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_shader_ocp_microscaling_types.html)
+///
+/// Extension type: device extension.
+#[cfg(feature = "VK_EXT_shader_ocp_microscaling_types")]
+pub const VK_EXT_SHADER_OCP_MICROSCALING_TYPES_EXTENSION_NAME: &'static core::ffi::CStr =
+  c"VK_EXT_shader_ocp_microscaling_types";
 /// [VK_EXT_SHADER_REPLICATED_COMPOSITES_SPEC_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_shader_replicated_composites.html)
 ///
 /// Extension type: device extension.

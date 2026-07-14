@@ -3735,6 +3735,16 @@ compile_error!(
   "Feature `VK_KHR_extended_flags` requires `VK_KHR_get_physical_device_properties2 , VK_VERSION_1_1`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_KHR_extended_flags.html"
 );
 #[cfg(all(
+  feature = "VK_EXT_shader_ocp_microscaling_types",
+  not(any(
+    feature = "VK_KHR_get_physical_device_properties2",
+    feature = "VK_VERSION_1_1"
+  ))
+))]
+compile_error!(
+  "Feature `VK_EXT_shader_ocp_microscaling_types` requires `VK_KHR_get_physical_device_properties2 , VK_VERSION_1_1`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_shader_ocp_microscaling_types.html"
+);
+#[cfg(all(
   feature = "VK_VALVE_shader_mixed_float_dot_product",
   not(any(
     all(

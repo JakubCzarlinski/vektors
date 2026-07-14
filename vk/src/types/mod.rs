@@ -1448,6 +1448,8 @@ pub use ext::VkPhysicalDeviceShaderLongVectorPropertiesEXT;
 pub use ext::VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT;
 #[cfg(feature = "VK_EXT_shader_module_identifier")]
 pub use ext::VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT;
+#[cfg(feature = "VK_EXT_shader_ocp_microscaling_types")]
+pub use ext::VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT;
 #[cfg(feature = "VK_EXT_shader_object")]
 pub use ext::VkPhysicalDeviceShaderObjectFeaturesEXT;
 #[cfg(feature = "VK_EXT_shader_object")]

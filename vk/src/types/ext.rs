@@ -31540,6 +31540,118 @@ impl<'a> VkVertexInputAttributeDescription2EXT<'a> {
     self
   }
 }
+/// [VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT.html)
+///
+/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
+#[cfg(feature = "VK_EXT_shader_ocp_microscaling_types")]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OCP_MICROSCALING_TYPES_FEATURES_EXT
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  pub shaderFloat4: VkBool32,
+  pub shaderFloat6: VkBool32,
+  pub shaderFloat8UnsignedE8M0: VkBool32,
+  pub shaderMXInt8: VkBool32,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(feature = "VK_EXT_shader_ocp_microscaling_types")]
+unsafe impl<'a> Send for VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT<'a> {}
+#[cfg(feature = "VK_EXT_shader_ocp_microscaling_types")]
+unsafe impl<'a> Sync for VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT<'a> {}
+#[cfg(all(
+  feature = "VK_EXT_shader_ocp_microscaling_types",
+  feature = "VK_BASE_VERSION_1_1"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
+  for VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT<'child>
+{
+}
+#[cfg(all(
+  feature = "VK_EXT_shader_ocp_microscaling_types",
+  feature = "VK_BASE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
+  for VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT<'child>
+{
+}
+#[cfg(feature = "VK_EXT_shader_ocp_microscaling_types")]
+impl<'a> VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::PHYSICAL_DEVICE_SHADER_OCP_MICROSCALING_TYPES_FEATURES_EXT,
+    pNext: core::ptr::null_mut(),
+    shaderFloat4: 0,
+    shaderFloat6: 0,
+    shaderFloat8UnsignedE8M0: 0,
+    shaderMXInt8: 0,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_shaderFloat4(mut self, val: VkBool32) -> Self {
+    self.shaderFloat4 = val;
+    self
+  }
+  #[inline]
+  pub const fn with_shaderFloat6(mut self, val: VkBool32) -> Self {
+    self.shaderFloat6 = val;
+    self
+  }
+  #[inline]
+  pub const fn with_shaderFloat8UnsignedE8M0(mut self, val: VkBool32) -> Self {
+    self.shaderFloat8UnsignedE8M0 = val;
+    self
+  }
+  #[inline]
+  pub const fn with_shaderMXInt8(mut self, val: VkBool32) -> Self {
+    self.shaderMXInt8 = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkDeviceCreateInfo<
+    'root,
+    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
 /// [VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT.html)
 ///
 /// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.

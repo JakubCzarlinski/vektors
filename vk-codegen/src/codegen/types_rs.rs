@@ -340,7 +340,7 @@ fn gen_typedef_ts(td: &Typedef, reg: &Registry) -> TokenStream {
     let depr = deprecate_attr(&td.depr);
     let name = format_ident!("{}", &td.name);
 
-    let url_str = format!(" [{}]({})", &td.name, refpage_url(&td.name));
+    let url_str = format!(" [{}]({})", td.name, refpage_url(&td.name));
     let mut doc = quote! { #[doc = #url_str] };
     if let Some(ref comment) = td.comment {
         let comment = comment.trim();
