@@ -389,7 +389,7 @@ fn create_storage_buffer<'a>(
 fn write_input(allocation: &mut vk_alloc::Allocation) -> Result<(), String> {
     let values = allocation
         .mapped_slice_mut::<u32>(ITEM_COUNT)
-        .ok_or("Data allocation is not host mapped")?;
+        .map_err(|err| format!("Data allocation is not host mapped: {err:?}"))?;
     for (index, value) in values.iter_mut().enumerate() {
         *value = index as u32;
     }
@@ -399,7 +399,7 @@ fn write_input(allocation: &mut vk_alloc::Allocation) -> Result<(), String> {
 fn clear_lookback(allocation: &mut vk_alloc::Allocation) -> Result<(), String> {
     let values = allocation
         .mapped_slice_mut::<u32>(LOOKBACK_WORDS)
-        .ok_or("Lookback allocation is not host mapped")?;
+        .map_err(|err| format!("Lookback allocation is not host mapped: {err:?}"))?;
     values.fill(0);
     Ok(())
 }

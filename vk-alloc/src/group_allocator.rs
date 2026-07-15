@@ -376,7 +376,7 @@ impl<'vk> GroupAllocator<'vk> {
             limits: &self.limits,
             pools: &self.pools,
             arenas: &self.arenas,
-            stats: self.stats.clone(),
+            stats: &self.stats,
         }
     }
 }

@@ -209,12 +209,12 @@ impl<'vk> Allocator<'vk> {
         ))
     }
 
-    pub fn import_host_buffer(
+    pub fn import_host_buffer<'host>(
         &self,
         buffer_info: &VkBufferCreateInfo,
-        import_info: HostImportBufferCreateInfo,
+        import_info: HostImportBufferCreateInfo<'host>,
         alloc_info: AllocationCreateInfo,
-    ) -> Result<ImportedHostBuffer<'vk>, AllocatorError> {
+    ) -> Result<ImportedHostBuffer<'host, 'vk>, AllocatorError> {
         import_host_buffer(
             self.device,
             &self.memory_properties,
@@ -261,7 +261,7 @@ impl<'vk> Allocator<'vk> {
             limits: &self.limits,
             pools: &self.pools,
             arenas: &self.arenas,
-            stats: self.stats.clone(),
+            stats: &self.stats,
         }
     }
 }

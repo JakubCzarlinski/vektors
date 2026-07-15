@@ -505,7 +505,7 @@ fn write_to_buffer<T: Copy>(
 ) -> Result<(), String> {
     let slice = allocation
         .mapped_slice_mut::<T>(data.len())
-        .ok_or("Allocation is not host mapped")?;
+        .map_err(|err| format!("Allocation is not host mapped: {err:?}"))?;
     slice.copy_from_slice(data);
     Ok(())
 }

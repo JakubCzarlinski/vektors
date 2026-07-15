@@ -50,6 +50,15 @@ pub(crate) const fn is_host_visible(
         .intersects(VkMemoryPropertyFlagBits::HOST_VISIBLE)
 }
 
+pub(crate) const fn is_host_coherent(
+    properties: &VkPhysicalDeviceMemoryProperties,
+    memory_type_index: u32,
+) -> bool {
+    properties.memoryTypes[memory_type_index as usize]
+        .propertyFlags
+        .intersects(VkMemoryPropertyFlagBits::HOST_COHERENT)
+}
+
 pub(crate) const fn block_size_for(
     properties: &VkPhysicalDeviceMemoryProperties,
     memory_type_index: u32,

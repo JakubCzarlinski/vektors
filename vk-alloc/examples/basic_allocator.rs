@@ -58,7 +58,7 @@ fn main() -> Result<(), String> {
             let slice = staging
                 .allocation_mut()
                 .mapped_slice_mut::<u32>(4)
-                .ok_or("staging allocation was not host visible")?;
+                .map_err(|err| format!("staging allocation is not writable: {err:?}"))?;
             slice.copy_from_slice(&[1, 2, 3, 4]);
 
             let device_local = allocator

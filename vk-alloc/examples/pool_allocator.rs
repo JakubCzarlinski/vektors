@@ -87,7 +87,7 @@ fn main() -> Result<(), String> {
                 buffer
                     .allocation_mut()
                     .mapped_slice_mut::<u32>(WORDS_PER_FRAME)
-                    .ok_or("stream allocation was not host visible")?
+                    .map_err(|err| format!("stream allocation is not writable: {err:?}"))?
                     .copy_from_slice(&payload);
                 if frame % 30 == 0 {
                     let arena_id = buffer.allocation().arena_id();

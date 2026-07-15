@@ -1,7 +1,6 @@
 use crate::error::AllocatorError;
 use crate::memory::block::SharedSource;
-use crate::stats::StatsState;
-use alloc::{boxed::Box, sync::Arc};
+use alloc::boxed::Box;
 use core::mem::{self, MaybeUninit};
 use core::ptr::{self, null_mut};
 use core::slice;
@@ -14,7 +13,6 @@ pub struct Allocation {
     mapped_ptr: *mut u8,
     arena_id: u32,
     source: SharedSource,
-    stats: Option<Arc<StatsState>>,
 }
 
 unsafe impl Send for Allocation {}
@@ -28,7 +26,6 @@ impl Allocation {
         size: u64,
         mapped_ptr: *mut u8,
         source: SharedSource,
-        stats: Option<Arc<StatsState>>,
     ) -> Self {
         Self {
             block_handle,
@@ -37,7 +34,6 @@ impl Allocation {
             mapped_ptr,
             arena_id,
             source,
-            stats,
         }
     }
 
@@ -65,21 +61,53 @@ impl Allocation {
         self.mapped_ptr
     }
 
-    pub const fn mapped_slice_mut<T>(&mut self, len: usize) -> Option<&mut [T]> {
+    /// Makes host writes to this allocation visible to the device when its
+    /// memory type is not host coherent.
+    pub fn flush(&self) -> Result<(), AllocatorError> {
         if self.mapped_ptr.is_null() {
-            None
-        } else {
-            Some(unsafe { slice::from_raw_parts_mut(self.mapped_ptr.cast::<T>(), len) })
+            return Err(AllocatorError::HostVisibleRequired);
         }
+        self.source.flush_range(self.offset, self.size)
+    }
+
+    /// Makes device writes to this allocation visible to the host when its
+    /// memory type is not host coherent.
+    pub fn invalidate(&self) -> Result<(), AllocatorError> {
+        if self.mapped_ptr.is_null() {
+            return Err(AllocatorError::HostVisibleRequired);
+        }
+        self.source.invalidate_range(self.offset, self.size)
+    }
+
+    /// Returns a mutable typed view over this mapped allocation.
+    ///
+    /// The requested slice must fit entirely within this allocation and its
+    /// element alignment must be compatible with the allocation offset.
+    pub fn mapped_slice_mut<T>(&mut self, len: usize) -> Result<&mut [T], AllocatorError> {
+        if self.mapped_ptr.is_null() {
+            return Err(AllocatorError::HostVisibleRequired);
+        }
+        let element_size = core::mem::size_of::<T>();
+        if element_size == 0 {
+            return Err(AllocatorError::InvalidMappedRange);
+        }
+        let byte_len = len
+            .checked_mul(element_size)
+            .ok_or(AllocatorError::OutOfBounds)?;
+        if byte_len > self.size as usize
+            || self.mapped_ptr.align_offset(core::mem::align_of::<T>()) != 0
+        {
+            return Err(AllocatorError::OutOfBounds);
+        }
+        // SAFETY: the checks above establish a non-null, aligned, in-bounds
+        // region for exactly `len` values of `T`.
+        Ok(unsafe { slice::from_raw_parts_mut(self.mapped_ptr.cast::<T>(), len) })
     }
 }
 
 impl Drop for Allocation {
     fn drop(&mut self) {
         self.source.free_range(self.offset, self.size);
-        if let Some(stats) = &self.stats {
-            stats.on_free();
-        }
         self.mapped_ptr = null_mut();
     }
 }
@@ -126,25 +154,38 @@ impl<'vk> AllocatedImage<'vk> {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
-pub struct HostImportBufferCreateInfo {
-    pub host_ptr: *mut u8,
-    pub size: u64,
-    pub handle_type: VkExternalMemoryHandleTypeFlagBits,
+#[derive(Debug)]
+pub struct HostImportBufferCreateInfo<'host> {
+    pub(crate) host_ptr: *mut u8,
+    pub(crate) size: u64,
+    pub(crate) handle_type: VkExternalMemoryHandleTypeFlagBits,
+    _host: core::marker::PhantomData<&'host mut [u8]>,
 }
 
-impl HostImportBufferCreateInfo {
-    pub const DEFAULT: Self = Self {
-        host_ptr: null_mut(),
-        size: 0,
-        handle_type: VkExternalMemoryHandleTypeFlagBits::HOST_ALLOCATION_BIT_EXT,
-    };
+impl<'host> HostImportBufferCreateInfo<'host> {
+    /// Imports a mutable host allocation for the lifetime of the returned
+    /// buffer. Vulkan's required host-pointer alignment is validated when the
+    /// allocation is created.
+    pub fn from_slice(host: &'host mut [u8]) -> Self {
+        Self {
+            host_ptr: host.as_mut_ptr(),
+            size: host.len() as u64,
+            handle_type: VkExternalMemoryHandleTypeFlagBits::HOST_ALLOCATION_BIT_EXT,
+            _host: core::marker::PhantomData,
+        }
+    }
 
-    pub const fn new(host_ptr: *mut u8, size: u64) -> Self {
+    /// Creates an import description from raw host memory.
+    ///
+    /// # Safety
+    /// `host_ptr..host_ptr + size` must remain allocated, writable, and valid
+    /// for Vulkan access for the entire `'host` lifetime.
+    pub const unsafe fn from_raw_parts(host_ptr: *mut u8, size: u64) -> Self {
         Self {
             host_ptr,
             size,
             handle_type: VkExternalMemoryHandleTypeFlagBits::HOST_ALLOCATION_BIT_EXT,
+            _host: core::marker::PhantomData,
         }
     }
 
@@ -158,17 +199,19 @@ impl HostImportBufferCreateInfo {
     }
 }
 
-pub struct ImportedHostBuffer<'vk> {
+pub struct ImportedHostBuffer<'host, 'vk> {
     buffer: Buffer<'vk>,
     memory: DeviceMemory<'vk>,
     host_ptr: *mut u8,
     size: u64,
+    _host: core::marker::PhantomData<&'host mut [u8]>,
 }
 
-unsafe impl Send for ImportedHostBuffer<'_> {}
-unsafe impl Sync for ImportedHostBuffer<'_> {}
+unsafe impl Send for ImportedHostBuffer<'_, '_> {}
+unsafe impl Sync for ImportedHostBuffer<'_, '_> {}
 
-impl<'vk> ImportedHostBuffer<'vk> {
+#[allow(clippy::elidable_lifetime_names)]
+impl<'host, 'vk> ImportedHostBuffer<'host, 'vk> {
     pub(crate) const fn new(
         buffer: Buffer<'vk>,
         memory: DeviceMemory<'vk>,
@@ -180,6 +223,7 @@ impl<'vk> ImportedHostBuffer<'vk> {
             memory,
             host_ptr,
             size,
+            _host: core::marker::PhantomData,
         }
     }
 

@@ -95,9 +95,11 @@ fn pool_example<'vk>(
 }
 ```
 
-### `SparseBufferAllocation` and `SparseImageAllocation`
+### `SparseBufferAllocation`
 
-Use these only for sparse Vulkan resources.
+Use this only for sparse Vulkan buffers. Sparse images are deliberately
+unsupported until the allocator can model per-aspect, per-mip tile and mip-tail
+requirements correctly.
 
 They manage:
 
@@ -251,7 +253,7 @@ Use this when resource creation is handled elsewhere but you still want allocato
 
 ```rust,no_run
 fn write_words(allocation: &mut vk_alloc::Allocation, values: &[u32]) {
-    let slice = allocation.mapped_slice_mut::<u32>(values.len()).unwrap();
+    let slice = allocation.mapped_slice_mut::<u32>(values.len())?;
     slice.copy_from_slice(values);
 }
 ```
@@ -301,7 +303,7 @@ fn create_group_buffer<'vk>(
 
 Sparse resources are intentionally separate from the normal allocator path.
 
-Use sparse APIs when:
+Use sparse-buffer APIs when:
 
 - the logical object is larger than one practical backing allocation
 - residency must be updated page-by-page
@@ -410,20 +412,13 @@ fn create_sparse<'vk>(
     device: &'vk vk::Device<'vk>,
 ) -> Result<vk_alloc::PreparedBindSparseInfo, vk_alloc::AllocatorError> {
     let allocator = Allocator::new(physical_device, device)?;
-    let image_info = vk::VkImageCreateInfo::DEFAULT
-        .with_flags(vk::VkImageCreateFlagBits::SPARSE_BINDING.0)
-        .with_imageType(vk::VkImageType::VALUE_2D)
-        .with_extent(vk::VkExtent3D::DEFAULT.with_width(64).with_height(64).with_depth(1))
-        .with_mipLevels(1)
-        .with_arrayLayers(1)
-        .with_format(vk::VkFormat::R8G8B8A8_UNORM)
-        .with_tiling(vk::VkImageTiling::OPTIMAL)
-        .with_initialLayout(vk::VkImageLayout::UNDEFINED)
-        .with_usage(vk::VkImageUsageFlagBits::SAMPLED.0)
-        .with_samples(vk::VkSampleCountFlagBits::BIT_1)
+    let buffer_info = vk::VkBufferCreateInfo::DEFAULT
+        .with_flags(vk::VkBufferCreateFlagBits::SPARSE_BINDING.0)
+        .with_size(64 * 1024)
+        .with_usage(vk::VkBufferUsageFlagBits::STORAGE_BUFFER.0)
         .with_sharingMode(vk::VkSharingMode::EXCLUSIVE);
 
-    let sparse = allocator.create_sparse_image(&image_info, SparseAllocationCreateInfo::new())?;
+    let sparse = allocator.create_sparse_buffer(&buffer_info, SparseAllocationCreateInfo::new())?;
     Ok(sparse.prepare_bind_info())
 }
 ```
@@ -442,7 +437,7 @@ In `vk-alloc` that failure is reported as `AllocatorError::AllocationTooLarge`.
 For larger logical tensors or datasets, use one of these approaches:
 
 - chunk the logical object across multiple buffers
-- use sparse buffers or sparse images
+- use sparse buffers (sparse images are not yet supported)
 - build an indirection layer in your runtime or shader interface
 
 ## Pools And Default Sizes

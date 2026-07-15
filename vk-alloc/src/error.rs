@@ -8,6 +8,7 @@ pub enum AllocatorError {
     InvalidHostImport,
     HostVisibleRequired,
     OutOfBounds,
+    InvalidMappedRange,
     NoCompatibleMemoryType,
     DedicatedAllocationRequired,
     GroupModeUnsupported,

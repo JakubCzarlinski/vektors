@@ -11,7 +11,7 @@ use vk::{
     VkMemoryAllocateInfo, VkMemoryHostPointerPropertiesEXT, VkPhysicalDeviceMemoryProperties, null,
 };
 
-pub(crate) fn import_host_buffer<'vk>(
+pub(crate) fn import_host_buffer<'host, 'vk>(
     device: &'vk Device<'vk>,
     memory_properties: &VkPhysicalDeviceMemoryProperties,
     limits: &DeviceLimits,
@@ -20,9 +20,10 @@ pub(crate) fn import_host_buffer<'vk>(
         host_ptr,
         size,
         handle_type,
+        ..
     }: HostImportBufferCreateInfo,
     alloc_info: AllocationCreateInfo,
-) -> Result<ImportedHostBuffer<'vk>, AllocatorError> {
+) -> Result<ImportedHostBuffer<'host, 'vk>, AllocatorError> {
     if host_ptr.is_null() || size == 0 {
         return Err(AllocatorError::OutOfBounds);
     }

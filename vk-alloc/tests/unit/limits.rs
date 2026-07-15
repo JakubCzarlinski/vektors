@@ -8,6 +8,7 @@ fn large_buffer_chunking_respects_limits() {
         max_storage_buffer_range: 1024,
         max_uniform_buffer_range: 256,
         min_imported_host_pointer_alignment: 64,
+        non_coherent_atom_size: 64,
     };
     assert_eq!(
         recommended_buffer_chunk_size(1 << 20, vk::VkBufferUsageFlagBits2::STORAGE_BUFFER, limits,),

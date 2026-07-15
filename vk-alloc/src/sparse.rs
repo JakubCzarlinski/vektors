@@ -10,9 +10,8 @@ use alloc::vec::Vec;
 use parking_lot::RwLock;
 use vk::{
     Buffer, Device, Image, VkBindSparseInfo, VkBuffer, VkBufferCreateInfo, VkExtent3D, VkImage,
-    VkImageCreateFlagBits, VkImageCreateInfo, VkMemoryRequirements, VkOffset3D,
-    VkSparseBufferMemoryBindInfo, VkSparseImageMemoryBind, VkSparseImageMemoryBindInfo,
-    VkSparseMemoryBind,
+    VkImageCreateInfo, VkMemoryRequirements, VkOffset3D, VkSparseBufferMemoryBindInfo,
+    VkSparseImageMemoryBind, VkSparseImageMemoryBindInfo, VkSparseMemoryBind,
 };
 
 #[derive(Debug, Clone)]
@@ -234,38 +233,12 @@ fn sparse_image_base<'vk>(
     sparse_info: SparseAllocationCreateInfo,
     group_allocator: bool,
 ) -> Result<(Image<'vk>, SparseBase), AllocatorError> {
-    if group_allocator
-        && sparse_info.group_bind_mode == Some(GroupBindMode::SplitInstanceRegions)
-        && sparse_info.split_instance_regions.is_empty()
-    {
-        return Err(AllocatorError::InvalidSparseRegion);
-    }
-    if !image_info
-        .flags
-        .intersects(VkImageCreateFlagBits::SPARSE_BINDING)
-    {
-        return Err(AllocatorError::SparseBindingUnsupported);
-    }
-    let image = device
-        .vkCreateImage(image_info, vk::null())
-        .map_err(AllocatorError::Vulkan)?;
-    let page_size = if let Some(page_size) = sparse_info.page_size {
-        page_size
-    } else if !group_allocator {
-        let mut count = 0;
-        image.vkGetImageSparseMemoryRequirements(&mut count, core::ptr::null_mut());
-        64 * 1024
-    } else {
-        64 * 1024
-    };
-    Ok((
-        image,
-        SparseBase {
-            page_size,
-            pages: Arc::new(RwLock::new(PageTable::default())),
-            base_alloc_info: sparse_info.into_allocation_info(),
-        },
-    ))
+    // Sparse images need per-aspect, per-mip tile requirements and mip-tail
+    // handling. The former one-dimensional page model produced invalid bind
+    // lists for most images, so keep the API explicitly unavailable until that
+    // representation exists.
+    let _ = (device, image_info, sparse_info, group_allocator);
+    Err(AllocatorError::SparseBindingUnsupported)
 }
 
 pub struct SparseBufferAllocation<'vk> {

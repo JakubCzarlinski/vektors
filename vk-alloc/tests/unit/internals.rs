@@ -10,6 +10,12 @@ use alloc::vec;
 use alloc::vec::Vec;
 
 #[test]
+#[cfg(target_pointer_width = "64")]
+fn allocation_metadata_stays_compact() {
+    assert!(core::mem::size_of::<crate::Allocation>() <= 40);
+}
+
+#[test]
 fn memory_type_scoring_prefers_expected_flags() {
     let host_visible =
         vk::VkMemoryPropertyFlagBits::HOST_VISIBLE | vk::VkMemoryPropertyFlagBits::HOST_COHERENT;

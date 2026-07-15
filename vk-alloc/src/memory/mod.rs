@@ -9,12 +9,13 @@ use crate::allocation::Allocation;
 use crate::error::AllocatorError;
 use crate::group_allocator::GroupBindMode;
 use crate::memory::arena::{
-    ArenaRegistry, ArenaState, SharedArena, make_block_allocation, make_dedicated_allocation,
+    ArenaRegistry, ArenaState, SharedArena, allocate_from_existing, make_block_allocation,
+    make_dedicated_allocation,
 };
 use crate::memory::arena_key::ArenaKey;
 use crate::memory::block::{BlockMemory, BlockMetadata};
 use crate::memory::owned::allocate_owned_memory;
-use crate::memory::select::{block_size_for, is_host_visible, should_dedicate};
+use crate::memory::select::{block_size_for, is_host_coherent, is_host_visible, should_dedicate};
 use crate::pool::{Pool, PoolConfig};
 use crate::resource::{AllocationCreateInfo, ResourceClass};
 use crate::stats::StatsState;
@@ -112,7 +113,7 @@ pub(crate) struct AllocationContext<'a, 'vk> {
     pub(crate) limits: &'a DeviceLimits,
     pub(crate) pools: &'a RwLock<Vec<PoolConfig>>,
     pub(crate) arenas: &'a RwLock<ArenaRegistry>,
-    pub(crate) stats: Arc<StatsState>,
+    pub(crate) stats: &'a Arc<StatsState>,
 }
 
 impl AllocationContext<'_, '_> {
@@ -174,6 +175,8 @@ impl AllocationContext<'_, '_> {
                     request.dedicated_image,
                     request.partition.allocation_device_mask(),
                     is_host_visible(self.memory_properties, memory_type_index),
+                    is_host_coherent(self.memory_properties, memory_type_index),
+                    self.limits.non_coherent_atom_size,
                 )?;
                 self.stats
                     .on_allocate(request.requirement.requirements.size);
@@ -187,26 +190,19 @@ impl AllocationContext<'_, '_> {
             }
         }
 
-        {
-            let existing = {
-                let arena = arena.read();
-                arena.allocate_from_existing(
-                    request.requirement.requirements.size,
-                    request.requirement.requirements.alignment,
-                    self.stats.clone(),
-                )
-            };
-            if let Some(allocation) = existing {
-                self.stats
-                    .on_allocate(request.requirement.requirements.size);
-                return Ok(allocation);
-            }
-        }
-        let mut arena = arena.write();
-        if let Some(allocation) = arena.allocate_from_existing(
+        if let Some(allocation) = allocate_from_existing(
+            &arena,
             request.requirement.requirements.size,
             request.requirement.requirements.alignment,
-            self.stats.clone(),
+        ) {
+            self.stats
+                .on_allocate(request.requirement.requirements.size);
+            return Ok(allocation);
+        }
+        let mut arena = arena.write();
+        if let Some(allocation) = arena.allocate_from_existing_locked(
+            request.requirement.requirements.size,
+            request.requirement.requirements.alignment,
         ) {
             self.stats
                 .on_allocate(request.requirement.requirements.size);
@@ -232,6 +228,8 @@ impl AllocationContext<'_, '_> {
             None,
             request.partition.allocation_device_mask(),
             is_host_visible(self.memory_properties, memory_type_index),
+            is_host_coherent(self.memory_properties, memory_type_index),
+            self.limits.non_coherent_atom_size,
         )?;
         let block_id = arena.next_block_id;
         let arena_id = ((pool.id() + 1) << 16) | memory_type_index;
@@ -241,6 +239,7 @@ impl AllocationContext<'_, '_> {
             memory.size(),
             request.partition.block_metadata(),
             memory,
+            self.stats.clone(),
         ));
         self.stats.on_block_allocated(block.size);
         arena.push_block(block.clone());
@@ -251,7 +250,6 @@ impl AllocationContext<'_, '_> {
             block,
             request.requirement.requirements.size,
             request.requirement.requirements.alignment,
-            self.stats.clone(),
         )
         .map_err(|_| {
             if request.bind_behavior.split_region_count() != 0 {
