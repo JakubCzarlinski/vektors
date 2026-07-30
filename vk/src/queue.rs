@@ -25,6 +25,8 @@ use crate::commands::PFN_vkQueueBindSparse;
 use crate::commands::PFN_vkQueueEndDebugUtilsLabelEXT;
 #[cfg(feature = "VK_EXT_debug_utils")]
 use crate::commands::PFN_vkQueueInsertDebugUtilsLabelEXT;
+#[cfg(feature = "VK_NV_low_latency")]
+use crate::commands::PFN_vkQueueNotifyOutOfBandLegacyNV;
 #[cfg(feature = "VK_NV_low_latency2")]
 use crate::commands::PFN_vkQueueNotifyOutOfBandNV;
 #[cfg(feature = "VK_KHR_swapchain")]
@@ -117,6 +119,8 @@ pub struct QueueDispatchTable {
   pub vkGetQueueCheckpointData2NV: Option<PFN_vkGetQueueCheckpointData2NV>,
   #[cfg(feature = "VK_NV_device_diagnostic_checkpoints")]
   pub vkGetQueueCheckpointDataNV: Option<PFN_vkGetQueueCheckpointDataNV>,
+  #[cfg(feature = "VK_NV_low_latency")]
+  pub vkQueueNotifyOutOfBandLegacyNV: Option<PFN_vkQueueNotifyOutOfBandLegacyNV>,
   #[cfg(feature = "VK_NV_low_latency2")]
   pub vkQueueNotifyOutOfBandNV: Option<PFN_vkQueueNotifyOutOfBandNV>,
   #[cfg(feature = "VK_QCOM_queue_perf_hint")]
@@ -158,6 +162,8 @@ impl QueueDispatchTable {
     vkGetQueueCheckpointData2NV: None,
     #[cfg(feature = "VK_NV_device_diagnostic_checkpoints")]
     vkGetQueueCheckpointDataNV: None,
+    #[cfg(feature = "VK_NV_low_latency")]
+    vkQueueNotifyOutOfBandLegacyNV: None,
     #[cfg(feature = "VK_NV_low_latency2")]
     vkQueueNotifyOutOfBandNV: None,
     #[cfg(feature = "VK_QCOM_queue_perf_hint")]
@@ -214,6 +220,9 @@ impl QueueDispatchTable {
         .map(|f| unsafe { core::mem::transmute(f) }),
       #[cfg(feature = "VK_NV_device_diagnostic_checkpoints")]
       vkGetQueueCheckpointDataNV: loader(c"vkGetQueueCheckpointDataNV".as_ptr())
+        .map(|f| unsafe { core::mem::transmute(f) }),
+      #[cfg(feature = "VK_NV_low_latency")]
+      vkQueueNotifyOutOfBandLegacyNV: loader(c"vkQueueNotifyOutOfBandLegacyNV".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
       #[cfg(feature = "VK_NV_low_latency2")]
       vkQueueNotifyOutOfBandNV: loader(c"vkQueueNotifyOutOfBandNV".as_ptr())
@@ -674,6 +683,25 @@ impl<'dev> Queue<'dev> {
         pCheckpointDataCount,
         pCheckpointData,
       )
+    }
+  }
+  /// [`vkQueueNotifyOutOfBandLegacyNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkQueueNotifyOutOfBandLegacyNV.html)
+  ///
+  /// Provided by:
+  /// - `VK_NV_low_latency`
+  ///
+  ///
+  /// # Parameters
+  /// - `queue`
+  /// - `queueType`
+  #[cfg(feature = "VK_NV_low_latency")]
+  #[inline(always)]
+  pub fn vkQueueNotifyOutOfBandLegacyNV(&self, queueType: u32) {
+    unsafe {
+      // SAFETY: table is fully loaded at creation.
+      (self.table)
+        .vkQueueNotifyOutOfBandLegacyNV
+        .unwrap_unchecked()(self.raw, queueType)
     }
   }
   /// [`vkQueueNotifyOutOfBandNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkQueueNotifyOutOfBandNV.html)

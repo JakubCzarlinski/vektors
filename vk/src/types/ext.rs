@@ -34686,7 +34686,7 @@ impl<'a> VkShaderModuleValidationCacheCreateInfoEXT<'a> {
 }
 /// [VkValidationFeaturesEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkValidationFeaturesEXT.html)
 ///
-/// **Extends:** VkInstanceCreateInfo, VkShaderModuleCreateInfo, VkShaderCreateInfoEXT.
+/// **Extends:** VkInstanceCreateInfo, VkShaderModuleCreateInfo, VkShaderCreateInfoEXT, VkPipelineShaderStageCreateInfo, VkGraphicsPipelineCreateInfo, VkComputePipelineCreateInfo, VkRayTracingPipelineCreateInfoKHR.
 #[cfg(feature = "VK_EXT_validation_features")]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
@@ -34731,6 +34731,38 @@ unsafe impl<'child, 'root> VkPNextExtends<VkShaderModuleCreateInfo<'root>>
   feature = "VK_EXT_shader_object"
 ))]
 unsafe impl<'child, 'root> VkPNextExtends<VkShaderCreateInfoEXT<'root>>
+  for VkValidationFeaturesEXT<'child>
+{
+}
+#[cfg(all(
+  feature = "VK_EXT_validation_features",
+  feature = "VK_COMPUTE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPipelineShaderStageCreateInfo<'root>>
+  for VkValidationFeaturesEXT<'child>
+{
+}
+#[cfg(all(
+  feature = "VK_EXT_validation_features",
+  feature = "VK_GRAPHICS_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkGraphicsPipelineCreateInfo<'root>>
+  for VkValidationFeaturesEXT<'child>
+{
+}
+#[cfg(all(
+  feature = "VK_EXT_validation_features",
+  feature = "VK_COMPUTE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkComputePipelineCreateInfo<'root>>
+  for VkValidationFeaturesEXT<'child>
+{
+}
+#[cfg(all(
+  feature = "VK_EXT_validation_features",
+  feature = "VK_KHR_ray_tracing_pipeline"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkRayTracingPipelineCreateInfoKHR<'root>>
   for VkValidationFeaturesEXT<'child>
 {
 }
@@ -34829,6 +34861,66 @@ impl<'a> VkValidationFeaturesEXT<'a> {
   pub const fn with_pNext_chain_VkShaderCreateInfoEXT<
     'root,
     T: VkPNextExtends<VkShaderCreateInfoEXT<'root>>,
+  >(
+    mut self,
+    val: &'a T,
+  ) -> Self {
+    self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPipelineShaderStageCreateInfo<
+    'root,
+    T: VkPNextExtends<VkPipelineShaderStageCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a T,
+  ) -> Self {
+    self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkGraphicsPipelineCreateInfo<
+    'root,
+    T: VkPNextExtends<VkGraphicsPipelineCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a T,
+  ) -> Self {
+    self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkComputePipelineCreateInfo<
+    'root,
+    T: VkPNextExtends<VkComputePipelineCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a T,
+  ) -> Self {
+    self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_KHR_ray_tracing_pipeline")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkRayTracingPipelineCreateInfoKHR<
+    'root,
+    T: VkPNextExtends<VkRayTracingPipelineCreateInfoKHR<'root>>,
   >(
     mut self,
     val: &'a T,

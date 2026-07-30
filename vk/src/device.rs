@@ -324,6 +324,8 @@ use crate::commands::PFN_vkGetImageViewHandle64NVX;
 use crate::commands::PFN_vkGetImageViewHandleNVX;
 #[cfg(feature = "VK_EXT_descriptor_buffer")]
 use crate::commands::PFN_vkGetImageViewOpaqueCaptureDescriptorDataEXT;
+#[cfg(feature = "VK_NV_low_latency")]
+use crate::commands::PFN_vkGetLatencyTimingsLegacyNV;
 #[cfg(feature = "VK_ANDROID_external_memory_android_hardware_buffer")]
 use crate::commands::PFN_vkGetMemoryAndroidHardwareBufferANDROID;
 #[cfg(feature = "VK_KHR_external_memory_fd")]
@@ -398,6 +400,8 @@ use crate::commands::PFN_vkGetSemaphoreWin32HandleKHR;
 use crate::commands::PFN_vkGetSemaphoreZirconHandleFUCHSIA;
 #[cfg(feature = "VK_EXT_shader_module_identifier")]
 use crate::commands::PFN_vkGetShaderModuleCreateInfoIdentifierEXT;
+#[cfg(feature = "VK_NV_low_latency")]
+use crate::commands::PFN_vkGetSleepStatusLegacyNV;
 #[cfg(feature = "VK_ARM_tensors")]
 use crate::commands::PFN_vkGetTensorMemoryRequirementsARM;
 #[cfg(all(feature = "VK_ARM_tensors", feature = "VK_EXT_descriptor_heap"))]
@@ -461,10 +465,16 @@ use crate::commands::PFN_vkSetDebugUtilsObjectTagEXT;
 use crate::commands::PFN_vkSetGpaDeviceClockModeAMD;
 #[cfg(feature = "VK_EXT_hdr_metadata")]
 use crate::commands::PFN_vkSetHdrMetadataEXT;
+#[cfg(feature = "VK_NV_low_latency")]
+use crate::commands::PFN_vkSetLatencyMarkerLegacyNV;
+#[cfg(feature = "VK_NV_low_latency")]
+use crate::commands::PFN_vkSetLatencySleepModeLegacyNV;
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 use crate::commands::PFN_vkSetPrivateData;
 #[cfg(feature = "VK_EXT_private_data")]
 use crate::commands::PFN_vkSetPrivateDataEXT;
+#[cfg(feature = "VK_NV_low_latency")]
+use crate::commands::PFN_vkShutdownLatencyDeviceLegacyNV;
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
 use crate::commands::PFN_vkSignalSemaphore;
 #[cfg(feature = "VK_KHR_timeline_semaphore")]
@@ -1650,6 +1660,16 @@ pub struct DeviceDispatchTable {
   pub vkImportSemaphoreSciSyncObjNV: Option<PFN_vkImportSemaphoreSciSyncObjNV>,
   #[cfg(feature = "VK_NV_external_sci_sync2")]
   pub vkCreateSemaphoreSciSyncPoolNV: Option<PFN_vkCreateSemaphoreSciSyncPoolNV>,
+  #[cfg(feature = "VK_NV_low_latency")]
+  pub vkGetLatencyTimingsLegacyNV: Option<PFN_vkGetLatencyTimingsLegacyNV>,
+  #[cfg(feature = "VK_NV_low_latency")]
+  pub vkGetSleepStatusLegacyNV: Option<PFN_vkGetSleepStatusLegacyNV>,
+  #[cfg(feature = "VK_NV_low_latency")]
+  pub vkSetLatencyMarkerLegacyNV: Option<PFN_vkSetLatencyMarkerLegacyNV>,
+  #[cfg(feature = "VK_NV_low_latency")]
+  pub vkSetLatencySleepModeLegacyNV: Option<PFN_vkSetLatencySleepModeLegacyNV>,
+  #[cfg(feature = "VK_NV_low_latency")]
+  pub vkShutdownLatencyDeviceLegacyNV: Option<PFN_vkShutdownLatencyDeviceLegacyNV>,
   #[cfg(feature = "VK_NV_optical_flow")]
   pub vkCreateOpticalFlowSessionNV: Option<PFN_vkCreateOpticalFlowSessionNV>,
   #[cfg(feature = "VK_NV_partitioned_acceleration_structure")]
@@ -2152,6 +2172,16 @@ impl DeviceDispatchTable {
     vkImportSemaphoreSciSyncObjNV: None,
     #[cfg(feature = "VK_NV_external_sci_sync2")]
     vkCreateSemaphoreSciSyncPoolNV: None,
+    #[cfg(feature = "VK_NV_low_latency")]
+    vkGetLatencyTimingsLegacyNV: None,
+    #[cfg(feature = "VK_NV_low_latency")]
+    vkGetSleepStatusLegacyNV: None,
+    #[cfg(feature = "VK_NV_low_latency")]
+    vkSetLatencyMarkerLegacyNV: None,
+    #[cfg(feature = "VK_NV_low_latency")]
+    vkSetLatencySleepModeLegacyNV: None,
+    #[cfg(feature = "VK_NV_low_latency")]
+    vkShutdownLatencyDeviceLegacyNV: None,
     #[cfg(feature = "VK_NV_optical_flow")]
     vkCreateOpticalFlowSessionNV: None,
     #[cfg(feature = "VK_NV_partitioned_acceleration_structure")]
@@ -2953,6 +2983,21 @@ impl DeviceDispatchTable {
         .map(|f| unsafe { core::mem::transmute(f) }),
       #[cfg(feature = "VK_NV_external_sci_sync2")]
       vkCreateSemaphoreSciSyncPoolNV: loader(c"vkCreateSemaphoreSciSyncPoolNV".as_ptr())
+        .map(|f| unsafe { core::mem::transmute(f) }),
+      #[cfg(feature = "VK_NV_low_latency")]
+      vkGetLatencyTimingsLegacyNV: loader(c"vkGetLatencyTimingsLegacyNV".as_ptr())
+        .map(|f| unsafe { core::mem::transmute(f) }),
+      #[cfg(feature = "VK_NV_low_latency")]
+      vkGetSleepStatusLegacyNV: loader(c"vkGetSleepStatusLegacyNV".as_ptr())
+        .map(|f| unsafe { core::mem::transmute(f) }),
+      #[cfg(feature = "VK_NV_low_latency")]
+      vkSetLatencyMarkerLegacyNV: loader(c"vkSetLatencyMarkerLegacyNV".as_ptr())
+        .map(|f| unsafe { core::mem::transmute(f) }),
+      #[cfg(feature = "VK_NV_low_latency")]
+      vkSetLatencySleepModeLegacyNV: loader(c"vkSetLatencySleepModeLegacyNV".as_ptr())
+        .map(|f| unsafe { core::mem::transmute(f) }),
+      #[cfg(feature = "VK_NV_low_latency")]
+      vkShutdownLatencyDeviceLegacyNV: loader(c"vkShutdownLatencyDeviceLegacyNV".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
       #[cfg(feature = "VK_NV_optical_flow")]
       vkCreateOpticalFlowSessionNV: loader(c"vkCreateOpticalFlowSessionNV".as_ptr())
@@ -11954,6 +11999,102 @@ impl<'inst> Device<'inst> {
     } else {
       core::hint::cold_path();
       Err(r)
+    }
+  }
+  /// [`vkGetLatencyTimingsLegacyNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetLatencyTimingsLegacyNV.html)
+  ///
+  /// Provided by:
+  /// - `VK_NV_low_latency`
+  ///
+  ///
+  /// # Parameters
+  /// - `device`
+  /// - `pTimings`
+  #[cfg(feature = "VK_NV_low_latency")]
+  #[inline(always)]
+  pub fn vkGetLatencyTimingsLegacyNV(&self, pTimings: *mut c_void) {
+    unsafe {
+      // SAFETY: table is fully loaded at creation.
+      (self.table).vkGetLatencyTimingsLegacyNV.unwrap_unchecked()(self.raw, pTimings)
+    }
+  }
+  /// [`vkGetSleepStatusLegacyNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetSleepStatusLegacyNV.html)
+  ///
+  /// Provided by:
+  /// - `VK_NV_low_latency`
+  ///
+  ///
+  /// # Parameters
+  /// - `device`
+  /// - `pLowLatencyMode`
+  #[cfg(feature = "VK_NV_low_latency")]
+  #[inline(always)]
+  pub fn vkGetSleepStatusLegacyNV(&self, pLowLatencyMode: &mut VkBool32) {
+    unsafe {
+      // SAFETY: table is fully loaded at creation.
+      (self.table).vkGetSleepStatusLegacyNV.unwrap_unchecked()(self.raw, pLowLatencyMode)
+    }
+  }
+  /// [`vkSetLatencyMarkerLegacyNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkSetLatencyMarkerLegacyNV.html)
+  ///
+  /// Provided by:
+  /// - `VK_NV_low_latency`
+  ///
+  ///
+  /// # Parameters
+  /// - `device`
+  /// - `frameID`
+  /// - `marker`
+  #[cfg(feature = "VK_NV_low_latency")]
+  #[inline(always)]
+  pub fn vkSetLatencyMarkerLegacyNV(&self, frameID: u64, marker: u32) {
+    unsafe {
+      // SAFETY: table is fully loaded at creation.
+      (self.table).vkSetLatencyMarkerLegacyNV.unwrap_unchecked()(self.raw, frameID, marker)
+    }
+  }
+  /// [`vkSetLatencySleepModeLegacyNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkSetLatencySleepModeLegacyNV.html)
+  ///
+  /// Provided by:
+  /// - `VK_NV_low_latency`
+  ///
+  ///
+  /// # Parameters
+  /// - `device`
+  /// - `lowLatencyMode`
+  /// - `lowLatencyBoost`
+  /// - `minimumIntervalUs`
+  #[cfg(feature = "VK_NV_low_latency")]
+  #[inline(always)]
+  pub fn vkSetLatencySleepModeLegacyNV(
+    &self,
+    lowLatencyMode: VkBool32,
+    lowLatencyBoost: VkBool32,
+    minimumIntervalUs: u32,
+  ) {
+    unsafe {
+      // SAFETY: table is fully loaded at creation.
+      (self.table)
+        .vkSetLatencySleepModeLegacyNV
+        .unwrap_unchecked()(self.raw, lowLatencyMode, lowLatencyBoost, minimumIntervalUs)
+    }
+  }
+  /// [`vkShutdownLatencyDeviceLegacyNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkShutdownLatencyDeviceLegacyNV.html)
+  ///
+  /// Provided by:
+  /// - `VK_NV_low_latency`
+  ///
+  ///
+  /// # Parameters
+  /// - `device`
+  #[cfg(feature = "VK_NV_low_latency")]
+  #[inline(always)]
+  pub fn vkShutdownLatencyDeviceLegacyNV(&self) {
+    unsafe {
+      // SAFETY: table is fully loaded at creation.
+      (self.table)
+        .vkShutdownLatencyDeviceLegacyNV
+        .unwrap_unchecked()(self.raw)
     }
   }
   /// [`vkCreateOpticalFlowSessionNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkCreateOpticalFlowSessionNV.html)

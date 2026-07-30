@@ -622,7 +622,7 @@ pub const VK_API_VERSION: u32 = VK_MAKE_API_VERSION(0u32, 1u32, 0u32, 0u32);
 pub const VK_API_VERSION_1_0: u32 = VK_MAKE_API_VERSION(0u32, 1u32, 0u32, 0u32);
 /// [VK_HEADER_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION.html)
 #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
-pub const VK_HEADER_VERSION: u32 = 356u32;
+pub const VK_HEADER_VERSION: u32 = 357u32;
 /// [VK_HEADER_VERSION_COMPLETE](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION_COMPLETE.html)
 #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub const VK_HEADER_VERSION_COMPLETE: u32 = VK_MAKE_API_VERSION(0u32, 1u32, 4u32, 0u32);
@@ -4931,7 +4931,7 @@ pub const VK_NV_LINEAR_COLOR_ATTACHMENT_EXTENSION_NAME: &'static core::ffi::CStr
 ///
 /// Extension type: device extension.
 #[cfg(feature = "VK_NV_low_latency")]
-pub const VK_NV_LOW_LATENCY_SPEC_VERSION: u32 = 1;
+pub const VK_NV_LOW_LATENCY_SPEC_VERSION: u32 = 2;
 /// [VK_NV_LOW_LATENCY_EXTENSION_NAME](https://docs.vulkan.org/refpages/latest/refpages/source/VK_NV_low_latency.html)
 ///
 /// Extension type: device extension.

@@ -19466,6 +19466,18 @@ pub type PFN_vkGetImageViewOpaqueCaptureDescriptorDataEXT = unsafe extern "syste
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 pub type PFN_vkGetInstanceProcAddr =
   unsafe extern "system" fn(instance: VkInstance, pName: *const c_char) -> PFN_vkVoidFunction;
+/// [`vkGetLatencyTimingsLegacyNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetLatencyTimingsLegacyNV.html)
+///
+/// Provided by:
+/// - `VK_NV_low_latency`
+///
+///
+/// # Parameters
+/// - `device`
+/// - `pTimings`
+#[cfg(feature = "VK_NV_low_latency")]
+pub type PFN_vkGetLatencyTimingsLegacyNV =
+  unsafe extern "system" fn(device: VkDevice, pTimings: *mut c_void);
 /// [`vkGetLatencyTimingsNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetLatencyTimingsNV.html)
 ///
 /// Provided by:
@@ -22552,6 +22564,18 @@ pub type PFN_vkGetShaderModuleIdentifierEXT = unsafe extern "system" fn(
   shaderModule: VkShaderModule,
   pIdentifier: *mut VkShaderModuleIdentifierEXT<'_>,
 );
+/// [`vkGetSleepStatusLegacyNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetSleepStatusLegacyNV.html)
+///
+/// Provided by:
+/// - `VK_NV_low_latency`
+///
+///
+/// # Parameters
+/// - `device`
+/// - `pLowLatencyMode`
+#[cfg(feature = "VK_NV_low_latency")]
+pub type PFN_vkGetSleepStatusLegacyNV =
+  unsafe extern "system" fn(device: VkDevice, pLowLatencyMode: *mut VkBool32);
 /// [`vkGetSwapchainCounterEXT`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetSwapchainCounterEXT.html)
 ///
 /// Provided by:
@@ -23152,6 +23176,19 @@ pub type PFN_vkInvalidateMappedMemoryRanges = unsafe extern "system" fn(
   memoryRangeCount: u32,
   pMemoryRanges: *const VkMappedMemoryRange<'_>,
 ) -> VkResult;
+/// [`vkLatencySleepLegacyNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkLatencySleepLegacyNV.html)
+///
+/// Provided by:
+/// - `VK_NV_low_latency`
+///
+///
+/// # Parameters
+/// - `device`
+/// - `signalSemaphore`
+/// - `value`
+#[cfg(feature = "VK_NV_low_latency")]
+pub type PFN_vkLatencySleepLegacyNV =
+  unsafe extern "system" fn(device: VkDevice, signalSemaphore: VkSemaphore, value: u64);
 /// [`vkLatencySleepNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkLatencySleepNV.html)
 ///
 /// Provided by:
@@ -23377,6 +23414,18 @@ pub type PFN_vkQueueEndDebugUtilsLabelEXT = unsafe extern "system" fn(queue: VkQ
 #[cfg(feature = "VK_EXT_debug_utils")]
 pub type PFN_vkQueueInsertDebugUtilsLabelEXT =
   unsafe extern "system" fn(queue: VkQueue, pLabelInfo: *const VkDebugUtilsLabelEXT<'_>);
+/// [`vkQueueNotifyOutOfBandLegacyNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkQueueNotifyOutOfBandLegacyNV.html)
+///
+/// Provided by:
+/// - `VK_NV_low_latency`
+///
+///
+/// # Parameters
+/// - `queue`
+/// - `queueType`
+#[cfg(feature = "VK_NV_low_latency")]
+pub type PFN_vkQueueNotifyOutOfBandLegacyNV =
+  unsafe extern "system" fn(queue: VkQueue, queueType: u32);
 /// [`vkQueueNotifyOutOfBandNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkQueueNotifyOutOfBandNV.html)
 ///
 /// Provided by:
@@ -24160,6 +24209,19 @@ pub type PFN_vkSetHdrMetadataEXT = unsafe extern "system" fn(
   pSwapchains: *const VkSwapchainKHR,
   pMetadata: *const VkHdrMetadataEXT<'_>,
 );
+/// [`vkSetLatencyMarkerLegacyNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkSetLatencyMarkerLegacyNV.html)
+///
+/// Provided by:
+/// - `VK_NV_low_latency`
+///
+///
+/// # Parameters
+/// - `device`
+/// - `frameID`
+/// - `marker`
+#[cfg(feature = "VK_NV_low_latency")]
+pub type PFN_vkSetLatencyMarkerLegacyNV =
+  unsafe extern "system" fn(device: VkDevice, frameID: u64, marker: u32);
 /// [`vkSetLatencyMarkerNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkSetLatencyMarkerNV.html)
 ///
 /// Provided by:
@@ -24175,6 +24237,24 @@ pub type PFN_vkSetLatencyMarkerNV = unsafe extern "system" fn(
   device: VkDevice,
   swapchain: VkSwapchainKHR,
   pLatencyMarkerInfo: *const VkSetLatencyMarkerInfoNV<'_>,
+);
+/// [`vkSetLatencySleepModeLegacyNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkSetLatencySleepModeLegacyNV.html)
+///
+/// Provided by:
+/// - `VK_NV_low_latency`
+///
+///
+/// # Parameters
+/// - `device`
+/// - `lowLatencyMode`
+/// - `lowLatencyBoost`
+/// - `minimumIntervalUs`
+#[cfg(feature = "VK_NV_low_latency")]
+pub type PFN_vkSetLatencySleepModeLegacyNV = unsafe extern "system" fn(
+  device: VkDevice,
+  lowLatencyMode: VkBool32,
+  lowLatencyBoost: VkBool32,
+  minimumIntervalUs: u32,
 );
 /// [`vkSetLatencySleepModeNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkSetLatencySleepModeNV.html)
 ///
@@ -24287,6 +24367,16 @@ pub type PFN_vkSetPrivateDataEXT = unsafe extern "system" fn(
 #[cfg(feature = "VK_EXT_present_timing")]
 pub type PFN_vkSetSwapchainPresentTimingQueueSizeEXT =
   unsafe extern "system" fn(device: VkDevice, swapchain: VkSwapchainKHR, size: u32) -> VkResult;
+/// [`vkShutdownLatencyDeviceLegacyNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkShutdownLatencyDeviceLegacyNV.html)
+///
+/// Provided by:
+/// - `VK_NV_low_latency`
+///
+///
+/// # Parameters
+/// - `device`
+#[cfg(feature = "VK_NV_low_latency")]
+pub type PFN_vkShutdownLatencyDeviceLegacyNV = unsafe extern "system" fn(device: VkDevice);
 /// [`vkSignalSemaphore`](https://docs.vulkan.org/refpages/latest/refpages/source/vkSignalSemaphore.html)
 ///
 /// Provided by:

@@ -316,6 +316,8 @@ use crate::types::VkRenderingInputAttachmentIndexInfo;
   feature = "VK_QCOM_tile_properties"
 ))]
 use crate::types::VkTileMemorySizeInfoQCOM;
+#[cfg(feature = "VK_EXT_validation_features")]
+use crate::types::VkValidationFeaturesEXT;
 use core::ffi::c_void;
 /// [VkSampleMask](https://docs.vulkan.org/refpages/latest/refpages/source/VkSampleMask.html)
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
@@ -2547,6 +2549,18 @@ impl<'a> VkGraphicsPipelineCreateInfo<'a> {
     val: &'a VkRenderingInputAttachmentIndexInfo<'child>,
   ) -> Self {
     self.pNext = (val as *const VkRenderingInputAttachmentIndexInfo<'child>).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_EXT_validation_features")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkValidationFeaturesEXT<'child>(
+    mut self,
+    val: &'a VkValidationFeaturesEXT<'child>,
+  ) -> Self {
+    self.pNext = (val as *const VkValidationFeaturesEXT<'child>).cast::<c_void>();
     self
   }
   #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]

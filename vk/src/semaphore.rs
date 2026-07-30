@@ -10,6 +10,8 @@ use crate::commands::PFN_vkDestroySemaphore;
 use crate::commands::PFN_vkGetSemaphoreCounterValue;
 #[cfg(feature = "VK_KHR_timeline_semaphore")]
 use crate::commands::PFN_vkGetSemaphoreCounterValueKHR;
+#[cfg(feature = "VK_NV_low_latency")]
+use crate::commands::PFN_vkLatencySleepLegacyNV;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkResult;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -28,6 +30,8 @@ pub struct SemaphoreDispatchTable {
   pub vkGetSemaphoreCounterValue: Option<PFN_vkGetSemaphoreCounterValue>,
   #[cfg(feature = "VK_KHR_timeline_semaphore")]
   pub vkGetSemaphoreCounterValueKHR: Option<PFN_vkGetSemaphoreCounterValueKHR>,
+  #[cfg(feature = "VK_NV_low_latency")]
+  pub vkLatencySleepLegacyNV: Option<PFN_vkLatencySleepLegacyNV>,
 }
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl SemaphoreDispatchTable {
@@ -38,6 +42,8 @@ impl SemaphoreDispatchTable {
     vkGetSemaphoreCounterValue: None,
     #[cfg(feature = "VK_KHR_timeline_semaphore")]
     vkGetSemaphoreCounterValueKHR: None,
+    #[cfg(feature = "VK_NV_low_latency")]
+    vkLatencySleepLegacyNV: None,
   };
   #[inline]
   pub fn load<F>(loader: F) -> Self
@@ -53,6 +59,9 @@ impl SemaphoreDispatchTable {
         .map(|f| unsafe { core::mem::transmute(f) }),
       #[cfg(feature = "VK_KHR_timeline_semaphore")]
       vkGetSemaphoreCounterValueKHR: loader(c"vkGetSemaphoreCounterValueKHR".as_ptr())
+        .map(|f| unsafe { core::mem::transmute(f) }),
+      #[cfg(feature = "VK_NV_low_latency")]
+      vkLatencySleepLegacyNV: loader(c"vkLatencySleepLegacyNV".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
     }
   }
@@ -203,6 +212,24 @@ impl<'dev> Semaphore<'dev> {
     } else {
       core::hint::cold_path();
       Err(r)
+    }
+  }
+  /// [`vkLatencySleepLegacyNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkLatencySleepLegacyNV.html)
+  ///
+  /// Provided by:
+  /// - `VK_NV_low_latency`
+  ///
+  ///
+  /// # Parameters
+  /// - `device`
+  /// - `signalSemaphore`
+  /// - `value`
+  #[cfg(feature = "VK_NV_low_latency")]
+  #[inline(always)]
+  pub fn vkLatencySleepLegacyNV(&self, value: u64) {
+    unsafe {
+      // SAFETY: table is fully loaded at creation.
+      (self.table).vkLatencySleepLegacyNV.unwrap_unchecked()(self.device().raw(), self.raw, value)
     }
   }
 }

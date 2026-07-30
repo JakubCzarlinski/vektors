@@ -1795,6 +1795,18 @@ impl<'a> VkPipelineShaderStageCreateInfo<'a> {
       (val as *const VkShaderModuleValidationCacheCreateInfoEXT<'child>).cast::<c_void>();
     self
   }
+  #[cfg(feature = "VK_EXT_validation_features")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkValidationFeaturesEXT<'child>(
+    mut self,
+    val: &'a VkValidationFeaturesEXT<'child>,
+  ) -> Self {
+    self.pNext = (val as *const VkValidationFeaturesEXT<'child>).cast::<c_void>();
+    self
+  }
   #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
@@ -1978,6 +1990,18 @@ impl<'a> VkComputePipelineCreateInfo<'a> {
     val: &'a VkSubpassShadingPipelineCreateInfoHUAWEI<'child>,
   ) -> Self {
     self.pNext = (val as *const VkSubpassShadingPipelineCreateInfoHUAWEI<'child>).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_EXT_validation_features")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkValidationFeaturesEXT<'child>(
+    mut self,
+    val: &'a VkValidationFeaturesEXT<'child>,
+  ) -> Self {
+    self.pNext = (val as *const VkValidationFeaturesEXT<'child>).cast::<c_void>();
     self
   }
   #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]

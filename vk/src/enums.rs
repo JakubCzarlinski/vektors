@@ -81389,6 +81389,10 @@ impl StdVideoH264ProfileIdc {
   pub const BASELINE: Self = Self(66);
   pub const MAIN: Self = Self(77);
   pub const HIGH: Self = Self(100);
+  ///Annex A.2.5 High 10 profile (profile_idc 100 or 110)
+  pub const HIGH_10: Self = Self(110);
+  ///Annex A.2.6 High 4:2:2 profile (profile_idc 100, 110, or 122)
+  pub const HIGH_422: Self = Self(122);
   pub const HIGH_444_PREDICTIVE: Self = Self(244);
   pub const INVALID: Self = Self(2147483647);
 }
@@ -81399,6 +81403,8 @@ impl core::fmt::Display for StdVideoH264ProfileIdc {
       value if value == Self::BASELINE.0 => f.write_str("STD_VIDEO_H264_PROFILE_IDC_BASELINE"),
       value if value == Self::MAIN.0 => f.write_str("STD_VIDEO_H264_PROFILE_IDC_MAIN"),
       value if value == Self::HIGH.0 => f.write_str("STD_VIDEO_H264_PROFILE_IDC_HIGH"),
+      value if value == Self::HIGH_10.0 => f.write_str("STD_VIDEO_H264_PROFILE_IDC_HIGH_10"),
+      value if value == Self::HIGH_422.0 => f.write_str("STD_VIDEO_H264_PROFILE_IDC_HIGH_422"),
       value if value == Self::HIGH_444_PREDICTIVE.0 => {
         f.write_str("STD_VIDEO_H264_PROFILE_IDC_HIGH_444_PREDICTIVE")
       }
