@@ -150,11 +150,14 @@ use crate::commands::PFN_vkGetPhysicalDeviceSciBufAttributesNV;
 use crate::commands::PFN_vkGetPhysicalDeviceSciSyncAttributesNV;
 #[cfg(feature = "VK_QNX_screen_surface")]
 use crate::commands::PFN_vkGetPhysicalDeviceScreenPresentationSupportQNX;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::commands::PFN_vkGetPhysicalDeviceSparseImageFormatProperties;
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::commands::PFN_vkGetPhysicalDeviceSparseImageFormatProperties2;
-#[cfg(feature = "VK_KHR_get_physical_device_properties2")]
+#[cfg(all(
+  feature = "VK_KHR_get_physical_device_properties2",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::commands::PFN_vkGetPhysicalDeviceSparseImageFormatProperties2KHR;
 #[cfg(feature = "VK_NV_coverage_reduction_mode")]
 use crate::commands::PFN_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV;
@@ -413,9 +416,12 @@ use crate::types::VkPhysicalDeviceProperties2;
 use crate::types::VkPhysicalDeviceProperties2KHR;
 #[cfg(feature = "VK_ARM_data_graph")]
 use crate::types::VkPhysicalDeviceQueueFamilyDataGraphProcessingEngineInfoARM;
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkPhysicalDeviceSparseImageFormatInfo2;
-#[cfg(feature = "VK_KHR_get_physical_device_properties2")]
+#[cfg(all(
+  feature = "VK_KHR_get_physical_device_properties2",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::types::VkPhysicalDeviceSparseImageFormatInfo2KHR;
 #[cfg(feature = "VK_KHR_get_surface_capabilities2")]
 use crate::types::VkPhysicalDeviceSurfaceInfo2KHR;
@@ -448,11 +454,14 @@ use crate::types::VkRect2D;
 use crate::types::VkSciSyncAttributesInfoNV;
 #[cfg(feature = "VK_ARM_shader_instrumentation")]
 use crate::types::VkShaderInstrumentationMetricDescriptionARM;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkSparseImageFormatProperties;
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkSparseImageFormatProperties2;
-#[cfg(feature = "VK_KHR_get_physical_device_properties2")]
+#[cfg(all(
+  feature = "VK_KHR_get_physical_device_properties2",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::types::VkSparseImageFormatProperties2KHR;
 #[cfg(feature = "VK_EXT_display_surface_counter")]
 use crate::types::VkSurfaceCapabilities2EXT;
@@ -530,7 +539,7 @@ pub struct PhysicalDeviceDispatchTable {
   #[cfg(feature = "VK_BASE_VERSION_1_0")]
   pub vkGetPhysicalDeviceQueueFamilyProperties:
     Option<PFN_vkGetPhysicalDeviceQueueFamilyProperties>,
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   pub vkGetPhysicalDeviceSparseImageFormatProperties:
     Option<PFN_vkGetPhysicalDeviceSparseImageFormatProperties>,
   #[cfg(feature = "VK_BASE_VERSION_1_1")]
@@ -556,7 +565,7 @@ pub struct PhysicalDeviceDispatchTable {
   #[cfg(feature = "VK_BASE_VERSION_1_1")]
   pub vkGetPhysicalDeviceQueueFamilyProperties2:
     Option<PFN_vkGetPhysicalDeviceQueueFamilyProperties2>,
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   pub vkGetPhysicalDeviceSparseImageFormatProperties2:
     Option<PFN_vkGetPhysicalDeviceSparseImageFormatProperties2>,
   #[cfg(feature = "VK_BASE_VERSION_1_3")]
@@ -650,7 +659,10 @@ pub struct PhysicalDeviceDispatchTable {
   #[cfg(feature = "VK_KHR_get_physical_device_properties2")]
   pub vkGetPhysicalDeviceQueueFamilyProperties2KHR:
     Option<PFN_vkGetPhysicalDeviceQueueFamilyProperties2KHR>,
-  #[cfg(feature = "VK_KHR_get_physical_device_properties2")]
+  #[cfg(all(
+    feature = "VK_KHR_get_physical_device_properties2",
+    not(feature = "VKSC_VERSION_1_0")
+  ))]
   pub vkGetPhysicalDeviceSparseImageFormatProperties2KHR:
     Option<PFN_vkGetPhysicalDeviceSparseImageFormatProperties2KHR>,
   #[cfg(feature = "VK_KHR_get_surface_capabilities2")]
@@ -774,7 +786,7 @@ impl PhysicalDeviceDispatchTable {
     vkGetPhysicalDeviceProperties: None,
     #[cfg(feature = "VK_BASE_VERSION_1_0")]
     vkGetPhysicalDeviceQueueFamilyProperties: None,
-    #[cfg(feature = "VK_BASE_VERSION_1_0")]
+    #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
     vkGetPhysicalDeviceSparseImageFormatProperties: None,
     #[cfg(feature = "VK_BASE_VERSION_1_1")]
     vkGetPhysicalDeviceExternalBufferProperties: None,
@@ -794,7 +806,7 @@ impl PhysicalDeviceDispatchTable {
     vkGetPhysicalDeviceProperties2: None,
     #[cfg(feature = "VK_BASE_VERSION_1_1")]
     vkGetPhysicalDeviceQueueFamilyProperties2: None,
-    #[cfg(feature = "VK_BASE_VERSION_1_1")]
+    #[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
     vkGetPhysicalDeviceSparseImageFormatProperties2: None,
     #[cfg(feature = "VK_BASE_VERSION_1_3")]
     vkGetPhysicalDeviceToolProperties: None,
@@ -871,7 +883,10 @@ impl PhysicalDeviceDispatchTable {
     vkGetPhysicalDeviceProperties2KHR: None,
     #[cfg(feature = "VK_KHR_get_physical_device_properties2")]
     vkGetPhysicalDeviceQueueFamilyProperties2KHR: None,
-    #[cfg(feature = "VK_KHR_get_physical_device_properties2")]
+    #[cfg(all(
+      feature = "VK_KHR_get_physical_device_properties2",
+      not(feature = "VKSC_VERSION_1_0")
+    ))]
     vkGetPhysicalDeviceSparseImageFormatProperties2KHR: None,
     #[cfg(feature = "VK_KHR_get_surface_capabilities2")]
     vkGetPhysicalDeviceSurfaceCapabilities2KHR: None,
@@ -1012,7 +1027,7 @@ impl PhysicalDeviceDispatchTable {
         c"vkGetPhysicalDeviceQueueFamilyProperties".as_ptr(),
       )
       .map(|f| unsafe { core::mem::transmute(f) }),
-      #[cfg(feature = "VK_BASE_VERSION_1_0")]
+      #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
       vkGetPhysicalDeviceSparseImageFormatProperties: loader(
         c"vkGetPhysicalDeviceSparseImageFormatProperties".as_ptr(),
       )
@@ -1058,7 +1073,7 @@ impl PhysicalDeviceDispatchTable {
         c"vkGetPhysicalDeviceQueueFamilyProperties2".as_ptr(),
       )
       .map(|f| unsafe { core::mem::transmute(f) }),
-      #[cfg(feature = "VK_BASE_VERSION_1_1")]
+      #[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
       vkGetPhysicalDeviceSparseImageFormatProperties2: loader(
         c"vkGetPhysicalDeviceSparseImageFormatProperties2".as_ptr(),
       )
@@ -1220,7 +1235,10 @@ impl PhysicalDeviceDispatchTable {
         c"vkGetPhysicalDeviceQueueFamilyProperties2KHR".as_ptr(),
       )
       .map(|f| unsafe { core::mem::transmute(f) }),
-      #[cfg(feature = "VK_KHR_get_physical_device_properties2")]
+      #[cfg(all(
+        feature = "VK_KHR_get_physical_device_properties2",
+        not(feature = "VKSC_VERSION_1_0")
+      ))]
       vkGetPhysicalDeviceSparseImageFormatProperties2KHR: loader(
         c"vkGetPhysicalDeviceSparseImageFormatProperties2KHR".as_ptr(),
       )
@@ -1791,10 +1809,13 @@ impl<'inst> PhysicalDevice<'inst> {
       #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
       descriptor_set_layout_table:
         crate::descriptor_set_layout::DescriptorSetLayoutDispatchTable::load(load_lambda),
-      #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+      #[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
       descriptor_update_template_table:
         crate::descriptor_update_template::DescriptorUpdateTemplateDispatchTable::load(load_lambda),
-      #[cfg(feature = "VK_KHR_descriptor_update_template")]
+      #[cfg(all(
+        feature = "VK_KHR_descriptor_update_template",
+        not(feature = "VKSC_VERSION_1_0")
+      ))]
       descriptor_update_template_khr_table:
         crate::descriptor_update_template_khr::DescriptorUpdateTemplateKHRDispatchTable::load(
           load_lambda,
@@ -2167,6 +2188,7 @@ impl<'inst> PhysicalDevice<'inst> {
   /// Provided by:
   /// - `VK_BASE_VERSION_1_0`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
@@ -2178,7 +2200,7 @@ impl<'inst> PhysicalDevice<'inst> {
   /// - `tiling`
   /// - `pPropertyCount`: optional: pointer required, values optional if pointer not null
   /// - `pProperties`: optional: true, len: pPropertyCount
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   #[deprecated(note = "superseded by `vkGetPhysicalDeviceSparseImageFormatProperties2`")]
   #[inline(always)]
   pub fn vkGetPhysicalDeviceSparseImageFormatProperties(
@@ -2449,6 +2471,7 @@ impl<'inst> PhysicalDevice<'inst> {
   /// Provided by:
   /// - `VK_BASE_VERSION_1_1`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
@@ -2456,7 +2479,7 @@ impl<'inst> PhysicalDevice<'inst> {
   /// - `pFormatInfo`
   /// - `pPropertyCount`: optional: pointer required, values optional if pointer not null
   /// - `pProperties`: optional: true, len: pPropertyCount
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   #[inline(always)]
   pub fn vkGetPhysicalDeviceSparseImageFormatProperties2(
     &self,
@@ -3772,6 +3795,7 @@ impl<'inst> PhysicalDevice<'inst> {
   /// Provided by:
   /// - `VK_KHR_get_physical_device_properties2`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
@@ -3779,7 +3803,10 @@ impl<'inst> PhysicalDevice<'inst> {
   /// - `pFormatInfo`
   /// - `pPropertyCount`: optional: pointer required, values optional if pointer not null
   /// - `pProperties`: optional: true, len: pPropertyCount
-  #[cfg(feature = "VK_KHR_get_physical_device_properties2")]
+  #[cfg(all(
+    feature = "VK_KHR_get_physical_device_properties2",
+    not(feature = "VKSC_VERSION_1_0")
+  ))]
   #[inline(always)]
   pub fn vkGetPhysicalDeviceSparseImageFormatProperties2KHR(
     &self,

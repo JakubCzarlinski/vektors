@@ -2,8 +2,8 @@
 
 use crate::cfggen::{push_availability, set_dep_if_unset};
 use crate::ir::{
-    ApiSet, Constant, EnumValue, EnumVariant, Extension, Feature, Registry, Require, RequireEnum,
-    TypedefKind, parse_dep_expr,
+    ApiSet, Constant, EnumValue, EnumVariant, Extension, Feature, Registry, RemovalDirective,
+    Remove, RemovedFeature, Require, RequireEnum, TypedefKind, parse_dep_expr,
 };
 use crate::parser::nodes::{attr, depr_info, parse_enum_value_node};
 use roxmltree::Node;
@@ -23,8 +23,16 @@ pub fn parse_feature(node: Node, reg: &mut Registry) {
 
     let mut requires = Vec::new();
     for rn in node.children().filter(|n| {
-        n.is_element() && (n.tag_name().name() == "require" || n.tag_name().name() == "deprecate")
+        n.is_element() && matches!(n.tag_name().name(), "require" | "remove" | "deprecate")
     }) {
+        if rn.tag_name().name() == "remove" {
+            reg.removals.push(RemovalDirective {
+                provider: name.clone(),
+                provider_api: api.clone(),
+                remove: parse_remove(rn),
+            });
+            continue;
+        }
         let req = parse_require(rn, None);
         if rn.tag_name().name() == "require" {
             mark_provided_with_depr(&req, &name, &api, rn, reg);
@@ -80,9 +88,18 @@ pub fn parse_extensions(node: Node, reg: &mut Registry) {
         let disabled = ext_shell.is_disabled();
         let mut requires = Vec::new();
         for rn in en.children().filter(|n| {
-            n.is_element()
-                && (n.tag_name().name() == "require" || n.tag_name().name() == "deprecate")
+            n.is_element() && matches!(n.tag_name().name(), "require" | "remove" | "deprecate")
         }) {
+            if rn.tag_name().name() == "remove" {
+                if !disabled {
+                    reg.removals.push(RemovalDirective {
+                        provider: name.clone(),
+                        provider_api: api.clone(),
+                        remove: parse_remove(rn),
+                    });
+                }
+                continue;
+            }
             let req = parse_require(rn, Some(number));
             if !disabled {
                 if rn.tag_name().name() == "require" {
@@ -98,6 +115,172 @@ pub fn parse_extensions(node: Node, reg: &mut Registry) {
         let mut ext = ext_shell;
         ext.requires = requires;
         reg.extensions.push(ext);
+    }
+}
+
+fn parse_remove(node: Node) -> Remove {
+    let mut remove = Remove {
+        api: attr(node, "api").map(ApiSet::parse),
+        ..Default::default()
+    };
+    for child in node.children().filter(roxmltree::Node::is_element) {
+        let Some(name) = attr(child, "name") else {
+            continue;
+        };
+        match child.tag_name().name() {
+            "type" => remove.types.push(name.to_owned()),
+            "command" => remove.commands.push(name.to_owned()),
+            "enum" => remove.enums.push(name.to_owned()),
+            "feature" => {
+                if let Some(structure) = attr(child, "struct") {
+                    for name in name.split(',') {
+                        remove.features.push(RemovedFeature {
+                            structure: structure.to_owned(),
+                            name: name.trim().to_owned(),
+                        });
+                    }
+                }
+            }
+            "comment" => {}
+            tag => panic!("unsupported <remove> child <{tag}>"),
+        }
+    }
+    remove
+}
+
+fn apply_remove(remove: &Remove, provider: &str, provider_api: &ApiSet, reg: &mut Registry) {
+    let applies_to = remove.api.as_ref().unwrap_or(provider_api);
+    let mut removed_types: std::collections::HashSet<String> =
+        remove.types.iter().cloned().collect();
+    loop {
+        let mut added = Vec::new();
+        for (name, items) in &reg.typedefs {
+            if !removed_types.contains(name)
+                && items.iter().any(|item| {
+                    item.alias
+                        .as_ref()
+                        .is_some_and(|alias| removed_types.contains(alias))
+                })
+            {
+                added.push(name.clone());
+            }
+        }
+        for (name, items) in &reg.structs {
+            if !removed_types.contains(name)
+                && items.iter().any(|item| {
+                    item.alias
+                        .as_ref()
+                        .is_some_and(|alias| removed_types.contains(alias))
+                        || item
+                            .members
+                            .iter()
+                            .any(|member| removed_types.contains(&member.ty.base))
+                })
+            {
+                added.push(name.clone());
+            }
+        }
+        if added.is_empty() {
+            break;
+        }
+        removed_types.extend(added);
+    }
+    for name in &removed_types {
+        if let Some(items) = reg.typedefs.get_mut(name) {
+            for item in items {
+                exclude(&mut item.availability, provider);
+            }
+        }
+        if let Some(items) = reg.structs.get_mut(name) {
+            for item in items {
+                exclude(&mut item.availability, provider);
+            }
+        }
+        if let Some(items) = reg.enums.get_mut(name) {
+            for item in items {
+                exclude(&mut item.availability, provider);
+            }
+        }
+    }
+
+    let mut removed_commands: std::collections::HashSet<String> =
+        remove.commands.iter().cloned().collect();
+    loop {
+        let mut added = Vec::new();
+        for (name, items) in &reg.commands {
+            if removed_commands.contains(name) {
+                continue;
+            }
+            if items.iter().any(|command| {
+                command
+                    .alias
+                    .as_ref()
+                    .is_some_and(|alias| removed_commands.contains(alias))
+                    || removed_types.contains(&command.return_type.base)
+                    || command
+                        .params
+                        .iter()
+                        .any(|param| removed_types.contains(&param.ty.base))
+            }) {
+                added.push(name.clone());
+            }
+        }
+        if added.is_empty() {
+            break;
+        }
+        removed_commands.extend(added);
+    }
+    for name in &removed_commands {
+        if let Some(items) = reg.commands.get_mut(name) {
+            for item in items {
+                exclude(&mut item.availability, provider);
+                if !item.removed_by.iter().any(|removed| removed == provider) {
+                    item.removed_by.push(provider.to_owned());
+                }
+            }
+        }
+    }
+    for name in &remove.enums {
+        for item in reg.enums.values_mut().flatten() {
+            let parent_availability = item.availability.first().cloned();
+            for variant in item
+                .variants
+                .iter_mut()
+                .filter(|variant| &variant.name == name)
+            {
+                if variant.availability.is_empty()
+                    && let Some(availability) = &parent_availability
+                {
+                    variant.availability.push(availability.clone());
+                }
+                exclude(&mut variant.availability, provider);
+                if !variant.removed_by.iter().any(|item| item == provider) {
+                    variant.removed_by.push(provider.to_owned());
+                }
+            }
+        }
+    }
+    for removed in &remove.features {
+        if let Some(items) = reg.structs.get_mut(&removed.structure) {
+            for item in items
+                .iter_mut()
+                .filter(|item| item.api.intersects(applies_to))
+            {
+                if let Some(member) = item.members.iter_mut().find(|m| m.name == removed.name)
+                    && !member.removed_by.iter().any(|item| item == provider)
+                {
+                    member.removed_by.push(provider.to_owned());
+                }
+            }
+        }
+    }
+}
+
+fn exclude(entries: &mut [crate::ir::Availability], provider: &str) {
+    for availability in entries {
+        if !availability.excluded_by.iter().any(|item| item == provider) {
+            availability.excluded_by.push(provider.to_owned());
+        }
     }
 }
 
@@ -530,6 +713,17 @@ pub fn apply_require_extensions(reg: &mut Registry) {
             }
         }
     }
+
+    // Apply removals last: some referenced enums/constants are materialized from
+    // <require> blocks above, including requirements appearing later in vk.xml.
+    for directive in reg.removals.clone() {
+        apply_remove(
+            &directive.remove,
+            &directive.provider,
+            &directive.provider_api,
+            reg,
+        );
+    }
 }
 
 fn infer_bitmask_bits_name(flags_name: &str) -> Option<String> {
@@ -595,6 +789,7 @@ fn collect_extend_enums(
                     depr: re.depr.clone(),
                     alias: re.alias.clone(),
                     provided_by: vec![source.to_owned()],
+                    removed_by: vec![],
                 },
             ));
         }
@@ -646,5 +841,66 @@ fn collect_extension_consts(requires: &[Require], source: &str, out: &mut Vec<(S
                 },
             ));
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::apply_require_extensions;
+    use crate::parser::parse_registry;
+
+    #[test]
+    fn current_registry_remove_blocks_are_applied() {
+        let mut reg = parse_registry(include_str!("../../../registry/vk.xml"));
+        apply_require_extensions(&mut reg);
+
+        let robust = reg.structs["VkPhysicalDeviceFeatures"]
+            .iter()
+            .flat_map(|structure| &structure.members)
+            .find(|member| member.name == "robustBufferAccess")
+            .expect("robustBufferAccess field");
+        assert!(
+            robust
+                .removed_by
+                .iter()
+                .any(|p| p == "VK_KHR_portability_subset")
+        );
+
+        let destroy = &reg.commands["vkDestroySemaphoreSciSyncPoolNV"][0];
+        assert!(destroy.removed_by.iter().any(|p| p == "VKSC_VERSION_1_0"));
+
+        let shader_create_info = &reg.structs["VkShaderModuleCreateInfo"][0];
+        assert!(!shader_create_info.availability.is_empty());
+        assert!(shader_create_info.availability.iter().all(|availability| {
+            availability
+                .excluded_by
+                .iter()
+                .any(|p| p == "VKSC_VERSION_1_0")
+        }));
+
+        // Command aliases and extension aliases of removed types must inherit
+        // the same exclusion, even when their own registry entry has no signature.
+        let trim_alias = &reg.commands["vkTrimCommandPoolKHR"][0];
+        assert!(!trim_alias.availability.is_empty());
+        assert!(trim_alias.availability.iter().all(|availability| {
+            availability
+                .excluded_by
+                .iter()
+                .any(|p| p == "VKSC_VERSION_1_0")
+        }));
+
+        let shader_module = reg
+            .enums
+            .values()
+            .flatten()
+            .flat_map(|e| &e.variants)
+            .find(|v| v.name == "VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO")
+            .expect("shader module structure type");
+        assert!(
+            shader_module
+                .removed_by
+                .iter()
+                .any(|p| p == "VKSC_VERSION_1_0")
+        );
     }
 }

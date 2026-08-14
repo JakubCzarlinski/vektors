@@ -53,6 +53,7 @@ pub fn parse_commands_block(node: Node, reg: &mut Registry) {
                     export: attr(cn, "export")
                         .map(ExportScope::parse)
                         .unwrap_or_default(),
+                    removed_by: vec![],
                 });
             }
             continue;
@@ -116,6 +117,7 @@ pub fn parse_commands_block(node: Node, reg: &mut Registry) {
             export: attr(cn, "export")
                 .map(ExportScope::parse)
                 .unwrap_or_default(),
+            removed_by: vec![],
         });
     }
 }

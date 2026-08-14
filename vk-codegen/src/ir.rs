@@ -87,12 +87,18 @@ impl DepExpr {
 pub struct Availability {
     pub provider: String,
     pub dep: Option<DepExpr>,
+    /// Features which remove this particular availability route.
+    pub excluded_by: Vec<String>,
 }
 
 impl Availability {
     #[must_use]
     pub fn new(provider: String, dep: Option<DepExpr>) -> Self {
-        Self { provider, dep }
+        Self {
+            provider,
+            dep,
+            excluded_by: Vec::new(),
+        }
     }
 }
 
@@ -338,6 +344,9 @@ pub struct Member {
     /// Name of member that represent an object handle.
     pub object_type: Option<String>,
     pub depr: DeprecationInfo,
+    /// API versions/extensions which remove this individual feature requirement.
+    /// The field itself remains present to preserve the Vulkan ABI.
+    pub removed_by: Vec<String>,
 }
 
 // Deprecation info
@@ -447,6 +456,9 @@ pub struct EnumVariant {
     pub depr: DeprecationInfo,
     pub alias: Option<String>,
     pub provided_by: Vec<String>,
+    /// API versions/extensions which remove this value while its containing
+    /// enum remains ABI-visible.
+    pub removed_by: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -624,6 +636,8 @@ pub struct Command {
 
     // Vulkan or VulkanSC, or both. None represents all.
     pub export: Vec<ExportScope>,
+    /// API versions/extensions which remove this command.
+    pub removed_by: Vec<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -707,6 +721,28 @@ pub struct Require {
     pub enums: Vec<RequireEnum>,
 }
 
+#[derive(Debug, Clone, Default)]
+pub struct Remove {
+    pub api: Option<ApiSet>,
+    pub types: Vec<String>,
+    pub commands: Vec<String>,
+    pub enums: Vec<String>,
+    pub features: Vec<RemovedFeature>,
+}
+
+#[derive(Debug, Clone)]
+pub struct RemovedFeature {
+    pub structure: String,
+    pub name: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct RemovalDirective {
+    pub provider: String,
+    pub provider_api: ApiSet,
+    pub remove: Remove,
+}
+
 #[derive(Debug, Clone)]
 pub struct RequireEnum {
     pub extends: Option<String>,
@@ -730,6 +766,7 @@ pub struct Registry {
     pub constants: IndexMap<String, Vec<Constant>>,
     pub features: Vec<Feature>,
     pub extensions: Vec<Extension>,
+    pub removals: Vec<RemovalDirective>,
 }
 
 impl Registry {

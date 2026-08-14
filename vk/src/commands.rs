@@ -352,8 +352,12 @@ use crate::enums::VkDescriptorSetLayoutCreateFlagBits;
 ))]
 use crate::enums::VkDescriptorType;
 #[cfg(any(
-  feature = "VK_COMPUTE_VERSION_1_1",
-  feature = "VK_KHR_descriptor_update_template"
+  any(
+    feature = "VK_COMPUTE_VERSION_1_4",
+    all(feature = "VK_KHR_push_descriptor", feature = "VK_VERSION_1_1"),
+    feature = "VK_KHR_descriptor_update_template"
+  ),
+  all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0"))
 ))]
 use crate::enums::VkDescriptorUpdateTemplateType;
 #[cfg(feature = "VK_KHR_descriptor_update_template")]
@@ -1091,7 +1095,7 @@ use crate::enums::VkShaderFloatControlsIndependenceKHR;
 use crate::enums::VkShaderGroupShaderKHR;
 #[cfg(feature = "VK_AMD_shader_info")]
 use crate::enums::VkShaderInfoTypeAMD;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::enums::VkShaderModuleCreateFlagBits;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkShaderStageFlagBits;
@@ -1099,9 +1103,9 @@ use crate::enums::VkShaderStageFlagBits;
 use crate::enums::VkShadingRatePaletteEntryNV;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkSharingMode;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::enums::VkSparseImageFormatFlagBits;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::enums::VkSparseMemoryBindFlagBits;
 #[cfg(feature = "VK_EXT_descriptor_heap")]
 use crate::enums::VkSpirvResourceTypeFlagBitsEXT;
@@ -1830,7 +1834,7 @@ use crate::types::VkBindMemoryStatusKHR;
 use crate::types::VkBindPipelineIndirectCommandNV;
 #[cfg(feature = "VK_NV_device_generated_commands")]
 use crate::types::VkBindShaderGroupIndirectCommandNV;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkBindSparseInfo;
 #[cfg(feature = "VK_ARM_tensors")]
 use crate::types::VkBindTensorMemoryInfoARM;
@@ -2054,9 +2058,9 @@ use crate::types::VkCommandPoolMemoryConsumption;
 use crate::types::VkCommandPoolMemoryReservationCreateInfo;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkCommandPoolResetFlags;
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkCommandPoolTrimFlags;
-#[cfg(feature = "VK_KHR_maintenance1")]
+#[cfg(all(feature = "VK_KHR_maintenance1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkCommandPoolTrimFlagsKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkComponentMapping;
@@ -2397,21 +2401,33 @@ use crate::types::VkDescriptorSetVariableDescriptorCountAllocateInfoEXT;
 use crate::types::VkDescriptorSetVariableDescriptorCountLayoutSupport;
 #[cfg(feature = "VK_EXT_descriptor_indexing")]
 use crate::types::VkDescriptorSetVariableDescriptorCountLayoutSupportEXT;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkDescriptorUpdateTemplate;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkDescriptorUpdateTemplateCreateFlags;
-#[cfg(feature = "VK_KHR_descriptor_update_template")]
+#[cfg(all(
+  feature = "VK_KHR_descriptor_update_template",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::types::VkDescriptorUpdateTemplateCreateFlagsKHR;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkDescriptorUpdateTemplateCreateInfo;
-#[cfg(feature = "VK_KHR_descriptor_update_template")]
+#[cfg(all(
+  feature = "VK_KHR_descriptor_update_template",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::types::VkDescriptorUpdateTemplateCreateInfoKHR;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkDescriptorUpdateTemplateEntry;
-#[cfg(feature = "VK_KHR_descriptor_update_template")]
+#[cfg(all(
+  feature = "VK_KHR_descriptor_update_template",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::types::VkDescriptorUpdateTemplateEntryKHR;
-#[cfg(feature = "VK_KHR_descriptor_update_template")]
+#[cfg(all(
+  feature = "VK_KHR_descriptor_update_template",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::types::VkDescriptorUpdateTemplateKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkDevice;
@@ -2465,9 +2481,9 @@ use crate::types::VkDeviceFaultVendorBinaryHeaderVersionOneKHR;
 use crate::types::VkDeviceFaultVendorInfoEXT;
 #[cfg(feature = "VK_KHR_device_fault")]
 use crate::types::VkDeviceFaultVendorInfoKHR;
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkDeviceGroupBindSparseInfo;
-#[cfg(feature = "VK_KHR_device_group")]
+#[cfg(all(feature = "VK_KHR_device_group", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkDeviceGroupBindSparseInfoKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_1")]
 use crate::types::VkDeviceGroupCommandBufferBeginInfo;
@@ -3067,9 +3083,12 @@ use crate::types::VkImageResolve;
 use crate::types::VkImageResolve2;
 #[cfg(feature = "VK_KHR_copy_commands2")]
 use crate::types::VkImageResolve2KHR;
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkImageSparseMemoryRequirementsInfo2;
-#[cfg(feature = "VK_KHR_get_memory_requirements2")]
+#[cfg(all(
+  feature = "VK_KHR_get_memory_requirements2",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::types::VkImageSparseMemoryRequirementsInfo2KHR;
 #[cfg(any(
   all(feature = "VK_KHR_extended_flags", feature = "VK_VERSION_1_2"),
@@ -4454,9 +4473,12 @@ use crate::types::VkPhysicalDeviceShaderUntypedPointersFeaturesKHR;
 use crate::types::VkPhysicalDeviceShadingRateImageFeaturesNV;
 #[cfg(feature = "VK_NV_shading_rate_image")]
 use crate::types::VkPhysicalDeviceShadingRateImagePropertiesNV;
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkPhysicalDeviceSparseImageFormatInfo2;
-#[cfg(feature = "VK_KHR_get_physical_device_properties2")]
+#[cfg(all(
+  feature = "VK_KHR_get_physical_device_properties2",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::types::VkPhysicalDeviceSparseImageFormatInfo2KHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkPhysicalDeviceSparseProperties;
@@ -4918,9 +4940,12 @@ use crate::types::VkPushDataInfoEXT;
 use crate::types::VkPushDescriptorSetInfo;
 #[cfg(all(feature = "VK_KHR_maintenance6", feature = "VK_KHR_push_descriptor"))]
 use crate::types::VkPushDescriptorSetInfoKHR;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_4", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkPushDescriptorSetWithTemplateInfo;
-#[cfg(all(feature = "VK_KHR_maintenance6", feature = "VK_KHR_push_descriptor"))]
+#[cfg(all(
+  all(feature = "VK_KHR_maintenance6", feature = "VK_KHR_push_descriptor"),
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::types::VkPushDescriptorSetWithTemplateInfoKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkQueryControlFlags;
@@ -5285,9 +5310,9 @@ use crate::types::VkShaderInstrumentationMetricDescriptionARM;
 use crate::types::VkShaderInstrumentationValuesFlagsARM;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 use crate::types::VkShaderModule;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkShaderModuleCreateFlags;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkShaderModuleCreateInfo;
 #[cfg(feature = "VK_EXT_shader_module_identifier")]
 use crate::types::VkShaderModuleIdentifierEXT;
@@ -5310,31 +5335,37 @@ use crate::types::VkShadingRatePaletteNV;
 use crate::types::VkSharedPresentSurfaceCapabilities2KHR;
 #[cfg(feature = "VK_KHR_shared_presentable_image")]
 use crate::types::VkSharedPresentSurfaceCapabilitiesKHR;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkSparseBufferMemoryBindInfo;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkSparseImageFormatFlags;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkSparseImageFormatProperties;
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkSparseImageFormatProperties2;
-#[cfg(feature = "VK_KHR_get_physical_device_properties2")]
+#[cfg(all(
+  feature = "VK_KHR_get_physical_device_properties2",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::types::VkSparseImageFormatProperties2KHR;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkSparseImageMemoryBind;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkSparseImageMemoryBindInfo;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkSparseImageMemoryRequirements;
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkSparseImageMemoryRequirements2;
-#[cfg(feature = "VK_KHR_get_memory_requirements2")]
+#[cfg(all(
+  feature = "VK_KHR_get_memory_requirements2",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::types::VkSparseImageMemoryRequirements2KHR;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkSparseImageOpaqueMemoryBindInfo;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkSparseMemoryBind;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkSparseMemoryBindFlags;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 use crate::types::VkSpecializationInfo;
@@ -10293,6 +10324,7 @@ pub type PFN_vkCmdPushDescriptorSetKHR = unsafe extern "system" fn(
 /// - **Queues:** Graphics, Compute
 /// - **Render Pass:** Both
 /// - **Tasks:** State
+/// - **Removed by:** `VKSC_VERSION_1_0`
 /// - **Export Scopes:** Vulkan
 ///
 /// # Parameters
@@ -10301,7 +10333,7 @@ pub type PFN_vkCmdPushDescriptorSetKHR = unsafe extern "system" fn(
 /// - `layout`
 /// - `set`
 /// - `pData`
-#[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_4", not(feature = "VKSC_VERSION_1_0")))]
 pub type PFN_vkCmdPushDescriptorSetWithTemplate = unsafe extern "system" fn(
   commandBuffer: VkCommandBuffer,
   descriptorUpdateTemplate: VkDescriptorUpdateTemplate,
@@ -10317,12 +10349,13 @@ pub type PFN_vkCmdPushDescriptorSetWithTemplate = unsafe extern "system" fn(
 /// - **Queues:** Graphics, Compute
 /// - **Render Pass:** Both
 /// - **Tasks:** State
+/// - **Removed by:** `VKSC_VERSION_1_0`
 /// - **Export Scopes:** Vulkan
 ///
 /// # Parameters
 /// - `commandBuffer`
 /// - `pPushDescriptorSetWithTemplateInfo`
-#[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_4", not(feature = "VKSC_VERSION_1_0")))]
 pub type PFN_vkCmdPushDescriptorSetWithTemplate2 = unsafe extern "system" fn(
   commandBuffer: VkCommandBuffer,
   pPushDescriptorSetWithTemplateInfo: *const VkPushDescriptorSetWithTemplateInfo<'_>,
@@ -10333,7 +10366,11 @@ pub type PFN_vkCmdPushDescriptorSetWithTemplate2 = unsafe extern "system" fn(
 /// - `VK_KHR_maintenance6`
 ///
 /// - **Availability:** depends on `VK_KHR_push_descriptor`
-#[cfg(all(feature = "VK_KHR_maintenance6", feature = "VK_KHR_push_descriptor"))]
+/// - **Removed by:** `VKSC_VERSION_1_0`
+#[cfg(all(
+  all(feature = "VK_KHR_maintenance6", feature = "VK_KHR_push_descriptor"),
+  not(feature = "VKSC_VERSION_1_0")
+))]
 pub type PFN_vkCmdPushDescriptorSetWithTemplate2KHR = unsafe extern "system" fn(
   commandBuffer: VkCommandBuffer,
   pPushDescriptorSetWithTemplateInfo: *const VkPushDescriptorSetWithTemplateInfoKHR<'_>,
@@ -10345,11 +10382,25 @@ pub type PFN_vkCmdPushDescriptorSetWithTemplate2KHR = unsafe extern "system" fn(
 /// - `VK_KHR_push_descriptor`
 ///
 /// - **Availability:** depends on `VK_VERSION_1_1 + VK_KHR_descriptor_update_template`
+/// - **Removed by:** `VKSC_VERSION_1_0`
 #[cfg(any(
-  all(feature = "VK_KHR_push_descriptor", feature = "VK_VERSION_1_1"),
   all(
-    feature = "VK_KHR_descriptor_update_template",
-    feature = "VK_KHR_push_descriptor"
+    all(feature = "VK_KHR_push_descriptor", feature = "VK_VERSION_1_1"),
+    not(feature = "VKSC_VERSION_1_0")
+  ),
+  all(
+    all(
+      feature = "VK_KHR_descriptor_update_template",
+      feature = "VK_KHR_push_descriptor"
+    ),
+    not(feature = "VKSC_VERSION_1_0")
+  ),
+  all(
+    all(
+      feature = "VK_KHR_descriptor_update_template",
+      feature = "VK_KHR_push_descriptor"
+    ),
+    not(feature = "VKSC_VERSION_1_0")
   )
 ))]
 pub type PFN_vkCmdPushDescriptorSetWithTemplateKHR = unsafe extern "system" fn(
@@ -14053,6 +14104,7 @@ pub type PFN_vkCreateDescriptorSetLayout = unsafe extern "system" fn(
 /// Provided by:
 /// - `VK_COMPUTE_VERSION_1_1`
 ///
+/// - **Removed by:** `VKSC_VERSION_1_0`
 /// - **Export Scopes:** Vulkan
 ///
 /// # Parameters
@@ -14071,7 +14123,7 @@ pub type PFN_vkCreateDescriptorSetLayout = unsafe extern "system" fn(
 ///   - `VK_ERROR_OUT_OF_DEVICE_MEMORY`
 ///   - `VK_ERROR_UNKNOWN`
 ///   - `VK_ERROR_VALIDATION_FAILED`
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 pub type PFN_vkCreateDescriptorUpdateTemplate = unsafe extern "system" fn(
   device: VkDevice,
   pCreateInfo: *const VkDescriptorUpdateTemplateCreateInfo<'_>,
@@ -14083,7 +14135,11 @@ pub type PFN_vkCreateDescriptorUpdateTemplate = unsafe extern "system" fn(
 /// Provided by:
 /// - `VK_KHR_descriptor_update_template`
 ///
-#[cfg(feature = "VK_KHR_descriptor_update_template")]
+/// - **Removed by:** `VKSC_VERSION_1_0`
+#[cfg(all(
+  feature = "VK_KHR_descriptor_update_template",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 pub type PFN_vkCreateDescriptorUpdateTemplateKHR = unsafe extern "system" fn(
   device: VkDevice,
   pCreateInfo: *const VkDescriptorUpdateTemplateCreateInfoKHR<'_>,
@@ -15339,6 +15395,7 @@ pub type PFN_vkCreateShaderInstrumentationARM = unsafe extern "system" fn(
 /// - `VK_COMPUTE_VERSION_1_0`
 ///
 /// - **Allow No Queues:** True
+/// - **Removed by:** `VKSC_VERSION_1_0`
 /// - **Export Scopes:** Vulkan
 ///
 /// # Parameters
@@ -15358,7 +15415,7 @@ pub type PFN_vkCreateShaderInstrumentationARM = unsafe extern "system" fn(
 ///   - `VK_ERROR_INVALID_SHADER_NV`
 ///   - `VK_ERROR_UNKNOWN`
 ///   - `VK_ERROR_VALIDATION_FAILED`
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub type PFN_vkCreateShaderModule = unsafe extern "system" fn(
   device: VkDevice,
   pCreateInfo: *const VkShaderModuleCreateInfo<'_>,
@@ -16038,13 +16095,14 @@ pub type PFN_vkDestroyBufferView = unsafe extern "system" fn(
 /// Provided by:
 /// - `VK_BASE_VERSION_1_0`
 ///
+/// - **Removed by:** `VKSC_VERSION_1_0`
 /// - **Export Scopes:** Vulkan
 ///
 /// # Parameters
 /// - `device`
 /// - `commandPool`: optional: true
 /// - `pAllocator`: optional: true
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub type PFN_vkDestroyCommandPool = unsafe extern "system" fn(
   device: VkDevice,
   commandPool: VkCommandPool,
@@ -16183,13 +16241,14 @@ pub type PFN_vkDestroyDeferredOperationKHR = unsafe extern "system" fn(
 /// Provided by:
 /// - `VK_COMPUTE_VERSION_1_0`
 ///
+/// - **Removed by:** `VKSC_VERSION_1_0`
 /// - **Export Scopes:** Vulkan
 ///
 /// # Parameters
 /// - `device`
 /// - `descriptorPool`: optional: true
 /// - `pAllocator`: optional: true
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub type PFN_vkDestroyDescriptorPool = unsafe extern "system" fn(
   device: VkDevice,
   descriptorPool: VkDescriptorPool,
@@ -16217,13 +16276,14 @@ pub type PFN_vkDestroyDescriptorSetLayout = unsafe extern "system" fn(
 /// Provided by:
 /// - `VK_COMPUTE_VERSION_1_1`
 ///
+/// - **Removed by:** `VKSC_VERSION_1_0`
 /// - **Export Scopes:** Vulkan
 ///
 /// # Parameters
 /// - `device`
 /// - `descriptorUpdateTemplate`: optional: true
 /// - `pAllocator`: optional: true
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 pub type PFN_vkDestroyDescriptorUpdateTemplate = unsafe extern "system" fn(
   device: VkDevice,
   descriptorUpdateTemplate: VkDescriptorUpdateTemplate,
@@ -16234,7 +16294,11 @@ pub type PFN_vkDestroyDescriptorUpdateTemplate = unsafe extern "system" fn(
 /// Provided by:
 /// - `VK_KHR_descriptor_update_template`
 ///
-#[cfg(feature = "VK_KHR_descriptor_update_template")]
+/// - **Removed by:** `VKSC_VERSION_1_0`
+#[cfg(all(
+  feature = "VK_KHR_descriptor_update_template",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 pub type PFN_vkDestroyDescriptorUpdateTemplateKHR = unsafe extern "system" fn(
   device: VkDevice,
   descriptorUpdateTemplate: VkDescriptorUpdateTemplateKHR,
@@ -16563,13 +16627,14 @@ pub type PFN_vkDestroyPrivateDataSlotEXT = unsafe extern "system" fn(
 /// Provided by:
 /// - `VK_BASE_VERSION_1_0`
 ///
+/// - **Removed by:** `VKSC_VERSION_1_0`
 /// - **Export Scopes:** Vulkan
 ///
 /// # Parameters
 /// - `device`
 /// - `queryPool`: optional: true
 /// - `pAllocator`: optional: true
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub type PFN_vkDestroyQueryPool = unsafe extern "system" fn(
   device: VkDevice,
   queryPool: VkQueryPool,
@@ -16659,12 +16724,16 @@ pub type PFN_vkDestroySemaphore = unsafe extern "system" fn(
 /// Provided by:
 /// - `VK_NV_external_sci_sync2`
 ///
+/// - **Removed by:** `VKSC_VERSION_1_0`
 ///
 /// # Parameters
 /// - `device`
 /// - `semaphorePool`: optional: true
 /// - `pAllocator`: optional: true
-#[cfg(feature = "VK_NV_external_sci_sync2")]
+#[cfg(all(
+  feature = "VK_NV_external_sci_sync2",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 pub type PFN_vkDestroySemaphoreSciSyncPoolNV = unsafe extern "system" fn(
   device: VkDevice,
   semaphorePool: VkSemaphoreSciSyncPoolNV,
@@ -16707,13 +16776,14 @@ pub type PFN_vkDestroyShaderInstrumentationARM = unsafe extern "system" fn(
 /// Provided by:
 /// - `VK_COMPUTE_VERSION_1_0`
 ///
+/// - **Removed by:** `VKSC_VERSION_1_0`
 /// - **Export Scopes:** Vulkan
 ///
 /// # Parameters
 /// - `device`
 /// - `shaderModule`: optional: true
 /// - `pAllocator`: optional: true
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub type PFN_vkDestroyShaderModule = unsafe extern "system" fn(
   device: VkDevice,
   shaderModule: VkShaderModule,
@@ -16740,12 +16810,13 @@ pub type PFN_vkDestroySurfaceKHR = unsafe extern "system" fn(
 /// Provided by:
 /// - `VK_KHR_swapchain`
 ///
+/// - **Removed by:** `VKSC_VERSION_1_0`
 ///
 /// # Parameters
 /// - `device`
 /// - `swapchain`: optional: true
 /// - `pAllocator`: optional: true
-#[cfg(feature = "VK_KHR_swapchain")]
+#[cfg(all(feature = "VK_KHR_swapchain", not(feature = "VKSC_VERSION_1_0")))]
 pub type PFN_vkDestroySwapchainKHR = unsafe extern "system" fn(
   device: VkDevice,
   swapchain: VkSwapchainKHR,
@@ -17308,13 +17379,14 @@ pub type PFN_vkFreeDescriptorSets = unsafe extern "system" fn(
 /// Provided by:
 /// - `VK_BASE_VERSION_1_0`
 ///
+/// - **Removed by:** `VKSC_VERSION_1_0`
 /// - **Export Scopes:** Vulkan
 ///
 /// # Parameters
 /// - `device`
 /// - `memory`: optional: true
 /// - `pAllocator`: optional: true
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub type PFN_vkFreeMemory = unsafe extern "system" fn(
   device: VkDevice,
   memory: VkDeviceMemory,
@@ -18285,6 +18357,7 @@ pub type PFN_vkGetDeviceImageMemoryRequirementsKHR = unsafe extern "system" fn(
 /// Provided by:
 /// - `VK_BASE_VERSION_1_3`
 ///
+/// - **Removed by:** `VKSC_VERSION_1_0`
 /// - **Export Scopes:** Vulkan
 ///
 /// # Parameters
@@ -18292,7 +18365,7 @@ pub type PFN_vkGetDeviceImageMemoryRequirementsKHR = unsafe extern "system" fn(
 /// - `pInfo`
 /// - `pSparseMemoryRequirementCount`: optional: pointer required, values optional if pointer not null
 /// - `pSparseMemoryRequirements`: optional: true, len: pSparseMemoryRequirementCount
-#[cfg(feature = "VK_BASE_VERSION_1_3")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_3", not(feature = "VKSC_VERSION_1_0")))]
 pub type PFN_vkGetDeviceImageSparseMemoryRequirements = unsafe extern "system" fn(
   device: VkDevice,
   pInfo: *const VkDeviceImageMemoryRequirements<'_>,
@@ -18304,7 +18377,8 @@ pub type PFN_vkGetDeviceImageSparseMemoryRequirements = unsafe extern "system" f
 /// Provided by:
 /// - `VK_KHR_maintenance4`
 ///
-#[cfg(feature = "VK_KHR_maintenance4")]
+/// - **Removed by:** `VKSC_VERSION_1_0`
+#[cfg(all(feature = "VK_KHR_maintenance4", not(feature = "VKSC_VERSION_1_0")))]
 pub type PFN_vkGetDeviceImageSparseMemoryRequirementsKHR = unsafe extern "system" fn(
   device: VkDevice,
   pInfo: *const VkDeviceImageMemoryRequirementsKHR<'_>,
@@ -19265,6 +19339,7 @@ pub type PFN_vkGetImageOpaqueCaptureDescriptorDataEXT = unsafe extern "system" f
 /// Provided by:
 /// - `VK_BASE_VERSION_1_0`
 ///
+/// - **Removed by:** `VKSC_VERSION_1_0`
 /// - **Export Scopes:** Vulkan
 ///
 /// # Parameters
@@ -19272,7 +19347,7 @@ pub type PFN_vkGetImageOpaqueCaptureDescriptorDataEXT = unsafe extern "system" f
 /// - `image`
 /// - `pSparseMemoryRequirementCount`: optional: pointer required, values optional if pointer not null
 /// - `pSparseMemoryRequirements`: optional: true, len: pSparseMemoryRequirementCount
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub type PFN_vkGetImageSparseMemoryRequirements = unsafe extern "system" fn(
   device: VkDevice,
   image: VkImage,
@@ -19284,6 +19359,7 @@ pub type PFN_vkGetImageSparseMemoryRequirements = unsafe extern "system" fn(
 /// Provided by:
 /// - `VK_BASE_VERSION_1_1`
 ///
+/// - **Removed by:** `VKSC_VERSION_1_0`
 /// - **Export Scopes:** Vulkan
 ///
 /// # Parameters
@@ -19291,7 +19367,7 @@ pub type PFN_vkGetImageSparseMemoryRequirements = unsafe extern "system" fn(
 /// - `pInfo`
 /// - `pSparseMemoryRequirementCount`: optional: pointer required, values optional if pointer not null
 /// - `pSparseMemoryRequirements`: optional: true, len: pSparseMemoryRequirementCount
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 pub type PFN_vkGetImageSparseMemoryRequirements2 = unsafe extern "system" fn(
   device: VkDevice,
   pInfo: *const VkImageSparseMemoryRequirementsInfo2<'_>,
@@ -19303,7 +19379,11 @@ pub type PFN_vkGetImageSparseMemoryRequirements2 = unsafe extern "system" fn(
 /// Provided by:
 /// - `VK_KHR_get_memory_requirements2`
 ///
-#[cfg(feature = "VK_KHR_get_memory_requirements2")]
+/// - **Removed by:** `VKSC_VERSION_1_0`
+#[cfg(all(
+  feature = "VK_KHR_get_memory_requirements2",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 pub type PFN_vkGetImageSparseMemoryRequirements2KHR = unsafe extern "system" fn(
   device: VkDevice,
   pInfo: *const VkImageSparseMemoryRequirementsInfo2KHR<'_>,
@@ -21146,6 +21226,7 @@ pub type PFN_vkGetPhysicalDeviceScreenPresentationSupportQNX =
 /// Provided by:
 /// - `VK_BASE_VERSION_1_0`
 ///
+/// - **Removed by:** `VKSC_VERSION_1_0`
 /// - **Export Scopes:** Vulkan
 ///
 /// # Parameters
@@ -21157,7 +21238,7 @@ pub type PFN_vkGetPhysicalDeviceScreenPresentationSupportQNX =
 /// - `tiling`
 /// - `pPropertyCount`: optional: pointer required, values optional if pointer not null
 /// - `pProperties`: optional: true, len: pPropertyCount
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 #[deprecated(note = "superseded by `vkGetPhysicalDeviceSparseImageFormatProperties2`")]
 pub type PFN_vkGetPhysicalDeviceSparseImageFormatProperties = unsafe extern "system" fn(
   physicalDevice: VkPhysicalDevice,
@@ -21174,6 +21255,7 @@ pub type PFN_vkGetPhysicalDeviceSparseImageFormatProperties = unsafe extern "sys
 /// Provided by:
 /// - `VK_BASE_VERSION_1_1`
 ///
+/// - **Removed by:** `VKSC_VERSION_1_0`
 /// - **Export Scopes:** Vulkan
 ///
 /// # Parameters
@@ -21181,7 +21263,7 @@ pub type PFN_vkGetPhysicalDeviceSparseImageFormatProperties = unsafe extern "sys
 /// - `pFormatInfo`
 /// - `pPropertyCount`: optional: pointer required, values optional if pointer not null
 /// - `pProperties`: optional: true, len: pPropertyCount
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 pub type PFN_vkGetPhysicalDeviceSparseImageFormatProperties2 = unsafe extern "system" fn(
   physicalDevice: VkPhysicalDevice,
   pFormatInfo: *const VkPhysicalDeviceSparseImageFormatInfo2<'_>,
@@ -21193,7 +21275,11 @@ pub type PFN_vkGetPhysicalDeviceSparseImageFormatProperties2 = unsafe extern "sy
 /// Provided by:
 /// - `VK_KHR_get_physical_device_properties2`
 ///
-#[cfg(feature = "VK_KHR_get_physical_device_properties2")]
+/// - **Removed by:** `VKSC_VERSION_1_0`
+#[cfg(all(
+  feature = "VK_KHR_get_physical_device_properties2",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 pub type PFN_vkGetPhysicalDeviceSparseImageFormatProperties2KHR = unsafe extern "system" fn(
   physicalDevice: VkPhysicalDevice,
   pFormatInfo: *const VkPhysicalDeviceSparseImageFormatInfo2KHR<'_>,
@@ -21724,6 +21810,7 @@ pub type PFN_vkGetPipelineBinaryDataKHR = unsafe extern "system" fn(
 /// Provided by:
 /// - `VK_COMPUTE_VERSION_1_0`
 ///
+/// - **Removed by:** `VKSC_VERSION_1_0`
 /// - **Export Scopes:** Vulkan
 ///
 /// # Parameters
@@ -21743,7 +21830,7 @@ pub type PFN_vkGetPipelineBinaryDataKHR = unsafe extern "system" fn(
 ///   - `VK_ERROR_OUT_OF_DEVICE_MEMORY`
 ///   - `VK_ERROR_UNKNOWN`
 ///   - `VK_ERROR_VALIDATION_FAILED`
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub type PFN_vkGetPipelineCacheData = unsafe extern "system" fn(
   device: VkDevice,
   pipelineCache: VkPipelineCache,
@@ -22537,12 +22624,16 @@ pub type PFN_vkGetShaderInstrumentationValuesARM = unsafe extern "system" fn(
 /// Provided by:
 /// - `VK_EXT_shader_module_identifier`
 ///
+/// - **Removed by:** `VKSC_VERSION_1_0`
 ///
 /// # Parameters
 /// - `device`
 /// - `pCreateInfo`
 /// - `pIdentifier`
-#[cfg(feature = "VK_EXT_shader_module_identifier")]
+#[cfg(all(
+  feature = "VK_EXT_shader_module_identifier",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 pub type PFN_vkGetShaderModuleCreateInfoIdentifierEXT = unsafe extern "system" fn(
   device: VkDevice,
   pCreateInfo: *const VkShaderModuleCreateInfo<'_>,
@@ -23294,6 +23385,7 @@ pub type PFN_vkMapMemory2KHR = unsafe extern "system" fn(
 /// Provided by:
 /// - `VK_COMPUTE_VERSION_1_0`
 ///
+/// - **Removed by:** `VKSC_VERSION_1_0`
 /// - **Export Scopes:** Vulkan
 ///
 /// # Parameters
@@ -23312,7 +23404,7 @@ pub type PFN_vkMapMemory2KHR = unsafe extern "system" fn(
 ///   - `VK_ERROR_OUT_OF_DEVICE_MEMORY`
 ///   - `VK_ERROR_UNKNOWN`
 ///   - `VK_ERROR_VALIDATION_FAILED`
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub type PFN_vkMergePipelineCaches = unsafe extern "system" fn(
   device: VkDevice,
   dstCache: VkPipelineCache,
@@ -23366,6 +23458,7 @@ pub type PFN_vkQueueBeginDebugUtilsLabelEXT =
 /// - `VK_BASE_VERSION_1_0`
 ///
 /// - **Queues:** SparseBinding
+/// - **Removed by:** `VKSC_VERSION_1_0`
 /// - **Export Scopes:** Vulkan
 ///
 /// # Parameters
@@ -23385,7 +23478,7 @@ pub type PFN_vkQueueBeginDebugUtilsLabelEXT =
 ///   - `VK_ERROR_DEVICE_LOST`
 ///   - `VK_ERROR_UNKNOWN`
 ///   - `VK_ERROR_VALIDATION_FAILED`
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub type PFN_vkQueueBindSparse = unsafe extern "system" fn(
   queue: VkQueue,
   bindInfoCount: u32,
@@ -24477,13 +24570,14 @@ pub type PFN_vkTransitionImageLayoutEXT = unsafe extern "system" fn(
 /// Provided by:
 /// - `VK_BASE_VERSION_1_1`
 ///
+/// - **Removed by:** `VKSC_VERSION_1_0`
 /// - **Export Scopes:** Vulkan
 ///
 /// # Parameters
 /// - `device`
 /// - `commandPool`
 /// - `flags`: optional: true
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 pub type PFN_vkTrimCommandPool = unsafe extern "system" fn(
   device: VkDevice,
   commandPool: VkCommandPool,
@@ -24494,7 +24588,8 @@ pub type PFN_vkTrimCommandPool = unsafe extern "system" fn(
 /// Provided by:
 /// - `VK_KHR_maintenance1`
 ///
-#[cfg(feature = "VK_KHR_maintenance1")]
+/// - **Removed by:** `VKSC_VERSION_1_0`
+#[cfg(all(feature = "VK_KHR_maintenance1", not(feature = "VKSC_VERSION_1_0")))]
 pub type PFN_vkTrimCommandPoolKHR = unsafe extern "system" fn(
   device: VkDevice,
   commandPool: VkCommandPool,
@@ -24578,6 +24673,7 @@ pub type PFN_vkUnregisterCustomBorderColorEXT =
 /// Provided by:
 /// - `VK_COMPUTE_VERSION_1_1`
 ///
+/// - **Removed by:** `VKSC_VERSION_1_0`
 /// - **Export Scopes:** Vulkan
 ///
 /// # Parameters
@@ -24585,7 +24681,7 @@ pub type PFN_vkUnregisterCustomBorderColorEXT =
 /// - `descriptorSet`
 /// - `descriptorUpdateTemplate`
 /// - `pData`
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 pub type PFN_vkUpdateDescriptorSetWithTemplate = unsafe extern "system" fn(
   device: VkDevice,
   descriptorSet: VkDescriptorSet,
@@ -24597,7 +24693,11 @@ pub type PFN_vkUpdateDescriptorSetWithTemplate = unsafe extern "system" fn(
 /// Provided by:
 /// - `VK_KHR_descriptor_update_template`
 ///
-#[cfg(feature = "VK_KHR_descriptor_update_template")]
+/// - **Removed by:** `VKSC_VERSION_1_0`
+#[cfg(all(
+  feature = "VK_KHR_descriptor_update_template",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 pub type PFN_vkUpdateDescriptorSetWithTemplateKHR = unsafe extern "system" fn(
   device: VkDevice,
   descriptorSet: VkDescriptorSet,

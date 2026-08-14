@@ -92,7 +92,13 @@ fn gen_enum(e: &Enum, reg: &Registry, disabled: &HashSet<String>) -> TokenStream
 
     let mut availability = e.availability.clone();
     for variant in &variants {
-        availability.extend(variant.availability.clone());
+        availability.extend(
+            variant
+                .availability
+                .iter()
+                .filter(|item| item.excluded_by.is_empty())
+                .cloned(),
+        );
     }
     let cfg = cfg_availability(&availability, &all_feats, e.dep.as_ref());
     let name = format_ident!("{}", &e.name);
@@ -175,7 +181,7 @@ fn gen_enum(e: &Enum, reg: &Registry, disabled: &HashSet<String>) -> TokenStream
         let variant_name_str = variant.name.clone();
         if variant_doc.is_empty() {
             variant_token_stream.extend(quote! {
-                #variant_cfg #variant_depr
+            #variant_cfg #variant_depr
                 pub const #variant_name: Self = Self(#val);
             });
         } else {
@@ -269,7 +275,7 @@ fn gen_bitmask_type(
         let variant_name_str = variant.name.clone();
         if variant_doc.is_empty() {
             bit_token_stream.extend(quote! {
-                #variant_cfg #variant_depr
+            #variant_cfg #variant_depr
                 pub const #variant_name: Self = Self(#val);
             });
         } else {
@@ -544,6 +550,20 @@ fn variant_cfg(
         .filter(|f| !disabled.contains(*f))
         .cloned()
         .collect();
+
+    if variant
+        .availability
+        .iter()
+        .any(|availability| !availability.excluded_by.is_empty())
+    {
+        let availability: Vec<_> = variant
+            .availability
+            .iter()
+            .filter(|availability| !disabled.contains(&availability.provider))
+            .cloned()
+            .collect();
+        return cfg_availability(&availability, &v_feats, variant.dep.as_ref());
+    }
 
     if variant.dep.is_none() && variant.availability.is_empty() {
         return if v_feats.is_empty() || v_feats == all_feats {

@@ -55,7 +55,6 @@ pub fn gen_commands_rs(reg: &Registry) -> String {
         let pfn = format_ident!("PFN_{}", &cmd.name);
 
         let depr = deprecate_attr(&cmd.depr);
-
         let doc = create_doc(cmd, &all_features);
         for doc_lines in doc.lines() {
             token_stream.extend(quote! { #[doc = #doc_lines] });

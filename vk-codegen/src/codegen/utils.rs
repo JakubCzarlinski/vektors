@@ -1432,6 +1432,16 @@ pub(crate) fn create_doc(cmd: &Command, all_features: &[String]) -> String {
             dep.atoms().join(" + ")
         ));
     }
+    if !cmd.removed_by.is_empty() {
+        doc.push_str(&format!(
+            "\n - **Removed by:** {}",
+            cmd.removed_by
+                .iter()
+                .map(|provider| format!("`{provider}`"))
+                .collect::<Vec<_>>()
+                .join(", ")
+        ));
+    }
     if !cmd.cmd_buffer_levels.is_empty() {
         let l_names: Vec<_> = cmd
             .cmd_buffer_levels

@@ -89,6 +89,65 @@ pub fn cfg_availability_expr(
     fallback_features: &[String],
     fallback_dep: Option<&DepExpr>,
 ) -> TokenStream {
+    if availability.iter().any(|item| !item.excluded_by.is_empty()) {
+        let normal: Vec<Availability> = availability
+            .iter()
+            .filter(|item| item.excluded_by.is_empty())
+            .cloned()
+            .collect();
+        let normal_clauses = if normal.is_empty() {
+            Vec::new()
+        } else {
+            simplify_clauses(&availability_clauses(
+                &normal,
+                fallback_features,
+                fallback_dep,
+            ))
+        };
+        let mut routes: Vec<TokenStream> = availability
+            .iter()
+            .filter(|item| !item.excluded_by.is_empty())
+            .flat_map(|item| {
+                let dep_clauses = item
+                    .dep
+                    .as_ref()
+                    .map(DepExpr::to_dnf_clauses)
+                    .unwrap_or_else(|| vec![Vec::new()]);
+                dep_clauses.into_iter().filter_map(|mut clause| {
+                    if !clause.contains(&item.provider) {
+                        clause.insert(0, item.provider.clone());
+                    }
+                    // An unrestricted route which is satisfied whenever this route is
+                    // satisfied makes the restricted route redundant.
+                    if normal_clauses
+                        .iter()
+                        .any(|normal| clause_implies(&clause, normal))
+                    {
+                        return None;
+                    }
+                    let positive = cfg_expr_from_dnf(&[clause]);
+                    let excluded: Vec<TokenStream> = item
+                        .excluded_by
+                        .iter()
+                        .map(|feature| quote! { feature = #feature })
+                        .collect();
+                    let exclusion = match excluded.as_slice() {
+                        [feature] => quote! { not(#feature) },
+                        _ => quote! { not(any(#(#excluded),*)) },
+                    };
+                    Some(quote! { all(#positive, #exclusion) })
+                })
+            })
+            .collect();
+        if !normal_clauses.is_empty() {
+            routes.insert(0, cfg_expr_from_dnf(&normal_clauses));
+        }
+        return match routes.as_slice() {
+            [] => quote! { all() },
+            [route] => route.clone(),
+            _ => quote! { any(#(#routes),*) },
+        };
+    }
     let clauses = availability_clauses(availability, fallback_features, fallback_dep);
     cfg_expr_from_dnf(&clauses)
 }
@@ -302,7 +361,8 @@ fn clause_to_ts(clause: &[String]) -> TokenStream {
 mod tests {
     use std::collections::{BTreeMap, BTreeSet};
 
-    use super::{feature_implies, set_feature_implications};
+    use super::{cfg_availability_expr, feature_implies, set_feature_implications};
+    use crate::ir::Availability;
 
     #[test]
     fn feature_implications_are_derived_from_configured_dependencies() {
@@ -320,5 +380,17 @@ mod tests {
             "VK_COMPUTE_VERSION_1_4",
             "VK_GRAPHICS_VERSION_1_3"
         ));
+    }
+
+    #[test]
+    fn availability_can_be_removed_by_an_api_feature() {
+        let availability = Availability {
+            provider: "VK_VERSION_1_0".to_owned(),
+            dep: None,
+            excluded_by: vec!["VKSC_VERSION_1_0".to_owned()],
+        };
+        let cfg = cfg_availability_expr(&[availability], &[], None).to_string();
+        assert!(cfg.contains("feature = \"VK_VERSION_1_0\""));
+        assert!(cfg.contains("not (feature = \"VKSC_VERSION_1_0\")"));
     }
 }

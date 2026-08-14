@@ -10,9 +10,9 @@ use crate::commands::PFN_vkCreateExecutionGraphPipelinesAMDX;
 use crate::commands::PFN_vkCreateRayTracingPipelinesNV;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 use crate::commands::PFN_vkDestroyPipelineCache;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::commands::PFN_vkGetPipelineCacheData;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::commands::PFN_vkMergePipelineCaches;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkResult;
@@ -36,9 +36,9 @@ pub struct PipelineCacheDispatchTable {
   pub vkCreateExecutionGraphPipelinesAMDX: Option<PFN_vkCreateExecutionGraphPipelinesAMDX>,
   #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   pub vkDestroyPipelineCache: Option<PFN_vkDestroyPipelineCache>,
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   pub vkGetPipelineCacheData: Option<PFN_vkGetPipelineCacheData>,
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   pub vkMergePipelineCaches: Option<PFN_vkMergePipelineCaches>,
   #[cfg(feature = "VK_NV_ray_tracing")]
   pub vkCreateRayTracingPipelinesNV: Option<PFN_vkCreateRayTracingPipelinesNV>,
@@ -50,9 +50,9 @@ impl PipelineCacheDispatchTable {
     vkCreateExecutionGraphPipelinesAMDX: None,
     #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     vkDestroyPipelineCache: None,
-    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+    #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
     vkGetPipelineCacheData: None,
-    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+    #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
     vkMergePipelineCaches: None,
     #[cfg(feature = "VK_NV_ray_tracing")]
     vkCreateRayTracingPipelinesNV: None,
@@ -69,10 +69,10 @@ impl PipelineCacheDispatchTable {
       #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
       vkDestroyPipelineCache: loader(c"vkDestroyPipelineCache".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
-      #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+      #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
       vkGetPipelineCacheData: loader(c"vkGetPipelineCacheData".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
-      #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+      #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
       vkMergePipelineCaches: loader(c"vkMergePipelineCaches".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
       #[cfg(feature = "VK_NV_ray_tracing")]
@@ -213,6 +213,7 @@ impl<'dev> PipelineCache<'dev> {
   /// Provided by:
   /// - `VK_COMPUTE_VERSION_1_0`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
@@ -232,7 +233,7 @@ impl<'dev> PipelineCache<'dev> {
   ///   - `VK_ERROR_OUT_OF_DEVICE_MEMORY`
   ///   - `VK_ERROR_UNKNOWN`
   ///   - `VK_ERROR_VALIDATION_FAILED`
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   #[inline(always)]
   pub fn vkGetPipelineCacheData(
     &self,
@@ -259,6 +260,7 @@ impl<'dev> PipelineCache<'dev> {
   /// Provided by:
   /// - `VK_COMPUTE_VERSION_1_0`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
@@ -277,7 +279,7 @@ impl<'dev> PipelineCache<'dev> {
   ///   - `VK_ERROR_OUT_OF_DEVICE_MEMORY`
   ///   - `VK_ERROR_UNKNOWN`
   ///   - `VK_ERROR_VALIDATION_FAILED`
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   #[inline(always)]
   pub fn vkMergePipelineCaches(
     &self,

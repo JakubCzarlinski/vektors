@@ -4,27 +4,45 @@
   clippy::too_many_arguments,
   clippy::missing_safety_doc
 )]
-#[cfg(feature = "VK_KHR_descriptor_update_template")]
+#[cfg(all(
+  feature = "VK_KHR_descriptor_update_template",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::commands::PFN_vkDestroyDescriptorUpdateTemplateKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkResult;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkAllocationCallbacks;
-#[cfg(feature = "VK_KHR_descriptor_update_template")]
+#[cfg(all(
+  feature = "VK_KHR_descriptor_update_template",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::types::VkDescriptorUpdateTemplateKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkDevice;
 use core::ffi::{c_char, c_void};
-#[cfg(feature = "VK_KHR_descriptor_update_template")]
+#[cfg(all(
+  feature = "VK_KHR_descriptor_update_template",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 #[derive(Debug, Clone)]
 pub struct DescriptorUpdateTemplateKHRDispatchTable {
-  #[cfg(feature = "VK_KHR_descriptor_update_template")]
+  #[cfg(all(
+    feature = "VK_KHR_descriptor_update_template",
+    not(feature = "VKSC_VERSION_1_0")
+  ))]
   pub vkDestroyDescriptorUpdateTemplateKHR: Option<PFN_vkDestroyDescriptorUpdateTemplateKHR>,
 }
-#[cfg(feature = "VK_KHR_descriptor_update_template")]
+#[cfg(all(
+  feature = "VK_KHR_descriptor_update_template",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 impl DescriptorUpdateTemplateKHRDispatchTable {
   pub const EMPTY: Self = Self {
-    #[cfg(feature = "VK_KHR_descriptor_update_template")]
+    #[cfg(all(
+      feature = "VK_KHR_descriptor_update_template",
+      not(feature = "VKSC_VERSION_1_0")
+    ))]
     vkDestroyDescriptorUpdateTemplateKHR: None,
   };
   #[inline]
@@ -33,7 +51,10 @@ impl DescriptorUpdateTemplateKHRDispatchTable {
     F: Fn(*const c_char) -> Option<unsafe extern "system" fn()>,
   {
     Self {
-      #[cfg(feature = "VK_KHR_descriptor_update_template")]
+      #[cfg(all(
+        feature = "VK_KHR_descriptor_update_template",
+        not(feature = "VKSC_VERSION_1_0")
+      ))]
       vkDestroyDescriptorUpdateTemplateKHR: loader(
         c"vkDestroyDescriptorUpdateTemplateKHR".as_ptr(),
       )
@@ -41,17 +62,30 @@ impl DescriptorUpdateTemplateKHRDispatchTable {
     }
   }
 }
-#[cfg(feature = "VK_KHR_descriptor_update_template")]
+#[cfg(all(
+  feature = "VK_KHR_descriptor_update_template",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 pub struct DescriptorUpdateTemplateKHR<'dev> {
   pub(crate) raw: VkDescriptorUpdateTemplateKHR,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
   pub(crate) table: &'dev DescriptorUpdateTemplateKHRDispatchTable,
 }
-#[cfg(feature = "VK_KHR_descriptor_update_template")]
+#[cfg(all(
+  feature = "VK_KHR_descriptor_update_template",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 unsafe impl<'dev> Send for DescriptorUpdateTemplateKHR<'dev> {}
-#[cfg(feature = "VK_KHR_descriptor_update_template")]
+#[cfg(all(
+  feature = "VK_KHR_descriptor_update_template",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 unsafe impl<'dev> Sync for DescriptorUpdateTemplateKHR<'dev> {}
-#[cfg(feature = "VK_KHR_descriptor_update_template")]
+#[cfg(all(
+  feature = "VK_KHR_descriptor_update_template",
+  not(feature = "VKSC_VERSION_1_0")
+))]
+#[cfg(not(feature = "VKSC_VERSION_1_0"))]
 impl<'dev> Drop for DescriptorUpdateTemplateKHR<'dev> {
   fn drop(&mut self) {
     if self.raw.0.is_null() {
@@ -66,7 +100,10 @@ impl<'dev> Drop for DescriptorUpdateTemplateKHR<'dev> {
     };
   }
 }
-#[cfg(feature = "VK_KHR_descriptor_update_template")]
+#[cfg(all(
+  feature = "VK_KHR_descriptor_update_template",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 impl<'dev> DescriptorUpdateTemplateKHR<'dev> {
   #[inline(always)]
   pub const fn raw(&self) -> VkDescriptorUpdateTemplateKHR {
@@ -93,13 +130,17 @@ impl<'dev> DescriptorUpdateTemplateKHR<'dev> {
   /// Provided by:
   /// - `VK_KHR_descriptor_update_template`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
   /// - `device`
   /// - `descriptorUpdateTemplate`: optional: true
   /// - `pAllocator`: optional: true
-  #[cfg(feature = "VK_KHR_descriptor_update_template")]
+  #[cfg(all(
+    feature = "VK_KHR_descriptor_update_template",
+    not(feature = "VKSC_VERSION_1_0")
+  ))]
   #[inline(always)]
   pub fn vkDestroyDescriptorUpdateTemplateKHR(
     &mut self,

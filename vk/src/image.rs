@@ -12,7 +12,7 @@ use crate::commands::PFN_vkDestroyImage;
 use crate::commands::PFN_vkGetImageDrmFormatModifierPropertiesEXT;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::commands::PFN_vkGetImageMemoryRequirements;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::commands::PFN_vkGetImageSparseMemoryRequirements;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::commands::PFN_vkGetImageSubresourceLayout;
@@ -52,7 +52,7 @@ use crate::types::VkImageSubresource2EXT;
 use crate::types::VkImageSubresource2KHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkMemoryRequirements;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkSparseImageMemoryRequirements;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkSubresourceLayout;
@@ -75,7 +75,7 @@ pub struct ImageDispatchTable {
   pub vkDestroyImage: Option<PFN_vkDestroyImage>,
   #[cfg(feature = "VK_BASE_VERSION_1_0")]
   pub vkGetImageMemoryRequirements: Option<PFN_vkGetImageMemoryRequirements>,
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   pub vkGetImageSparseMemoryRequirements: Option<PFN_vkGetImageSparseMemoryRequirements>,
   #[cfg(feature = "VK_BASE_VERSION_1_0")]
   pub vkGetImageSubresourceLayout: Option<PFN_vkGetImageSubresourceLayout>,
@@ -101,7 +101,7 @@ impl ImageDispatchTable {
     vkDestroyImage: None,
     #[cfg(feature = "VK_BASE_VERSION_1_0")]
     vkGetImageMemoryRequirements: None,
-    #[cfg(feature = "VK_BASE_VERSION_1_0")]
+    #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
     vkGetImageSparseMemoryRequirements: None,
     #[cfg(feature = "VK_BASE_VERSION_1_0")]
     vkGetImageSubresourceLayout: None,
@@ -132,7 +132,7 @@ impl ImageDispatchTable {
       #[cfg(feature = "VK_BASE_VERSION_1_0")]
       vkGetImageMemoryRequirements: loader(c"vkGetImageMemoryRequirements".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
-      #[cfg(feature = "VK_BASE_VERSION_1_0")]
+      #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
       vkGetImageSparseMemoryRequirements: loader(c"vkGetImageSparseMemoryRequirements".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
       #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -297,6 +297,7 @@ impl<'dev> Image<'dev> {
   /// Provided by:
   /// - `VK_BASE_VERSION_1_0`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
@@ -304,7 +305,7 @@ impl<'dev> Image<'dev> {
   /// - `image`
   /// - `pSparseMemoryRequirementCount`: optional: pointer required, values optional if pointer not null
   /// - `pSparseMemoryRequirements`: optional: true, len: pSparseMemoryRequirementCount
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   #[inline(always)]
   pub fn vkGetImageSparseMemoryRequirements(
     &self,

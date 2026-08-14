@@ -80,9 +80,9 @@ use crate::enums::VkSampleCountFlagBits;
 use crate::enums::VkShaderStageFlagBits;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkSharingMode;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::enums::VkSparseImageFormatFlagBits;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::enums::VkSparseMemoryBindFlagBits;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkStructureType;
@@ -153,7 +153,7 @@ use crate::types::VkDedicatedAllocationMemoryAllocateInfoNV;
 use crate::types::VkDeviceDeviceMemoryReportCreateInfoEXT;
 #[cfg(feature = "VK_NV_device_diagnostics_config")]
 use crate::types::VkDeviceDiagnosticsConfigCreateInfoNV;
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkDeviceGroupBindSparseInfo;
 #[cfg(feature = "VK_BASE_VERSION_1_1")]
 use crate::types::VkDeviceGroupCommandBufferBeginInfo;
@@ -1047,10 +1047,10 @@ pub type VkMemoryMapFlags = VkMemoryMapFlagBits;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 pub type VkImageAspectFlags = VkImageAspectFlagBits;
 /// [VkSparseMemoryBindFlags](https://docs.vulkan.org/refpages/latest/refpages/source/VkSparseMemoryBindFlags.html)
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub type VkSparseMemoryBindFlags = VkSparseMemoryBindFlagBits;
 /// [VkSparseImageFormatFlags](https://docs.vulkan.org/refpages/latest/refpages/source/VkSparseImageFormatFlags.html)
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub type VkSparseImageFormatFlags = VkSparseImageFormatFlagBits;
 /// [VkPipelineStageFlags](https://docs.vulkan.org/refpages/latest/refpages/source/VkPipelineStageFlags.html)
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -6684,7 +6684,7 @@ impl VkMemoryRequirements {
 /// *Note: This is a **returned only** struct.*
 ///
 /// *Note: This struct has **required limit types**.*
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkSparseImageFormatProperties {
@@ -6695,11 +6695,11 @@ pub struct VkSparseImageFormatProperties {
   /// Optional: true,  Limit Type: [Bitmask]
   pub flags: VkSparseImageFormatFlags,
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl Send for VkSparseImageFormatProperties {}
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl Sync for VkSparseImageFormatProperties {}
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl VkSparseImageFormatProperties {
   pub const DEFAULT: Self = Self {
     aspectMask: VkImageAspectFlagBits(0),
@@ -6729,7 +6729,7 @@ impl VkSparseImageFormatProperties {
 /// [VkSparseImageMemoryRequirements](https://docs.vulkan.org/refpages/latest/refpages/source/VkSparseImageMemoryRequirements.html)
 ///
 /// *Note: This is a **returned only** struct.*
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkSparseImageMemoryRequirements {
@@ -6739,11 +6739,11 @@ pub struct VkSparseImageMemoryRequirements {
   pub imageMipTailOffset: VkDeviceSize,
   pub imageMipTailStride: VkDeviceSize,
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl Send for VkSparseImageMemoryRequirements {}
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl Sync for VkSparseImageMemoryRequirements {}
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl VkSparseImageMemoryRequirements {
   pub const DEFAULT: Self = Self {
     formatProperties: VkSparseImageFormatProperties::DEFAULT,
@@ -8445,7 +8445,7 @@ impl VkBufferCopy {
   }
 }
 /// [VkSparseMemoryBind](https://docs.vulkan.org/refpages/latest/refpages/source/VkSparseMemoryBind.html)
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkSparseMemoryBind {
@@ -8457,11 +8457,11 @@ pub struct VkSparseMemoryBind {
   /// Optional: true
   pub flags: VkSparseMemoryBindFlags,
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl Send for VkSparseMemoryBind {}
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl Sync for VkSparseMemoryBind {}
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl VkSparseMemoryBind {
   pub const DEFAULT: Self = Self {
     resourceOffset: 0,
@@ -8501,7 +8501,7 @@ impl VkSparseMemoryBind {
   }
 }
 /// [VkSparseImageMemoryBind](https://docs.vulkan.org/refpages/latest/refpages/source/VkSparseImageMemoryBind.html)
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkSparseImageMemoryBind {
@@ -8514,11 +8514,11 @@ pub struct VkSparseImageMemoryBind {
   /// Optional: true
   pub flags: VkSparseMemoryBindFlags,
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl Send for VkSparseImageMemoryBind {}
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl Sync for VkSparseImageMemoryBind {}
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl VkSparseImageMemoryBind {
   pub const DEFAULT: Self = Self {
     subresource: VkImageSubresource::DEFAULT,
@@ -8564,7 +8564,7 @@ impl VkSparseImageMemoryBind {
   }
 }
 /// [VkSparseBufferMemoryBindInfo](https://docs.vulkan.org/refpages/latest/refpages/source/VkSparseBufferMemoryBindInfo.html)
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkSparseBufferMemoryBindInfo<'a> {
@@ -8575,11 +8575,11 @@ pub struct VkSparseBufferMemoryBindInfo<'a> {
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'a> Send for VkSparseBufferMemoryBindInfo<'a> {}
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'a> Sync for VkSparseBufferMemoryBindInfo<'a> {}
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl<'a> VkSparseBufferMemoryBindInfo<'a> {
   pub const DEFAULT: Self = Self {
     buffer: VkBuffer::DEFAULT,
@@ -8612,7 +8612,7 @@ impl<'a> VkSparseBufferMemoryBindInfo<'a> {
   }
 }
 /// [VkSparseImageOpaqueMemoryBindInfo](https://docs.vulkan.org/refpages/latest/refpages/source/VkSparseImageOpaqueMemoryBindInfo.html)
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkSparseImageOpaqueMemoryBindInfo<'a> {
@@ -8623,11 +8623,11 @@ pub struct VkSparseImageOpaqueMemoryBindInfo<'a> {
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'a> Send for VkSparseImageOpaqueMemoryBindInfo<'a> {}
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'a> Sync for VkSparseImageOpaqueMemoryBindInfo<'a> {}
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl<'a> VkSparseImageOpaqueMemoryBindInfo<'a> {
   pub const DEFAULT: Self = Self {
     image: VkImage::DEFAULT,
@@ -8660,7 +8660,7 @@ impl<'a> VkSparseImageOpaqueMemoryBindInfo<'a> {
   }
 }
 /// [VkSparseImageMemoryBindInfo](https://docs.vulkan.org/refpages/latest/refpages/source/VkSparseImageMemoryBindInfo.html)
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkSparseImageMemoryBindInfo<'a> {
@@ -8671,11 +8671,11 @@ pub struct VkSparseImageMemoryBindInfo<'a> {
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'a> Send for VkSparseImageMemoryBindInfo<'a> {}
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'a> Sync for VkSparseImageMemoryBindInfo<'a> {}
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl<'a> VkSparseImageMemoryBindInfo<'a> {
   pub const DEFAULT: Self = Self {
     image: VkImage::DEFAULT,
@@ -8708,7 +8708,7 @@ impl<'a> VkSparseImageMemoryBindInfo<'a> {
   }
 }
 /// [VkBindSparseInfo](https://docs.vulkan.org/refpages/latest/refpages/source/VkBindSparseInfo.html)
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkBindSparseInfo<'a> {
@@ -8739,11 +8739,11 @@ pub struct VkBindSparseInfo<'a> {
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'a> Send for VkBindSparseInfo<'a> {}
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'a> Sync for VkBindSparseInfo<'a> {}
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl<'a> VkBindSparseInfo<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::BIND_SPARSE_INFO,
@@ -8845,7 +8845,7 @@ impl<'a> VkBindSparseInfo<'a> {
     self.pSignalSemaphores = val.as_ptr();
     self
   }
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -8893,7 +8893,7 @@ impl<'a> VkBindSparseInfo<'a> {
     self.pNext = (val as *const VkTimelineSemaphoreSubmitInfo<'child>).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -9683,6 +9683,7 @@ impl<'a> VkFenceCreateInfo<'a> {
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkPhysicalDeviceFeatures {
+  /// **Removal note:** `VK_KHR_portability_subset` removes this from its mandatory feature set. The field remains queryable and may still be supported.
   pub robustBufferAccess: VkBool32,
   pub fullDrawIndexUint32: VkBool32,
   pub imageCubeArray: VkBool32,

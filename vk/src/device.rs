@@ -81,9 +81,12 @@ use crate::commands::PFN_vkCreateDeferredOperationKHR;
 use crate::commands::PFN_vkCreateDescriptorPool;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 use crate::commands::PFN_vkCreateDescriptorSetLayout;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::commands::PFN_vkCreateDescriptorUpdateTemplate;
-#[cfg(feature = "VK_KHR_descriptor_update_template")]
+#[cfg(all(
+  feature = "VK_KHR_descriptor_update_template",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::commands::PFN_vkCreateDescriptorUpdateTemplateKHR;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 use crate::commands::PFN_vkCreateEvent;
@@ -141,7 +144,7 @@ use crate::commands::PFN_vkCreateSemaphore;
 use crate::commands::PFN_vkCreateSemaphoreSciSyncPoolNV;
 #[cfg(feature = "VK_ARM_shader_instrumentation")]
 use crate::commands::PFN_vkCreateShaderInstrumentationARM;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::commands::PFN_vkCreateShaderModule;
 #[cfg(feature = "VK_EXT_shader_object")]
 use crate::commands::PFN_vkCreateShadersEXT;
@@ -260,9 +263,9 @@ use crate::commands::PFN_vkGetDeviceGroupSurfacePresentModes2EXT;
 use crate::commands::PFN_vkGetDeviceImageMemoryRequirements;
 #[cfg(feature = "VK_KHR_maintenance4")]
 use crate::commands::PFN_vkGetDeviceImageMemoryRequirementsKHR;
-#[cfg(feature = "VK_BASE_VERSION_1_3")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_3", not(feature = "VKSC_VERSION_1_0")))]
 use crate::commands::PFN_vkGetDeviceImageSparseMemoryRequirements;
-#[cfg(feature = "VK_KHR_maintenance4")]
+#[cfg(all(feature = "VK_KHR_maintenance4", not(feature = "VKSC_VERSION_1_0")))]
 use crate::commands::PFN_vkGetDeviceImageSparseMemoryRequirementsKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 use crate::commands::PFN_vkGetDeviceImageSubresourceLayout;
@@ -314,9 +317,12 @@ use crate::commands::PFN_vkGetImageMemoryRequirements2KHR;
 use crate::commands::PFN_vkGetImageOpaqueCaptureDataEXT;
 #[cfg(feature = "VK_EXT_descriptor_buffer")]
 use crate::commands::PFN_vkGetImageOpaqueCaptureDescriptorDataEXT;
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::commands::PFN_vkGetImageSparseMemoryRequirements2;
-#[cfg(feature = "VK_KHR_get_memory_requirements2")]
+#[cfg(all(
+  feature = "VK_KHR_get_memory_requirements2",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::commands::PFN_vkGetImageSparseMemoryRequirements2KHR;
 #[cfg(feature = "VK_NVX_image_view_handle")]
 use crate::commands::PFN_vkGetImageViewHandle64NVX;
@@ -398,7 +404,10 @@ use crate::commands::PFN_vkGetSemaphoreSciSyncObjNV;
 use crate::commands::PFN_vkGetSemaphoreWin32HandleKHR;
 #[cfg(feature = "VK_FUCHSIA_external_semaphore")]
 use crate::commands::PFN_vkGetSemaphoreZirconHandleFUCHSIA;
-#[cfg(feature = "VK_EXT_shader_module_identifier")]
+#[cfg(all(
+  feature = "VK_EXT_shader_module_identifier",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::commands::PFN_vkGetShaderModuleCreateInfoIdentifierEXT;
 #[cfg(feature = "VK_NV_low_latency")]
 use crate::commands::PFN_vkGetSleepStatusLegacyNV;
@@ -734,13 +743,19 @@ use crate::types::VkDescriptorSetLayoutHostMappingInfoVALVE;
 use crate::types::VkDescriptorSetLayoutSupport;
 #[cfg(feature = "VK_KHR_maintenance3")]
 use crate::types::VkDescriptorSetLayoutSupportKHR;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkDescriptorUpdateTemplate;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkDescriptorUpdateTemplateCreateInfo;
-#[cfg(feature = "VK_KHR_descriptor_update_template")]
+#[cfg(all(
+  feature = "VK_KHR_descriptor_update_template",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::types::VkDescriptorUpdateTemplateCreateInfoKHR;
-#[cfg(feature = "VK_KHR_descriptor_update_template")]
+#[cfg(all(
+  feature = "VK_KHR_descriptor_update_template",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::types::VkDescriptorUpdateTemplateKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkDevice;
@@ -851,9 +866,12 @@ use crate::types::VkImageCreateInfo;
 use crate::types::VkImageMemoryRequirementsInfo2;
 #[cfg(feature = "VK_KHR_get_memory_requirements2")]
 use crate::types::VkImageMemoryRequirementsInfo2KHR;
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkImageSparseMemoryRequirementsInfo2;
-#[cfg(feature = "VK_KHR_get_memory_requirements2")]
+#[cfg(all(
+  feature = "VK_KHR_get_memory_requirements2",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::types::VkImageSparseMemoryRequirementsInfo2KHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkImageView;
@@ -1097,13 +1115,16 @@ use crate::types::VkShaderInstrumentationARM;
 use crate::types::VkShaderInstrumentationCreateInfoARM;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 use crate::types::VkShaderModule;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkShaderModuleCreateInfo;
 #[cfg(feature = "VK_EXT_shader_module_identifier")]
 use crate::types::VkShaderModuleIdentifierEXT;
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkSparseImageMemoryRequirements2;
-#[cfg(feature = "VK_KHR_get_memory_requirements2")]
+#[cfg(all(
+  feature = "VK_KHR_get_memory_requirements2",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::types::VkSparseImageMemoryRequirements2KHR;
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 use crate::types::VkSubresourceLayout2;
@@ -1251,7 +1272,7 @@ pub struct DeviceDispatchTable {
   pub vkGetDeviceQueue2: Option<PFN_vkGetDeviceQueue2>,
   #[cfg(feature = "VK_BASE_VERSION_1_1")]
   pub vkGetImageMemoryRequirements2: Option<PFN_vkGetImageMemoryRequirements2>,
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   pub vkGetImageSparseMemoryRequirements2: Option<PFN_vkGetImageSparseMemoryRequirements2>,
   #[cfg(feature = "VK_BASE_VERSION_1_2")]
   pub vkGetBufferDeviceAddress: Option<PFN_vkGetBufferDeviceAddress>,
@@ -1269,7 +1290,7 @@ pub struct DeviceDispatchTable {
   pub vkGetDeviceBufferMemoryRequirements: Option<PFN_vkGetDeviceBufferMemoryRequirements>,
   #[cfg(feature = "VK_BASE_VERSION_1_3")]
   pub vkGetDeviceImageMemoryRequirements: Option<PFN_vkGetDeviceImageMemoryRequirements>,
-  #[cfg(feature = "VK_BASE_VERSION_1_3")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_3", not(feature = "VKSC_VERSION_1_0")))]
   pub vkGetDeviceImageSparseMemoryRequirements:
     Option<PFN_vkGetDeviceImageSparseMemoryRequirements>,
   #[cfg(feature = "VK_BASE_VERSION_1_3")]
@@ -1306,11 +1327,11 @@ pub struct DeviceDispatchTable {
   pub vkCreatePipelineLayout: Option<PFN_vkCreatePipelineLayout>,
   #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   pub vkCreateSampler: Option<PFN_vkCreateSampler>,
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   pub vkCreateShaderModule: Option<PFN_vkCreateShaderModule>,
   #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   pub vkUpdateDescriptorSets: Option<PFN_vkUpdateDescriptorSets>,
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   pub vkCreateDescriptorUpdateTemplate: Option<PFN_vkCreateDescriptorUpdateTemplate>,
   #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
   pub vkCreateSamplerYcbcrConversion: Option<PFN_vkCreateSamplerYcbcrConversion>,
@@ -1424,7 +1445,10 @@ pub struct DeviceDispatchTable {
   pub vkGetPrivateDataEXT: Option<PFN_vkGetPrivateDataEXT>,
   #[cfg(feature = "VK_EXT_private_data")]
   pub vkSetPrivateDataEXT: Option<PFN_vkSetPrivateDataEXT>,
-  #[cfg(feature = "VK_EXT_shader_module_identifier")]
+  #[cfg(all(
+    feature = "VK_EXT_shader_module_identifier",
+    not(feature = "VKSC_VERSION_1_0")
+  ))]
   pub vkGetShaderModuleCreateInfoIdentifierEXT:
     Option<PFN_vkGetShaderModuleCreateInfoIdentifierEXT>,
   #[cfg(feature = "VK_EXT_shader_object")]
@@ -1492,7 +1516,10 @@ pub struct DeviceDispatchTable {
   pub vkCreateRenderPass2KHR: Option<PFN_vkCreateRenderPass2KHR>,
   #[cfg(feature = "VK_KHR_deferred_host_operations")]
   pub vkCreateDeferredOperationKHR: Option<PFN_vkCreateDeferredOperationKHR>,
-  #[cfg(feature = "VK_KHR_descriptor_update_template")]
+  #[cfg(all(
+    feature = "VK_KHR_descriptor_update_template",
+    not(feature = "VKSC_VERSION_1_0")
+  ))]
   pub vkCreateDescriptorUpdateTemplateKHR: Option<PFN_vkCreateDescriptorUpdateTemplateKHR>,
   #[cfg(all(
     feature = "VK_KHR_acceleration_structure",
@@ -1545,7 +1572,10 @@ pub struct DeviceDispatchTable {
   pub vkGetBufferMemoryRequirements2KHR: Option<PFN_vkGetBufferMemoryRequirements2KHR>,
   #[cfg(feature = "VK_KHR_get_memory_requirements2")]
   pub vkGetImageMemoryRequirements2KHR: Option<PFN_vkGetImageMemoryRequirements2KHR>,
-  #[cfg(feature = "VK_KHR_get_memory_requirements2")]
+  #[cfg(all(
+    feature = "VK_KHR_get_memory_requirements2",
+    not(feature = "VKSC_VERSION_1_0")
+  ))]
   pub vkGetImageSparseMemoryRequirements2KHR: Option<PFN_vkGetImageSparseMemoryRequirements2KHR>,
   #[cfg(feature = "VK_KHR_maintenance3")]
   pub vkGetDescriptorSetLayoutSupportKHR: Option<PFN_vkGetDescriptorSetLayoutSupportKHR>,
@@ -1553,7 +1583,7 @@ pub struct DeviceDispatchTable {
   pub vkGetDeviceBufferMemoryRequirementsKHR: Option<PFN_vkGetDeviceBufferMemoryRequirementsKHR>,
   #[cfg(feature = "VK_KHR_maintenance4")]
   pub vkGetDeviceImageMemoryRequirementsKHR: Option<PFN_vkGetDeviceImageMemoryRequirementsKHR>,
-  #[cfg(feature = "VK_KHR_maintenance4")]
+  #[cfg(all(feature = "VK_KHR_maintenance4", not(feature = "VKSC_VERSION_1_0")))]
   pub vkGetDeviceImageSparseMemoryRequirementsKHR:
     Option<PFN_vkGetDeviceImageSparseMemoryRequirementsKHR>,
   #[cfg(feature = "VK_KHR_maintenance5")]
@@ -1781,7 +1811,7 @@ impl DeviceDispatchTable {
     vkGetDeviceQueue2: None,
     #[cfg(feature = "VK_BASE_VERSION_1_1")]
     vkGetImageMemoryRequirements2: None,
-    #[cfg(feature = "VK_BASE_VERSION_1_1")]
+    #[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
     vkGetImageSparseMemoryRequirements2: None,
     #[cfg(feature = "VK_BASE_VERSION_1_2")]
     vkGetBufferDeviceAddress: None,
@@ -1799,7 +1829,7 @@ impl DeviceDispatchTable {
     vkGetDeviceBufferMemoryRequirements: None,
     #[cfg(feature = "VK_BASE_VERSION_1_3")]
     vkGetDeviceImageMemoryRequirements: None,
-    #[cfg(feature = "VK_BASE_VERSION_1_3")]
+    #[cfg(all(feature = "VK_BASE_VERSION_1_3", not(feature = "VKSC_VERSION_1_0")))]
     vkGetDeviceImageSparseMemoryRequirements: None,
     #[cfg(feature = "VK_BASE_VERSION_1_3")]
     vkGetPrivateData: None,
@@ -1835,11 +1865,11 @@ impl DeviceDispatchTable {
     vkCreatePipelineLayout: None,
     #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     vkCreateSampler: None,
-    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+    #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
     vkCreateShaderModule: None,
     #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     vkUpdateDescriptorSets: None,
-    #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+    #[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
     vkCreateDescriptorUpdateTemplate: None,
     #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
     vkCreateSamplerYcbcrConversion: None,
@@ -1947,7 +1977,10 @@ impl DeviceDispatchTable {
     vkGetPrivateDataEXT: None,
     #[cfg(feature = "VK_EXT_private_data")]
     vkSetPrivateDataEXT: None,
-    #[cfg(feature = "VK_EXT_shader_module_identifier")]
+    #[cfg(all(
+      feature = "VK_EXT_shader_module_identifier",
+      not(feature = "VKSC_VERSION_1_0")
+    ))]
     vkGetShaderModuleCreateInfoIdentifierEXT: None,
     #[cfg(feature = "VK_EXT_shader_object")]
     vkCreateShadersEXT: None,
@@ -2009,7 +2042,10 @@ impl DeviceDispatchTable {
     vkCreateRenderPass2KHR: None,
     #[cfg(feature = "VK_KHR_deferred_host_operations")]
     vkCreateDeferredOperationKHR: None,
-    #[cfg(feature = "VK_KHR_descriptor_update_template")]
+    #[cfg(all(
+      feature = "VK_KHR_descriptor_update_template",
+      not(feature = "VKSC_VERSION_1_0")
+    ))]
     vkCreateDescriptorUpdateTemplateKHR: None,
     #[cfg(all(
       feature = "VK_KHR_acceleration_structure",
@@ -2062,7 +2098,10 @@ impl DeviceDispatchTable {
     vkGetBufferMemoryRequirements2KHR: None,
     #[cfg(feature = "VK_KHR_get_memory_requirements2")]
     vkGetImageMemoryRequirements2KHR: None,
-    #[cfg(feature = "VK_KHR_get_memory_requirements2")]
+    #[cfg(all(
+      feature = "VK_KHR_get_memory_requirements2",
+      not(feature = "VKSC_VERSION_1_0")
+    ))]
     vkGetImageSparseMemoryRequirements2KHR: None,
     #[cfg(feature = "VK_KHR_maintenance3")]
     vkGetDescriptorSetLayoutSupportKHR: None,
@@ -2070,7 +2109,7 @@ impl DeviceDispatchTable {
     vkGetDeviceBufferMemoryRequirementsKHR: None,
     #[cfg(feature = "VK_KHR_maintenance4")]
     vkGetDeviceImageMemoryRequirementsKHR: None,
-    #[cfg(feature = "VK_KHR_maintenance4")]
+    #[cfg(all(feature = "VK_KHR_maintenance4", not(feature = "VKSC_VERSION_1_0")))]
     vkGetDeviceImageSparseMemoryRequirementsKHR: None,
     #[cfg(feature = "VK_KHR_maintenance5")]
     vkGetDeviceImageSubresourceLayoutKHR: None,
@@ -2351,7 +2390,7 @@ impl DeviceDispatchTable {
       #[cfg(feature = "VK_BASE_VERSION_1_1")]
       vkGetImageMemoryRequirements2: loader(c"vkGetImageMemoryRequirements2".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
-      #[cfg(feature = "VK_BASE_VERSION_1_1")]
+      #[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
       vkGetImageSparseMemoryRequirements2: loader(c"vkGetImageSparseMemoryRequirements2".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
       #[cfg(feature = "VK_BASE_VERSION_1_2")]
@@ -2380,7 +2419,7 @@ impl DeviceDispatchTable {
       #[cfg(feature = "VK_BASE_VERSION_1_3")]
       vkGetDeviceImageMemoryRequirements: loader(c"vkGetDeviceImageMemoryRequirements".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
-      #[cfg(feature = "VK_BASE_VERSION_1_3")]
+      #[cfg(all(feature = "VK_BASE_VERSION_1_3", not(feature = "VKSC_VERSION_1_0")))]
       vkGetDeviceImageSparseMemoryRequirements: loader(
         c"vkGetDeviceImageSparseMemoryRequirements".as_ptr(),
       )
@@ -2434,13 +2473,13 @@ impl DeviceDispatchTable {
       #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
       vkCreateSampler: loader(c"vkCreateSampler".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
-      #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+      #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
       vkCreateShaderModule: loader(c"vkCreateShaderModule".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
       #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
       vkUpdateDescriptorSets: loader(c"vkUpdateDescriptorSets".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
-      #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+      #[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
       vkCreateDescriptorUpdateTemplate: loader(c"vkCreateDescriptorUpdateTemplate".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
       #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
@@ -2607,7 +2646,10 @@ impl DeviceDispatchTable {
       #[cfg(feature = "VK_EXT_private_data")]
       vkSetPrivateDataEXT: loader(c"vkSetPrivateDataEXT".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
-      #[cfg(feature = "VK_EXT_shader_module_identifier")]
+      #[cfg(all(
+        feature = "VK_EXT_shader_module_identifier",
+        not(feature = "VKSC_VERSION_1_0")
+      ))]
       vkGetShaderModuleCreateInfoIdentifierEXT: loader(
         c"vkGetShaderModuleCreateInfoIdentifierEXT".as_ptr(),
       )
@@ -2718,7 +2760,10 @@ impl DeviceDispatchTable {
       #[cfg(feature = "VK_KHR_deferred_host_operations")]
       vkCreateDeferredOperationKHR: loader(c"vkCreateDeferredOperationKHR".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
-      #[cfg(feature = "VK_KHR_descriptor_update_template")]
+      #[cfg(all(
+        feature = "VK_KHR_descriptor_update_template",
+        not(feature = "VKSC_VERSION_1_0")
+      ))]
       vkCreateDescriptorUpdateTemplateKHR: loader(c"vkCreateDescriptorUpdateTemplateKHR".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
       #[cfg(all(
@@ -2797,7 +2842,10 @@ impl DeviceDispatchTable {
       #[cfg(feature = "VK_KHR_get_memory_requirements2")]
       vkGetImageMemoryRequirements2KHR: loader(c"vkGetImageMemoryRequirements2KHR".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
-      #[cfg(feature = "VK_KHR_get_memory_requirements2")]
+      #[cfg(all(
+        feature = "VK_KHR_get_memory_requirements2",
+        not(feature = "VKSC_VERSION_1_0")
+      ))]
       vkGetImageSparseMemoryRequirements2KHR: loader(
         c"vkGetImageSparseMemoryRequirements2KHR".as_ptr(),
       )
@@ -2815,7 +2863,7 @@ impl DeviceDispatchTable {
         c"vkGetDeviceImageMemoryRequirementsKHR".as_ptr(),
       )
       .map(|f| unsafe { core::mem::transmute(f) }),
-      #[cfg(feature = "VK_KHR_maintenance4")]
+      #[cfg(all(feature = "VK_KHR_maintenance4", not(feature = "VKSC_VERSION_1_0")))]
       vkGetDeviceImageSparseMemoryRequirementsKHR: loader(
         c"vkGetDeviceImageSparseMemoryRequirementsKHR".as_ptr(),
       )
@@ -3102,10 +3150,13 @@ pub struct Device<'inst> {
   #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   pub(crate) descriptor_set_layout_table:
     crate::descriptor_set_layout::DescriptorSetLayoutDispatchTable,
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   pub(crate) descriptor_update_template_table:
     crate::descriptor_update_template::DescriptorUpdateTemplateDispatchTable,
-  #[cfg(feature = "VK_KHR_descriptor_update_template")]
+  #[cfg(all(
+    feature = "VK_KHR_descriptor_update_template",
+    not(feature = "VKSC_VERSION_1_0")
+  ))]
   pub(crate) descriptor_update_template_khr_table:
     crate::descriptor_update_template_khr::DescriptorUpdateTemplateKHRDispatchTable,
   #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -3242,9 +3293,16 @@ impl<'inst> Device<'inst> {
     descriptor_set_table: crate::descriptor_set::DescriptorSetDispatchTable,
     #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     descriptor_set_layout_table: crate::descriptor_set_layout::DescriptorSetLayoutDispatchTable,
-    #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+    #[cfg(
+            all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0"))
+        )]
         descriptor_update_template_table: crate::descriptor_update_template::DescriptorUpdateTemplateDispatchTable,
-    #[cfg(feature = "VK_KHR_descriptor_update_template")]
+    #[cfg(
+            all(
+                feature = "VK_KHR_descriptor_update_template",
+                not(feature = "VKSC_VERSION_1_0")
+            )
+        )]
         descriptor_update_template_khr_table: crate::descriptor_update_template_khr::DescriptorUpdateTemplateKHRDispatchTable,
     #[cfg(feature = "VK_BASE_VERSION_1_0")]
     device_memory_table: crate::device_memory::DeviceMemoryDispatchTable,
@@ -3352,9 +3410,12 @@ impl<'inst> Device<'inst> {
       descriptor_set_table,
       #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
       descriptor_set_layout_table,
-      #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+      #[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
       descriptor_update_template_table,
-      #[cfg(feature = "VK_KHR_descriptor_update_template")]
+      #[cfg(all(
+        feature = "VK_KHR_descriptor_update_template",
+        not(feature = "VKSC_VERSION_1_0")
+      ))]
       descriptor_update_template_khr_table,
       #[cfg(feature = "VK_BASE_VERSION_1_0")]
       device_memory_table,
@@ -5121,6 +5182,7 @@ impl<'inst> Device<'inst> {
   /// Provided by:
   /// - `VK_BASE_VERSION_1_1`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
@@ -5128,7 +5190,7 @@ impl<'inst> Device<'inst> {
   /// - `pInfo`
   /// - `pSparseMemoryRequirementCount`: optional: pointer required, values optional if pointer not null
   /// - `pSparseMemoryRequirements`: optional: true, len: pSparseMemoryRequirementCount
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   #[inline(always)]
   pub fn vkGetImageSparseMemoryRequirements2(
     &self,
@@ -5388,6 +5450,7 @@ impl<'inst> Device<'inst> {
   /// Provided by:
   /// - `VK_BASE_VERSION_1_3`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
@@ -5395,7 +5458,7 @@ impl<'inst> Device<'inst> {
   /// - `pInfo`
   /// - `pSparseMemoryRequirementCount`: optional: pointer required, values optional if pointer not null
   /// - `pSparseMemoryRequirements`: optional: true, len: pSparseMemoryRequirementCount
-  #[cfg(feature = "VK_BASE_VERSION_1_3")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_3", not(feature = "VKSC_VERSION_1_0")))]
   #[inline(always)]
   pub fn vkGetDeviceImageSparseMemoryRequirements(
     &self,
@@ -6180,6 +6243,7 @@ impl<'inst> Device<'inst> {
   /// - `VK_COMPUTE_VERSION_1_0`
   ///
   /// - **Allow No Queues:** True
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
@@ -6199,7 +6263,7 @@ impl<'inst> Device<'inst> {
   ///   - `VK_ERROR_INVALID_SHADER_NV`
   ///   - `VK_ERROR_UNKNOWN`
   ///   - `VK_ERROR_VALIDATION_FAILED`
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   #[inline]
   pub fn vkCreateShaderModule<'ret>(
     &'ret self,
@@ -6262,6 +6326,7 @@ impl<'inst> Device<'inst> {
   /// Provided by:
   /// - `VK_COMPUTE_VERSION_1_1`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
@@ -6280,7 +6345,7 @@ impl<'inst> Device<'inst> {
   ///   - `VK_ERROR_OUT_OF_DEVICE_MEMORY`
   ///   - `VK_ERROR_UNKNOWN`
   ///   - `VK_ERROR_VALIDATION_FAILED`
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   #[inline]
   pub fn vkCreateDescriptorUpdateTemplate<'ret>(
     &'ret self,
@@ -8044,12 +8109,16 @@ impl<'inst> Device<'inst> {
   /// Provided by:
   /// - `VK_EXT_shader_module_identifier`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   ///
   /// # Parameters
   /// - `device`
   /// - `pCreateInfo`
   /// - `pIdentifier`
-  #[cfg(feature = "VK_EXT_shader_module_identifier")]
+  #[cfg(all(
+    feature = "VK_EXT_shader_module_identifier",
+    not(feature = "VKSC_VERSION_1_0")
+  ))]
   #[inline(always)]
   pub fn vkGetShaderModuleCreateInfoIdentifierEXT(
     &self,
@@ -9279,6 +9348,7 @@ impl<'inst> Device<'inst> {
   /// Provided by:
   /// - `VK_KHR_descriptor_update_template`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
@@ -9297,7 +9367,10 @@ impl<'inst> Device<'inst> {
   ///   - `VK_ERROR_OUT_OF_DEVICE_MEMORY`
   ///   - `VK_ERROR_UNKNOWN`
   ///   - `VK_ERROR_VALIDATION_FAILED`
-  #[cfg(feature = "VK_KHR_descriptor_update_template")]
+  #[cfg(all(
+    feature = "VK_KHR_descriptor_update_template",
+    not(feature = "VKSC_VERSION_1_0")
+  ))]
   #[inline]
   pub fn vkCreateDescriptorUpdateTemplateKHR<'ret>(
     &'ret self,
@@ -10161,6 +10234,7 @@ impl<'inst> Device<'inst> {
   /// Provided by:
   /// - `VK_KHR_get_memory_requirements2`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
@@ -10168,7 +10242,10 @@ impl<'inst> Device<'inst> {
   /// - `pInfo`
   /// - `pSparseMemoryRequirementCount`: optional: pointer required, values optional if pointer not null
   /// - `pSparseMemoryRequirements`: optional: true, len: pSparseMemoryRequirementCount
-  #[cfg(feature = "VK_KHR_get_memory_requirements2")]
+  #[cfg(all(
+    feature = "VK_KHR_get_memory_requirements2",
+    not(feature = "VKSC_VERSION_1_0")
+  ))]
   #[inline(always)]
   pub fn vkGetImageSparseMemoryRequirements2KHR(
     &self,
@@ -10268,6 +10345,7 @@ impl<'inst> Device<'inst> {
   /// Provided by:
   /// - `VK_KHR_maintenance4`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
@@ -10275,7 +10353,7 @@ impl<'inst> Device<'inst> {
   /// - `pInfo`
   /// - `pSparseMemoryRequirementCount`: optional: pointer required, values optional if pointer not null
   /// - `pSparseMemoryRequirements`: optional: true, len: pSparseMemoryRequirementCount
-  #[cfg(feature = "VK_KHR_maintenance4")]
+  #[cfg(all(feature = "VK_KHR_maintenance4", not(feature = "VKSC_VERSION_1_0")))]
   #[inline(always)]
   pub fn vkGetDeviceImageSparseMemoryRequirementsKHR(
     &self,

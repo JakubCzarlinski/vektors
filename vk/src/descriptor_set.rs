@@ -8,9 +8,12 @@
 use crate::commands::PFN_vkFreeDescriptorSets;
 #[cfg(feature = "VK_VALVE_descriptor_set_host_mapping")]
 use crate::commands::PFN_vkGetDescriptorSetHostMappingVALVE;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::commands::PFN_vkUpdateDescriptorSetWithTemplate;
-#[cfg(feature = "VK_KHR_descriptor_update_template")]
+#[cfg(all(
+  feature = "VK_KHR_descriptor_update_template",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::commands::PFN_vkUpdateDescriptorSetWithTemplateKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkResult;
@@ -18,9 +21,12 @@ use crate::enums::VkResult;
 use crate::types::VkDescriptorPool;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 use crate::types::VkDescriptorSet;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkDescriptorUpdateTemplate;
-#[cfg(feature = "VK_KHR_descriptor_update_template")]
+#[cfg(all(
+  feature = "VK_KHR_descriptor_update_template",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::types::VkDescriptorUpdateTemplateKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkDevice;
@@ -28,9 +34,12 @@ use core::ffi::{c_char, c_void};
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 #[derive(Debug, Clone)]
 pub struct DescriptorSetDispatchTable {
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   pub vkUpdateDescriptorSetWithTemplate: Option<PFN_vkUpdateDescriptorSetWithTemplate>,
-  #[cfg(feature = "VK_KHR_descriptor_update_template")]
+  #[cfg(all(
+    feature = "VK_KHR_descriptor_update_template",
+    not(feature = "VKSC_VERSION_1_0")
+  ))]
   pub vkUpdateDescriptorSetWithTemplateKHR: Option<PFN_vkUpdateDescriptorSetWithTemplateKHR>,
   #[cfg(feature = "VK_VALVE_descriptor_set_host_mapping")]
   pub vkGetDescriptorSetHostMappingVALVE: Option<PFN_vkGetDescriptorSetHostMappingVALVE>,
@@ -38,9 +47,12 @@ pub struct DescriptorSetDispatchTable {
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl DescriptorSetDispatchTable {
   pub const EMPTY: Self = Self {
-    #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+    #[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
     vkUpdateDescriptorSetWithTemplate: None,
-    #[cfg(feature = "VK_KHR_descriptor_update_template")]
+    #[cfg(all(
+      feature = "VK_KHR_descriptor_update_template",
+      not(feature = "VKSC_VERSION_1_0")
+    ))]
     vkUpdateDescriptorSetWithTemplateKHR: None,
     #[cfg(feature = "VK_VALVE_descriptor_set_host_mapping")]
     vkGetDescriptorSetHostMappingVALVE: None,
@@ -51,10 +63,13 @@ impl DescriptorSetDispatchTable {
     F: Fn(*const c_char) -> Option<unsafe extern "system" fn()>,
   {
     Self {
-      #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+      #[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
       vkUpdateDescriptorSetWithTemplate: loader(c"vkUpdateDescriptorSetWithTemplate".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
-      #[cfg(feature = "VK_KHR_descriptor_update_template")]
+      #[cfg(all(
+        feature = "VK_KHR_descriptor_update_template",
+        not(feature = "VKSC_VERSION_1_0")
+      ))]
       vkUpdateDescriptorSetWithTemplateKHR: loader(
         c"vkUpdateDescriptorSetWithTemplateKHR".as_ptr(),
       )
@@ -118,6 +133,7 @@ impl<'dev> DescriptorSet<'dev> {
   /// Provided by:
   /// - `VK_COMPUTE_VERSION_1_1`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
@@ -125,7 +141,7 @@ impl<'dev> DescriptorSet<'dev> {
   /// - `descriptorSet`
   /// - `descriptorUpdateTemplate`
   /// - `pData`
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   #[inline(always)]
   pub fn vkUpdateDescriptorSetWithTemplate(
     &self,
@@ -149,6 +165,7 @@ impl<'dev> DescriptorSet<'dev> {
   /// Provided by:
   /// - `VK_KHR_descriptor_update_template`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
@@ -156,7 +173,10 @@ impl<'dev> DescriptorSet<'dev> {
   /// - `descriptorSet`
   /// - `descriptorUpdateTemplate`
   /// - `pData`
-  #[cfg(feature = "VK_KHR_descriptor_update_template")]
+  #[cfg(all(
+    feature = "VK_KHR_descriptor_update_template",
+    not(feature = "VKSC_VERSION_1_0")
+  ))]
   #[inline(always)]
   pub fn vkUpdateDescriptorSetWithTemplateKHR(
     &self,

@@ -4,27 +4,27 @@
   clippy::too_many_arguments,
   clippy::missing_safety_doc
 )]
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::commands::PFN_vkDestroyDescriptorUpdateTemplate;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkResult;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkAllocationCallbacks;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkDescriptorUpdateTemplate;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkDevice;
 use core::ffi::{c_char, c_void};
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 #[derive(Debug, Clone)]
 pub struct DescriptorUpdateTemplateDispatchTable {
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   pub vkDestroyDescriptorUpdateTemplate: Option<PFN_vkDestroyDescriptorUpdateTemplate>,
 }
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 impl DescriptorUpdateTemplateDispatchTable {
   pub const EMPTY: Self = Self {
-    #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+    #[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
     vkDestroyDescriptorUpdateTemplate: None,
   };
   #[inline]
@@ -33,23 +33,24 @@ impl DescriptorUpdateTemplateDispatchTable {
     F: Fn(*const c_char) -> Option<unsafe extern "system" fn()>,
   {
     Self {
-      #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+      #[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
       vkDestroyDescriptorUpdateTemplate: loader(c"vkDestroyDescriptorUpdateTemplate".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
     }
   }
 }
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 pub struct DescriptorUpdateTemplate<'dev> {
   pub(crate) raw: VkDescriptorUpdateTemplate,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
   pub(crate) table: &'dev DescriptorUpdateTemplateDispatchTable,
 }
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'dev> Send for DescriptorUpdateTemplate<'dev> {}
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'dev> Sync for DescriptorUpdateTemplate<'dev> {}
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
+#[cfg(not(feature = "VKSC_VERSION_1_0"))]
 impl<'dev> Drop for DescriptorUpdateTemplate<'dev> {
   fn drop(&mut self) {
     if self.raw.0.is_null() {
@@ -64,7 +65,7 @@ impl<'dev> Drop for DescriptorUpdateTemplate<'dev> {
     };
   }
 }
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 impl<'dev> DescriptorUpdateTemplate<'dev> {
   #[inline(always)]
   pub const fn raw(&self) -> VkDescriptorUpdateTemplate {
@@ -91,13 +92,14 @@ impl<'dev> DescriptorUpdateTemplate<'dev> {
   /// Provided by:
   /// - `VK_COMPUTE_VERSION_1_1`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
   /// - `device`
   /// - `descriptorUpdateTemplate`: optional: true
   /// - `pAllocator`: optional: true
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   #[inline(always)]
   pub fn vkDestroyDescriptorUpdateTemplate(
     &mut self,

@@ -4,7 +4,10 @@
   clippy::too_many_arguments,
   clippy::missing_safety_doc
 )]
-#[cfg(feature = "VK_NV_external_sci_sync2")]
+#[cfg(all(
+  feature = "VK_NV_external_sci_sync2",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::commands::PFN_vkDestroySemaphoreSciSyncPoolNV;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkResult;
@@ -18,13 +21,19 @@ use core::ffi::{c_char, c_void};
 #[cfg(feature = "VK_NV_external_sci_sync2")]
 #[derive(Debug, Clone)]
 pub struct SemaphoreSciSyncPoolNVDispatchTable {
-  #[cfg(feature = "VK_NV_external_sci_sync2")]
+  #[cfg(all(
+    feature = "VK_NV_external_sci_sync2",
+    not(feature = "VKSC_VERSION_1_0")
+  ))]
   pub vkDestroySemaphoreSciSyncPoolNV: Option<PFN_vkDestroySemaphoreSciSyncPoolNV>,
 }
 #[cfg(feature = "VK_NV_external_sci_sync2")]
 impl SemaphoreSciSyncPoolNVDispatchTable {
   pub const EMPTY: Self = Self {
-    #[cfg(feature = "VK_NV_external_sci_sync2")]
+    #[cfg(all(
+      feature = "VK_NV_external_sci_sync2",
+      not(feature = "VKSC_VERSION_1_0")
+    ))]
     vkDestroySemaphoreSciSyncPoolNV: None,
   };
   #[inline]
@@ -33,7 +42,10 @@ impl SemaphoreSciSyncPoolNVDispatchTable {
     F: Fn(*const c_char) -> Option<unsafe extern "system" fn()>,
   {
     Self {
-      #[cfg(feature = "VK_NV_external_sci_sync2")]
+      #[cfg(all(
+        feature = "VK_NV_external_sci_sync2",
+        not(feature = "VKSC_VERSION_1_0")
+      ))]
       vkDestroySemaphoreSciSyncPoolNV: loader(c"vkDestroySemaphoreSciSyncPoolNV".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
     }
@@ -50,6 +62,7 @@ unsafe impl<'dev> Send for SemaphoreSciSyncPoolNV<'dev> {}
 #[cfg(feature = "VK_NV_external_sci_sync2")]
 unsafe impl<'dev> Sync for SemaphoreSciSyncPoolNV<'dev> {}
 #[cfg(feature = "VK_NV_external_sci_sync2")]
+#[cfg(not(feature = "VKSC_VERSION_1_0"))]
 impl<'dev> Drop for SemaphoreSciSyncPoolNV<'dev> {
   fn drop(&mut self) {
     if self.raw.0.is_null() {
@@ -91,12 +104,16 @@ impl<'dev> SemaphoreSciSyncPoolNV<'dev> {
   /// Provided by:
   /// - `VK_NV_external_sci_sync2`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   ///
   /// # Parameters
   /// - `device`
   /// - `semaphorePool`: optional: true
   /// - `pAllocator`: optional: true
-  #[cfg(feature = "VK_NV_external_sci_sync2")]
+  #[cfg(all(
+    feature = "VK_NV_external_sci_sync2",
+    not(feature = "VKSC_VERSION_1_0")
+  ))]
   #[inline(always)]
   pub fn vkDestroySemaphoreSciSyncPoolNV(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
     if self.raw.0.is_null() {

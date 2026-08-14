@@ -6,7 +6,7 @@
 )]
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 use crate::commands::PFN_vkAllocateDescriptorSets;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::commands::PFN_vkDestroyDescriptorPool;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 use crate::commands::PFN_vkFreeDescriptorSets;
@@ -32,7 +32,7 @@ use core::ffi::{c_char, c_void};
 pub struct DescriptorPoolDispatchTable {
   #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   pub vkAllocateDescriptorSets: Option<PFN_vkAllocateDescriptorSets>,
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   pub vkDestroyDescriptorPool: Option<PFN_vkDestroyDescriptorPool>,
   #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   pub vkFreeDescriptorSets: Option<PFN_vkFreeDescriptorSets>,
@@ -44,7 +44,7 @@ impl DescriptorPoolDispatchTable {
   pub const EMPTY: Self = Self {
     #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     vkAllocateDescriptorSets: None,
-    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+    #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
     vkDestroyDescriptorPool: None,
     #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     vkFreeDescriptorSets: None,
@@ -60,7 +60,7 @@ impl DescriptorPoolDispatchTable {
       #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
       vkAllocateDescriptorSets: loader(c"vkAllocateDescriptorSets".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
-      #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+      #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
       vkDestroyDescriptorPool: loader(c"vkDestroyDescriptorPool".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
       #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
@@ -83,6 +83,7 @@ unsafe impl<'dev> Send for DescriptorPool<'dev> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 unsafe impl<'dev> Sync for DescriptorPool<'dev> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(not(feature = "VKSC_VERSION_1_0"))]
 impl<'dev> Drop for DescriptorPool<'dev> {
   fn drop(&mut self) {
     if self.raw.0.is_null() {
@@ -182,13 +183,14 @@ impl<'dev> DescriptorPool<'dev> {
   /// Provided by:
   /// - `VK_COMPUTE_VERSION_1_0`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
   /// - `device`
   /// - `descriptorPool`: optional: true
   /// - `pAllocator`: optional: true
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   #[inline(always)]
   pub fn vkDestroyDescriptorPool(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
     if self.raw.0.is_null() {

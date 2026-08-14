@@ -8,7 +8,7 @@
 use crate::commands::PFN_vkAcquireFullScreenExclusiveModeEXT;
 #[cfg(feature = "VK_KHR_swapchain")]
 use crate::commands::PFN_vkAcquireNextImageKHR;
-#[cfg(feature = "VK_KHR_swapchain")]
+#[cfg(all(feature = "VK_KHR_swapchain", not(feature = "VKSC_VERSION_1_0")))]
 use crate::commands::PFN_vkDestroySwapchainKHR;
 #[cfg(feature = "VK_NV_low_latency2")]
 use crate::commands::PFN_vkGetLatencyTimingsNV;
@@ -108,7 +108,7 @@ pub struct SwapchainKHRDispatchTable {
   pub vkGetSwapchainStatusKHR: Option<PFN_vkGetSwapchainStatusKHR>,
   #[cfg(feature = "VK_KHR_swapchain")]
   pub vkAcquireNextImageKHR: Option<PFN_vkAcquireNextImageKHR>,
-  #[cfg(feature = "VK_KHR_swapchain")]
+  #[cfg(all(feature = "VK_KHR_swapchain", not(feature = "VKSC_VERSION_1_0")))]
   pub vkDestroySwapchainKHR: Option<PFN_vkDestroySwapchainKHR>,
   #[cfg(feature = "VK_KHR_swapchain")]
   pub vkGetSwapchainImagesKHR: Option<PFN_vkGetSwapchainImagesKHR>,
@@ -150,7 +150,7 @@ impl SwapchainKHRDispatchTable {
     vkGetSwapchainStatusKHR: None,
     #[cfg(feature = "VK_KHR_swapchain")]
     vkAcquireNextImageKHR: None,
-    #[cfg(feature = "VK_KHR_swapchain")]
+    #[cfg(all(feature = "VK_KHR_swapchain", not(feature = "VKSC_VERSION_1_0")))]
     vkDestroySwapchainKHR: None,
     #[cfg(feature = "VK_KHR_swapchain")]
     vkGetSwapchainImagesKHR: None,
@@ -212,7 +212,7 @@ impl SwapchainKHRDispatchTable {
       #[cfg(feature = "VK_KHR_swapchain")]
       vkAcquireNextImageKHR: loader(c"vkAcquireNextImageKHR".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
-      #[cfg(feature = "VK_KHR_swapchain")]
+      #[cfg(all(feature = "VK_KHR_swapchain", not(feature = "VKSC_VERSION_1_0")))]
       vkDestroySwapchainKHR: loader(c"vkDestroySwapchainKHR".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
       #[cfg(feature = "VK_KHR_swapchain")]
@@ -244,6 +244,7 @@ unsafe impl<'dev> Send for SwapchainKHR<'dev> {}
 #[cfg(feature = "VK_KHR_swapchain")]
 unsafe impl<'dev> Sync for SwapchainKHR<'dev> {}
 #[cfg(feature = "VK_KHR_swapchain")]
+#[cfg(not(feature = "VKSC_VERSION_1_0"))]
 impl<'dev> Drop for SwapchainKHR<'dev> {
   fn drop(&mut self) {
     if self.raw.0.is_null() {
@@ -835,12 +836,13 @@ impl<'dev> SwapchainKHR<'dev> {
   /// Provided by:
   /// - `VK_KHR_swapchain`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   ///
   /// # Parameters
   /// - `device`
   /// - `swapchain`: optional: true
   /// - `pAllocator`: optional: true
-  #[cfg(feature = "VK_KHR_swapchain")]
+  #[cfg(all(feature = "VK_KHR_swapchain", not(feature = "VKSC_VERSION_1_0")))]
   #[inline(always)]
   pub fn vkDestroySwapchainKHR(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
     if self.raw.0.is_null() {

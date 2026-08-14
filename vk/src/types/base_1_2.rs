@@ -42,7 +42,7 @@ use crate::enums::VkStructureType;
   feature = "VK_EXT_shader_subgroup_partitioned"
 ))]
 use crate::enums::VkSubgroupFeatureFlagBits;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkBindSparseInfo;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkBool32;
@@ -445,6 +445,12 @@ pub struct VkPhysicalDeviceTimelineSemaphoreFeatures<'a> {
   pub sType: VkStructureType,
   /// Optional: true
   pub pNext: *mut c_void,
+  #[cfg_attr(
+    feature = "VKSC_VERSION_1_0",
+    deprecated(
+      note = "`timelineSemaphore` is removed by `VKSC_VERSION_1_0`; the field remains present only for ABI compatibility"
+    )
+  )]
   pub timelineSemaphore: VkBool32,
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
@@ -712,7 +718,10 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSubmitInfo<'root>>
   for VkTimelineSemaphoreSubmitInfo<'child>
 {
 }
-#[cfg(all(feature = "VK_BASE_VERSION_1_2", feature = "VK_BASE_VERSION_1_0"))]
+#[cfg(all(
+  feature = "VK_BASE_VERSION_1_2",
+  all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0"))
+))]
 unsafe impl<'child, 'root> VkPNextExtends<VkBindSparseInfo<'root>>
   for VkTimelineSemaphoreSubmitInfo<'child>
 {
@@ -780,7 +789,7 @@ impl<'a> VkTimelineSemaphoreSubmitInfo<'a> {
     self.pNext = (val as *const T).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -1424,6 +1433,12 @@ pub struct VkPhysicalDeviceVulkan11Features<'a> {
   pub uniformAndStorageBuffer16BitAccess: VkBool32,
   pub storagePushConstant16: VkBool32,
   pub storageInputOutput16: VkBool32,
+  #[cfg_attr(
+    feature = "VKSC_VERSION_1_0",
+    deprecated(
+      note = "`multiview` is removed by `VKSC_VERSION_1_0`; the field remains present only for ABI compatibility"
+    )
+  )]
   pub multiview: VkBool32,
   pub multiviewGeometryShader: VkBool32,
   pub multiviewTessellationShader: VkBool32,
@@ -1801,6 +1816,12 @@ pub struct VkPhysicalDeviceVulkan12Features<'a> {
   pub shaderSubgroupExtendedTypes: VkBool32,
   pub separateDepthStencilLayouts: VkBool32,
   pub hostQueryReset: VkBool32,
+  #[cfg_attr(
+    feature = "VKSC_VERSION_1_0",
+    deprecated(
+      note = "`timelineSemaphore` is removed by `VKSC_VERSION_1_0`; the field remains present only for ABI compatibility"
+    )
+  )]
   pub timelineSemaphore: VkBool32,
   pub bufferDeviceAddress: VkBool32,
   pub bufferDeviceAddressCaptureReplay: VkBool32,

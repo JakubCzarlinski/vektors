@@ -39,6 +39,12 @@ pub struct VkPhysicalDeviceMultiviewFeatures<'a> {
   pub sType: VkStructureType,
   /// Optional: true
   pub pNext: *mut c_void,
+  #[cfg_attr(
+    feature = "VKSC_VERSION_1_0",
+    deprecated(
+      note = "`multiview` is removed by `VKSC_VERSION_1_0`; the field remains present only for ABI compatibility"
+    )
+  )]
   pub multiview: VkBool32,
   pub multiviewGeometryShader: VkBool32,
   pub multiviewTessellationShader: VkBool32,

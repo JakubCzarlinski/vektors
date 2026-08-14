@@ -146,7 +146,7 @@ use crate::enums::VkTensorTilingARM;
 use crate::enums::VkTensorUsageFlagBitsARM;
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 use crate::types::VkAccessFlags2;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkBindSparseInfo;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkBool32;
@@ -223,7 +223,7 @@ use crate::types::VkRenderingInfo;
 use crate::types::VkSemaphoreSubmitInfo;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 use crate::types::VkShaderModule;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkShaderModuleCreateInfo;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkShaderStageFlags;
@@ -910,7 +910,7 @@ impl<'a> VkDataGraphPipelineCreateInfoARM<'a> {
     self.pNext = (val as *const VkPipelineCreationFeedbackCreateInfo<'child>).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -7487,7 +7487,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPresentInfoKHR<'root>>
 }
 #[cfg(all(
   all(feature = "VK_ARM_tensors", feature = "VK_EXT_frame_boundary"),
-  feature = "VK_BASE_VERSION_1_0"
+  all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0"))
 ))]
 unsafe impl<'child, 'root> VkPNextExtends<VkBindSparseInfo<'root>>
   for VkFrameBoundaryTensorsARM<'child>
@@ -7567,7 +7567,7 @@ impl<'a> VkFrameBoundaryTensorsARM<'a> {
     self.pNext = (val as *const T).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.

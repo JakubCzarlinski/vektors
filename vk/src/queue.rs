@@ -19,7 +19,7 @@ use crate::commands::PFN_vkGetQueueCheckpointData2NV;
 use crate::commands::PFN_vkGetQueueCheckpointDataNV;
 #[cfg(feature = "VK_EXT_debug_utils")]
 use crate::commands::PFN_vkQueueBeginDebugUtilsLabelEXT;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::commands::PFN_vkQueueBindSparse;
 #[cfg(feature = "VK_EXT_debug_utils")]
 use crate::commands::PFN_vkQueueEndDebugUtilsLabelEXT;
@@ -45,7 +45,7 @@ use crate::commands::PFN_vkQueueSubmit2KHR;
 use crate::commands::PFN_vkQueueWaitIdle;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkResult;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkBindSparseInfo;
 #[cfg(any(
   all(
@@ -86,7 +86,7 @@ use core::ffi::{c_char, c_void};
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 #[derive(Debug, Clone)]
 pub struct QueueDispatchTable {
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   pub vkQueueBindSparse: Option<PFN_vkQueueBindSparse>,
   #[cfg(feature = "VK_BASE_VERSION_1_0")]
   pub vkQueueSubmit: Option<PFN_vkQueueSubmit>,
@@ -129,7 +129,7 @@ pub struct QueueDispatchTable {
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl QueueDispatchTable {
   pub const EMPTY: Self = Self {
-    #[cfg(feature = "VK_BASE_VERSION_1_0")]
+    #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
     vkQueueBindSparse: None,
     #[cfg(feature = "VK_BASE_VERSION_1_0")]
     vkQueueSubmit: None,
@@ -175,7 +175,7 @@ impl QueueDispatchTable {
     F: Fn(*const c_char) -> Option<unsafe extern "system" fn()>,
   {
     Self {
-      #[cfg(feature = "VK_BASE_VERSION_1_0")]
+      #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
       vkQueueBindSparse: loader(c"vkQueueBindSparse".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
       #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -279,6 +279,7 @@ impl<'dev> Queue<'dev> {
   /// - `VK_BASE_VERSION_1_0`
   ///
   /// - **Queues:** SparseBinding
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
@@ -298,7 +299,7 @@ impl<'dev> Queue<'dev> {
   ///   - `VK_ERROR_DEVICE_LOST`
   ///   - `VK_ERROR_UNKNOWN`
   ///   - `VK_ERROR_VALIDATION_FAILED`
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   #[inline(always)]
   pub fn vkQueueBindSparse(
     &self,

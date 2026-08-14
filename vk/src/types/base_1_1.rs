@@ -89,7 +89,7 @@ use crate::types::VkAndroidHardwareBufferUsageANDROID;
 use crate::types::VkBindImageMemorySwapchainInfoKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 use crate::types::VkBindMemoryStatus;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkBindSparseInfo;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkBool32;
@@ -1036,9 +1036,9 @@ use crate::types::VkSamplerYcbcrConversionImageFormatProperties;
 use crate::types::VkSemaphoreCreateInfo;
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
 use crate::types::VkSemaphoreTypeCreateInfo;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkSparseImageFormatProperties;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkSparseImageMemoryRequirements;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkSubmitInfo;
@@ -1070,7 +1070,7 @@ pub type VkPeerMemoryFeatureFlags = VkPeerMemoryFeatureFlagBits;
 #[cfg(feature = "VK_BASE_VERSION_1_1")]
 pub type VkMemoryAllocateFlags = VkMemoryAllocateFlagBits;
 /// [VkCommandPoolTrimFlags](https://docs.vulkan.org/refpages/latest/refpages/source/VkCommandPoolTrimFlags.html)
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 pub type VkCommandPoolTrimFlags = VkFlags;
 /// [VkExternalMemoryHandleTypeFlags](https://docs.vulkan.org/refpages/latest/refpages/source/VkExternalMemoryHandleTypeFlags.html)
 #[cfg(feature = "VK_BASE_VERSION_1_1")]
@@ -7116,7 +7116,7 @@ impl<'a> VkPhysicalDeviceMemoryProperties2<'a> {
 /// *Note: This is a **returned only** struct.*
 ///
 /// *Note: This struct has **required limit types**.*
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkSparseImageFormatProperties2<'a> {
@@ -7129,11 +7129,11 @@ pub struct VkSparseImageFormatProperties2<'a> {
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'a> Send for VkSparseImageFormatProperties2<'a> {}
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'a> Sync for VkSparseImageFormatProperties2<'a> {}
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 impl<'a> VkSparseImageFormatProperties2<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::SPARSE_IMAGE_FORMAT_PROPERTIES_2,
@@ -7158,7 +7158,7 @@ impl<'a> VkSparseImageFormatProperties2<'a> {
     self.properties = val;
     self
   }
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -7175,7 +7175,7 @@ impl<'a> VkSparseImageFormatProperties2<'a> {
   }
 }
 /// [VkPhysicalDeviceSparseImageFormatInfo2](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceSparseImageFormatInfo2.html)
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkPhysicalDeviceSparseImageFormatInfo2<'a> {
@@ -7191,11 +7191,11 @@ pub struct VkPhysicalDeviceSparseImageFormatInfo2<'a> {
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'a> Send for VkPhysicalDeviceSparseImageFormatInfo2<'a> {}
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'a> Sync for VkPhysicalDeviceSparseImageFormatInfo2<'a> {}
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 impl<'a> VkPhysicalDeviceSparseImageFormatInfo2<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::PHYSICAL_DEVICE_SPARSE_IMAGE_FORMAT_INFO_2,
@@ -7256,7 +7256,7 @@ impl<'a> VkPhysicalDeviceSparseImageFormatInfo2<'a> {
     self.pNext = (val as *const VkImageUsageFlags2CreateInfoKHR<'child>).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -9046,7 +9046,7 @@ impl<'a> VkDeviceGroupSubmitInfo<'a> {
 /// [VkDeviceGroupBindSparseInfo](https://docs.vulkan.org/refpages/latest/refpages/source/VkDeviceGroupBindSparseInfo.html)
 ///
 /// **Extends:** VkBindSparseInfo.
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkDeviceGroupBindSparseInfo<'a> {
@@ -9059,16 +9059,19 @@ pub struct VkDeviceGroupBindSparseInfo<'a> {
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'a> Send for VkDeviceGroupBindSparseInfo<'a> {}
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'a> Sync for VkDeviceGroupBindSparseInfo<'a> {}
-#[cfg(all(feature = "VK_BASE_VERSION_1_1", feature = "VK_BASE_VERSION_1_0"))]
+#[cfg(all(
+  all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")),
+  all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0"))
+))]
 unsafe impl<'child, 'root> VkPNextExtends<VkBindSparseInfo<'root>>
   for VkDeviceGroupBindSparseInfo<'child>
 {
 }
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 impl<'a> VkDeviceGroupBindSparseInfo<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::DEVICE_GROUP_BIND_SPARSE_INFO,
@@ -9099,7 +9102,7 @@ impl<'a> VkDeviceGroupBindSparseInfo<'a> {
     self.memoryDeviceIndex = val;
     self
   }
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -9322,7 +9325,7 @@ impl<'a> VkImageMemoryRequirementsInfo2<'a> {
   }
 }
 /// [VkImageSparseMemoryRequirementsInfo2](https://docs.vulkan.org/refpages/latest/refpages/source/VkImageSparseMemoryRequirementsInfo2.html)
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkImageSparseMemoryRequirementsInfo2<'a> {
@@ -9334,11 +9337,11 @@ pub struct VkImageSparseMemoryRequirementsInfo2<'a> {
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'a> Send for VkImageSparseMemoryRequirementsInfo2<'a> {}
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'a> Sync for VkImageSparseMemoryRequirementsInfo2<'a> {}
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 impl<'a> VkImageSparseMemoryRequirementsInfo2<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::IMAGE_SPARSE_MEMORY_REQUIREMENTS_INFO_2,
@@ -9363,7 +9366,7 @@ impl<'a> VkImageSparseMemoryRequirementsInfo2<'a> {
     self.image = val;
     self
   }
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -9466,7 +9469,7 @@ impl<'a> VkMemoryRequirements2<'a> {
 /// [VkSparseImageMemoryRequirements2](https://docs.vulkan.org/refpages/latest/refpages/source/VkSparseImageMemoryRequirements2.html)
 ///
 /// *Note: This is a **returned only** struct.*
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkSparseImageMemoryRequirements2<'a> {
@@ -9478,11 +9481,11 @@ pub struct VkSparseImageMemoryRequirements2<'a> {
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'a> Send for VkSparseImageMemoryRequirements2<'a> {}
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'a> Sync for VkSparseImageMemoryRequirements2<'a> {}
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 impl<'a> VkSparseImageMemoryRequirements2<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::SPARSE_IMAGE_MEMORY_REQUIREMENTS_2,
@@ -9507,7 +9510,7 @@ impl<'a> VkSparseImageMemoryRequirements2<'a> {
     self.memoryRequirements = val;
     self
   }
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.

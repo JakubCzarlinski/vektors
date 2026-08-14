@@ -4,7 +4,7 @@
   clippy::too_many_arguments,
   clippy::missing_safety_doc
 )]
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::commands::PFN_vkFreeMemory;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::commands::PFN_vkGetDeviceMemoryCommitment;
@@ -41,7 +41,7 @@ use core::ffi::{c_char, c_void};
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 #[derive(Debug, Clone)]
 pub struct DeviceMemoryDispatchTable {
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   pub vkFreeMemory: Option<PFN_vkFreeMemory>,
   #[cfg(feature = "VK_BASE_VERSION_1_0")]
   pub vkGetDeviceMemoryCommitment: Option<PFN_vkGetDeviceMemoryCommitment>,
@@ -57,7 +57,7 @@ pub struct DeviceMemoryDispatchTable {
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl DeviceMemoryDispatchTable {
   pub const EMPTY: Self = Self {
-    #[cfg(feature = "VK_BASE_VERSION_1_0")]
+    #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
     vkFreeMemory: None,
     #[cfg(feature = "VK_BASE_VERSION_1_0")]
     vkGetDeviceMemoryCommitment: None,
@@ -76,7 +76,7 @@ impl DeviceMemoryDispatchTable {
     F: Fn(*const c_char) -> Option<unsafe extern "system" fn()>,
   {
     Self {
-      #[cfg(feature = "VK_BASE_VERSION_1_0")]
+      #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
       vkFreeMemory: loader(c"vkFreeMemory".as_ptr()).map(|f| unsafe { core::mem::transmute(f) }),
       #[cfg(feature = "VK_BASE_VERSION_1_0")]
       vkGetDeviceMemoryCommitment: loader(c"vkGetDeviceMemoryCommitment".as_ptr())
@@ -105,6 +105,7 @@ unsafe impl<'dev> Send for DeviceMemory<'dev> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 unsafe impl<'dev> Sync for DeviceMemory<'dev> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(not(feature = "VKSC_VERSION_1_0"))]
 impl<'dev> Drop for DeviceMemory<'dev> {
   fn drop(&mut self) {
     if self.raw.0.is_null() {
@@ -142,13 +143,14 @@ impl<'dev> DeviceMemory<'dev> {
   /// Provided by:
   /// - `VK_BASE_VERSION_1_0`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
   /// - `device`
   /// - `memory`: optional: true
   /// - `pAllocator`: optional: true
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   #[inline(always)]
   pub fn vkFreeMemory(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
     if self.raw.0.is_null() {

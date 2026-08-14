@@ -258,7 +258,7 @@ use crate::types::VkAccelerationStructureNV;
 use crate::types::VkApplicationInfo;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 use crate::types::VkAttachmentReference;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkBindSparseInfo;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkBool32;
@@ -461,7 +461,7 @@ use crate::types::VkSamplerCreateInfo;
 use crate::types::VkSemaphore;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkSemaphoreCreateInfo;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkShaderModuleCreateInfo;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkShaderStageFlags;
@@ -15343,7 +15343,10 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSubmitInfo<'root>> for VkFrameBounda
 unsafe impl<'child, 'root> VkPNextExtends<VkSubmitInfo2<'root>> for VkFrameBoundaryEXT<'child> {}
 #[cfg(all(feature = "VK_EXT_frame_boundary", feature = "VK_KHR_swapchain"))]
 unsafe impl<'child, 'root> VkPNextExtends<VkPresentInfoKHR<'root>> for VkFrameBoundaryEXT<'child> {}
-#[cfg(all(feature = "VK_EXT_frame_boundary", feature = "VK_BASE_VERSION_1_0"))]
+#[cfg(all(
+  feature = "VK_EXT_frame_boundary",
+  all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0"))
+))]
 unsafe impl<'child, 'root> VkPNextExtends<VkBindSparseInfo<'root>> for VkFrameBoundaryEXT<'child> {}
 #[cfg(feature = "VK_EXT_frame_boundary")]
 impl<'a> VkFrameBoundaryEXT<'a> {
@@ -15469,7 +15472,7 @@ impl<'a> VkFrameBoundaryEXT<'a> {
     self.pNext = (val as *const T).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -34614,7 +34617,7 @@ unsafe impl<'a> Send for VkShaderModuleValidationCacheCreateInfoEXT<'a> {}
 unsafe impl<'a> Sync for VkShaderModuleValidationCacheCreateInfoEXT<'a> {}
 #[cfg(all(
   feature = "VK_EXT_validation_cache",
-  feature = "VK_COMPUTE_VERSION_1_0"
+  all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0"))
 ))]
 unsafe impl<'child, 'root> VkPNextExtends<VkShaderModuleCreateInfo<'root>>
   for VkShaderModuleValidationCacheCreateInfoEXT<'child>
@@ -34653,7 +34656,7 @@ impl<'a> VkShaderModuleValidationCacheCreateInfoEXT<'a> {
     self.validationCache = val;
     self
   }
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -34720,7 +34723,7 @@ unsafe impl<'child, 'root> VkPNextExtends<VkInstanceCreateInfo<'root>>
 }
 #[cfg(all(
   feature = "VK_EXT_validation_features",
-  feature = "VK_COMPUTE_VERSION_1_0"
+  all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0"))
 ))]
 unsafe impl<'child, 'root> VkPNextExtends<VkShaderModuleCreateInfo<'root>>
   for VkValidationFeaturesEXT<'child>
@@ -34838,7 +34841,7 @@ impl<'a> VkValidationFeaturesEXT<'a> {
     self.pNext = (val as *const T).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.

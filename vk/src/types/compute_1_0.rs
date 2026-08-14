@@ -179,7 +179,7 @@ use crate::types::VkPipelineShaderStageRequiredSubgroupSizeCreateInfo;
 use crate::types::VkPushConstantsInfo;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
 use crate::types::VkPushDescriptorSetInfo;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_4", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkPushDescriptorSetWithTemplateInfo;
 #[cfg(feature = "VK_QCOM_image_processing2")]
 use crate::types::VkSamplerBlockMatchWindowCreateInfoQCOM;
@@ -243,7 +243,7 @@ pub type VkBufferViewCreateFlags = VkFlags;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 pub type VkPipelineCreateFlags = VkPipelineCreateFlagBits;
 /// [VkShaderModuleCreateFlags](https://docs.vulkan.org/refpages/latest/refpages/source/VkShaderModuleCreateFlags.html)
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub type VkShaderModuleCreateFlags = VkFlags;
 /// [VkEventCreateFlags](https://docs.vulkan.org/refpages/latest/refpages/source/VkEventCreateFlags.html)
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
@@ -954,7 +954,7 @@ impl<'a> VkBufferViewCreateInfo<'a> {
 /// [VkShaderModuleCreateInfo](https://docs.vulkan.org/refpages/latest/refpages/source/VkShaderModuleCreateInfo.html)
 ///
 /// **Extends:** VkPipelineShaderStageCreateInfo, VkDataGraphPipelineCreateInfoARM.
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkShaderModuleCreateInfo<'a> {
@@ -970,21 +970,27 @@ pub struct VkShaderModuleCreateInfo<'a> {
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'a> Send for VkShaderModuleCreateInfo<'a> {}
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'a> Sync for VkShaderModuleCreateInfo<'a> {}
-#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", feature = "VK_COMPUTE_VERSION_1_0"))]
+#[cfg(all(
+  all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")),
+  feature = "VK_COMPUTE_VERSION_1_0"
+))]
 unsafe impl<'child, 'root> VkPNextExtends<VkPipelineShaderStageCreateInfo<'root>>
   for VkShaderModuleCreateInfo<'child>
 {
 }
-#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", feature = "VK_ARM_data_graph"))]
+#[cfg(all(
+  all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")),
+  feature = "VK_ARM_data_graph"
+))]
 unsafe impl<'child, 'root> VkPNextExtends<VkDataGraphPipelineCreateInfoARM<'root>>
   for VkShaderModuleCreateInfo<'child>
 {
 }
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl<'a> VkShaderModuleCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::SHADER_MODULE_CREATE_INFO,
@@ -1770,7 +1776,7 @@ impl<'a> VkPipelineShaderStageCreateInfo<'a> {
       (val as *const VkShaderDescriptorSetAndBindingMappingInfoEXT<'child>).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -2249,7 +2255,10 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPushDescriptorSetInfo<'root>>
   for VkPipelineLayoutCreateInfo<'child>
 {
 }
-#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", feature = "VK_COMPUTE_VERSION_1_4"))]
+#[cfg(all(
+  feature = "VK_COMPUTE_VERSION_1_0",
+  all(feature = "VK_COMPUTE_VERSION_1_4", not(feature = "VKSC_VERSION_1_0"))
+))]
 unsafe impl<'child, 'root> VkPNextExtends<VkPushDescriptorSetWithTemplateInfo<'root>>
   for VkPipelineLayoutCreateInfo<'child>
 {
@@ -2380,7 +2389,7 @@ impl<'a> VkPipelineLayoutCreateInfo<'a> {
     self.pNext = (val as *const T).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_4", not(feature = "VKSC_VERSION_1_0")))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.

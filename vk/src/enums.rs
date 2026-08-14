@@ -200,7 +200,7 @@ impl VkStructureType {
   pub const DEVICE_GROUP_COMMAND_BUFFER_BEGIN_INFO: Self = Self(1000060004);
   #[cfg(feature = "VK_BASE_VERSION_1_1")]
   pub const DEVICE_GROUP_SUBMIT_INFO: Self = Self(1000060005);
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   pub const DEVICE_GROUP_BIND_SPARSE_INFO: Self = Self(1000060006);
   #[cfg(feature = "VK_BASE_VERSION_1_1")]
   pub const BIND_BUFFER_MEMORY_DEVICE_GROUP_INFO: Self = Self(1000060013);
@@ -214,11 +214,11 @@ impl VkStructureType {
   pub const BUFFER_MEMORY_REQUIREMENTS_INFO_2: Self = Self(1000146000);
   #[cfg(feature = "VK_BASE_VERSION_1_1")]
   pub const IMAGE_MEMORY_REQUIREMENTS_INFO_2: Self = Self(1000146001);
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   pub const IMAGE_SPARSE_MEMORY_REQUIREMENTS_INFO_2: Self = Self(1000146002);
   #[cfg(feature = "VK_BASE_VERSION_1_1")]
   pub const MEMORY_REQUIREMENTS_2: Self = Self(1000146003);
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   pub const SPARSE_IMAGE_MEMORY_REQUIREMENTS_2: Self = Self(1000146004);
   #[cfg(feature = "VK_BASE_VERSION_1_1")]
   pub const PHYSICAL_DEVICE_FEATURES_2: Self = Self(1000059000);
@@ -234,9 +234,9 @@ impl VkStructureType {
   pub const QUEUE_FAMILY_PROPERTIES_2: Self = Self(1000059005);
   #[cfg(feature = "VK_BASE_VERSION_1_1")]
   pub const PHYSICAL_DEVICE_MEMORY_PROPERTIES_2: Self = Self(1000059006);
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   pub const SPARSE_IMAGE_FORMAT_PROPERTIES_2: Self = Self(1000059007);
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   pub const PHYSICAL_DEVICE_SPARSE_IMAGE_FORMAT_INFO_2: Self = Self(1000059008);
   #[cfg(feature = "VK_BASE_VERSION_1_1")]
   pub const IMAGE_VIEW_USAGE_CREATE_INFO: Self = Self(1000117002);
@@ -285,7 +285,7 @@ impl VkStructureType {
   #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
   #[cfg(not(feature = "VKSC_VERSION_1_0"))]
   pub const PHYSICAL_DEVICE_VARIABLE_POINTER_FEATURES: Self = Self(1000120000);
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   pub const DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO: Self = Self(1000085000);
   #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
   pub const PHYSICAL_DEVICE_MAINTENANCE_3_PROPERTIES: Self = Self(1000168000);
@@ -596,7 +596,7 @@ impl VkStructureType {
   pub const PUSH_CONSTANTS_INFO: Self = Self(1000545004);
   #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
   pub const PUSH_DESCRIPTOR_SET_INFO: Self = Self(1000545005);
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_4", not(feature = "VKSC_VERSION_1_0")))]
   pub const PUSH_DESCRIPTOR_SET_WITH_TEMPLATE_INFO: Self = Self(1000545006);
   #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
   pub const PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES: Self = Self(1000466000);
@@ -3532,7 +3532,9 @@ impl core::fmt::Display for VkStructureType {
             value if value == Self::DEVICE_GROUP_SUBMIT_INFO.0 => {
                 f.write_str("VK_STRUCTURE_TYPE_DEVICE_GROUP_SUBMIT_INFO")
             }
-            #[cfg(feature = "VK_BASE_VERSION_1_1")]
+            #[cfg(
+                all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0"))
+            )]
             value if value == Self::DEVICE_GROUP_BIND_SPARSE_INFO.0 => {
                 f.write_str("VK_STRUCTURE_TYPE_DEVICE_GROUP_BIND_SPARSE_INFO")
             }
@@ -3560,7 +3562,9 @@ impl core::fmt::Display for VkStructureType {
             value if value == Self::IMAGE_MEMORY_REQUIREMENTS_INFO_2.0 => {
                 f.write_str("VK_STRUCTURE_TYPE_IMAGE_MEMORY_REQUIREMENTS_INFO_2")
             }
-            #[cfg(feature = "VK_BASE_VERSION_1_1")]
+            #[cfg(
+                all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0"))
+            )]
             value if value == Self::IMAGE_SPARSE_MEMORY_REQUIREMENTS_INFO_2.0 => {
                 f.write_str("VK_STRUCTURE_TYPE_IMAGE_SPARSE_MEMORY_REQUIREMENTS_INFO_2")
             }
@@ -3568,7 +3572,9 @@ impl core::fmt::Display for VkStructureType {
             value if value == Self::MEMORY_REQUIREMENTS_2.0 => {
                 f.write_str("VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2")
             }
-            #[cfg(feature = "VK_BASE_VERSION_1_1")]
+            #[cfg(
+                all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0"))
+            )]
             value if value == Self::SPARSE_IMAGE_MEMORY_REQUIREMENTS_2.0 => {
                 f.write_str("VK_STRUCTURE_TYPE_SPARSE_IMAGE_MEMORY_REQUIREMENTS_2")
             }
@@ -3600,11 +3606,15 @@ impl core::fmt::Display for VkStructureType {
             value if value == Self::PHYSICAL_DEVICE_MEMORY_PROPERTIES_2.0 => {
                 f.write_str("VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2")
             }
-            #[cfg(feature = "VK_BASE_VERSION_1_1")]
+            #[cfg(
+                all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0"))
+            )]
             value if value == Self::SPARSE_IMAGE_FORMAT_PROPERTIES_2.0 => {
                 f.write_str("VK_STRUCTURE_TYPE_SPARSE_IMAGE_FORMAT_PROPERTIES_2")
             }
-            #[cfg(feature = "VK_BASE_VERSION_1_1")]
+            #[cfg(
+                all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0"))
+            )]
             value if value == Self::PHYSICAL_DEVICE_SPARSE_IMAGE_FORMAT_INFO_2.0 => {
                 f.write_str(
                     "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SPARSE_IMAGE_FORMAT_INFO_2",
@@ -3713,7 +3723,12 @@ impl core::fmt::Display for VkStructureType {
                     "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VARIABLE_POINTER_FEATURES",
                 )
             }
-            #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+            #[cfg(
+                all(
+                    feature = "VK_COMPUTE_VERSION_1_1",
+                    not(feature = "VKSC_VERSION_1_0")
+                )
+            )]
             value if value == Self::DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO.0 => {
                 f.write_str("VK_STRUCTURE_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO")
             }
@@ -4471,7 +4486,12 @@ impl core::fmt::Display for VkStructureType {
             value if value == Self::PUSH_DESCRIPTOR_SET_INFO.0 => {
                 f.write_str("VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_INFO")
             }
-            #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
+            #[cfg(
+                all(
+                    feature = "VK_COMPUTE_VERSION_1_4",
+                    not(feature = "VKSC_VERSION_1_0")
+                )
+            )]
             value if value == Self::PUSH_DESCRIPTOR_SET_WITH_TEMPLATE_INFO.0 => {
                 f.write_str("VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE_INFO")
             }
@@ -16607,7 +16627,7 @@ impl VkObjectType {
   pub const DESCRIPTOR_SET: Self = Self(23);
   pub const FRAMEBUFFER: Self = Self(24);
   pub const COMMAND_POOL: Self = Self(25);
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   pub const DESCRIPTOR_UPDATE_TEMPLATE: Self = Self(1000085000);
   #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
   pub const SAMPLER_YCBCR_CONVERSION: Self = Self(1000156000);
@@ -16720,7 +16740,7 @@ impl core::fmt::Display for VkObjectType {
       value if value == Self::DESCRIPTOR_SET.0 => f.write_str("VK_OBJECT_TYPE_DESCRIPTOR_SET"),
       value if value == Self::FRAMEBUFFER.0 => f.write_str("VK_OBJECT_TYPE_FRAMEBUFFER"),
       value if value == Self::COMMAND_POOL.0 => f.write_str("VK_OBJECT_TYPE_COMMAND_POOL"),
-      #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+      #[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
       value if value == Self::DESCRIPTOR_UPDATE_TEMPLATE.0 => {
         f.write_str("VK_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE")
       }
@@ -30415,11 +30435,11 @@ impl core::fmt::Display for VkQueryControlFlagBits {
   }
 }
 /// [VkSparseMemoryBindFlagBits](https://docs.vulkan.org/refpages/latest/refpages/source/VkSparseMemoryBindFlags.html)
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct VkSparseMemoryBindFlagBits(pub u32);
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl VkSparseMemoryBindFlagBits {
   pub const EMPTY: Self = Self(0);
   ///Operation binds resource metadata to memory
@@ -30437,7 +30457,7 @@ impl VkSparseMemoryBindFlagBits {
     self.0 == 0
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitOr for VkSparseMemoryBindFlagBits {
   type Output = Self;
   #[inline]
@@ -30445,14 +30465,14 @@ impl core::ops::BitOr for VkSparseMemoryBindFlagBits {
     Self(self.0 | r.0)
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitOrAssign for VkSparseMemoryBindFlagBits {
   #[inline]
   fn bitor_assign(&mut self, r: Self) {
     self.0 |= r.0;
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitAnd for VkSparseMemoryBindFlagBits {
   type Output = Self;
   #[inline]
@@ -30460,14 +30480,14 @@ impl core::ops::BitAnd for VkSparseMemoryBindFlagBits {
     Self(self.0 & r.0)
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitAndAssign for VkSparseMemoryBindFlagBits {
   #[inline]
   fn bitand_assign(&mut self, r: Self) {
     self.0 &= r.0;
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitXor for VkSparseMemoryBindFlagBits {
   type Output = Self;
   #[inline]
@@ -30475,14 +30495,14 @@ impl core::ops::BitXor for VkSparseMemoryBindFlagBits {
     Self(self.0 ^ r.0)
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitXorAssign for VkSparseMemoryBindFlagBits {
   #[inline]
   fn bitxor_assign(&mut self, r: Self) {
     self.0 ^= r.0;
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::Not for VkSparseMemoryBindFlagBits {
   type Output = Self;
   #[inline]
@@ -30490,7 +30510,7 @@ impl core::ops::Not for VkSparseMemoryBindFlagBits {
     Self(!self.0)
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitOr<u32> for VkSparseMemoryBindFlagBits {
   type Output = Self;
   #[inline]
@@ -30498,14 +30518,14 @@ impl core::ops::BitOr<u32> for VkSparseMemoryBindFlagBits {
     Self(self.0 | r)
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitOrAssign<u32> for VkSparseMemoryBindFlagBits {
   #[inline]
   fn bitor_assign(&mut self, r: u32) {
     self.0 |= r;
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitAnd<u32> for VkSparseMemoryBindFlagBits {
   type Output = Self;
   #[inline]
@@ -30513,14 +30533,14 @@ impl core::ops::BitAnd<u32> for VkSparseMemoryBindFlagBits {
     Self(self.0 & r)
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitAndAssign<u32> for VkSparseMemoryBindFlagBits {
   #[inline]
   fn bitand_assign(&mut self, r: u32) {
     self.0 &= r;
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitXor<u32> for VkSparseMemoryBindFlagBits {
   type Output = Self;
   #[inline]
@@ -30528,14 +30548,14 @@ impl core::ops::BitXor<u32> for VkSparseMemoryBindFlagBits {
     Self(self.0 ^ r)
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitXorAssign<u32> for VkSparseMemoryBindFlagBits {
   #[inline]
   fn bitxor_assign(&mut self, r: u32) {
     self.0 ^= r;
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::fmt::Display for VkSparseMemoryBindFlagBits {
   #[allow(unused_mut)]
   fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -30618,11 +30638,11 @@ impl core::fmt::Display for VkInternalAllocationType {
   }
 }
 /// [VkSparseImageFormatFlagBits](https://docs.vulkan.org/refpages/latest/refpages/source/VkSparseImageFormatFlags.html)
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct VkSparseImageFormatFlagBits(pub u32);
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl VkSparseImageFormatFlagBits {
   pub const EMPTY: Self = Self(0);
   ///Image uses a single mip tail region for all array layers
@@ -30644,7 +30664,7 @@ impl VkSparseImageFormatFlagBits {
     self.0 == 0
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitOr for VkSparseImageFormatFlagBits {
   type Output = Self;
   #[inline]
@@ -30652,14 +30672,14 @@ impl core::ops::BitOr for VkSparseImageFormatFlagBits {
     Self(self.0 | r.0)
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitOrAssign for VkSparseImageFormatFlagBits {
   #[inline]
   fn bitor_assign(&mut self, r: Self) {
     self.0 |= r.0;
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitAnd for VkSparseImageFormatFlagBits {
   type Output = Self;
   #[inline]
@@ -30667,14 +30687,14 @@ impl core::ops::BitAnd for VkSparseImageFormatFlagBits {
     Self(self.0 & r.0)
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitAndAssign for VkSparseImageFormatFlagBits {
   #[inline]
   fn bitand_assign(&mut self, r: Self) {
     self.0 &= r.0;
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitXor for VkSparseImageFormatFlagBits {
   type Output = Self;
   #[inline]
@@ -30682,14 +30702,14 @@ impl core::ops::BitXor for VkSparseImageFormatFlagBits {
     Self(self.0 ^ r.0)
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitXorAssign for VkSparseImageFormatFlagBits {
   #[inline]
   fn bitxor_assign(&mut self, r: Self) {
     self.0 ^= r.0;
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::Not for VkSparseImageFormatFlagBits {
   type Output = Self;
   #[inline]
@@ -30697,7 +30717,7 @@ impl core::ops::Not for VkSparseImageFormatFlagBits {
     Self(!self.0)
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitOr<u32> for VkSparseImageFormatFlagBits {
   type Output = Self;
   #[inline]
@@ -30705,14 +30725,14 @@ impl core::ops::BitOr<u32> for VkSparseImageFormatFlagBits {
     Self(self.0 | r)
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitOrAssign<u32> for VkSparseImageFormatFlagBits {
   #[inline]
   fn bitor_assign(&mut self, r: u32) {
     self.0 |= r;
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitAnd<u32> for VkSparseImageFormatFlagBits {
   type Output = Self;
   #[inline]
@@ -30720,14 +30740,14 @@ impl core::ops::BitAnd<u32> for VkSparseImageFormatFlagBits {
     Self(self.0 & r)
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitAndAssign<u32> for VkSparseImageFormatFlagBits {
   #[inline]
   fn bitand_assign(&mut self, r: u32) {
     self.0 &= r;
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitXor<u32> for VkSparseImageFormatFlagBits {
   type Output = Self;
   #[inline]
@@ -30735,14 +30755,14 @@ impl core::ops::BitXor<u32> for VkSparseImageFormatFlagBits {
     Self(self.0 ^ r)
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitXorAssign<u32> for VkSparseImageFormatFlagBits {
   #[inline]
   fn bitxor_assign(&mut self, r: u32) {
     self.0 ^= r;
   }
 }
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::fmt::Display for VkSparseImageFormatFlagBits {
   #[allow(unused_mut)]
   fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -41284,11 +41304,11 @@ impl core::fmt::Display for VkSamplerMipmapMode {
   }
 }
 /// [VkShaderModuleCreateFlagBits](https://docs.vulkan.org/refpages/latest/refpages/source/VkShaderModuleCreateFlags.html)
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct VkShaderModuleCreateFlagBits(pub u32);
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl VkShaderModuleCreateFlagBits {
   pub const EMPTY: Self = Self(0);
   #[inline]
@@ -41304,7 +41324,7 @@ impl VkShaderModuleCreateFlagBits {
     self.0 == 0
   }
 }
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitOr for VkShaderModuleCreateFlagBits {
   type Output = Self;
   #[inline]
@@ -41312,14 +41332,14 @@ impl core::ops::BitOr for VkShaderModuleCreateFlagBits {
     Self(self.0 | r.0)
   }
 }
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitOrAssign for VkShaderModuleCreateFlagBits {
   #[inline]
   fn bitor_assign(&mut self, r: Self) {
     self.0 |= r.0;
   }
 }
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitAnd for VkShaderModuleCreateFlagBits {
   type Output = Self;
   #[inline]
@@ -41327,14 +41347,14 @@ impl core::ops::BitAnd for VkShaderModuleCreateFlagBits {
     Self(self.0 & r.0)
   }
 }
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitAndAssign for VkShaderModuleCreateFlagBits {
   #[inline]
   fn bitand_assign(&mut self, r: Self) {
     self.0 &= r.0;
   }
 }
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitXor for VkShaderModuleCreateFlagBits {
   type Output = Self;
   #[inline]
@@ -41342,14 +41362,14 @@ impl core::ops::BitXor for VkShaderModuleCreateFlagBits {
     Self(self.0 ^ r.0)
   }
 }
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitXorAssign for VkShaderModuleCreateFlagBits {
   #[inline]
   fn bitxor_assign(&mut self, r: Self) {
     self.0 ^= r.0;
   }
 }
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::Not for VkShaderModuleCreateFlagBits {
   type Output = Self;
   #[inline]
@@ -41357,7 +41377,7 @@ impl core::ops::Not for VkShaderModuleCreateFlagBits {
     Self(!self.0)
   }
 }
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitOr<u32> for VkShaderModuleCreateFlagBits {
   type Output = Self;
   #[inline]
@@ -41365,14 +41385,14 @@ impl core::ops::BitOr<u32> for VkShaderModuleCreateFlagBits {
     Self(self.0 | r)
   }
 }
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitOrAssign<u32> for VkShaderModuleCreateFlagBits {
   #[inline]
   fn bitor_assign(&mut self, r: u32) {
     self.0 |= r;
   }
 }
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitAnd<u32> for VkShaderModuleCreateFlagBits {
   type Output = Self;
   #[inline]
@@ -41380,14 +41400,14 @@ impl core::ops::BitAnd<u32> for VkShaderModuleCreateFlagBits {
     Self(self.0 & r)
   }
 }
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitAndAssign<u32> for VkShaderModuleCreateFlagBits {
   #[inline]
   fn bitand_assign(&mut self, r: u32) {
     self.0 &= r;
   }
 }
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitXor<u32> for VkShaderModuleCreateFlagBits {
   type Output = Self;
   #[inline]
@@ -41395,14 +41415,14 @@ impl core::ops::BitXor<u32> for VkShaderModuleCreateFlagBits {
     Self(self.0 ^ r)
   }
 }
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::ops::BitXorAssign<u32> for VkShaderModuleCreateFlagBits {
   #[inline]
   fn bitxor_assign(&mut self, r: u32) {
     self.0 ^= r;
   }
 }
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 impl core::fmt::Display for VkShaderModuleCreateFlagBits {
   fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
     if self.0 == 0 {
@@ -44615,15 +44635,23 @@ impl core::fmt::Display for VkPipelineLayoutCreateFlagBits {
 }
 /// [VkDescriptorUpdateTemplateType](https://docs.vulkan.org/refpages/latest/refpages/source/VkDescriptorUpdateTemplateType.html)
 #[cfg(any(
-  feature = "VK_COMPUTE_VERSION_1_1",
-  feature = "VK_KHR_descriptor_update_template"
+  any(
+    feature = "VK_COMPUTE_VERSION_1_4",
+    all(feature = "VK_KHR_push_descriptor", feature = "VK_VERSION_1_1"),
+    feature = "VK_KHR_descriptor_update_template"
+  ),
+  all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0"))
 ))]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd)]
 pub struct VkDescriptorUpdateTemplateType(pub i32);
 #[cfg(any(
-  feature = "VK_COMPUTE_VERSION_1_1",
-  feature = "VK_KHR_descriptor_update_template"
+  any(
+    feature = "VK_COMPUTE_VERSION_1_4",
+    all(feature = "VK_KHR_push_descriptor", feature = "VK_VERSION_1_1"),
+    feature = "VK_KHR_descriptor_update_template"
+  ),
+  all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0"))
 ))]
 impl VkDescriptorUpdateTemplateType {
   ///Create descriptor update template for descriptor set updates
@@ -44643,8 +44671,12 @@ impl VkDescriptorUpdateTemplateType {
   pub const DESCRIPTOR_SET_KHR: Self = Self(0);
 }
 #[cfg(any(
-  feature = "VK_COMPUTE_VERSION_1_1",
-  feature = "VK_KHR_descriptor_update_template"
+  any(
+    feature = "VK_COMPUTE_VERSION_1_4",
+    all(feature = "VK_KHR_push_descriptor", feature = "VK_VERSION_1_1"),
+    feature = "VK_KHR_descriptor_update_template"
+  ),
+  all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0"))
 ))]
 impl core::fmt::Display for VkDescriptorUpdateTemplateType {
   fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {

@@ -258,6 +258,7 @@ fn gen_handle_module(
     imports.add_type_name(reg, &meta.parent_vk_name);
 
     let mut destroy_stmt = quote! {};
+    let mut drop_cfg = quote! {};
     let destroy_name = format!("vkDestroy{}", meta.struct_name);
     let free_group_name = format!("vkFree{}s", meta.struct_name);
     let free_name = format!("vkFree{}", meta.struct_name);
@@ -269,24 +270,28 @@ fn gen_handle_module(
 
     if reg.commands.contains_key(&destroy_name) {
         imports.extend_command_variants(reg, &destroy_name);
+        drop_cfg = command_variants_cfg(reg, &destroy_name);
         let fp = format_ident!("{}", destroy_name);
         destroy_stmt = quote! {
             unsafe { (self.table.#fp).unwrap_unchecked()(self.parent.raw(), self.raw, core::ptr::null()) };
         };
     } else if reg.commands.contains_key(&free_group_name) {
         imports.extend_command_variants(reg, &free_group_name);
+        drop_cfg = command_variants_cfg(reg, &free_group_name);
         let fp = format_ident!("{}", free_group_name);
         destroy_stmt = quote! {
             unsafe { (self.parent.table.#fp).unwrap_unchecked()(self.device().raw, self.parent.raw, 1, &self.raw) };
         };
     } else if reg.commands.contains_key(&free_name) {
         imports.extend_command_variants(reg, &free_name);
+        drop_cfg = command_variants_cfg(reg, &free_name);
         let fp = format_ident!("{}", free_name);
         destroy_stmt = quote! {
             unsafe { (self.table.#fp).unwrap_unchecked()(self.device().raw, self.raw, core::ptr::null()) };
         };
     } else if !custom_free_name.is_empty() && reg.commands.contains_key(&custom_free_name) {
         imports.extend_command_variants(reg, &custom_free_name);
+        drop_cfg = command_variants_cfg(reg, &custom_free_name);
         let fp = format_ident!("{}", custom_free_name);
         destroy_stmt = quote! {
             unsafe { (self.table.#fp).unwrap_unchecked()(self.device().raw, self.raw, core::ptr::null()) };
@@ -486,7 +491,15 @@ fn gen_handle_module(
     } else {
         quote! {}
     };
-    let wrapper_cfg = cfg_any(&meta.providers);
+    let wrapper_cfg = if meta
+        .availability
+        .iter()
+        .any(|availability| !availability.excluded_by.is_empty())
+    {
+        cfg_availability(&meta.availability, &meta.providers, None)
+    } else {
+        cfg_any(&meta.providers)
+    };
     let imports = imports.to_tokens(reg);
 
     quote! {
@@ -524,6 +537,7 @@ fn gen_handle_module(
         unsafe impl<'dev> Sync for #struct_name<'dev> {}
 
         #wrapper_cfg
+        #drop_cfg
         impl<'dev> Drop for #struct_name<'dev> {
             fn drop(&mut self) {
                 if self.raw.0.is_null() {
@@ -542,6 +556,35 @@ fn gen_handle_module(
             #[inline(always)] pub const fn table(&self) -> &#table_name { self.table }
             #methods_ts
         }
+    }
+}
+
+fn command_variants_cfg(reg: &Registry, name: &str) -> TokenStream {
+    let Some(commands) = reg.commands.get(name) else {
+        return quote! {};
+    };
+    let mut excluded = Vec::new();
+    for command in commands {
+        for feature in command
+            .availability
+            .iter()
+            .flat_map(|availability| &availability.excluded_by)
+        {
+            if !excluded.contains(feature) {
+                excluded.push(feature.clone());
+            }
+        }
+    }
+    if excluded.is_empty() {
+        return quote! {};
+    }
+    let features: Vec<TokenStream> = excluded
+        .iter()
+        .map(|feature| quote! { feature = #feature })
+        .collect();
+    match features.as_slice() {
+        [feature] => quote! { #[cfg(not(#feature))] },
+        _ => quote! { #[cfg(not(any(#(#features),*)))] },
     }
 }
 

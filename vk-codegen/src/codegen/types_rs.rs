@@ -1311,6 +1311,7 @@ fn gen_struct_ts(s: &Struct, reg: &Registry) -> TokenStream {
             let fname = format_ident!("{}", sanitize_ident(&m.name));
             let fdoc = m.comment.as_deref().unwrap_or("");
             let fdepr = deprecate_attr(&m.depr);
+            let fremove = removed_feature_attr(m);
 
             let fcfg = member_cfg(m);
 
@@ -1355,15 +1356,17 @@ fn gen_struct_ts(s: &Struct, reg: &Registry) -> TokenStream {
                     #[cfg(#handle_cfg_expr)]
                     #field_doc
                     #fdepr
+                    #fremove
                     pub #fname: #ftype,
                     #fcfg
                     #[cfg(not(#handle_cfg_expr))]
                     #field_doc
                     #fdepr
+                    #fremove
                     pub #fname: *mut c_void,
                 }
             } else {
-                quote! { #fcfg #field_doc #fdepr pub #fname: #ftype, }
+                quote! { #fcfg #field_doc #fdepr #fremove pub #fname: #ftype, }
             }
         })
         .collect();
@@ -1523,6 +1526,27 @@ fn gen_struct_ts(s: &Struct, reg: &Registry) -> TokenStream {
         });
         doc
     }
+}
+
+fn removed_feature_attr(member: &crate::ir::Member) -> TokenStream {
+    let mut attrs = TokenStream::new();
+    for provider in &member.removed_by {
+        let note = format!(
+            "`{}` is removed by `{provider}`; the field remains present only for ABI compatibility",
+            member.name
+        );
+        if provider.starts_with("VKSC_VERSION_") {
+            attrs.extend(quote! {
+                #[cfg_attr(feature = #provider, deprecated(note = #note))]
+            });
+        } else {
+            let doc = format!(
+                " **Removal note:** `{provider}` removes this from its mandatory feature set. The field remains queryable and may still be supported."
+            );
+            attrs.extend(quote! { #[doc = #doc] });
+        }
+    }
+    attrs
 }
 
 fn structure_type_value_for_providers(

@@ -6,7 +6,7 @@
 )]
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::commands::PFN_vkAllocateCommandBuffers;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::commands::PFN_vkDestroyCommandPool;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::commands::PFN_vkFreeCommandBuffers;
@@ -14,9 +14,9 @@ use crate::commands::PFN_vkFreeCommandBuffers;
 use crate::commands::PFN_vkGetCommandPoolMemoryConsumption;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::commands::PFN_vkResetCommandPool;
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::commands::PFN_vkTrimCommandPool;
-#[cfg(feature = "VK_KHR_maintenance1")]
+#[cfg(all(feature = "VK_KHR_maintenance1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::commands::PFN_vkTrimCommandPoolKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkResult;
@@ -32,9 +32,9 @@ use crate::types::VkCommandPool;
 use crate::types::VkCommandPoolMemoryConsumption;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkCommandPoolResetFlags;
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkCommandPoolTrimFlags;
-#[cfg(feature = "VK_KHR_maintenance1")]
+#[cfg(all(feature = "VK_KHR_maintenance1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkCommandPoolTrimFlagsKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkDevice;
@@ -46,15 +46,15 @@ pub struct CommandPoolDispatchTable {
   pub vkGetCommandPoolMemoryConsumption: Option<PFN_vkGetCommandPoolMemoryConsumption>,
   #[cfg(feature = "VK_BASE_VERSION_1_0")]
   pub vkAllocateCommandBuffers: Option<PFN_vkAllocateCommandBuffers>,
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   pub vkDestroyCommandPool: Option<PFN_vkDestroyCommandPool>,
   #[cfg(feature = "VK_BASE_VERSION_1_0")]
   pub vkFreeCommandBuffers: Option<PFN_vkFreeCommandBuffers>,
   #[cfg(feature = "VK_BASE_VERSION_1_0")]
   pub vkResetCommandPool: Option<PFN_vkResetCommandPool>,
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   pub vkTrimCommandPool: Option<PFN_vkTrimCommandPool>,
-  #[cfg(feature = "VK_KHR_maintenance1")]
+  #[cfg(all(feature = "VK_KHR_maintenance1", not(feature = "VKSC_VERSION_1_0")))]
   pub vkTrimCommandPoolKHR: Option<PFN_vkTrimCommandPoolKHR>,
 }
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -64,15 +64,15 @@ impl CommandPoolDispatchTable {
     vkGetCommandPoolMemoryConsumption: None,
     #[cfg(feature = "VK_BASE_VERSION_1_0")]
     vkAllocateCommandBuffers: None,
-    #[cfg(feature = "VK_BASE_VERSION_1_0")]
+    #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
     vkDestroyCommandPool: None,
     #[cfg(feature = "VK_BASE_VERSION_1_0")]
     vkFreeCommandBuffers: None,
     #[cfg(feature = "VK_BASE_VERSION_1_0")]
     vkResetCommandPool: None,
-    #[cfg(feature = "VK_BASE_VERSION_1_1")]
+    #[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
     vkTrimCommandPool: None,
-    #[cfg(feature = "VK_KHR_maintenance1")]
+    #[cfg(all(feature = "VK_KHR_maintenance1", not(feature = "VKSC_VERSION_1_0")))]
     vkTrimCommandPoolKHR: None,
   };
   #[inline]
@@ -87,7 +87,7 @@ impl CommandPoolDispatchTable {
       #[cfg(feature = "VK_BASE_VERSION_1_0")]
       vkAllocateCommandBuffers: loader(c"vkAllocateCommandBuffers".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
-      #[cfg(feature = "VK_BASE_VERSION_1_0")]
+      #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
       vkDestroyCommandPool: loader(c"vkDestroyCommandPool".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
       #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -96,10 +96,10 @@ impl CommandPoolDispatchTable {
       #[cfg(feature = "VK_BASE_VERSION_1_0")]
       vkResetCommandPool: loader(c"vkResetCommandPool".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
-      #[cfg(feature = "VK_BASE_VERSION_1_1")]
+      #[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
       vkTrimCommandPool: loader(c"vkTrimCommandPool".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
-      #[cfg(feature = "VK_KHR_maintenance1")]
+      #[cfg(all(feature = "VK_KHR_maintenance1", not(feature = "VKSC_VERSION_1_0")))]
       vkTrimCommandPoolKHR: loader(c"vkTrimCommandPoolKHR".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
     }
@@ -116,6 +116,7 @@ unsafe impl<'dev> Send for CommandPool<'dev> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 unsafe impl<'dev> Sync for CommandPool<'dev> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(not(feature = "VKSC_VERSION_1_0"))]
 impl<'dev> Drop for CommandPool<'dev> {
   fn drop(&mut self) {
     if self.raw.0.is_null() {
@@ -239,13 +240,14 @@ impl<'dev> CommandPool<'dev> {
   /// Provided by:
   /// - `VK_BASE_VERSION_1_0`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
   /// - `device`
   /// - `commandPool`: optional: true
   /// - `pAllocator`: optional: true
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   #[inline(always)]
   pub fn vkDestroyCommandPool(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
     if self.raw.0.is_null() {
@@ -324,13 +326,14 @@ impl<'dev> CommandPool<'dev> {
   /// Provided by:
   /// - `VK_BASE_VERSION_1_1`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
   /// - `device`
   /// - `commandPool`
   /// - `flags`: optional: true
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   #[inline(always)]
   pub fn vkTrimCommandPool(&self, flags: VkCommandPoolTrimFlags) {
     unsafe {
@@ -343,13 +346,14 @@ impl<'dev> CommandPool<'dev> {
   /// Provided by:
   /// - `VK_KHR_maintenance1`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
   /// - `device`
   /// - `commandPool`
   /// - `flags`: optional: true
-  #[cfg(feature = "VK_KHR_maintenance1")]
+  #[cfg(all(feature = "VK_KHR_maintenance1", not(feature = "VKSC_VERSION_1_0")))]
   #[inline(always)]
   pub fn vkTrimCommandPoolKHR(&self, flags: VkCommandPoolTrimFlagsKHR) {
     unsafe {

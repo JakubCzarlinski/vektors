@@ -14,8 +14,12 @@ use crate::enums::VkChromaLocation;
 ))]
 use crate::enums::VkDescriptorType;
 #[cfg(any(
-  feature = "VK_COMPUTE_VERSION_1_1",
-  feature = "VK_KHR_descriptor_update_template"
+  any(
+    feature = "VK_COMPUTE_VERSION_1_4",
+    all(feature = "VK_KHR_push_descriptor", feature = "VK_VERSION_1_1"),
+    feature = "VK_KHR_descriptor_update_template"
+  ),
+  all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0"))
 ))]
 use crate::enums::VkDescriptorUpdateTemplateType;
 #[cfg(any(
@@ -95,27 +99,27 @@ use crate::types::VkShaderStageFlags;
 use crate::types::VkSubgroupFeatureFlags;
 use core::ffi::c_void;
 /// [VkDescriptorUpdateTemplateCreateFlags](https://docs.vulkan.org/refpages/latest/refpages/source/VkDescriptorUpdateTemplateCreateFlags.html)
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 pub type VkDescriptorUpdateTemplateCreateFlags = VkFlags;
 /// [VkDescriptorUpdateTemplate](https://docs.vulkan.org/refpages/latest/refpages/source/VkDescriptorUpdateTemplate.html)
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct VkDescriptorUpdateTemplate(pub *mut c_void);
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 impl VkDescriptorUpdateTemplate {
   pub const NULL: Self = Self(core::ptr::null_mut());
   pub const DEFAULT: Self = Self::NULL;
 }
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 impl Default for VkDescriptorUpdateTemplate {
   fn default() -> Self {
     Self::NULL
   }
 }
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl Send for VkDescriptorUpdateTemplate {}
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl Sync for VkDescriptorUpdateTemplate {}
 /// [VkSamplerYcbcrConversion](https://docs.vulkan.org/refpages/latest/refpages/source/VkSamplerYcbcrConversion.html)
 #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
@@ -322,7 +326,7 @@ impl<'a> VkPhysicalDeviceVariablePointerFeatures<'a> {
   }
 }
 /// [VkDescriptorUpdateTemplateEntry](https://docs.vulkan.org/refpages/latest/refpages/source/VkDescriptorUpdateTemplateEntry.html)
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkDescriptorUpdateTemplateEntry {
@@ -333,11 +337,11 @@ pub struct VkDescriptorUpdateTemplateEntry {
   pub offset: usize,
   pub stride: usize,
 }
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl Send for VkDescriptorUpdateTemplateEntry {}
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl Sync for VkDescriptorUpdateTemplateEntry {}
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 impl VkDescriptorUpdateTemplateEntry {
   pub const DEFAULT: Self = Self {
     dstBinding: 0,
@@ -383,7 +387,7 @@ impl VkDescriptorUpdateTemplateEntry {
   }
 }
 /// [VkDescriptorUpdateTemplateCreateInfo](https://docs.vulkan.org/refpages/latest/refpages/source/VkDescriptorUpdateTemplateCreateInfo.html)
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkDescriptorUpdateTemplateCreateInfo<'a> {
@@ -408,11 +412,11 @@ pub struct VkDescriptorUpdateTemplateCreateInfo<'a> {
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'a> Send for VkDescriptorUpdateTemplateCreateInfo<'a> {}
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'a> Sync for VkDescriptorUpdateTemplateCreateInfo<'a> {}
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 impl<'a> VkDescriptorUpdateTemplateCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO,
@@ -486,7 +490,7 @@ impl<'a> VkDescriptorUpdateTemplateCreateInfo<'a> {
     self.set = val;
     self
   }
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.

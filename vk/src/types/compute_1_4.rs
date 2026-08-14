@@ -40,7 +40,7 @@ use crate::types::VkBool32;
 use crate::types::VkComputePipelineCreateInfo;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 use crate::types::VkDescriptorSet;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkDescriptorUpdateTemplate;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkDeviceCreateInfo;
@@ -1049,7 +1049,7 @@ impl<'a> VkPushDescriptorSetInfo<'a> {
   }
 }
 /// [VkPushDescriptorSetWithTemplateInfo](https://docs.vulkan.org/refpages/latest/refpages/source/VkPushDescriptorSetWithTemplateInfo.html)
-#[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_4", not(feature = "VKSC_VERSION_1_0")))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkPushDescriptorSetWithTemplateInfo<'a> {
@@ -1066,11 +1066,11 @@ pub struct VkPushDescriptorSetWithTemplateInfo<'a> {
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
-#[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_4", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'a> Send for VkPushDescriptorSetWithTemplateInfo<'a> {}
-#[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_4", not(feature = "VKSC_VERSION_1_0")))]
 unsafe impl<'a> Sync for VkPushDescriptorSetWithTemplateInfo<'a> {}
-#[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_4", not(feature = "VKSC_VERSION_1_0")))]
 impl<'a> VkPushDescriptorSetWithTemplateInfo<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::PUSH_DESCRIPTOR_SET_WITH_TEMPLATE_INFO,
@@ -1128,7 +1128,7 @@ impl<'a> VkPushDescriptorSetWithTemplateInfo<'a> {
     self.pNext = (val as *const VkPipelineLayoutCreateInfo<'child>).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_4", not(feature = "VKSC_VERSION_1_0")))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.

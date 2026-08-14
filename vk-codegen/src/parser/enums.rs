@@ -94,6 +94,7 @@ pub fn parse_enums_block(node: Node, reg: &mut Registry) {
             availability: vec![],
             depr: depr_info(en),
             provided_by: vec![],
+            removed_by: vec![],
         });
     }
 }

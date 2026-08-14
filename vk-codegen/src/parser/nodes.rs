@@ -197,6 +197,7 @@ pub fn parse_member(node: Node) -> Member {
         no_auto_validity: attr(node, "noautovalidity").is_some_and(true_or_panic),
         object_type: attr(node, "objecttype").map(str::to_owned),
         depr: depr_info(node),
+        removed_by: Vec::new(),
     }
 }
 

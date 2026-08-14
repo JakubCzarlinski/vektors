@@ -63,6 +63,7 @@ pub fn merge_registry(base: &mut Registry, xml: &str) {
     }
     base.features.extend(sec.features);
     base.extensions.extend(sec.extensions);
+    base.removals.extend(sec.removals);
 }
 
 pub use crate::parser::features::apply_require_extensions;

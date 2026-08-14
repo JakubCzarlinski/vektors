@@ -41,7 +41,7 @@ pub use base_1_0::VkApplicationInfo;
 pub use base_1_0::VkBaseInStructure;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 pub use base_1_0::VkBaseOutStructure;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub use base_1_0::VkBindSparseInfo;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 pub use base_1_0::VkBool32;
@@ -219,23 +219,23 @@ pub use base_1_0::VkSemaphoreCreateFlags;
 pub use base_1_0::VkSemaphoreCreateInfo;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 pub use base_1_0::VkShaderStageFlags;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub use base_1_0::VkSparseBufferMemoryBindInfo;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub use base_1_0::VkSparseImageFormatFlags;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub use base_1_0::VkSparseImageFormatProperties;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub use base_1_0::VkSparseImageMemoryBind;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub use base_1_0::VkSparseImageMemoryBindInfo;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub use base_1_0::VkSparseImageMemoryRequirements;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub use base_1_0::VkSparseImageOpaqueMemoryBindInfo;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub use base_1_0::VkSparseMemoryBind;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub use base_1_0::VkSparseMemoryBindFlags;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 pub use base_1_0::VkSubmitInfo;
@@ -253,9 +253,9 @@ pub use base_1_1::VkBindImageMemoryInfo;
 pub use base_1_1::VkBindImagePlaneMemoryInfo;
 #[cfg(feature = "VK_BASE_VERSION_1_1")]
 pub use base_1_1::VkBufferMemoryRequirementsInfo2;
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 pub use base_1_1::VkCommandPoolTrimFlags;
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 pub use base_1_1::VkDeviceGroupBindSparseInfo;
 #[cfg(feature = "VK_BASE_VERSION_1_1")]
 pub use base_1_1::VkDeviceGroupCommandBufferBeginInfo;
@@ -307,7 +307,7 @@ pub use base_1_1::VkImageFormatProperties2;
 pub use base_1_1::VkImageMemoryRequirementsInfo2;
 #[cfg(feature = "VK_BASE_VERSION_1_1")]
 pub use base_1_1::VkImagePlaneMemoryRequirementsInfo;
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 pub use base_1_1::VkImageSparseMemoryRequirementsInfo2;
 #[cfg(feature = "VK_BASE_VERSION_1_1")]
 pub use base_1_1::VkImageViewUsageCreateInfo;
@@ -347,7 +347,7 @@ pub use base_1_1::VkPhysicalDeviceProperties2;
 pub use base_1_1::VkPhysicalDeviceProtectedMemoryFeatures;
 #[cfg(feature = "VK_BASE_VERSION_1_1")]
 pub use base_1_1::VkPhysicalDeviceProtectedMemoryProperties;
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 pub use base_1_1::VkPhysicalDeviceSparseImageFormatInfo2;
 #[cfg(feature = "VK_BASE_VERSION_1_1")]
 pub use base_1_1::VkProtectedSubmitInfo;
@@ -355,9 +355,9 @@ pub use base_1_1::VkProtectedSubmitInfo;
 pub use base_1_1::VkQueueFamilyProperties2;
 #[cfg(feature = "VK_BASE_VERSION_1_1")]
 pub use base_1_1::VkSemaphoreImportFlags;
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 pub use base_1_1::VkSparseImageFormatProperties2;
-#[cfg(feature = "VK_BASE_VERSION_1_1")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 pub use base_1_1::VkSparseImageMemoryRequirements2;
 #[cfg(feature = "VK_BASE_VERSION_1_1")]
 pub use base_1_1::VkSubgroupFeatureFlags;
@@ -613,9 +613,9 @@ pub use compute_1_0::VkSamplerCreateFlags;
 pub use compute_1_0::VkSamplerCreateInfo;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 pub use compute_1_0::VkShaderModule;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub use compute_1_0::VkShaderModuleCreateFlags;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub use compute_1_0::VkShaderModuleCreateInfo;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 pub use compute_1_0::VkSpecializationInfo;
@@ -625,13 +625,13 @@ pub use compute_1_0::VkSpecializationMapEntry;
 pub use compute_1_0::VkWriteDescriptorSet;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
 pub use compute_1_1::VkDescriptorSetLayoutSupport;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 pub use compute_1_1::VkDescriptorUpdateTemplate;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 pub use compute_1_1::VkDescriptorUpdateTemplateCreateFlags;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 pub use compute_1_1::VkDescriptorUpdateTemplateCreateInfo;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 pub use compute_1_1::VkDescriptorUpdateTemplateEntry;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
 pub use compute_1_1::VkPhysicalDevice16BitStorageFeatures;
@@ -745,7 +745,7 @@ pub use compute_1_4::VkPipelineRobustnessCreateInfo;
 pub use compute_1_4::VkPushConstantsInfo;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
 pub use compute_1_4::VkPushDescriptorSetInfo;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_4", not(feature = "VKSC_VERSION_1_0")))]
 pub use compute_1_4::VkPushDescriptorSetWithTemplateInfo;
 #[cfg(feature = "VK_EXT_metal_surface")]
 pub use ext::CAMetalLayer;
@@ -2305,7 +2305,7 @@ pub use khr::VkCalibratedTimestampInfoKHR;
 pub use khr::VkCommandBufferInheritanceRenderingInfoKHR;
 #[cfg(feature = "VK_KHR_synchronization2")]
 pub use khr::VkCommandBufferSubmitInfoKHR;
-#[cfg(feature = "VK_KHR_maintenance1")]
+#[cfg(all(feature = "VK_KHR_maintenance1", not(feature = "VKSC_VERSION_1_0")))]
 pub use khr::VkCommandPoolTrimFlagsKHR;
 #[cfg(feature = "VK_KHR_surface")]
 pub use khr::VkCompositeAlphaFlagsKHR;
@@ -2352,13 +2352,25 @@ pub use khr::VkDeferredOperationKHR;
 pub use khr::VkDependencyInfoKHR;
 #[cfg(feature = "VK_KHR_maintenance3")]
 pub use khr::VkDescriptorSetLayoutSupportKHR;
-#[cfg(feature = "VK_KHR_descriptor_update_template")]
+#[cfg(all(
+  feature = "VK_KHR_descriptor_update_template",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 pub use khr::VkDescriptorUpdateTemplateCreateFlagsKHR;
-#[cfg(feature = "VK_KHR_descriptor_update_template")]
+#[cfg(all(
+  feature = "VK_KHR_descriptor_update_template",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 pub use khr::VkDescriptorUpdateTemplateCreateInfoKHR;
-#[cfg(feature = "VK_KHR_descriptor_update_template")]
+#[cfg(all(
+  feature = "VK_KHR_descriptor_update_template",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 pub use khr::VkDescriptorUpdateTemplateEntryKHR;
-#[cfg(feature = "VK_KHR_descriptor_update_template")]
+#[cfg(all(
+  feature = "VK_KHR_descriptor_update_template",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 pub use khr::VkDescriptorUpdateTemplateKHR;
 #[cfg(feature = "VK_KHR_device_address_commands")]
 pub use khr::VkDeviceAddressRangeKHR;
@@ -2378,7 +2390,7 @@ pub use khr::VkDeviceFaultShaderAbortMessageInfoKHR;
 pub use khr::VkDeviceFaultVendorBinaryHeaderVersionOneKHR;
 #[cfg(feature = "VK_KHR_device_fault")]
 pub use khr::VkDeviceFaultVendorInfoKHR;
-#[cfg(feature = "VK_KHR_device_group")]
+#[cfg(all(feature = "VK_KHR_device_group", not(feature = "VKSC_VERSION_1_0")))]
 pub use khr::VkDeviceGroupBindSparseInfoKHR;
 #[cfg(feature = "VK_KHR_device_group")]
 pub use khr::VkDeviceGroupCommandBufferBeginInfoKHR;
@@ -2558,7 +2570,10 @@ pub use khr::VkImageMemoryRequirementsInfo2KHR;
 pub use khr::VkImagePlaneMemoryRequirementsInfoKHR;
 #[cfg(feature = "VK_KHR_copy_commands2")]
 pub use khr::VkImageResolve2KHR;
-#[cfg(feature = "VK_KHR_get_memory_requirements2")]
+#[cfg(all(
+  feature = "VK_KHR_get_memory_requirements2",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 pub use khr::VkImageSparseMemoryRequirementsInfo2KHR;
 #[cfg(any(
   all(feature = "VK_KHR_extended_flags", feature = "VK_VERSION_1_2"),
@@ -2880,7 +2895,10 @@ pub use khr::VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR;
 pub use khr::VkPhysicalDeviceShaderTerminateInvocationFeaturesKHR;
 #[cfg(feature = "VK_KHR_shader_untyped_pointers")]
 pub use khr::VkPhysicalDeviceShaderUntypedPointersFeaturesKHR;
-#[cfg(feature = "VK_KHR_get_physical_device_properties2")]
+#[cfg(all(
+  feature = "VK_KHR_get_physical_device_properties2",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 pub use khr::VkPhysicalDeviceSparseImageFormatInfo2KHR;
 #[cfg(feature = "VK_KHR_get_surface_capabilities2")]
 pub use khr::VkPhysicalDeviceSurfaceInfo2KHR;
@@ -2996,7 +3014,10 @@ pub use khr::VkPresentWait2InfoKHR;
 pub use khr::VkPushConstantsInfoKHR;
 #[cfg(all(feature = "VK_KHR_maintenance6", feature = "VK_KHR_push_descriptor"))]
 pub use khr::VkPushDescriptorSetInfoKHR;
-#[cfg(all(feature = "VK_KHR_maintenance6", feature = "VK_KHR_push_descriptor"))]
+#[cfg(all(
+  all(feature = "VK_KHR_maintenance6", feature = "VK_KHR_push_descriptor"),
+  not(feature = "VKSC_VERSION_1_0")
+))]
 pub use khr::VkPushDescriptorSetWithTemplateInfoKHR;
 #[cfg(feature = "VK_KHR_performance_query")]
 pub use khr::VkQueryPoolPerformanceCreateInfoKHR;
@@ -3112,9 +3133,15 @@ pub use khr::VkSetDescriptorBufferOffsetsInfoEXT;
 pub use khr::VkSharedPresentSurfaceCapabilities2KHR;
 #[cfg(feature = "VK_KHR_shared_presentable_image")]
 pub use khr::VkSharedPresentSurfaceCapabilitiesKHR;
-#[cfg(feature = "VK_KHR_get_physical_device_properties2")]
+#[cfg(all(
+  feature = "VK_KHR_get_physical_device_properties2",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 pub use khr::VkSparseImageFormatProperties2KHR;
-#[cfg(feature = "VK_KHR_get_memory_requirements2")]
+#[cfg(all(
+  feature = "VK_KHR_get_memory_requirements2",
+  not(feature = "VKSC_VERSION_1_0")
+))]
 pub use khr::VkSparseImageMemoryRequirements2KHR;
 #[cfg(any(
   feature = "VK_KHR_device_address_commands",

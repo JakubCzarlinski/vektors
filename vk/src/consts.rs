@@ -562,25 +562,25 @@ pub const VK_ARM_TENSORS_SPEC_VERSION: u32 = 2;
 #[cfg(feature = "VK_ARM_tensors")]
 pub const VK_ARM_TENSORS_EXTENSION_NAME: &'static core::ffi::CStr = c"VK_ARM_tensors";
 /// [VK_MAKE_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_MAKE_VERSION.html)
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 #[inline]
 pub const fn VK_MAKE_VERSION(major: u32, minor: u32, patch: u32) -> u32 {
   (major << 22) | (minor << 12) | patch
 }
 /// [VK_VERSION_MAJOR](https://docs.vulkan.org/refpages/latest/refpages/source/VK_VERSION_MAJOR.html)
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 #[inline]
 pub const fn VK_VERSION_MAJOR(version: u32) -> u32 {
   version >> 22
 }
 /// [VK_VERSION_MINOR](https://docs.vulkan.org/refpages/latest/refpages/source/VK_VERSION_MINOR.html)
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 #[inline]
 pub const fn VK_VERSION_MINOR(version: u32) -> u32 {
   (version >> 12) & 0x3FF
 }
 /// [VK_VERSION_PATCH](https://docs.vulkan.org/refpages/latest/refpages/source/VK_VERSION_PATCH.html)
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 #[inline]
 pub const fn VK_VERSION_PATCH(version: u32) -> u32 {
   version & 0xFFF
@@ -616,7 +616,7 @@ pub const fn VK_API_VERSION_PATCH(version: u32) -> u32 {
   version & 0xFFF
 }
 /// [VK_API_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_API_VERSION.html)
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub const VK_API_VERSION: u32 = VK_MAKE_API_VERSION(0, 1, 0, 0);
 /// [VK_API_VERSION_1_0](https://docs.vulkan.org/refpages/latest/refpages/source/VK_API_VERSION_1_0.html)
 #[cfg(feature = "VK_BASE_VERSION_1_0")]

@@ -418,17 +418,33 @@ use crate::commands::PFN_vkCmdPushDescriptorSet2;
 use crate::commands::PFN_vkCmdPushDescriptorSet2KHR;
 #[cfg(feature = "VK_KHR_push_descriptor")]
 use crate::commands::PFN_vkCmdPushDescriptorSetKHR;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_4", not(feature = "VKSC_VERSION_1_0")))]
 use crate::commands::PFN_vkCmdPushDescriptorSetWithTemplate;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_4", not(feature = "VKSC_VERSION_1_0")))]
 use crate::commands::PFN_vkCmdPushDescriptorSetWithTemplate2;
-#[cfg(all(feature = "VK_KHR_maintenance6", feature = "VK_KHR_push_descriptor"))]
+#[cfg(all(
+  all(feature = "VK_KHR_maintenance6", feature = "VK_KHR_push_descriptor"),
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::commands::PFN_vkCmdPushDescriptorSetWithTemplate2KHR;
 #[cfg(any(
-  all(feature = "VK_KHR_push_descriptor", feature = "VK_VERSION_1_1"),
   all(
-    feature = "VK_KHR_descriptor_update_template",
-    feature = "VK_KHR_push_descriptor"
+    all(feature = "VK_KHR_push_descriptor", feature = "VK_VERSION_1_1"),
+    not(feature = "VKSC_VERSION_1_0")
+  ),
+  all(
+    all(
+      feature = "VK_KHR_descriptor_update_template",
+      feature = "VK_KHR_push_descriptor"
+    ),
+    not(feature = "VKSC_VERSION_1_0")
+  ),
+  all(
+    all(
+      feature = "VK_KHR_descriptor_update_template",
+      feature = "VK_KHR_push_descriptor"
+    ),
+    not(feature = "VKSC_VERSION_1_0")
   )
 ))]
 use crate::commands::PFN_vkCmdPushDescriptorSetWithTemplateKHR;
@@ -1230,7 +1246,7 @@ use crate::types::VkDepthClampRangeEXT;
 use crate::types::VkDescriptorBufferBindingInfoEXT;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 use crate::types::VkDescriptorSet;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkDescriptorUpdateTemplate;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkDevice;
@@ -1333,9 +1349,12 @@ use crate::types::VkPushDataInfoEXT;
 use crate::types::VkPushDescriptorSetInfo;
 #[cfg(all(feature = "VK_KHR_maintenance6", feature = "VK_KHR_push_descriptor"))]
 use crate::types::VkPushDescriptorSetInfoKHR;
-#[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_4", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkPushDescriptorSetWithTemplateInfo;
-#[cfg(all(feature = "VK_KHR_maintenance6", feature = "VK_KHR_push_descriptor"))]
+#[cfg(all(
+  all(feature = "VK_KHR_maintenance6", feature = "VK_KHR_push_descriptor"),
+  not(feature = "VKSC_VERSION_1_0")
+))]
 use crate::types::VkPushDescriptorSetWithTemplateInfoKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkQueryControlFlags;
@@ -1556,9 +1575,9 @@ pub struct CommandBufferDispatchTable {
   pub vkCmdPushDescriptorSet: Option<PFN_vkCmdPushDescriptorSet>,
   #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
   pub vkCmdPushDescriptorSet2: Option<PFN_vkCmdPushDescriptorSet2>,
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_4", not(feature = "VKSC_VERSION_1_0")))]
   pub vkCmdPushDescriptorSetWithTemplate: Option<PFN_vkCmdPushDescriptorSetWithTemplate>,
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_4", not(feature = "VKSC_VERSION_1_0")))]
   pub vkCmdPushDescriptorSetWithTemplate2: Option<PFN_vkCmdPushDescriptorSetWithTemplate2>,
   #[cfg(feature = "VK_EXT_attachment_feedback_loop_dynamic_state")]
   pub vkCmdSetAttachmentFeedbackLoopEnableEXT: Option<PFN_vkCmdSetAttachmentFeedbackLoopEnableEXT>,
@@ -2195,10 +2214,23 @@ pub struct CommandBufferDispatchTable {
   #[cfg(feature = "VK_KHR_create_renderpass2")]
   pub vkCmdNextSubpass2KHR: Option<PFN_vkCmdNextSubpass2KHR>,
   #[cfg(any(
-    all(feature = "VK_KHR_push_descriptor", feature = "VK_VERSION_1_1"),
     all(
-      feature = "VK_KHR_descriptor_update_template",
-      feature = "VK_KHR_push_descriptor"
+      all(feature = "VK_KHR_push_descriptor", feature = "VK_VERSION_1_1"),
+      not(feature = "VKSC_VERSION_1_0")
+    ),
+    all(
+      all(
+        feature = "VK_KHR_descriptor_update_template",
+        feature = "VK_KHR_push_descriptor"
+      ),
+      not(feature = "VKSC_VERSION_1_0")
+    ),
+    all(
+      all(
+        feature = "VK_KHR_descriptor_update_template",
+        feature = "VK_KHR_push_descriptor"
+      ),
+      not(feature = "VKSC_VERSION_1_0")
     )
   ))]
   pub vkCmdPushDescriptorSetWithTemplateKHR: Option<PFN_vkCmdPushDescriptorSetWithTemplateKHR>,
@@ -2322,7 +2354,10 @@ pub struct CommandBufferDispatchTable {
   pub vkCmdPushConstants2KHR: Option<PFN_vkCmdPushConstants2KHR>,
   #[cfg(all(feature = "VK_KHR_maintenance6", feature = "VK_KHR_push_descriptor"))]
   pub vkCmdPushDescriptorSet2KHR: Option<PFN_vkCmdPushDescriptorSet2KHR>,
-  #[cfg(all(feature = "VK_KHR_maintenance6", feature = "VK_KHR_push_descriptor"))]
+  #[cfg(all(
+    all(feature = "VK_KHR_maintenance6", feature = "VK_KHR_push_descriptor"),
+    not(feature = "VKSC_VERSION_1_0")
+  ))]
   pub vkCmdPushDescriptorSetWithTemplate2KHR: Option<PFN_vkCmdPushDescriptorSetWithTemplate2KHR>,
   #[cfg(all(feature = "VK_EXT_descriptor_buffer", feature = "VK_KHR_maintenance6"))]
   pub vkCmdSetDescriptorBufferOffsets2EXT: Option<PFN_vkCmdSetDescriptorBufferOffsets2EXT>,
@@ -2559,9 +2594,9 @@ impl CommandBufferDispatchTable {
     vkCmdPushDescriptorSet: None,
     #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
     vkCmdPushDescriptorSet2: None,
-    #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
+    #[cfg(all(feature = "VK_COMPUTE_VERSION_1_4", not(feature = "VKSC_VERSION_1_0")))]
     vkCmdPushDescriptorSetWithTemplate: None,
-    #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
+    #[cfg(all(feature = "VK_COMPUTE_VERSION_1_4", not(feature = "VKSC_VERSION_1_0")))]
     vkCmdPushDescriptorSetWithTemplate2: None,
     #[cfg(feature = "VK_EXT_attachment_feedback_loop_dynamic_state")]
     vkCmdSetAttachmentFeedbackLoopEnableEXT: None,
@@ -3190,10 +3225,23 @@ impl CommandBufferDispatchTable {
     #[cfg(feature = "VK_KHR_create_renderpass2")]
     vkCmdNextSubpass2KHR: None,
     #[cfg(any(
-      all(feature = "VK_KHR_push_descriptor", feature = "VK_VERSION_1_1"),
       all(
-        feature = "VK_KHR_descriptor_update_template",
-        feature = "VK_KHR_push_descriptor"
+        all(feature = "VK_KHR_push_descriptor", feature = "VK_VERSION_1_1"),
+        not(feature = "VKSC_VERSION_1_0")
+      ),
+      all(
+        all(
+          feature = "VK_KHR_descriptor_update_template",
+          feature = "VK_KHR_push_descriptor"
+        ),
+        not(feature = "VKSC_VERSION_1_0")
+      ),
+      all(
+        all(
+          feature = "VK_KHR_descriptor_update_template",
+          feature = "VK_KHR_push_descriptor"
+        ),
+        not(feature = "VKSC_VERSION_1_0")
       )
     ))]
     vkCmdPushDescriptorSetWithTemplateKHR: None,
@@ -3315,7 +3363,10 @@ impl CommandBufferDispatchTable {
     vkCmdPushConstants2KHR: None,
     #[cfg(all(feature = "VK_KHR_maintenance6", feature = "VK_KHR_push_descriptor"))]
     vkCmdPushDescriptorSet2KHR: None,
-    #[cfg(all(feature = "VK_KHR_maintenance6", feature = "VK_KHR_push_descriptor"))]
+    #[cfg(all(
+      all(feature = "VK_KHR_maintenance6", feature = "VK_KHR_push_descriptor"),
+      not(feature = "VKSC_VERSION_1_0")
+    ))]
     vkCmdPushDescriptorSetWithTemplate2KHR: None,
     #[cfg(all(feature = "VK_EXT_descriptor_buffer", feature = "VK_KHR_maintenance6"))]
     vkCmdSetDescriptorBufferOffsets2EXT: None,
@@ -3609,10 +3660,10 @@ impl CommandBufferDispatchTable {
       #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
       vkCmdPushDescriptorSet2: loader(c"vkCmdPushDescriptorSet2".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
-      #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
+      #[cfg(all(feature = "VK_COMPUTE_VERSION_1_4", not(feature = "VKSC_VERSION_1_0")))]
       vkCmdPushDescriptorSetWithTemplate: loader(c"vkCmdPushDescriptorSetWithTemplate".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
-      #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
+      #[cfg(all(feature = "VK_COMPUTE_VERSION_1_4", not(feature = "VKSC_VERSION_1_0")))]
       vkCmdPushDescriptorSetWithTemplate2: loader(c"vkCmdPushDescriptorSetWithTemplate2".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
       #[cfg(feature = "VK_EXT_attachment_feedback_loop_dynamic_state")]
@@ -4443,10 +4494,23 @@ impl CommandBufferDispatchTable {
       vkCmdNextSubpass2KHR: loader(c"vkCmdNextSubpass2KHR".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
       #[cfg(any(
-        all(feature = "VK_KHR_push_descriptor", feature = "VK_VERSION_1_1"),
         all(
-          feature = "VK_KHR_descriptor_update_template",
-          feature = "VK_KHR_push_descriptor"
+          all(feature = "VK_KHR_push_descriptor", feature = "VK_VERSION_1_1"),
+          not(feature = "VKSC_VERSION_1_0")
+        ),
+        all(
+          all(
+            feature = "VK_KHR_descriptor_update_template",
+            feature = "VK_KHR_push_descriptor"
+          ),
+          not(feature = "VKSC_VERSION_1_0")
+        ),
+        all(
+          all(
+            feature = "VK_KHR_descriptor_update_template",
+            feature = "VK_KHR_push_descriptor"
+          ),
+          not(feature = "VKSC_VERSION_1_0")
         )
       ))]
       vkCmdPushDescriptorSetWithTemplateKHR: loader(
@@ -4618,7 +4682,10 @@ impl CommandBufferDispatchTable {
       #[cfg(all(feature = "VK_KHR_maintenance6", feature = "VK_KHR_push_descriptor"))]
       vkCmdPushDescriptorSet2KHR: loader(c"vkCmdPushDescriptorSet2KHR".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
-      #[cfg(all(feature = "VK_KHR_maintenance6", feature = "VK_KHR_push_descriptor"))]
+      #[cfg(all(
+        all(feature = "VK_KHR_maintenance6", feature = "VK_KHR_push_descriptor"),
+        not(feature = "VKSC_VERSION_1_0")
+      ))]
       vkCmdPushDescriptorSetWithTemplate2KHR: loader(
         c"vkCmdPushDescriptorSetWithTemplate2KHR".as_ptr(),
       )
@@ -6596,6 +6663,7 @@ impl<'dev> CommandBuffer<'dev> {
   /// - **Queues:** Graphics, Compute
   /// - **Render Pass:** Both
   /// - **Tasks:** State
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
@@ -6604,7 +6672,7 @@ impl<'dev> CommandBuffer<'dev> {
   /// - `layout`
   /// - `set`
   /// - `pData`
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_4", not(feature = "VKSC_VERSION_1_0")))]
   #[inline(always)]
   pub fn vkCmdPushDescriptorSetWithTemplate(
     &self,
@@ -6628,12 +6696,13 @@ impl<'dev> CommandBuffer<'dev> {
   /// - **Queues:** Graphics, Compute
   /// - **Render Pass:** Both
   /// - **Tasks:** State
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
   /// - `commandBuffer`
   /// - `pPushDescriptorSetWithTemplateInfo`
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_4", not(feature = "VKSC_VERSION_1_0")))]
   #[inline(always)]
   pub fn vkCmdPushDescriptorSetWithTemplate2(
     &self,
@@ -11512,6 +11581,7 @@ impl<'dev> CommandBuffer<'dev> {
   /// - **Render Pass:** Both
   /// - **Tasks:** State
   /// - **Availability:** depends on `VK_VERSION_1_1 + VK_KHR_descriptor_update_template`
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
@@ -11521,10 +11591,23 @@ impl<'dev> CommandBuffer<'dev> {
   /// - `set`
   /// - `pData`
   #[cfg(any(
-    all(feature = "VK_KHR_push_descriptor", feature = "VK_VERSION_1_1"),
     all(
-      feature = "VK_KHR_descriptor_update_template",
-      feature = "VK_KHR_push_descriptor"
+      all(feature = "VK_KHR_push_descriptor", feature = "VK_VERSION_1_1"),
+      not(feature = "VKSC_VERSION_1_0")
+    ),
+    all(
+      all(
+        feature = "VK_KHR_descriptor_update_template",
+        feature = "VK_KHR_push_descriptor"
+      ),
+      not(feature = "VKSC_VERSION_1_0")
+    ),
+    all(
+      all(
+        feature = "VK_KHR_descriptor_update_template",
+        feature = "VK_KHR_push_descriptor"
+      ),
+      not(feature = "VKSC_VERSION_1_0")
     )
   ))]
   #[inline(always)]
@@ -12611,12 +12694,16 @@ impl<'dev> CommandBuffer<'dev> {
   /// - **Render Pass:** Both
   /// - **Tasks:** State
   /// - **Availability:** depends on `VK_KHR_push_descriptor`
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
   /// - `commandBuffer`
   /// - `pPushDescriptorSetWithTemplateInfo`
-  #[cfg(all(feature = "VK_KHR_maintenance6", feature = "VK_KHR_push_descriptor"))]
+  #[cfg(all(
+    all(feature = "VK_KHR_maintenance6", feature = "VK_KHR_push_descriptor"),
+    not(feature = "VKSC_VERSION_1_0")
+  ))]
   #[inline(always)]
   pub fn vkCmdPushDescriptorSetWithTemplate2KHR(
     &self,

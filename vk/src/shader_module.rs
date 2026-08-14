@@ -4,7 +4,7 @@
   clippy::too_many_arguments,
   clippy::missing_safety_doc
 )]
-#[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::commands::PFN_vkDestroyShaderModule;
 #[cfg(feature = "VK_EXT_shader_module_identifier")]
 use crate::commands::PFN_vkGetShaderModuleIdentifierEXT;
@@ -22,7 +22,7 @@ use core::ffi::{c_char, c_void};
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 #[derive(Debug, Clone)]
 pub struct ShaderModuleDispatchTable {
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   pub vkDestroyShaderModule: Option<PFN_vkDestroyShaderModule>,
   #[cfg(feature = "VK_EXT_shader_module_identifier")]
   pub vkGetShaderModuleIdentifierEXT: Option<PFN_vkGetShaderModuleIdentifierEXT>,
@@ -30,7 +30,7 @@ pub struct ShaderModuleDispatchTable {
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl ShaderModuleDispatchTable {
   pub const EMPTY: Self = Self {
-    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+    #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
     vkDestroyShaderModule: None,
     #[cfg(feature = "VK_EXT_shader_module_identifier")]
     vkGetShaderModuleIdentifierEXT: None,
@@ -41,7 +41,7 @@ impl ShaderModuleDispatchTable {
     F: Fn(*const c_char) -> Option<unsafe extern "system" fn()>,
   {
     Self {
-      #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+      #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
       vkDestroyShaderModule: loader(c"vkDestroyShaderModule".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
       #[cfg(feature = "VK_EXT_shader_module_identifier")]
@@ -61,6 +61,7 @@ unsafe impl<'dev> Send for ShaderModule<'dev> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 unsafe impl<'dev> Sync for ShaderModule<'dev> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(not(feature = "VKSC_VERSION_1_0"))]
 impl<'dev> Drop for ShaderModule<'dev> {
   fn drop(&mut self) {
     if self.raw.0.is_null() {
@@ -102,13 +103,14 @@ impl<'dev> ShaderModule<'dev> {
   /// Provided by:
   /// - `VK_COMPUTE_VERSION_1_0`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
   /// - `device`
   /// - `shaderModule`: optional: true
   /// - `pAllocator`: optional: true
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   #[inline(always)]
   pub fn vkDestroyShaderModule(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
     if self.raw.0.is_null() {

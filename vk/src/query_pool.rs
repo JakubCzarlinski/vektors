@@ -4,7 +4,7 @@
   clippy::too_many_arguments,
   clippy::missing_safety_doc
 )]
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 use crate::commands::PFN_vkDestroyQueryPool;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::commands::PFN_vkGetQueryPoolResults;
@@ -28,7 +28,7 @@ use core::ffi::{c_char, c_void};
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 #[derive(Debug, Clone)]
 pub struct QueryPoolDispatchTable {
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   pub vkDestroyQueryPool: Option<PFN_vkDestroyQueryPool>,
   #[cfg(feature = "VK_BASE_VERSION_1_0")]
   pub vkGetQueryPoolResults: Option<PFN_vkGetQueryPoolResults>,
@@ -40,7 +40,7 @@ pub struct QueryPoolDispatchTable {
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl QueryPoolDispatchTable {
   pub const EMPTY: Self = Self {
-    #[cfg(feature = "VK_BASE_VERSION_1_0")]
+    #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
     vkDestroyQueryPool: None,
     #[cfg(feature = "VK_BASE_VERSION_1_0")]
     vkGetQueryPoolResults: None,
@@ -55,7 +55,7 @@ impl QueryPoolDispatchTable {
     F: Fn(*const c_char) -> Option<unsafe extern "system" fn()>,
   {
     Self {
-      #[cfg(feature = "VK_BASE_VERSION_1_0")]
+      #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
       vkDestroyQueryPool: loader(c"vkDestroyQueryPool".as_ptr())
         .map(|f| unsafe { core::mem::transmute(f) }),
       #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -81,6 +81,7 @@ unsafe impl<'dev> Send for QueryPool<'dev> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 unsafe impl<'dev> Sync for QueryPool<'dev> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
+#[cfg(not(feature = "VKSC_VERSION_1_0"))]
 impl<'dev> Drop for QueryPool<'dev> {
   fn drop(&mut self) {
     if self.raw.0.is_null() {
@@ -122,13 +123,14 @@ impl<'dev> QueryPool<'dev> {
   /// Provided by:
   /// - `VK_BASE_VERSION_1_0`
   ///
+  /// - **Removed by:** `VKSC_VERSION_1_0`
   /// - **Export Scopes:** Vulkan
   ///
   /// # Parameters
   /// - `device`
   /// - `queryPool`: optional: true
   /// - `pAllocator`: optional: true
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   #[inline(always)]
   pub fn vkDestroyQueryPool(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
     if self.raw.0.is_null() {
