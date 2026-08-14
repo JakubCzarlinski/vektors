@@ -89,13 +89,14 @@ pub const VK_MAX_TENSOR_CREATE_INFO_ROLLING_BACKING_WRAP_COUNT_ARM: u32 = 4;
 pub const VKSC_API_VARIANT: u32 = 1u32;
 /// [VKSC_API_VERSION_1_0](https://docs.vulkan.org/refpages/latest/refpages/source/VKSC_API_VERSION_1_0.html)
 #[cfg(feature = "VKSC_VERSION_1_0")]
-pub const VKSC_API_VERSION_1_0: u32 = VK_MAKE_API_VERSION(0u32, 1u32, 0u32, 0u32);
+pub const VKSC_API_VERSION_1_0: u32 = VK_MAKE_API_VERSION(VKSC_API_VARIANT, 1, 0, 0);
 /// [VK_HEADER_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION.html)
 #[cfg(feature = "VKSC_VERSION_1_0")]
 pub const VK_HEADER_VERSION: u32 = 21u32;
 /// [VK_HEADER_VERSION_COMPLETE](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION_COMPLETE.html)
 #[cfg(feature = "VKSC_VERSION_1_0")]
-pub const VK_HEADER_VERSION_COMPLETE: u32 = VK_MAKE_API_VERSION(0u32, 1u32, 0u32, 0u32);
+pub const VK_HEADER_VERSION_COMPLETE: u32 =
+  VK_MAKE_API_VERSION(VKSC_API_VARIANT, 1, 0, VK_HEADER_VERSION);
 /// [VK_AMDX_DENSE_GEOMETRY_FORMAT_SPEC_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_AMDX_dense_geometry_format.html)
 ///
 /// Extension type: device extension.
@@ -616,28 +617,28 @@ pub const fn VK_API_VERSION_PATCH(version: u32) -> u32 {
 }
 /// [VK_API_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_API_VERSION.html)
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
-pub const VK_API_VERSION: u32 = VK_MAKE_API_VERSION(0u32, 1u32, 0u32, 0u32);
+pub const VK_API_VERSION: u32 = VK_MAKE_API_VERSION(0, 1, 0, 0);
 /// [VK_API_VERSION_1_0](https://docs.vulkan.org/refpages/latest/refpages/source/VK_API_VERSION_1_0.html)
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
-pub const VK_API_VERSION_1_0: u32 = VK_MAKE_API_VERSION(0u32, 1u32, 0u32, 0u32);
+pub const VK_API_VERSION_1_0: u32 = VK_MAKE_API_VERSION(0, 1, 0, 0);
 /// [VK_HEADER_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION.html)
 #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub const VK_HEADER_VERSION: u32 = 357u32;
 /// [VK_HEADER_VERSION_COMPLETE](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION_COMPLETE.html)
 #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
-pub const VK_HEADER_VERSION_COMPLETE: u32 = VK_MAKE_API_VERSION(0u32, 1u32, 4u32, 0u32);
+pub const VK_HEADER_VERSION_COMPLETE: u32 = VK_MAKE_API_VERSION(0, 1, 4, VK_HEADER_VERSION);
 /// [VK_API_VERSION_1_1](https://docs.vulkan.org/refpages/latest/refpages/source/VK_API_VERSION_1_1.html)
 #[cfg(feature = "VK_BASE_VERSION_1_1")]
-pub const VK_API_VERSION_1_1: u32 = VK_MAKE_API_VERSION(0u32, 1u32, 1u32, 0u32);
+pub const VK_API_VERSION_1_1: u32 = VK_MAKE_API_VERSION(0, 1, 1, 0);
 /// [VK_API_VERSION_1_2](https://docs.vulkan.org/refpages/latest/refpages/source/VK_API_VERSION_1_2.html)
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
-pub const VK_API_VERSION_1_2: u32 = VK_MAKE_API_VERSION(0u32, 1u32, 2u32, 0u32);
+pub const VK_API_VERSION_1_2: u32 = VK_MAKE_API_VERSION(0, 1, 2, 0);
 /// [VK_API_VERSION_1_3](https://docs.vulkan.org/refpages/latest/refpages/source/VK_API_VERSION_1_3.html)
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
-pub const VK_API_VERSION_1_3: u32 = VK_MAKE_API_VERSION(0u32, 1u32, 3u32, 0u32);
+pub const VK_API_VERSION_1_3: u32 = VK_MAKE_API_VERSION(0, 1, 3, 0);
 /// [VK_API_VERSION_1_4](https://docs.vulkan.org/refpages/latest/refpages/source/VK_API_VERSION_1_4.html)
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
-pub const VK_API_VERSION_1_4: u32 = VK_MAKE_API_VERSION(0u32, 1u32, 4u32, 0u32);
+pub const VK_API_VERSION_1_4: u32 = VK_MAKE_API_VERSION(0, 1, 4, 0);
 /// [VK_EXT_4444_FORMATS_SPEC_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_4444_formats.html)
 ///
 /// Extension type: device extension.

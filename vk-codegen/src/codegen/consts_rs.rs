@@ -160,13 +160,19 @@ pub fn gen_consts_rs(reg: &Registry) -> String {
                 let parts: Vec<&str> = a.split(',').map(str::trim).collect();
                 if parts.len() == 4 {
                     let (variant, major, minor, patch) = (parts[0], parts[1], parts[2], parts[3]);
-                    let variant_val = variant.parse::<u32>().unwrap_or(0);
-                    let major_val = major.parse::<u32>().unwrap_or(0);
-                    let minor_val = minor.parse::<u32>().unwrap_or(0);
-                    let patch_val = patch.parse::<u32>().unwrap_or(0);
-                    Some(quote! {
-                        #cfg #depr
-                        pub const #name: u32 = VK_MAKE_API_VERSION(#variant_val, #major_val, #minor_val, #patch_val);
+                    let values = [variant, major, minor, patch]
+                        .map(str::parse::<TokenStream>)
+                        .into_iter()
+                        .collect::<Result<Vec<_>, _>>();
+                    values.ok().map(|values| {
+                        let variant = &values[0];
+                        let major = &values[1];
+                        let minor = &values[2];
+                        let patch = &values[3];
+                        quote! {
+                            #cfg #depr
+                            pub const #name: u32 = VK_MAKE_API_VERSION(#variant, #major, #minor, #patch);
+                        }
                     })
                 } else {
                     None

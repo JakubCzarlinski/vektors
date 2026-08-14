@@ -359,6 +359,10 @@ fn parse_define(
             .and_then(|n| n.tail())
             .unwrap_or("")
             .trim()
+            .split("//")
+            .next()
+            .unwrap_or("")
+            .trim()
             .trim_start_matches('(')
             .trim_end_matches(')')
             .to_owned();
