@@ -1453,11 +1453,11 @@ impl<'a> VkPhysicalDeviceToolProperties<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::PHYSICAL_DEVICE_TOOL_PROPERTIES,
     pNext: core::ptr::null_mut(),
-    name: [0i8; VK_MAX_EXTENSION_NAME_SIZE as usize],
-    version: [0i8; VK_MAX_EXTENSION_NAME_SIZE as usize],
+    name: [0 as c_char; VK_MAX_EXTENSION_NAME_SIZE as usize],
+    version: [0 as c_char; VK_MAX_EXTENSION_NAME_SIZE as usize],
     purposes: VkToolPurposeFlagBits(0),
-    description: [0i8; VK_MAX_DESCRIPTION_SIZE as usize],
-    layer: [0i8; VK_MAX_EXTENSION_NAME_SIZE as usize],
+    description: [0 as c_char; VK_MAX_DESCRIPTION_SIZE as usize],
+    layer: [0 as c_char; VK_MAX_EXTENSION_NAME_SIZE as usize],
     _marker: core::marker::PhantomData,
   };
   #[inline]

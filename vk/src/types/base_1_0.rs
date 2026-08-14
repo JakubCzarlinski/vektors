@@ -1698,7 +1698,7 @@ impl VkPhysicalDeviceProperties {
     vendorID: 0,
     deviceID: 0,
     deviceType: VkPhysicalDeviceType(0),
-    deviceName: [0i8; VK_MAX_PHYSICAL_DEVICE_NAME_SIZE as usize],
+    deviceName: [0 as c_char; VK_MAX_PHYSICAL_DEVICE_NAME_SIZE as usize],
     pipelineCacheUUID: [0u8; VK_UUID_SIZE as usize],
     limits: VkPhysicalDeviceLimits::DEFAULT,
     sparseProperties: VkPhysicalDeviceSparseProperties::DEFAULT,
@@ -1774,7 +1774,7 @@ unsafe impl Sync for VkExtensionProperties {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl VkExtensionProperties {
   pub const DEFAULT: Self = Self {
-    extensionName: [0i8; VK_MAX_EXTENSION_NAME_SIZE as usize],
+    extensionName: [0 as c_char; VK_MAX_EXTENSION_NAME_SIZE as usize],
     specVersion: 0,
   };
   #[inline]
@@ -1816,10 +1816,10 @@ unsafe impl Sync for VkLayerProperties {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl VkLayerProperties {
   pub const DEFAULT: Self = Self {
-    layerName: [0i8; VK_MAX_EXTENSION_NAME_SIZE as usize],
+    layerName: [0 as c_char; VK_MAX_EXTENSION_NAME_SIZE as usize],
     specVersion: 0,
     implementationVersion: 0,
-    description: [0i8; VK_MAX_DESCRIPTION_SIZE as usize],
+    description: [0 as c_char; VK_MAX_DESCRIPTION_SIZE as usize],
   };
   #[inline]
   pub const fn new() -> Self {

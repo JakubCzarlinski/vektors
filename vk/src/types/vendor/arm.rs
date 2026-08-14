@@ -1763,7 +1763,7 @@ unsafe impl Sync for VkPhysicalDeviceDataGraphOperationSupportARM {}
 impl VkPhysicalDeviceDataGraphOperationSupportARM {
   pub const DEFAULT: Self = Self {
     operationType: VkPhysicalDeviceDataGraphOperationTypeARM(0),
-    name: [0i8; VK_MAX_PHYSICAL_DEVICE_DATA_GRAPH_OPERATION_SET_NAME_SIZE_ARM as usize],
+    name: [0 as c_char; VK_MAX_PHYSICAL_DEVICE_DATA_GRAPH_OPERATION_SET_NAME_SIZE_ARM as usize],
     version: 0,
   };
   #[inline]
@@ -2141,7 +2141,7 @@ unsafe impl Sync for VkDataGraphTOSANameQualityARM {}
 #[cfg(feature = "VK_ARM_data_graph_instruction_set_tosa")]
 impl VkDataGraphTOSANameQualityARM {
   pub const DEFAULT: Self = Self {
-    name: [0i8; VK_MAX_DATA_GRAPH_TOSA_NAME_SIZE_ARM as usize],
+    name: [0 as c_char; VK_MAX_DATA_GRAPH_TOSA_NAME_SIZE_ARM as usize],
     qualityFlags: VkDataGraphTOSAQualityFlagBitsARM(0),
   };
   #[inline]
@@ -3677,7 +3677,7 @@ impl<'a> VkPerformanceCounterDescriptionARM<'a> {
     sType: VkStructureType::PERFORMANCE_COUNTER_DESCRIPTION_ARM,
     pNext: core::ptr::null_mut(),
     flags: 0,
-    name: [0i8; VK_MAX_DESCRIPTION_SIZE as usize],
+    name: [0 as c_char; VK_MAX_DESCRIPTION_SIZE as usize],
     _marker: core::marker::PhantomData,
   };
   #[inline]
@@ -5421,8 +5421,8 @@ impl<'a> VkShaderInstrumentationMetricDescriptionARM<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::SHADER_INSTRUMENTATION_METRIC_DESCRIPTION_ARM,
     pNext: core::ptr::null_mut(),
-    name: [0i8; VK_MAX_DESCRIPTION_SIZE as usize],
-    description: [0i8; VK_MAX_DESCRIPTION_SIZE as usize],
+    name: [0 as c_char; VK_MAX_DESCRIPTION_SIZE as usize],
+    description: [0 as c_char; VK_MAX_DESCRIPTION_SIZE as usize],
     _marker: core::marker::PhantomData,
   };
   #[inline]

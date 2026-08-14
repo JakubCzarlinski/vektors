@@ -9787,7 +9787,7 @@ unsafe impl Sync for VkDeviceFaultVendorInfoEXT {}
 #[cfg(feature = "VK_EXT_device_fault")]
 impl VkDeviceFaultVendorInfoEXT {
   pub const DEFAULT: Self = Self {
-    description: [0i8; VK_MAX_DESCRIPTION_SIZE as usize],
+    description: [0 as c_char; VK_MAX_DESCRIPTION_SIZE as usize],
     vendorFaultCode: 0,
     vendorFaultData: 0,
   };
@@ -9917,7 +9917,7 @@ impl<'a> VkDeviceFaultInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::DEVICE_FAULT_INFO_EXT,
     pNext: core::ptr::null_mut(),
-    description: [0i8; VK_MAX_DESCRIPTION_SIZE as usize],
+    description: [0 as c_char; VK_MAX_DESCRIPTION_SIZE as usize],
     pAddressInfos: core::ptr::null_mut(),
     pVendorInfos: core::ptr::null_mut(),
     pVendorBinaryData: core::ptr::null_mut(),
@@ -32776,7 +32776,7 @@ unsafe impl Sync for VkRenderPassSubpassFeedbackInfoEXT {}
 impl VkRenderPassSubpassFeedbackInfoEXT {
   pub const DEFAULT: Self = Self {
     subpassMergeStatus: VkSubpassMergeStatusEXT(0),
-    description: [0i8; VK_MAX_DESCRIPTION_SIZE as usize],
+    description: [0 as c_char; VK_MAX_DESCRIPTION_SIZE as usize],
     postMergeIndex: 0,
   };
   #[inline]
@@ -34118,11 +34118,11 @@ impl<'a> VkPhysicalDeviceToolPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::PHYSICAL_DEVICE_TOOL_PROPERTIES_EXT,
     pNext: core::ptr::null_mut(),
-    name: [0i8; VK_MAX_EXTENSION_NAME_SIZE as usize],
-    version: [0i8; VK_MAX_EXTENSION_NAME_SIZE as usize],
+    name: [0 as c_char; VK_MAX_EXTENSION_NAME_SIZE as usize],
+    version: [0 as c_char; VK_MAX_EXTENSION_NAME_SIZE as usize],
     purposes: VkToolPurposeFlagBits(0),
-    description: [0i8; VK_MAX_DESCRIPTION_SIZE as usize],
-    layer: [0i8; VK_MAX_EXTENSION_NAME_SIZE as usize],
+    description: [0 as c_char; VK_MAX_DESCRIPTION_SIZE as usize],
+    layer: [0 as c_char; VK_MAX_EXTENSION_NAME_SIZE as usize],
     _marker: core::marker::PhantomData,
   };
   #[inline]

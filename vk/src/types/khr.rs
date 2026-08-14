@@ -8483,7 +8483,7 @@ unsafe impl Sync for VkDeviceFaultVendorInfoKHR {}
 #[cfg(feature = "VK_KHR_device_fault")]
 impl VkDeviceFaultVendorInfoKHR {
   pub const DEFAULT: Self = Self {
-    description: [0i8; VK_MAX_DESCRIPTION_SIZE as usize],
+    description: [0 as c_char; VK_MAX_DESCRIPTION_SIZE as usize],
     vendorFaultCode: 0,
     vendorFaultData: 0,
   };
@@ -8542,7 +8542,7 @@ impl<'a> VkDeviceFaultInfoKHR<'a> {
     pNext: core::ptr::null_mut(),
     flags: VkDeviceFaultFlagBitsKHR(0),
     groupId: 0,
-    description: [0i8; VK_MAX_DESCRIPTION_SIZE as usize],
+    description: [0 as c_char; VK_MAX_DESCRIPTION_SIZE as usize],
     faultAddressInfo: VkDeviceFaultAddressInfoKHR::DEFAULT,
     instructionAddressInfo: VkDeviceFaultAddressInfoKHR::DEFAULT,
     vendorInfo: VkDeviceFaultVendorInfoKHR::DEFAULT,
@@ -10980,8 +10980,8 @@ impl<'a> VkPhysicalDeviceDriverPropertiesKHR<'a> {
     sType: VkStructureType::PHYSICAL_DEVICE_DRIVER_PROPERTIES_KHR,
     pNext: core::ptr::null_mut(),
     driverID: VkDriverIdKHR(0),
-    driverName: [0i8; VK_MAX_DRIVER_NAME_SIZE as usize],
-    driverInfo: [0i8; VK_MAX_DRIVER_INFO_SIZE as usize],
+    driverName: [0 as c_char; VK_MAX_DRIVER_NAME_SIZE as usize],
+    driverInfo: [0 as c_char; VK_MAX_DRIVER_INFO_SIZE as usize],
     conformanceVersion: VkConformanceVersionKHR::DEFAULT,
     _marker: core::marker::PhantomData,
   };
@@ -22472,7 +22472,7 @@ impl<'a> VkPhysicalDeviceLayeredApiPropertiesKHR<'a> {
     vendorID: 0,
     deviceID: 0,
     layeredAPI: VkPhysicalDeviceLayeredApiKHR(0),
-    deviceName: [0i8; VK_MAX_PHYSICAL_DEVICE_NAME_SIZE as usize],
+    deviceName: [0 as c_char; VK_MAX_PHYSICAL_DEVICE_NAME_SIZE as usize],
     _marker: core::marker::PhantomData,
   };
   #[inline]
@@ -24407,9 +24407,9 @@ impl<'a> VkPerformanceCounterDescriptionKHR<'a> {
     sType: VkStructureType::PERFORMANCE_COUNTER_DESCRIPTION_KHR,
     pNext: core::ptr::null_mut(),
     flags: VkPerformanceCounterDescriptionFlagBitsKHR(0),
-    name: [0i8; VK_MAX_DESCRIPTION_SIZE as usize],
-    category: [0i8; VK_MAX_DESCRIPTION_SIZE as usize],
-    description: [0i8; VK_MAX_DESCRIPTION_SIZE as usize],
+    name: [0 as c_char; VK_MAX_DESCRIPTION_SIZE as usize],
+    category: [0 as c_char; VK_MAX_DESCRIPTION_SIZE as usize],
+    description: [0 as c_char; VK_MAX_DESCRIPTION_SIZE as usize],
     _marker: core::marker::PhantomData,
   };
   #[inline]
@@ -25890,8 +25890,8 @@ impl<'a> VkPipelineExecutablePropertiesKHR<'a> {
     sType: VkStructureType::PIPELINE_EXECUTABLE_PROPERTIES_KHR,
     pNext: core::ptr::null_mut(),
     stages: VkShaderStageFlagBits(0),
-    name: [0i8; VK_MAX_DESCRIPTION_SIZE as usize],
-    description: [0i8; VK_MAX_DESCRIPTION_SIZE as usize],
+    name: [0 as c_char; VK_MAX_DESCRIPTION_SIZE as usize],
+    description: [0 as c_char; VK_MAX_DESCRIPTION_SIZE as usize],
     subgroupSize: 0,
     _marker: core::marker::PhantomData,
   };
@@ -26081,8 +26081,8 @@ impl<'a> VkPipelineExecutableStatisticKHR<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::PIPELINE_EXECUTABLE_STATISTIC_KHR,
     pNext: core::ptr::null_mut(),
-    name: [0i8; VK_MAX_DESCRIPTION_SIZE as usize],
-    description: [0i8; VK_MAX_DESCRIPTION_SIZE as usize],
+    name: [0 as c_char; VK_MAX_DESCRIPTION_SIZE as usize],
+    description: [0 as c_char; VK_MAX_DESCRIPTION_SIZE as usize],
     format: VkPipelineExecutableStatisticFormatKHR(0),
     value: VkPipelineExecutableStatisticValueKHR::DEFAULT,
     _marker: core::marker::PhantomData,
@@ -26166,8 +26166,8 @@ impl<'a> VkPipelineExecutableInternalRepresentationKHR<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::PIPELINE_EXECUTABLE_INTERNAL_REPRESENTATION_KHR,
     pNext: core::ptr::null_mut(),
-    name: [0i8; VK_MAX_DESCRIPTION_SIZE as usize],
-    description: [0i8; VK_MAX_DESCRIPTION_SIZE as usize],
+    name: [0 as c_char; VK_MAX_DESCRIPTION_SIZE as usize],
+    description: [0 as c_char; VK_MAX_DESCRIPTION_SIZE as usize],
     isText: 0,
     dataSize: 0,
     pData: core::ptr::null_mut(),
