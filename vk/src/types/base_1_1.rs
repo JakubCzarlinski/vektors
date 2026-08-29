@@ -693,6 +693,8 @@ use crate::types::VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT;
 use crate::types::VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT;
 #[cfg(feature = "VK_EXT_primitives_generated_query")]
 use crate::types::VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT;
+#[cfg(feature = "VK_NV_private_data_base_handle")]
+use crate::types::VkPhysicalDevicePrivateDataBaseHandleFeaturesNV;
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 use crate::types::VkPhysicalDevicePrivateDataFeatures;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -3262,6 +3264,19 @@ impl<'a> VkPhysicalDeviceFeatures2<'a> {
   ) -> Self {
     self.pNext =
       (val as *mut VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT<'child>).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_NV_private_data_base_handle")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkPhysicalDevicePrivateDataBaseHandleFeaturesNV<'child>(
+    mut self,
+    val: &'a mut VkPhysicalDevicePrivateDataBaseHandleFeaturesNV<'child>,
+  ) -> Self {
+    self.pNext =
+      (val as *mut VkPhysicalDevicePrivateDataBaseHandleFeaturesNV<'child>).cast::<c_void>();
     self
   }
   #[cfg(feature = "VK_BASE_VERSION_1_3")]

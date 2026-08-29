@@ -13965,6 +13965,97 @@ impl<'a> VkPhysicalDevicePresentMeteringFeaturesNV<'a> {
     self
   }
 }
+/// [VkPhysicalDevicePrivateDataBaseHandleFeaturesNV](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDevicePrivateDataBaseHandleFeaturesNV.html)
+///
+/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
+#[cfg(feature = "VK_NV_private_data_base_handle")]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPhysicalDevicePrivateDataBaseHandleFeaturesNV<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  pub privateDataBaseHandle: VkBool32,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(feature = "VK_NV_private_data_base_handle")]
+unsafe impl<'a> Send for VkPhysicalDevicePrivateDataBaseHandleFeaturesNV<'a> {}
+#[cfg(feature = "VK_NV_private_data_base_handle")]
+unsafe impl<'a> Sync for VkPhysicalDevicePrivateDataBaseHandleFeaturesNV<'a> {}
+#[cfg(all(
+  feature = "VK_NV_private_data_base_handle",
+  feature = "VK_BASE_VERSION_1_1"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
+  for VkPhysicalDevicePrivateDataBaseHandleFeaturesNV<'child>
+{
+}
+#[cfg(all(
+  feature = "VK_NV_private_data_base_handle",
+  feature = "VK_BASE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
+  for VkPhysicalDevicePrivateDataBaseHandleFeaturesNV<'child>
+{
+}
+#[cfg(feature = "VK_NV_private_data_base_handle")]
+impl<'a> VkPhysicalDevicePrivateDataBaseHandleFeaturesNV<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV,
+    pNext: core::ptr::null_mut(),
+    privateDataBaseHandle: 0,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_privateDataBaseHandle(mut self, val: VkBool32) -> Self {
+    self.privateDataBaseHandle = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkDeviceCreateInfo<
+    'root,
+    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
 /// [VkPushConstantBankInfoNV](https://docs.vulkan.org/refpages/latest/refpages/source/VkPushConstantBankInfoNV.html)
 ///
 /// **Extends:** VkDescriptorSetAndBindingMappingEXT, VkPushDataInfoEXT, VkPushConstantsInfo, VkIndirectCommandsLayoutTokenEXT.

@@ -50,6 +50,11 @@ use crate::enums::VkImageLayout;
   feature = "VK_EXT_memory_decompression"
 ))]
 use crate::enums::VkPipelineStageFlagBits2;
+#[cfg(any(
+  feature = "VK_BASE_VERSION_1_3",
+  feature = "VK_NV_private_data_base_handle"
+))]
+use crate::enums::VkPrivateDataSlotCreateFlagBits;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkShaderStageFlagBits;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -78,8 +83,6 @@ use crate::types::VkDeviceSize;
 use crate::types::VkExtent3D;
 #[cfg(feature = "VK_EXT_external_memory_acquire_unmodified")]
 use crate::types::VkExternalMemoryAcquireUnmodifiedEXT;
-#[cfg(feature = "VK_BASE_VERSION_1_0")]
-use crate::types::VkFlags;
 #[cfg(feature = "VK_BASE_VERSION_1_1")]
 use crate::types::VkFormatProperties2;
 #[cfg(feature = "VK_EXT_frame_boundary")]
@@ -130,7 +133,7 @@ use crate::types::VkWin32KeyedMutexAcquireReleaseInfoNV;
 use core::ffi::{c_char, c_void};
 /// [VkPrivateDataSlotCreateFlags](https://docs.vulkan.org/refpages/latest/refpages/source/VkPrivateDataSlotCreateFlags.html)
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
-pub type VkPrivateDataSlotCreateFlags = VkFlags;
+pub type VkPrivateDataSlotCreateFlags = VkPrivateDataSlotCreateFlagBits;
 /// [VkAccessFlags2](https://docs.vulkan.org/refpages/latest/refpages/source/VkAccessFlags2.html)
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 pub type VkAccessFlags2 = VkAccessFlagBits2;
@@ -253,7 +256,7 @@ impl<'a> VkPrivateDataSlotCreateInfo<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::PRIVATE_DATA_SLOT_CREATE_INFO,
     pNext: core::ptr::null(),
-    flags: 0,
+    flags: VkPrivateDataSlotCreateFlagBits(0),
     _marker: core::marker::PhantomData,
   };
   #[inline]

@@ -916,7 +916,10 @@ use crate::enums::VkPresentStageFlagBitsEXT;
 use crate::enums::VkPresentTimingInfoFlagBitsEXT;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 use crate::enums::VkPrimitiveTopology;
-#[cfg(feature = "VK_BASE_VERSION_1_3")]
+#[cfg(any(
+  feature = "VK_BASE_VERSION_1_3",
+  feature = "VK_NV_private_data_base_handle"
+))]
 use crate::enums::VkPrivateDataSlotCreateFlagBits;
 #[cfg(feature = "VK_EXT_private_data")]
 use crate::enums::VkPrivateDataSlotCreateFlagBitsEXT;
@@ -4237,6 +4240,8 @@ use crate::types::VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT;
 use crate::types::VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT;
 #[cfg(feature = "VK_EXT_primitives_generated_query")]
 use crate::types::VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT;
+#[cfg(feature = "VK_NV_private_data_base_handle")]
+use crate::types::VkPhysicalDevicePrivateDataBaseHandleFeaturesNV;
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 use crate::types::VkPhysicalDevicePrivateDataFeatures;
 #[cfg(feature = "VK_EXT_private_data")]

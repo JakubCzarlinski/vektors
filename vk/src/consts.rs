@@ -623,7 +623,7 @@ pub const VK_API_VERSION: u32 = VK_MAKE_API_VERSION(0, 1, 0, 0);
 pub const VK_API_VERSION_1_0: u32 = VK_MAKE_API_VERSION(0, 1, 0, 0);
 /// [VK_HEADER_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION.html)
 #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
-pub const VK_HEADER_VERSION: u32 = 360u32;
+pub const VK_HEADER_VERSION: u32 = 361u32;
 /// [VK_HEADER_VERSION_COMPLETE](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION_COMPLETE.html)
 #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub const VK_HEADER_VERSION_COMPLETE: u32 = VK_MAKE_API_VERSION(0, 1, 4, VK_HEADER_VERSION);
@@ -4964,7 +4964,7 @@ pub const VK_NV_LOW_LATENCY_EXTENSION_NAME: &'static core::ffi::CStr = c"VK_NV_l
 ///
 /// Extension type: device extension.
 #[cfg(feature = "VK_NV_low_latency2")]
-pub const VK_NV_LOW_LATENCY_2_SPEC_VERSION: u32 = 2;
+pub const VK_NV_LOW_LATENCY_2_SPEC_VERSION: u32 = 3;
 /// [VK_NV_LOW_LATENCY_2_EXTENSION_NAME](https://docs.vulkan.org/refpages/latest/refpages/source/VK_NV_low_latency2.html)
 ///
 /// Extension type: device extension.
@@ -5044,6 +5044,17 @@ pub const VK_NV_PRESENT_METERING_SPEC_VERSION: u32 = 1;
 #[cfg(feature = "VK_NV_present_metering")]
 pub const VK_NV_PRESENT_METERING_EXTENSION_NAME: &'static core::ffi::CStr =
   c"VK_NV_present_metering";
+/// [VK_NV_PRIVATE_DATA_BASE_HANDLE_SPEC_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_NV_private_data_base_handle.html)
+///
+/// Extension type: device extension.
+#[cfg(feature = "VK_NV_private_data_base_handle")]
+pub const VK_NV_PRIVATE_DATA_BASE_HANDLE_SPEC_VERSION: u32 = 1;
+/// [VK_NV_PRIVATE_DATA_BASE_HANDLE_EXTENSION_NAME](https://docs.vulkan.org/refpages/latest/refpages/source/VK_NV_private_data_base_handle.html)
+///
+/// Extension type: device extension.
+#[cfg(feature = "VK_NV_private_data_base_handle")]
+pub const VK_NV_PRIVATE_DATA_BASE_HANDLE_EXTENSION_NAME: &'static core::ffi::CStr =
+  c"VK_NV_private_data_base_handle";
 /// [VK_NV_PRIVATE_VENDOR_INFO_SPEC_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_NV_private_vendor_info.html)
 ///
 /// Extension type: device extension.

@@ -3360,6 +3360,8 @@ impl VkStructureType {
   pub const IMAGE_TILING_CONTROL_CREATE_INFO_EXT: Self = Self(1000687001);
   #[cfg(feature = "VK_NV_cooperative_matrix_decode_vector")]
   pub const PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV: Self = Self(1000689000);
+  #[cfg(feature = "VK_NV_private_data_base_handle")]
+  pub const PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV: Self = Self(1000707000);
 }
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl core::fmt::Display for VkStructureType {
@@ -11686,6 +11688,13 @@ impl core::fmt::Display for VkStructureType {
                     .0 => {
                 f.write_str(
                     "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV",
+                )
+            }
+            #[cfg(feature = "VK_NV_private_data_base_handle")]
+            value if value
+                == Self::PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV.0 => {
+                f.write_str(
+                    "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV",
                 )
             }
             _ => write!(f, "{}({})", stringify!(VkStructureType), self.0),
@@ -40114,135 +40123,6 @@ impl core::fmt::Display for VkSemaphoreWaitFlagBits {
     }
   }
 }
-/// [VkPrivateDataSlotCreateFlagBits](https://docs.vulkan.org/refpages/latest/refpages/source/VkPrivateDataSlotCreateFlags.html)
-#[cfg(feature = "VK_BASE_VERSION_1_3")]
-#[repr(transparent)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
-pub struct VkPrivateDataSlotCreateFlagBits(pub u32);
-#[cfg(feature = "VK_BASE_VERSION_1_3")]
-impl VkPrivateDataSlotCreateFlagBits {
-  pub const EMPTY: Self = Self(0);
-  #[inline]
-  pub const fn contains(self, o: Self) -> bool {
-    (self.0 & o.0) == o.0
-  }
-  #[inline]
-  pub const fn intersects(self, o: Self) -> bool {
-    (self.0 & o.0) != 0
-  }
-  #[inline]
-  pub const fn is_empty(self) -> bool {
-    self.0 == 0
-  }
-}
-#[cfg(feature = "VK_BASE_VERSION_1_3")]
-impl core::ops::BitOr for VkPrivateDataSlotCreateFlagBits {
-  type Output = Self;
-  #[inline]
-  fn bitor(self, r: Self) -> Self {
-    Self(self.0 | r.0)
-  }
-}
-#[cfg(feature = "VK_BASE_VERSION_1_3")]
-impl core::ops::BitOrAssign for VkPrivateDataSlotCreateFlagBits {
-  #[inline]
-  fn bitor_assign(&mut self, r: Self) {
-    self.0 |= r.0;
-  }
-}
-#[cfg(feature = "VK_BASE_VERSION_1_3")]
-impl core::ops::BitAnd for VkPrivateDataSlotCreateFlagBits {
-  type Output = Self;
-  #[inline]
-  fn bitand(self, r: Self) -> Self {
-    Self(self.0 & r.0)
-  }
-}
-#[cfg(feature = "VK_BASE_VERSION_1_3")]
-impl core::ops::BitAndAssign for VkPrivateDataSlotCreateFlagBits {
-  #[inline]
-  fn bitand_assign(&mut self, r: Self) {
-    self.0 &= r.0;
-  }
-}
-#[cfg(feature = "VK_BASE_VERSION_1_3")]
-impl core::ops::BitXor for VkPrivateDataSlotCreateFlagBits {
-  type Output = Self;
-  #[inline]
-  fn bitxor(self, r: Self) -> Self {
-    Self(self.0 ^ r.0)
-  }
-}
-#[cfg(feature = "VK_BASE_VERSION_1_3")]
-impl core::ops::BitXorAssign for VkPrivateDataSlotCreateFlagBits {
-  #[inline]
-  fn bitxor_assign(&mut self, r: Self) {
-    self.0 ^= r.0;
-  }
-}
-#[cfg(feature = "VK_BASE_VERSION_1_3")]
-impl core::ops::Not for VkPrivateDataSlotCreateFlagBits {
-  type Output = Self;
-  #[inline]
-  fn not(self) -> Self {
-    Self(!self.0)
-  }
-}
-#[cfg(feature = "VK_BASE_VERSION_1_3")]
-impl core::ops::BitOr<u32> for VkPrivateDataSlotCreateFlagBits {
-  type Output = Self;
-  #[inline]
-  fn bitor(self, r: u32) -> Self {
-    Self(self.0 | r)
-  }
-}
-#[cfg(feature = "VK_BASE_VERSION_1_3")]
-impl core::ops::BitOrAssign<u32> for VkPrivateDataSlotCreateFlagBits {
-  #[inline]
-  fn bitor_assign(&mut self, r: u32) {
-    self.0 |= r;
-  }
-}
-#[cfg(feature = "VK_BASE_VERSION_1_3")]
-impl core::ops::BitAnd<u32> for VkPrivateDataSlotCreateFlagBits {
-  type Output = Self;
-  #[inline]
-  fn bitand(self, r: u32) -> Self {
-    Self(self.0 & r)
-  }
-}
-#[cfg(feature = "VK_BASE_VERSION_1_3")]
-impl core::ops::BitAndAssign<u32> for VkPrivateDataSlotCreateFlagBits {
-  #[inline]
-  fn bitand_assign(&mut self, r: u32) {
-    self.0 &= r;
-  }
-}
-#[cfg(feature = "VK_BASE_VERSION_1_3")]
-impl core::ops::BitXor<u32> for VkPrivateDataSlotCreateFlagBits {
-  type Output = Self;
-  #[inline]
-  fn bitxor(self, r: u32) -> Self {
-    Self(self.0 ^ r)
-  }
-}
-#[cfg(feature = "VK_BASE_VERSION_1_3")]
-impl core::ops::BitXorAssign<u32> for VkPrivateDataSlotCreateFlagBits {
-  #[inline]
-  fn bitxor_assign(&mut self, r: u32) {
-    self.0 ^= r;
-  }
-}
-#[cfg(feature = "VK_BASE_VERSION_1_3")]
-impl core::fmt::Display for VkPrivateDataSlotCreateFlagBits {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    if self.0 == 0 {
-      f.write_str("0")
-    } else {
-      write!(f, "0x{:x}", self.0)
-    }
-  }
-}
 /// [VkToolPurposeFlagBits](https://docs.vulkan.org/refpages/latest/refpages/source/VkToolPurposeFlags.html)
 #[cfg(any(feature = "VK_BASE_VERSION_1_3", feature = "VK_EXT_tooling_info"))]
 #[repr(transparent)]
@@ -40696,6 +40576,215 @@ impl core::fmt::Display for VkSubmitFlagBits {
         #[cfg(feature = "VK_KHR_synchronization2")]
         {
           bits |= Self::BIT_KHR.0;
+        }
+        bits
+      };
+      let unknown_bits = self.0 & !known_bits;
+      if unknown_bits != 0 {
+        if wrote {
+          f.write_str(" | ")?;
+        }
+        write!(f, "0x{:x}", unknown_bits)?;
+        wrote = true;
+      }
+      if wrote {
+        Ok(())
+      } else {
+        write!(f, "0x{:x}", self.0)
+      }
+    }
+  }
+}
+/// [VkPrivateDataSlotCreateFlagBits](https://docs.vulkan.org/refpages/latest/refpages/source/VkPrivateDataSlotCreateFlags.html)
+#[cfg(any(
+  feature = "VK_BASE_VERSION_1_3",
+  feature = "VK_NV_private_data_base_handle"
+))]
+#[repr(transparent)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+pub struct VkPrivateDataSlotCreateFlagBits(pub u32);
+#[cfg(any(
+  feature = "VK_BASE_VERSION_1_3",
+  feature = "VK_NV_private_data_base_handle"
+))]
+impl VkPrivateDataSlotCreateFlagBits {
+  pub const EMPTY: Self = Self(0);
+  #[cfg(feature = "VK_NV_private_data_base_handle")]
+  pub const BASE_OBJECT_HANDLE_BIT_NV: Self = Self(1 << 0u64);
+  #[inline]
+  pub const fn contains(self, o: Self) -> bool {
+    (self.0 & o.0) == o.0
+  }
+  #[inline]
+  pub const fn intersects(self, o: Self) -> bool {
+    (self.0 & o.0) != 0
+  }
+  #[inline]
+  pub const fn is_empty(self) -> bool {
+    self.0 == 0
+  }
+}
+#[cfg(any(
+  feature = "VK_BASE_VERSION_1_3",
+  feature = "VK_NV_private_data_base_handle"
+))]
+impl core::ops::BitOr for VkPrivateDataSlotCreateFlagBits {
+  type Output = Self;
+  #[inline]
+  fn bitor(self, r: Self) -> Self {
+    Self(self.0 | r.0)
+  }
+}
+#[cfg(any(
+  feature = "VK_BASE_VERSION_1_3",
+  feature = "VK_NV_private_data_base_handle"
+))]
+impl core::ops::BitOrAssign for VkPrivateDataSlotCreateFlagBits {
+  #[inline]
+  fn bitor_assign(&mut self, r: Self) {
+    self.0 |= r.0;
+  }
+}
+#[cfg(any(
+  feature = "VK_BASE_VERSION_1_3",
+  feature = "VK_NV_private_data_base_handle"
+))]
+impl core::ops::BitAnd for VkPrivateDataSlotCreateFlagBits {
+  type Output = Self;
+  #[inline]
+  fn bitand(self, r: Self) -> Self {
+    Self(self.0 & r.0)
+  }
+}
+#[cfg(any(
+  feature = "VK_BASE_VERSION_1_3",
+  feature = "VK_NV_private_data_base_handle"
+))]
+impl core::ops::BitAndAssign for VkPrivateDataSlotCreateFlagBits {
+  #[inline]
+  fn bitand_assign(&mut self, r: Self) {
+    self.0 &= r.0;
+  }
+}
+#[cfg(any(
+  feature = "VK_BASE_VERSION_1_3",
+  feature = "VK_NV_private_data_base_handle"
+))]
+impl core::ops::BitXor for VkPrivateDataSlotCreateFlagBits {
+  type Output = Self;
+  #[inline]
+  fn bitxor(self, r: Self) -> Self {
+    Self(self.0 ^ r.0)
+  }
+}
+#[cfg(any(
+  feature = "VK_BASE_VERSION_1_3",
+  feature = "VK_NV_private_data_base_handle"
+))]
+impl core::ops::BitXorAssign for VkPrivateDataSlotCreateFlagBits {
+  #[inline]
+  fn bitxor_assign(&mut self, r: Self) {
+    self.0 ^= r.0;
+  }
+}
+#[cfg(any(
+  feature = "VK_BASE_VERSION_1_3",
+  feature = "VK_NV_private_data_base_handle"
+))]
+impl core::ops::Not for VkPrivateDataSlotCreateFlagBits {
+  type Output = Self;
+  #[inline]
+  fn not(self) -> Self {
+    Self(!self.0)
+  }
+}
+#[cfg(any(
+  feature = "VK_BASE_VERSION_1_3",
+  feature = "VK_NV_private_data_base_handle"
+))]
+impl core::ops::BitOr<u32> for VkPrivateDataSlotCreateFlagBits {
+  type Output = Self;
+  #[inline]
+  fn bitor(self, r: u32) -> Self {
+    Self(self.0 | r)
+  }
+}
+#[cfg(any(
+  feature = "VK_BASE_VERSION_1_3",
+  feature = "VK_NV_private_data_base_handle"
+))]
+impl core::ops::BitOrAssign<u32> for VkPrivateDataSlotCreateFlagBits {
+  #[inline]
+  fn bitor_assign(&mut self, r: u32) {
+    self.0 |= r;
+  }
+}
+#[cfg(any(
+  feature = "VK_BASE_VERSION_1_3",
+  feature = "VK_NV_private_data_base_handle"
+))]
+impl core::ops::BitAnd<u32> for VkPrivateDataSlotCreateFlagBits {
+  type Output = Self;
+  #[inline]
+  fn bitand(self, r: u32) -> Self {
+    Self(self.0 & r)
+  }
+}
+#[cfg(any(
+  feature = "VK_BASE_VERSION_1_3",
+  feature = "VK_NV_private_data_base_handle"
+))]
+impl core::ops::BitAndAssign<u32> for VkPrivateDataSlotCreateFlagBits {
+  #[inline]
+  fn bitand_assign(&mut self, r: u32) {
+    self.0 &= r;
+  }
+}
+#[cfg(any(
+  feature = "VK_BASE_VERSION_1_3",
+  feature = "VK_NV_private_data_base_handle"
+))]
+impl core::ops::BitXor<u32> for VkPrivateDataSlotCreateFlagBits {
+  type Output = Self;
+  #[inline]
+  fn bitxor(self, r: u32) -> Self {
+    Self(self.0 ^ r)
+  }
+}
+#[cfg(any(
+  feature = "VK_BASE_VERSION_1_3",
+  feature = "VK_NV_private_data_base_handle"
+))]
+impl core::ops::BitXorAssign<u32> for VkPrivateDataSlotCreateFlagBits {
+  #[inline]
+  fn bitxor_assign(&mut self, r: u32) {
+    self.0 ^= r;
+  }
+}
+#[cfg(any(
+  feature = "VK_BASE_VERSION_1_3",
+  feature = "VK_NV_private_data_base_handle"
+))]
+impl core::fmt::Display for VkPrivateDataSlotCreateFlagBits {
+  #[allow(unused_mut)]
+  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    if self.is_empty() {
+      f.write_str("0")
+    } else {
+      let mut wrote = false;
+      #[cfg(feature = "VK_NV_private_data_base_handle")]
+      if self.intersects(Self::BASE_OBJECT_HANDLE_BIT_NV) {
+        if wrote {
+          f.write_str(" | ")?;
+        }
+        f.write_str("VK_PRIVATE_DATA_SLOT_CREATE_BASE_OBJECT_HANDLE_BIT_NV")?;
+        wrote = true;
+      }
+      let known_bits = {
+        let mut bits = 0;
+        #[cfg(feature = "VK_NV_private_data_base_handle")]
+        {
+          bits |= Self::BASE_OBJECT_HANDLE_BIT_NV.0;
         }
         bits
       };
@@ -55684,13 +55773,21 @@ impl core::fmt::Display for VkPresentTimingInfoFlagBitsEXT {
   }
 }
 /// [VkPrivateDataSlotCreateFlagBitsEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkPrivateDataSlotCreateFlagsEXT.html)
-#[cfg(feature = "VK_EXT_private_data")]
+#[cfg(any(
+  feature = "VK_EXT_private_data",
+  feature = "VK_NV_private_data_base_handle"
+))]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct VkPrivateDataSlotCreateFlagBitsEXT(pub u32);
-#[cfg(feature = "VK_EXT_private_data")]
+#[cfg(any(
+  feature = "VK_EXT_private_data",
+  feature = "VK_NV_private_data_base_handle"
+))]
 impl VkPrivateDataSlotCreateFlagBitsEXT {
   pub const EMPTY: Self = Self(0);
+  #[cfg(feature = "VK_NV_private_data_base_handle")]
+  pub const BASE_OBJECT_HANDLE_BIT_NV: Self = Self(1 << 0u64);
   #[inline]
   pub const fn contains(self, o: Self) -> bool {
     (self.0 & o.0) == o.0
@@ -55704,7 +55801,10 @@ impl VkPrivateDataSlotCreateFlagBitsEXT {
     self.0 == 0
   }
 }
-#[cfg(feature = "VK_EXT_private_data")]
+#[cfg(any(
+  feature = "VK_EXT_private_data",
+  feature = "VK_NV_private_data_base_handle"
+))]
 impl core::ops::BitOr for VkPrivateDataSlotCreateFlagBitsEXT {
   type Output = Self;
   #[inline]
@@ -55712,14 +55812,20 @@ impl core::ops::BitOr for VkPrivateDataSlotCreateFlagBitsEXT {
     Self(self.0 | r.0)
   }
 }
-#[cfg(feature = "VK_EXT_private_data")]
+#[cfg(any(
+  feature = "VK_EXT_private_data",
+  feature = "VK_NV_private_data_base_handle"
+))]
 impl core::ops::BitOrAssign for VkPrivateDataSlotCreateFlagBitsEXT {
   #[inline]
   fn bitor_assign(&mut self, r: Self) {
     self.0 |= r.0;
   }
 }
-#[cfg(feature = "VK_EXT_private_data")]
+#[cfg(any(
+  feature = "VK_EXT_private_data",
+  feature = "VK_NV_private_data_base_handle"
+))]
 impl core::ops::BitAnd for VkPrivateDataSlotCreateFlagBitsEXT {
   type Output = Self;
   #[inline]
@@ -55727,14 +55833,20 @@ impl core::ops::BitAnd for VkPrivateDataSlotCreateFlagBitsEXT {
     Self(self.0 & r.0)
   }
 }
-#[cfg(feature = "VK_EXT_private_data")]
+#[cfg(any(
+  feature = "VK_EXT_private_data",
+  feature = "VK_NV_private_data_base_handle"
+))]
 impl core::ops::BitAndAssign for VkPrivateDataSlotCreateFlagBitsEXT {
   #[inline]
   fn bitand_assign(&mut self, r: Self) {
     self.0 &= r.0;
   }
 }
-#[cfg(feature = "VK_EXT_private_data")]
+#[cfg(any(
+  feature = "VK_EXT_private_data",
+  feature = "VK_NV_private_data_base_handle"
+))]
 impl core::ops::BitXor for VkPrivateDataSlotCreateFlagBitsEXT {
   type Output = Self;
   #[inline]
@@ -55742,14 +55854,20 @@ impl core::ops::BitXor for VkPrivateDataSlotCreateFlagBitsEXT {
     Self(self.0 ^ r.0)
   }
 }
-#[cfg(feature = "VK_EXT_private_data")]
+#[cfg(any(
+  feature = "VK_EXT_private_data",
+  feature = "VK_NV_private_data_base_handle"
+))]
 impl core::ops::BitXorAssign for VkPrivateDataSlotCreateFlagBitsEXT {
   #[inline]
   fn bitxor_assign(&mut self, r: Self) {
     self.0 ^= r.0;
   }
 }
-#[cfg(feature = "VK_EXT_private_data")]
+#[cfg(any(
+  feature = "VK_EXT_private_data",
+  feature = "VK_NV_private_data_base_handle"
+))]
 impl core::ops::Not for VkPrivateDataSlotCreateFlagBitsEXT {
   type Output = Self;
   #[inline]
@@ -55757,7 +55875,10 @@ impl core::ops::Not for VkPrivateDataSlotCreateFlagBitsEXT {
     Self(!self.0)
   }
 }
-#[cfg(feature = "VK_EXT_private_data")]
+#[cfg(any(
+  feature = "VK_EXT_private_data",
+  feature = "VK_NV_private_data_base_handle"
+))]
 impl core::ops::BitOr<u32> for VkPrivateDataSlotCreateFlagBitsEXT {
   type Output = Self;
   #[inline]
@@ -55765,14 +55886,20 @@ impl core::ops::BitOr<u32> for VkPrivateDataSlotCreateFlagBitsEXT {
     Self(self.0 | r)
   }
 }
-#[cfg(feature = "VK_EXT_private_data")]
+#[cfg(any(
+  feature = "VK_EXT_private_data",
+  feature = "VK_NV_private_data_base_handle"
+))]
 impl core::ops::BitOrAssign<u32> for VkPrivateDataSlotCreateFlagBitsEXT {
   #[inline]
   fn bitor_assign(&mut self, r: u32) {
     self.0 |= r;
   }
 }
-#[cfg(feature = "VK_EXT_private_data")]
+#[cfg(any(
+  feature = "VK_EXT_private_data",
+  feature = "VK_NV_private_data_base_handle"
+))]
 impl core::ops::BitAnd<u32> for VkPrivateDataSlotCreateFlagBitsEXT {
   type Output = Self;
   #[inline]
@@ -55780,14 +55907,20 @@ impl core::ops::BitAnd<u32> for VkPrivateDataSlotCreateFlagBitsEXT {
     Self(self.0 & r)
   }
 }
-#[cfg(feature = "VK_EXT_private_data")]
+#[cfg(any(
+  feature = "VK_EXT_private_data",
+  feature = "VK_NV_private_data_base_handle"
+))]
 impl core::ops::BitAndAssign<u32> for VkPrivateDataSlotCreateFlagBitsEXT {
   #[inline]
   fn bitand_assign(&mut self, r: u32) {
     self.0 &= r;
   }
 }
-#[cfg(feature = "VK_EXT_private_data")]
+#[cfg(any(
+  feature = "VK_EXT_private_data",
+  feature = "VK_NV_private_data_base_handle"
+))]
 impl core::ops::BitXor<u32> for VkPrivateDataSlotCreateFlagBitsEXT {
   type Output = Self;
   #[inline]
@@ -55795,20 +55928,56 @@ impl core::ops::BitXor<u32> for VkPrivateDataSlotCreateFlagBitsEXT {
     Self(self.0 ^ r)
   }
 }
-#[cfg(feature = "VK_EXT_private_data")]
+#[cfg(any(
+  feature = "VK_EXT_private_data",
+  feature = "VK_NV_private_data_base_handle"
+))]
 impl core::ops::BitXorAssign<u32> for VkPrivateDataSlotCreateFlagBitsEXT {
   #[inline]
   fn bitxor_assign(&mut self, r: u32) {
     self.0 ^= r;
   }
 }
-#[cfg(feature = "VK_EXT_private_data")]
+#[cfg(any(
+  feature = "VK_EXT_private_data",
+  feature = "VK_NV_private_data_base_handle"
+))]
 impl core::fmt::Display for VkPrivateDataSlotCreateFlagBitsEXT {
+  #[allow(unused_mut)]
   fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    if self.0 == 0 {
+    if self.is_empty() {
       f.write_str("0")
     } else {
-      write!(f, "0x{:x}", self.0)
+      let mut wrote = false;
+      #[cfg(feature = "VK_NV_private_data_base_handle")]
+      if self.intersects(Self::BASE_OBJECT_HANDLE_BIT_NV) {
+        if wrote {
+          f.write_str(" | ")?;
+        }
+        f.write_str("VK_PRIVATE_DATA_SLOT_CREATE_BASE_OBJECT_HANDLE_BIT_NV")?;
+        wrote = true;
+      }
+      let known_bits = {
+        let mut bits = 0;
+        #[cfg(feature = "VK_NV_private_data_base_handle")]
+        {
+          bits |= Self::BASE_OBJECT_HANDLE_BIT_NV.0;
+        }
+        bits
+      };
+      let unknown_bits = self.0 & !known_bits;
+      if unknown_bits != 0 {
+        if wrote {
+          f.write_str(" | ")?;
+        }
+        write!(f, "0x{:x}", unknown_bits)?;
+        wrote = true;
+      }
+      if wrote {
+        Ok(())
+      } else {
+        write!(f, "0x{:x}", self.0)
+      }
     }
   }
 }

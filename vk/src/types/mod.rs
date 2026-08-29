@@ -4412,6 +4412,8 @@ pub use vendor::VkPhysicalDevicePipelineOpacityMicromapFeaturesARM;
 pub use vendor::VkPhysicalDevicePresentBarrierFeaturesNV;
 #[cfg(feature = "VK_NV_present_metering")]
 pub use vendor::VkPhysicalDevicePresentMeteringFeaturesNV;
+#[cfg(feature = "VK_NV_private_data_base_handle")]
+pub use vendor::VkPhysicalDevicePrivateDataBaseHandleFeaturesNV;
 #[cfg(feature = "VK_NV_push_constant_bank")]
 pub use vendor::VkPhysicalDevicePushConstantBankFeaturesNV;
 #[cfg(feature = "VK_NV_push_constant_bank")]

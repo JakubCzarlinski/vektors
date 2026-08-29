@@ -1,6 +1,6 @@
 [package]
 name = "vk"
-version = "0.1.17"
+version = "0.1.18"
 edition = "2024"
 license = "MIT"
 repository = "https://github.com/JakubCzarlinski/vk"
@@ -876,7 +876,7 @@ VK_KHR_shader_maximal_reconvergence = ["VK_VERSION_1_1"]
 # type: instance
 VK_EXT_application_parameters = []
 # type: device
-VK_EXT_image_compression_control_swapchain = ["VK_EXT_image_compression_control"]
+VK_EXT_image_compression_control_swapchain = ["VK_EXT_image_compression_control", "VK_KHR_swapchain"]
 # type: device
 VK_QCOM_image_processing = []
 # type: device
@@ -1159,3 +1159,5 @@ VK_EXT_primitive_restart_index = []
 VK_EXT_image_tiling_control = []
 # type: device
 VK_NV_cooperative_matrix_decode_vector = ["VK_NV_cooperative_matrix2"]
+# type: device
+VK_NV_private_data_base_handle = []

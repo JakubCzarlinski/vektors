@@ -888,6 +888,8 @@ pub use nv::VkPhysicalDevicePerStageDescriptorSetFeaturesNV;
 pub use nv::VkPhysicalDevicePresentBarrierFeaturesNV;
 #[cfg(feature = "VK_NV_present_metering")]
 pub use nv::VkPhysicalDevicePresentMeteringFeaturesNV;
+#[cfg(feature = "VK_NV_private_data_base_handle")]
+pub use nv::VkPhysicalDevicePrivateDataBaseHandleFeaturesNV;
 #[cfg(feature = "VK_NV_push_constant_bank")]
 pub use nv::VkPhysicalDevicePushConstantBankFeaturesNV;
 #[cfg(feature = "VK_NV_push_constant_bank")]

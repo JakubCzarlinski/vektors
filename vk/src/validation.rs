@@ -2555,10 +2555,13 @@ compile_error!(
 );
 #[cfg(all(
   feature = "VK_EXT_image_compression_control_swapchain",
-  not(feature = "VK_EXT_image_compression_control")
+  not(all(
+    feature = "VK_EXT_image_compression_control",
+    feature = "VK_KHR_swapchain"
+  ))
 ))]
 compile_error!(
-  "Feature `VK_EXT_image_compression_control_swapchain` requires `VK_EXT_image_compression_control`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_image_compression_control_swapchain.html"
+  "Feature `VK_EXT_image_compression_control_swapchain` requires `VK_EXT_image_compression_control + VK_KHR_swapchain`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_image_compression_control_swapchain.html"
 );
 #[cfg(all(
   feature = "VK_QCOM_image_processing",
@@ -3801,4 +3804,11 @@ compile_error!(
 ))]
 compile_error!(
   "Feature `VK_NV_cooperative_matrix_decode_vector` requires `VK_NV_cooperative_matrix2`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_NV_cooperative_matrix_decode_vector.html"
+);
+#[cfg(all(
+  feature = "VK_NV_private_data_base_handle",
+  not(any(feature = "VK_VERSION_1_3", feature = "VK_EXT_private_data"))
+))]
+compile_error!(
+  "Feature `VK_NV_private_data_base_handle` requires `VK_VERSION_1_3 , VK_EXT_private_data`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_NV_private_data_base_handle.html"
 );
