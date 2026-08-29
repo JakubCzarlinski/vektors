@@ -3304,6 +3304,12 @@ impl VkStructureType {
   pub const PHYSICAL_DEVICE_MAINTENANCE_11_FEATURES_KHR: Self = Self(1000657000);
   #[cfg(feature = "VK_KHR_maintenance11")]
   pub const QUEUE_FAMILY_OPTIMAL_IMAGE_TRANSFER_GRANULARITY_PROPERTIES_KHR: Self = Self(1000657001);
+  #[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+  pub const PHYSICAL_DEVICE_COOPERATIVE_MATRIX_MAINTENANCE_1_FEATURES_EXT: Self = Self(1000659000);
+  #[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+  pub const PHYSICAL_DEVICE_COOPERATIVE_MATRIX_INFO_2_EXT: Self = Self(1000659001);
+  #[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+  pub const COOPERATIVE_MATRIX_PROPERTIES_2_EXT: Self = Self(1000659002);
   #[cfg(feature = "VK_EXT_shader_subgroup_partitioned")]
   pub const PHYSICAL_DEVICE_SHADER_SUBGROUP_PARTITIONED_FEATURES_EXT: Self = Self(1000662000);
   #[cfg(feature = "VK_SEC_ubm_surface")]
@@ -11533,6 +11539,24 @@ impl core::fmt::Display for VkStructureType {
                 f.write_str(
                     "VK_STRUCTURE_TYPE_QUEUE_FAMILY_OPTIMAL_IMAGE_TRANSFER_GRANULARITY_PROPERTIES_KHR",
                 )
+            }
+            #[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+            value if value
+                == Self::PHYSICAL_DEVICE_COOPERATIVE_MATRIX_MAINTENANCE_1_FEATURES_EXT
+                    .0 => {
+                f.write_str(
+                    "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_MAINTENANCE_1_FEATURES_EXT",
+                )
+            }
+            #[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+            value if value == Self::PHYSICAL_DEVICE_COOPERATIVE_MATRIX_INFO_2_EXT.0 => {
+                f.write_str(
+                    "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_INFO_2_EXT",
+                )
+            }
+            #[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+            value if value == Self::COOPERATIVE_MATRIX_PROPERTIES_2_EXT.0 => {
+                f.write_str("VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_2_EXT")
             }
             #[cfg(feature = "VK_EXT_shader_subgroup_partitioned")]
             value if value
@@ -39696,6 +39720,8 @@ impl VkDriverId {
   pub const MESA_GFXSTREAM: Self = Self(29);
   ///Ape open source project
   pub const APE_SOFT: Self = Self(30);
+  ///Reserved for undisclosed driver project
+  pub const RESERVED_31: Self = Self(31);
   #[cfg(feature = "VK_KHR_driver_properties")]
   pub const AMD_PROPRIETARY_KHR: Self = Self(1);
   #[cfg(feature = "VK_KHR_driver_properties")]
@@ -39779,6 +39805,7 @@ impl core::fmt::Display for VkDriverId {
       value if value == Self::MESA_KOSMICKRISP.0 => f.write_str("VK_DRIVER_ID_MESA_KOSMICKRISP"),
       value if value == Self::MESA_GFXSTREAM.0 => f.write_str("VK_DRIVER_ID_MESA_GFXSTREAM"),
       value if value == Self::APE_SOFT.0 => f.write_str("VK_DRIVER_ID_APE_SOFT"),
+      value if value == Self::RESERVED_31.0 => f.write_str("VK_DRIVER_ID_RESERVED_31"),
       #[cfg(feature = "VK_KHR_driver_properties")]
       value if value == Self::AMD_PROPRIETARY_KHR.0 => {
         f.write_str("VK_DRIVER_ID_AMD_PROPRIETARY_KHR")
@@ -46811,6 +46838,167 @@ impl core::fmt::Display for VkConservativeRasterizationModeEXT {
           stringify!(VkConservativeRasterizationModeEXT),
           self.0
         )
+      }
+    }
+  }
+}
+/// [VkCooperativeMatrixFlagBitsEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkCooperativeMatrixFlagsEXT.html)
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+#[repr(transparent)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+pub struct VkCooperativeMatrixFlagBitsEXT(pub u32);
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+impl VkCooperativeMatrixFlagBitsEXT {
+  pub const EMPTY: Self = Self(0);
+  #[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+  pub const SATURATING_ACCUMULATION: Self = Self(1 << 0u64);
+  #[inline]
+  pub const fn contains(self, o: Self) -> bool {
+    (self.0 & o.0) == o.0
+  }
+  #[inline]
+  pub const fn intersects(self, o: Self) -> bool {
+    (self.0 & o.0) != 0
+  }
+  #[inline]
+  pub const fn is_empty(self) -> bool {
+    self.0 == 0
+  }
+}
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+impl core::ops::BitOr for VkCooperativeMatrixFlagBitsEXT {
+  type Output = Self;
+  #[inline]
+  fn bitor(self, r: Self) -> Self {
+    Self(self.0 | r.0)
+  }
+}
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+impl core::ops::BitOrAssign for VkCooperativeMatrixFlagBitsEXT {
+  #[inline]
+  fn bitor_assign(&mut self, r: Self) {
+    self.0 |= r.0;
+  }
+}
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+impl core::ops::BitAnd for VkCooperativeMatrixFlagBitsEXT {
+  type Output = Self;
+  #[inline]
+  fn bitand(self, r: Self) -> Self {
+    Self(self.0 & r.0)
+  }
+}
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+impl core::ops::BitAndAssign for VkCooperativeMatrixFlagBitsEXT {
+  #[inline]
+  fn bitand_assign(&mut self, r: Self) {
+    self.0 &= r.0;
+  }
+}
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+impl core::ops::BitXor for VkCooperativeMatrixFlagBitsEXT {
+  type Output = Self;
+  #[inline]
+  fn bitxor(self, r: Self) -> Self {
+    Self(self.0 ^ r.0)
+  }
+}
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+impl core::ops::BitXorAssign for VkCooperativeMatrixFlagBitsEXT {
+  #[inline]
+  fn bitxor_assign(&mut self, r: Self) {
+    self.0 ^= r.0;
+  }
+}
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+impl core::ops::Not for VkCooperativeMatrixFlagBitsEXT {
+  type Output = Self;
+  #[inline]
+  fn not(self) -> Self {
+    Self(!self.0)
+  }
+}
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+impl core::ops::BitOr<u32> for VkCooperativeMatrixFlagBitsEXT {
+  type Output = Self;
+  #[inline]
+  fn bitor(self, r: u32) -> Self {
+    Self(self.0 | r)
+  }
+}
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+impl core::ops::BitOrAssign<u32> for VkCooperativeMatrixFlagBitsEXT {
+  #[inline]
+  fn bitor_assign(&mut self, r: u32) {
+    self.0 |= r;
+  }
+}
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+impl core::ops::BitAnd<u32> for VkCooperativeMatrixFlagBitsEXT {
+  type Output = Self;
+  #[inline]
+  fn bitand(self, r: u32) -> Self {
+    Self(self.0 & r)
+  }
+}
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+impl core::ops::BitAndAssign<u32> for VkCooperativeMatrixFlagBitsEXT {
+  #[inline]
+  fn bitand_assign(&mut self, r: u32) {
+    self.0 &= r;
+  }
+}
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+impl core::ops::BitXor<u32> for VkCooperativeMatrixFlagBitsEXT {
+  type Output = Self;
+  #[inline]
+  fn bitxor(self, r: u32) -> Self {
+    Self(self.0 ^ r)
+  }
+}
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+impl core::ops::BitXorAssign<u32> for VkCooperativeMatrixFlagBitsEXT {
+  #[inline]
+  fn bitxor_assign(&mut self, r: u32) {
+    self.0 ^= r;
+  }
+}
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+impl core::fmt::Display for VkCooperativeMatrixFlagBitsEXT {
+  #[allow(unused_mut)]
+  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    if self.is_empty() {
+      f.write_str("0")
+    } else {
+      let mut wrote = false;
+      #[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+      if self.intersects(Self::SATURATING_ACCUMULATION) {
+        if wrote {
+          f.write_str(" | ")?;
+        }
+        f.write_str("VK_COOPERATIVE_MATRIX_SATURATING_ACCUMULATION_BIT_EXT")?;
+        wrote = true;
+      }
+      let known_bits = {
+        let mut bits = 0;
+        #[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+        {
+          bits |= Self::SATURATING_ACCUMULATION.0;
+        }
+        bits
+      };
+      let unknown_bits = self.0 & !known_bits;
+      if unknown_bits != 0 {
+        if wrote {
+          f.write_str(" | ")?;
+        }
+        write!(f, "0x{:x}", unknown_bits)?;
+        wrote = true;
+      }
+      if wrote {
+        Ok(())
+      } else {
+        write!(f, "0x{:x}", self.0)
       }
     }
   }
@@ -61574,6 +61762,8 @@ impl VkDriverIdKHR {
   pub const MESA_GFXSTREAM: Self = Self(29);
   ///Ape open source project
   pub const APE_SOFT: Self = Self(30);
+  ///Reserved for undisclosed driver project
+  pub const RESERVED_31: Self = Self(31);
 }
 #[cfg(feature = "VK_KHR_driver_properties")]
 impl core::fmt::Display for VkDriverIdKHR {
@@ -61633,6 +61823,7 @@ impl core::fmt::Display for VkDriverIdKHR {
       value if value == Self::MESA_KOSMICKRISP.0 => f.write_str("VK_DRIVER_ID_MESA_KOSMICKRISP"),
       value if value == Self::MESA_GFXSTREAM.0 => f.write_str("VK_DRIVER_ID_MESA_GFXSTREAM"),
       value if value == Self::APE_SOFT.0 => f.write_str("VK_DRIVER_ID_APE_SOFT"),
+      value if value == Self::RESERVED_31.0 => f.write_str("VK_DRIVER_ID_RESERVED_31"),
       _ => write!(f, "{}({})", stringify!(VkDriverIdKHR), self.0),
     }
   }

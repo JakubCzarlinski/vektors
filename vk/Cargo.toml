@@ -1,6 +1,6 @@
 [package]
 name = "vk"
-version = "0.1.15"
+version = "0.1.16"
 edition = "2024"
 license = "MIT"
 repository = "https://github.com/JakubCzarlinski/vk"
@@ -1137,6 +1137,8 @@ VK_EXT_shader_uniform_buffer_unsized_array = []
 VK_NV_compute_occupancy_priority = []
 # type: device
 VK_KHR_maintenance11 = []
+# type: device
+VK_EXT_cooperative_matrix_maintenance1 = ["VK_KHR_cooperative_matrix"]
 # type: device
 VK_EXT_shader_subgroup_partitioned = []
 # type: instance

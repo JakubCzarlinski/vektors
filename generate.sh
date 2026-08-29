@@ -1,7 +1,7 @@
-version="0.1.15"
+version="0.1.16"
 
 mkdir -p registry
-registry_version="v1.4.358"
+registry_version="v1.4.359"
 generation_date="$(date +%Y-%m-%d)"
 curl -o registry/video.xml "https://raw.githubusercontent.com/KhronosGroup/Vulkan-Docs/${registry_version}/xml/video.xml"
 curl -o registry/vk.xml "https://raw.githubusercontent.com/KhronosGroup/Vulkan-Docs/${registry_version}/xml/vk.xml"

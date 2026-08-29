@@ -3711,6 +3711,13 @@ compile_error!(
   "Feature `VK_KHR_maintenance11` requires `VK_KHR_get_physical_device_properties2 , VK_VERSION_1_1`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_KHR_maintenance11.html"
 );
 #[cfg(all(
+  feature = "VK_EXT_cooperative_matrix_maintenance1",
+  not(feature = "VK_KHR_cooperative_matrix")
+))]
+compile_error!(
+  "Feature `VK_EXT_cooperative_matrix_maintenance1` requires `VK_KHR_cooperative_matrix`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_cooperative_matrix_maintenance1.html"
+);
+#[cfg(all(
   feature = "VK_EXT_shader_subgroup_partitioned",
   not(any(
     feature = "VK_KHR_get_physical_device_properties2",

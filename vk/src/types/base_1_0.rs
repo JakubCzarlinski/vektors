@@ -391,6 +391,8 @@ use crate::types::VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV;
 use crate::types::VkPhysicalDeviceCooperativeMatrixFeaturesKHR;
 #[cfg(feature = "VK_NV_cooperative_matrix")]
 use crate::types::VkPhysicalDeviceCooperativeMatrixFeaturesNV;
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+use crate::types::VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT;
 #[cfg(feature = "VK_NV_cooperative_vector")]
 use crate::types::VkPhysicalDeviceCooperativeVectorFeaturesNV;
 #[cfg(feature = "VK_KHR_copy_memory_indirect")]
@@ -2765,6 +2767,19 @@ impl<'a> VkDeviceCreateInfo<'a> {
   ) -> Self {
     self.pNext =
       (val as *const VkPhysicalDeviceCooperativeMatrixFeaturesNV<'child>).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT<'child>(
+    mut self,
+    val: &'a VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT<'child>,
+  ) -> Self {
+    self.pNext = (val as *const VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT<'child>)
+      .cast::<c_void>();
     self
   }
   #[cfg(feature = "VK_NV_cooperative_vector")]

@@ -623,7 +623,7 @@ pub const VK_API_VERSION: u32 = VK_MAKE_API_VERSION(0, 1, 0, 0);
 pub const VK_API_VERSION_1_0: u32 = VK_MAKE_API_VERSION(0, 1, 0, 0);
 /// [VK_HEADER_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION.html)
 #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
-pub const VK_HEADER_VERSION: u32 = 358u32;
+pub const VK_HEADER_VERSION: u32 = 359u32;
 /// [VK_HEADER_VERSION_COMPLETE](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION_COMPLETE.html)
 #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub const VK_HEADER_VERSION_COMPLETE: u32 = VK_MAKE_API_VERSION(0, 1, 4, VK_HEADER_VERSION);
@@ -792,6 +792,17 @@ pub const VK_EXT_CONSERVATIVE_RASTERIZATION_SPEC_VERSION: u32 = 1;
 #[cfg(feature = "VK_EXT_conservative_rasterization")]
 pub const VK_EXT_CONSERVATIVE_RASTERIZATION_EXTENSION_NAME: &'static core::ffi::CStr =
   c"VK_EXT_conservative_rasterization";
+/// [VK_EXT_COOPERATIVE_MATRIX_MAINTENANCE_1_SPEC_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_cooperative_matrix_maintenance1.html)
+///
+/// Extension type: device extension.
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+pub const VK_EXT_COOPERATIVE_MATRIX_MAINTENANCE_1_SPEC_VERSION: u32 = 1;
+/// [VK_EXT_COOPERATIVE_MATRIX_MAINTENANCE_1_EXTENSION_NAME](https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_cooperative_matrix_maintenance1.html)
+///
+/// Extension type: device extension.
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+pub const VK_EXT_COOPERATIVE_MATRIX_MAINTENANCE_1_EXTENSION_NAME: &'static core::ffi::CStr =
+  c"VK_EXT_cooperative_matrix_maintenance1";
 /// [VK_EXT_CUSTOM_BORDER_COLOR_SPEC_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_custom_border_color.html)
 ///
 /// Extension type: device extension.

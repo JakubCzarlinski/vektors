@@ -831,6 +831,10 @@ pub use ext::VkCommandBufferInheritanceDescriptorHeapInfoEXT;
 pub use ext::VkConditionalRenderingBeginInfoEXT;
 #[cfg(feature = "VK_EXT_conditional_rendering")]
 pub use ext::VkConditionalRenderingFlagsEXT;
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+pub use ext::VkCooperativeMatrixFlagsEXT;
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+pub use ext::VkCooperativeMatrixProperties2EXT;
 #[cfg(feature = "VK_EXT_host_image_copy")]
 pub use ext::VkCopyImageToImageInfoEXT;
 #[cfg(feature = "VK_EXT_host_image_copy")]
@@ -1225,6 +1229,10 @@ pub use ext::VkPhysicalDeviceColorWriteEnableFeaturesEXT;
 pub use ext::VkPhysicalDeviceConditionalRenderingFeaturesEXT;
 #[cfg(feature = "VK_EXT_conservative_rasterization")]
 pub use ext::VkPhysicalDeviceConservativeRasterizationPropertiesEXT;
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+pub use ext::VkPhysicalDeviceCooperativeMatrixInfo2EXT;
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+pub use ext::VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT;
 #[cfg(feature = "VK_EXT_custom_border_color")]
 pub use ext::VkPhysicalDeviceCustomBorderColorFeaturesEXT;
 #[cfg(feature = "VK_EXT_custom_border_color")]

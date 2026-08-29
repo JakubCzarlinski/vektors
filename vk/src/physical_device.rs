@@ -43,6 +43,8 @@ use crate::commands::PFN_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT;
 use crate::commands::PFN_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR;
 #[cfg(feature = "VK_NV_cooperative_matrix2")]
 use crate::commands::PFN_vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV;
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+use crate::commands::PFN_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT;
 #[cfg(feature = "VK_KHR_cooperative_matrix")]
 use crate::commands::PFN_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR;
 #[cfg(feature = "VK_NV_cooperative_matrix")]
@@ -278,6 +280,8 @@ use crate::types::VkBaseOutStructure;
 use crate::types::VkBool32;
 #[cfg(feature = "VK_NV_cooperative_matrix2")]
 use crate::types::VkCooperativeMatrixFlexibleDimensionsPropertiesNV;
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+use crate::types::VkCooperativeMatrixProperties2EXT;
 #[cfg(feature = "VK_KHR_cooperative_matrix")]
 use crate::types::VkCooperativeMatrixPropertiesKHR;
 #[cfg(feature = "VK_NV_cooperative_matrix")]
@@ -376,6 +380,8 @@ use crate::types::VkPerformanceCounterDescriptionKHR;
 use crate::types::VkPerformanceCounterKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkPhysicalDevice;
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+use crate::types::VkPhysicalDeviceCooperativeMatrixInfo2EXT;
 #[cfg(feature = "VK_BASE_VERSION_1_1")]
 use crate::types::VkPhysicalDeviceExternalBufferInfo;
 #[cfg(feature = "VK_KHR_external_memory_capabilities")]
@@ -581,6 +587,9 @@ pub struct PhysicalDeviceDispatchTable {
   #[cfg(feature = "VK_EXT_calibrated_timestamps")]
   pub vkGetPhysicalDeviceCalibrateableTimeDomainsEXT:
     Option<PFN_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT>,
+  #[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+  pub vkGetPhysicalDeviceCooperativeMatrixProperties2EXT:
+    Option<PFN_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT>,
   #[cfg(feature = "VK_EXT_descriptor_heap")]
   pub vkGetPhysicalDeviceDescriptorSizeEXT: Option<PFN_vkGetPhysicalDeviceDescriptorSizeEXT>,
   #[cfg(feature = "VK_EXT_direct_mode_display")]
@@ -820,6 +829,8 @@ impl PhysicalDeviceDispatchTable {
     vkGetRandROutputDisplayEXT: None,
     #[cfg(feature = "VK_EXT_calibrated_timestamps")]
     vkGetPhysicalDeviceCalibrateableTimeDomainsEXT: None,
+    #[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+    vkGetPhysicalDeviceCooperativeMatrixProperties2EXT: None,
     #[cfg(feature = "VK_EXT_descriptor_heap")]
     vkGetPhysicalDeviceDescriptorSizeEXT: None,
     #[cfg(feature = "VK_EXT_direct_mode_display")]
@@ -1096,6 +1107,11 @@ impl PhysicalDeviceDispatchTable {
       #[cfg(feature = "VK_EXT_calibrated_timestamps")]
       vkGetPhysicalDeviceCalibrateableTimeDomainsEXT: loader(
         c"vkGetPhysicalDeviceCalibrateableTimeDomainsEXT".as_ptr(),
+      )
+      .map(|f| unsafe { core::mem::transmute(f) }),
+      #[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+      vkGetPhysicalDeviceCooperativeMatrixProperties2EXT: loader(
+        c"vkGetPhysicalDeviceCooperativeMatrixProperties2EXT".as_ptr(),
       )
       .map(|f| unsafe { core::mem::transmute(f) }),
       #[cfg(feature = "VK_EXT_descriptor_heap")]
@@ -2733,6 +2749,54 @@ impl<'inst> PhysicalDevice<'inst> {
       (&self.instance.physical_device_table)
         .vkGetPhysicalDeviceCalibrateableTimeDomainsEXT
         .unwrap_unchecked()(self.raw, pTimeDomainCount, pTimeDomains)
+    };
+    if r >= VkResult::SUCCESS {
+      Ok(r)
+    } else {
+      core::hint::cold_path();
+      Err(r)
+    }
+  }
+  /// [`vkGetPhysicalDeviceCooperativeMatrixProperties2EXT`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetPhysicalDeviceCooperativeMatrixProperties2EXT.html)
+  ///
+  /// Provided by:
+  /// - `VK_EXT_cooperative_matrix_maintenance1`
+  ///
+  ///
+  /// # Parameters
+  /// - `physicalDevice`
+  /// - `pCooperativeMatrixInfo`
+  /// - `pPropertyCount`: optional: pointer required, values optional if pointer not null
+  /// - `pProperties`: optional: true, len: pPropertyCount
+  ///
+  /// # Returns
+  ///
+  /// **Success Codes:**
+  ///   - `VK_SUCCESS`
+  ///   - `VK_INCOMPLETE`
+  ///
+  /// **Error Codes:**
+  ///   - `VK_ERROR_OUT_OF_HOST_MEMORY`
+  ///   - `VK_ERROR_OUT_OF_DEVICE_MEMORY`
+  ///   - `VK_ERROR_UNKNOWN`
+  ///   - `VK_ERROR_VALIDATION_FAILED`
+  #[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+  #[inline(always)]
+  pub fn vkGetPhysicalDeviceCooperativeMatrixProperties2EXT(
+    &self,
+    pCooperativeMatrixInfo: &VkPhysicalDeviceCooperativeMatrixInfo2EXT<'_>,
+    pPropertyCount: &mut u32,
+    pProperties: *mut VkCooperativeMatrixProperties2EXT<'_>,
+  ) -> Result<VkResult, VkResult> {
+    let r = unsafe {
+      (&self.instance.physical_device_table)
+        .vkGetPhysicalDeviceCooperativeMatrixProperties2EXT
+        .unwrap_unchecked()(
+        self.raw,
+        pCooperativeMatrixInfo,
+        pPropertyCount,
+        pProperties,
+      )
     };
     if r >= VkResult::SUCCESS {
       Ok(r)

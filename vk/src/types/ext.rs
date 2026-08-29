@@ -19,12 +19,20 @@ use crate::enums::VkBufferUsageFlagBits;
 use crate::enums::VkBuildMicromapFlagBitsEXT;
 #[cfg(feature = "VK_EXT_opacity_micromap")]
 use crate::enums::VkBuildMicromapModeEXT;
+#[cfg(any(
+  feature = "VK_NV_cooperative_vector",
+  feature = "VK_KHR_cooperative_matrix",
+  feature = "VK_NV_cooperative_matrix"
+))]
+use crate::enums::VkComponentTypeKHR;
 #[cfg(feature = "VK_KHR_surface")]
 use crate::enums::VkCompositeAlphaFlagBitsKHR;
 #[cfg(feature = "VK_EXT_conditional_rendering")]
 use crate::enums::VkConditionalRenderingFlagBitsEXT;
 #[cfg(feature = "VK_EXT_conservative_rasterization")]
 use crate::enums::VkConservativeRasterizationModeEXT;
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+use crate::enums::VkCooperativeMatrixFlagBitsEXT;
 #[cfg(feature = "VK_EXT_opacity_micromap")]
 use crate::enums::VkCopyMicromapModeEXT;
 #[cfg(feature = "VK_EXT_debug_report")]
@@ -192,6 +200,11 @@ use crate::enums::VkRayTracingInvocationReorderModeEXT;
 use crate::enums::VkSampleCountFlagBits;
 #[cfg(feature = "VK_EXT_sampler_filter_minmax")]
 use crate::enums::VkSamplerReductionModeEXT;
+#[cfg(any(
+  feature = "VK_KHR_cooperative_matrix",
+  feature = "VK_NV_cooperative_matrix"
+))]
+use crate::enums::VkScopeKHR;
 #[cfg(feature = "VK_EXT_shader_object")]
 use crate::enums::VkShaderCodeTypeEXT;
 #[cfg(any(
@@ -2647,6 +2660,312 @@ impl<'a> VkPipelineRasterizationConservativeStateCreateInfoEXT<'a> {
     val: &'a T,
   ) -> Self {
     self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+}
+/// [VkCooperativeMatrixFlagsEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkCooperativeMatrixFlagsEXT.html)
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+pub type VkCooperativeMatrixFlagsEXT = VkCooperativeMatrixFlagBitsEXT;
+/// [VkPhysicalDeviceCooperativeMatrixInfo2EXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceCooperativeMatrixInfo2EXT.html)
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPhysicalDeviceCooperativeMatrixInfo2EXT<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_INFO_2_EXT
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *const c_void,
+  pub scope: VkScopeKHR,
+  /// Optional: true
+  pub invocations: u32,
+  /// Optional: true
+  pub subgroupSize: u32,
+  /// Optional: true
+  pub flags: VkCooperativeMatrixFlagsEXT,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+unsafe impl<'a> Send for VkPhysicalDeviceCooperativeMatrixInfo2EXT<'a> {}
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+unsafe impl<'a> Sync for VkPhysicalDeviceCooperativeMatrixInfo2EXT<'a> {}
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+impl<'a> VkPhysicalDeviceCooperativeMatrixInfo2EXT<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::PHYSICAL_DEVICE_COOPERATIVE_MATRIX_INFO_2_EXT,
+    pNext: core::ptr::null(),
+    scope: VkScopeKHR(0),
+    invocations: 0,
+    subgroupSize: 0,
+    flags: VkCooperativeMatrixFlagBitsEXT(0),
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_scope(mut self, val: VkScopeKHR) -> Self {
+    self.scope = val;
+    self
+  }
+  #[inline]
+  pub const fn with_invocations(mut self, val: u32) -> Self {
+    self.invocations = val;
+    self
+  }
+  #[inline]
+  pub const fn with_subgroupSize(mut self, val: u32) -> Self {
+    self.subgroupSize = val;
+    self
+  }
+  #[inline]
+  pub const fn with_flags(mut self, val: VkCooperativeMatrixFlagsEXT) -> Self {
+    self.flags = val;
+    self
+  }
+  #[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceCooperativeMatrixInfo2EXT<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceCooperativeMatrixInfo2EXT<'root>>,
+  >(
+    mut self,
+    val: &'a T,
+  ) -> Self {
+    self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+}
+/// [VkCooperativeMatrixProperties2EXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkCooperativeMatrixProperties2EXT.html)
+///
+/// *Note: This is a **returned only** struct.*
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkCooperativeMatrixProperties2EXT<'a> {
+  /// Values: VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_2_EXT
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  pub MGranularity: u32,
+  pub NGranularity: u32,
+  pub KGranularity: u32,
+  pub AType: VkComponentTypeKHR,
+  pub BType: VkComponentTypeKHR,
+  pub CType: VkComponentTypeKHR,
+  pub ResultType: VkComponentTypeKHR,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+unsafe impl<'a> Send for VkCooperativeMatrixProperties2EXT<'a> {}
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+unsafe impl<'a> Sync for VkCooperativeMatrixProperties2EXT<'a> {}
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+impl<'a> VkCooperativeMatrixProperties2EXT<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::COOPERATIVE_MATRIX_PROPERTIES_2_EXT,
+    pNext: core::ptr::null_mut(),
+    MGranularity: 0,
+    NGranularity: 0,
+    KGranularity: 0,
+    AType: VkComponentTypeKHR(0),
+    BType: VkComponentTypeKHR(0),
+    CType: VkComponentTypeKHR(0),
+    ResultType: VkComponentTypeKHR(0),
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_MGranularity(mut self, val: u32) -> Self {
+    self.MGranularity = val;
+    self
+  }
+  #[inline]
+  pub const fn with_NGranularity(mut self, val: u32) -> Self {
+    self.NGranularity = val;
+    self
+  }
+  #[inline]
+  pub const fn with_KGranularity(mut self, val: u32) -> Self {
+    self.KGranularity = val;
+    self
+  }
+  #[inline]
+  pub const fn with_AType(mut self, val: VkComponentTypeKHR) -> Self {
+    self.AType = val;
+    self
+  }
+  #[inline]
+  pub const fn with_BType(mut self, val: VkComponentTypeKHR) -> Self {
+    self.BType = val;
+    self
+  }
+  #[inline]
+  pub const fn with_CType(mut self, val: VkComponentTypeKHR) -> Self {
+    self.CType = val;
+    self
+  }
+  #[inline]
+  pub const fn with_ResultType(mut self, val: VkComponentTypeKHR) -> Self {
+    self.ResultType = val;
+    self
+  }
+  #[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkCooperativeMatrixProperties2EXT<
+    'root,
+    T: VkPNextExtends<VkCooperativeMatrixProperties2EXT<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT.html)
+///
+/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_MAINTENANCE_1_FEATURES_EXT
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  pub cooperativeMatrixProperties2: VkBool32,
+  pub cooperativeMatrixReductions: VkBool32,
+  pub cooperativeMatrixConversions: VkBool32,
+  pub cooperativeMatrixPerElementOperations: VkBool32,
+  pub cooperativeMatrixGetCoordinate: VkBool32,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+unsafe impl<'a> Send for VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT<'a> {}
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+unsafe impl<'a> Sync for VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT<'a> {}
+#[cfg(all(
+  feature = "VK_EXT_cooperative_matrix_maintenance1",
+  feature = "VK_BASE_VERSION_1_1"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
+  for VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT<'child>
+{
+}
+#[cfg(all(
+  feature = "VK_EXT_cooperative_matrix_maintenance1",
+  feature = "VK_BASE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
+  for VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT<'child>
+{
+}
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+impl<'a> VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::PHYSICAL_DEVICE_COOPERATIVE_MATRIX_MAINTENANCE_1_FEATURES_EXT,
+    pNext: core::ptr::null_mut(),
+    cooperativeMatrixProperties2: 0,
+    cooperativeMatrixReductions: 0,
+    cooperativeMatrixConversions: 0,
+    cooperativeMatrixPerElementOperations: 0,
+    cooperativeMatrixGetCoordinate: 0,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_cooperativeMatrixProperties2(mut self, val: VkBool32) -> Self {
+    self.cooperativeMatrixProperties2 = val;
+    self
+  }
+  #[inline]
+  pub const fn with_cooperativeMatrixReductions(mut self, val: VkBool32) -> Self {
+    self.cooperativeMatrixReductions = val;
+    self
+  }
+  #[inline]
+  pub const fn with_cooperativeMatrixConversions(mut self, val: VkBool32) -> Self {
+    self.cooperativeMatrixConversions = val;
+    self
+  }
+  #[inline]
+  pub const fn with_cooperativeMatrixPerElementOperations(mut self, val: VkBool32) -> Self {
+    self.cooperativeMatrixPerElementOperations = val;
+    self
+  }
+  #[inline]
+  pub const fn with_cooperativeMatrixGetCoordinate(mut self, val: VkBool32) -> Self {
+    self.cooperativeMatrixGetCoordinate = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkDeviceCreateInfo<
+    'root,
+    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
     self
   }
 }

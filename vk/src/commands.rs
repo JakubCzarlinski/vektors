@@ -243,6 +243,8 @@ use crate::enums::VkCompressedTriangleFormatAMDX;
 use crate::enums::VkConditionalRenderingFlagBitsEXT;
 #[cfg(feature = "VK_EXT_conservative_rasterization")]
 use crate::enums::VkConservativeRasterizationModeEXT;
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+use crate::enums::VkCooperativeMatrixFlagBitsEXT;
 #[cfg(feature = "VK_NV_cooperative_vector")]
 use crate::enums::VkCooperativeVectorMatrixLayoutNV;
 #[cfg(any(
@@ -2089,8 +2091,12 @@ use crate::types::VkConformanceVersion;
 use crate::types::VkConformanceVersionKHR;
 #[cfg(feature = "VK_NV_cooperative_vector")]
 use crate::types::VkConvertCooperativeVectorMatrixInfoNV;
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+use crate::types::VkCooperativeMatrixFlagsEXT;
 #[cfg(feature = "VK_NV_cooperative_matrix2")]
 use crate::types::VkCooperativeMatrixFlexibleDimensionsPropertiesNV;
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+use crate::types::VkCooperativeMatrixProperties2EXT;
 #[cfg(feature = "VK_KHR_cooperative_matrix")]
 use crate::types::VkCooperativeMatrixPropertiesKHR;
 #[cfg(feature = "VK_NV_cooperative_matrix")]
@@ -3639,6 +3645,10 @@ use crate::types::VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV;
 use crate::types::VkPhysicalDeviceCooperativeMatrixFeaturesKHR;
 #[cfg(feature = "VK_NV_cooperative_matrix")]
 use crate::types::VkPhysicalDeviceCooperativeMatrixFeaturesNV;
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+use crate::types::VkPhysicalDeviceCooperativeMatrixInfo2EXT;
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+use crate::types::VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT;
 #[cfg(feature = "VK_KHR_cooperative_matrix")]
 use crate::types::VkPhysicalDeviceCooperativeMatrixPropertiesKHR;
 #[cfg(feature = "VK_NV_cooperative_matrix")]
@@ -20184,6 +20194,37 @@ pub type PFN_vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV 
     physicalDevice: VkPhysicalDevice,
     pPropertyCount: *mut u32,
     pProperties: *mut VkCooperativeMatrixFlexibleDimensionsPropertiesNV<'_>,
+  ) -> VkResult;
+/// [`vkGetPhysicalDeviceCooperativeMatrixProperties2EXT`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetPhysicalDeviceCooperativeMatrixProperties2EXT.html)
+///
+/// Provided by:
+/// - `VK_EXT_cooperative_matrix_maintenance1`
+///
+///
+/// # Parameters
+/// - `physicalDevice`
+/// - `pCooperativeMatrixInfo`
+/// - `pPropertyCount`: optional: pointer required, values optional if pointer not null
+/// - `pProperties`: optional: true, len: pPropertyCount
+///
+/// # Returns
+///
+/// **Success Codes:**
+///   - `VK_SUCCESS`
+///   - `VK_INCOMPLETE`
+///
+/// **Error Codes:**
+///   - `VK_ERROR_OUT_OF_HOST_MEMORY`
+///   - `VK_ERROR_OUT_OF_DEVICE_MEMORY`
+///   - `VK_ERROR_UNKNOWN`
+///   - `VK_ERROR_VALIDATION_FAILED`
+#[cfg(feature = "VK_EXT_cooperative_matrix_maintenance1")]
+pub type PFN_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT =
+  unsafe extern "system" fn(
+    physicalDevice: VkPhysicalDevice,
+    pCooperativeMatrixInfo: *const VkPhysicalDeviceCooperativeMatrixInfo2EXT<'_>,
+    pPropertyCount: *mut u32,
+    pProperties: *mut VkCooperativeMatrixProperties2EXT<'_>,
   ) -> VkResult;
 /// [`vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR.html)
 ///
