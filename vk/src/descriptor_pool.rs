@@ -76,7 +76,8 @@ impl DescriptorPoolDispatchTable {
 pub struct DescriptorPool<'dev> {
   pub(crate) raw: VkDescriptorPool,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev DescriptorPoolDispatchTable,
+  #[cfg(not(feature = "VKSC_VERSION_1_0"))]
+  pub(crate) free_descriptor_sets: bool,
 }
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 unsafe impl<'dev> Send for DescriptorPool<'dev> {}
@@ -90,7 +91,7 @@ impl<'dev> Drop for DescriptorPool<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyDescriptorPool).unwrap_unchecked()(
+      ((&self.parent.descriptor_pool_table).vkDestroyDescriptorPool).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -118,7 +119,7 @@ impl<'dev> DescriptorPool<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &DescriptorPoolDispatchTable {
-    self.table
+    &self.parent.descriptor_pool_table
   }
   /// [`vkAllocateDescriptorSets`](https://docs.vulkan.org/refpages/latest/refpages/source/vkAllocateDescriptorSets.html)
   ///
@@ -155,7 +156,7 @@ impl<'dev> DescriptorPool<'dev> {
     );
     {
       let r = unsafe {
-        self.table.vkAllocateDescriptorSets.unwrap_unchecked()(
+        self.table().vkAllocateDescriptorSets.unwrap_unchecked()(
           self.device().raw,
           pAllocateInfo,
           raw_sets.as_mut_ptr().cast(),
@@ -170,11 +171,7 @@ impl<'dev> DescriptorPool<'dev> {
     Ok(
       raw_sets
         .into_iter()
-        .map(|raw| crate::descriptor_set::DescriptorSet {
-          raw,
-          parent: self,
-          table: &self.device().descriptor_set_table,
-        })
+        .map(|raw| crate::descriptor_set::DescriptorSet { raw, parent: self })
         .collect(),
     )
   }
@@ -198,11 +195,9 @@ impl<'dev> DescriptorPool<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyDescriptorPool.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pAllocator,
-      )
+      (&self.parent.descriptor_pool_table)
+        .vkDestroyDescriptorPool
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkDescriptorPool::NULL;
   }
@@ -234,7 +229,7 @@ impl<'dev> DescriptorPool<'dev> {
     pDescriptorSets: &[VkDescriptorSet],
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table.vkFreeDescriptorSets.unwrap_unchecked())(
+      (self.table().vkFreeDescriptorSets.unwrap_unchecked())(
         self.device().raw,
         self.raw,
         pDescriptorSets.len() as u32,
@@ -275,7 +270,9 @@ impl<'dev> DescriptorPool<'dev> {
     flags: VkDescriptorPoolResetFlags,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkResetDescriptorPool.unwrap_unchecked()(self.device().raw(), self.raw, flags)
+      (&self.parent.descriptor_pool_table)
+        .vkResetDescriptorPool
+        .unwrap_unchecked()(self.device().raw(), self.raw, flags)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)

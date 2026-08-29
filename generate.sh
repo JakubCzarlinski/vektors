@@ -1,8 +1,9 @@
 version="0.1.14"
 
 mkdir -p registry
-curl -o registry/video.xml https://raw.githubusercontent.com/KhronosGroup/Vulkan-Docs/refs/heads/main/xml/video.xml
-curl -o registry/vk.xml https://raw.githubusercontent.com/KhronosGroup/Vulkan-Docs/refs/heads/main/xml/vk.xml
+registry_version="v1.4.357"
+curl -o registry/video.xml "https://raw.githubusercontent.com/KhronosGroup/Vulkan-Docs/${registry_version}/xml/video.xml"
+curl -o registry/vk.xml "https://raw.githubusercontent.com/KhronosGroup/Vulkan-Docs/${registry_version}/xml/vk.xml"
 
 cargo run -p vk-codegen -- \
   --vk ./registry/vk.xml \

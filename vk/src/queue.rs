@@ -237,7 +237,6 @@ impl QueueDispatchTable {
 pub struct Queue<'dev> {
   pub(crate) raw: VkQueue,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev QueueDispatchTable,
 }
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 unsafe impl<'dev> Send for Queue<'dev> {}
@@ -271,7 +270,7 @@ impl<'dev> Queue<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &QueueDispatchTable {
-    self.table
+    &self.parent.queue_table
   }
   /// [`vkQueueBindSparse`](https://docs.vulkan.org/refpages/latest/refpages/source/vkQueueBindSparse.html)
   ///
@@ -307,12 +306,9 @@ impl<'dev> Queue<'dev> {
     fence: VkFence,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkQueueBindSparse.unwrap_unchecked()(
-        self.raw,
-        pBindInfo.len() as u32,
-        pBindInfo.as_ptr(),
-        fence,
-      )
+      (&self.parent.queue_table)
+        .vkQueueBindSparse
+        .unwrap_unchecked()(self.raw, pBindInfo.len() as u32, pBindInfo.as_ptr(), fence)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)
@@ -354,7 +350,7 @@ impl<'dev> Queue<'dev> {
     fence: VkFence,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkQueueSubmit.unwrap_unchecked()(
+      (&self.parent.queue_table).vkQueueSubmit.unwrap_unchecked()(
         self.raw,
         pSubmits.len() as u32,
         pSubmits.as_ptr(),
@@ -392,7 +388,11 @@ impl<'dev> Queue<'dev> {
   #[cfg(feature = "VK_BASE_VERSION_1_0")]
   #[inline(always)]
   pub fn vkQueueWaitIdle(&self) -> Result<VkResult, VkResult> {
-    let r = unsafe { (self.table).vkQueueWaitIdle.unwrap_unchecked()(self.raw) };
+    let r = unsafe {
+      (&self.parent.queue_table)
+        .vkQueueWaitIdle
+        .unwrap_unchecked()(self.raw)
+    };
     if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
@@ -432,7 +432,7 @@ impl<'dev> Queue<'dev> {
     fence: VkFence,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkQueueSubmit2.unwrap_unchecked()(
+      (&self.parent.queue_table).vkQueueSubmit2.unwrap_unchecked()(
         self.raw,
         pSubmits.len() as u32,
         pSubmits.as_ptr(),
@@ -460,7 +460,7 @@ impl<'dev> Queue<'dev> {
   pub fn vkQueueBeginDebugUtilsLabelEXT(&self, pLabelInfo: &VkDebugUtilsLabelEXT<'_>) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.queue_table)
         .vkQueueBeginDebugUtilsLabelEXT
         .unwrap_unchecked()(self.raw, pLabelInfo)
     }
@@ -478,7 +478,9 @@ impl<'dev> Queue<'dev> {
   pub fn vkQueueEndDebugUtilsLabelEXT(&self) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkQueueEndDebugUtilsLabelEXT.unwrap_unchecked()(self.raw)
+      (&self.parent.queue_table)
+        .vkQueueEndDebugUtilsLabelEXT
+        .unwrap_unchecked()(self.raw)
     }
   }
   /// [`vkQueueInsertDebugUtilsLabelEXT`](https://docs.vulkan.org/refpages/latest/refpages/source/vkQueueInsertDebugUtilsLabelEXT.html)
@@ -495,7 +497,7 @@ impl<'dev> Queue<'dev> {
   pub fn vkQueueInsertDebugUtilsLabelEXT(&self, pLabelInfo: &VkDebugUtilsLabelEXT<'_>) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.queue_table)
         .vkQueueInsertDebugUtilsLabelEXT
         .unwrap_unchecked()(self.raw, pLabelInfo)
     }
@@ -527,7 +529,7 @@ impl<'dev> Queue<'dev> {
     configuration: VkPerformanceConfigurationINTEL,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.queue_table)
         .vkQueueSetPerformanceConfigurationINTEL
         .unwrap_unchecked()(self.raw, configuration)
     };
@@ -570,7 +572,11 @@ impl<'dev> Queue<'dev> {
     &self,
     pPresentInfo: &VkPresentInfoKHR<'_>,
   ) -> Result<VkResult, VkResult> {
-    let r = unsafe { (self.table).vkQueuePresentKHR.unwrap_unchecked()(self.raw, pPresentInfo) };
+    let r = unsafe {
+      (&self.parent.queue_table)
+        .vkQueuePresentKHR
+        .unwrap_unchecked()(self.raw, pPresentInfo)
+    };
     if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
@@ -610,12 +616,9 @@ impl<'dev> Queue<'dev> {
     fence: VkFence,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkQueueSubmit2KHR.unwrap_unchecked()(
-        self.raw,
-        pSubmits.len() as u32,
-        pSubmits.as_ptr(),
-        fence,
-      )
+      (&self.parent.queue_table)
+        .vkQueueSubmit2KHR
+        .unwrap_unchecked()(self.raw, pSubmits.len() as u32, pSubmits.as_ptr(), fence)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)
@@ -653,11 +656,9 @@ impl<'dev> Queue<'dev> {
   ) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkGetQueueCheckpointData2NV.unwrap_unchecked()(
-        self.raw,
-        pCheckpointDataCount,
-        pCheckpointData,
-      )
+      (&self.parent.queue_table)
+        .vkGetQueueCheckpointData2NV
+        .unwrap_unchecked()(self.raw, pCheckpointDataCount, pCheckpointData)
     }
   }
   /// [`vkGetQueueCheckpointDataNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetQueueCheckpointDataNV.html)
@@ -679,11 +680,9 @@ impl<'dev> Queue<'dev> {
   ) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkGetQueueCheckpointDataNV.unwrap_unchecked()(
-        self.raw,
-        pCheckpointDataCount,
-        pCheckpointData,
-      )
+      (&self.parent.queue_table)
+        .vkGetQueueCheckpointDataNV
+        .unwrap_unchecked()(self.raw, pCheckpointDataCount, pCheckpointData)
     }
   }
   /// [`vkQueueNotifyOutOfBandLegacyNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkQueueNotifyOutOfBandLegacyNV.html)
@@ -700,7 +699,7 @@ impl<'dev> Queue<'dev> {
   pub fn vkQueueNotifyOutOfBandLegacyNV(&self, queueType: u32) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.queue_table)
         .vkQueueNotifyOutOfBandLegacyNV
         .unwrap_unchecked()(self.raw, queueType)
     }
@@ -719,7 +718,9 @@ impl<'dev> Queue<'dev> {
   pub fn vkQueueNotifyOutOfBandNV(&self, pQueueTypeInfo: &VkOutOfBandQueueTypeInfoNV<'_>) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkQueueNotifyOutOfBandNV.unwrap_unchecked()(self.raw, pQueueTypeInfo)
+      (&self.parent.queue_table)
+        .vkQueueNotifyOutOfBandNV
+        .unwrap_unchecked()(self.raw, pQueueTypeInfo)
     }
   }
   /// [`vkQueueSetPerfHintQCOM`](https://docs.vulkan.org/refpages/latest/refpages/source/vkQueueSetPerfHintQCOM.html)
@@ -747,8 +748,11 @@ impl<'dev> Queue<'dev> {
     &self,
     pPerfHintInfo: &VkPerfHintInfoQCOM<'_>,
   ) -> Result<VkResult, VkResult> {
-    let r =
-      unsafe { (self.table).vkQueueSetPerfHintQCOM.unwrap_unchecked()(self.raw, pPerfHintInfo) };
+    let r = unsafe {
+      (&self.parent.queue_table)
+        .vkQueueSetPerfHintQCOM
+        .unwrap_unchecked()(self.raw, pPerfHintInfo)
+    };
     if r >= VkResult::SUCCESS {
       Ok(r)
     } else {

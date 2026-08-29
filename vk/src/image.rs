@@ -162,7 +162,6 @@ impl ImageDispatchTable {
 pub struct Image<'dev> {
   pub(crate) raw: VkImage,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev ImageDispatchTable,
 }
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 unsafe impl<'dev> Send for Image<'dev> {}
@@ -175,7 +174,11 @@ impl<'dev> Drop for Image<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyImage).unwrap_unchecked()(self.parent.raw(), self.raw, core::ptr::null())
+      ((&self.parent.image_table).vkDestroyImage).unwrap_unchecked()(
+        self.parent.raw(),
+        self.raw,
+        core::ptr::null(),
+      )
     };
   }
 }
@@ -199,7 +202,7 @@ impl<'dev> Image<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &ImageDispatchTable {
-    self.table
+    &self.parent.image_table
   }
   /// [`vkBindImageMemory`](https://docs.vulkan.org/refpages/latest/refpages/source/vkBindImageMemory.html)
   ///
@@ -232,12 +235,9 @@ impl<'dev> Image<'dev> {
     memoryOffset: VkDeviceSize,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkBindImageMemory.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        memory,
-        memoryOffset,
-      )
+      (&self.parent.image_table)
+        .vkBindImageMemory
+        .unwrap_unchecked()(self.device().raw(), self.raw, memory, memoryOffset)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)
@@ -265,7 +265,11 @@ impl<'dev> Image<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyImage.unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
+      (&self.parent.image_table).vkDestroyImage.unwrap_unchecked()(
+        self.device().raw(),
+        self.raw,
+        pAllocator,
+      )
     }
     self.raw = VkImage::NULL;
   }
@@ -285,11 +289,9 @@ impl<'dev> Image<'dev> {
   pub fn vkGetImageMemoryRequirements(&self, pMemoryRequirements: &mut VkMemoryRequirements) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkGetImageMemoryRequirements.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pMemoryRequirements,
-      )
+      (&self.parent.image_table)
+        .vkGetImageMemoryRequirements
+        .unwrap_unchecked()(self.device().raw(), self.raw, pMemoryRequirements)
     }
   }
   /// [`vkGetImageSparseMemoryRequirements`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetImageSparseMemoryRequirements.html)
@@ -314,7 +316,7 @@ impl<'dev> Image<'dev> {
   ) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.image_table)
         .vkGetImageSparseMemoryRequirements
         .unwrap_unchecked()(
         self.device().raw(),
@@ -345,12 +347,9 @@ impl<'dev> Image<'dev> {
   ) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkGetImageSubresourceLayout.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pSubresource,
-        pLayout,
-      )
+      (&self.parent.image_table)
+        .vkGetImageSubresourceLayout
+        .unwrap_unchecked()(self.device().raw(), self.raw, pSubresource, pLayout)
     }
   }
   /// [`vkGetImageSubresourceLayout2`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetImageSubresourceLayout2.html)
@@ -374,12 +373,9 @@ impl<'dev> Image<'dev> {
   ) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkGetImageSubresourceLayout2.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pSubresource,
-        pLayout,
-      )
+      (&self.parent.image_table)
+        .vkGetImageSubresourceLayout2
+        .unwrap_unchecked()(self.device().raw(), self.raw, pSubresource, pLayout)
     }
   }
   /// [`vkGetImageSubresourceLayout2`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetImageSubresourceLayout2.html)
@@ -407,7 +403,7 @@ impl<'dev> Image<'dev> {
   ) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.image_table)
         .vkGetImageSubresourceLayout2EXT
         .unwrap_unchecked()(self.device().raw(), self.raw, pSubresource, pLayout)
     }
@@ -439,7 +435,7 @@ impl<'dev> Image<'dev> {
     pProperties: &mut VkImageDrmFormatModifierPropertiesEXT<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.image_table)
         .vkGetImageDrmFormatModifierPropertiesEXT
         .unwrap_unchecked()(self.device().raw(), self.raw, pProperties)
     };
@@ -471,7 +467,7 @@ impl<'dev> Image<'dev> {
   ) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.image_table)
         .vkGetImageSubresourceLayout2KHR
         .unwrap_unchecked()(self.device().raw(), self.raw, pSubresource, pLayout)
     }

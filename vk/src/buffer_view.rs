@@ -43,7 +43,6 @@ impl BufferViewDispatchTable {
 pub struct BufferView<'dev> {
   pub(crate) raw: VkBufferView,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev BufferViewDispatchTable,
 }
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 unsafe impl<'dev> Send for BufferView<'dev> {}
@@ -56,7 +55,7 @@ impl<'dev> Drop for BufferView<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyBufferView).unwrap_unchecked()(
+      ((&self.parent.buffer_view_table).vkDestroyBufferView).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -84,7 +83,7 @@ impl<'dev> BufferView<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &BufferViewDispatchTable {
-    self.table
+    &self.parent.buffer_view_table
   }
   /// [`vkDestroyBufferView`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyBufferView.html)
   ///
@@ -105,7 +104,9 @@ impl<'dev> BufferView<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyBufferView.unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
+      (&self.parent.buffer_view_table)
+        .vkDestroyBufferView
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkBufferView::NULL;
   }

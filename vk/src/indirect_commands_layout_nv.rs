@@ -43,7 +43,6 @@ impl IndirectCommandsLayoutNVDispatchTable {
 pub struct IndirectCommandsLayoutNV<'dev> {
   pub(crate) raw: VkIndirectCommandsLayoutNV,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev IndirectCommandsLayoutNVDispatchTable,
 }
 #[cfg(feature = "VK_NV_device_generated_commands")]
 unsafe impl<'dev> Send for IndirectCommandsLayoutNV<'dev> {}
@@ -56,11 +55,8 @@ impl<'dev> Drop for IndirectCommandsLayoutNV<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyIndirectCommandsLayoutNV).unwrap_unchecked()(
-        self.parent.raw(),
-        self.raw,
-        core::ptr::null(),
-      )
+      ((&self.parent.indirect_commands_layout_nv_table).vkDestroyIndirectCommandsLayoutNV)
+        .unwrap_unchecked()(self.parent.raw(), self.raw, core::ptr::null())
     };
   }
 }
@@ -84,7 +80,7 @@ impl<'dev> IndirectCommandsLayoutNV<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &IndirectCommandsLayoutNVDispatchTable {
-    self.table
+    &self.parent.indirect_commands_layout_nv_table
   }
   /// [`vkDestroyIndirectCommandsLayoutNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyIndirectCommandsLayoutNV.html)
   ///
@@ -107,7 +103,7 @@ impl<'dev> IndirectCommandsLayoutNV<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.indirect_commands_layout_nv_table)
         .vkDestroyIndirectCommandsLayoutNV
         .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }

@@ -43,7 +43,6 @@ impl TensorARMDispatchTable {
 pub struct TensorARM<'dev> {
   pub(crate) raw: VkTensorARM,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev TensorARMDispatchTable,
 }
 #[cfg(any(feature = "VK_EXT_descriptor_heap", feature = "VK_ARM_tensors"))]
 unsafe impl<'dev> Send for TensorARM<'dev> {}
@@ -56,7 +55,7 @@ impl<'dev> Drop for TensorARM<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyTensorARM).unwrap_unchecked()(
+      ((&self.parent.tensor_arm_table).vkDestroyTensorARM).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -84,7 +83,7 @@ impl<'dev> TensorARM<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &TensorARMDispatchTable {
-    self.table
+    &self.parent.tensor_arm_table
   }
   /// [`vkDestroyTensorARM`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyTensorARM.html)
   ///
@@ -104,7 +103,9 @@ impl<'dev> TensorARM<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyTensorARM.unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
+      (&self.parent.tensor_arm_table)
+        .vkDestroyTensorARM
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkTensorARM::NULL;
   }

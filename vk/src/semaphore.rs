@@ -70,7 +70,6 @@ impl SemaphoreDispatchTable {
 pub struct Semaphore<'dev> {
   pub(crate) raw: VkSemaphore,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev SemaphoreDispatchTable,
 }
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 unsafe impl<'dev> Send for Semaphore<'dev> {}
@@ -83,7 +82,7 @@ impl<'dev> Drop for Semaphore<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroySemaphore).unwrap_unchecked()(
+      ((&self.parent.semaphore_table).vkDestroySemaphore).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -111,7 +110,7 @@ impl<'dev> Semaphore<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &SemaphoreDispatchTable {
-    self.table
+    &self.parent.semaphore_table
   }
   /// [`vkDestroySemaphore`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroySemaphore.html)
   ///
@@ -132,7 +131,9 @@ impl<'dev> Semaphore<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroySemaphore.unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
+      (&self.parent.semaphore_table)
+        .vkDestroySemaphore
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkSemaphore::NULL;
   }
@@ -163,11 +164,9 @@ impl<'dev> Semaphore<'dev> {
   #[inline(always)]
   pub fn vkGetSemaphoreCounterValue(&self, pValue: &mut u64) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkGetSemaphoreCounterValue.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pValue,
-      )
+      (&self.parent.semaphore_table)
+        .vkGetSemaphoreCounterValue
+        .unwrap_unchecked()(self.device().raw(), self.raw, pValue)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)
@@ -203,7 +202,7 @@ impl<'dev> Semaphore<'dev> {
   #[inline(always)]
   pub fn vkGetSemaphoreCounterValueKHR(&self, pValue: &mut u64) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.semaphore_table)
         .vkGetSemaphoreCounterValueKHR
         .unwrap_unchecked()(self.device().raw(), self.raw, pValue)
     };
@@ -229,7 +228,9 @@ impl<'dev> Semaphore<'dev> {
   pub fn vkLatencySleepLegacyNV(&self, value: u64) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkLatencySleepLegacyNV.unwrap_unchecked()(self.device().raw(), self.raw, value)
+      (&self.parent.semaphore_table)
+        .vkLatencySleepLegacyNV
+        .unwrap_unchecked()(self.device().raw(), self.raw, value)
     }
   }
 }

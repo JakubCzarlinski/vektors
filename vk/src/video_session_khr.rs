@@ -67,7 +67,6 @@ impl VideoSessionKHRDispatchTable {
 pub struct VideoSessionKHR<'dev> {
   pub(crate) raw: VkVideoSessionKHR,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev VideoSessionKHRDispatchTable,
 }
 #[cfg(feature = "VK_KHR_video_queue")]
 unsafe impl<'dev> Send for VideoSessionKHR<'dev> {}
@@ -80,7 +79,7 @@ impl<'dev> Drop for VideoSessionKHR<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyVideoSessionKHR).unwrap_unchecked()(
+      ((&self.parent.video_session_khr_table).vkDestroyVideoSessionKHR).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -108,7 +107,7 @@ impl<'dev> VideoSessionKHR<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &VideoSessionKHRDispatchTable {
-    self.table
+    &self.parent.video_session_khr_table
   }
   /// [`vkBindVideoSessionMemoryKHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkBindVideoSessionMemoryKHR.html)
   ///
@@ -139,7 +138,9 @@ impl<'dev> VideoSessionKHR<'dev> {
     pBindSessionMemoryInfos: &[VkBindVideoSessionMemoryInfoKHR<'_>],
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkBindVideoSessionMemoryKHR.unwrap_unchecked()(
+      (&self.parent.video_session_khr_table)
+        .vkBindVideoSessionMemoryKHR
+        .unwrap_unchecked()(
         self.device().raw(),
         self.raw,
         pBindSessionMemoryInfos.len() as u32,
@@ -171,11 +172,9 @@ impl<'dev> VideoSessionKHR<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyVideoSessionKHR.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pAllocator,
-      )
+      (&self.parent.video_session_khr_table)
+        .vkDestroyVideoSessionKHR
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkVideoSessionKHR::NULL;
   }
@@ -208,7 +207,7 @@ impl<'dev> VideoSessionKHR<'dev> {
     pMemoryRequirements: *mut VkVideoSessionMemoryRequirementsKHR<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.video_session_khr_table)
         .vkGetVideoSessionMemoryRequirementsKHR
         .unwrap_unchecked()(
         self.device().raw(),

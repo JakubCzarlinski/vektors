@@ -43,7 +43,6 @@ impl PrivateDataSlotEXTDispatchTable {
 pub struct PrivateDataSlotEXT<'dev> {
   pub(crate) raw: VkPrivateDataSlotEXT,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev PrivateDataSlotEXTDispatchTable,
 }
 #[cfg(feature = "VK_EXT_private_data")]
 unsafe impl<'dev> Send for PrivateDataSlotEXT<'dev> {}
@@ -56,7 +55,7 @@ impl<'dev> Drop for PrivateDataSlotEXT<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyPrivateDataSlotEXT).unwrap_unchecked()(
+      ((&self.parent.private_data_slot_ext_table).vkDestroyPrivateDataSlotEXT).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -84,7 +83,7 @@ impl<'dev> PrivateDataSlotEXT<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &PrivateDataSlotEXTDispatchTable {
-    self.table
+    &self.parent.private_data_slot_ext_table
   }
   /// [`vkDestroyPrivateDataSlot`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyPrivateDataSlot.html)
   ///
@@ -105,11 +104,9 @@ impl<'dev> PrivateDataSlotEXT<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyPrivateDataSlotEXT.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pAllocator,
-      )
+      (&self.parent.private_data_slot_ext_table)
+        .vkDestroyPrivateDataSlotEXT
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkPrivateDataSlotEXT::NULL;
   }

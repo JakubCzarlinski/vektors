@@ -45,7 +45,6 @@ impl DataGraphPipelineSessionARMDispatchTable {
 pub struct DataGraphPipelineSessionARM<'dev> {
   pub(crate) raw: VkDataGraphPipelineSessionARM,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev DataGraphPipelineSessionARMDispatchTable,
 }
 #[cfg(feature = "VK_ARM_data_graph")]
 unsafe impl<'dev> Send for DataGraphPipelineSessionARM<'dev> {}
@@ -58,11 +57,8 @@ impl<'dev> Drop for DataGraphPipelineSessionARM<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyDataGraphPipelineSessionARM).unwrap_unchecked()(
-        self.parent.raw(),
-        self.raw,
-        core::ptr::null(),
-      )
+      ((&self.parent.data_graph_pipeline_session_arm_table).vkDestroyDataGraphPipelineSessionARM)
+        .unwrap_unchecked()(self.parent.raw(), self.raw, core::ptr::null())
     };
   }
 }
@@ -86,7 +82,7 @@ impl<'dev> DataGraphPipelineSessionARM<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &DataGraphPipelineSessionARMDispatchTable {
-    self.table
+    &self.parent.data_graph_pipeline_session_arm_table
   }
   /// [`vkDestroyDataGraphPipelineSessionARM`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyDataGraphPipelineSessionARM.html)
   ///
@@ -109,7 +105,7 @@ impl<'dev> DataGraphPipelineSessionARM<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.data_graph_pipeline_session_arm_table)
         .vkDestroyDataGraphPipelineSessionARM
         .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }

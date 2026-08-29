@@ -52,7 +52,6 @@ impl CudaModuleNVDispatchTable {
 pub struct CudaModuleNV<'dev> {
   pub(crate) raw: VkCudaModuleNV,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev CudaModuleNVDispatchTable,
 }
 #[cfg(feature = "VK_NV_cuda_kernel_launch")]
 unsafe impl<'dev> Send for CudaModuleNV<'dev> {}
@@ -65,7 +64,7 @@ impl<'dev> Drop for CudaModuleNV<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyCudaModuleNV).unwrap_unchecked()(
+      ((&self.parent.cuda_module_nv_table).vkDestroyCudaModuleNV).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -93,7 +92,7 @@ impl<'dev> CudaModuleNV<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &CudaModuleNVDispatchTable {
-    self.table
+    &self.parent.cuda_module_nv_table
   }
   /// [`vkDestroyCudaModuleNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyCudaModuleNV.html)
   ///
@@ -113,11 +112,9 @@ impl<'dev> CudaModuleNV<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyCudaModuleNV.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pAllocator,
-      )
+      (&self.parent.cuda_module_nv_table)
+        .vkDestroyCudaModuleNV
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkCudaModuleNV::NULL;
   }
@@ -151,12 +148,9 @@ impl<'dev> CudaModuleNV<'dev> {
     pCacheData: *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkGetCudaModuleCacheNV.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pCacheSize,
-        pCacheData,
-      )
+      (&self.parent.cuda_module_nv_table)
+        .vkGetCudaModuleCacheNV
+        .unwrap_unchecked()(self.device().raw(), self.raw, pCacheSize, pCacheData)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)

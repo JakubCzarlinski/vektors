@@ -43,7 +43,6 @@ impl CuFunctionNVXDispatchTable {
 pub struct CuFunctionNVX<'dev> {
   pub(crate) raw: VkCuFunctionNVX,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev CuFunctionNVXDispatchTable,
 }
 #[cfg(feature = "VK_NVX_binary_import")]
 unsafe impl<'dev> Send for CuFunctionNVX<'dev> {}
@@ -56,7 +55,7 @@ impl<'dev> Drop for CuFunctionNVX<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyCuFunctionNVX).unwrap_unchecked()(
+      ((&self.parent.cu_function_nvx_table).vkDestroyCuFunctionNVX).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -84,7 +83,7 @@ impl<'dev> CuFunctionNVX<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &CuFunctionNVXDispatchTable {
-    self.table
+    &self.parent.cu_function_nvx_table
   }
   /// [`vkDestroyCuFunctionNVX`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyCuFunctionNVX.html)
   ///
@@ -104,11 +103,9 @@ impl<'dev> CuFunctionNVX<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyCuFunctionNVX.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pAllocator,
-      )
+      (&self.parent.cu_function_nvx_table)
+        .vkDestroyCuFunctionNVX
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkCuFunctionNVX::NULL;
   }

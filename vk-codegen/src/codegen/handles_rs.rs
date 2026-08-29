@@ -17,6 +17,13 @@ pub struct HandleMeta {
     pub mod_name: String,
     pub table_name: String,
     pub table_field: String,
+    /// Whether each wrapper caches a direct pointer to its dispatch table.
+    ///
+    /// Direct-parent wrappers can reach the same table through their parent
+    /// without another dependent load. Command buffers are the deliberately
+    /// retained exception: their table otherwise sits behind CommandPool and
+    /// Device on the hottest call path in the API.
+    pub cache_table: bool,
     pub parent_vk_name: String,
     pub root_vk_name: String,
     pub providers: Vec<String>,
@@ -77,6 +84,7 @@ pub fn get_handle_metadata(reg: &Registry) -> BTreeMap<String, HandleMeta> {
         let mod_name = snake_case(&struct_name);
         let table_name = format!("{struct_name}DispatchTable");
         let table_field = format!("{mod_name}_table");
+        let cache_table = name == "VkCommandBuffer";
         let parent = parents
             .get(&name)
             .cloned()
@@ -93,6 +101,7 @@ pub fn get_handle_metadata(reg: &Registry) -> BTreeMap<String, HandleMeta> {
                 mod_name,
                 table_name,
                 table_field,
+                cache_table,
                 parent_vk_name: parent,
                 root_vk_name: root,
                 providers,
@@ -247,6 +256,7 @@ fn gen_handle_module(
     let _mod_name = format_ident!("{}", meta.mod_name);
     let struct_name = format_ident!("{}", meta.struct_name);
     let table_name = format_ident!("{}", meta.table_name);
+    let table_field = format_ident!("{}", meta.table_field);
 
     let mut fields_ts = TokenStream::new();
     let mut empty_ts = TokenStream::new();
@@ -257,6 +267,15 @@ fn gen_handle_module(
     imports.add_type_name(reg, &meta.vk_name);
     imports.add_type_name(reg, &meta.parent_vk_name);
 
+    let table_expr = if meta.cache_table {
+        quote! { self.table }
+    } else if meta.parent_vk_name == "VkDevice" || meta.parent_vk_name == "VkInstance" {
+        quote! { &self.parent.#table_field }
+    } else if meta.root_vk_name == "VkDevice" {
+        quote! { &self.device().#table_field }
+    } else {
+        quote! { &self.instance().#table_field }
+    };
     let mut destroy_stmt = quote! {};
     let mut drop_cfg = quote! {};
     let destroy_name = format!("vkDestroy{}", meta.struct_name);
@@ -273,29 +292,44 @@ fn gen_handle_module(
         drop_cfg = command_variants_cfg(reg, &destroy_name);
         let fp = format_ident!("{}", destroy_name);
         destroy_stmt = quote! {
-            unsafe { (self.table.#fp).unwrap_unchecked()(self.parent.raw(), self.raw, core::ptr::null()) };
+            unsafe { ((#table_expr).#fp).unwrap_unchecked()(self.parent.raw(), self.raw, core::ptr::null()) };
         };
     } else if reg.commands.contains_key(&free_group_name) {
         imports.extend_command_variants(reg, &free_group_name);
         drop_cfg = command_variants_cfg(reg, &free_group_name);
         let fp = format_ident!("{}", free_group_name);
-        destroy_stmt = quote! {
-            unsafe { (self.parent.table.#fp).unwrap_unchecked()(self.device().raw, self.parent.raw, 1, &self.raw) };
+        destroy_stmt = if meta.vk_name == "VkDescriptorSet" {
+            quote! {
+                if !self.parent.free_descriptor_sets {
+                    return;
+                }
+                unsafe { (self.parent.table().#fp).unwrap_unchecked()(self.device().raw, self.parent.raw, 1, &self.raw) };
+            }
+        } else {
+            quote! {
+                unsafe { (self.parent.table().#fp).unwrap_unchecked()(self.device().raw, self.parent.raw, 1, &self.raw) };
+            }
         };
     } else if reg.commands.contains_key(&free_name) {
         imports.extend_command_variants(reg, &free_name);
         drop_cfg = command_variants_cfg(reg, &free_name);
         let fp = format_ident!("{}", free_name);
         destroy_stmt = quote! {
-            unsafe { (self.table.#fp).unwrap_unchecked()(self.device().raw, self.raw, core::ptr::null()) };
+            unsafe { ((#table_expr).#fp).unwrap_unchecked()(self.device().raw, self.raw, core::ptr::null()) };
         };
     } else if !custom_free_name.is_empty() && reg.commands.contains_key(&custom_free_name) {
         imports.extend_command_variants(reg, &custom_free_name);
         drop_cfg = command_variants_cfg(reg, &custom_free_name);
         let fp = format_ident!("{}", custom_free_name);
         destroy_stmt = quote! {
-            unsafe { (self.table.#fp).unwrap_unchecked()(self.device().raw, self.raw, core::ptr::null()) };
+            unsafe { ((#table_expr).#fp).unwrap_unchecked()(self.device().raw, self.raw, core::ptr::null()) };
         };
+    }
+    if meta.vk_name == "VkDescriptorSet" {
+        // Vulkan SC has no individual descriptor-set free operation. Keep the
+        // wrapper pool-owned there and avoid even generating a Drop impl that
+        // mentions the non-SC pool policy field.
+        drop_cfg = quote! { #[cfg(not(feature = "VKSC_VERSION_1_0"))] };
     }
 
     for cmds in groups.values() {
@@ -333,7 +367,7 @@ fn gen_handle_module(
                     providers,
                     &meta.vk_name, // handle_base to strip
                     quote! { self.raw },
-                    quote! { self.table },
+                    table_expr.clone(),
                     handle_types,
                     Some(meta_map),
                     quote! { self.device() },
@@ -357,7 +391,7 @@ fn gen_handle_module(
                     providers,
                     &meta.vk_name, // handle_base to strip
                     quote! { self.raw },
-                    quote! { self.table },
+                    table_expr.clone(),
                     handle_types,
                     Some(meta_map),
                     device_acc,
@@ -410,7 +444,7 @@ fn gen_handle_module(
                         providers,
                         handle_base,
                         self_handle_expr,
-                        quote! { self.table },
+                        table_expr.clone(),
                         handle_types,
                         Some(meta_map),
                         quote! {},
@@ -441,7 +475,7 @@ fn gen_handle_module(
                         providers,
                         handle_base,
                         self_handle_expr,
-                        quote! { self.table },
+                        table_expr.clone(),
                         handle_types,
                         Some(meta_map),
                         quote! {},
@@ -501,7 +535,19 @@ fn gen_handle_module(
         cfg_any(&meta.providers)
     };
     let imports = imports.to_tokens(reg);
-
+    let cached_table_field = if meta.cache_table {
+        quote! { pub(crate) table: &'dev #table_name, }
+    } else {
+        quote! {}
+    };
+    let descriptor_pool_field = if meta.vk_name == "VkDescriptorPool" {
+        quote! {
+            #[cfg(not(feature = "VKSC_VERSION_1_0"))]
+            pub(crate) free_descriptor_sets: bool,
+        }
+    } else {
+        quote! {}
+    };
     quote! {
         #![allow(non_snake_case, unused_imports, clippy::too_many_arguments, clippy::missing_safety_doc)]
         use core::ffi::{c_char, c_void};
@@ -527,7 +573,8 @@ fn gen_handle_module(
         pub struct #struct_name<'dev> {
             pub(crate) raw: #vk_ident,
             pub(crate) parent: &'dev #parent_ty_decl,
-            pub(crate) table: &'dev #table_name,
+            #cached_table_field
+            #descriptor_pool_field
         }
 
         #wrapper_cfg
@@ -553,7 +600,7 @@ fn gen_handle_module(
             #[inline(always)] pub const fn parent(&self) -> &'dev #parent_ty_decl { self.parent }
             #device_method
             #instance_method
-            #[inline(always)] pub const fn table(&self) -> &#table_name { self.table }
+            #[inline(always)] pub const fn table(&self) -> &#table_name { #table_expr }
             #methods_ts
         }
     }
@@ -606,7 +653,7 @@ fn gen_allocate_command_buffers(cmd: &Command, providers: &[String]) -> TokenStr
         ) -> Result<alloc::boxed::Box<[crate::command_buffer::CommandBuffer<'pool>]>, VkResult> {
             let mut raw_buffers = alloc::boxed::Box::<[VkCommandBuffer]>::new_uninit_slice(pAllocateInfo.commandBufferCount as usize);
             {
-                let r = unsafe { (self.table.vkAllocateCommandBuffers.unwrap_unchecked())(self.device().raw, pAllocateInfo, raw_buffers.as_mut_ptr().cast()) };
+                let r = unsafe { (self.table().vkAllocateCommandBuffers.unwrap_unchecked())(self.device().raw, pAllocateInfo, raw_buffers.as_mut_ptr().cast()) };
                 #return_if_err
             }
             let raw_buffers = unsafe { raw_buffers.assume_init() };
@@ -635,7 +682,7 @@ fn gen_free_command_buffers(cmd: &Command, providers: &[String]) -> TokenStream 
             &self,
             pCommandBuffers: &[VkCommandBuffer],
         ) {
-            unsafe { (self.table.vkFreeCommandBuffers.unwrap_unchecked())(self.device().raw, self.raw, pCommandBuffers.len() as u32, pCommandBuffers.as_ptr()) }
+            unsafe { (self.table().vkFreeCommandBuffers.unwrap_unchecked())(self.device().raw, self.raw, pCommandBuffers.len() as u32, pCommandBuffers.as_ptr()) }
         }
     });
     token_stream
@@ -659,15 +706,14 @@ fn gen_allocate_descriptor_sets(cmd: &Command, providers: &[String]) -> TokenStr
         ) -> Result<alloc::boxed::Box<[crate::descriptor_set::DescriptorSet<'pool>]>, VkResult> {
             let mut raw_sets = alloc::boxed::Box::<[VkDescriptorSet]>::new_uninit_slice(pAllocateInfo.descriptorSetCount as usize);
             {
-                let r = unsafe { self.table.vkAllocateDescriptorSets.unwrap_unchecked()(self.device().raw, pAllocateInfo, raw_sets.as_mut_ptr().cast()) };
+                let r = unsafe { self.table().vkAllocateDescriptorSets.unwrap_unchecked()(self.device().raw, pAllocateInfo, raw_sets.as_mut_ptr().cast()) };
                 #return_if_err
             }
             let raw_sets = unsafe { raw_sets.assume_init() };
 
             Ok(raw_sets.into_iter().map(|raw| crate::descriptor_set::DescriptorSet {
                 raw,
-                parent: self,
-                table: &self.device().descriptor_set_table
+                parent: self
             }).collect())
         }
     });
@@ -688,7 +734,7 @@ fn gen_free_descriptor_sets(cmd: &Command, providers: &[String]) -> TokenStream 
             &self,
             pDescriptorSets: &[VkDescriptorSet],
         ) -> Result<VkResult, VkResult> {
-            let r = unsafe { (self.table.vkFreeDescriptorSets.unwrap_unchecked())(self.device().raw, self.raw, pDescriptorSets.len() as u32, pDescriptorSets.as_ptr()) };
+            let r = unsafe { (self.table().vkFreeDescriptorSets.unwrap_unchecked())(self.device().raw, self.raw, pDescriptorSets.len() as u32, pDescriptorSets.as_ptr()) };
             if r >= VkResult::SUCCESS {
                 Ok(r)
             } else {

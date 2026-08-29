@@ -1159,6 +1159,21 @@ pub fn safe_method(
                 } else {
                     quote! { #instance_accessor }
                 };
+                let table_init = if meta.cache_table {
+                    quote! { table: &#table_owner.#tf, }
+                } else {
+                    quote! {}
+                };
+                let extra_init = if meta.vk_name == "VkDescriptorPool" {
+                    quote! {
+                        #[cfg(not(feature = "VKSC_VERSION_1_0"))]
+                        free_descriptor_sets: pCreateInfo.flags.intersects(
+                            VkDescriptorPoolCreateFlagBits::FREE_DESCRIPTOR_SET
+                        ),
+                    }
+                } else {
+                    quote! {}
+                };
 
                 quote! {
                     #cfg #depr
@@ -1170,7 +1185,8 @@ pub fn safe_method(
                             Ok(crate::#md::#st {
                                 raw: handle,
                                 parent: #parent_expr,
-                                table: &#table_owner.#tf
+                                #table_init
+                                #extra_init
                             })
                         } else {
                             core::hint::cold_path();

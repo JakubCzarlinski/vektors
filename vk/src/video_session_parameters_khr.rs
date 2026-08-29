@@ -54,7 +54,6 @@ impl VideoSessionParametersKHRDispatchTable {
 pub struct VideoSessionParametersKHR<'dev> {
   pub(crate) raw: VkVideoSessionParametersKHR,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev VideoSessionParametersKHRDispatchTable,
 }
 #[cfg(feature = "VK_KHR_video_queue")]
 unsafe impl<'dev> Send for VideoSessionParametersKHR<'dev> {}
@@ -67,11 +66,8 @@ impl<'dev> Drop for VideoSessionParametersKHR<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyVideoSessionParametersKHR).unwrap_unchecked()(
-        self.parent.raw(),
-        self.raw,
-        core::ptr::null(),
-      )
+      ((&self.parent.video_session_parameters_khr_table).vkDestroyVideoSessionParametersKHR)
+        .unwrap_unchecked()(self.parent.raw(), self.raw, core::ptr::null())
     };
   }
 }
@@ -95,7 +91,7 @@ impl<'dev> VideoSessionParametersKHR<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &VideoSessionParametersKHRDispatchTable {
-    self.table
+    &self.parent.video_session_parameters_khr_table
   }
   /// [`vkDestroyVideoSessionParametersKHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyVideoSessionParametersKHR.html)
   ///
@@ -118,7 +114,7 @@ impl<'dev> VideoSessionParametersKHR<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.video_session_parameters_khr_table)
         .vkDestroyVideoSessionParametersKHR
         .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
@@ -153,7 +149,7 @@ impl<'dev> VideoSessionParametersKHR<'dev> {
     pUpdateInfo: &VkVideoSessionParametersUpdateInfoKHR<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.video_session_parameters_khr_table)
         .vkUpdateVideoSessionParametersKHR
         .unwrap_unchecked()(self.device().raw(), self.raw, pUpdateInfo)
     };

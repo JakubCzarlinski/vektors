@@ -67,7 +67,6 @@ impl BufferDispatchTable {
 pub struct Buffer<'dev> {
   pub(crate) raw: VkBuffer,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev BufferDispatchTable,
 }
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 unsafe impl<'dev> Send for Buffer<'dev> {}
@@ -80,7 +79,7 @@ impl<'dev> Drop for Buffer<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyBuffer).unwrap_unchecked()(
+      ((&self.parent.buffer_table).vkDestroyBuffer).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -108,7 +107,7 @@ impl<'dev> Buffer<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &BufferDispatchTable {
-    self.table
+    &self.parent.buffer_table
   }
   /// [`vkBindBufferMemory`](https://docs.vulkan.org/refpages/latest/refpages/source/vkBindBufferMemory.html)
   ///
@@ -142,12 +141,9 @@ impl<'dev> Buffer<'dev> {
     memoryOffset: VkDeviceSize,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkBindBufferMemory.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        memory,
-        memoryOffset,
-      )
+      (&self.parent.buffer_table)
+        .vkBindBufferMemory
+        .unwrap_unchecked()(self.device().raw(), self.raw, memory, memoryOffset)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)
@@ -175,7 +171,9 @@ impl<'dev> Buffer<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyBuffer.unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
+      (&self.parent.buffer_table)
+        .vkDestroyBuffer
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkBuffer::NULL;
   }
@@ -195,7 +193,7 @@ impl<'dev> Buffer<'dev> {
   pub fn vkGetBufferMemoryRequirements(&self, pMemoryRequirements: &mut VkMemoryRequirements) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.buffer_table)
         .vkGetBufferMemoryRequirements
         .unwrap_unchecked()(self.device().raw(), self.raw, pMemoryRequirements)
     }

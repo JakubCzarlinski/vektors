@@ -54,7 +54,6 @@ impl FramebufferDispatchTable {
 pub struct Framebuffer<'dev> {
   pub(crate) raw: VkFramebuffer,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev FramebufferDispatchTable,
 }
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 unsafe impl<'dev> Send for Framebuffer<'dev> {}
@@ -67,7 +66,7 @@ impl<'dev> Drop for Framebuffer<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyFramebuffer).unwrap_unchecked()(
+      ((&self.parent.framebuffer_table).vkDestroyFramebuffer).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -95,7 +94,7 @@ impl<'dev> Framebuffer<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &FramebufferDispatchTable {
-    self.table
+    &self.parent.framebuffer_table
   }
   /// [`vkDestroyFramebuffer`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyFramebuffer.html)
   ///
@@ -116,11 +115,9 @@ impl<'dev> Framebuffer<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyFramebuffer.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pAllocator,
-      )
+      (&self.parent.framebuffer_table)
+        .vkDestroyFramebuffer
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkFramebuffer::NULL;
   }
@@ -153,7 +150,7 @@ impl<'dev> Framebuffer<'dev> {
     pProperties: *mut VkTilePropertiesQCOM<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.framebuffer_table)
         .vkGetFramebufferTilePropertiesQCOM
         .unwrap_unchecked()(self.device().raw(), self.raw, pPropertiesCount, pProperties)
     };

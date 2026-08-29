@@ -52,7 +52,6 @@ impl AccelerationStructureNVDispatchTable {
 pub struct AccelerationStructureNV<'dev> {
   pub(crate) raw: VkAccelerationStructureNV,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev AccelerationStructureNVDispatchTable,
 }
 #[cfg(feature = "VK_NV_ray_tracing")]
 unsafe impl<'dev> Send for AccelerationStructureNV<'dev> {}
@@ -65,11 +64,8 @@ impl<'dev> Drop for AccelerationStructureNV<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyAccelerationStructureNV).unwrap_unchecked()(
-        self.parent.raw(),
-        self.raw,
-        core::ptr::null(),
-      )
+      ((&self.parent.acceleration_structure_nv_table).vkDestroyAccelerationStructureNV)
+        .unwrap_unchecked()(self.parent.raw(), self.raw, core::ptr::null())
     };
   }
 }
@@ -93,7 +89,7 @@ impl<'dev> AccelerationStructureNV<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &AccelerationStructureNVDispatchTable {
-    self.table
+    &self.parent.acceleration_structure_nv_table
   }
   /// [`vkDestroyAccelerationStructureNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyAccelerationStructureNV.html)
   ///
@@ -113,7 +109,7 @@ impl<'dev> AccelerationStructureNV<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.acceleration_structure_nv_table)
         .vkDestroyAccelerationStructureNV
         .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
@@ -145,7 +141,7 @@ impl<'dev> AccelerationStructureNV<'dev> {
   #[inline(always)]
   pub fn vkGetAccelerationStructureHandleNV(&self, pData: &mut [u8]) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.acceleration_structure_nv_table)
         .vkGetAccelerationStructureHandleNV
         .unwrap_unchecked()(
         self.device().raw(),

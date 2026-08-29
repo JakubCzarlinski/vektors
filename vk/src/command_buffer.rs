@@ -4884,7 +4884,7 @@ impl<'dev> Drop for CommandBuffer<'dev> {
       return;
     }
     unsafe {
-      (self.parent.table.vkFreeCommandBuffers).unwrap_unchecked()(
+      (self.parent.table().vkFreeCommandBuffers).unwrap_unchecked()(
         self.device().raw,
         self.parent.raw,
         1,

@@ -43,7 +43,6 @@ impl CudaFunctionNVDispatchTable {
 pub struct CudaFunctionNV<'dev> {
   pub(crate) raw: VkCudaFunctionNV,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev CudaFunctionNVDispatchTable,
 }
 #[cfg(feature = "VK_NV_cuda_kernel_launch")]
 unsafe impl<'dev> Send for CudaFunctionNV<'dev> {}
@@ -56,7 +55,7 @@ impl<'dev> Drop for CudaFunctionNV<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyCudaFunctionNV).unwrap_unchecked()(
+      ((&self.parent.cuda_function_nv_table).vkDestroyCudaFunctionNV).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -84,7 +83,7 @@ impl<'dev> CudaFunctionNV<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &CudaFunctionNVDispatchTable {
-    self.table
+    &self.parent.cuda_function_nv_table
   }
   /// [`vkDestroyCudaFunctionNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyCudaFunctionNV.html)
   ///
@@ -104,11 +103,9 @@ impl<'dev> CudaFunctionNV<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyCudaFunctionNV.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pAllocator,
-      )
+      (&self.parent.cuda_function_nv_table)
+        .vkDestroyCudaFunctionNV
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkCudaFunctionNV::NULL;
   }

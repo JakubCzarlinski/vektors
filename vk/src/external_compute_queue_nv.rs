@@ -54,7 +54,6 @@ impl ExternalComputeQueueNVDispatchTable {
 pub struct ExternalComputeQueueNV<'dev> {
   pub(crate) raw: VkExternalComputeQueueNV,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev ExternalComputeQueueNVDispatchTable,
 }
 #[cfg(feature = "VK_NV_external_compute_queue")]
 unsafe impl<'dev> Send for ExternalComputeQueueNV<'dev> {}
@@ -67,11 +66,8 @@ impl<'dev> Drop for ExternalComputeQueueNV<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyExternalComputeQueueNV).unwrap_unchecked()(
-        self.parent.raw(),
-        self.raw,
-        core::ptr::null(),
-      )
+      ((&self.parent.external_compute_queue_nv_table).vkDestroyExternalComputeQueueNV)
+        .unwrap_unchecked()(self.parent.raw(), self.raw, core::ptr::null())
     };
   }
 }
@@ -95,7 +91,7 @@ impl<'dev> ExternalComputeQueueNV<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &ExternalComputeQueueNVDispatchTable {
-    self.table
+    &self.parent.external_compute_queue_nv_table
   }
   /// [`vkDestroyExternalComputeQueueNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyExternalComputeQueueNV.html)
   ///
@@ -115,7 +111,7 @@ impl<'dev> ExternalComputeQueueNV<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.external_compute_queue_nv_table)
         .vkDestroyExternalComputeQueueNV
         .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
@@ -140,7 +136,7 @@ impl<'dev> ExternalComputeQueueNV<'dev> {
   ) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.external_compute_queue_nv_table)
         .vkGetExternalComputeQueueDataNV
         .unwrap_unchecked()(self.raw, params, pData)
     }

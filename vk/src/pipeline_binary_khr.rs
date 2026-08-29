@@ -43,7 +43,6 @@ impl PipelineBinaryKHRDispatchTable {
 pub struct PipelineBinaryKHR<'dev> {
   pub(crate) raw: VkPipelineBinaryKHR,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev PipelineBinaryKHRDispatchTable,
 }
 #[cfg(feature = "VK_KHR_pipeline_binary")]
 unsafe impl<'dev> Send for PipelineBinaryKHR<'dev> {}
@@ -56,7 +55,7 @@ impl<'dev> Drop for PipelineBinaryKHR<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyPipelineBinaryKHR).unwrap_unchecked()(
+      ((&self.parent.pipeline_binary_khr_table).vkDestroyPipelineBinaryKHR).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -84,7 +83,7 @@ impl<'dev> PipelineBinaryKHR<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &PipelineBinaryKHRDispatchTable {
-    self.table
+    &self.parent.pipeline_binary_khr_table
   }
   /// [`vkDestroyPipelineBinaryKHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyPipelineBinaryKHR.html)
   ///
@@ -104,11 +103,9 @@ impl<'dev> PipelineBinaryKHR<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyPipelineBinaryKHR.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pAllocator,
-      )
+      (&self.parent.pipeline_binary_khr_table)
+        .vkDestroyPipelineBinaryKHR
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkPipelineBinaryKHR::NULL;
   }

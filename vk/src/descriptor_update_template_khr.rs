@@ -69,7 +69,6 @@ impl DescriptorUpdateTemplateKHRDispatchTable {
 pub struct DescriptorUpdateTemplateKHR<'dev> {
   pub(crate) raw: VkDescriptorUpdateTemplateKHR,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev DescriptorUpdateTemplateKHRDispatchTable,
 }
 #[cfg(all(
   feature = "VK_KHR_descriptor_update_template",
@@ -92,11 +91,8 @@ impl<'dev> Drop for DescriptorUpdateTemplateKHR<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyDescriptorUpdateTemplateKHR).unwrap_unchecked()(
-        self.parent.raw(),
-        self.raw,
-        core::ptr::null(),
-      )
+      ((&self.parent.descriptor_update_template_khr_table).vkDestroyDescriptorUpdateTemplateKHR)
+        .unwrap_unchecked()(self.parent.raw(), self.raw, core::ptr::null())
     };
   }
 }
@@ -123,7 +119,7 @@ impl<'dev> DescriptorUpdateTemplateKHR<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &DescriptorUpdateTemplateKHRDispatchTable {
-    self.table
+    &self.parent.descriptor_update_template_khr_table
   }
   /// [`vkDestroyDescriptorUpdateTemplate`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyDescriptorUpdateTemplate.html)
   ///
@@ -151,7 +147,7 @@ impl<'dev> DescriptorUpdateTemplateKHR<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.descriptor_update_template_khr_table)
         .vkDestroyDescriptorUpdateTemplateKHR
         .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }

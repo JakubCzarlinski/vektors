@@ -58,7 +58,6 @@ impl OpticalFlowSessionNVDispatchTable {
 pub struct OpticalFlowSessionNV<'dev> {
   pub(crate) raw: VkOpticalFlowSessionNV,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev OpticalFlowSessionNVDispatchTable,
 }
 #[cfg(feature = "VK_NV_optical_flow")]
 unsafe impl<'dev> Send for OpticalFlowSessionNV<'dev> {}
@@ -71,11 +70,8 @@ impl<'dev> Drop for OpticalFlowSessionNV<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyOpticalFlowSessionNV).unwrap_unchecked()(
-        self.parent.raw(),
-        self.raw,
-        core::ptr::null(),
-      )
+      ((&self.parent.optical_flow_session_nv_table).vkDestroyOpticalFlowSessionNV)
+        .unwrap_unchecked()(self.parent.raw(), self.raw, core::ptr::null())
     };
   }
 }
@@ -99,7 +95,7 @@ impl<'dev> OpticalFlowSessionNV<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &OpticalFlowSessionNVDispatchTable {
-    self.table
+    &self.parent.optical_flow_session_nv_table
   }
   /// [`vkBindOpticalFlowSessionImageNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkBindOpticalFlowSessionImageNV.html)
   ///
@@ -133,7 +129,7 @@ impl<'dev> OpticalFlowSessionNV<'dev> {
     layout: VkImageLayout,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.optical_flow_session_nv_table)
         .vkBindOpticalFlowSessionImageNV
         .unwrap_unchecked()(self.device().raw(), self.raw, bindingPoint, view, layout)
     };
@@ -162,7 +158,7 @@ impl<'dev> OpticalFlowSessionNV<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.optical_flow_session_nv_table)
         .vkDestroyOpticalFlowSessionNV
         .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }

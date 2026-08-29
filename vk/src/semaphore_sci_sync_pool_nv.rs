@@ -55,7 +55,6 @@ impl SemaphoreSciSyncPoolNVDispatchTable {
 pub struct SemaphoreSciSyncPoolNV<'dev> {
   pub(crate) raw: VkSemaphoreSciSyncPoolNV,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev SemaphoreSciSyncPoolNVDispatchTable,
 }
 #[cfg(feature = "VK_NV_external_sci_sync2")]
 unsafe impl<'dev> Send for SemaphoreSciSyncPoolNV<'dev> {}
@@ -69,11 +68,8 @@ impl<'dev> Drop for SemaphoreSciSyncPoolNV<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroySemaphoreSciSyncPoolNV).unwrap_unchecked()(
-        self.parent.raw(),
-        self.raw,
-        core::ptr::null(),
-      )
+      ((&self.parent.semaphore_sci_sync_pool_nv_table).vkDestroySemaphoreSciSyncPoolNV)
+        .unwrap_unchecked()(self.parent.raw(), self.raw, core::ptr::null())
     };
   }
 }
@@ -97,7 +93,7 @@ impl<'dev> SemaphoreSciSyncPoolNV<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &SemaphoreSciSyncPoolNVDispatchTable {
-    self.table
+    &self.parent.semaphore_sci_sync_pool_nv_table
   }
   /// [`vkDestroySemaphoreSciSyncPoolNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroySemaphoreSciSyncPoolNV.html)
   ///
@@ -121,7 +117,7 @@ impl<'dev> SemaphoreSciSyncPoolNV<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.semaphore_sci_sync_pool_nv_table)
         .vkDestroySemaphoreSciSyncPoolNV
         .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }

@@ -43,7 +43,6 @@ impl MicromapEXTDispatchTable {
 pub struct MicromapEXT<'dev> {
   pub(crate) raw: VkMicromapEXT,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev MicromapEXTDispatchTable,
 }
 #[cfg(feature = "VK_EXT_opacity_micromap")]
 unsafe impl<'dev> Send for MicromapEXT<'dev> {}
@@ -56,7 +55,7 @@ impl<'dev> Drop for MicromapEXT<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyMicromapEXT).unwrap_unchecked()(
+      ((&self.parent.micromap_ext_table).vkDestroyMicromapEXT).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -84,7 +83,7 @@ impl<'dev> MicromapEXT<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &MicromapEXTDispatchTable {
-    self.table
+    &self.parent.micromap_ext_table
   }
   /// [`vkDestroyMicromapEXT`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyMicromapEXT.html)
   ///
@@ -104,11 +103,9 @@ impl<'dev> MicromapEXT<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyMicromapEXT.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pAllocator,
-      )
+      (&self.parent.micromap_ext_table)
+        .vkDestroyMicromapEXT
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkMicromapEXT::NULL;
   }

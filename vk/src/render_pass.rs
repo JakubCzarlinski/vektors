@@ -66,7 +66,6 @@ impl RenderPassDispatchTable {
 pub struct RenderPass<'dev> {
   pub(crate) raw: VkRenderPass,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev RenderPassDispatchTable,
 }
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 unsafe impl<'dev> Send for RenderPass<'dev> {}
@@ -79,7 +78,7 @@ impl<'dev> Drop for RenderPass<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyRenderPass).unwrap_unchecked()(
+      ((&self.parent.render_pass_table).vkDestroyRenderPass).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -107,7 +106,7 @@ impl<'dev> RenderPass<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &RenderPassDispatchTable {
-    self.table
+    &self.parent.render_pass_table
   }
   /// [`vkDestroyRenderPass`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyRenderPass.html)
   ///
@@ -128,7 +127,9 @@ impl<'dev> RenderPass<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyRenderPass.unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
+      (&self.parent.render_pass_table)
+        .vkDestroyRenderPass
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkRenderPass::NULL;
   }
@@ -148,11 +149,9 @@ impl<'dev> RenderPass<'dev> {
   pub fn vkGetRenderAreaGranularity(&self, pGranularity: &mut VkExtent2D) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkGetRenderAreaGranularity.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pGranularity,
-      )
+      (&self.parent.render_pass_table)
+        .vkGetRenderAreaGranularity
+        .unwrap_unchecked()(self.device().raw(), self.raw, pGranularity)
     }
   }
   /// [`vkGetDeviceSubpassShadingMaxWorkgroupSizeHUAWEI`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetDeviceSubpassShadingMaxWorkgroupSizeHUAWEI.html)
@@ -184,7 +183,7 @@ impl<'dev> RenderPass<'dev> {
     pMaxWorkgroupSize: *mut VkExtent2D,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.render_pass_table)
         .vkGetDeviceSubpassShadingMaxWorkgroupSizeHUAWEI
         .unwrap_unchecked()(self.device().raw(), self.raw, pMaxWorkgroupSize)
     };

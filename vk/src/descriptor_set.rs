@@ -84,20 +84,23 @@ impl DescriptorSetDispatchTable {
 pub struct DescriptorSet<'dev> {
   pub(crate) raw: VkDescriptorSet,
   pub(crate) parent: &'dev crate::descriptor_pool::DescriptorPool<'dev>,
-  pub(crate) table: &'dev DescriptorSetDispatchTable,
 }
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 unsafe impl<'dev> Send for DescriptorSet<'dev> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 unsafe impl<'dev> Sync for DescriptorSet<'dev> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+#[cfg(not(feature = "VKSC_VERSION_1_0"))]
 impl<'dev> Drop for DescriptorSet<'dev> {
   fn drop(&mut self) {
     if self.raw.0.is_null() {
       return;
     }
+    if !self.parent.free_descriptor_sets {
+      return;
+    }
     unsafe {
-      (self.parent.table.vkFreeDescriptorSets).unwrap_unchecked()(
+      (self.parent.table().vkFreeDescriptorSets).unwrap_unchecked()(
         self.device().raw,
         self.parent.raw,
         1,
@@ -126,7 +129,7 @@ impl<'dev> DescriptorSet<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &DescriptorSetDispatchTable {
-    self.table
+    &self.device().descriptor_set_table
   }
   /// [`vkUpdateDescriptorSetWithTemplate`](https://docs.vulkan.org/refpages/latest/refpages/source/vkUpdateDescriptorSetWithTemplate.html)
   ///
@@ -150,7 +153,7 @@ impl<'dev> DescriptorSet<'dev> {
   ) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.device().descriptor_set_table)
         .vkUpdateDescriptorSetWithTemplate
         .unwrap_unchecked()(
         self.device().raw(),
@@ -185,7 +188,7 @@ impl<'dev> DescriptorSet<'dev> {
   ) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.device().descriptor_set_table)
         .vkUpdateDescriptorSetWithTemplateKHR
         .unwrap_unchecked()(
         self.device().raw(),
@@ -210,7 +213,7 @@ impl<'dev> DescriptorSet<'dev> {
   pub fn vkGetDescriptorSetHostMappingVALVE(&self, ppData: &mut *mut c_void) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.device().descriptor_set_table)
         .vkGetDescriptorSetHostMappingVALVE
         .unwrap_unchecked()(self.device().raw(), self.raw, ppData)
     }

@@ -43,7 +43,6 @@ impl PipelineLayoutDispatchTable {
 pub struct PipelineLayout<'dev> {
   pub(crate) raw: VkPipelineLayout,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev PipelineLayoutDispatchTable,
 }
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 unsafe impl<'dev> Send for PipelineLayout<'dev> {}
@@ -56,7 +55,7 @@ impl<'dev> Drop for PipelineLayout<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyPipelineLayout).unwrap_unchecked()(
+      ((&self.parent.pipeline_layout_table).vkDestroyPipelineLayout).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -84,7 +83,7 @@ impl<'dev> PipelineLayout<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &PipelineLayoutDispatchTable {
-    self.table
+    &self.parent.pipeline_layout_table
   }
   /// [`vkDestroyPipelineLayout`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyPipelineLayout.html)
   ///
@@ -105,11 +104,9 @@ impl<'dev> PipelineLayout<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyPipelineLayout.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pAllocator,
-      )
+      (&self.parent.pipeline_layout_table)
+        .vkDestroyPipelineLayout
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkPipelineLayout::NULL;
   }

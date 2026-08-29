@@ -68,7 +68,6 @@ impl EventDispatchTable {
 pub struct Event<'dev> {
   pub(crate) raw: VkEvent,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev EventDispatchTable,
 }
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 unsafe impl<'dev> Send for Event<'dev> {}
@@ -81,7 +80,11 @@ impl<'dev> Drop for Event<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyEvent).unwrap_unchecked()(self.parent.raw(), self.raw, core::ptr::null())
+      ((&self.parent.event_table).vkDestroyEvent).unwrap_unchecked()(
+        self.parent.raw(),
+        self.raw,
+        core::ptr::null(),
+      )
     };
   }
 }
@@ -105,7 +108,7 @@ impl<'dev> Event<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &EventDispatchTable {
-    self.table
+    &self.parent.event_table
   }
   /// [`vkDestroyEvent`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyEvent.html)
   ///
@@ -126,7 +129,11 @@ impl<'dev> Event<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyEvent.unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
+      (&self.parent.event_table).vkDestroyEvent.unwrap_unchecked()(
+        self.device().raw(),
+        self.raw,
+        pAllocator,
+      )
     }
     self.raw = VkEvent::NULL;
   }
@@ -156,8 +163,11 @@ impl<'dev> Event<'dev> {
   #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline(always)]
   pub fn vkGetEventStatus(&self) -> Result<VkResult, VkResult> {
-    let r =
-      unsafe { (self.table).vkGetEventStatus.unwrap_unchecked()(self.device().raw(), self.raw) };
+    let r = unsafe {
+      (&self.parent.event_table)
+        .vkGetEventStatus
+        .unwrap_unchecked()(self.device().raw(), self.raw)
+    };
     if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
@@ -188,7 +198,9 @@ impl<'dev> Event<'dev> {
   #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline(always)]
   pub fn vkResetEvent(&self) -> Result<VkResult, VkResult> {
-    let r = unsafe { (self.table).vkResetEvent.unwrap_unchecked()(self.device().raw(), self.raw) };
+    let r = unsafe {
+      (&self.parent.event_table).vkResetEvent.unwrap_unchecked()(self.device().raw(), self.raw)
+    };
     if r >= VkResult::SUCCESS {
       Ok(r)
     } else {
@@ -220,7 +232,9 @@ impl<'dev> Event<'dev> {
   #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline(always)]
   pub fn vkSetEvent(&self) -> Result<VkResult, VkResult> {
-    let r = unsafe { (self.table).vkSetEvent.unwrap_unchecked()(self.device().raw(), self.raw) };
+    let r = unsafe {
+      (&self.parent.event_table).vkSetEvent.unwrap_unchecked()(self.device().raw(), self.raw)
+    };
     if r >= VkResult::SUCCESS {
       Ok(r)
     } else {

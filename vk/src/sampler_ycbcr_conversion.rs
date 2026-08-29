@@ -43,7 +43,6 @@ impl SamplerYcbcrConversionDispatchTable {
 pub struct SamplerYcbcrConversion<'dev> {
   pub(crate) raw: VkSamplerYcbcrConversion,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev SamplerYcbcrConversionDispatchTable,
 }
 #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
 unsafe impl<'dev> Send for SamplerYcbcrConversion<'dev> {}
@@ -56,11 +55,8 @@ impl<'dev> Drop for SamplerYcbcrConversion<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroySamplerYcbcrConversion).unwrap_unchecked()(
-        self.parent.raw(),
-        self.raw,
-        core::ptr::null(),
-      )
+      ((&self.parent.sampler_ycbcr_conversion_table).vkDestroySamplerYcbcrConversion)
+        .unwrap_unchecked()(self.parent.raw(), self.raw, core::ptr::null())
     };
   }
 }
@@ -84,7 +80,7 @@ impl<'dev> SamplerYcbcrConversion<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &SamplerYcbcrConversionDispatchTable {
-    self.table
+    &self.parent.sampler_ycbcr_conversion_table
   }
   /// [`vkDestroySamplerYcbcrConversion`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroySamplerYcbcrConversion.html)
   ///
@@ -105,7 +101,7 @@ impl<'dev> SamplerYcbcrConversion<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.sampler_ycbcr_conversion_table)
         .vkDestroySamplerYcbcrConversion
         .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }

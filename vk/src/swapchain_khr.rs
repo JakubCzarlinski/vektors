@@ -237,7 +237,6 @@ impl SwapchainKHRDispatchTable {
 pub struct SwapchainKHR<'dev> {
   pub(crate) raw: VkSwapchainKHR,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev SwapchainKHRDispatchTable,
 }
 #[cfg(feature = "VK_KHR_swapchain")]
 unsafe impl<'dev> Send for SwapchainKHR<'dev> {}
@@ -251,7 +250,7 @@ impl<'dev> Drop for SwapchainKHR<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroySwapchainKHR).unwrap_unchecked()(
+      ((&self.parent.swapchain_khr_table).vkDestroySwapchainKHR).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -279,7 +278,7 @@ impl<'dev> SwapchainKHR<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &SwapchainKHRDispatchTable {
-    self.table
+    &self.parent.swapchain_khr_table
   }
   /// [`vkSetLocalDimmingAMD`](https://docs.vulkan.org/refpages/latest/refpages/source/vkSetLocalDimmingAMD.html)
   ///
@@ -296,11 +295,9 @@ impl<'dev> SwapchainKHR<'dev> {
   pub fn vkSetLocalDimmingAMD(&self, localDimmingEnable: VkBool32) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkSetLocalDimmingAMD.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        localDimmingEnable,
-      )
+      (&self.parent.swapchain_khr_table)
+        .vkSetLocalDimmingAMD
+        .unwrap_unchecked()(self.device().raw(), self.raw, localDimmingEnable)
     }
   }
   /// [`vkGetSwapchainCounterEXT`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetSwapchainCounterEXT.html)
@@ -334,12 +331,9 @@ impl<'dev> SwapchainKHR<'dev> {
     pCounterValue: &mut u64,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkGetSwapchainCounterEXT.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        counter,
-        pCounterValue,
-      )
+      (&self.parent.swapchain_khr_table)
+        .vkGetSwapchainCounterEXT
+        .unwrap_unchecked()(self.device().raw(), self.raw, counter, pCounterValue)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)
@@ -374,7 +368,7 @@ impl<'dev> SwapchainKHR<'dev> {
   #[inline(always)]
   pub fn vkAcquireFullScreenExclusiveModeEXT(&self) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.swapchain_khr_table)
         .vkAcquireFullScreenExclusiveModeEXT
         .unwrap_unchecked()(self.device().raw(), self.raw)
     };
@@ -410,7 +404,7 @@ impl<'dev> SwapchainKHR<'dev> {
   #[inline(always)]
   pub fn vkReleaseFullScreenExclusiveModeEXT(&self) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.swapchain_khr_table)
         .vkReleaseFullScreenExclusiveModeEXT
         .unwrap_unchecked()(self.device().raw(), self.raw)
     };
@@ -453,7 +447,7 @@ impl<'dev> SwapchainKHR<'dev> {
     pTimeDomainsCounter: *mut u64,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.swapchain_khr_table)
         .vkGetSwapchainTimeDomainPropertiesEXT
         .unwrap_unchecked()(
         self.device().raw(),
@@ -501,7 +495,7 @@ impl<'dev> SwapchainKHR<'dev> {
     pSwapchainTimingPropertiesCounter: *mut u64,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.swapchain_khr_table)
         .vkGetSwapchainTimingPropertiesEXT
         .unwrap_unchecked()(
         self.device().raw(),
@@ -543,7 +537,7 @@ impl<'dev> SwapchainKHR<'dev> {
   #[inline(always)]
   pub fn vkSetSwapchainPresentTimingQueueSizeEXT(&self, size: u32) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.swapchain_khr_table)
         .vkSetSwapchainPresentTimingQueueSizeEXT
         .unwrap_unchecked()(self.device().raw(), self.raw, size)
     };
@@ -587,7 +581,7 @@ impl<'dev> SwapchainKHR<'dev> {
     pPresentationTimings: *mut VkPastPresentationTimingGOOGLE,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.swapchain_khr_table)
         .vkGetPastPresentationTimingGOOGLE
         .unwrap_unchecked()(
         self.device().raw(),
@@ -632,7 +626,7 @@ impl<'dev> SwapchainKHR<'dev> {
     pDisplayTimingProperties: &mut VkRefreshCycleDurationGOOGLE,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.swapchain_khr_table)
         .vkGetRefreshCycleDurationGOOGLE
         .unwrap_unchecked()(self.device().raw(), self.raw, pDisplayTimingProperties)
     };
@@ -675,12 +669,9 @@ impl<'dev> SwapchainKHR<'dev> {
   #[inline(always)]
   pub fn vkWaitForPresentKHR(&self, presentId: u64, timeout: u64) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkWaitForPresentKHR.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        presentId,
-        timeout,
-      )
+      (&self.parent.swapchain_khr_table)
+        .vkWaitForPresentKHR
+        .unwrap_unchecked()(self.device().raw(), self.raw, presentId, timeout)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)
@@ -723,11 +714,9 @@ impl<'dev> SwapchainKHR<'dev> {
     pPresentWait2Info: &VkPresentWait2InfoKHR<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkWaitForPresent2KHR.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pPresentWait2Info,
-      )
+      (&self.parent.swapchain_khr_table)
+        .vkWaitForPresent2KHR
+        .unwrap_unchecked()(self.device().raw(), self.raw, pPresentWait2Info)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)
@@ -765,7 +754,9 @@ impl<'dev> SwapchainKHR<'dev> {
   #[inline(always)]
   pub fn vkGetSwapchainStatusKHR(&self) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkGetSwapchainStatusKHR.unwrap_unchecked()(self.device().raw(), self.raw)
+      (&self.parent.swapchain_khr_table)
+        .vkGetSwapchainStatusKHR
+        .unwrap_unchecked()(self.device().raw(), self.raw)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)
@@ -815,7 +806,9 @@ impl<'dev> SwapchainKHR<'dev> {
     pImageIndex: &mut u32,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkAcquireNextImageKHR.unwrap_unchecked()(
+      (&self.parent.swapchain_khr_table)
+        .vkAcquireNextImageKHR
+        .unwrap_unchecked()(
         self.device().raw(),
         self.raw,
         timeout,
@@ -850,11 +843,9 @@ impl<'dev> SwapchainKHR<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroySwapchainKHR.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pAllocator,
-      )
+      (&self.parent.swapchain_khr_table)
+        .vkDestroySwapchainKHR
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkSwapchainKHR::NULL;
   }
@@ -889,7 +880,9 @@ impl<'dev> SwapchainKHR<'dev> {
     pSwapchainImages: *mut VkImage,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkGetSwapchainImagesKHR.unwrap_unchecked()(
+      (&self.parent.swapchain_khr_table)
+        .vkGetSwapchainImagesKHR
+        .unwrap_unchecked()(
         self.device().raw(),
         self.raw,
         pSwapchainImageCount,
@@ -918,11 +911,9 @@ impl<'dev> SwapchainKHR<'dev> {
   pub fn vkGetLatencyTimingsNV(&self, pLatencyMarkerInfo: &mut VkGetLatencyMarkerInfoNV<'_>) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkGetLatencyTimingsNV.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pLatencyMarkerInfo,
-      )
+      (&self.parent.swapchain_khr_table)
+        .vkGetLatencyTimingsNV
+        .unwrap_unchecked()(self.device().raw(), self.raw, pLatencyMarkerInfo)
     }
   }
   /// [`vkLatencySleepNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkLatencySleepNV.html)
@@ -951,7 +942,9 @@ impl<'dev> SwapchainKHR<'dev> {
     pSleepInfo: &VkLatencySleepInfoNV<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkLatencySleepNV.unwrap_unchecked()(self.device().raw(), self.raw, pSleepInfo)
+      (&self.parent.swapchain_khr_table)
+        .vkLatencySleepNV
+        .unwrap_unchecked()(self.device().raw(), self.raw, pSleepInfo)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)
@@ -975,11 +968,9 @@ impl<'dev> SwapchainKHR<'dev> {
   pub fn vkSetLatencyMarkerNV(&self, pLatencyMarkerInfo: &VkSetLatencyMarkerInfoNV<'_>) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkSetLatencyMarkerNV.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pLatencyMarkerInfo,
-      )
+      (&self.parent.swapchain_khr_table)
+        .vkSetLatencyMarkerNV
+        .unwrap_unchecked()(self.device().raw(), self.raw, pLatencyMarkerInfo)
     }
   }
   /// [`vkSetLatencySleepModeNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkSetLatencySleepModeNV.html)
@@ -1009,11 +1000,9 @@ impl<'dev> SwapchainKHR<'dev> {
     pSleepModeInfo: &VkLatencySleepModeInfoNV<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkSetLatencySleepModeNV.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pSleepModeInfo,
-      )
+      (&self.parent.swapchain_khr_table)
+        .vkSetLatencySleepModeNV
+        .unwrap_unchecked()(self.device().raw(), self.raw, pSleepModeInfo)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)

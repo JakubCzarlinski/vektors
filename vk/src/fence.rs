@@ -52,7 +52,6 @@ impl FenceDispatchTable {
 pub struct Fence<'dev> {
   pub(crate) raw: VkFence,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev FenceDispatchTable,
 }
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 unsafe impl<'dev> Send for Fence<'dev> {}
@@ -65,7 +64,11 @@ impl<'dev> Drop for Fence<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyFence).unwrap_unchecked()(self.parent.raw(), self.raw, core::ptr::null())
+      ((&self.parent.fence_table).vkDestroyFence).unwrap_unchecked()(
+        self.parent.raw(),
+        self.raw,
+        core::ptr::null(),
+      )
     };
   }
 }
@@ -89,7 +92,7 @@ impl<'dev> Fence<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &FenceDispatchTable {
-    self.table
+    &self.parent.fence_table
   }
   /// [`vkDestroyFence`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyFence.html)
   ///
@@ -110,7 +113,11 @@ impl<'dev> Fence<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyFence.unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
+      (&self.parent.fence_table).vkDestroyFence.unwrap_unchecked()(
+        self.device().raw(),
+        self.raw,
+        pAllocator,
+      )
     }
     self.raw = VkFence::NULL;
   }
@@ -140,8 +147,11 @@ impl<'dev> Fence<'dev> {
   #[cfg(feature = "VK_BASE_VERSION_1_0")]
   #[inline(always)]
   pub fn vkGetFenceStatus(&self) -> Result<VkResult, VkResult> {
-    let r =
-      unsafe { (self.table).vkGetFenceStatus.unwrap_unchecked()(self.device().raw(), self.raw) };
+    let r = unsafe {
+      (&self.parent.fence_table)
+        .vkGetFenceStatus
+        .unwrap_unchecked()(self.device().raw(), self.raw)
+    };
     if r >= VkResult::SUCCESS {
       Ok(r)
     } else {

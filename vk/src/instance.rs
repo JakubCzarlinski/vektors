@@ -465,7 +465,6 @@ impl<'lib> Instance<'lib> {
         .map(|raw| PhysicalDevice {
           raw,
           instance: self,
-          table: &self.physical_device_table,
         })
         .collect(),
     )
@@ -573,7 +572,6 @@ impl<'lib> Instance<'lib> {
       Ok(crate::debug_report_callback_ext::DebugReportCallbackEXT {
         raw: handle,
         parent: self,
-        table: &self.debug_report_callback_ext_table,
       })
     } else {
       core::hint::cold_path();
@@ -618,7 +616,6 @@ impl<'lib> Instance<'lib> {
       Ok(crate::debug_utils_messenger_ext::DebugUtilsMessengerEXT {
         raw: handle,
         parent: self,
-        table: &self.debug_utils_messenger_ext_table,
       })
     } else {
       core::hint::cold_path();
@@ -667,7 +664,6 @@ impl<'lib> Instance<'lib> {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
-        table: &self.surface_khr_table,
       })
     } else {
       core::hint::cold_path();
@@ -716,7 +712,6 @@ impl<'lib> Instance<'lib> {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
-        table: &self.surface_khr_table,
       })
     } else {
       core::hint::cold_path();
@@ -766,7 +761,6 @@ impl<'lib> Instance<'lib> {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
-        table: &self.surface_khr_table,
       })
     } else {
       core::hint::cold_path();
@@ -812,7 +806,6 @@ impl<'lib> Instance<'lib> {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
-        table: &self.surface_khr_table,
       })
     } else {
       core::hint::cold_path();
@@ -859,7 +852,6 @@ impl<'lib> Instance<'lib> {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
-        table: &self.surface_khr_table,
       })
     } else {
       core::hint::cold_path();
@@ -909,7 +901,6 @@ impl<'lib> Instance<'lib> {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
-        table: &self.surface_khr_table,
       })
     } else {
       core::hint::cold_path();
@@ -1002,7 +993,6 @@ impl<'lib> Instance<'lib> {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
-        table: &self.surface_khr_table,
       })
     } else {
       core::hint::cold_path();
@@ -1051,7 +1041,6 @@ impl<'lib> Instance<'lib> {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
-        table: &self.surface_khr_table,
       })
     } else {
       core::hint::cold_path();
@@ -1100,7 +1089,6 @@ impl<'lib> Instance<'lib> {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
-        table: &self.surface_khr_table,
       })
     } else {
       core::hint::cold_path();
@@ -1149,7 +1137,6 @@ impl<'lib> Instance<'lib> {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
-        table: &self.surface_khr_table,
       })
     } else {
       core::hint::cold_path();
@@ -1198,7 +1185,6 @@ impl<'lib> Instance<'lib> {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
-        table: &self.surface_khr_table,
       })
     } else {
       core::hint::cold_path();
@@ -1248,7 +1234,6 @@ impl<'lib> Instance<'lib> {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
-        table: &self.surface_khr_table,
       })
     } else {
       core::hint::cold_path();
@@ -1298,7 +1283,6 @@ impl<'lib> Instance<'lib> {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
-        table: &self.surface_khr_table,
       })
     } else {
       core::hint::cold_path();
@@ -1348,7 +1332,6 @@ impl<'lib> Instance<'lib> {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
-        table: &self.surface_khr_table,
       })
     } else {
       core::hint::cold_path();
@@ -1397,7 +1380,6 @@ impl<'lib> Instance<'lib> {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
-        table: &self.surface_khr_table,
       })
     } else {
       core::hint::cold_path();
@@ -1446,7 +1428,6 @@ impl<'lib> Instance<'lib> {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
-        table: &self.surface_khr_table,
       })
     } else {
       core::hint::cold_path();
@@ -1495,7 +1476,6 @@ impl<'lib> Instance<'lib> {
       Ok(crate::surface_khr::SurfaceKHR {
         raw: handle,
         parent: self,
-        table: &self.surface_khr_table,
       })
     } else {
       core::hint::cold_path();

@@ -85,7 +85,6 @@ impl PipelineCacheDispatchTable {
 pub struct PipelineCache<'dev> {
   pub(crate) raw: VkPipelineCache,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev PipelineCacheDispatchTable,
 }
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 unsafe impl<'dev> Send for PipelineCache<'dev> {}
@@ -98,7 +97,7 @@ impl<'dev> Drop for PipelineCache<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyPipelineCache).unwrap_unchecked()(
+      ((&self.parent.pipeline_cache_table).vkDestroyPipelineCache).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -126,7 +125,7 @@ impl<'dev> PipelineCache<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &PipelineCacheDispatchTable {
-    self.table
+    &self.parent.pipeline_cache_table
   }
   /// [`vkCreateExecutionGraphPipelinesAMDX`](https://docs.vulkan.org/refpages/latest/refpages/source/vkCreateExecutionGraphPipelinesAMDX.html)
   ///
@@ -163,7 +162,7 @@ impl<'dev> PipelineCache<'dev> {
     pPipelines: &mut [VkPipeline],
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.pipeline_cache_table)
         .vkCreateExecutionGraphPipelinesAMDX
         .unwrap_unchecked()(
         self.device().raw(),
@@ -200,11 +199,9 @@ impl<'dev> PipelineCache<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyPipelineCache.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pAllocator,
-      )
+      (&self.parent.pipeline_cache_table)
+        .vkDestroyPipelineCache
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkPipelineCache::NULL;
   }
@@ -241,12 +238,9 @@ impl<'dev> PipelineCache<'dev> {
     pData: *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkGetPipelineCacheData.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pDataSize,
-        pData,
-      )
+      (&self.parent.pipeline_cache_table)
+        .vkGetPipelineCacheData
+        .unwrap_unchecked()(self.device().raw(), self.raw, pDataSize, pData)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)
@@ -286,7 +280,9 @@ impl<'dev> PipelineCache<'dev> {
     pSrcCaches: &[VkPipelineCache],
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkMergePipelineCaches.unwrap_unchecked()(
+      (&self.parent.pipeline_cache_table)
+        .vkMergePipelineCaches
+        .unwrap_unchecked()(
         self.device().raw(),
         self.raw,
         pSrcCaches.len() as u32,
@@ -337,7 +333,7 @@ impl<'dev> PipelineCache<'dev> {
     pPipelines: &mut [VkPipeline],
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.pipeline_cache_table)
         .vkCreateRayTracingPipelinesNV
         .unwrap_unchecked()(
         self.device().raw(),

@@ -43,7 +43,6 @@ impl IndirectCommandsLayoutEXTDispatchTable {
 pub struct IndirectCommandsLayoutEXT<'dev> {
   pub(crate) raw: VkIndirectCommandsLayoutEXT,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev IndirectCommandsLayoutEXTDispatchTable,
 }
 #[cfg(feature = "VK_EXT_device_generated_commands")]
 unsafe impl<'dev> Send for IndirectCommandsLayoutEXT<'dev> {}
@@ -56,11 +55,8 @@ impl<'dev> Drop for IndirectCommandsLayoutEXT<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyIndirectCommandsLayoutEXT).unwrap_unchecked()(
-        self.parent.raw(),
-        self.raw,
-        core::ptr::null(),
-      )
+      ((&self.parent.indirect_commands_layout_ext_table).vkDestroyIndirectCommandsLayoutEXT)
+        .unwrap_unchecked()(self.parent.raw(), self.raw, core::ptr::null())
     };
   }
 }
@@ -84,7 +80,7 @@ impl<'dev> IndirectCommandsLayoutEXT<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &IndirectCommandsLayoutEXTDispatchTable {
-    self.table
+    &self.parent.indirect_commands_layout_ext_table
   }
   /// [`vkDestroyIndirectCommandsLayoutEXT`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyIndirectCommandsLayoutEXT.html)
   ///
@@ -107,7 +103,7 @@ impl<'dev> IndirectCommandsLayoutEXT<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.indirect_commands_layout_ext_table)
         .vkDestroyIndirectCommandsLayoutEXT
         .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }

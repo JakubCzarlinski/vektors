@@ -52,7 +52,6 @@ impl ShaderEXTDispatchTable {
 pub struct ShaderEXT<'dev> {
   pub(crate) raw: VkShaderEXT,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev ShaderEXTDispatchTable,
 }
 #[cfg(feature = "VK_EXT_shader_object")]
 unsafe impl<'dev> Send for ShaderEXT<'dev> {}
@@ -65,7 +64,7 @@ impl<'dev> Drop for ShaderEXT<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyShaderEXT).unwrap_unchecked()(
+      ((&self.parent.shader_ext_table).vkDestroyShaderEXT).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -93,7 +92,7 @@ impl<'dev> ShaderEXT<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &ShaderEXTDispatchTable {
-    self.table
+    &self.parent.shader_ext_table
   }
   /// [`vkDestroyShaderEXT`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyShaderEXT.html)
   ///
@@ -113,7 +112,9 @@ impl<'dev> ShaderEXT<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyShaderEXT.unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
+      (&self.parent.shader_ext_table)
+        .vkDestroyShaderEXT
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkShaderEXT::NULL;
   }
@@ -148,12 +149,9 @@ impl<'dev> ShaderEXT<'dev> {
     pData: *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkGetShaderBinaryDataEXT.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pDataSize,
-        pData,
-      )
+      (&self.parent.shader_ext_table)
+        .vkGetShaderBinaryDataEXT
+        .unwrap_unchecked()(self.device().raw(), self.raw, pDataSize, pData)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)

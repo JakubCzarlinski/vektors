@@ -54,7 +54,6 @@ impl ShaderModuleDispatchTable {
 pub struct ShaderModule<'dev> {
   pub(crate) raw: VkShaderModule,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev ShaderModuleDispatchTable,
 }
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 unsafe impl<'dev> Send for ShaderModule<'dev> {}
@@ -68,7 +67,7 @@ impl<'dev> Drop for ShaderModule<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyShaderModule).unwrap_unchecked()(
+      ((&self.parent.shader_module_table).vkDestroyShaderModule).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -96,7 +95,7 @@ impl<'dev> ShaderModule<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &ShaderModuleDispatchTable {
-    self.table
+    &self.parent.shader_module_table
   }
   /// [`vkDestroyShaderModule`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyShaderModule.html)
   ///
@@ -118,11 +117,9 @@ impl<'dev> ShaderModule<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyShaderModule.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pAllocator,
-      )
+      (&self.parent.shader_module_table)
+        .vkDestroyShaderModule
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkShaderModule::NULL;
   }
@@ -141,7 +138,7 @@ impl<'dev> ShaderModule<'dev> {
   pub fn vkGetShaderModuleIdentifierEXT(&self, pIdentifier: &mut VkShaderModuleIdentifierEXT<'_>) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.shader_module_table)
         .vkGetShaderModuleIdentifierEXT
         .unwrap_unchecked()(self.device().raw(), self.raw, pIdentifier)
     }

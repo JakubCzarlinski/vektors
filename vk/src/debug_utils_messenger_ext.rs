@@ -58,7 +58,6 @@ impl DebugUtilsMessengerEXTDispatchTable {
 pub struct DebugUtilsMessengerEXT<'dev> {
   pub(crate) raw: VkDebugUtilsMessengerEXT,
   pub(crate) parent: &'dev crate::instance::Instance<'dev>,
-  pub(crate) table: &'dev DebugUtilsMessengerEXTDispatchTable,
 }
 #[cfg(feature = "VK_EXT_debug_utils")]
 unsafe impl<'dev> Send for DebugUtilsMessengerEXT<'dev> {}
@@ -71,11 +70,8 @@ impl<'dev> Drop for DebugUtilsMessengerEXT<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyDebugUtilsMessengerEXT).unwrap_unchecked()(
-        self.parent.raw(),
-        self.raw,
-        core::ptr::null(),
-      )
+      ((&self.parent.debug_utils_messenger_ext_table).vkDestroyDebugUtilsMessengerEXT)
+        .unwrap_unchecked()(self.parent.raw(), self.raw, core::ptr::null())
     };
   }
 }
@@ -95,7 +91,7 @@ impl<'dev> DebugUtilsMessengerEXT<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &DebugUtilsMessengerEXTDispatchTable {
-    self.table
+    &self.parent.debug_utils_messenger_ext_table
   }
   /// [`vkDestroyDebugUtilsMessengerEXT`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyDebugUtilsMessengerEXT.html)
   ///
@@ -115,7 +111,7 @@ impl<'dev> DebugUtilsMessengerEXT<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.debug_utils_messenger_ext_table)
         .vkDestroyDebugUtilsMessengerEXT
         .unwrap_unchecked()(self.parent().raw(), self.raw, pAllocator)
     }
@@ -142,7 +138,9 @@ impl<'dev> DebugUtilsMessengerEXT<'dev> {
   ) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkSubmitDebugUtilsMessageEXT.unwrap_unchecked()(
+      (&self.parent.debug_utils_messenger_ext_table)
+        .vkSubmitDebugUtilsMessageEXT
+        .unwrap_unchecked()(
         self.instance().raw(),
         messageSeverity,
         messageTypes,

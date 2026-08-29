@@ -65,7 +65,6 @@ impl ShaderInstrumentationARMDispatchTable {
 pub struct ShaderInstrumentationARM<'dev> {
   pub(crate) raw: VkShaderInstrumentationARM,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev ShaderInstrumentationARMDispatchTable,
 }
 #[cfg(feature = "VK_ARM_shader_instrumentation")]
 unsafe impl<'dev> Send for ShaderInstrumentationARM<'dev> {}
@@ -78,11 +77,8 @@ impl<'dev> Drop for ShaderInstrumentationARM<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyShaderInstrumentationARM).unwrap_unchecked()(
-        self.parent.raw(),
-        self.raw,
-        core::ptr::null(),
-      )
+      ((&self.parent.shader_instrumentation_arm_table).vkDestroyShaderInstrumentationARM)
+        .unwrap_unchecked()(self.parent.raw(), self.raw, core::ptr::null())
     };
   }
 }
@@ -106,7 +102,7 @@ impl<'dev> ShaderInstrumentationARM<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &ShaderInstrumentationARMDispatchTable {
-    self.table
+    &self.parent.shader_instrumentation_arm_table
   }
   /// [`vkClearShaderInstrumentationMetricsARM`](https://docs.vulkan.org/refpages/latest/refpages/source/vkClearShaderInstrumentationMetricsARM.html)
   ///
@@ -122,7 +118,7 @@ impl<'dev> ShaderInstrumentationARM<'dev> {
   pub fn vkClearShaderInstrumentationMetricsARM(&self) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.shader_instrumentation_arm_table)
         .vkClearShaderInstrumentationMetricsARM
         .unwrap_unchecked()(self.device().raw(), self.raw)
     }
@@ -148,7 +144,7 @@ impl<'dev> ShaderInstrumentationARM<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.shader_instrumentation_arm_table)
         .vkDestroyShaderInstrumentationARM
         .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
@@ -187,7 +183,7 @@ impl<'dev> ShaderInstrumentationARM<'dev> {
     flags: VkShaderInstrumentationValuesFlagsARM,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.shader_instrumentation_arm_table)
         .vkGetShaderInstrumentationValuesARM
         .unwrap_unchecked()(
         self.device().raw(),

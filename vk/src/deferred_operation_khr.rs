@@ -192,7 +192,6 @@ impl DeferredOperationKHRDispatchTable {
 pub struct DeferredOperationKHR<'dev> {
   pub(crate) raw: VkDeferredOperationKHR,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev DeferredOperationKHRDispatchTable,
 }
 #[cfg(feature = "VK_KHR_deferred_host_operations")]
 unsafe impl<'dev> Send for DeferredOperationKHR<'dev> {}
@@ -205,7 +204,7 @@ impl<'dev> Drop for DeferredOperationKHR<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyDeferredOperationKHR).unwrap_unchecked()(
+      ((&self.parent.deferred_operation_khr_table).vkDestroyDeferredOperationKHR).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -233,7 +232,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &DeferredOperationKHRDispatchTable {
-    self.table
+    &self.parent.deferred_operation_khr_table
   }
   /// [`vkCreateDataGraphPipelinesARM`](https://docs.vulkan.org/refpages/latest/refpages/source/vkCreateDataGraphPipelinesARM.html)
   ///
@@ -271,7 +270,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
     pPipelines: &mut [VkPipeline],
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.deferred_operation_khr_table)
         .vkCreateDataGraphPipelinesARM
         .unwrap_unchecked()(
         self.device().raw(),
@@ -322,7 +321,9 @@ impl<'dev> DeferredOperationKHR<'dev> {
     pInfos: &[VkMicromapBuildInfoEXT<'_>],
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkBuildMicromapsEXT.unwrap_unchecked()(
+      (&self.parent.deferred_operation_khr_table)
+        .vkBuildMicromapsEXT
+        .unwrap_unchecked()(
         self.device().raw(),
         self.raw,
         pInfos.len() as u32,
@@ -367,11 +368,9 @@ impl<'dev> DeferredOperationKHR<'dev> {
     pInfo: &VkCopyMemoryToMicromapInfoEXT<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkCopyMemoryToMicromapEXT.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pInfo,
-      )
+      (&self.parent.deferred_operation_khr_table)
+        .vkCopyMemoryToMicromapEXT
+        .unwrap_unchecked()(self.device().raw(), self.raw, pInfo)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)
@@ -408,7 +407,9 @@ impl<'dev> DeferredOperationKHR<'dev> {
   #[inline(always)]
   pub fn vkCopyMicromapEXT(&self, pInfo: &VkCopyMicromapInfoEXT<'_>) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkCopyMicromapEXT.unwrap_unchecked()(self.device().raw(), self.raw, pInfo)
+      (&self.parent.deferred_operation_khr_table)
+        .vkCopyMicromapEXT
+        .unwrap_unchecked()(self.device().raw(), self.raw, pInfo)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)
@@ -448,11 +449,9 @@ impl<'dev> DeferredOperationKHR<'dev> {
     pInfo: &VkCopyMicromapToMemoryInfoEXT<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkCopyMicromapToMemoryEXT.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pInfo,
-      )
+      (&self.parent.deferred_operation_khr_table)
+        .vkCopyMicromapToMemoryEXT
+        .unwrap_unchecked()(self.device().raw(), self.raw, pInfo)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)
@@ -495,7 +494,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
     ppBuildRangeInfos: *const *const VkAccelerationStructureBuildRangeInfoKHR,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.deferred_operation_khr_table)
         .vkBuildAccelerationStructuresKHR
         .unwrap_unchecked()(
         self.device().raw(),
@@ -543,7 +542,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
     pInfo: &VkCopyAccelerationStructureInfoKHR<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.deferred_operation_khr_table)
         .vkCopyAccelerationStructureKHR
         .unwrap_unchecked()(self.device().raw(), self.raw, pInfo)
     };
@@ -585,7 +584,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
     pInfo: &VkCopyAccelerationStructureToMemoryInfoKHR<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.deferred_operation_khr_table)
         .vkCopyAccelerationStructureToMemoryKHR
         .unwrap_unchecked()(self.device().raw(), self.raw, pInfo)
     };
@@ -627,7 +626,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
     pInfo: &VkCopyMemoryToAccelerationStructureInfoKHR<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.deferred_operation_khr_table)
         .vkCopyMemoryToAccelerationStructureKHR
         .unwrap_unchecked()(self.device().raw(), self.raw, pInfo)
     };
@@ -664,7 +663,9 @@ impl<'dev> DeferredOperationKHR<'dev> {
   #[inline(always)]
   pub fn vkDeferredOperationJoinKHR(&self) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkDeferredOperationJoinKHR.unwrap_unchecked()(self.device().raw(), self.raw)
+      (&self.parent.deferred_operation_khr_table)
+        .vkDeferredOperationJoinKHR
+        .unwrap_unchecked()(self.device().raw(), self.raw)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)
@@ -691,7 +692,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.deferred_operation_khr_table)
         .vkDestroyDeferredOperationKHR
         .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
@@ -711,7 +712,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
   pub fn vkGetDeferredOperationMaxConcurrencyKHR(&self) -> u32 {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.deferred_operation_khr_table)
         .vkGetDeferredOperationMaxConcurrencyKHR
         .unwrap_unchecked()(self.device().raw(), self.raw)
     }
@@ -739,7 +740,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
   #[inline(always)]
   pub fn vkGetDeferredOperationResultKHR(&self) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.deferred_operation_khr_table)
         .vkGetDeferredOperationResultKHR
         .unwrap_unchecked()(self.device().raw(), self.raw)
     };
@@ -792,7 +793,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
     pPipelines: &mut [VkPipeline],
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.deferred_operation_khr_table)
         .vkCreateRayTracingPipelinesKHR
         .unwrap_unchecked()(
         self.device().raw(),

@@ -33,6 +33,7 @@ fn device_imports(reg: &Registry, handle_meta: &BTreeMap<String, HandleMeta>) ->
     let mut imports = ExplicitImports::default();
     imports.add_vk_result();
     imports.add_type_name(reg, "VkDevice");
+    imports.add_type_name(reg, "VkDescriptorPoolCreateFlagBits");
     for cmds in groups.values() {
         for (name, _, cmd) in cmds {
             imports.add_command_signature(reg, cmd, name);
@@ -301,7 +302,7 @@ fn gen_get_device_queue(_cmd: &Command, providers: &[String]) -> TokenStream {
         ) -> crate::queue::Queue<'dev> {
             let mut raw = VkQueue::NULL;
             unsafe { (self.table.vkGetDeviceQueue.unwrap_unchecked())(self.raw, queueFamilyIndex, queueIndex, &mut raw) };
-            crate::queue::Queue { raw, parent: self, table: &self.queue_table }
+            crate::queue::Queue { raw, parent: self }
         }
     });
     token_stream
@@ -325,7 +326,7 @@ fn gen_create_command_pool(cmd: &Command, providers: &[String]) -> TokenStream {
             let mut raw = VkCommandPool::NULL;
             let r = unsafe { (self.table.vkCreateCommandPool.unwrap_unchecked())(self.raw, pCreateInfo, pAllocator, &mut raw) };
             if r >= VkResult::SUCCESS {
-                Ok(crate::command_pool::CommandPool { raw, parent: self, table: &self.command_pool_table })
+                Ok(crate::command_pool::CommandPool { raw, parent: self })
             } else {
                 core::hint::cold_path();
                 Err(r)
@@ -383,8 +384,7 @@ fn gen_create_pipelines(cmd: &Command, providers: &[String]) -> TokenStream {
 
             Ok(raw_pipelines.into_iter().map(|raw| crate::pipeline::Pipeline {
                 raw,
-                parent: self,
-                table: &self.pipeline_table
+                parent: self
             }).collect())
         }
     });

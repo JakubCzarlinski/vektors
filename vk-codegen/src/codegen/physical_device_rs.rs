@@ -111,7 +111,7 @@ fn gen_physical_device(
                     providers,
                     "VkPhysicalDevice",
                     quote! { self.raw },
-                    quote! { self.table },
+                    quote! { &self.instance.physical_device_table },
                     handle_types,
                     None,
                     quote! {},
@@ -125,7 +125,6 @@ fn gen_physical_device(
         pub struct PhysicalDevice<'inst> {
             pub(crate) raw: VkPhysicalDevice,
             pub(crate) instance: &'inst Instance<'inst>,
-            pub(crate) table: &'inst PhysicalDeviceDispatchTable,
         }
 
         #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -188,7 +187,7 @@ fn gen_create_device(
             use crate::device::{Device, DeviceDispatchTable};
             let mut raw = VkDevice::NULL;
             {
-                let r = unsafe { (self.table.vkCreateDevice.unwrap_unchecked())(self.raw, #(#p_fwd,)* &mut raw) };
+                let r = unsafe { (self.instance.physical_device_table.vkCreateDevice.unwrap_unchecked())(self.raw, #(#p_fwd,)* &mut raw) };
                 #return_if_err
             }
             let gdpa  = unsafe { self.instance.table.vkGetDeviceProcAddr.unwrap_unchecked() };

@@ -74,7 +74,6 @@ impl QueryPoolDispatchTable {
 pub struct QueryPool<'dev> {
   pub(crate) raw: VkQueryPool,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev QueryPoolDispatchTable,
 }
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 unsafe impl<'dev> Send for QueryPool<'dev> {}
@@ -88,7 +87,7 @@ impl<'dev> Drop for QueryPool<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyQueryPool).unwrap_unchecked()(
+      ((&self.parent.query_pool_table).vkDestroyQueryPool).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -116,7 +115,7 @@ impl<'dev> QueryPool<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &QueryPoolDispatchTable {
-    self.table
+    &self.parent.query_pool_table
   }
   /// [`vkDestroyQueryPool`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyQueryPool.html)
   ///
@@ -138,7 +137,9 @@ impl<'dev> QueryPool<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyQueryPool.unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
+      (&self.parent.query_pool_table)
+        .vkDestroyQueryPool
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkQueryPool::NULL;
   }
@@ -182,7 +183,9 @@ impl<'dev> QueryPool<'dev> {
     flags: VkQueryResultFlags,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkGetQueryPoolResults.unwrap_unchecked()(
+      (&self.parent.query_pool_table)
+        .vkGetQueryPoolResults
+        .unwrap_unchecked()(
         self.device().raw(),
         self.raw,
         firstQuery,
@@ -217,12 +220,9 @@ impl<'dev> QueryPool<'dev> {
   pub fn vkResetQueryPool(&self, firstQuery: u32, queryCount: u32) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkResetQueryPool.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        firstQuery,
-        queryCount,
-      )
+      (&self.parent.query_pool_table)
+        .vkResetQueryPool
+        .unwrap_unchecked()(self.device().raw(), self.raw, firstQuery, queryCount)
     }
   }
   /// [`vkResetQueryPool`](https://docs.vulkan.org/refpages/latest/refpages/source/vkResetQueryPool.html)
@@ -242,12 +242,9 @@ impl<'dev> QueryPool<'dev> {
   pub fn vkResetQueryPoolEXT(&self, firstQuery: u32, queryCount: u32) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkResetQueryPoolEXT.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        firstQuery,
-        queryCount,
-      )
+      (&self.parent.query_pool_table)
+        .vkResetQueryPoolEXT
+        .unwrap_unchecked()(self.device().raw(), self.raw, firstQuery, queryCount)
     }
   }
 }

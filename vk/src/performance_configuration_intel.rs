@@ -43,7 +43,6 @@ impl PerformanceConfigurationINTELDispatchTable {
 pub struct PerformanceConfigurationINTEL<'dev> {
   pub(crate) raw: VkPerformanceConfigurationINTEL,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev PerformanceConfigurationINTELDispatchTable,
 }
 #[cfg(feature = "VK_INTEL_performance_query")]
 unsafe impl<'dev> Send for PerformanceConfigurationINTEL<'dev> {}
@@ -77,7 +76,7 @@ impl<'dev> PerformanceConfigurationINTEL<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &PerformanceConfigurationINTELDispatchTable {
-    self.table
+    &self.parent.performance_configuration_intel_table
   }
   /// [`vkReleasePerformanceConfigurationINTEL`](https://docs.vulkan.org/refpages/latest/refpages/source/vkReleasePerformanceConfigurationINTEL.html)
   ///
@@ -103,7 +102,7 @@ impl<'dev> PerformanceConfigurationINTEL<'dev> {
   #[inline(always)]
   pub fn vkReleasePerformanceConfigurationINTEL(&self) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.performance_configuration_intel_table)
         .vkReleasePerformanceConfigurationINTEL
         .unwrap_unchecked()(self.device().raw(), self.raw)
     };

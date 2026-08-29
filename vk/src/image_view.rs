@@ -54,7 +54,6 @@ impl ImageViewDispatchTable {
 pub struct ImageView<'dev> {
   pub(crate) raw: VkImageView,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev ImageViewDispatchTable,
 }
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 unsafe impl<'dev> Send for ImageView<'dev> {}
@@ -67,7 +66,7 @@ impl<'dev> Drop for ImageView<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyImageView).unwrap_unchecked()(
+      ((&self.parent.image_view_table).vkDestroyImageView).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -95,7 +94,7 @@ impl<'dev> ImageView<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &ImageViewDispatchTable {
-    self.table
+    &self.parent.image_view_table
   }
   /// [`vkDestroyImageView`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyImageView.html)
   ///
@@ -116,7 +115,9 @@ impl<'dev> ImageView<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyImageView.unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
+      (&self.parent.image_view_table)
+        .vkDestroyImageView
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkImageView::NULL;
   }
@@ -147,11 +148,9 @@ impl<'dev> ImageView<'dev> {
     pProperties: &mut VkImageViewAddressPropertiesNVX<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkGetImageViewAddressNVX.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pProperties,
-      )
+      (&self.parent.image_view_table)
+        .vkGetImageViewAddressNVX
+        .unwrap_unchecked()(self.device().raw(), self.raw, pProperties)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)

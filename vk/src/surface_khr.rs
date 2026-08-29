@@ -43,7 +43,6 @@ impl SurfaceKHRDispatchTable {
 pub struct SurfaceKHR<'dev> {
   pub(crate) raw: VkSurfaceKHR,
   pub(crate) parent: &'dev crate::instance::Instance<'dev>,
-  pub(crate) table: &'dev SurfaceKHRDispatchTable,
 }
 #[cfg(feature = "VK_KHR_surface")]
 unsafe impl<'dev> Send for SurfaceKHR<'dev> {}
@@ -56,7 +55,7 @@ impl<'dev> Drop for SurfaceKHR<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroySurfaceKHR).unwrap_unchecked()(
+      ((&self.parent.surface_khr_table).vkDestroySurfaceKHR).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -80,7 +79,7 @@ impl<'dev> SurfaceKHR<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &SurfaceKHRDispatchTable {
-    self.table
+    &self.parent.surface_khr_table
   }
   /// [`vkDestroySurfaceKHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroySurfaceKHR.html)
   ///
@@ -100,7 +99,9 @@ impl<'dev> SurfaceKHR<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroySurfaceKHR.unwrap_unchecked()(self.parent().raw(), self.raw, pAllocator)
+      (&self.parent.surface_khr_table)
+        .vkDestroySurfaceKHR
+        .unwrap_unchecked()(self.parent().raw(), self.raw, pAllocator)
     }
     self.raw = VkSurfaceKHR::NULL;
   }

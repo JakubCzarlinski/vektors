@@ -61,7 +61,6 @@ impl ValidationCacheEXTDispatchTable {
 pub struct ValidationCacheEXT<'dev> {
   pub(crate) raw: VkValidationCacheEXT,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev ValidationCacheEXTDispatchTable,
 }
 #[cfg(feature = "VK_EXT_validation_cache")]
 unsafe impl<'dev> Send for ValidationCacheEXT<'dev> {}
@@ -74,7 +73,7 @@ impl<'dev> Drop for ValidationCacheEXT<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyValidationCacheEXT).unwrap_unchecked()(
+      ((&self.parent.validation_cache_ext_table).vkDestroyValidationCacheEXT).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -102,7 +101,7 @@ impl<'dev> ValidationCacheEXT<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &ValidationCacheEXTDispatchTable {
-    self.table
+    &self.parent.validation_cache_ext_table
   }
   /// [`vkDestroyValidationCacheEXT`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyValidationCacheEXT.html)
   ///
@@ -122,11 +121,9 @@ impl<'dev> ValidationCacheEXT<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyValidationCacheEXT.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pAllocator,
-      )
+      (&self.parent.validation_cache_ext_table)
+        .vkDestroyValidationCacheEXT
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkValidationCacheEXT::NULL;
   }
@@ -161,12 +158,9 @@ impl<'dev> ValidationCacheEXT<'dev> {
     pData: *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkGetValidationCacheDataEXT.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pDataSize,
-        pData,
-      )
+      (&self.parent.validation_cache_ext_table)
+        .vkGetValidationCacheDataEXT
+        .unwrap_unchecked()(self.device().raw(), self.raw, pDataSize, pData)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)
@@ -204,7 +198,9 @@ impl<'dev> ValidationCacheEXT<'dev> {
     pSrcCaches: &[VkValidationCacheEXT],
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkMergeValidationCachesEXT.unwrap_unchecked()(
+      (&self.parent.validation_cache_ext_table)
+        .vkMergeValidationCachesEXT
+        .unwrap_unchecked()(
         self.device().raw(),
         self.raw,
         pSrcCaches.len() as u32,

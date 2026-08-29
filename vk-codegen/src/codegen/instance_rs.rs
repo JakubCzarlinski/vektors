@@ -353,7 +353,6 @@ fn gen_enumerate_physical_devices(cmd: &crate::ir::Command, providers: &[String]
             Ok(raw_gpus.into_iter().map(|raw| PhysicalDevice {
                 raw,
                 instance: self,
-                table: &self.physical_device_table,
             }).collect())
         }
     });

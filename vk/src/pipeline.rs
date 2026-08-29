@@ -140,7 +140,6 @@ impl PipelineDispatchTable {
 pub struct Pipeline<'dev> {
   pub(crate) raw: VkPipeline,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev PipelineDispatchTable,
 }
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 unsafe impl<'dev> Send for Pipeline<'dev> {}
@@ -153,7 +152,7 @@ impl<'dev> Drop for Pipeline<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyPipeline).unwrap_unchecked()(
+      ((&self.parent.pipeline_table).vkDestroyPipeline).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -181,7 +180,7 @@ impl<'dev> Pipeline<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &PipelineDispatchTable {
-    self.table
+    &self.parent.pipeline_table
   }
   /// [`vkGetExecutionGraphPipelineNodeIndexAMDX`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetExecutionGraphPipelineNodeIndexAMDX.html)
   ///
@@ -212,7 +211,7 @@ impl<'dev> Pipeline<'dev> {
     pNodeIndex: &mut u32,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.pipeline_table)
         .vkGetExecutionGraphPipelineNodeIndexAMDX
         .unwrap_unchecked()(self.device().raw(), self.raw, pNodeInfo, pNodeIndex)
     };
@@ -250,7 +249,7 @@ impl<'dev> Pipeline<'dev> {
     pSizeInfo: &mut VkExecutionGraphPipelineScratchSizeAMDX<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.pipeline_table)
         .vkGetExecutionGraphPipelineScratchSizeAMDX
         .unwrap_unchecked()(self.device().raw(), self.raw, pSizeInfo)
     };
@@ -296,7 +295,9 @@ impl<'dev> Pipeline<'dev> {
     pInfo: *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkGetShaderInfoAMD.unwrap_unchecked()(
+      (&self.parent.pipeline_table)
+        .vkGetShaderInfoAMD
+        .unwrap_unchecked()(
         self.device().raw(),
         self.raw,
         shaderStage,
@@ -331,7 +332,9 @@ impl<'dev> Pipeline<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyPipeline.unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
+      (&self.parent.pipeline_table)
+        .vkDestroyPipeline
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkPipeline::NULL;
   }
@@ -368,7 +371,7 @@ impl<'dev> Pipeline<'dev> {
     pData: &mut [u8],
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.pipeline_table)
         .vkGetRayTracingCaptureReplayShaderGroupHandlesKHR
         .unwrap_unchecked()(
         self.device().raw(),
@@ -419,7 +422,7 @@ impl<'dev> Pipeline<'dev> {
     pData: &mut [u8],
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.pipeline_table)
         .vkGetRayTracingShaderGroupHandlesKHR
         .unwrap_unchecked()(
         self.device().raw(),
@@ -457,7 +460,7 @@ impl<'dev> Pipeline<'dev> {
   ) -> VkDeviceSize {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.pipeline_table)
         .vkGetRayTracingShaderGroupStackSizeKHR
         .unwrap_unchecked()(self.device().raw(), self.raw, group, groupShader)
     }
@@ -487,7 +490,9 @@ impl<'dev> Pipeline<'dev> {
   #[inline(always)]
   pub fn vkCompileDeferredNV(&self, shader: u32) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkCompileDeferredNV.unwrap_unchecked()(self.device().raw(), self.raw, shader)
+      (&self.parent.pipeline_table)
+        .vkCompileDeferredNV
+        .unwrap_unchecked()(self.device().raw(), self.raw, shader)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)
@@ -529,7 +534,7 @@ impl<'dev> Pipeline<'dev> {
     pData: &mut [u8],
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.pipeline_table)
         .vkGetRayTracingShaderGroupHandlesNV
         .unwrap_unchecked()(
         self.device().raw(),

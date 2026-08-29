@@ -84,7 +84,6 @@ impl BufferCollectionFUCHSIADispatchTable {
 pub struct BufferCollectionFUCHSIA<'dev> {
   pub(crate) raw: VkBufferCollectionFUCHSIA,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev BufferCollectionFUCHSIADispatchTable,
 }
 #[cfg(feature = "VK_FUCHSIA_buffer_collection")]
 unsafe impl<'dev> Send for BufferCollectionFUCHSIA<'dev> {}
@@ -97,11 +96,8 @@ impl<'dev> Drop for BufferCollectionFUCHSIA<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyBufferCollectionFUCHSIA).unwrap_unchecked()(
-        self.parent.raw(),
-        self.raw,
-        core::ptr::null(),
-      )
+      ((&self.parent.buffer_collection_fuchsia_table).vkDestroyBufferCollectionFUCHSIA)
+        .unwrap_unchecked()(self.parent.raw(), self.raw, core::ptr::null())
     };
   }
 }
@@ -125,7 +121,7 @@ impl<'dev> BufferCollectionFUCHSIA<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &BufferCollectionFUCHSIADispatchTable {
-    self.table
+    &self.parent.buffer_collection_fuchsia_table
   }
   /// [`vkDestroyBufferCollectionFUCHSIA`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyBufferCollectionFUCHSIA.html)
   ///
@@ -145,7 +141,7 @@ impl<'dev> BufferCollectionFUCHSIA<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.buffer_collection_fuchsia_table)
         .vkDestroyBufferCollectionFUCHSIA
         .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
@@ -179,7 +175,7 @@ impl<'dev> BufferCollectionFUCHSIA<'dev> {
     pProperties: &mut VkBufferCollectionPropertiesFUCHSIA<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.buffer_collection_fuchsia_table)
         .vkGetBufferCollectionPropertiesFUCHSIA
         .unwrap_unchecked()(self.device().raw(), self.raw, pProperties)
     };
@@ -219,7 +215,7 @@ impl<'dev> BufferCollectionFUCHSIA<'dev> {
     pBufferConstraintsInfo: &VkBufferConstraintsInfoFUCHSIA<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.buffer_collection_fuchsia_table)
         .vkSetBufferCollectionBufferConstraintsFUCHSIA
         .unwrap_unchecked()(self.device().raw(), self.raw, pBufferConstraintsInfo)
     };
@@ -259,7 +255,7 @@ impl<'dev> BufferCollectionFUCHSIA<'dev> {
     pImageConstraintsInfo: &VkImageConstraintsInfoFUCHSIA<'_>,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table)
+      (&self.parent.buffer_collection_fuchsia_table)
         .vkSetBufferCollectionImageConstraintsFUCHSIA
         .unwrap_unchecked()(self.device().raw(), self.raw, pImageConstraintsInfo)
     };

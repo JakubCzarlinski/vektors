@@ -43,7 +43,6 @@ impl SamplerDispatchTable {
 pub struct Sampler<'dev> {
   pub(crate) raw: VkSampler,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev SamplerDispatchTable,
 }
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 unsafe impl<'dev> Send for Sampler<'dev> {}
@@ -56,7 +55,7 @@ impl<'dev> Drop for Sampler<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroySampler).unwrap_unchecked()(
+      ((&self.parent.sampler_table).vkDestroySampler).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -84,7 +83,7 @@ impl<'dev> Sampler<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &SamplerDispatchTable {
-    self.table
+    &self.parent.sampler_table
   }
   /// [`vkDestroySampler`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroySampler.html)
   ///
@@ -105,7 +104,9 @@ impl<'dev> Sampler<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroySampler.unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
+      (&self.parent.sampler_table)
+        .vkDestroySampler
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkSampler::NULL;
   }

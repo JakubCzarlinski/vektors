@@ -72,7 +72,6 @@ impl IndirectExecutionSetEXTDispatchTable {
 pub struct IndirectExecutionSetEXT<'dev> {
   pub(crate) raw: VkIndirectExecutionSetEXT,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev IndirectExecutionSetEXTDispatchTable,
 }
 #[cfg(feature = "VK_EXT_device_generated_commands")]
 unsafe impl<'dev> Send for IndirectExecutionSetEXT<'dev> {}
@@ -85,11 +84,8 @@ impl<'dev> Drop for IndirectExecutionSetEXT<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyIndirectExecutionSetEXT).unwrap_unchecked()(
-        self.parent.raw(),
-        self.raw,
-        core::ptr::null(),
-      )
+      ((&self.parent.indirect_execution_set_ext_table).vkDestroyIndirectExecutionSetEXT)
+        .unwrap_unchecked()(self.parent.raw(), self.raw, core::ptr::null())
     };
   }
 }
@@ -113,7 +109,7 @@ impl<'dev> IndirectExecutionSetEXT<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &IndirectExecutionSetEXTDispatchTable {
-    self.table
+    &self.parent.indirect_execution_set_ext_table
   }
   /// [`vkDestroyIndirectExecutionSetEXT`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyIndirectExecutionSetEXT.html)
   ///
@@ -133,7 +129,7 @@ impl<'dev> IndirectExecutionSetEXT<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.indirect_execution_set_ext_table)
         .vkDestroyIndirectExecutionSetEXT
         .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
@@ -158,7 +154,7 @@ impl<'dev> IndirectExecutionSetEXT<'dev> {
   ) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.indirect_execution_set_ext_table)
         .vkUpdateIndirectExecutionSetPipelineEXT
         .unwrap_unchecked()(
         self.device().raw(),
@@ -187,7 +183,7 @@ impl<'dev> IndirectExecutionSetEXT<'dev> {
   ) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.indirect_execution_set_ext_table)
         .vkUpdateIndirectExecutionSetShaderEXT
         .unwrap_unchecked()(
         self.device().raw(),

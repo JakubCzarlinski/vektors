@@ -66,7 +66,6 @@ impl DescriptorSetLayoutDispatchTable {
 pub struct DescriptorSetLayout<'dev> {
   pub(crate) raw: VkDescriptorSetLayout,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev DescriptorSetLayoutDispatchTable,
 }
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 unsafe impl<'dev> Send for DescriptorSetLayout<'dev> {}
@@ -79,7 +78,7 @@ impl<'dev> Drop for DescriptorSetLayout<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyDescriptorSetLayout).unwrap_unchecked()(
+      ((&self.parent.descriptor_set_layout_table).vkDestroyDescriptorSetLayout).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -107,7 +106,7 @@ impl<'dev> DescriptorSetLayout<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &DescriptorSetLayoutDispatchTable {
-    self.table
+    &self.parent.descriptor_set_layout_table
   }
   /// [`vkDestroyDescriptorSetLayout`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyDescriptorSetLayout.html)
   ///
@@ -128,11 +127,9 @@ impl<'dev> DescriptorSetLayout<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyDescriptorSetLayout.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pAllocator,
-      )
+      (&self.parent.descriptor_set_layout_table)
+        .vkDestroyDescriptorSetLayout
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkDescriptorSetLayout::NULL;
   }
@@ -152,7 +149,7 @@ impl<'dev> DescriptorSetLayout<'dev> {
   pub fn vkGetDescriptorSetLayoutBindingOffsetEXT(&self, binding: u32, pOffset: &mut VkDeviceSize) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.descriptor_set_layout_table)
         .vkGetDescriptorSetLayoutBindingOffsetEXT
         .unwrap_unchecked()(self.device().raw(), self.raw, binding, pOffset)
     }
@@ -172,7 +169,7 @@ impl<'dev> DescriptorSetLayout<'dev> {
   pub fn vkGetDescriptorSetLayoutSizeEXT(&self, pLayoutSizeInBytes: &mut VkDeviceSize) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.descriptor_set_layout_table)
         .vkGetDescriptorSetLayoutSizeEXT
         .unwrap_unchecked()(self.device().raw(), self.raw, pLayoutSizeInBytes)
     }

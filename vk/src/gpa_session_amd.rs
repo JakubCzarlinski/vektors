@@ -70,7 +70,6 @@ impl GpaSessionAMDDispatchTable {
 pub struct GpaSessionAMD<'dev> {
   pub(crate) raw: VkGpaSessionAMD,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev GpaSessionAMDDispatchTable,
 }
 #[cfg(feature = "VK_AMD_gpa_interface")]
 unsafe impl<'dev> Send for GpaSessionAMD<'dev> {}
@@ -83,7 +82,7 @@ impl<'dev> Drop for GpaSessionAMD<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyGpaSessionAMD).unwrap_unchecked()(
+      ((&self.parent.gpa_session_amd_table).vkDestroyGpaSessionAMD).unwrap_unchecked()(
         self.parent.raw(),
         self.raw,
         core::ptr::null(),
@@ -111,7 +110,7 @@ impl<'dev> GpaSessionAMD<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &GpaSessionAMDDispatchTable {
-    self.table
+    &self.parent.gpa_session_amd_table
   }
   /// [`vkDestroyGpaSessionAMD`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyGpaSessionAMD.html)
   ///
@@ -131,11 +130,9 @@ impl<'dev> GpaSessionAMD<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDestroyGpaSessionAMD.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pAllocator,
-      )
+      (&self.parent.gpa_session_amd_table)
+        .vkDestroyGpaSessionAMD
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkGpaSessionAMD::NULL;
   }
@@ -171,13 +168,9 @@ impl<'dev> GpaSessionAMD<'dev> {
     pData: *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkGetGpaSessionResultsAMD.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        sampleID,
-        pSizeInBytes,
-        pData,
-      )
+      (&self.parent.gpa_session_amd_table)
+        .vkGetGpaSessionResultsAMD
+        .unwrap_unchecked()(self.device().raw(), self.raw, sampleID, pSizeInBytes, pData)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)
@@ -210,7 +203,9 @@ impl<'dev> GpaSessionAMD<'dev> {
   #[inline(always)]
   pub fn vkGetGpaSessionStatusAMD(&self) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkGetGpaSessionStatusAMD.unwrap_unchecked()(self.device().raw(), self.raw)
+      (&self.parent.gpa_session_amd_table)
+        .vkGetGpaSessionStatusAMD
+        .unwrap_unchecked()(self.device().raw(), self.raw)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)
@@ -243,7 +238,9 @@ impl<'dev> GpaSessionAMD<'dev> {
   #[inline(always)]
   pub fn vkResetGpaSessionAMD(&self) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkResetGpaSessionAMD.unwrap_unchecked()(self.device().raw(), self.raw)
+      (&self.parent.gpa_session_amd_table)
+        .vkResetGpaSessionAMD
+        .unwrap_unchecked()(self.device().raw(), self.raw)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)

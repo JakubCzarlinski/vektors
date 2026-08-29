@@ -98,7 +98,6 @@ impl DeviceMemoryDispatchTable {
 pub struct DeviceMemory<'dev> {
   pub(crate) raw: VkDeviceMemory,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev DeviceMemoryDispatchTable,
 }
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 unsafe impl<'dev> Send for DeviceMemory<'dev> {}
@@ -112,7 +111,11 @@ impl<'dev> Drop for DeviceMemory<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkFreeMemory).unwrap_unchecked()(self.device().raw, self.raw, core::ptr::null())
+      ((&self.parent.device_memory_table).vkFreeMemory).unwrap_unchecked()(
+        self.device().raw,
+        self.raw,
+        core::ptr::null(),
+      )
     };
   }
 }
@@ -136,7 +139,7 @@ impl<'dev> DeviceMemory<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &DeviceMemoryDispatchTable {
-    self.table
+    &self.parent.device_memory_table
   }
   /// [`vkFreeMemory`](https://docs.vulkan.org/refpages/latest/refpages/source/vkFreeMemory.html)
   ///
@@ -158,7 +161,9 @@ impl<'dev> DeviceMemory<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkFreeMemory.unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
+      (&self.parent.device_memory_table)
+        .vkFreeMemory
+        .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }
     self.raw = VkDeviceMemory::NULL;
   }
@@ -178,11 +183,9 @@ impl<'dev> DeviceMemory<'dev> {
   pub fn vkGetDeviceMemoryCommitment(&self, pCommittedMemoryInBytes: &mut VkDeviceSize) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkGetDeviceMemoryCommitment.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        pCommittedMemoryInBytes,
-      )
+      (&self.parent.device_memory_table)
+        .vkGetDeviceMemoryCommitment
+        .unwrap_unchecked()(self.device().raw(), self.raw, pCommittedMemoryInBytes)
     }
   }
   /// [`vkMapMemory`](https://docs.vulkan.org/refpages/latest/refpages/source/vkMapMemory.html)
@@ -221,14 +224,9 @@ impl<'dev> DeviceMemory<'dev> {
     ppData: &mut *mut c_void,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkMapMemory.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        offset,
-        size,
-        flags,
-        ppData,
-      )
+      (&self.parent.device_memory_table)
+        .vkMapMemory
+        .unwrap_unchecked()(self.device().raw(), self.raw, offset, size, flags, ppData)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)
@@ -252,7 +250,9 @@ impl<'dev> DeviceMemory<'dev> {
   pub fn vkUnmapMemory(&self) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkUnmapMemory.unwrap_unchecked()(self.device().raw(), self.raw)
+      (&self.parent.device_memory_table)
+        .vkUnmapMemory
+        .unwrap_unchecked()(self.device().raw(), self.raw)
     }
   }
   /// [`vkSetDeviceMemoryPriorityEXT`](https://docs.vulkan.org/refpages/latest/refpages/source/vkSetDeviceMemoryPriorityEXT.html)
@@ -270,11 +270,9 @@ impl<'dev> DeviceMemory<'dev> {
   pub fn vkSetDeviceMemoryPriorityEXT(&self, priority: f32) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkSetDeviceMemoryPriorityEXT.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        priority,
-      )
+      (&self.parent.device_memory_table)
+        .vkSetDeviceMemoryPriorityEXT
+        .unwrap_unchecked()(self.device().raw(), self.raw, priority)
     }
   }
   /// [`vkGetMemoryWin32HandleNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetMemoryWin32HandleNV.html)
@@ -307,12 +305,9 @@ impl<'dev> DeviceMemory<'dev> {
     pHandle: &mut HANDLE,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
-      (self.table).vkGetMemoryWin32HandleNV.unwrap_unchecked()(
-        self.device().raw(),
-        self.raw,
-        handleType,
-        pHandle,
-      )
+      (&self.parent.device_memory_table)
+        .vkGetMemoryWin32HandleNV
+        .unwrap_unchecked()(self.device().raw(), self.raw, handleType, pHandle)
     };
     if r >= VkResult::SUCCESS {
       Ok(r)

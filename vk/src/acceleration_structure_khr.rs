@@ -43,7 +43,6 @@ impl AccelerationStructureKHRDispatchTable {
 pub struct AccelerationStructureKHR<'dev> {
   pub(crate) raw: VkAccelerationStructureKHR,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
-  pub(crate) table: &'dev AccelerationStructureKHRDispatchTable,
 }
 #[cfg(feature = "VK_KHR_acceleration_structure")]
 unsafe impl<'dev> Send for AccelerationStructureKHR<'dev> {}
@@ -56,11 +55,8 @@ impl<'dev> Drop for AccelerationStructureKHR<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyAccelerationStructureKHR).unwrap_unchecked()(
-        self.parent.raw(),
-        self.raw,
-        core::ptr::null(),
-      )
+      ((&self.parent.acceleration_structure_khr_table).vkDestroyAccelerationStructureKHR)
+        .unwrap_unchecked()(self.parent.raw(), self.raw, core::ptr::null())
     };
   }
 }
@@ -84,7 +80,7 @@ impl<'dev> AccelerationStructureKHR<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &AccelerationStructureKHRDispatchTable {
-    self.table
+    &self.parent.acceleration_structure_khr_table
   }
   /// [`vkDestroyAccelerationStructureKHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyAccelerationStructureKHR.html)
   ///
@@ -107,7 +103,7 @@ impl<'dev> AccelerationStructureKHR<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.acceleration_structure_khr_table)
         .vkDestroyAccelerationStructureKHR
         .unwrap_unchecked()(self.device().raw(), self.raw, pAllocator)
     }

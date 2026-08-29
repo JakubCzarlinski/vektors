@@ -529,6 +529,13 @@ use crate::enums::VkAccelerationStructureCompatibilityKHR;
 ))]
 use crate::enums::VkDataGraphPipelinePropertyARM;
 #[cfg(any(
+  feature = "VK_COMPUTE_VERSION_1_0",
+  feature = "VK_EXT_descriptor_indexing",
+  feature = "VK_VALVE_mutable_descriptor_type",
+  feature = "VK_EXT_mutable_descriptor_type"
+))]
+use crate::enums::VkDescriptorPoolCreateFlagBits;
+#[cfg(any(
   feature = "VK_BASE_VERSION_1_1",
   feature = "VK_KHR_external_memory_capabilities",
   feature = "VK_EXT_external_memory_dma_buf",
@@ -3617,7 +3624,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::gpa_session_amd::GpaSessionAMD {
         raw: handle,
         parent: self,
-        table: &self.gpa_session_amd_table,
       })
     } else {
       core::hint::cold_path();
@@ -3852,7 +3858,6 @@ impl<'inst> Device<'inst> {
         crate::data_graph_pipeline_session_arm::DataGraphPipelineSessionARM {
           raw: handle,
           parent: self,
-          table: &self.data_graph_pipeline_session_arm_table,
         },
       )
     } else {
@@ -4062,7 +4067,6 @@ impl<'inst> Device<'inst> {
         crate::shader_instrumentation_arm::ShaderInstrumentationARM {
           raw: handle,
           parent: self,
-          table: &self.shader_instrumentation_arm_table,
         },
       )
     } else {
@@ -4153,7 +4157,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::tensor_arm::TensorARM {
         raw: handle,
         parent: self,
-        table: &self.tensor_arm_table,
       })
     } else {
       core::hint::cold_path();
@@ -4202,7 +4205,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::tensor_view_arm::TensorViewARM {
         raw: handle,
         parent: self,
-        table: &self.tensor_view_arm_table,
       })
     } else {
       core::hint::cold_path();
@@ -4384,7 +4386,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::device_memory::DeviceMemory {
         raw: handle,
         parent: self,
-        table: &self.device_memory_table,
       })
     } else {
       core::hint::cold_path();
@@ -4430,7 +4431,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::buffer::Buffer {
         raw: handle,
         parent: self,
-        table: &self.buffer_table,
       })
     } else {
       core::hint::cold_path();
@@ -4477,11 +4477,7 @@ impl<'inst> Device<'inst> {
       )
     };
     if r >= VkResult::SUCCESS {
-      Ok(crate::command_pool::CommandPool {
-        raw,
-        parent: self,
-        table: &self.command_pool_table,
-      })
+      Ok(crate::command_pool::CommandPool { raw, parent: self })
     } else {
       core::hint::cold_path();
       Err(r)
@@ -4525,7 +4521,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::fence::Fence {
         raw: handle,
         parent: self,
-        table: &self.fence_table,
       })
     } else {
       core::hint::cold_path();
@@ -4572,7 +4567,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::image::Image {
         raw: handle,
         parent: self,
-        table: &self.image_table,
       })
     } else {
       core::hint::cold_path();
@@ -4623,7 +4617,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::image_view::ImageView {
         raw: handle,
         parent: self,
-        table: &self.image_view_table,
       })
     } else {
       core::hint::cold_path();
@@ -4673,7 +4666,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::query_pool::QueryPool {
         raw: handle,
         parent: self,
-        table: &self.query_pool_table,
       })
     } else {
       core::hint::cold_path();
@@ -4723,7 +4715,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::semaphore::Semaphore {
         raw: handle,
         parent: self,
-        table: &self.semaphore_table,
       })
     } else {
       core::hint::cold_path();
@@ -4854,11 +4845,7 @@ impl<'inst> Device<'inst> {
         &mut raw,
       )
     };
-    crate::queue::Queue {
-      raw,
-      parent: self,
-      table: &self.queue_table,
-    }
+    crate::queue::Queue { raw, parent: self }
   }
   /// [`vkInvalidateMappedMemoryRanges`](https://docs.vulkan.org/refpages/latest/refpages/source/vkInvalidateMappedMemoryRanges.html)
   ///
@@ -5388,7 +5375,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::private_data_slot::PrivateDataSlot {
         raw: handle,
         parent: self,
-        table: &self.private_data_slot_table,
       })
     } else {
       core::hint::cold_path();
@@ -5861,7 +5847,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::buffer_view::BufferView {
         raw: handle,
         parent: self,
-        table: &self.buffer_view_table,
       })
     } else {
       core::hint::cold_path();
@@ -5927,11 +5912,7 @@ impl<'inst> Device<'inst> {
     Ok(
       raw_pipelines
         .into_iter()
-        .map(|raw| crate::pipeline::Pipeline {
-          raw,
-          parent: self,
-          table: &self.pipeline_table,
-        })
+        .map(|raw| crate::pipeline::Pipeline { raw, parent: self })
         .collect(),
     )
   }
@@ -5979,7 +5960,10 @@ impl<'inst> Device<'inst> {
       Ok(crate::descriptor_pool::DescriptorPool {
         raw: handle,
         parent: self,
-        table: &self.descriptor_pool_table,
+        #[cfg(not(feature = "VKSC_VERSION_1_0"))]
+        free_descriptor_sets: pCreateInfo
+          .flags
+          .intersects(VkDescriptorPoolCreateFlagBits::FREE_DESCRIPTOR_SET),
       })
     } else {
       core::hint::cold_path();
@@ -6030,7 +6014,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::descriptor_set_layout::DescriptorSetLayout {
         raw: handle,
         parent: self,
-        table: &self.descriptor_set_layout_table,
       })
     } else {
       core::hint::cold_path();
@@ -6075,7 +6058,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::event::Event {
         raw: handle,
         parent: self,
-        table: &self.event_table,
       })
     } else {
       core::hint::cold_path();
@@ -6127,7 +6109,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::pipeline_cache::PipelineCache {
         raw: handle,
         parent: self,
-        table: &self.pipeline_cache_table,
       })
     } else {
       core::hint::cold_path();
@@ -6178,7 +6159,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::pipeline_layout::PipelineLayout {
         raw: handle,
         parent: self,
-        table: &self.pipeline_layout_table,
       })
     } else {
       core::hint::cold_path();
@@ -6230,7 +6210,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::sampler::Sampler {
         raw: handle,
         parent: self,
-        table: &self.sampler_table,
       })
     } else {
       core::hint::cold_path();
@@ -6283,7 +6262,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::shader_module::ShaderModule {
         raw: handle,
         parent: self,
-        table: &self.shader_module_table,
       })
     } else {
       core::hint::cold_path();
@@ -6363,7 +6341,6 @@ impl<'inst> Device<'inst> {
         crate::descriptor_update_template::DescriptorUpdateTemplate {
           raw: handle,
           parent: self,
-          table: &self.descriptor_update_template_table,
         },
       )
     } else {
@@ -6412,7 +6389,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::sampler_ycbcr_conversion::SamplerYcbcrConversion {
         raw: handle,
         parent: self,
-        table: &self.sampler_ycbcr_conversion_table,
       })
     } else {
       core::hint::cold_path();
@@ -7222,7 +7198,6 @@ impl<'inst> Device<'inst> {
         crate::indirect_commands_layout_ext::IndirectCommandsLayoutEXT {
           raw: handle,
           parent: self,
-          table: &self.indirect_commands_layout_ext_table,
         },
       )
     } else {
@@ -7269,7 +7244,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::indirect_execution_set_ext::IndirectExecutionSetEXT {
         raw: handle,
         parent: self,
-        table: &self.indirect_execution_set_ext_table,
       })
     } else {
       core::hint::cold_path();
@@ -7341,7 +7315,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::fence::Fence {
         raw: handle,
         parent: self,
-        table: &self.fence_table,
       })
     } else {
       core::hint::cold_path();
@@ -7775,7 +7748,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::micromap_ext::MicromapEXT {
         raw: handle,
         parent: self,
-        table: &self.micromap_ext_table,
       })
     } else {
       core::hint::cold_path();
@@ -8016,7 +7988,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::private_data_slot_ext::PrivateDataSlotEXT {
         raw: handle,
         parent: self,
-        table: &self.private_data_slot_ext_table,
       })
     } else {
       core::hint::cold_path();
@@ -8258,7 +8229,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::validation_cache_ext::ValidationCacheEXT {
         raw: handle,
         parent: self,
-        table: &self.validation_cache_ext_table,
       })
     } else {
       core::hint::cold_path();
@@ -8305,7 +8275,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::buffer_collection_fuchsia::BufferCollectionFUCHSIA {
         raw: handle,
         parent: self,
-        table: &self.buffer_collection_fuchsia_table,
       })
     } else {
       core::hint::cold_path();
@@ -8519,7 +8488,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::framebuffer::Framebuffer {
         raw: handle,
         parent: self,
-        table: &self.framebuffer_table,
       })
     } else {
       core::hint::cold_path();
@@ -8585,11 +8553,7 @@ impl<'inst> Device<'inst> {
     Ok(
       raw_pipelines
         .into_iter()
-        .map(|raw| crate::pipeline::Pipeline {
-          raw,
-          parent: self,
-          table: &self.pipeline_table,
-        })
+        .map(|raw| crate::pipeline::Pipeline { raw, parent: self })
         .collect(),
     )
   }
@@ -8638,7 +8602,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::render_pass::RenderPass {
         raw: handle,
         parent: self,
-        table: &self.render_pass_table,
       })
     } else {
       core::hint::cold_path();
@@ -8689,7 +8652,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::render_pass::RenderPass {
         raw: handle,
         parent: self,
-        table: &self.render_pass_table,
       })
     } else {
       core::hint::cold_path();
@@ -8760,7 +8722,6 @@ impl<'inst> Device<'inst> {
         crate::performance_configuration_intel::PerformanceConfigurationINTEL {
           raw: handle,
           parent: self,
-          table: &self.performance_configuration_intel_table,
         },
       )
     } else {
@@ -8905,7 +8866,6 @@ impl<'inst> Device<'inst> {
         crate::acceleration_structure_khr::AccelerationStructureKHR {
           raw: handle,
           parent: self,
-          table: &self.acceleration_structure_khr_table,
         },
       )
     } else {
@@ -9291,7 +9251,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::render_pass::RenderPass {
         raw: handle,
         parent: self,
-        table: &self.render_pass_table,
       })
     } else {
       core::hint::cold_path();
@@ -9336,7 +9295,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::deferred_operation_khr::DeferredOperationKHR {
         raw: handle,
         parent: self,
-        table: &self.deferred_operation_khr_table,
       })
     } else {
       core::hint::cold_path();
@@ -9389,7 +9347,6 @@ impl<'inst> Device<'inst> {
         crate::descriptor_update_template_khr::DescriptorUpdateTemplateKHR {
           raw: handle,
           parent: self,
-          table: &self.descriptor_update_template_khr_table,
         },
       )
     } else {
@@ -9441,7 +9398,6 @@ impl<'inst> Device<'inst> {
         crate::acceleration_structure_khr::AccelerationStructureKHR {
           raw: handle,
           parent: self,
-          table: &self.acceleration_structure_khr_table,
         },
       )
     } else {
@@ -10901,7 +10857,6 @@ impl<'inst> Device<'inst> {
         crate::sampler_ycbcr_conversion_khr::SamplerYcbcrConversionKHR {
           raw: handle,
           parent: self,
-          table: &self.sampler_ycbcr_conversion_khr_table,
         },
       )
     } else {
@@ -10956,7 +10911,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::swapchain_khr::SwapchainKHR {
         raw: handle,
         parent: self,
-        table: &self.swapchain_khr_table,
       })
     } else {
       core::hint::cold_path();
@@ -11169,7 +11123,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::video_session_khr::VideoSessionKHR {
         raw: handle,
         parent: self,
-        table: &self.video_session_khr_table,
       })
     } else {
       core::hint::cold_path();
@@ -11218,7 +11171,6 @@ impl<'inst> Device<'inst> {
         crate::video_session_parameters_khr::VideoSessionParametersKHR {
           raw: handle,
           parent: self,
-          table: &self.video_session_parameters_khr_table,
         },
       )
     } else {
@@ -11268,7 +11220,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::cu_function_nvx::CuFunctionNVX {
         raw: handle,
         parent: self,
-        table: &self.cu_function_nvx_table,
       })
     } else {
       core::hint::cold_path();
@@ -11317,7 +11268,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::cu_module_nvx::CuModuleNVX {
         raw: handle,
         parent: self,
-        table: &self.cu_module_nvx_table,
       })
     } else {
       core::hint::cold_path();
@@ -11486,7 +11436,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::cuda_function_nv::CudaFunctionNV {
         raw: handle,
         parent: self,
-        table: &self.cuda_function_nv_table,
       })
     } else {
       core::hint::cold_path();
@@ -11535,7 +11484,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::cuda_module_nv::CudaModuleNV {
         raw: handle,
         parent: self,
-        table: &self.cuda_module_nv_table,
       })
     } else {
       core::hint::cold_path();
@@ -11582,7 +11530,6 @@ impl<'inst> Device<'inst> {
         crate::indirect_commands_layout_nv::IndirectCommandsLayoutNV {
           raw: handle,
           parent: self,
-          table: &self.indirect_commands_layout_nv_table,
         },
       )
     } else {
@@ -11699,7 +11646,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::external_compute_queue_nv::ExternalComputeQueueNV {
         raw: handle,
         parent: self,
-        table: &self.external_compute_queue_nv_table,
       })
     } else {
       core::hint::cold_path();
@@ -12072,7 +12018,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::semaphore_sci_sync_pool_nv::SemaphoreSciSyncPoolNV {
         raw: handle,
         parent: self,
-        table: &self.semaphore_sci_sync_pool_nv_table,
       })
     } else {
       core::hint::cold_path();
@@ -12217,7 +12162,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::optical_flow_session_nv::OpticalFlowSessionNV {
         raw: handle,
         parent: self,
-        table: &self.optical_flow_session_nv_table,
       })
     } else {
       core::hint::cold_path();
@@ -12325,7 +12269,6 @@ impl<'inst> Device<'inst> {
       Ok(crate::acceleration_structure_nv::AccelerationStructureNV {
         raw: handle,
         parent: self,
-        table: &self.acceleration_structure_nv_table,
       })
     } else {
       core::hint::cold_path();

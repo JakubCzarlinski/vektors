@@ -56,7 +56,6 @@ impl DebugReportCallbackEXTDispatchTable {
 pub struct DebugReportCallbackEXT<'dev> {
   pub(crate) raw: VkDebugReportCallbackEXT,
   pub(crate) parent: &'dev crate::instance::Instance<'dev>,
-  pub(crate) table: &'dev DebugReportCallbackEXTDispatchTable,
 }
 #[cfg(feature = "VK_EXT_debug_report")]
 unsafe impl<'dev> Send for DebugReportCallbackEXT<'dev> {}
@@ -69,11 +68,8 @@ impl<'dev> Drop for DebugReportCallbackEXT<'dev> {
       return;
     }
     unsafe {
-      (self.table.vkDestroyDebugReportCallbackEXT).unwrap_unchecked()(
-        self.parent.raw(),
-        self.raw,
-        core::ptr::null(),
-      )
+      ((&self.parent.debug_report_callback_ext_table).vkDestroyDebugReportCallbackEXT)
+        .unwrap_unchecked()(self.parent.raw(), self.raw, core::ptr::null())
     };
   }
 }
@@ -93,7 +89,7 @@ impl<'dev> DebugReportCallbackEXT<'dev> {
   }
   #[inline(always)]
   pub const fn table(&self) -> &DebugReportCallbackEXTDispatchTable {
-    self.table
+    &self.parent.debug_report_callback_ext_table
   }
   /// [`vkDebugReportMessageEXT`](https://docs.vulkan.org/refpages/latest/refpages/source/vkDebugReportMessageEXT.html)
   ///
@@ -124,7 +120,9 @@ impl<'dev> DebugReportCallbackEXT<'dev> {
   ) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table).vkDebugReportMessageEXT.unwrap_unchecked()(
+      (&self.parent.debug_report_callback_ext_table)
+        .vkDebugReportMessageEXT
+        .unwrap_unchecked()(
         self.instance().raw(),
         flags,
         objectType,
@@ -154,7 +152,7 @@ impl<'dev> DebugReportCallbackEXT<'dev> {
     }
     unsafe {
       // SAFETY: table is fully loaded at creation.
-      (self.table)
+      (&self.parent.debug_report_callback_ext_table)
         .vkDestroyDebugReportCallbackEXT
         .unwrap_unchecked()(self.parent().raw(), self.raw, pAllocator)
     }
