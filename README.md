@@ -6,8 +6,9 @@ demos.
 ## Versioning
 
 I plan to move versioning to be pinned to Vulkan. This will happen when I am
-happy with the API in this repo. As of July 30th 2026, bindings are generated
-from the Vulkan 1.4.357 registry.
+happy with the API in this repo.
+<!-- generated registry metadata -->
+As of 2026-08-29, bindings are generated from the Vulkan 1.4.357 registry.
 
 ## Installation
 
