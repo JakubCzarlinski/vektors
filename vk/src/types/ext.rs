@@ -124,6 +124,8 @@ use crate::enums::VkImageCompressionFixedRateFlagBitsEXT;
 use crate::enums::VkImageCompressionFlagBitsEXT;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkImageLayout;
+#[cfg(feature = "VK_EXT_image_tiling_control")]
+use crate::enums::VkImageTilingControlEXT;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkImageUsageFlagBits;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -19180,6 +19182,165 @@ impl<'a> VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT<'a> {
     val: &'a mut T,
   ) -> Self {
     self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkPhysicalDeviceImageTilingControlFeaturesEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceImageTilingControlFeaturesEXT.html)
+///
+/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
+#[cfg(feature = "VK_EXT_image_tiling_control")]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPhysicalDeviceImageTilingControlFeaturesEXT<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  pub imageTilingControl: VkBool32,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(feature = "VK_EXT_image_tiling_control")]
+unsafe impl<'a> Send for VkPhysicalDeviceImageTilingControlFeaturesEXT<'a> {}
+#[cfg(feature = "VK_EXT_image_tiling_control")]
+unsafe impl<'a> Sync for VkPhysicalDeviceImageTilingControlFeaturesEXT<'a> {}
+#[cfg(all(
+  feature = "VK_EXT_image_tiling_control",
+  feature = "VK_BASE_VERSION_1_1"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
+  for VkPhysicalDeviceImageTilingControlFeaturesEXT<'child>
+{
+}
+#[cfg(all(
+  feature = "VK_EXT_image_tiling_control",
+  feature = "VK_BASE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
+  for VkPhysicalDeviceImageTilingControlFeaturesEXT<'child>
+{
+}
+#[cfg(feature = "VK_EXT_image_tiling_control")]
+impl<'a> VkPhysicalDeviceImageTilingControlFeaturesEXT<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT,
+    pNext: core::ptr::null_mut(),
+    imageTilingControl: 0,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_imageTilingControl(mut self, val: VkBool32) -> Self {
+    self.imageTilingControl = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkDeviceCreateInfo<
+    'root,
+    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkImageTilingControlCreateInfoEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkImageTilingControlCreateInfoEXT.html)
+///
+/// **Extends:** VkImageCreateInfo.
+#[cfg(feature = "VK_EXT_image_tiling_control")]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkImageTilingControlCreateInfoEXT<'a> {
+  /// Values: VK_STRUCTURE_TYPE_IMAGE_TILING_CONTROL_CREATE_INFO_EXT
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *const c_void,
+  pub tilingControl: VkImageTilingControlEXT,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(feature = "VK_EXT_image_tiling_control")]
+unsafe impl<'a> Send for VkImageTilingControlCreateInfoEXT<'a> {}
+#[cfg(feature = "VK_EXT_image_tiling_control")]
+unsafe impl<'a> Sync for VkImageTilingControlCreateInfoEXT<'a> {}
+#[cfg(all(
+  feature = "VK_EXT_image_tiling_control",
+  feature = "VK_BASE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkImageCreateInfo<'root>>
+  for VkImageTilingControlCreateInfoEXT<'child>
+{
+}
+#[cfg(feature = "VK_EXT_image_tiling_control")]
+impl<'a> VkImageTilingControlCreateInfoEXT<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::IMAGE_TILING_CONTROL_CREATE_INFO_EXT,
+    pNext: core::ptr::null(),
+    tilingControl: VkImageTilingControlEXT(0),
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_tilingControl(mut self, val: VkImageTilingControlEXT) -> Self {
+    self.tilingControl = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkImageCreateInfo<
+    'root,
+    T: VkPNextExtends<VkImageCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a T,
+  ) -> Self {
+    self.pNext = (val as *const T).cast::<c_void>();
     self
   }
 }

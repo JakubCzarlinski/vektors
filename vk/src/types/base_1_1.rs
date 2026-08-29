@@ -497,6 +497,8 @@ use crate::types::VkPhysicalDeviceImageProcessingPropertiesQCOM;
 use crate::types::VkPhysicalDeviceImageRobustnessFeatures;
 #[cfg(feature = "VK_EXT_image_sliced_view_of_3d")]
 use crate::types::VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT;
+#[cfg(feature = "VK_EXT_image_tiling_control")]
+use crate::types::VkPhysicalDeviceImageTilingControlFeaturesEXT;
 #[cfg(feature = "VK_EXT_filter_cubic")]
 use crate::types::VkPhysicalDeviceImageViewImageFormatInfoEXT;
 #[cfg(feature = "VK_EXT_image_view_min_lod")]
@@ -2458,6 +2460,19 @@ impl<'a> VkPhysicalDeviceFeatures2<'a> {
   ) -> Self {
     self.pNext =
       (val as *mut VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT<'child>).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_EXT_image_tiling_control")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkPhysicalDeviceImageTilingControlFeaturesEXT<'child>(
+    mut self,
+    val: &'a mut VkPhysicalDeviceImageTilingControlFeaturesEXT<'child>,
+  ) -> Self {
+    self.pNext =
+      (val as *mut VkPhysicalDeviceImageTilingControlFeaturesEXT<'child>).cast::<c_void>();
     self
   }
   #[cfg(feature = "VK_EXT_image_view_min_lod")]

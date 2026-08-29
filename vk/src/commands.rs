@@ -601,6 +601,8 @@ use crate::enums::VkImageFormatConstraintsFlagBitsFUCHSIA;
 use crate::enums::VkImageLayout;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkImageTiling;
+#[cfg(feature = "VK_EXT_image_tiling_control")]
+use crate::enums::VkImageTilingControlEXT;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkImageType;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -3122,6 +3124,8 @@ use crate::types::VkImageSubresourceRange;
   all(feature = "VK_KHR_device_group", feature = "VK_KHR_swapchain")
 ))]
 use crate::types::VkImageSwapchainCreateInfoKHR;
+#[cfg(feature = "VK_EXT_image_tiling_control")]
+use crate::types::VkImageTilingControlCreateInfoEXT;
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 use crate::types::VkImageToMemoryCopy;
 #[cfg(feature = "VK_EXT_host_image_copy")]
@@ -3965,6 +3969,8 @@ use crate::types::VkPhysicalDeviceImageRobustnessFeatures;
 use crate::types::VkPhysicalDeviceImageRobustnessFeaturesEXT;
 #[cfg(feature = "VK_EXT_image_sliced_view_of_3d")]
 use crate::types::VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT;
+#[cfg(feature = "VK_EXT_image_tiling_control")]
+use crate::types::VkPhysicalDeviceImageTilingControlFeaturesEXT;
 #[cfg(feature = "VK_EXT_filter_cubic")]
 use crate::types::VkPhysicalDeviceImageViewImageFormatInfoEXT;
 #[cfg(feature = "VK_EXT_image_view_min_lod")]

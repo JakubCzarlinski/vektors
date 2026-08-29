@@ -92,7 +92,7 @@ pub const VKSC_API_VARIANT: u32 = 1u32;
 pub const VKSC_API_VERSION_1_0: u32 = VK_MAKE_API_VERSION(VKSC_API_VARIANT, 1, 0, 0);
 /// [VK_HEADER_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION.html)
 #[cfg(feature = "VKSC_VERSION_1_0")]
-pub const VK_HEADER_VERSION: u32 = 21u32;
+pub const VK_HEADER_VERSION: u32 = 22u32;
 /// [VK_HEADER_VERSION_COMPLETE](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION_COMPLETE.html)
 #[cfg(feature = "VKSC_VERSION_1_0")]
 pub const VK_HEADER_VERSION_COMPLETE: u32 =
@@ -623,7 +623,7 @@ pub const VK_API_VERSION: u32 = VK_MAKE_API_VERSION(0, 1, 0, 0);
 pub const VK_API_VERSION_1_0: u32 = VK_MAKE_API_VERSION(0, 1, 0, 0);
 /// [VK_HEADER_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION.html)
 #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
-pub const VK_HEADER_VERSION: u32 = 357u32;
+pub const VK_HEADER_VERSION: u32 = 358u32;
 /// [VK_HEADER_VERSION_COMPLETE](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION_COMPLETE.html)
 #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub const VK_HEADER_VERSION_COMPLETE: u32 = VK_MAKE_API_VERSION(0, 1, 4, VK_HEADER_VERSION);
@@ -1345,6 +1345,17 @@ pub const VK_EXT_IMAGE_SLICED_VIEW_OF_3D_SPEC_VERSION: u32 = 1;
 #[cfg(feature = "VK_EXT_image_sliced_view_of_3d")]
 pub const VK_EXT_IMAGE_SLICED_VIEW_OF_3D_EXTENSION_NAME: &'static core::ffi::CStr =
   c"VK_EXT_image_sliced_view_of_3d";
+/// [VK_EXT_IMAGE_TILING_CONTROL_SPEC_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_image_tiling_control.html)
+///
+/// Extension type: device extension.
+#[cfg(feature = "VK_EXT_image_tiling_control")]
+pub const VK_EXT_IMAGE_TILING_CONTROL_SPEC_VERSION: u32 = 1;
+/// [VK_EXT_IMAGE_TILING_CONTROL_EXTENSION_NAME](https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_image_tiling_control.html)
+///
+/// Extension type: device extension.
+#[cfg(feature = "VK_EXT_image_tiling_control")]
+pub const VK_EXT_IMAGE_TILING_CONTROL_EXTENSION_NAME: &'static core::ffi::CStr =
+  c"VK_EXT_image_tiling_control";
 /// [VK_EXT_IMAGE_VIEW_MIN_LOD_SPEC_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_image_view_min_lod.html)
 ///
 /// Extension type: device extension.

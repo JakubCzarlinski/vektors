@@ -41711,6 +41711,8 @@ impl<'a> VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR<'a> {
 }
 /// [VkVideoEncodeFeedback2CapabilitiesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkVideoEncodeFeedback2CapabilitiesKHR.html)
 ///
+/// *Note: This is a **returned only** struct.*
+///
 /// *Note: This struct has **required limit types**.*
 ///
 /// **Extends:** VkVideoCapabilitiesKHR.

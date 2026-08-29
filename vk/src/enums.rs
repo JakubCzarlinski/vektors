@@ -3348,6 +3348,10 @@ impl VkStructureType {
     Self(1000676002);
   #[cfg(feature = "VK_EXT_primitive_restart_index")]
   pub const PHYSICAL_DEVICE_PRIMITIVE_RESTART_INDEX_FEATURES_EXT: Self = Self(1000678000);
+  #[cfg(feature = "VK_EXT_image_tiling_control")]
+  pub const PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT: Self = Self(1000687000);
+  #[cfg(feature = "VK_EXT_image_tiling_control")]
+  pub const IMAGE_TILING_CONTROL_CREATE_INFO_EXT: Self = Self(1000687001);
   #[cfg(feature = "VK_NV_cooperative_matrix_decode_vector")]
   pub const PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV: Self = Self(1000689000);
 }
@@ -11640,6 +11644,17 @@ impl core::fmt::Display for VkStructureType {
                 f.write_str(
                     "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_RESTART_INDEX_FEATURES_EXT",
                 )
+            }
+            #[cfg(feature = "VK_EXT_image_tiling_control")]
+            value if value
+                == Self::PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT.0 => {
+                f.write_str(
+                    "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT",
+                )
+            }
+            #[cfg(feature = "VK_EXT_image_tiling_control")]
+            value if value == Self::IMAGE_TILING_CONTROL_CREATE_INFO_EXT.0 => {
+                f.write_str("VK_STRUCTURE_TYPE_IMAGE_TILING_CONTROL_CREATE_INFO_EXT")
             }
             #[cfg(feature = "VK_NV_cooperative_matrix_decode_vector")]
             value if value
@@ -52080,6 +52095,30 @@ impl core::fmt::Display for VkImageCompressionFixedRateFlagBitsEXT {
       } else {
         write!(f, "0x{:x}", self.0)
       }
+    }
+  }
+}
+/// [VkImageTilingControlEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkImageTilingControlEXT.html)
+#[cfg(feature = "VK_EXT_image_tiling_control")]
+#[repr(transparent)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd)]
+pub struct VkImageTilingControlEXT(pub i32);
+#[cfg(feature = "VK_EXT_image_tiling_control")]
+impl VkImageTilingControlEXT {
+  pub const DEFAULT: Self = Self(0);
+  pub const MIN_SIZE: Self = Self(1);
+  pub const MAX_PERFORMANCE: Self = Self(2);
+}
+#[cfg(feature = "VK_EXT_image_tiling_control")]
+impl core::fmt::Display for VkImageTilingControlEXT {
+  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    match self.0 {
+      value if value == Self::DEFAULT.0 => f.write_str("VK_IMAGE_TILING_CONTROL_DEFAULT_EXT"),
+      value if value == Self::MIN_SIZE.0 => f.write_str("VK_IMAGE_TILING_CONTROL_MIN_SIZE_EXT"),
+      value if value == Self::MAX_PERFORMANCE.0 => {
+        f.write_str("VK_IMAGE_TILING_CONTROL_MAX_PERFORMANCE_EXT")
+      }
+      _ => write!(f, "{}({})", stringify!(VkImageTilingControlEXT), self.0),
     }
   }
 }

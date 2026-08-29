@@ -1076,6 +1076,8 @@ pub use ext::VkImageStencilUsageCreateInfoEXT;
   feature = "VK_EXT_image_compression_control"
 ))]
 pub use ext::VkImageSubresource2EXT;
+#[cfg(feature = "VK_EXT_image_tiling_control")]
+pub use ext::VkImageTilingControlCreateInfoEXT;
 #[cfg(feature = "VK_EXT_host_image_copy")]
 pub use ext::VkImageToMemoryCopyEXT;
 #[cfg(feature = "VK_EXT_astc_decode_mode")]
@@ -1322,6 +1324,8 @@ pub use ext::VkPhysicalDeviceImageDrmFormatModifierInfoEXT;
 pub use ext::VkPhysicalDeviceImageRobustnessFeaturesEXT;
 #[cfg(feature = "VK_EXT_image_sliced_view_of_3d")]
 pub use ext::VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT;
+#[cfg(feature = "VK_EXT_image_tiling_control")]
+pub use ext::VkPhysicalDeviceImageTilingControlFeaturesEXT;
 #[cfg(feature = "VK_EXT_filter_cubic")]
 pub use ext::VkPhysicalDeviceImageViewImageFormatInfoEXT;
 #[cfg(feature = "VK_EXT_image_view_min_lod")]

@@ -1,7 +1,7 @@
-version="0.1.14"
+version="0.1.15"
 
 mkdir -p registry
-registry_version="v1.4.357"
+registry_version="v1.4.358"
 generation_date="$(date +%Y-%m-%d)"
 curl -o registry/video.xml "https://raw.githubusercontent.com/KhronosGroup/Vulkan-Docs/${registry_version}/xml/video.xml"
 curl -o registry/vk.xml "https://raw.githubusercontent.com/KhronosGroup/Vulkan-Docs/${registry_version}/xml/vk.xml"
@@ -21,4 +21,4 @@ if [ "$(grep -Fxc "$readme_marker" README.md)" -ne 1 ]; then
 fi
 sed -i "/^${readme_marker}\$/{n;s|^.*\$|${readme_metadata}|;}" README.md
 
-cargo fmt && cargo clippy --all-features --fix --allow-dirty && cargo fmt
+cargo fmt && cargo clippy --fix --allow-dirty && cargo fmt

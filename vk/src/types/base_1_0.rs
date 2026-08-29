@@ -255,6 +255,8 @@ use crate::types::VkImageStencilUsageCreateInfo;
   all(feature = "VK_KHR_device_group", feature = "VK_KHR_swapchain")
 ))]
 use crate::types::VkImageSwapchainCreateInfoKHR;
+#[cfg(feature = "VK_EXT_image_tiling_control")]
+use crate::types::VkImageTilingControlCreateInfoEXT;
 #[cfg(feature = "VK_KHR_extended_flags")]
 use crate::types::VkImageUsageFlags2CreateInfoKHR;
 #[cfg(feature = "VK_EXT_astc_decode_mode")]
@@ -545,6 +547,8 @@ use crate::types::VkPhysicalDeviceImageProcessingFeaturesQCOM;
 use crate::types::VkPhysicalDeviceImageRobustnessFeatures;
 #[cfg(feature = "VK_EXT_image_sliced_view_of_3d")]
 use crate::types::VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT;
+#[cfg(feature = "VK_EXT_image_tiling_control")]
+use crate::types::VkPhysicalDeviceImageTilingControlFeaturesEXT;
 #[cfg(feature = "VK_EXT_image_view_min_lod")]
 use crate::types::VkPhysicalDeviceImageViewMinLodFeaturesEXT;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
@@ -3762,6 +3766,19 @@ impl<'a> VkDeviceCreateInfo<'a> {
   ) -> Self {
     self.pNext =
       (val as *const VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT<'child>).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_EXT_image_tiling_control")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkPhysicalDeviceImageTilingControlFeaturesEXT<'child>(
+    mut self,
+    val: &'a VkPhysicalDeviceImageTilingControlFeaturesEXT<'child>,
+  ) -> Self {
+    self.pNext =
+      (val as *const VkPhysicalDeviceImageTilingControlFeaturesEXT<'child>).cast::<c_void>();
     self
   }
   #[cfg(feature = "VK_EXT_image_view_min_lod")]
@@ -8043,6 +8060,18 @@ impl<'a> VkImageCreateInfo<'a> {
     val: &'a VkImageSwapchainCreateInfoKHR<'child>,
   ) -> Self {
     self.pNext = (val as *const VkImageSwapchainCreateInfoKHR<'child>).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_EXT_image_tiling_control")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkImageTilingControlCreateInfoEXT<'child>(
+    mut self,
+    val: &'a VkImageTilingControlCreateInfoEXT<'child>,
+  ) -> Self {
+    self.pNext = (val as *const VkImageTilingControlCreateInfoEXT<'child>).cast::<c_void>();
     self
   }
   #[cfg(feature = "VK_KHR_extended_flags")]
