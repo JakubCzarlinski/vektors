@@ -623,7 +623,7 @@ pub const VK_API_VERSION: u32 = VK_MAKE_API_VERSION(0, 1, 0, 0);
 pub const VK_API_VERSION_1_0: u32 = VK_MAKE_API_VERSION(0, 1, 0, 0);
 /// [VK_HEADER_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION.html)
 #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
-pub const VK_HEADER_VERSION: u32 = 359u32;
+pub const VK_HEADER_VERSION: u32 = 360u32;
 /// [VK_HEADER_VERSION_COMPLETE](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION_COMPLETE.html)
 #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub const VK_HEADER_VERSION_COMPLETE: u32 = VK_MAKE_API_VERSION(0, 1, 4, VK_HEADER_VERSION);

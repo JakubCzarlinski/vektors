@@ -3766,6 +3766,16 @@ compile_error!(
   "Feature `VK_VALVE_shader_mixed_float_dot_product` requires `VK_KHR_get_physical_device_properties2 + VK_KHR_shader_float16_int8 , VK_KHR_get_physical_device_properties2 + VK_VERSION_1_2 , VK_VERSION_1_1 + VK_KHR_shader_float16_int8 , VK_VERSION_1_1 + VK_VERSION_1_2`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_VALVE_shader_mixed_float_dot_product.html"
 );
 #[cfg(all(
+  feature = "VK_ARM_data_graph_neural_accelerator_statistics",
+  not(any(
+    feature = "VK_KHR_get_physical_device_properties2",
+    feature = "VK_VERSION_1_1"
+  ))
+))]
+compile_error!(
+  "Feature `VK_ARM_data_graph_neural_accelerator_statistics` requires `VK_KHR_get_physical_device_properties2 , VK_VERSION_1_1`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_ARM_data_graph_neural_accelerator_statistics.html"
+);
+#[cfg(all(
   feature = "VK_EXT_primitive_restart_index",
   not(any(
     feature = "VK_KHR_get_physical_device_properties2",
@@ -3774,6 +3784,16 @@ compile_error!(
 ))]
 compile_error!(
   "Feature `VK_EXT_primitive_restart_index` requires `VK_KHR_get_physical_device_properties2 , VK_VERSION_1_1`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_primitive_restart_index.html"
+);
+#[cfg(all(
+  feature = "VK_EXT_image_tiling_control",
+  not(any(
+    feature = "VK_KHR_get_physical_device_properties2",
+    feature = "VK_VERSION_1_1"
+  ))
+))]
+compile_error!(
+  "Feature `VK_EXT_image_tiling_control` requires `VK_KHR_get_physical_device_properties2 , VK_VERSION_1_1`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_image_tiling_control.html"
 );
 #[cfg(all(
   feature = "VK_NV_cooperative_matrix_decode_vector",

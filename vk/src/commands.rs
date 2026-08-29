@@ -18545,7 +18545,7 @@ pub type PFN_vkGetDeviceQueue2 = unsafe extern "system" fn(
 /// # Parameters
 /// - `device`
 /// - `renderpass`
-/// - `pMaxWorkgroupSize`: len: 1
+/// - `pMaxWorkgroupSize`
 ///
 /// # Returns
 ///
@@ -22644,7 +22644,7 @@ pub type PFN_vkGetShaderInfoAMD = unsafe extern "system" fn(
 /// - `device`
 /// - `instrumentation`
 /// - `pMetricBlockCount`
-/// - `pMetricValues`
+/// - `pMetricValues`: optional: true
 /// - `flags`: optional: true
 ///
 /// # Returns

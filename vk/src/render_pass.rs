@@ -163,7 +163,7 @@ impl<'dev> RenderPass<'dev> {
   /// # Parameters
   /// - `device`
   /// - `renderpass`
-  /// - `pMaxWorkgroupSize`: len: 1
+  /// - `pMaxWorkgroupSize`
   ///
   /// # Returns
   ///
@@ -180,7 +180,7 @@ impl<'dev> RenderPass<'dev> {
   #[inline(always)]
   pub fn vkGetDeviceSubpassShadingMaxWorkgroupSizeHUAWEI(
     &self,
-    pMaxWorkgroupSize: *mut VkExtent2D,
+    pMaxWorkgroupSize: &mut VkExtent2D,
   ) -> Result<VkResult, VkResult> {
     let r = unsafe {
       (&self.parent.render_pass_table)

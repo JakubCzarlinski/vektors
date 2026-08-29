@@ -160,7 +160,7 @@ impl<'dev> ShaderInstrumentationARM<'dev> {
   /// - `device`
   /// - `instrumentation`
   /// - `pMetricBlockCount`
-  /// - `pMetricValues`
+  /// - `pMetricValues`: optional: true
   /// - `flags`: optional: true
   ///
   /// # Returns
