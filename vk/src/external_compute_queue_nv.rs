@@ -62,7 +62,7 @@ unsafe impl<'dev> Sync for ExternalComputeQueueNV<'dev> {}
 #[cfg(feature = "VK_NV_external_compute_queue")]
 impl<'dev> Drop for ExternalComputeQueueNV<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkExternalComputeQueueNV::NULL {
       return;
     }
     unsafe {
@@ -106,7 +106,7 @@ impl<'dev> ExternalComputeQueueNV<'dev> {
   #[cfg(feature = "VK_NV_external_compute_queue")]
   #[inline(always)]
   pub fn vkDestroyExternalComputeQueueNV(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkExternalComputeQueueNV::NULL {
       return;
     }
     unsafe {

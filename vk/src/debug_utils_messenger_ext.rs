@@ -66,7 +66,7 @@ unsafe impl<'dev> Sync for DebugUtilsMessengerEXT<'dev> {}
 #[cfg(feature = "VK_EXT_debug_utils")]
 impl<'dev> Drop for DebugUtilsMessengerEXT<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkDebugUtilsMessengerEXT::NULL {
       return;
     }
     unsafe {
@@ -106,7 +106,7 @@ impl<'dev> DebugUtilsMessengerEXT<'dev> {
   #[cfg(feature = "VK_EXT_debug_utils")]
   #[inline(always)]
   pub fn vkDestroyDebugUtilsMessengerEXT(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkDebugUtilsMessengerEXT::NULL {
       return;
     }
     unsafe {

@@ -64,7 +64,7 @@ unsafe impl<'dev> Sync for SemaphoreSciSyncPoolNV<'dev> {}
 #[cfg(not(feature = "VKSC_VERSION_1_0"))]
 impl<'dev> Drop for SemaphoreSciSyncPoolNV<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkSemaphoreSciSyncPoolNV::NULL {
       return;
     }
     unsafe {
@@ -112,7 +112,7 @@ impl<'dev> SemaphoreSciSyncPoolNV<'dev> {
   ))]
   #[inline(always)]
   pub fn vkDestroySemaphoreSciSyncPoolNV(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkSemaphoreSciSyncPoolNV::NULL {
       return;
     }
     unsafe {

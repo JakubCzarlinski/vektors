@@ -51,7 +51,7 @@ unsafe impl<'dev> Sync for AccelerationStructureKHR<'dev> {}
 #[cfg(feature = "VK_KHR_acceleration_structure")]
 impl<'dev> Drop for AccelerationStructureKHR<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkAccelerationStructureKHR::NULL {
       return;
     }
     unsafe {
@@ -98,7 +98,7 @@ impl<'dev> AccelerationStructureKHR<'dev> {
     &mut self,
     pAllocator: *const VkAllocationCallbacks<'_>,
   ) {
-    if self.raw.0.is_null() {
+    if self.raw == VkAccelerationStructureKHR::NULL {
       return;
     }
     unsafe {

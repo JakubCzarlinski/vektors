@@ -163,9 +163,15 @@ fn parse_handle(
     aset: ApiSet,
     depr: DeprecationInfo,
 ) {
-    let dispatchable = node
-        .text()
-        .is_none_or(|t| !t.contains("VK_DEFINE_NON_DISPATCHABLE_HANDLE"));
+    let dispatchable = match child_text(node, "type").as_deref() {
+        Some("VK_DEFINE_HANDLE") => true,
+        Some("VK_DEFINE_NON_DISPATCHABLE_HANDLE") => false,
+        Some(macro_name) => panic!("unknown Vulkan handle macro: {macro_name}"),
+        // Handle aliases contain no declaration macro. Their target is resolved
+        // before code generation, so this value is deliberately unused.
+        None if alias.is_some() => true,
+        None => panic!("Vulkan handle {name} has no declaration macro"),
+    };
 
     let parent = node.attribute("parent").map(String::from);
     let objtypeenum = node.attribute("objtypeenum").map(String::from);

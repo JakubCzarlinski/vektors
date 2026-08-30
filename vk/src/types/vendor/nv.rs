@@ -3930,10 +3930,10 @@ impl<'a> VkFramebufferMixedSamplesCombinationNV<'a> {
 #[cfg(feature = "VK_NV_cuda_kernel_launch")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkCudaModuleNV(pub *mut c_void);
+pub struct VkCudaModuleNV(pub u64);
 #[cfg(feature = "VK_NV_cuda_kernel_launch")]
 impl VkCudaModuleNV {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_NV_cuda_kernel_launch")]
@@ -3950,10 +3950,10 @@ unsafe impl Sync for VkCudaModuleNV {}
 #[cfg(feature = "VK_NV_cuda_kernel_launch")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkCudaFunctionNV(pub *mut c_void);
+pub struct VkCudaFunctionNV(pub u64);
 #[cfg(feature = "VK_NV_cuda_kernel_launch")]
 impl VkCudaFunctionNV {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_NV_cuda_kernel_launch")]
@@ -5365,10 +5365,10 @@ pub type VkIndirectStateFlagsNV = VkIndirectStateFlagBitsNV;
 #[cfg(feature = "VK_NV_device_generated_commands")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkIndirectCommandsLayoutNV(pub *mut c_void);
+pub struct VkIndirectCommandsLayoutNV(pub u64);
 #[cfg(feature = "VK_NV_device_generated_commands")]
 impl VkIndirectCommandsLayoutNV {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_NV_device_generated_commands")]
@@ -9462,10 +9462,10 @@ unsafe impl Sync for NvSciSyncFence {}
 #[cfg(feature = "VK_NV_external_sci_sync2")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkSemaphoreSciSyncPoolNV(pub *mut c_void);
+pub struct VkSemaphoreSciSyncPoolNV(pub u64);
 #[cfg(feature = "VK_NV_external_sci_sync2")]
 impl VkSemaphoreSciSyncPoolNV {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_NV_external_sci_sync2")]
@@ -12091,10 +12091,10 @@ pub type VkOpticalFlowExecuteFlagsNV = VkOpticalFlowExecuteFlagBitsNV;
 #[cfg(feature = "VK_NV_optical_flow")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkOpticalFlowSessionNV(pub *mut c_void);
+pub struct VkOpticalFlowSessionNV(pub u64);
 #[cfg(feature = "VK_NV_optical_flow")]
 impl VkOpticalFlowSessionNV {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_NV_optical_flow")]
@@ -14470,10 +14470,10 @@ pub type VkBuildAccelerationStructureFlagsNV = VkBuildAccelerationStructureFlagB
 #[cfg(feature = "VK_NV_ray_tracing")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkAccelerationStructureNV(pub *mut c_void);
+pub struct VkAccelerationStructureNV(pub u64);
 #[cfg(feature = "VK_NV_ray_tracing")]
 impl VkAccelerationStructureNV {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_NV_ray_tracing")]

@@ -148,7 +148,7 @@ unsafe impl<'dev> Sync for Pipeline<'dev> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl<'dev> Drop for Pipeline<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkPipeline::NULL {
       return;
     }
     unsafe {
@@ -327,7 +327,7 @@ impl<'dev> Pipeline<'dev> {
   #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline(always)]
   pub fn vkDestroyPipeline(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkPipeline::NULL {
       return;
     }
     unsafe {

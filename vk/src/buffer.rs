@@ -75,7 +75,7 @@ unsafe impl<'dev> Sync for Buffer<'dev> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'dev> Drop for Buffer<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkBuffer::NULL {
       return;
     }
     unsafe {
@@ -166,7 +166,7 @@ impl<'dev> Buffer<'dev> {
   #[cfg(feature = "VK_BASE_VERSION_1_0")]
   #[inline(always)]
   pub fn vkDestroyBuffer(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkBuffer::NULL {
       return;
     }
     unsafe {

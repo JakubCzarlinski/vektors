@@ -51,7 +51,7 @@ unsafe impl<'dev> Sync for CuFunctionNVX<'dev> {}
 #[cfg(feature = "VK_NVX_binary_import")]
 impl<'dev> Drop for CuFunctionNVX<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkCuFunctionNVX::NULL {
       return;
     }
     unsafe {
@@ -98,7 +98,7 @@ impl<'dev> CuFunctionNVX<'dev> {
   #[cfg(feature = "VK_NVX_binary_import")]
   #[inline(always)]
   pub fn vkDestroyCuFunctionNVX(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkCuFunctionNVX::NULL {
       return;
     }
     unsafe {

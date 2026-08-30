@@ -374,10 +374,10 @@ pub type VkCullModeFlags = VkCullModeFlagBits;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkFramebuffer(pub *mut c_void);
+pub struct VkFramebuffer(pub u64);
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 impl VkFramebuffer {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
@@ -394,10 +394,10 @@ unsafe impl Sync for VkFramebuffer {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkRenderPass(pub *mut c_void);
+pub struct VkRenderPass(pub u64);
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 impl VkRenderPass {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]

@@ -51,7 +51,7 @@ unsafe impl<'dev> Sync for MicromapEXT<'dev> {}
 #[cfg(feature = "VK_EXT_opacity_micromap")]
 impl<'dev> Drop for MicromapEXT<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkMicromapEXT::NULL {
       return;
     }
     unsafe {
@@ -98,7 +98,7 @@ impl<'dev> MicromapEXT<'dev> {
   #[cfg(feature = "VK_EXT_opacity_micromap")]
   #[inline(always)]
   pub fn vkDestroyMicromapEXT(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkMicromapEXT::NULL {
       return;
     }
     unsafe {

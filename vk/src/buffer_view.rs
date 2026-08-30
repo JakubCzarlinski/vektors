@@ -51,7 +51,7 @@ unsafe impl<'dev> Sync for BufferView<'dev> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl<'dev> Drop for BufferView<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkBufferView::NULL {
       return;
     }
     unsafe {
@@ -99,7 +99,7 @@ impl<'dev> BufferView<'dev> {
   #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline(always)]
   pub fn vkDestroyBufferView(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkBufferView::NULL {
       return;
     }
     unsafe {

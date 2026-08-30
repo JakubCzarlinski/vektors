@@ -246,7 +246,7 @@ unsafe impl<'dev> Sync for SwapchainKHR<'dev> {}
 #[cfg(not(feature = "VKSC_VERSION_1_0"))]
 impl<'dev> Drop for SwapchainKHR<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkSwapchainKHR::NULL {
       return;
     }
     unsafe {
@@ -838,7 +838,7 @@ impl<'dev> SwapchainKHR<'dev> {
   #[cfg(all(feature = "VK_KHR_swapchain", not(feature = "VKSC_VERSION_1_0")))]
   #[inline(always)]
   pub fn vkDestroySwapchainKHR(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkSwapchainKHR::NULL {
       return;
     }
     unsafe {

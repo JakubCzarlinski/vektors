@@ -51,7 +51,7 @@ unsafe impl<'dev> Sync for PerformanceConfigurationINTEL<'dev> {}
 #[cfg(feature = "VK_INTEL_performance_query")]
 impl<'dev> Drop for PerformanceConfigurationINTEL<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkPerformanceConfigurationINTEL::NULL {
       return;
     }
   }

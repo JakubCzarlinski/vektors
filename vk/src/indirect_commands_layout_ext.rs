@@ -51,7 +51,7 @@ unsafe impl<'dev> Sync for IndirectCommandsLayoutEXT<'dev> {}
 #[cfg(feature = "VK_EXT_device_generated_commands")]
 impl<'dev> Drop for IndirectCommandsLayoutEXT<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkIndirectCommandsLayoutEXT::NULL {
       return;
     }
     unsafe {
@@ -98,7 +98,7 @@ impl<'dev> IndirectCommandsLayoutEXT<'dev> {
     &mut self,
     pAllocator: *const VkAllocationCallbacks<'_>,
   ) {
-    if self.raw.0.is_null() {
+    if self.raw == VkIndirectCommandsLayoutEXT::NULL {
       return;
     }
     unsafe {

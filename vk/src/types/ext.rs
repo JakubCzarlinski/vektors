@@ -518,10 +518,10 @@ pub type VkTensorViewCreateFlagsARM = VkTensorViewCreateFlagBitsARM;
 #[cfg(any(feature = "VK_EXT_descriptor_heap", feature = "VK_ARM_tensors"))]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkTensorARM(pub *mut c_void);
+pub struct VkTensorARM(pub u64);
 #[cfg(any(feature = "VK_EXT_descriptor_heap", feature = "VK_ARM_tensors"))]
 impl VkTensorARM {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(any(feature = "VK_EXT_descriptor_heap", feature = "VK_ARM_tensors"))]
@@ -3823,10 +3823,10 @@ pub type VkDebugReportFlagsEXT = VkDebugReportFlagBitsEXT;
 #[cfg(feature = "VK_EXT_debug_report")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkDebugReportCallbackEXT(pub *mut c_void);
+pub struct VkDebugReportCallbackEXT(pub u64);
 #[cfg(feature = "VK_EXT_debug_report")]
 impl VkDebugReportCallbackEXT {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_EXT_debug_report")]
@@ -3953,10 +3953,10 @@ pub type VkDebugUtilsMessengerCallbackDataFlagsEXT = VkFlags;
 #[cfg(feature = "VK_EXT_debug_utils")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkDebugUtilsMessengerEXT(pub *mut c_void);
+pub struct VkDebugUtilsMessengerEXT(pub u64);
 #[cfg(feature = "VK_EXT_debug_utils")]
 impl VkDebugUtilsMessengerEXT {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_EXT_debug_utils")]
@@ -10410,10 +10410,10 @@ pub type VkIndirectCommandsInputModeFlagsEXT = VkIndirectCommandsInputModeFlagBi
 #[cfg(feature = "VK_EXT_device_generated_commands")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkIndirectCommandsLayoutEXT(pub *mut c_void);
+pub struct VkIndirectCommandsLayoutEXT(pub u64);
 #[cfg(feature = "VK_EXT_device_generated_commands")]
 impl VkIndirectCommandsLayoutEXT {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_EXT_device_generated_commands")]
@@ -10430,10 +10430,10 @@ unsafe impl Sync for VkIndirectCommandsLayoutEXT {}
 #[cfg(feature = "VK_EXT_device_generated_commands")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkIndirectExecutionSetEXT(pub *mut c_void);
+pub struct VkIndirectExecutionSetEXT(pub u64);
 #[cfg(feature = "VK_EXT_device_generated_commands")]
 impl VkIndirectExecutionSetEXT {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_EXT_device_generated_commands")]
@@ -24560,10 +24560,10 @@ pub type VkMicromapCreateFlagsEXT = VkMicromapCreateFlagBitsEXT;
 #[cfg(feature = "VK_EXT_opacity_micromap")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkMicromapEXT(pub *mut c_void);
+pub struct VkMicromapEXT(pub u64);
 #[cfg(feature = "VK_EXT_opacity_micromap")]
 impl VkMicromapEXT {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_EXT_opacity_micromap")]
@@ -28263,10 +28263,10 @@ pub type VkPrivateDataSlotCreateFlagsEXT = VkFlags;
 #[cfg(feature = "VK_EXT_private_data")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkPrivateDataSlotEXT(pub *mut c_void);
+pub struct VkPrivateDataSlotEXT(pub u64);
 #[cfg(feature = "VK_EXT_private_data")]
 impl VkPrivateDataSlotEXT {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_EXT_private_data")]
@@ -31353,10 +31353,10 @@ pub type VkShaderCreateFlagsEXT = VkShaderCreateFlagBitsEXT;
 #[cfg(feature = "VK_EXT_shader_object")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkShaderEXT(pub *mut c_void);
+pub struct VkShaderEXT(pub u64);
 #[cfg(feature = "VK_EXT_shader_object")]
 impl VkShaderEXT {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_EXT_shader_object")]
@@ -34981,10 +34981,10 @@ pub type VkValidationCacheCreateFlagsEXT = VkFlags;
 #[cfg(feature = "VK_EXT_validation_cache")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkValidationCacheEXT(pub *mut c_void);
+pub struct VkValidationCacheEXT(pub u64);
 #[cfg(feature = "VK_EXT_validation_cache")]
 impl VkValidationCacheEXT {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_EXT_validation_cache")]

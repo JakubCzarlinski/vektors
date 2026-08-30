@@ -118,7 +118,7 @@ unsafe impl<'dev> Sync for CommandPool<'dev> {}
 #[cfg(not(feature = "VKSC_VERSION_1_0"))]
 impl<'dev> Drop for CommandPool<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkCommandPool::NULL {
       return;
     }
     unsafe {
@@ -249,7 +249,7 @@ impl<'dev> CommandPool<'dev> {
   #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   #[inline(always)]
   pub fn vkDestroyCommandPool(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkCommandPool::NULL {
       return;
     }
     unsafe {

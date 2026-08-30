@@ -78,7 +78,7 @@ unsafe impl<'dev> Sync for Semaphore<'dev> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'dev> Drop for Semaphore<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkSemaphore::NULL {
       return;
     }
     unsafe {
@@ -126,7 +126,7 @@ impl<'dev> Semaphore<'dev> {
   #[cfg(feature = "VK_BASE_VERSION_1_0")]
   #[inline(always)]
   pub fn vkDestroySemaphore(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkSemaphore::NULL {
       return;
     }
     unsafe {

@@ -87,7 +87,7 @@ unsafe impl<'dev> Sync for DescriptorPool<'dev> {}
 #[cfg(not(feature = "VKSC_VERSION_1_0"))]
 impl<'dev> Drop for DescriptorPool<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkDescriptorPool::NULL {
       return;
     }
     unsafe {
@@ -190,7 +190,7 @@ impl<'dev> DescriptorPool<'dev> {
   #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   #[inline(always)]
   pub fn vkDestroyDescriptorPool(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkDescriptorPool::NULL {
       return;
     }
     unsafe {

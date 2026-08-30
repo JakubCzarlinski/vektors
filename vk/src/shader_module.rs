@@ -63,7 +63,7 @@ unsafe impl<'dev> Sync for ShaderModule<'dev> {}
 #[cfg(not(feature = "VKSC_VERSION_1_0"))]
 impl<'dev> Drop for ShaderModule<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkShaderModule::NULL {
       return;
     }
     unsafe {
@@ -112,7 +112,7 @@ impl<'dev> ShaderModule<'dev> {
   #[cfg(all(feature = "VK_COMPUTE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
   #[inline(always)]
   pub fn vkDestroyShaderModule(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkShaderModule::NULL {
       return;
     }
     unsafe {

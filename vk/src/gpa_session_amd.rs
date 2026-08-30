@@ -78,7 +78,7 @@ unsafe impl<'dev> Sync for GpaSessionAMD<'dev> {}
 #[cfg(feature = "VK_AMD_gpa_interface")]
 impl<'dev> Drop for GpaSessionAMD<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkGpaSessionAMD::NULL {
       return;
     }
     unsafe {
@@ -125,7 +125,7 @@ impl<'dev> GpaSessionAMD<'dev> {
   #[cfg(feature = "VK_AMD_gpa_interface")]
   #[inline(always)]
   pub fn vkDestroyGpaSessionAMD(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkGpaSessionAMD::NULL {
       return;
     }
     unsafe {

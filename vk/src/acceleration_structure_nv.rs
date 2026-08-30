@@ -60,7 +60,7 @@ unsafe impl<'dev> Sync for AccelerationStructureNV<'dev> {}
 #[cfg(feature = "VK_NV_ray_tracing")]
 impl<'dev> Drop for AccelerationStructureNV<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkAccelerationStructureNV::NULL {
       return;
     }
     unsafe {
@@ -104,7 +104,7 @@ impl<'dev> AccelerationStructureNV<'dev> {
   #[cfg(feature = "VK_NV_ray_tracing")]
   #[inline(always)]
   pub fn vkDestroyAccelerationStructureNV(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkAccelerationStructureNV::NULL {
       return;
     }
     unsafe {

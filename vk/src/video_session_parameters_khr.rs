@@ -62,7 +62,7 @@ unsafe impl<'dev> Sync for VideoSessionParametersKHR<'dev> {}
 #[cfg(feature = "VK_KHR_video_queue")]
 impl<'dev> Drop for VideoSessionParametersKHR<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkVideoSessionParametersKHR::NULL {
       return;
     }
     unsafe {
@@ -109,7 +109,7 @@ impl<'dev> VideoSessionParametersKHR<'dev> {
     &mut self,
     pAllocator: *const VkAllocationCallbacks<'_>,
   ) {
-    if self.raw.0.is_null() {
+    if self.raw == VkVideoSessionParametersKHR::NULL {
       return;
     }
     unsafe {

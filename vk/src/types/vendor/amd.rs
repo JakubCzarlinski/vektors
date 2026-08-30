@@ -528,10 +528,10 @@ pub type VkPhysicalDeviceGpaPropertiesFlagsAMD = VkFlags;
 #[cfg(feature = "VK_AMD_gpa_interface")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkGpaSessionAMD(pub *mut c_void);
+pub struct VkGpaSessionAMD(pub u64);
 #[cfg(feature = "VK_AMD_gpa_interface")]
 impl VkGpaSessionAMD {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_AMD_gpa_interface")]

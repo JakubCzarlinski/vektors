@@ -69,7 +69,7 @@ unsafe impl<'dev> Sync for ValidationCacheEXT<'dev> {}
 #[cfg(feature = "VK_EXT_validation_cache")]
 impl<'dev> Drop for ValidationCacheEXT<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkValidationCacheEXT::NULL {
       return;
     }
     unsafe {
@@ -116,7 +116,7 @@ impl<'dev> ValidationCacheEXT<'dev> {
   #[cfg(feature = "VK_EXT_validation_cache")]
   #[inline(always)]
   pub fn vkDestroyValidationCacheEXT(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkValidationCacheEXT::NULL {
       return;
     }
     unsafe {

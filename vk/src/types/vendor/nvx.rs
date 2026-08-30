@@ -34,10 +34,10 @@ use core::ffi::{c_char, c_void};
 #[cfg(feature = "VK_NVX_binary_import")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkCuModuleNVX(pub *mut c_void);
+pub struct VkCuModuleNVX(pub u64);
 #[cfg(feature = "VK_NVX_binary_import")]
 impl VkCuModuleNVX {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_NVX_binary_import")]
@@ -54,10 +54,10 @@ unsafe impl Sync for VkCuModuleNVX {}
 #[cfg(feature = "VK_NVX_binary_import")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkCuFunctionNVX(pub *mut c_void);
+pub struct VkCuFunctionNVX(pub u64);
 #[cfg(feature = "VK_NVX_binary_import")]
 impl VkCuFunctionNVX {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_NVX_binary_import")]

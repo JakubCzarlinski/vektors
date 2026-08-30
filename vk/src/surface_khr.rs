@@ -51,7 +51,7 @@ unsafe impl<'dev> Sync for SurfaceKHR<'dev> {}
 #[cfg(feature = "VK_KHR_surface")]
 impl<'dev> Drop for SurfaceKHR<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkSurfaceKHR::NULL {
       return;
     }
     unsafe {
@@ -94,7 +94,7 @@ impl<'dev> SurfaceKHR<'dev> {
   #[cfg(feature = "VK_KHR_surface")]
   #[inline(always)]
   pub fn vkDestroySurfaceKHR(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkSurfaceKHR::NULL {
       return;
     }
     unsafe {

@@ -60,7 +60,7 @@ unsafe impl<'dev> Sync for Fence<'dev> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'dev> Drop for Fence<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkFence::NULL {
       return;
     }
     unsafe {
@@ -108,7 +108,7 @@ impl<'dev> Fence<'dev> {
   #[cfg(feature = "VK_BASE_VERSION_1_0")]
   #[inline(always)]
   pub fn vkDestroyFence(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkFence::NULL {
       return;
     }
     unsafe {

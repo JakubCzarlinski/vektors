@@ -69,10 +69,10 @@ pub type VkImageConstraintsInfoFlagsFUCHSIA = VkImageConstraintsInfoFlagBitsFUCH
 #[cfg(feature = "VK_FUCHSIA_buffer_collection")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkBufferCollectionFUCHSIA(pub *mut c_void);
+pub struct VkBufferCollectionFUCHSIA(pub u64);
 #[cfg(feature = "VK_FUCHSIA_buffer_collection")]
 impl VkBufferCollectionFUCHSIA {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_FUCHSIA_buffer_collection")]

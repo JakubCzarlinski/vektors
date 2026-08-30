@@ -51,7 +51,7 @@ unsafe impl<'dev> Sync for TensorARM<'dev> {}
 #[cfg(any(feature = "VK_EXT_descriptor_heap", feature = "VK_ARM_tensors"))]
 impl<'dev> Drop for TensorARM<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkTensorARM::NULL {
       return;
     }
     unsafe {
@@ -98,7 +98,7 @@ impl<'dev> TensorARM<'dev> {
   #[cfg(feature = "VK_ARM_tensors")]
   #[inline(always)]
   pub fn vkDestroyTensorARM(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkTensorARM::NULL {
       return;
     }
     unsafe {

@@ -53,7 +53,7 @@ unsafe impl<'dev> Sync for DataGraphPipelineSessionARM<'dev> {}
 #[cfg(feature = "VK_ARM_data_graph")]
 impl<'dev> Drop for DataGraphPipelineSessionARM<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkDataGraphPipelineSessionARM::NULL {
       return;
     }
     unsafe {
@@ -100,7 +100,7 @@ impl<'dev> DataGraphPipelineSessionARM<'dev> {
     &mut self,
     pAllocator: *const VkAllocationCallbacks<'_>,
   ) {
-    if self.raw.0.is_null() {
+    if self.raw == VkDataGraphPipelineSessionARM::NULL {
       return;
     }
     unsafe {

@@ -62,7 +62,7 @@ unsafe impl<'dev> Sync for Framebuffer<'dev> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 impl<'dev> Drop for Framebuffer<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkFramebuffer::NULL {
       return;
     }
     unsafe {
@@ -110,7 +110,7 @@ impl<'dev> Framebuffer<'dev> {
   #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
   #[inline(always)]
   pub fn vkDestroyFramebuffer(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkFramebuffer::NULL {
       return;
     }
     unsafe {

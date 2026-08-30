@@ -80,7 +80,7 @@ unsafe impl<'dev> Sync for IndirectExecutionSetEXT<'dev> {}
 #[cfg(feature = "VK_EXT_device_generated_commands")]
 impl<'dev> Drop for IndirectExecutionSetEXT<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkIndirectExecutionSetEXT::NULL {
       return;
     }
     unsafe {
@@ -124,7 +124,7 @@ impl<'dev> IndirectExecutionSetEXT<'dev> {
   #[cfg(feature = "VK_EXT_device_generated_commands")]
   #[inline(always)]
   pub fn vkDestroyIndirectExecutionSetEXT(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkIndirectExecutionSetEXT::NULL {
       return;
     }
     unsafe {

@@ -60,7 +60,7 @@ unsafe impl<'dev> Sync for ShaderEXT<'dev> {}
 #[cfg(feature = "VK_EXT_shader_object")]
 impl<'dev> Drop for ShaderEXT<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkShaderEXT::NULL {
       return;
     }
     unsafe {
@@ -107,7 +107,7 @@ impl<'dev> ShaderEXT<'dev> {
   #[cfg(feature = "VK_EXT_shader_object")]
   #[inline(always)]
   pub fn vkDestroyShaderEXT(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkShaderEXT::NULL {
       return;
     }
     unsafe {

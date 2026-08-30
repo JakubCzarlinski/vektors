@@ -93,7 +93,7 @@ unsafe impl<'dev> Sync for DescriptorSet<'dev> {}
 #[cfg(not(feature = "VKSC_VERSION_1_0"))]
 impl<'dev> Drop for DescriptorSet<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkDescriptorSet::NULL {
       return;
     }
     if !self.parent.free_descriptor_sets {

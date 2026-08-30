@@ -73,7 +73,7 @@ unsafe impl<'dev> Sync for ShaderInstrumentationARM<'dev> {}
 #[cfg(feature = "VK_ARM_shader_instrumentation")]
 impl<'dev> Drop for ShaderInstrumentationARM<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkShaderInstrumentationARM::NULL {
       return;
     }
     unsafe {
@@ -139,7 +139,7 @@ impl<'dev> ShaderInstrumentationARM<'dev> {
     &mut self,
     pAllocator: *const VkAllocationCallbacks<'_>,
   ) {
-    if self.raw.0.is_null() {
+    if self.raw == VkShaderInstrumentationARM::NULL {
       return;
     }
     unsafe {

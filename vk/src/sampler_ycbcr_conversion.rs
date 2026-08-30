@@ -51,7 +51,7 @@ unsafe impl<'dev> Sync for SamplerYcbcrConversion<'dev> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
 impl<'dev> Drop for SamplerYcbcrConversion<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkSamplerYcbcrConversion::NULL {
       return;
     }
     unsafe {
@@ -96,7 +96,7 @@ impl<'dev> SamplerYcbcrConversion<'dev> {
   #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
   #[inline(always)]
   pub fn vkDestroySamplerYcbcrConversion(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkSamplerYcbcrConversion::NULL {
       return;
     }
     unsafe {

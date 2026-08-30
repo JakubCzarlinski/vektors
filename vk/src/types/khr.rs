@@ -1216,10 +1216,10 @@ pub type VkAccelerationStructureCreateFlagsKHR = VkAccelerationStructureCreateFl
 #[cfg(feature = "VK_KHR_acceleration_structure")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkAccelerationStructureKHR(pub *mut c_void);
+pub struct VkAccelerationStructureKHR(pub u64);
 #[cfg(feature = "VK_KHR_acceleration_structure")]
 impl VkAccelerationStructureKHR {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_KHR_acceleration_structure")]
@@ -6465,10 +6465,10 @@ impl<'a> VkMemoryDedicatedAllocateInfoKHR<'a> {
 #[cfg(feature = "VK_KHR_deferred_host_operations")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkDeferredOperationKHR(pub *mut c_void);
+pub struct VkDeferredOperationKHR(pub u64);
 #[cfg(feature = "VK_KHR_deferred_host_operations")]
 impl VkDeferredOperationKHR {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_KHR_deferred_host_operations")]
@@ -6776,13 +6776,13 @@ pub type VkDescriptorUpdateTemplateCreateFlagsKHR = VkFlags;
 ))]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkDescriptorUpdateTemplateKHR(pub *mut c_void);
+pub struct VkDescriptorUpdateTemplateKHR(pub u64);
 #[cfg(all(
   feature = "VK_KHR_descriptor_update_template",
   not(feature = "VKSC_VERSION_1_0")
 ))]
 impl VkDescriptorUpdateTemplateKHR {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(all(
@@ -10372,10 +10372,10 @@ pub type VkDisplaySurfaceCreateFlagsKHR = VkFlags;
 #[cfg(feature = "VK_KHR_display")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkDisplayKHR(pub *mut c_void);
+pub struct VkDisplayKHR(pub u64);
 #[cfg(feature = "VK_KHR_display")]
 impl VkDisplayKHR {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_KHR_display")]
@@ -10392,10 +10392,10 @@ unsafe impl Sync for VkDisplayKHR {}
 #[cfg(feature = "VK_KHR_display")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkDisplayModeKHR(pub *mut c_void);
+pub struct VkDisplayModeKHR(pub u64);
 #[cfg(feature = "VK_KHR_display")]
 impl VkDisplayModeKHR {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_KHR_display")]
@@ -24933,10 +24933,10 @@ impl<'a> VkPerformanceQueryReservationInfoKHR<'a> {
 #[cfg(feature = "VK_KHR_pipeline_binary")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkPipelineBinaryKHR(pub *mut c_void);
+pub struct VkPipelineBinaryKHR(pub u64);
 #[cfg(feature = "VK_KHR_pipeline_binary")]
 impl VkPipelineBinaryKHR {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_KHR_pipeline_binary")]
@@ -28902,10 +28902,10 @@ impl<'a> VkPhysicalDeviceRobustness2PropertiesKHR<'a> {
 #[cfg(feature = "VK_KHR_sampler_ycbcr_conversion")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkSamplerYcbcrConversionKHR(pub *mut c_void);
+pub struct VkSamplerYcbcrConversionKHR(pub u64);
 #[cfg(feature = "VK_KHR_sampler_ycbcr_conversion")]
 impl VkSamplerYcbcrConversionKHR {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_KHR_sampler_ycbcr_conversion")]
@@ -32223,10 +32223,10 @@ pub type VkSurfaceTransformFlagsKHR = VkSurfaceTransformFlagBitsKHR;
 #[cfg(feature = "VK_KHR_surface")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkSurfaceKHR(pub *mut c_void);
+pub struct VkSurfaceKHR(pub u64);
 #[cfg(feature = "VK_KHR_surface")]
 impl VkSurfaceKHR {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_KHR_surface")]
@@ -32698,10 +32698,10 @@ pub type VkSwapchainCreateFlagsKHR = VkSwapchainCreateFlagBitsKHR;
 #[cfg(feature = "VK_KHR_swapchain")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkSwapchainKHR(pub *mut c_void);
+pub struct VkSwapchainKHR(pub u64);
 #[cfg(feature = "VK_KHR_swapchain")]
 impl VkSwapchainKHR {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_KHR_swapchain")]
@@ -49636,10 +49636,10 @@ pub type VkVideoComponentBitDepthFlagsKHR = VkVideoComponentBitDepthFlagBitsKHR;
 #[cfg(feature = "VK_KHR_video_queue")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkVideoSessionKHR(pub *mut c_void);
+pub struct VkVideoSessionKHR(pub u64);
 #[cfg(feature = "VK_KHR_video_queue")]
 impl VkVideoSessionKHR {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_KHR_video_queue")]
@@ -49656,10 +49656,10 @@ unsafe impl Sync for VkVideoSessionKHR {}
 #[cfg(feature = "VK_KHR_video_queue")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkVideoSessionParametersKHR(pub *mut c_void);
+pub struct VkVideoSessionParametersKHR(pub u64);
 #[cfg(feature = "VK_KHR_video_queue")]
 impl VkVideoSessionParametersKHR {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_KHR_video_queue")]

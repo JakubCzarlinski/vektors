@@ -51,7 +51,7 @@ unsafe impl<'dev> Sync for PipelineBinaryKHR<'dev> {}
 #[cfg(feature = "VK_KHR_pipeline_binary")]
 impl<'dev> Drop for PipelineBinaryKHR<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkPipelineBinaryKHR::NULL {
       return;
     }
     unsafe {
@@ -98,7 +98,7 @@ impl<'dev> PipelineBinaryKHR<'dev> {
   #[cfg(feature = "VK_KHR_pipeline_binary")]
   #[inline(always)]
   pub fn vkDestroyPipelineBinaryKHR(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkPipelineBinaryKHR::NULL {
       return;
     }
     unsafe {

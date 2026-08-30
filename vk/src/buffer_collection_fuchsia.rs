@@ -92,7 +92,7 @@ unsafe impl<'dev> Sync for BufferCollectionFUCHSIA<'dev> {}
 #[cfg(feature = "VK_FUCHSIA_buffer_collection")]
 impl<'dev> Drop for BufferCollectionFUCHSIA<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkBufferCollectionFUCHSIA::NULL {
       return;
     }
     unsafe {
@@ -136,7 +136,7 @@ impl<'dev> BufferCollectionFUCHSIA<'dev> {
   #[cfg(feature = "VK_FUCHSIA_buffer_collection")]
   #[inline(always)]
   pub fn vkDestroyBufferCollectionFUCHSIA(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkBufferCollectionFUCHSIA::NULL {
       return;
     }
     unsafe {

@@ -74,7 +74,7 @@ unsafe impl<'dev> Sync for RenderPass<'dev> {}
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 impl<'dev> Drop for RenderPass<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkRenderPass::NULL {
       return;
     }
     unsafe {
@@ -122,7 +122,7 @@ impl<'dev> RenderPass<'dev> {
   #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
   #[inline(always)]
   pub fn vkDestroyRenderPass(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkRenderPass::NULL {
       return;
     }
     unsafe {

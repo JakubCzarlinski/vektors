@@ -64,7 +64,7 @@ unsafe impl<'dev> Sync for DebugReportCallbackEXT<'dev> {}
 #[cfg(feature = "VK_EXT_debug_report")]
 impl<'dev> Drop for DebugReportCallbackEXT<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkDebugReportCallbackEXT::NULL {
       return;
     }
     unsafe {
@@ -147,7 +147,7 @@ impl<'dev> DebugReportCallbackEXT<'dev> {
   #[cfg(feature = "VK_EXT_debug_report")]
   #[inline(always)]
   pub fn vkDestroyDebugReportCallbackEXT(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkDebugReportCallbackEXT::NULL {
       return;
     }
     unsafe {

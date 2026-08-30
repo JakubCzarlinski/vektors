@@ -51,7 +51,7 @@ unsafe impl<'dev> Sync for PrivateDataSlot<'dev> {}
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl<'dev> Drop for PrivateDataSlot<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkPrivateDataSlot::NULL {
       return;
     }
     unsafe {
@@ -99,7 +99,7 @@ impl<'dev> PrivateDataSlot<'dev> {
   #[cfg(feature = "VK_BASE_VERSION_1_3")]
   #[inline(always)]
   pub fn vkDestroyPrivateDataSlot(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkPrivateDataSlot::NULL {
       return;
     }
     unsafe {

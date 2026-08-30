@@ -74,7 +74,7 @@ unsafe impl<'dev> Sync for DescriptorSetLayout<'dev> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl<'dev> Drop for DescriptorSetLayout<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkDescriptorSetLayout::NULL {
       return;
     }
     unsafe {
@@ -122,7 +122,7 @@ impl<'dev> DescriptorSetLayout<'dev> {
   #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline(always)]
   pub fn vkDestroyDescriptorSetLayout(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkDescriptorSetLayout::NULL {
       return;
     }
     unsafe {

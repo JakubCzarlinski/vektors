@@ -153,10 +153,10 @@ pub type VkSubmitFlags = VkSubmitFlagBits;
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkPrivateDataSlot(pub *mut c_void);
+pub struct VkPrivateDataSlot(pub u64);
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 impl VkPrivateDataSlot {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_BASE_VERSION_1_3")]

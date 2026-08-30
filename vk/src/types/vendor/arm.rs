@@ -248,10 +248,10 @@ pub type VkDataGraphPipelineDispatchFlagsARM = VkDataGraphPipelineDispatchFlagBi
 #[cfg(feature = "VK_ARM_data_graph")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkDataGraphPipelineSessionARM(pub *mut c_void);
+pub struct VkDataGraphPipelineSessionARM(pub u64);
 #[cfg(feature = "VK_ARM_data_graph")]
 impl VkDataGraphPipelineSessionARM {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_ARM_data_graph")]
@@ -5157,10 +5157,10 @@ pub type VkShaderInstrumentationValuesFlagsARM = VkFlags;
 #[cfg(feature = "VK_ARM_shader_instrumentation")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkShaderInstrumentationARM(pub *mut c_void);
+pub struct VkShaderInstrumentationARM(pub u64);
 #[cfg(feature = "VK_ARM_shader_instrumentation")]
 impl VkShaderInstrumentationARM {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_ARM_shader_instrumentation")]
@@ -5690,10 +5690,10 @@ pub type VkTensorUsageFlagsARM = VkTensorUsageFlagBitsARM;
 #[cfg(feature = "VK_ARM_tensors")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkTensorViewARM(pub *mut c_void);
+pub struct VkTensorViewARM(pub u64);
 #[cfg(feature = "VK_ARM_tensors")]
 impl VkTensorViewARM {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_ARM_tensors")]

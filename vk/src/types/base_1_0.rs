@@ -1173,10 +1173,10 @@ unsafe impl Sync for VkCommandBuffer {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkDeviceMemory(pub *mut c_void);
+pub struct VkDeviceMemory(pub u64);
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl VkDeviceMemory {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -1193,10 +1193,10 @@ unsafe impl Sync for VkDeviceMemory {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkCommandPool(pub *mut c_void);
+pub struct VkCommandPool(pub u64);
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl VkCommandPool {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -1213,10 +1213,10 @@ unsafe impl Sync for VkCommandPool {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkBuffer(pub *mut c_void);
+pub struct VkBuffer(pub u64);
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl VkBuffer {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -1233,10 +1233,10 @@ unsafe impl Sync for VkBuffer {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkImage(pub *mut c_void);
+pub struct VkImage(pub u64);
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl VkImage {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -1253,10 +1253,10 @@ unsafe impl Sync for VkImage {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkImageView(pub *mut c_void);
+pub struct VkImageView(pub u64);
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl VkImageView {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -1273,10 +1273,10 @@ unsafe impl Sync for VkImageView {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkFence(pub *mut c_void);
+pub struct VkFence(pub u64);
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl VkFence {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -1293,10 +1293,10 @@ unsafe impl Sync for VkFence {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkSemaphore(pub *mut c_void);
+pub struct VkSemaphore(pub u64);
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl VkSemaphore {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -1313,10 +1313,10 @@ unsafe impl Sync for VkSemaphore {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkQueryPool(pub *mut c_void);
+pub struct VkQueryPool(pub u64);
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl VkQueryPool {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_BASE_VERSION_1_0")]

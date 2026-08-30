@@ -51,7 +51,7 @@ unsafe impl<'dev> Sync for PipelineLayout<'dev> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl<'dev> Drop for PipelineLayout<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkPipelineLayout::NULL {
       return;
     }
     unsafe {
@@ -99,7 +99,7 @@ impl<'dev> PipelineLayout<'dev> {
   #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline(always)]
   pub fn vkDestroyPipelineLayout(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkPipelineLayout::NULL {
       return;
     }
     unsafe {

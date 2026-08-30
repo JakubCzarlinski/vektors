@@ -200,7 +200,7 @@ unsafe impl<'dev> Sync for DeferredOperationKHR<'dev> {}
 #[cfg(feature = "VK_KHR_deferred_host_operations")]
 impl<'dev> Drop for DeferredOperationKHR<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkDeferredOperationKHR::NULL {
       return;
     }
     unsafe {
@@ -687,7 +687,7 @@ impl<'dev> DeferredOperationKHR<'dev> {
   #[cfg(feature = "VK_KHR_deferred_host_operations")]
   #[inline(always)]
   pub fn vkDestroyDeferredOperationKHR(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkDeferredOperationKHR::NULL {
       return;
     }
     unsafe {

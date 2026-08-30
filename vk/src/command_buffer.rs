@@ -4880,7 +4880,7 @@ unsafe impl<'dev> Sync for CommandBuffer<'dev> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'dev> Drop for CommandBuffer<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkCommandBuffer::NULL {
       return;
     }
     unsafe {

@@ -105,10 +105,10 @@ pub type VkDescriptorUpdateTemplateCreateFlags = VkFlags;
 #[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkDescriptorUpdateTemplate(pub *mut c_void);
+pub struct VkDescriptorUpdateTemplate(pub u64);
 #[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 impl VkDescriptorUpdateTemplate {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(all(feature = "VK_COMPUTE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
@@ -125,10 +125,10 @@ unsafe impl Sync for VkDescriptorUpdateTemplate {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkSamplerYcbcrConversion(pub *mut c_void);
+pub struct VkSamplerYcbcrConversion(pub u64);
 #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
 impl VkSamplerYcbcrConversion {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]

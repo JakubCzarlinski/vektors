@@ -399,7 +399,7 @@ impl<'lib> Instance<'lib> {
   #[cfg(feature = "VK_BASE_VERSION_1_0")]
   #[inline(always)]
   pub fn vkDestroyInstance(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkInstance::NULL {
       return;
     }
     unsafe {
@@ -1487,7 +1487,7 @@ impl<'lib> Instance<'lib> {
 impl<'lib> Drop for Instance<'lib> {
   #[inline]
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkInstance::NULL {
       return;
     }
     unsafe { self.table.vkDestroyInstance.unwrap_unchecked()(self.raw, core::ptr::null()) };

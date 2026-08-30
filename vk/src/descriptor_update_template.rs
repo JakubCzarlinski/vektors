@@ -52,7 +52,7 @@ unsafe impl<'dev> Sync for DescriptorUpdateTemplate<'dev> {}
 #[cfg(not(feature = "VKSC_VERSION_1_0"))]
 impl<'dev> Drop for DescriptorUpdateTemplate<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkDescriptorUpdateTemplate::NULL {
       return;
     }
     unsafe {
@@ -101,7 +101,7 @@ impl<'dev> DescriptorUpdateTemplate<'dev> {
     &mut self,
     pAllocator: *const VkAllocationCallbacks<'_>,
   ) {
-    if self.raw.0.is_null() {
+    if self.raw == VkDescriptorUpdateTemplate::NULL {
       return;
     }
     unsafe {

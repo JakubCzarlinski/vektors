@@ -22,10 +22,10 @@ use core::ffi::{c_char, c_void};
 #[cfg(feature = "VK_INTEL_performance_query")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkPerformanceConfigurationINTEL(pub *mut c_void);
+pub struct VkPerformanceConfigurationINTEL(pub u64);
 #[cfg(feature = "VK_INTEL_performance_query")]
 impl VkPerformanceConfigurationINTEL {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_INTEL_performance_query")]

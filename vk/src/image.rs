@@ -170,7 +170,7 @@ unsafe impl<'dev> Sync for Image<'dev> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'dev> Drop for Image<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkImage::NULL {
       return;
     }
     unsafe {
@@ -260,7 +260,7 @@ impl<'dev> Image<'dev> {
   #[cfg(feature = "VK_BASE_VERSION_1_0")]
   #[inline(always)]
   pub fn vkDestroyImage(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkImage::NULL {
       return;
     }
     unsafe {

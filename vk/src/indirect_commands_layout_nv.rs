@@ -51,7 +51,7 @@ unsafe impl<'dev> Sync for IndirectCommandsLayoutNV<'dev> {}
 #[cfg(feature = "VK_NV_device_generated_commands")]
 impl<'dev> Drop for IndirectCommandsLayoutNV<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkIndirectCommandsLayoutNV::NULL {
       return;
     }
     unsafe {
@@ -98,7 +98,7 @@ impl<'dev> IndirectCommandsLayoutNV<'dev> {
     &mut self,
     pAllocator: *const VkAllocationCallbacks<'_>,
   ) {
-    if self.raw.0.is_null() {
+    if self.raw == VkIndirectCommandsLayoutNV::NULL {
       return;
     }
     unsafe {

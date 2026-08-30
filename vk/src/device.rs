@@ -4734,7 +4734,7 @@ impl<'inst> Device<'inst> {
   #[cfg(feature = "VK_BASE_VERSION_1_0")]
   #[inline(always)]
   pub fn vkDestroyDevice(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkDevice::NULL {
       return;
     }
     unsafe {
@@ -12482,7 +12482,7 @@ impl<'inst> Device<'inst> {
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'inst> Drop for Device<'inst> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkDevice::NULL {
       return;
     }
     unsafe { self.table.vkDestroyDevice.unwrap_unchecked()(self.raw, core::ptr::null()) };

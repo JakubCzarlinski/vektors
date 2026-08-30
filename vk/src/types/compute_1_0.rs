@@ -258,10 +258,10 @@ pub type VkDescriptorPoolResetFlags = VkFlags;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkBufferView(pub *mut c_void);
+pub struct VkBufferView(pub u64);
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl VkBufferView {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
@@ -278,10 +278,10 @@ unsafe impl Sync for VkBufferView {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkShaderModule(pub *mut c_void);
+pub struct VkShaderModule(pub u64);
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl VkShaderModule {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
@@ -298,10 +298,10 @@ unsafe impl Sync for VkShaderModule {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkPipeline(pub *mut c_void);
+pub struct VkPipeline(pub u64);
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl VkPipeline {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
@@ -318,10 +318,10 @@ unsafe impl Sync for VkPipeline {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkPipelineLayout(pub *mut c_void);
+pub struct VkPipelineLayout(pub u64);
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl VkPipelineLayout {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
@@ -338,10 +338,10 @@ unsafe impl Sync for VkPipelineLayout {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkSampler(pub *mut c_void);
+pub struct VkSampler(pub u64);
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl VkSampler {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
@@ -358,10 +358,10 @@ unsafe impl Sync for VkSampler {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkDescriptorSet(pub *mut c_void);
+pub struct VkDescriptorSet(pub u64);
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl VkDescriptorSet {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
@@ -378,10 +378,10 @@ unsafe impl Sync for VkDescriptorSet {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkDescriptorSetLayout(pub *mut c_void);
+pub struct VkDescriptorSetLayout(pub u64);
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl VkDescriptorSetLayout {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
@@ -398,10 +398,10 @@ unsafe impl Sync for VkDescriptorSetLayout {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkDescriptorPool(pub *mut c_void);
+pub struct VkDescriptorPool(pub u64);
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl VkDescriptorPool {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
@@ -418,10 +418,10 @@ unsafe impl Sync for VkDescriptorPool {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkEvent(pub *mut c_void);
+pub struct VkEvent(pub u64);
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl VkEvent {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
@@ -438,10 +438,10 @@ unsafe impl Sync for VkEvent {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkPipelineCache(pub *mut c_void);
+pub struct VkPipelineCache(pub u64);
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl VkPipelineCache {
-  pub const NULL: Self = Self(core::ptr::null_mut());
+  pub const NULL: Self = Self(0);
   pub const DEFAULT: Self = Self::NULL;
 }
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]

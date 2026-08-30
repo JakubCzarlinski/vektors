@@ -75,7 +75,7 @@ unsafe impl<'dev> Sync for VideoSessionKHR<'dev> {}
 #[cfg(feature = "VK_KHR_video_queue")]
 impl<'dev> Drop for VideoSessionKHR<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkVideoSessionKHR::NULL {
       return;
     }
     unsafe {
@@ -167,7 +167,7 @@ impl<'dev> VideoSessionKHR<'dev> {
   #[cfg(feature = "VK_KHR_video_queue")]
   #[inline(always)]
   pub fn vkDestroyVideoSessionKHR(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkVideoSessionKHR::NULL {
       return;
     }
     unsafe {

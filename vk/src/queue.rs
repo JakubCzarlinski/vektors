@@ -245,7 +245,7 @@ unsafe impl<'dev> Sync for Queue<'dev> {}
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'dev> Drop for Queue<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkQueue::NULL {
       return;
     }
   }

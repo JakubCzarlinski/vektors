@@ -60,7 +60,7 @@ unsafe impl<'dev> Sync for CudaModuleNV<'dev> {}
 #[cfg(feature = "VK_NV_cuda_kernel_launch")]
 impl<'dev> Drop for CudaModuleNV<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkCudaModuleNV::NULL {
       return;
     }
     unsafe {
@@ -107,7 +107,7 @@ impl<'dev> CudaModuleNV<'dev> {
   #[cfg(feature = "VK_NV_cuda_kernel_launch")]
   #[inline(always)]
   pub fn vkDestroyCudaModuleNV(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkCudaModuleNV::NULL {
       return;
     }
     unsafe {

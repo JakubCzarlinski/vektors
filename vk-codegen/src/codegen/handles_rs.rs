@@ -374,7 +374,7 @@ fn gen_handle_module(
                     quote! { self.instance() },
                     quote! { &mut self },
                     quote! {
-                        if self.raw.0.is_null() {
+                        if self.raw == #handle_ty::NULL {
                             return;
                         }
                     },
@@ -452,7 +452,7 @@ fn gen_handle_module(
                         quote! { &mut self },
                         if cmd_uses_self_handle {
                             quote! {
-                                if self.raw.0.is_null() {
+                                if self.raw == #handle_ty::NULL {
                                     return;
                                 }
                             }
@@ -587,7 +587,7 @@ fn gen_handle_module(
         #drop_cfg
         impl<'dev> Drop for #struct_name<'dev> {
             fn drop(&mut self) {
-                if self.raw.0.is_null() {
+                if self.raw == #vk_ident::NULL {
                     return;
                 }
                 #destroy_stmt

@@ -51,7 +51,7 @@ unsafe impl<'dev> Sync for Sampler<'dev> {}
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 impl<'dev> Drop for Sampler<'dev> {
   fn drop(&mut self) {
-    if self.raw.0.is_null() {
+    if self.raw == VkSampler::NULL {
       return;
     }
     unsafe {
@@ -99,7 +99,7 @@ impl<'dev> Sampler<'dev> {
   #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   #[inline(always)]
   pub fn vkDestroySampler(&mut self, pAllocator: *const VkAllocationCallbacks<'_>) {
-    if self.raw.0.is_null() {
+    if self.raw == VkSampler::NULL {
       return;
     }
     unsafe {
