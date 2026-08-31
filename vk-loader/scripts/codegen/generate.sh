@@ -9,6 +9,6 @@ cargo run \
   --bin vk-loader-codegen \
   -- \
   "$repo_root/registry/vk.xml" \
-  "$repo_root/vk-loader/src/generated/global_proc_addr.rs" \
+  "$repo_root/vk-loader/src/generated/mod.rs" \
   "$repo_root/vk-loader/Cargo.toml"
-cargo fmt --manifest-path "$repo_root/Cargo.toml" --all -- --check
+cargo fmt --manifest-path "$repo_root/Cargo.toml" --all

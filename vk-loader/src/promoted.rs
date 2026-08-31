@@ -1,7 +1,6 @@
 //! Vulkan core-promotion terminators requiring pre-promotion ICD emulation.
 
 use alloc::vec::Vec;
-use core::ffi::c_void;
 
 use vk::{VkBaseOutStructure, VkPhysicalDevice, VkStructureType};
 
@@ -15,10 +14,14 @@ fn properties2_extension_enabled(device: &LoaderPhysicalDevice) -> bool {
         .contains_name(vk::VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)
 }
 
-unsafe fn features2_impl(physical_device: VkPhysicalDevice, output: *mut c_void) {
+pub(crate) unsafe fn features2_impl(
+    physical_device: VkPhysicalDevice,
+    output: *mut vk::VkPhysicalDeviceFeatures2<'_>,
+) {
     if output.is_null() {
         return;
     }
+    let output = unsafe { &mut *output };
     // SAFETY: This is an ICD-boundary terminator handle.
     let Some(device) = (unsafe { LoaderPhysicalDevice::from_handle(physical_device) }) else {
         return;
@@ -27,14 +30,14 @@ unsafe fn features2_impl(physical_device: VkPhysicalDevice, output: *mut c_void)
         && let Some(command) = device.icd().dispatch.vkGetPhysicalDeviceFeatures2
     {
         // SAFETY: Core and erased output types match this entry point.
-        unsafe { command(device.native, output.cast()) };
+        unsafe { command(device.native, output) };
         return;
     }
     if properties2_extension_enabled(device)
         && let Some(command) = device.icd().dispatch.vkGetPhysicalDeviceFeatures2KHR
     {
         // SAFETY: The KHR and core structures have the same Vulkan ABI.
-        unsafe { command(device.native, output.cast()) };
+        unsafe { command(device.native, core::ptr::from_mut(output).cast()) };
         return;
     }
     let Some(command) = device.icd().dispatch.vkGetPhysicalDeviceFeatures else {
@@ -46,11 +49,10 @@ unsafe fn features2_impl(physical_device: VkPhysicalDevice, output: *mut c_void)
         c"vkGetPhysicalDeviceFeatures2: Emulating call in ICD using vkGetPhysicalDeviceFeatures",
     );
     // Both core and KHR Features2 begin with sType, pNext, then features.
-    let output = output.cast::<vk::VkPhysicalDeviceFeatures2<'_>>();
     // SAFETY: The entry-point contract makes the output writable.
-    unsafe { command(device.native, &raw mut (*output).features) };
+    unsafe { command(device.native, &raw mut output.features) };
     // Upstream's only defined Features2 emulation node is multiview.
-    let mut next = unsafe { (*output).pNext.cast::<VkBaseOutStructure<'_>>() };
+    let mut next = output.pNext.cast::<VkBaseOutStructure<'_>>();
     while !next.is_null() {
         let header = unsafe { next.read() };
         if header.sType == VkStructureType::PHYSICAL_DEVICE_MULTIVIEW_FEATURES {
@@ -65,37 +67,27 @@ unsafe fn features2_impl(physical_device: VkPhysicalDevice, output: *mut c_void)
     }
 }
 
-pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceFeatures2(
+pub(crate) unsafe fn properties2_impl(
     physical_device: VkPhysicalDevice,
-    output: *mut vk::VkPhysicalDeviceFeatures2<'_>,
+    output: *mut vk::VkPhysicalDeviceProperties2<'_>,
 ) {
-    unsafe { features2_impl(physical_device, output.cast()) };
-}
-
-pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceFeatures2KHR(
-    physical_device: VkPhysicalDevice,
-    output: *mut vk::VkPhysicalDeviceFeatures2KHR<'_>,
-) {
-    unsafe { features2_impl(physical_device, output.cast()) };
-}
-
-unsafe fn properties2_impl(physical_device: VkPhysicalDevice, output: *mut c_void) {
     if output.is_null() {
         return;
     }
+    let output = unsafe { &mut *output };
     let Some(device) = (unsafe { LoaderPhysicalDevice::from_handle(physical_device) }) else {
         return;
     };
     if device.app_api_version >= vk::VK_API_VERSION_1_1
         && let Some(command) = device.icd().dispatch.vkGetPhysicalDeviceProperties2
     {
-        unsafe { command(device.native, output.cast()) };
+        unsafe { command(device.native, output) };
         return;
     }
     if properties2_extension_enabled(device)
         && let Some(command) = device.icd().dispatch.vkGetPhysicalDeviceProperties2KHR
     {
-        unsafe { command(device.native, output.cast()) };
+        unsafe { command(device.native, core::ptr::from_mut(output).cast()) };
         return;
     }
     let Some(command) = device.icd().dispatch.vkGetPhysicalDeviceProperties else {
@@ -106,9 +98,8 @@ unsafe fn properties2_impl(physical_device: VkPhysicalDevice, output: *mut c_voi
         vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
         c"vkGetPhysicalDeviceProperties2: Emulating call in ICD using vkGetPhysicalDeviceProperties",
     );
-    let output = output.cast::<vk::VkPhysicalDeviceProperties2<'_>>();
-    unsafe { command(device.native, &raw mut (*output).properties) };
-    let mut next = unsafe { (*output).pNext.cast::<VkBaseOutStructure<'_>>() };
+    unsafe { command(device.native, &raw mut output.properties) };
+    let mut next = output.pNext.cast::<VkBaseOutStructure<'_>>();
     while !next.is_null() {
         let header = unsafe { next.read() };
         if header.sType == VkStructureType::PHYSICAL_DEVICE_ID_PROPERTIES {
@@ -123,35 +114,22 @@ unsafe fn properties2_impl(physical_device: VkPhysicalDevice, output: *mut c_voi
     }
 }
 
-pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceProperties2(
-    physical_device: VkPhysicalDevice,
-    output: *mut vk::VkPhysicalDeviceProperties2<'_>,
-) {
-    unsafe { properties2_impl(physical_device, output.cast()) };
-}
-
-pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceProperties2KHR(
-    physical_device: VkPhysicalDevice,
-    output: *mut vk::VkPhysicalDeviceProperties2KHR<'_>,
-) {
-    unsafe { properties2_impl(physical_device, output.cast()) };
-}
-
-unsafe fn format_properties2_impl(
+pub(crate) unsafe fn format_properties2_impl(
     physical_device: VkPhysicalDevice,
     format: vk::VkFormat,
-    output: *mut c_void,
+    output: *mut vk::VkFormatProperties2<'_>,
 ) {
     if output.is_null() {
         return;
     }
+    let output = unsafe { &mut *output };
     let Some(device) = (unsafe { LoaderPhysicalDevice::from_handle(physical_device) }) else {
         return;
     };
     if device.app_api_version >= vk::VK_API_VERSION_1_1
         && let Some(command) = device.icd().dispatch.vkGetPhysicalDeviceFormatProperties2
     {
-        unsafe { command(device.native, format, output.cast()) };
+        unsafe { command(device.native, format, output) };
         return;
     }
     if properties2_extension_enabled(device)
@@ -160,7 +138,7 @@ unsafe fn format_properties2_impl(
             .dispatch
             .vkGetPhysicalDeviceFormatProperties2KHR
     {
-        unsafe { command(device.native, format, output.cast()) };
+        unsafe { command(device.native, format, core::ptr::from_mut(output).cast()) };
         return;
     }
     let Some(command) = device.icd().dispatch.vkGetPhysicalDeviceFormatProperties else {
@@ -171,37 +149,24 @@ unsafe fn format_properties2_impl(
         vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
         c"vkGetPhysicalDeviceFormatProperties2: Emulating call in ICD using vkGetPhysicalDeviceFormatProperties",
     );
-    let output = output.cast::<vk::VkFormatProperties2<'_>>();
-    unsafe { command(device.native, format, &raw mut (*output).formatProperties) };
+    unsafe { command(device.native, format, &raw mut output.formatProperties) };
 }
 
-pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceFormatProperties2(
+pub(crate) unsafe fn memory_properties2_impl(
     physical_device: VkPhysicalDevice,
-    format: vk::VkFormat,
-    output: *mut vk::VkFormatProperties2<'_>,
+    output: *mut vk::VkPhysicalDeviceMemoryProperties2<'_>,
 ) {
-    unsafe { format_properties2_impl(physical_device, format, output.cast()) };
-}
-
-pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceFormatProperties2KHR(
-    physical_device: VkPhysicalDevice,
-    format: vk::VkFormat,
-    output: *mut vk::VkFormatProperties2KHR<'_>,
-) {
-    unsafe { format_properties2_impl(physical_device, format, output.cast()) };
-}
-
-unsafe fn memory_properties2_impl(physical_device: VkPhysicalDevice, output: *mut c_void) {
     if output.is_null() {
         return;
     }
+    let output = unsafe { &mut *output };
     let Some(device) = (unsafe { LoaderPhysicalDevice::from_handle(physical_device) }) else {
         return;
     };
     if device.app_api_version >= vk::VK_API_VERSION_1_1
         && let Some(command) = device.icd().dispatch.vkGetPhysicalDeviceMemoryProperties2
     {
-        unsafe { command(device.native, output.cast()) };
+        unsafe { command(device.native, output) };
         return;
     }
     if properties2_extension_enabled(device)
@@ -210,7 +175,7 @@ unsafe fn memory_properties2_impl(physical_device: VkPhysicalDevice, output: *mu
             .dispatch
             .vkGetPhysicalDeviceMemoryProperties2KHR
     {
-        unsafe { command(device.native, output.cast()) };
+        unsafe { command(device.native, core::ptr::from_mut(output).cast()) };
         return;
     }
     let Some(command) = device.icd().dispatch.vkGetPhysicalDeviceMemoryProperties else {
@@ -221,32 +186,19 @@ unsafe fn memory_properties2_impl(physical_device: VkPhysicalDevice, output: *mu
         vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
         c"vkGetPhysicalDeviceMemoryProperties2: Emulating call in ICD using vkGetPhysicalDeviceMemoryProperties",
     );
-    let output = output.cast::<vk::VkPhysicalDeviceMemoryProperties2<'_>>();
-    unsafe { command(device.native, &raw mut (*output).memoryProperties) };
+    unsafe { command(device.native, &raw mut output.memoryProperties) };
 }
 
-pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceMemoryProperties2(
+pub(crate) unsafe fn image_format_properties2_impl(
     physical_device: VkPhysicalDevice,
-    output: *mut vk::VkPhysicalDeviceMemoryProperties2<'_>,
-) {
-    unsafe { memory_properties2_impl(physical_device, output.cast()) };
-}
-
-pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceMemoryProperties2KHR(
-    physical_device: VkPhysicalDevice,
-    output: *mut vk::VkPhysicalDeviceMemoryProperties2KHR<'_>,
-) {
-    unsafe { memory_properties2_impl(physical_device, output.cast()) };
-}
-
-unsafe fn image_format_properties2_impl(
-    physical_device: VkPhysicalDevice,
-    input: *const c_void,
-    output: *mut c_void,
+    input: *const vk::VkPhysicalDeviceImageFormatInfo2<'_>,
+    output: *mut vk::VkImageFormatProperties2<'_>,
 ) -> vk::VkResult {
     if input.is_null() || output.is_null() {
         return vk::VkResult::ERROR_INITIALIZATION_FAILED;
     }
+    let input = unsafe { &*input };
+    let output = unsafe { &mut *output };
     let Some(device) = (unsafe { LoaderPhysicalDevice::from_handle(physical_device) }) else {
         return vk::VkResult::ERROR_INITIALIZATION_FAILED;
     };
@@ -256,7 +208,7 @@ unsafe fn image_format_properties2_impl(
             .dispatch
             .vkGetPhysicalDeviceImageFormatProperties2
     {
-        return unsafe { command(device.native, input.cast(), output.cast()) };
+        return unsafe { command(device.native, input, output) };
     }
     if properties2_extension_enabled(device)
         && let Some(command) = device
@@ -264,7 +216,13 @@ unsafe fn image_format_properties2_impl(
             .dispatch
             .vkGetPhysicalDeviceImageFormatProperties2KHR
     {
-        return unsafe { command(device.native, input.cast(), output.cast()) };
+        return unsafe {
+            command(
+                device.native,
+                core::ptr::from_ref(input).cast(),
+                core::ptr::from_mut(output).cast(),
+            )
+        };
     }
     let Some(command) = device
         .icd()
@@ -278,48 +236,32 @@ unsafe fn image_format_properties2_impl(
         vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
         c"vkGetPhysicalDeviceImageFormatProperties2: Emulating call in ICD using vkGetPhysicalDeviceImageFormatProperties",
     );
-    let input = input.cast::<vk::VkPhysicalDeviceImageFormatInfo2<'_>>();
-    let output = output.cast::<vk::VkImageFormatProperties2<'_>>();
-    if unsafe { !(*input).pNext.is_null() || !(*output).pNext.is_null() } {
+    if !input.pNext.is_null() || !output.pNext.is_null() {
         return vk::VkResult::ERROR_FORMAT_NOT_SUPPORTED;
     }
     unsafe {
         command(
             device.native,
-            (*input).format,
-            (*input).type_,
-            (*input).tiling,
-            (*input).usage,
-            (*input).flags,
-            &raw mut (*output).imageFormatProperties,
+            input.format,
+            input.type_,
+            input.tiling,
+            input.usage,
+            input.flags,
+            &raw mut output.imageFormatProperties,
         )
     }
 }
 
-pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceImageFormatProperties2(
+pub(crate) unsafe fn external_buffer_properties_impl(
     physical_device: VkPhysicalDevice,
-    input: *const vk::VkPhysicalDeviceImageFormatInfo2<'_>,
-    output: *mut vk::VkImageFormatProperties2<'_>,
-) -> vk::VkResult {
-    unsafe { image_format_properties2_impl(physical_device, input.cast(), output.cast()) }
-}
-
-pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceImageFormatProperties2KHR(
-    physical_device: VkPhysicalDevice,
-    input: *const vk::VkPhysicalDeviceImageFormatInfo2KHR<'_>,
-    output: *mut vk::VkImageFormatProperties2KHR<'_>,
-) -> vk::VkResult {
-    unsafe { image_format_properties2_impl(physical_device, input.cast(), output.cast()) }
-}
-
-unsafe fn external_buffer_properties_impl(
-    physical_device: VkPhysicalDevice,
-    input: *const c_void,
-    output: *mut c_void,
+    input: *const vk::VkPhysicalDeviceExternalBufferInfo<'_>,
+    output: *mut vk::VkExternalBufferProperties<'_>,
 ) {
     if input.is_null() || output.is_null() {
         return;
     }
+    let input = unsafe { &*input };
+    let output = unsafe { &mut *output };
     let Some(device) = (unsafe { LoaderPhysicalDevice::from_handle(physical_device) }) else {
         return;
     };
@@ -329,7 +271,7 @@ unsafe fn external_buffer_properties_impl(
             .dispatch
             .vkGetPhysicalDeviceExternalBufferProperties
     {
-        unsafe { command(device.native, input.cast(), output.cast()) };
+        unsafe { command(device.native, input, output) };
         return;
     }
     if device
@@ -341,7 +283,13 @@ unsafe fn external_buffer_properties_impl(
             .dispatch
             .vkGetPhysicalDeviceExternalBufferPropertiesKHR
     {
-        unsafe { command(device.native, input.cast(), output.cast()) };
+        unsafe {
+            command(
+                device.native,
+                core::ptr::from_ref(input).cast(),
+                core::ptr::from_mut(output).cast(),
+            );
+        };
         return;
     }
     device.instance().submit_loader_message(
@@ -349,34 +297,19 @@ unsafe fn external_buffer_properties_impl(
         vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
         c"vkGetPhysicalDeviceExternalBufferProperties: Emulating call in ICD",
     );
-    let output = output.cast::<vk::VkExternalBufferProperties<'_>>();
-    unsafe { (*output).externalMemoryProperties = vk::VkExternalMemoryProperties::DEFAULT };
+    output.externalMemoryProperties = vk::VkExternalMemoryProperties::DEFAULT;
 }
 
-pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceExternalBufferProperties(
+pub(crate) unsafe fn external_semaphore_properties_impl(
     physical_device: VkPhysicalDevice,
-    input: *const vk::VkPhysicalDeviceExternalBufferInfo<'_>,
-    output: *mut vk::VkExternalBufferProperties<'_>,
-) {
-    unsafe { external_buffer_properties_impl(physical_device, input.cast(), output.cast()) };
-}
-
-pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceExternalBufferPropertiesKHR(
-    physical_device: VkPhysicalDevice,
-    input: *const vk::VkPhysicalDeviceExternalBufferInfoKHR<'_>,
-    output: *mut vk::VkExternalBufferPropertiesKHR<'_>,
-) {
-    unsafe { external_buffer_properties_impl(physical_device, input.cast(), output.cast()) };
-}
-
-unsafe fn external_semaphore_properties_impl(
-    physical_device: VkPhysicalDevice,
-    input: *const c_void,
-    output: *mut c_void,
+    input: *const vk::VkPhysicalDeviceExternalSemaphoreInfo<'_>,
+    output: *mut vk::VkExternalSemaphoreProperties<'_>,
 ) {
     if input.is_null() || output.is_null() {
         return;
     }
+    let input = unsafe { &*input };
+    let output = unsafe { &mut *output };
     let Some(device) = (unsafe { LoaderPhysicalDevice::from_handle(physical_device) }) else {
         return;
     };
@@ -386,7 +319,7 @@ unsafe fn external_semaphore_properties_impl(
             .dispatch
             .vkGetPhysicalDeviceExternalSemaphoreProperties
     {
-        unsafe { command(device.native, input.cast(), output.cast()) };
+        unsafe { command(device.native, input, output) };
         return;
     }
     if device
@@ -398,7 +331,13 @@ unsafe fn external_semaphore_properties_impl(
             .dispatch
             .vkGetPhysicalDeviceExternalSemaphorePropertiesKHR
     {
-        unsafe { command(device.native, input.cast(), output.cast()) };
+        unsafe {
+            command(
+                device.native,
+                core::ptr::from_ref(input).cast(),
+                core::ptr::from_mut(output).cast(),
+            );
+        };
         return;
     }
     device.instance().submit_loader_message(
@@ -406,38 +345,21 @@ unsafe fn external_semaphore_properties_impl(
         vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
         c"vkGetPhysicalDeviceExternalSemaphoreProperties: Emulating call in ICD",
     );
-    let output = output.cast::<vk::VkExternalSemaphoreProperties<'_>>();
-    unsafe {
-        (*output).exportFromImportedHandleTypes = Default::default();
-        (*output).compatibleHandleTypes = Default::default();
-        (*output).externalSemaphoreFeatures = Default::default();
-    }
+    output.exportFromImportedHandleTypes = vk::VkExternalSemaphoreHandleTypeFlagBits::EMPTY;
+    output.compatibleHandleTypes = vk::VkExternalSemaphoreHandleTypeFlagBits::EMPTY;
+    output.externalSemaphoreFeatures = vk::VkExternalSemaphoreFeatureFlagBits::EMPTY;
 }
 
-pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceExternalSemaphoreProperties(
+pub(crate) unsafe fn external_fence_properties_impl(
     physical_device: VkPhysicalDevice,
-    input: *const vk::VkPhysicalDeviceExternalSemaphoreInfo<'_>,
-    output: *mut vk::VkExternalSemaphoreProperties<'_>,
-) {
-    unsafe { external_semaphore_properties_impl(physical_device, input.cast(), output.cast()) };
-}
-
-pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR(
-    physical_device: VkPhysicalDevice,
-    input: *const vk::VkPhysicalDeviceExternalSemaphoreInfoKHR<'_>,
-    output: *mut vk::VkExternalSemaphorePropertiesKHR<'_>,
-) {
-    unsafe { external_semaphore_properties_impl(physical_device, input.cast(), output.cast()) };
-}
-
-unsafe fn external_fence_properties_impl(
-    physical_device: VkPhysicalDevice,
-    input: *const c_void,
-    output: *mut c_void,
+    input: *const vk::VkPhysicalDeviceExternalFenceInfo<'_>,
+    output: *mut vk::VkExternalFenceProperties<'_>,
 ) {
     if input.is_null() || output.is_null() {
         return;
     }
+    let input = unsafe { &*input };
+    let output = unsafe { &mut *output };
     let Some(device) = (unsafe { LoaderPhysicalDevice::from_handle(physical_device) }) else {
         return;
     };
@@ -447,7 +369,7 @@ unsafe fn external_fence_properties_impl(
             .dispatch
             .vkGetPhysicalDeviceExternalFenceProperties
     {
-        unsafe { command(device.native, input.cast(), output.cast()) };
+        unsafe { command(device.native, input, output) };
         return;
     }
     if device
@@ -459,7 +381,13 @@ unsafe fn external_fence_properties_impl(
             .dispatch
             .vkGetPhysicalDeviceExternalFencePropertiesKHR
     {
-        unsafe { command(device.native, input.cast(), output.cast()) };
+        unsafe {
+            command(
+                device.native,
+                core::ptr::from_ref(input).cast(),
+                core::ptr::from_mut(output).cast(),
+            );
+        };
         return;
     }
     device.instance().submit_loader_message(
@@ -467,38 +395,20 @@ unsafe fn external_fence_properties_impl(
         vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
         c"vkGetPhysicalDeviceExternalFenceProperties: Emulating call in ICD",
     );
-    let output = output.cast::<vk::VkExternalFenceProperties<'_>>();
-    unsafe {
-        (*output).exportFromImportedHandleTypes = Default::default();
-        (*output).compatibleHandleTypes = Default::default();
-        (*output).externalFenceFeatures = Default::default();
-    }
+    output.exportFromImportedHandleTypes = vk::VkExternalFenceHandleTypeFlagBits::EMPTY;
+    output.compatibleHandleTypes = vk::VkExternalFenceHandleTypeFlagBits::EMPTY;
+    output.externalFenceFeatures = vk::VkExternalFenceFeatureFlagBits::EMPTY;
 }
 
-pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceExternalFenceProperties(
-    physical_device: VkPhysicalDevice,
-    input: *const vk::VkPhysicalDeviceExternalFenceInfo<'_>,
-    output: *mut vk::VkExternalFenceProperties<'_>,
-) {
-    unsafe { external_fence_properties_impl(physical_device, input.cast(), output.cast()) };
-}
-
-pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceExternalFencePropertiesKHR(
-    physical_device: VkPhysicalDevice,
-    input: *const vk::VkPhysicalDeviceExternalFenceInfoKHR<'_>,
-    output: *mut vk::VkExternalFencePropertiesKHR<'_>,
-) {
-    unsafe { external_fence_properties_impl(physical_device, input.cast(), output.cast()) };
-}
-
-unsafe fn queue_family_properties2_impl(
+pub(crate) unsafe fn queue_family_properties2_impl(
     physical_device: VkPhysicalDevice,
     count: *mut u32,
-    output: *mut c_void,
+    output: *mut vk::VkQueueFamilyProperties2<'_>,
 ) {
     if count.is_null() {
         return;
     }
+    let count = unsafe { &mut *count };
     let Some(device) = (unsafe { LoaderPhysicalDevice::from_handle(physical_device) }) else {
         return;
     };
@@ -508,7 +418,7 @@ unsafe fn queue_family_properties2_impl(
             .dispatch
             .vkGetPhysicalDeviceQueueFamilyProperties2
     {
-        unsafe { command(device.native, count, output.cast()) };
+        unsafe { command(device.native, count, output) };
         return;
     }
     if properties2_extension_enabled(device)
@@ -525,7 +435,7 @@ unsafe fn queue_family_properties2_impl(
         .dispatch
         .vkGetPhysicalDeviceQueueFamilyProperties
     else {
-        unsafe { count.write(0) };
+        *count = 0;
         return;
     };
     device.instance().submit_loader_message(
@@ -533,50 +443,36 @@ unsafe fn queue_family_properties2_impl(
         vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
         c"vkGetPhysicalDeviceQueueFamilyProperties2: Emulating call in ICD using vkGetPhysicalDeviceQueueFamilyProperties",
     );
-    let capacity = unsafe { count.read() } as usize;
+    let capacity = *count as usize;
     if output.is_null() || capacity == 0 {
         unsafe { command(device.native, count, core::ptr::null_mut()) };
         return;
     }
     let mut temporary = Vec::new();
     if temporary.try_reserve_exact(capacity).is_err() {
-        unsafe { count.write(0) };
+        *count = 0;
         return;
     }
     temporary.resize(capacity, vk::VkQueueFamilyProperties::DEFAULT);
     unsafe { command(device.native, count, temporary.as_mut_ptr()) };
-    let written = (unsafe { count.read() } as usize).min(capacity);
-    let output = output.cast::<vk::VkQueueFamilyProperties2<'_>>();
-    for (index, property) in temporary.into_iter().take(written).enumerate() {
-        unsafe { (*output.add(index)).queueFamilyProperties = property };
+    let written = (*count as usize).min(capacity);
+    let output = unsafe { core::slice::from_raw_parts_mut(output, capacity) };
+    for (slot, property) in output.iter_mut().zip(temporary).take(written) {
+        slot.queueFamilyProperties = property;
     }
 }
 
-pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceQueueFamilyProperties2(
+pub(crate) unsafe fn sparse_image_format_properties2_impl(
     physical_device: VkPhysicalDevice,
+    input: *const vk::VkPhysicalDeviceSparseImageFormatInfo2<'_>,
     count: *mut u32,
-    output: *mut vk::VkQueueFamilyProperties2<'_>,
-) {
-    unsafe { queue_family_properties2_impl(physical_device, count, output.cast()) };
-}
-
-pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceQueueFamilyProperties2KHR(
-    physical_device: VkPhysicalDevice,
-    count: *mut u32,
-    output: *mut vk::VkQueueFamilyProperties2KHR<'_>,
-) {
-    unsafe { queue_family_properties2_impl(physical_device, count, output.cast()) };
-}
-
-unsafe fn sparse_image_format_properties2_impl(
-    physical_device: VkPhysicalDevice,
-    input: *const c_void,
-    count: *mut u32,
-    output: *mut c_void,
+    output: *mut vk::VkSparseImageFormatProperties2<'_>,
 ) {
     if input.is_null() || count.is_null() {
         return;
     }
+    let input = unsafe { &*input };
+    let count = unsafe { &mut *count };
     let Some(device) = (unsafe { LoaderPhysicalDevice::from_handle(physical_device) }) else {
         return;
     };
@@ -586,7 +482,7 @@ unsafe fn sparse_image_format_properties2_impl(
             .dispatch
             .vkGetPhysicalDeviceSparseImageFormatProperties2
     {
-        unsafe { command(device.native, input.cast(), count, output.cast()) };
+        unsafe { command(device.native, input, count, output) };
         return;
     }
     if properties2_extension_enabled(device)
@@ -595,7 +491,14 @@ unsafe fn sparse_image_format_properties2_impl(
             .dispatch
             .vkGetPhysicalDeviceSparseImageFormatProperties2KHR
     {
-        unsafe { command(device.native, input.cast(), count, output.cast()) };
+        unsafe {
+            command(
+                device.native,
+                core::ptr::from_ref(input).cast(),
+                count,
+                output.cast(),
+            );
+        };
         return;
     }
     let Some(command) = device
@@ -603,7 +506,7 @@ unsafe fn sparse_image_format_properties2_impl(
         .dispatch
         .vkGetPhysicalDeviceSparseImageFormatProperties
     else {
-        unsafe { count.write(0) };
+        *count = 0;
         return;
     };
     device.instance().submit_loader_message(
@@ -611,68 +514,45 @@ unsafe fn sparse_image_format_properties2_impl(
         vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
         c"vkGetPhysicalDeviceSparseImageFormatProperties2: Emulating call in ICD using vkGetPhysicalDeviceSparseImageFormatProperties",
     );
-    let input = input.cast::<vk::VkPhysicalDeviceSparseImageFormatInfo2<'_>>();
-    let capacity = unsafe { count.read() } as usize;
+    let capacity = *count as usize;
     if output.is_null() || capacity == 0 {
         unsafe {
             command(
                 device.native,
-                (*input).format,
-                (*input).type_,
-                (*input).samples,
-                (*input).usage,
-                (*input).tiling,
+                input.format,
+                input.type_,
+                input.samples,
+                input.usage,
+                input.tiling,
                 count,
                 core::ptr::null_mut(),
-            )
+            );
         };
         return;
     }
     let mut temporary = Vec::new();
     if temporary.try_reserve_exact(capacity).is_err() {
-        unsafe { count.write(0) };
+        *count = 0;
         return;
     }
     temporary.resize(capacity, vk::VkSparseImageFormatProperties::DEFAULT);
     unsafe {
         command(
             device.native,
-            (*input).format,
-            (*input).type_,
-            (*input).samples,
-            (*input).usage,
-            (*input).tiling,
+            input.format,
+            input.type_,
+            input.samples,
+            input.usage,
+            input.tiling,
             count,
             temporary.as_mut_ptr(),
-        )
+        );
     };
-    let written = (unsafe { count.read() } as usize).min(capacity);
-    let output = output.cast::<vk::VkSparseImageFormatProperties2<'_>>();
-    for (index, property) in temporary.into_iter().take(written).enumerate() {
-        unsafe { (*output.add(index)).properties = property };
+    let written = (*count as usize).min(capacity);
+    let output = unsafe { core::slice::from_raw_parts_mut(output, capacity) };
+    for (slot, property) in output.iter_mut().zip(temporary).take(written) {
+        slot.properties = property;
     }
-}
-
-pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSparseImageFormatProperties2(
-    physical_device: VkPhysicalDevice,
-    input: *const vk::VkPhysicalDeviceSparseImageFormatInfo2<'_>,
-    count: *mut u32,
-    output: *mut vk::VkSparseImageFormatProperties2<'_>,
-) {
-    unsafe {
-        sparse_image_format_properties2_impl(physical_device, input.cast(), count, output.cast())
-    };
-}
-
-pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSparseImageFormatProperties2KHR(
-    physical_device: VkPhysicalDevice,
-    input: *const vk::VkPhysicalDeviceSparseImageFormatInfo2KHR<'_>,
-    count: *mut u32,
-    output: *mut vk::VkSparseImageFormatProperties2KHR<'_>,
-) {
-    unsafe {
-        sparse_image_format_properties2_impl(physical_device, input.cast(), count, output.cast())
-    };
 }
 
 pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceToolProperties(

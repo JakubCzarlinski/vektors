@@ -1,7 +1,7 @@
 use proc_macro2::{Literal, Span, TokenStream};
 use quote::{format_ident, quote};
 use std::{
-    collections::{HashMap, HashSet},
+    collections::{BTreeMap, BTreeSet, HashMap, HashSet},
     env,
     ffi::CString,
     fs,
@@ -139,6 +139,22 @@ const HANDWRITTEN_PHYSICAL_DEVICE_TERMINATORS: &[&str] = &[
     "vkGetPhysicalDeviceSurfaceCapabilities2EXT",
     "vkGetPhysicalDeviceSurfaceFormats2KHR",
     "vkGetPhysicalDeviceSurfaceSupportKHR",
+];
+
+// These terminators share registry-defined core/KHR signatures around a
+// handwritten emulation body. Generate the ABI wrappers and retain only the
+// loader policy in `promoted.rs`.
+const PROMOTED_TERMINATOR_IMPLEMENTATIONS: &[&str] = &[
+    "vkGetPhysicalDeviceFeatures2",
+    "vkGetPhysicalDeviceProperties2",
+    "vkGetPhysicalDeviceFormatProperties2",
+    "vkGetPhysicalDeviceMemoryProperties2",
+    "vkGetPhysicalDeviceImageFormatProperties2",
+    "vkGetPhysicalDeviceExternalBufferProperties",
+    "vkGetPhysicalDeviceExternalSemaphoreProperties",
+    "vkGetPhysicalDeviceExternalFenceProperties",
+    "vkGetPhysicalDeviceQueueFamilyProperties2",
+    "vkGetPhysicalDeviceSparseImageFormatProperties2",
 ];
 
 // These commands are implemented by the loader itself or are legacy device-layer
@@ -353,6 +369,19 @@ fn c_string_literal(value: &str) -> Literal {
     Literal::c_string(&value)
 }
 
+fn u64_hex_literal(value: u64) -> syn::LitInt {
+    syn::LitInt::new(
+        &format!(
+            "0x{:04x}_{:04x}_{:04x}_{:04x}",
+            value >> 48,
+            value >> 32 & 0xffff,
+            value >> 16 & 0xffff,
+            value & 0xffff
+        ),
+        Span::call_site(),
+    )
+}
+
 fn platform_cfg(protect: Option<&str>) -> TokenStream {
     let Some(protect) = protect else {
         return TokenStream::new();
@@ -407,6 +436,7 @@ fn debug_object_type_pairs(registry: &vk_codegen::ir::Registry) -> Vec<(&str, St
         .into_iter()
         .flatten()
         .flat_map(|enumeration| &enumeration.variants)
+        .filter(|variant| variant.alias.is_none())
         .filter_map(|variant| {
             let suffix = variant.name.strip_prefix("VK_OBJECT_TYPE_")?;
             let debug_name = format!("VK_DEBUG_REPORT_OBJECT_TYPE_{suffix}_EXT");
@@ -424,6 +454,268 @@ fn debug_report_variant(name: &str) -> &str {
     name.strip_prefix("VK_DEBUG_REPORT_OBJECT_TYPE_")
         .and_then(|name| name.strip_suffix("_EXT"))
         .unwrap_or_else(|| panic!("invalid debug-report object type {name}"))
+}
+
+fn promoted_implementation_name(command_name: &str) -> String {
+    let suffix = command_name
+        .strip_prefix("vkGetPhysicalDevice")
+        .unwrap_or_else(|| panic!("unsupported promoted terminator name {command_name}"));
+    let mut implementation = String::with_capacity(suffix.len() + "_impl".len());
+    for character in suffix.chars() {
+        implementation.push_str(
+            match (implementation.is_empty(), character.is_ascii_uppercase()) {
+                (false, true) => "_",
+                _ => "",
+            },
+        );
+        implementation.push(character.to_ascii_lowercase());
+    }
+    implementation.push_str("_impl");
+    implementation
+}
+
+fn screaming_snake_case(name: &str) -> String {
+    let characters = name.as_bytes();
+    let mut result = String::with_capacity(name.len() + 16);
+    for (index, &character) in characters.iter().enumerate() {
+        let previous = index.checked_sub(1).map(|previous| characters[previous]);
+        let next = characters.get(index + 1).copied();
+        let starts_word = character.is_ascii_uppercase()
+            && previous.is_some_and(|previous| {
+                previous.is_ascii_lowercase()
+                    || (previous.is_ascii_uppercase()
+                        && next.is_some_and(|next| next.is_ascii_lowercase()))
+            });
+        if starts_word {
+            result.push('_');
+        }
+        result.push(char::from(character.to_ascii_uppercase()));
+    }
+    result
+}
+
+fn resolved_command_signature(
+    command: &vk_codegen::ir::Command,
+    registry: &vk_codegen::ir::Registry,
+) -> vk_codegen::ir::Command {
+    if command.alias.is_none() {
+        return command.clone();
+    }
+    let mut signature = resolve_alias(command, registry);
+    let variants = &registry.commands[&command.name];
+    let mut providers = variants
+        .iter()
+        .flat_map(|variant| variant.provided_by.clone())
+        .collect::<Vec<_>>();
+    providers.sort_unstable();
+    providers.dedup();
+    signature.provided_by.clone_from(&providers);
+    signature.availability = variants
+        .iter()
+        .flat_map(|variant| variant.availability.clone())
+        .collect();
+    rewrite_command_types_for_providers(&mut signature, registry, &providers);
+    signature
+}
+
+const GENERATED_LOADER_PARTS: &[&str] = &[
+    "extensions",
+    "debug",
+    "dispatch_tables",
+    "handles",
+    "commands",
+    "trampolines",
+    "terminators",
+    "proc_addr",
+];
+
+const GENERATED_PARENT_NAMES: &[&str] = &[
+    "CStr",
+    "CommandLookup",
+    "CommandProviderRange",
+    "CommandRecord",
+    "CommandScope",
+    "DEVICE_DISPATCH_MAGIC",
+    "HandleInfo",
+    "LoaderInstance",
+    "PFN_vkVoidFunction",
+    "VkStructureType",
+    "c_char",
+    "c_void",
+    "command_hash",
+    "command_name_eq",
+    "command_slot_hash",
+    "create_loader_surface",
+    "device_dispatch",
+    "dispatch_offset",
+    "erase_function",
+    "fatal_loader_error",
+    "invalid_device_dispatch",
+    "load_typed",
+    "promoted",
+    "resolve_physical_device",
+    "resolve_trampoline_physical_device",
+    "set_device_dispatchable",
+    "terminator_vkDestroySurfaceKHR",
+    "terminator_vkGetDisplayModeProperties2KHR",
+    "terminator_vkGetDisplayPlaneCapabilities2KHR",
+    "terminator_vkGetPhysicalDeviceDisplayPlaneProperties2KHR",
+    "terminator_vkGetPhysicalDeviceDisplayProperties2KHR",
+    "terminator_vkGetPhysicalDeviceSurfaceCapabilities2EXT",
+    "terminator_vkGetPhysicalDeviceSurfaceCapabilities2KHR",
+    "terminator_vkGetPhysicalDeviceSurfaceFormats2KHR",
+    "terminator_vkGetPhysicalDeviceSurfaceSupportKHR",
+    "terminator_vkGetPhysicalDeviceToolProperties",
+    "terminator_vkGetPhysicalDeviceToolPropertiesEXT",
+    "translate_physical_device_surface",
+    "vkCreateDebugReportCallbackEXT",
+    "vkCreateDebugUtilsMessengerEXT",
+    "vkCreateDevice",
+    "vkCreateInstance",
+    "vkCreateSharedSwapchainsKHR",
+    "vkCreateSwapchainKHR",
+    "vkDebugMarkerSetObjectNameEXT",
+    "vkDebugMarkerSetObjectTagEXT",
+    "vkDebugReportMessageEXT",
+    "vkDestroyDebugReportCallbackEXT",
+    "vkDestroyDebugUtilsMessengerEXT",
+    "vkDestroyDevice",
+    "vkDestroyInstance",
+    "vkDestroySurfaceKHR",
+    "vkEnumerateDeviceExtensionProperties",
+    "vkEnumerateDeviceLayerProperties",
+    "vkEnumerateInstanceExtensionProperties",
+    "vkEnumerateInstanceLayerProperties",
+    "vkEnumerateInstanceVersion",
+    "vkEnumeratePhysicalDeviceGroups",
+    "vkEnumeratePhysicalDeviceGroupsKHR",
+    "vkEnumeratePhysicalDevices",
+    "vkGetDeviceGroupSurfacePresentModesKHR",
+    "vkGetDeviceProcAddr",
+    "vkGetInstanceProcAddr",
+    "vkSetDebugUtilsObjectNameEXT",
+    "vkSetDebugUtilsObjectTagEXT",
+    "vkSubmitDebugUtilsMessageEXT",
+];
+
+#[derive(Default)]
+struct UsedIdentifiers(BTreeSet<String>);
+
+impl<'ast> syn::visit::Visit<'ast> for UsedIdentifiers {
+    fn visit_path(&mut self, path: &'ast syn::Path) {
+        if path.leading_colon.is_none()
+            && let Some(identifier) = path.segments.first()
+        {
+            self.0.insert(identifier.ident.to_string());
+        }
+        syn::visit::visit_path(self, path);
+    }
+}
+
+fn generated_item_identifier(item: &syn::Item) -> Option<&syn::Ident> {
+    if matches!(item, syn::Item::Const(item) if item.ident == "_") {
+        return None;
+    }
+    match item {
+        syn::Item::Const(item) => Some(&item.ident),
+        syn::Item::Enum(item) => Some(&item.ident),
+        syn::Item::Fn(item) => Some(&item.sig.ident),
+        syn::Item::Static(item) => Some(&item.ident),
+        syn::Item::Struct(item) => Some(&item.ident),
+        syn::Item::Type(item) => Some(&item.ident),
+        _ => None,
+    }
+}
+
+fn generated_item_attributes(item: &syn::Item) -> &[syn::Attribute] {
+    match item {
+        syn::Item::Const(item) => &item.attrs,
+        syn::Item::Enum(item) => &item.attrs,
+        syn::Item::Fn(item) => &item.attrs,
+        syn::Item::Static(item) => &item.attrs,
+        syn::Item::Struct(item) => &item.attrs,
+        syn::Item::Type(item) => &item.attrs,
+        _ => &[],
+    }
+}
+
+fn generated_loader_part(item: &syn::Item) -> &'static str {
+    match item {
+        syn::Item::Fn(item) => {
+            let name = item.sig.ident.to_string();
+            match name.as_str() {
+                name if name.starts_with("terminator_") => "terminators",
+                name if name.starts_with("vk") => "trampolines",
+                name if name.contains("proc_addr") => "proc_addr",
+                name if name.starts_with("convert_") => "debug",
+                "extension_id"
+                | "is_known_instance_extension"
+                | "surface_create_info_extension_size"
+                | "wsi_instance_extension_supported" => "extensions",
+                "handle_info" => "handles",
+                _ => "commands",
+            }
+        }
+        syn::Item::Struct(item) => {
+            let name = item.ident.to_string();
+            match name.as_str() {
+                name if name.contains("DispatchTable") => "dispatch_tables",
+                name if name.contains("Extension") => "extensions",
+                _ => "commands",
+            }
+        }
+        syn::Item::Impl(item) => {
+            let self_ty = &item.self_ty;
+            let self_type = quote! { #self_ty }.to_string();
+            match self_type.as_str() {
+                name if name.contains("DispatchTable") => "dispatch_tables",
+                name if name.contains("ExtensionSet") => "extensions",
+                _ => "commands",
+            }
+        }
+        syn::Item::Static(item) => {
+            let name = item.ident.to_string();
+            match name.as_str() {
+                name if name.contains("EXTENSION") => "extensions",
+                "HANDLE_INFOS" => "handles",
+                _ => "commands",
+            }
+        }
+        syn::Item::Const(item) => {
+            let name = item.ident.to_string();
+            match name.as_str() {
+                name if name.contains("EXTENSION_ID") => "extensions",
+                _ => "commands",
+            }
+        }
+        _ => "commands",
+    }
+}
+
+fn generated_source(syntax: &syn::File) -> String {
+    let formatted = prettyplease::unparse(syntax);
+    let mut output = String::with_capacity(formatted.len() + 80);
+    output.push_str("// Generated from registry/vk.xml by vk-loader-codegen. Do not edit.\n\n");
+    output.push_str(&formatted);
+    output
+}
+
+fn expose_to_generated_siblings(item: &mut syn::Item) {
+    if matches!(item, syn::Item::Const(item) if item.ident == "_") {
+        return;
+    }
+    let visibility = match item {
+        syn::Item::Const(item) => &mut item.vis,
+        syn::Item::Enum(item) => &mut item.vis,
+        syn::Item::Fn(item) => &mut item.vis,
+        syn::Item::Static(item) => &mut item.vis,
+        syn::Item::Struct(item) => &mut item.vis,
+        syn::Item::Type(item) => &mut item.vis,
+        _ => return,
+    };
+    if matches!(visibility, syn::Visibility::Inherited) {
+        *visibility = syn::parse_quote! { pub(super) };
+    }
 }
 
 fn main() {
@@ -474,10 +766,10 @@ fn main() {
         .iter()
         .enumerate()
         .map(|(id, (name, ..))| {
-            (
-                name.as_str(),
-                u16::try_from(id).expect("extension count exceeds u16"),
-            )
+            (name.as_str(), {
+                assert!(id <= usize::from(u16::MAX), "extension count exceeds u16");
+                id as u16
+            })
         })
         .collect::<HashMap<_, _>>();
     let mut compile_time_extension_ids = HashSet::from([
@@ -530,8 +822,7 @@ fn main() {
     let global_arms = globals.iter().map(|name| {
         let bytes = Literal::byte_string(name.as_bytes());
         let name = format_ident!("{name}");
-        let pfn = format_ident!("PFN_{name}");
-        quote! { #bytes => erase_function(#name as vk::#pfn), }
+        quote! { #bytes => Some(erase_function(#name as *const ())), }
     });
     let mut generated = quote! {
         pub(crate) fn global_proc_addr(name: &CStr) -> PFN_vkVoidFunction {
@@ -554,16 +845,12 @@ fn main() {
         .collect::<Vec<_>>();
     let report_to_core = debug_object_pairs.iter().map(|(core, debug)| {
         quote! {
-            if object_type.0 == vk::VkDebugReportObjectTypeEXT::#debug.0 {
-                return vk::VkObjectType::#core;
-            }
+            vk::VkDebugReportObjectTypeEXT::#debug => vk::VkObjectType::#core,
         }
     });
     let core_to_report = debug_object_pairs.iter().map(|(core, debug)| {
         quote! {
-            if object_type.0 == vk::VkObjectType::#core.0 {
-                return vk::VkDebugReportObjectTypeEXT::#debug;
-            }
+            vk::VkObjectType::#core => vk::VkDebugReportObjectTypeEXT::#debug,
         }
     });
     generated.extend(quote! {
@@ -572,11 +859,10 @@ fn main() {
             pub(crate) const fn convert_debug_report_object_to_core_object(
                 object_type: vk::VkDebugReportObjectTypeEXT,
             ) -> vk::VkObjectType {
-                if object_type.0 == vk::VkDebugReportObjectTypeEXT::UNKNOWN.0 {
-                    return vk::VkObjectType::UNKNOWN;
+                match object_type {
+                    #(#report_to_core)*
+                    _ => vk::VkObjectType::UNKNOWN,
                 }
-                #(#report_to_core)*
-                vk::VkObjectType::UNKNOWN
             }
 
             #[allow(dead_code)]
@@ -584,11 +870,10 @@ fn main() {
             pub(crate) const fn convert_core_object_to_debug_report_object(
                 object_type: vk::VkObjectType,
             ) -> vk::VkDebugReportObjectTypeEXT {
-                if object_type.0 == vk::VkObjectType::UNKNOWN.0 {
-                    return vk::VkDebugReportObjectTypeEXT::UNKNOWN;
+                match object_type {
+                    #(#core_to_report)*
+                    _ => vk::VkDebugReportObjectTypeEXT::UNKNOWN,
                 }
-                #(#core_to_report)*
-                vk::VkDebugReportObjectTypeEXT::UNKNOWN
             }
     });
     let extension_name_count = Literal::usize_unsuffixed(extension_records.len());
@@ -596,11 +881,11 @@ fn main() {
     let instance_extension_words = instance_extension_words
         .iter()
         .copied()
-        .map(Literal::u64_unsuffixed)
+        .map(u64_hex_literal)
         .collect::<Vec<_>>();
     let extension_names = extension_records.iter().map(|(_, constant, _)| {
         let constant = format_ident!("{constant}");
-        quote! { ExtensionName(vk::#constant.as_ptr()), }
+        quote! { ExtensionName(vk::#constant), }
     });
     let mut surface_chain_extensions = registry
         .structs
@@ -666,15 +951,14 @@ fn main() {
             .parse::<TokenStream>()
             .expect("platform cfg must be valid Rust tokens");
         let constant = format_ident!("{constant}");
-        quote! { #[cfg(not(#cfg))] if name == vk::#constant { return false; } }
+        quote! { #[cfg(not(#cfg))] candidate if candidate == vk::#constant => false, }
     });
     generated.extend(quote! {
         #[derive(Clone, Copy, Default)]
         pub(crate) struct ExtensionSet { words: [u64; #extension_word_count] }
         static INSTANCE_EXTENSION_WORDS: [u64; #extension_word_count] = [#(#instance_extension_words),*];
         #[repr(transparent)]
-        struct ExtensionName(*const c_char);
-        unsafe impl Sync for ExtensionName {}
+        struct ExtensionName(&'static CStr);
         static EXTENSION_NAMES: [ExtensionName; #extension_name_count] = [#(#extension_names)*];
         pub(crate) const fn surface_create_info_extension_size(root: VkStructureType, structure_type: VkStructureType) -> Option<usize> {
             match (root, structure_type) { #(#surface_extension_arms)* _ => None }
@@ -703,8 +987,14 @@ fn main() {
             pub(crate) fn contains_name(&self, name: &CStr) -> bool { extension_id(name).is_some_and(|id| self.contains(id)) }
         }
         #[cold]
-        fn extension_id(name: &CStr) -> Option<u16> {
-            EXTENSION_NAMES.binary_search_by(|candidate| unsafe { CStr::from_ptr(candidate.0) }.to_bytes().cmp(name.to_bytes())).ok().map(|id| id as u16)
+        pub(crate) fn extension_id(name: &CStr) -> Option<u16> {
+            EXTENSION_NAMES
+                .binary_search_by(|candidate| candidate.0.to_bytes().cmp(name.to_bytes()))
+                .ok()
+                .map(|id| {
+                    debug_assert!(id <= usize::from(u16::MAX));
+                    id as u16
+                })
         }
         #[cold]
         pub(crate) fn is_known_instance_extension(name: &CStr) -> bool {
@@ -713,7 +1003,9 @@ fn main() {
             (unsafe { *INSTANCE_EXTENSION_WORDS.get_unchecked(index / 64) } & (1_u64 << (index % 64))) != 0
         }
         #[cold]
-        pub(crate) fn wsi_instance_extension_supported(name: &CStr) -> bool { #(#wsi_guards)* true }
+        pub(crate) fn wsi_instance_extension_supported(name: &CStr) -> bool {
+            match name { #(#wsi_guards)* _ => true }
+        }
     });
 
     let is_vulkan_command = |command: &&vk_codegen::ir::Command| {
@@ -768,18 +1060,20 @@ fn main() {
             let literal = c_string_literal(name);
             let name = format_ident!("{name}");
             quote! {
-                unsafe { core::ptr::addr_of_mut!((*table).#name).write(load_typed(#loader_name(handle, #literal.as_ptr()))) };
+                unsafe { core::ptr::addr_of_mut!((*table).#name).write(load_typed(#loader_name(handle, #literal.as_ptr()))); }
             }
         });
         generated.extend(quote! {
-            #[allow(dead_code, deprecated)]
+            #[allow(dead_code)]
             #[derive(Clone, Default)]
             pub(crate) struct #table_name { #(#fields)* }
-            #[allow(dead_code, deprecated)]
+            #[allow(dead_code)]
             impl #table_name {
+                #[allow(clippy::too_many_lines)] // One generated field initializer per registry command.
                 pub(crate) unsafe fn load(#loader_name: #loader_type, handle: #handle_type) -> Self {
                     Self { #(#load_fields)* }
                 }
+                #[allow(clippy::too_many_lines)] // One generated field write per registry command.
                 pub(crate) unsafe fn load_into(table: *mut Self, #loader_name: #loader_type, handle: #handle_type) {
                     #(#load_into_fields)*
                 }
@@ -796,11 +1090,17 @@ fn main() {
                 .collect::<Vec<_>>();
             required.sort_unstable();
             required.dedup();
-            let required = required.iter().map(|name| format_ident!("{name}"));
+            let required = required
+                .iter()
+                .map(|name| format_ident!("{name}"))
+                .collect::<Vec<_>>();
+            let (first, rest) = required
+                .split_first()
+                .expect("Vulkan 1.0 has required ICD instance commands");
             generated.extend(quote! {
                     impl InstanceDispatchTable {
                         pub(crate) const fn has_required_core_1_0(&self) -> bool {
-                            true #(&& self.#required.is_some())*
+                            self.#first.is_some() #(&& self.#rest.is_some())*
                         }
                     }
             });
@@ -888,12 +1188,12 @@ fn main() {
         let name = format_ident!("{}", command.name);
         if command.name == "vkGetInstanceProcAddr" {
             quote! {
-                #cfg unsafe { core::ptr::addr_of_mut!((*table_ptr).#name).write(Some(gipa)) };
+                #cfg unsafe { core::ptr::addr_of_mut!((*table_ptr).#name).write(Some(gipa)); }
             }
         } else {
             let literal = c_string_literal(&command.name);
             quote! {
-                #cfg unsafe { core::ptr::addr_of_mut!((*table_ptr).#name).write(load_typed(gipa(instance, #literal.as_ptr()))) };
+                #cfg unsafe { core::ptr::addr_of_mut!((*table_ptr).#name).write(load_typed(gipa(instance, #literal.as_ptr()))); }
             }
         }
     });
@@ -912,7 +1212,7 @@ fn main() {
         let name = format_ident!("{}", command.name);
         let offset = format_ident!(
             "{}_DEVICE_DISPATCH_OFFSET",
-            command.name.to_ascii_uppercase()
+            screaming_snake_case(&command.name)
         );
         if let Some(protect) = command_platform_protect(&registry, command) {
             let cfg = rust_platform_cfg(protect)
@@ -920,13 +1220,13 @@ fn main() {
                 .expect("platform cfg must be valid Rust tokens");
             quote! {
                 #[cfg(#cfg)]
-                const #offset: u16 = core::mem::offset_of!(LayerDeviceDispatchTable, #name) as u16;
+                const #offset: u16 = dispatch_offset(core::mem::offset_of!(LayerDeviceDispatchTable, #name));
                 #[cfg(not(#cfg))]
                 const #offset: u16 = u16::MAX;
             }
         } else {
             quote! {
-                const #offset: u16 = core::mem::offset_of!(LayerDeviceDispatchTable, #name) as u16;
+                const #offset: u16 = dispatch_offset(core::mem::offset_of!(LayerDeviceDispatchTable, #name));
             }
         }
     });
@@ -935,38 +1235,35 @@ fn main() {
         let name = format_ident!("{}", command.name);
         if command.name == "vkGetDeviceProcAddr" {
             quote! {
-                #cfg unsafe { core::ptr::addr_of_mut!((*table_ptr).#name).write(Some(gdpa)) };
+                #cfg unsafe { core::ptr::addr_of_mut!((*table_ptr).#name).write(Some(gdpa)); }
             }
         } else {
             let literal = c_string_literal(&command.name);
             quote! {
-                #cfg unsafe { core::ptr::addr_of_mut!((*table_ptr).#name).write(load_typed(gdpa(device, #literal.as_ptr()))) };
+                #cfg unsafe { core::ptr::addr_of_mut!((*table_ptr).#name).write(load_typed(gdpa(device, #literal.as_ptr()))); }
             }
         }
     });
     let layer_device_masks = layer_device_commands.iter().map(|command| {
         let cfg = platform_cfg(command_platform_protect(&registry, command));
         let name = format_ident!("{}", command.name);
-        let id = format_ident!("{}_COMMAND_ID", command.name.to_ascii_uppercase());
+        let id = format_ident!("{}_COMMAND_ID", screaming_snake_case(&command.name));
         quote! { #cfg if !available(#id) { self.#name = None; } }
     });
     // Preserve the joint `::<` punctuation inside the macro input. `quote!`
     // separates it because `<` can otherwise begin a comparison expression.
-    let layer_device_size_fits =
-        "core::mem::size_of::<LayerDeviceDispatchTable>() <= u16::MAX as usize"
-            .parse::<TokenStream>()
-            .expect("layer device dispatch-table size assertion must be valid Rust tokens");
     generated.extend(quote! {
         #[repr(C)]
-        #[allow(dead_code, deprecated)]
+        #[allow(dead_code)]
         pub(crate) struct LayerInstanceDispatchTable {
             pub(crate) vk_layerGetPhysicalDeviceProcAddr: crate::layer::GetPhysicalDeviceProcAddr,
             #(#layer_instance_fields)*
         }
-        #[allow(dead_code, deprecated)]
+        #[allow(dead_code)]
         impl LayerInstanceDispatchTable {
+            #[allow(clippy::too_many_lines)] // One generated field write per registry command.
             pub(crate) unsafe fn load_into(table_ptr: *mut Self, gipa: vk::PFN_vkGetInstanceProcAddr, gpdpa: crate::layer::GetPhysicalDeviceProcAddr, instance: vk::VkInstance) {
-                unsafe { core::ptr::addr_of_mut!((*table_ptr).vk_layerGetPhysicalDeviceProcAddr).write(gpdpa) };
+                unsafe { core::ptr::addr_of_mut!((*table_ptr).vk_layerGetPhysicalDeviceProcAddr).write(gpdpa); }
                 #(#layer_instance_loads)*
             }
             pub(crate) unsafe fn load_boxed(gipa: vk::PFN_vkGetInstanceProcAddr, gpdpa: crate::layer::GetPhysicalDeviceProcAddr, instance: vk::VkInstance) -> Box<Self> {
@@ -976,17 +1273,20 @@ fn main() {
             }
         }
         #[repr(C)]
-        #[allow(dead_code, deprecated)]
+        #[allow(dead_code)]
         pub(crate) struct LayerDeviceDispatchTable {
             pub(crate) magic: u64,
             #(#layer_device_fields)*
         }
-        const _: () = assert!(#layer_device_size_fits);
+        // Every generated byte offset below is stored as `u16`. Keep the cast
+        // infallible on every target and feature combination at compile time.
+        const _: () = assert!(core::mem::size_of::<LayerDeviceDispatchTable>() <= 65_535);
         #(#layer_device_offsets)*
-        #[allow(dead_code, deprecated)]
+        #[allow(dead_code)]
         impl LayerDeviceDispatchTable {
+            #[allow(clippy::too_many_lines)] // One generated field write per registry command.
             pub(crate) unsafe fn load_into(table_ptr: *mut Self, gdpa: vk::PFN_vkGetDeviceProcAddr, device: vk::VkDevice) {
-                unsafe { core::ptr::addr_of_mut!((*table_ptr).magic).write(DEVICE_DISPATCH_MAGIC) };
+                unsafe { core::ptr::addr_of_mut!((*table_ptr).magic).write(DEVICE_DISPATCH_MAGIC); }
                 #(#layer_device_loads)*
             }
             pub(crate) unsafe fn load_boxed(gdpa: vk::PFN_vkGetDeviceProcAddr, device: vk::VkDevice) -> Box<Self> {
@@ -994,6 +1294,7 @@ fn main() {
                 unsafe { Self::load_into(table.as_mut_ptr(), gdpa, device) };
                 unsafe { table.assume_init() }
             }
+            #[allow(clippy::too_many_lines)] // One generated availability check per registry command.
             pub(crate) fn mask_unavailable(&mut self, mut available: impl FnMut(u16) -> bool) {
                 #(#layer_device_masks)*
             }
@@ -1032,9 +1333,9 @@ fn main() {
         }
     });
     generated.extend(quote! {
-        #[allow(dead_code, deprecated)]
+        #[allow(dead_code)]
         pub(crate) struct IcdDeviceTerminatorDispatchTable { #(#icd_terminator_fields)* }
-        #[allow(dead_code, deprecated)]
+        #[allow(dead_code)]
         impl IcdDeviceTerminatorDispatchTable {
             pub(crate) unsafe fn load_boxed(gdpa: vk::PFN_vkGetDeviceProcAddr, device: vk::VkDevice, mut available: impl FnMut(&CStr) -> bool) -> Box<Self> {
                 Box::new(Self { #(#icd_terminator_loads)* })
@@ -1164,7 +1465,7 @@ fn main() {
         .enumerate()
         .filter(|(_, record)| record.1 == "CommandScope::Device")
         .map(|(id, record)| {
-            let name = format_ident!("{}_COMMAND_ID", record.0.to_ascii_uppercase());
+            let name = format_ident!("{}_COMMAND_ID", screaming_snake_case(record.0));
             let id = Literal::usize_unsuffixed(id);
             quote! { #[allow(dead_code)] const #name: u16 = #id; }
         })
@@ -1218,13 +1519,20 @@ fn main() {
     let mut name_ranges = Vec::with_capacity(command_records.len());
     for (name, ..) in &command_records {
         let suffix = name.strip_prefix("vk").expect("Vulkan command prefix");
-        let offset = u16::try_from(command_names.len()).expect("command-name blob exceeds u16");
-        let len = u8::try_from(suffix.len()).expect("command name exceeds u8");
+        assert!(
+            command_names.len() <= usize::from(u16::MAX),
+            "command-name blob exceeds u16"
+        );
+        let offset = command_names.len() as u16;
+        assert!(
+            suffix.len() <= usize::from(u8::MAX),
+            "command name exceeds u8"
+        );
+        let len = suffix.len() as u8;
         command_names.push_str(suffix);
         name_ranges.push((offset, len));
     }
     let command_names_literal = Literal::byte_string(command_names.as_bytes());
-    let command_names_len = Literal::usize_unsuffixed(command_names.len());
     let table_len_literal = Literal::usize_unsuffixed(table_len);
     let command_table = slots.into_iter().map(|slot| {
         if let Some(record_index) = slot {
@@ -1258,7 +1566,7 @@ fn main() {
         .iter()
         .map(|(name, scope, ..)| {
             if *scope == "CommandScope::Device" {
-                let offset = format_ident!("{}_DEVICE_DISPATCH_OFFSET", name.to_ascii_uppercase());
+                let offset = format_ident!("{}_DEVICE_DISPATCH_OFFSET", screaming_snake_case(name));
                 quote! { #offset, }
             } else {
                 quote! { u16::MAX, }
@@ -1281,7 +1589,7 @@ fn main() {
     let loader_trampoline_word_count = Literal::usize_unsuffixed(loader_trampoline_words.len());
     let loader_trampoline_words = loader_trampoline_words
         .into_iter()
-        .map(|word| syn::LitInt::new(&format!("0x{word:016x}"), Span::call_site()))
+        .map(u64_hex_literal)
         .collect::<Vec<_>>();
     let mut extension_metadata = TokenStream::new();
     for (kind, extension_index) in [("INSTANCE", 4_usize), ("DEVICE", 5_usize)] {
@@ -1293,8 +1601,16 @@ fn main() {
                 5 => &record.5,
                 _ => unreachable!(),
             };
-            let offset = u16::try_from(ids.len()).expect("command extension links exceed u16");
-            let len = u8::try_from(extensions.len()).expect("command has too many providers");
+            assert!(
+                ids.len() <= usize::from(u16::MAX),
+                "command extension links exceed u16"
+            );
+            let offset = ids.len() as u16;
+            assert!(
+                extensions.len() <= usize::from(u8::MAX),
+                "command has too many providers"
+            );
+            let len = extensions.len() as u8;
             ids.extend_from_slice(extensions);
             ranges.push((offset, len));
         }
@@ -1315,23 +1631,25 @@ fn main() {
     let command_count = Literal::usize_unsuffixed(command_records.len());
     let max_displacement = Literal::u16_unsuffixed(max_displacement);
     generated.extend(quote! {
-        static COMMAND_NAMES: [u8; #command_names_len] = *#command_names_literal;
-        static COMMAND_TABLE: [CommandRecord; #table_len_literal] = [#(#command_table)*];
+        pub(crate) static COMMAND_NAMES: &[u8] = #command_names_literal;
+        pub(crate) static COMMAND_TABLE: [CommandRecord; #table_len_literal] = [#(#command_table)*];
         static COMMAND_DISPLACEMENTS: [u16; #bucket_count] = [#(#displacements),*];
         static COMMAND_CORE_LEVELS: [u16; COMMAND_COUNT] = [#(#core_levels),*];
         static COMMAND_DEVICE_DISPATCH_OFFSETS: [u16; COMMAND_COUNT] = [#(#device_dispatch_offsets)*];
         static COMMAND_LOADER_TRAMPOLINE_WORDS: [u64; #loader_trampoline_word_count] = [#(#loader_trampoline_words),*];
         #extension_metadata
-        const COMMAND_COUNT: usize = #command_count;
+        pub(crate) const COMMAND_COUNT: usize = #command_count;
         #[cfg(test)]
-        const COMMAND_MAX_DISPLACEMENT: u16 = #max_displacement;
+        pub(crate) const COMMAND_MAX_DISPLACEMENT: u16 = #max_displacement;
         #[inline(never)]
         pub(crate) fn command_lookup(name: &CStr) -> Option<CommandLookup> {
             let suffix = name.to_bytes().strip_prefix(b"vk")?;
             let hash = command_hash(suffix);
-            let bucket = hash as usize & (COMMAND_DISPLACEMENTS.len() - 1);
+            let bucket_mask = (COMMAND_DISPLACEMENTS.len() - 1) as u64;
+            let bucket = (hash & bucket_mask) as usize;
             let displacement = COMMAND_DISPLACEMENTS[bucket];
-            let slot = command_slot_hash(hash ^ u64::from(displacement)) as usize & (COMMAND_TABLE.len() - 1);
+            let slot_mask = (COMMAND_TABLE.len() - 1) as u64;
+            let slot = (command_slot_hash(hash ^ u64::from(displacement)) & slot_mask) as usize;
             let record = COMMAND_TABLE[slot];
             if record.id == u16::MAX { return None; }
             let start = usize::from(record.name_offset);
@@ -1387,6 +1705,94 @@ fn main() {
         }
     });
 
+    let mut promoted_wrappers = Vec::new();
+    for &core_name in PROMOTED_TERMINATOR_IMPLEMENTATIONS {
+        let implementation_name = promoted_implementation_name(core_name);
+        let mut commands = registry
+            .commands
+            .values()
+            .flatten()
+            .filter(|command| {
+                (command.name == core_name || command.alias.as_deref() == Some(core_name))
+                    && (command.api.vulkan || command.api.vulkanbase)
+                    && command_has_vulkan_provider(&registry, command)
+            })
+            .collect::<Vec<_>>();
+        commands.sort_unstable_by(|left, right| left.name.cmp(&right.name));
+        commands.dedup_by(|left, right| left.name == right.name);
+        assert!(!commands.is_empty(), "missing promoted command {core_name}");
+
+        for command in commands {
+            let is_alias = command.name != core_name;
+            let signature = resolved_command_signature(command, &registry);
+            let name = format_ident!("terminator_{}", command.name);
+            let implementation = format_ident!("{implementation_name}");
+            let cfg = platform_cfg(command_platform_protect(&registry, command));
+            let params = signature
+                .params
+                .iter()
+                .map(|parameter| {
+                    let name = match parameter.name.as_str() {
+                        "type" => format_ident!("type_"),
+                        "match" => format_ident!("match_"),
+                        name => format_ident!("{name}"),
+                    };
+                    let ty = command_param_abi_type_for_registry(parameter, &registry).to_string();
+                    let ty = qualify_registry_type(&ty, &parameter.ty.base);
+                    let ty = syn::parse_str::<syn::Type>(&ty)
+                        .expect("promoted command parameter type must be valid Rust syntax");
+                    quote! { #name: #ty }
+                })
+                .collect::<Vec<_>>();
+            let args = signature
+                .params
+                .iter()
+                .map(|parameter| {
+                    let name = match parameter.name.as_str() {
+                        "type" => format_ident!("type_"),
+                        "match" => format_ident!("match_"),
+                        name => format_ident!("{name}"),
+                    };
+                    match (
+                        is_alias,
+                        parameter.ty.pointer_depth,
+                        parameter.ty.base.starts_with("Vk"),
+                    ) {
+                        (true, 1.., true) => quote! { #name.cast() },
+                        _ => quote! { #name },
+                    }
+                })
+                .collect::<Vec<_>>();
+            let returns_void =
+                signature.return_type.base == "void" || signature.return_type.base.is_empty();
+            let (return_clause, body) = match returns_void {
+                true => (
+                    TokenStream::new(),
+                    quote! { unsafe { promoted::#implementation(#(#args),*); } },
+                ),
+                false => {
+                    let return_type = qualify_registry_type(
+                        &ctype_to_rust_str(&signature.return_type),
+                        &signature.return_type.base,
+                    );
+                    let return_type = syn::parse_str::<syn::Type>(&return_type)
+                        .expect("promoted command return type must be valid Rust syntax");
+                    (
+                        quote! { -> #return_type },
+                        quote! { unsafe { promoted::#implementation(#(#args),*) } },
+                    )
+                }
+            };
+            promoted_wrappers.push(quote! {
+                #cfg
+                pub(crate) unsafe extern "system" fn #name(#(#params),*) #return_clause {
+                    #body
+                }
+            });
+        }
+    }
+    generated.extend(quote! { #(#promoted_wrappers)* });
+
     let is_exported = |command: &&vk_codegen::ir::Command| {
         (command.export.is_empty() || command.export.contains(&ExportScope::Vulkan))
             && (command.api.vulkan || command.api.vulkanbase)
@@ -1420,26 +1826,7 @@ fn main() {
         if HANDWRITTEN_TERMINATORS.contains(&command.name.as_str()) {
             continue;
         }
-        let mut signature = if command.alias.is_some() {
-            resolve_alias(command, &registry)
-        } else {
-            command.clone()
-        };
-        if command.alias.is_some() {
-            let variants = &registry.commands[&command.name];
-            let mut providers = variants
-                .iter()
-                .flat_map(|variant| variant.provided_by.clone())
-                .collect::<Vec<_>>();
-            providers.sort_unstable();
-            providers.dedup();
-            signature.provided_by.clone_from(&providers);
-            signature.availability = variants
-                .iter()
-                .flat_map(|variant| variant.availability.clone())
-                .collect();
-            rewrite_command_types_for_providers(&mut signature, &registry, &providers);
-        }
+        let signature = resolved_command_signature(command, &registry);
         let name_text = command.name.as_str();
         let name = format_ident!("{name_text}");
         let params = signature
@@ -1565,16 +1952,14 @@ fn main() {
                 /// # Safety
                 ///
                 /// The caller must satisfy the pointer, handle, and lifetime requirements of the Vulkan API.
-                #[allow(deprecated)]
                 #export
-                pub unsafe extern "system" fn #name(#(#params),*) #return_clause { #body }
+                pub(crate) unsafe extern "system" fn #name(#(#params),*) #return_clause { #body }
                 #cfg
                 /// Creates loader-owned WSI state at the bottom of an instance layer chain.
                 ///
                 /// # Safety
                 ///
                 /// The instance must identify a live loader terminator and all pointers must satisfy Vulkan's contracts.
-                #[allow(deprecated)]
                 pub(crate) unsafe extern "system" fn #terminator_name(#(#params),*) -> vk::VkResult {
                     unsafe { create_loader_surface(#instance, #create_info, VkStructureType::#root_type, #allocator, #surface, #command_literal, #extension_id_constant) }
                 }
@@ -1607,7 +1992,7 @@ fn main() {
             });
             if returns_void {
                 body.extend(quote! {
-                    if let Some((command, #first)) = command { unsafe { command(#(#args),*) }; }
+                    if let Some((command, #first)) = command { unsafe { command(#(#args),*); } }
                 });
             } else {
                 body.extend(quote! {
@@ -1621,9 +2006,8 @@ fn main() {
                 /// # Safety
                 ///
                 /// The caller must satisfy the pointer, handle, and lifetime requirements of the Vulkan API.
-                #[allow(deprecated)]
                 #export
-                pub unsafe extern "system" fn #name(#(#params),*) #return_clause { #body }
+                pub(crate) unsafe extern "system" fn #name(#(#params),*) #return_clause { #body }
             });
             if HANDWRITTEN_PHYSICAL_DEVICE_TERMINATORS.contains(&name_text) {
                 let id = command_records
@@ -1662,7 +2046,7 @@ fn main() {
             if nullable {
                 if returns_void {
                     body.extend(quote! {
-                        if let Some(command) = command { unsafe { command(#(#args),*) }; }
+                        if let Some(command) = command { unsafe { command(#(#args),*); } }
                     });
                 } else {
                     body.extend(quote! {
@@ -1676,9 +2060,8 @@ fn main() {
                     /// # Safety
                     ///
                     /// The caller must satisfy the pointer, handle, and lifetime requirements of the Vulkan API.
-                    #[allow(deprecated)]
                     #export
-                    pub unsafe extern "system" fn #name(#(#params),*) #return_clause { #body }
+                    pub(crate) unsafe extern "system" fn #name(#(#params),*) #return_clause { #body }
                 });
                 continue;
             }
@@ -1690,11 +2073,11 @@ fn main() {
                 "vkGetDeviceQueue" | "vkGetDeviceQueue2" => {
                     let queue_output = format_ident!("pQueue");
                     body.extend(quote! {
-                        unsafe { command(#(#args),*) };
+                        unsafe { command(#(#args),*); }
                         if !#queue_output.is_null() {
                             let queue = unsafe { #queue_output.read() };
                             if queue != vk::VkQueue::NULL {
-                                unsafe { set_device_dispatchable(queue.0.cast(), core::ptr::from_ref(dispatch)) };
+                                unsafe { set_device_dispatchable(queue.0.cast(), core::ptr::from_ref(dispatch)); }
                             }
                         }
                     });
@@ -1709,7 +2092,7 @@ fn main() {
                             for index in 0..count {
                                 let command_buffer = unsafe { #command_buffers.add(index).read() };
                                 if command_buffer != vk::VkCommandBuffer::NULL {
-                                    unsafe { set_device_dispatchable(command_buffer.0.cast(), core::ptr::from_ref(dispatch)) };
+                                    unsafe { set_device_dispatchable(command_buffer.0.cast(), core::ptr::from_ref(dispatch)); }
                                 }
                             }
                         }
@@ -1717,7 +2100,7 @@ fn main() {
                     });
                 }
                 _ if returns_void => {
-                    body.extend(quote! { unsafe { command(#(#args),*) }; });
+                    body.extend(quote! { unsafe { command(#(#args),*); } });
                 }
                 _ => body.extend(quote! { unsafe { command(#(#args),*) } }),
             }
@@ -1728,9 +2111,8 @@ fn main() {
                 /// # Safety
                 ///
                 /// The caller must satisfy the pointer, handle, and lifetime requirements of the Vulkan API.
-                #[allow(deprecated)]
                 #export
-                pub unsafe extern "system" fn #name(#(#params),*) #return_clause { #body }
+                pub(crate) unsafe extern "system" fn #name(#(#params),*) #return_clause { #body }
             });
             continue;
         }
@@ -1782,11 +2164,11 @@ fn main() {
                     c_string_literal(&format!("{name_text}: Driver's function pointer was NULL"));
                 body.extend(quote! {
                     let Some(#closure_pattern) = command else { fatal_loader_error(#error) };
-                    unsafe { command(#(#args),*) };
+                    unsafe { command(#(#args),*); }
                 });
             } else {
                 body.extend(quote! {
-                    if let Some(#closure_pattern) = command { unsafe { command(#(#args),*) }; }
+                    if let Some(#closure_pattern) = command { unsafe { command(#(#args),*); } }
                 });
             }
         } else {
@@ -1799,13 +2181,13 @@ fn main() {
                     | "vkGetDisplayModePropertiesKHR"
             ) {
                 let count = format_ident!("pPropertyCount");
-                quote! {{ if !#count.is_null() { unsafe { #count.write(0) }; } vk::VkResult::SUCCESS }}
+                quote! {{ if !#count.is_null() { unsafe { #count.write(0); } } vk::VkResult::SUCCESS }}
             } else if name_text == "vkGetDisplayPlaneSupportedDisplaysKHR" {
                 let count = format_ident!("pDisplayCount");
-                quote! {{ if !#count.is_null() { unsafe { #count.write(0) }; } vk::VkResult::SUCCESS }}
+                quote! {{ if !#count.is_null() { unsafe { #count.write(0); } } vk::VkResult::SUCCESS }}
             } else if name_text == "vkGetDisplayPlaneCapabilitiesKHR" {
                 let capabilities = format_ident!("pCapabilities");
-                quote! {{ if !#capabilities.is_null() { unsafe { #capabilities.write(vk::VkDisplayPlaneCapabilitiesKHR::DEFAULT) }; } vk::VkResult::SUCCESS }}
+                quote! {{ if !#capabilities.is_null() { unsafe { #capabilities.write(vk::VkDisplayPlaneCapabilitiesKHR::DEFAULT); } } vk::VkResult::SUCCESS }}
             } else if missing_physical_device_extension {
                 let error =
                     c_string_literal(&format!("{name_text}: Driver's function pointer was NULL"));
@@ -1828,7 +2210,6 @@ fn main() {
                 /// # Safety
                 ///
                 /// The physical device must be a live loader terminator handle and all other arguments must satisfy Vulkan's contracts.
-                #[allow(deprecated)]
                 pub(crate) unsafe extern "system" fn #terminator_name(#(#params),*) #return_clause { #body }
             });
         } else {
@@ -1839,9 +2220,8 @@ fn main() {
                 /// # Safety
                 ///
                 /// The caller must satisfy the pointer, handle, and lifetime requirements of the Vulkan API.
-                #[allow(deprecated)]
                 #export
-                pub unsafe extern "system" fn #name(#(#params),*) #return_clause { #body }
+                pub(crate) unsafe extern "system" fn #name(#(#params),*) #return_clause { #body }
             });
         }
     }
@@ -1849,8 +2229,7 @@ fn main() {
         let cfg = platform_cfg(protect);
         let id = Literal::usize_unsuffixed(id);
         let name = format_ident!("{name}");
-        let pfn = format_ident!("PFN_{name}");
-        quote! { #cfg #id => erase_function(#name as vk::#pfn), }
+        quote! { #cfg #id => Some(erase_function(#name as *const ())), }
     });
     let mut instance_terminator_arms = instance_terminators
         .iter()
@@ -1858,8 +2237,7 @@ fn main() {
             let cfg = platform_cfg(*protect);
             let id = Literal::usize_unsuffixed(*id);
             let terminator = format_ident!("terminator_{name}");
-            let pfn = format_ident!("PFN_{name}");
-            quote! { #cfg #id => erase_function(#terminator as vk::#pfn), }
+            quote! { #cfg #id => Some(erase_function(#terminator as *const ())), }
         })
         .collect::<Vec<_>>();
     for name in HANDWRITTEN_INSTANCE_TERMINATORS {
@@ -1869,8 +2247,8 @@ fn main() {
             .unwrap_or_else(|| panic!("handwritten instance terminator metadata for {name}"));
         let id = Literal::usize_unsuffixed(id);
         let terminator = format_ident!("terminator_{name}");
-        let pfn = format_ident!("PFN_{name}");
-        instance_terminator_arms.push(quote! { #id => erase_function(#terminator as vk::#pfn), });
+        instance_terminator_arms
+            .push(quote! { #id => Some(erase_function(#terminator as *const ())), });
     }
     let physical_device_terminator_arms =
         physical_device_terminators
@@ -1879,8 +2257,7 @@ fn main() {
                 let cfg = platform_cfg(*protect);
                 let id = Literal::usize_unsuffixed(*id);
                 let terminator = format_ident!("terminator_{name}");
-                let pfn = format_ident!("PFN_{name}");
-                quote! { #cfg #id => erase_function(#terminator as vk::#pfn), }
+                quote! { #cfg #id => Some(erase_function(#terminator as *const ())), }
             });
     let icd_device_terminator_arms = icd_terminator_commands.iter().map(|command| {
         let id = command_records
@@ -1890,37 +2267,161 @@ fn main() {
         let cfg = platform_cfg(command_platform_protect(&registry, command));
         let id = Literal::usize_unsuffixed(id);
         let name = format_ident!("{}", command.name);
-        quote! { #cfg #id => table.#name.and_then(erase_function), }
+        quote! { #cfg #id => table.#name.map(erase_function), }
     });
     generated.extend(quote! {
         #[inline(never)]
-        #[allow(deprecated)]
+        #[allow(clippy::too_many_lines)] // Exhaustive generated command-ID match.
         pub(crate) fn exported_proc_addr(id: u16) -> PFN_vkVoidFunction {
             match id { #(#exported_arms)* _ => None }
         }
         #[inline(never)]
-        #[allow(deprecated)]
         pub(crate) fn instance_terminator_proc_addr(id: u16) -> PFN_vkVoidFunction {
             match id { #(#instance_terminator_arms)* _ => None }
         }
         #[inline(never)]
-        #[allow(deprecated)]
+        #[allow(clippy::too_many_lines)] // Exhaustive generated command-ID match.
         pub(crate) fn physical_device_terminator_proc_addr(id: u16) -> PFN_vkVoidFunction {
             match id { #(#physical_device_terminator_arms)* _ => None }
         }
         #[inline(never)]
-        #[allow(deprecated)]
         pub(crate) fn icd_device_terminator_proc_addr(table: &IcdDeviceTerminatorDispatchTable, id: u16) -> PFN_vkVoidFunction {
             match id { #(#icd_device_terminator_arms)* _ => None }
         }
     });
 
     let syntax = syn::parse2::<syn::File>(generated).expect("generated loader source must parse");
-    let formatted = prettyplease::unparse(&syntax);
-    let mut output = String::with_capacity(formatted.len() + 80);
-    output.push_str("// Generated from registry/vk.xml by vk-loader-codegen. Do not edit.\n\n");
-    output.push_str(&formatted);
-    fs::write(output_path, output).expect("write generated loader source");
+    let mut parts = GENERATED_LOADER_PARTS
+        .iter()
+        .map(|name| (*name, Vec::new()))
+        .collect::<BTreeMap<_, _>>();
+    for item in syntax.items {
+        parts
+            .get_mut(generated_loader_part(&item))
+            .expect("known generated loader part")
+            .push(item);
+    }
+    for items in parts.values_mut() {
+        items.iter_mut().for_each(expose_to_generated_siblings);
+    }
+    let command_import_cfg = registry
+        .commands
+        .values()
+        .flatten()
+        .map(|command| {
+            (
+                format!("{}_COMMAND_ID", screaming_snake_case(&command.name)),
+                platform_cfg(command_platform_protect(&registry, command)),
+            )
+        })
+        .collect::<HashMap<_, _>>();
+    let mut generated_items = BTreeMap::new();
+    for (&part, items) in &parts {
+        for item in items {
+            if let Some(identifier) = generated_item_identifier(item) {
+                let attributes = generated_item_attributes(item)
+                    .iter()
+                    .filter(|attribute| attribute.path().is_ident("cfg"));
+                let cfg = command_import_cfg
+                    .get(&identifier.to_string())
+                    .cloned()
+                    .unwrap_or_else(|| quote! { #(#attributes)* });
+                generated_items.insert(identifier.to_string(), (part, cfg));
+            }
+        }
+    }
+    let output_directory = output_path.parent().expect("loader output directory");
+    for &name in GENERATED_LOADER_PARTS {
+        let mut items = parts.get(name).expect("generated loader part").clone();
+        let mut used = UsedIdentifiers::default();
+        for item in &items {
+            syn::visit::Visit::visit_item(&mut used, item);
+        }
+        let mut used = used.0;
+        if name == "commands" {
+            used.insert("LayerDeviceDispatchTable".to_owned());
+        }
+        let local = items
+            .iter()
+            .filter_map(generated_item_identifier)
+            .map(ToString::to_string)
+            .collect::<BTreeSet<_>>();
+        let mut imports = Vec::new();
+        for parent in GENERATED_PARENT_NAMES {
+            if used.contains(*parent) && !local.contains(*parent) {
+                let identifier = format_ident!("{parent}");
+                imports.push(syn::parse_quote! { use crate::#identifier; });
+            }
+        }
+        for (identifier, (part, cfg)) in &generated_items {
+            if *part == name || !used.contains(identifier) || local.contains(identifier) {
+                continue;
+            }
+            let part = format_ident!("{part}");
+            let identifier = format_ident!("{identifier}");
+            let import = quote! {
+                #cfg
+                use super::#part::#identifier;
+            };
+            imports.push(
+                syn::parse2(import.clone()).unwrap_or_else(|error| {
+                    panic!("generated import `{import}` must parse: {error}")
+                }),
+            );
+        }
+        imports.extend(items);
+        items = imports;
+        let syntax = syn::File {
+            shebang: None,
+            attrs: Vec::new(),
+            items,
+        };
+        fs::write(
+            output_directory.join(format!("{name}.rs")),
+            generated_source(&syntax),
+        )
+        .unwrap_or_else(|error| panic!("write generated loader part {name}: {error}"));
+    }
+    let modules = GENERATED_LOADER_PARTS
+        .iter()
+        .map(|name| format_ident!("{name}"))
+        .collect::<Vec<_>>();
+    let entry = syn::parse2::<syn::File>(quote! {
+        #(mod #modules;)*
+
+        pub(crate) use commands::{
+            command_core_level, command_has_device_extension_provider,
+            command_has_enabled_device_extension, command_has_enabled_instance_extension,
+            command_lookup, command_must_use_loader_trampoline,
+        };
+        pub(crate) use debug::{
+            convert_core_object_to_debug_report_object,
+            convert_debug_report_object_to_core_object,
+        };
+        pub(crate) use dispatch_tables::{
+            IcdDeviceTerminatorDispatchTable, InstanceDispatchTable,
+            LayerDeviceDispatchTable, LayerInstanceDispatchTable,
+        };
+        pub(crate) use extensions::{
+            ExtensionSet, VK_EXT_SURFACE_MAINTENANCE1_EXTENSION_ID,
+            VK_KHR_SURFACE_MAINTENANCE1_EXTENSION_ID, extension_id,
+            is_known_instance_extension, surface_create_info_extension_size,
+            wsi_instance_extension_supported,
+        };
+        pub(crate) use proc_addr::{
+            exported_proc_addr, global_proc_addr, icd_device_terminator_proc_addr,
+            instance_terminator_proc_addr, layer_device_dispatch_proc_addr,
+            physical_device_terminator_proc_addr,
+        };
+        #[cfg(test)]
+        pub(crate) use commands::{
+            COMMAND_COUNT, COMMAND_MAX_DISPLACEMENT, COMMAND_NAMES, COMMAND_TABLE,
+        };
+        #[cfg(test)]
+        pub(crate) use handles::handle_info;
+    })
+    .expect("generated loader module must parse");
+    fs::write(output_path, generated_source(&entry)).expect("write generated loader module");
 }
 
 fn update_loader_features(cargo_path: &PathBuf, registry: &vk_codegen::ir::Registry) {

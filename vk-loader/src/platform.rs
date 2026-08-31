@@ -844,6 +844,15 @@ pub(crate) fn current_thread_key() -> usize {
     hasher.finish() as usize
 }
 
+union FunctionPointer<T: Copy, U: Copy> {
+    source: T,
+    target: U,
+}
+
+unsafe fn reinterpret_function_pointer<T: Copy, U: Copy>(source: T) -> U {
+    unsafe { FunctionPointer { source }.target }
+}
+
 #[cfg(unix)]
 fn interposed_symbol<T: Copy>(name: &core::ffi::CStr, fallback: T) -> T {
     // SAFETY: `RTLD_DEFAULT` searches the executable before its dependencies,
@@ -852,9 +861,8 @@ fn interposed_symbol<T: Copy>(name: &core::ffi::CStr, fallback: T) -> T {
     if address.is_null() {
         fallback
     } else {
-        debug_assert_eq!(core::mem::size_of::<T>(), core::mem::size_of_val(&address));
         // SAFETY: The requested symbol name and `T` describe the same libc ABI.
-        unsafe { core::mem::transmute_copy(&address) }
+        unsafe { reinterpret_function_pointer(address) }
     }
 }
 
@@ -1187,9 +1195,8 @@ fn d3dkmt_manifest_files(leaf: &str) -> Box<[PathBuf]> {
     ) -> Option<T> {
         // SAFETY: `module` is live and `name` is NUL-terminated.
         let address = unsafe { GetProcAddress(module, name.as_ptr().cast()) }?;
-        debug_assert_eq!(core::mem::size_of::<T>(), core::mem::size_of_val(&address));
         // SAFETY: Each caller chooses the function type matching `name`.
-        Some(unsafe { core::mem::transmute_copy(&address) })
+        Some(unsafe { reinterpret_function_pointer(address) })
     }
 
     // Match upstream's system32-only load, avoiding DLL search-path injection.
@@ -1407,9 +1414,8 @@ pub(crate) fn adapter_luids() -> Box<[AdapterLuid]> {
         let vtable = unsafe { object.cast::<*const *const core::ffi::c_void>().read() };
         // SAFETY: The caller supplies an index and type from the exact interface ABI.
         let address = unsafe { vtable.add(index).read() };
-        debug_assert_eq!(core::mem::size_of::<T>(), core::mem::size_of_val(&address));
         // SAFETY: The selected vtable slot has function-pointer representation.
-        unsafe { core::mem::transmute_copy(&address) }
+        unsafe { reinterpret_function_pointer(address) }
     }
 
     // SAFETY: Module names are NUL-terminated. Loading only from system32
