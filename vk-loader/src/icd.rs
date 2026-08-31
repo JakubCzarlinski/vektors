@@ -175,7 +175,6 @@ pub(crate) enum DirectIcdError {
     EnumerateVersion(VkResult),
 }
 
-#[repr(C)]
 pub(crate) struct IcdInstance {
     pub(crate) icd: ScannedIcd,
     pub(crate) handle: VkInstance,
