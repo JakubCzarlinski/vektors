@@ -29,6 +29,11 @@ __MACOSX
 
 *.svg
 registry/
+.upstream/vulkan-loader/
+.upstream/sascha-willems-vulkan/
+.upstream/vulkan-tools/
 *.log
+*.profraw
+vgcore.*
 *.dot
 .ropeproject
