@@ -14,6 +14,23 @@ use crate::parser::features::parse_feature;
 use crate::parser::types::parse_types;
 use roxmltree::Document;
 
+fn parse_platforms(node: roxmltree::Node<'_, '_>, registry: &mut Registry) {
+    for platform in node
+        .children()
+        .filter(|child| child.is_element() && child.tag_name().name() == "platform")
+    {
+        let Some(name) = platform.attribute("name") else {
+            continue;
+        };
+        let Some(protect) = platform.attribute("protect") else {
+            continue;
+        };
+        registry
+            .platforms
+            .insert(name.to_owned(), protect.to_owned());
+    }
+}
+
 /// Parses a registry from an XML string.
 ///
 /// Arguments:
@@ -28,6 +45,7 @@ pub fn parse_registry(xml: &str) -> Registry {
     let mut reg = Registry::default();
     for child in root.children().filter(roxmltree::Node::is_element) {
         match child.tag_name().name() {
+            "platforms" => parse_platforms(child, &mut reg),
             "types" => parse_types(child, &mut reg),
             "enums" => parse_enums_block(child, &mut reg),
             "commands" => parse_commands_block(child, &mut reg),
@@ -46,6 +64,9 @@ pub fn parse_registry(xml: &str) -> Registry {
 /// - `xml`: The XML representing additional definitions.
 pub fn merge_registry(base: &mut Registry, xml: &str) {
     let sec = parse_registry(xml);
+    for (name, protect) in sec.platforms {
+        base.platforms.entry(name).or_insert(protect);
+    }
     for (k, v) in sec.typedefs {
         base.typedefs.entry(k).or_insert(v);
     }
