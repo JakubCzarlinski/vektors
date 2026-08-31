@@ -149,7 +149,7 @@ impl LoaderInstance {
                     layer::terminator_get_instance_proc_addr,
                     layer::terminator_get_physical_device_proc_addr,
                     handle,
-                )
+                );
             };
         }
         instance
@@ -222,7 +222,7 @@ impl LoaderInstance {
                 gipa,
                 gpdpa,
                 handle,
-            )
+            );
         };
         self.chain_instance = handle;
     }
@@ -447,9 +447,9 @@ impl LoaderPhysicalDevice {
         instance: *const LoaderInstance,
         app_api_version: u32,
         native: VkPhysicalDevice,
-    ) -> Box<Self> {
+    ) -> Self {
         debug_assert!(!instance.is_null());
-        Box::new(Self {
+        Self {
             // SAFETY: `instance` is a live loader instance by construction.
             dispatch: unsafe { &*instance }.dispatch(),
             instance,
@@ -460,7 +460,7 @@ impl LoaderPhysicalDevice {
             native,
             // SAFETY: The ICD pointer targets stable storage owned by the instance.
             unknown_dispatch: unsafe { &*icd }.unknown_physical_device_dispatch.as_ptr(),
-        })
+        }
     }
 
     pub(crate) fn handle(&self) -> VkPhysicalDevice {
@@ -514,16 +514,16 @@ impl LoaderPhysicalDeviceTrampoline {
         instance: &LoaderInstance,
         chain: VkPhysicalDevice,
         terminator: VkPhysicalDevice,
-    ) -> Box<Self> {
+    ) -> Self {
         let unknown_dispatch = instance.unknown_physical_devices.lock().dispatch().as_ptr();
-        Box::new(Self {
+        Self {
             dispatch: instance.dispatch(),
             instance,
             magic: PHYSICAL_DEVICE_TRAMPOLINE_MAGIC,
             chain,
             terminator,
             unknown_dispatch,
-        })
+        }
     }
 
     pub(crate) fn handle(&self) -> VkPhysicalDevice {

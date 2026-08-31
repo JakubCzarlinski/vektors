@@ -4,6 +4,14 @@
 //! A Rust function cannot express the same contract because the command's
 //! integer, SIMD, and stack arguments are intentionally unknown.
 
+use crate::instance::LoaderInstance;
+#[cfg(any(
+    target_arch = "aarch64",
+    target_arch = "arm",
+    target_arch = "x86",
+    target_arch = "x86_64"
+))]
+use crate::instance::{LoaderPhysicalDevice, LoaderPhysicalDeviceTrampoline};
 #[cfg(any(
     target_arch = "aarch64",
     target_arch = "arm",
@@ -16,17 +24,7 @@ use core::{
     sync::atomic::{AtomicPtr, Ordering},
 };
 use std::ffi::CString;
-
 use vk::PFN_vkVoidFunction;
-
-use crate::instance::LoaderInstance;
-#[cfg(any(
-    target_arch = "aarch64",
-    target_arch = "arm",
-    target_arch = "x86",
-    target_arch = "x86_64"
-))]
-use crate::instance::{LoaderPhysicalDevice, LoaderPhysicalDeviceTrampoline};
 
 pub(crate) const MAX_UNKNOWN_COMMANDS: usize = 250;
 #[cfg(target_arch = "x86_64")]
@@ -774,6 +772,7 @@ unsafe extern "C" {
     target_arch = "x86",
     target_arch = "x86_64"
 ))]
+#[allow(clippy::unnecessary_wraps)] // `PFN_vkVoidFunction` is an optional function pointer.
 fn trampoline_function(index: usize) -> PFN_vkVoidFunction {
     debug_assert!(index < MAX_UNKNOWN_COMMANDS);
     // SAFETY: The assembly emits exactly one fixed-stride stub per slot.
@@ -790,6 +789,7 @@ fn trampoline_function(index: usize) -> PFN_vkVoidFunction {
     target_arch = "x86",
     target_arch = "x86_64"
 ))]
+#[allow(clippy::unnecessary_wraps)] // `PFN_vkVoidFunction` is an optional function pointer.
 fn terminator_function(index: usize) -> PFN_vkVoidFunction {
     debug_assert!(index < MAX_UNKNOWN_COMMANDS);
     // SAFETY: The assembly emits exactly one fixed-stride stub per slot.
@@ -806,6 +806,7 @@ fn terminator_function(index: usize) -> PFN_vkVoidFunction {
     target_arch = "x86",
     target_arch = "x86_64"
 ))]
+#[allow(clippy::unnecessary_wraps)] // `PFN_vkVoidFunction` is an optional function pointer.
 fn device_trampoline_function(index: usize) -> PFN_vkVoidFunction {
     debug_assert!(index < MAX_UNKNOWN_COMMANDS);
     // SAFETY: The assembly emits exactly one fixed-stride stub per slot.
@@ -889,6 +890,8 @@ unsafe extern "C" fn vk_loader_unknown_phys_terminator_error(
     )
 ))]
 mod tests {
+    #![allow(clippy::many_single_char_names)]
+
     use super::*;
     use crate::{device::UNKNOWN_DEVICE_DISPATCH_OFFSET, instance::LoaderPhysicalDeviceTrampoline};
     use vk::{VkDevice, VkPhysicalDevice};
@@ -911,7 +914,12 @@ mod tests {
         h: f32,
     }
 
-    fn checksum(handle: usize, arguments: Arguments) -> u64 {
+    #[repr(C)]
+    struct FakeDevice {
+        dispatch: *const usize,
+    }
+
+    fn checksum(handle: usize, arguments: &Arguments) -> u64 {
         (handle as u64)
             .rotate_left(7)
             .wrapping_add(u64::from(arguments.a))
@@ -937,7 +945,7 @@ mod tests {
     ) -> u64 {
         checksum(
             handle.0 as usize,
-            Arguments {
+            &Arguments {
                 a,
                 b,
                 c,
@@ -963,7 +971,7 @@ mod tests {
     ) -> u64 {
         checksum(
             handle.0 as usize,
-            Arguments {
+            &Arguments {
                 a,
                 b,
                 c,
@@ -976,12 +984,10 @@ mod tests {
         )
     }
 
-    fn erase_physical(function: PhysicalCommand) -> PFN_vkVoidFunction {
+    fn erase_physical(function: PhysicalCommand) -> unsafe extern "system" fn() {
         // SAFETY: Vulkan proc-address values erase the signature without changing
         // the function address; the caller restores this exact test signature.
-        Some(unsafe {
-            core::mem::transmute::<PhysicalCommand, unsafe extern "system" fn()>(function)
-        })
+        unsafe { core::mem::transmute::<PhysicalCommand, unsafe extern "system" fn()>(function) }
     }
 
     fn erase_device(function: DeviceCommand) -> *mut c_void {
@@ -1035,7 +1041,7 @@ mod tests {
     #[test]
     fn physical_trampoline_preserves_unknown_signature_and_unwraps_handle() {
         let dispatch = UnknownDispatchTable::new();
-        dispatch.store(SLOT, erase_physical(physical_target));
+        dispatch.store(SLOT, Some(erase_physical(physical_target)));
         let chain = VkPhysicalDevice(0x1234_5678usize as *mut c_void);
         let wrapper = LoaderPhysicalDeviceTrampoline::test_stub(chain, dispatch.as_ptr());
         let handle = VkPhysicalDevice(core::ptr::from_ref(&wrapper).cast_mut().cast());
@@ -1043,14 +1049,14 @@ mod tests {
         // SAFETY: `wrapper`, its dispatch storage, and the target are live.
         let actual = unsafe { call_physical(trampoline_function(SLOT), handle) };
         // SAFETY: Direct invocation supplies the same valid scalar arguments.
-        let expected = unsafe { call_physical(erase_physical(physical_target), chain) };
+        let expected = unsafe { call_physical(Some(erase_physical(physical_target)), chain) };
         assert_eq!(actual, expected);
     }
 
     #[test]
     fn physical_terminator_preserves_unknown_signature_and_unwraps_handle() {
         let dispatch = UnknownDispatchTable::new();
-        dispatch.store(SLOT, erase_physical(physical_target));
+        dispatch.store(SLOT, Some(erase_physical(physical_target)));
         let native = VkPhysicalDevice(0x7654_3210usize as *mut c_void);
         let wrapper = LoaderPhysicalDevice::test_stub(native, dispatch.as_ptr());
         let handle = VkPhysicalDevice(core::ptr::from_ref(&wrapper).cast_mut().cast());
@@ -1058,7 +1064,7 @@ mod tests {
         // SAFETY: `wrapper`, its dispatch storage, and the target are live.
         let actual = unsafe { call_physical(terminator_function(SLOT), handle) };
         // SAFETY: Direct invocation supplies the same valid scalar arguments.
-        let expected = unsafe { call_physical(erase_physical(physical_target), native) };
+        let expected = unsafe { call_physical(Some(erase_physical(physical_target)), native) };
         assert_eq!(actual, expected);
     }
 
@@ -1068,11 +1074,6 @@ mod tests {
         let slot = UNKNOWN_DEVICE_DISPATCH_OFFSET / size_of::<usize>() + SLOT;
         let mut dispatch = vec![0usize; slot + 1];
         dispatch[slot] = erase_device(device_target) as usize;
-
-        #[repr(C)]
-        struct FakeDevice {
-            dispatch: *const usize,
-        }
 
         let device = FakeDevice {
             dispatch: dispatch.as_ptr(),

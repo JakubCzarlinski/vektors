@@ -139,6 +139,7 @@ fn load_functions<F: Copy>(
 }
 
 const fn header(type_: u32, size: usize) -> ChainHeader {
+    assert!(size <= u32::MAX as usize);
     ChainHeader {
         type_,
         version: CURRENT_CHAIN_VERSION,
@@ -166,19 +167,19 @@ fn extension_name(property: &VkExtensionProperties) -> &[core::ffi::c_char] {
 
 fn push_extension(
     extensions: &mut Vec<VkExtensionProperties>,
-    property: VkExtensionProperties,
+    property: &VkExtensionProperties,
 ) -> Result<(), VkResult> {
     // `loader_add_to_ext_list` retains the first property for a duplicate name.
     if extensions
         .iter()
-        .any(|existing| extension_name(existing) == extension_name(&property))
+        .any(|existing| extension_name(existing) == extension_name(property))
     {
         return Ok(());
     }
     extensions
         .try_reserve(1)
         .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
-    extensions.push(property);
+    extensions.push(*property);
     Ok(())
 }
 
@@ -186,8 +187,13 @@ fn extension_property(name: &CStr, spec_version: u32) -> VkExtensionProperties {
     let mut property = VkExtensionProperties::DEFAULT;
     let bytes = name.to_bytes_with_nul();
     let count = bytes.len().min(property.extensionName.len());
-    for (destination, source) in property.extensionName.iter_mut().zip(&bytes[..count]) {
-        *destination = *source as core::ffi::c_char;
+    // SAFETY: Both element types occupy one byte and the slices have `count` entries.
+    unsafe {
+        core::ptr::copy_nonoverlapping(
+            bytes.as_ptr(),
+            property.extensionName.as_mut_ptr().cast(),
+            count,
+        );
     }
     if count == property.extensionName.len() {
         let last = property.extensionName.len() - 1;
@@ -223,7 +229,7 @@ fn append_manifest_extensions(
         visited[index] = true;
         let manifest = &manifests[index];
         for extension in &manifest.instance_extensions {
-            push_extension(extensions, layer_extension_property(extension))?;
+            push_extension(extensions, &layer_extension_property(extension))?;
         }
         for component in manifest.component_layers.iter().rev() {
             if let Some(index) = manifests
@@ -260,7 +266,7 @@ fn append_loader_extensions(extensions: &mut Vec<VkExtensionProperties>) -> Resu
         .try_reserve(LOADER_EXTENSIONS.len())
         .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
     for (name, spec_version) in LOADER_EXTENSIONS {
-        push_extension(extensions, extension_property(name, spec_version))?;
+        push_extension(extensions, &extension_property(name, spec_version))?;
     }
     Ok(())
 }
@@ -285,8 +291,7 @@ unsafe fn append_icd_extensions(
             if result != VkResult::SUCCESS {
                 return Err(result);
             }
-            let capacity =
-                usize::try_from(count).map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+            let capacity = count as usize;
             let mut properties = Vec::new();
             properties
                 .try_reserve_exact(capacity)
@@ -305,7 +310,7 @@ unsafe fn append_icd_extensions(
                 {
                     continue;
                 }
-                push_extension(extensions, property)?;
+                push_extension(extensions, &property)?;
             }
         }
         Ok(())
@@ -387,7 +392,7 @@ unsafe fn enumerate_extension_properties_from_manifests(
         {
             for extension in &manifest.instance_extensions {
                 if let Err(result) =
-                    push_extension(&mut extensions, layer_extension_property(extension))
+                    push_extension(&mut extensions, &layer_extension_property(extension))
                 {
                     return result;
                 }
@@ -406,7 +411,7 @@ unsafe fn enumerate_extension_properties_from_manifests(
             return result;
         }
     }
-    let total = u32::try_from(extensions.len()).unwrap_or(u32::MAX);
+    let total = extensions.len().min(u32::MAX as usize) as u32;
     if properties.is_null() {
         unsafe { property_count.write(total) };
         return VkResult::SUCCESS;
@@ -457,7 +462,7 @@ pub(crate) unsafe fn enumerate_extension_properties(
     let functions = match load_functions::<EnumerateExtensionProperties>(&manifests, |manifest| {
         manifest
             .pre_instance_functions
-            .enumerate_instance_extension_properties
+            .extension_properties
             .as_deref()
     }) {
         Ok(functions) => functions,
@@ -497,10 +502,7 @@ pub(crate) unsafe fn enumerate_layer_properties(
     let manifests = discover_implicit_layers();
     emit_layer_searches(&manifests);
     let functions = match load_functions::<EnumerateLayerProperties>(&manifests, |manifest| {
-        manifest
-            .pre_instance_functions
-            .enumerate_instance_layer_properties
-            .as_deref()
+        manifest.pre_instance_functions.layer_properties.as_deref()
     }) {
         Ok(functions) => functions,
         Err(result) => return result,
@@ -536,10 +538,7 @@ pub(crate) unsafe fn enumerate_version(api_version: *mut u32) -> VkResult {
     let manifests = discover_implicit_layers();
     emit_layer_searches(&manifests);
     let functions = match load_functions::<EnumerateVersion>(&manifests, |manifest| {
-        manifest
-            .pre_instance_functions
-            .enumerate_instance_version
-            .as_deref()
+        manifest.pre_instance_functions.version.as_deref()
     }) {
         Ok(functions) => functions,
         Err(result) => return result,
@@ -597,12 +596,12 @@ mod tests {
         let mut extensions = Vec::new();
         push_extension(
             &mut extensions,
-            extension_property(c"VK_EXT_debug_utils", 1),
+            &extension_property(c"VK_EXT_debug_utils", 1),
         )
         .unwrap();
         push_extension(
             &mut extensions,
-            extension_property(c"VK_EXT_debug_utils", 99),
+            &extension_property(c"VK_EXT_debug_utils", 99),
         )
         .unwrap();
 

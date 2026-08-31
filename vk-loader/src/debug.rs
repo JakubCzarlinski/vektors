@@ -45,7 +45,7 @@ unsafe fn checked_device(
 }
 
 unsafe fn translate_instance(device: &LoaderDevice, handle: u64) -> Option<u64> {
-    let address = usize::try_from(handle).ok()?;
+    let address = handle as usize;
     // SAFETY: Debug object metadata identifies this integer as a live instance handle.
     let instance = unsafe { LoaderInstance::from_handle(VkInstance(address as *mut c_void)) }?;
     let native = instance.icds.get(device.icd_index())?.handle;
@@ -53,7 +53,7 @@ unsafe fn translate_instance(device: &LoaderDevice, handle: u64) -> Option<u64> 
 }
 
 unsafe fn translate_physical_device(device: &LoaderDevice, handle: u64) -> Option<u64> {
-    let address = usize::try_from(handle).ok()?;
+    let address = handle as usize;
     // SAFETY: Debug object metadata identifies this integer as a live physical-device handle.
     let handle = VkPhysicalDevice(address as *mut c_void);
     let physical = if let Some(physical) = unsafe { LoaderPhysicalDevice::from_handle(handle) } {
@@ -73,13 +73,13 @@ unsafe fn translate_surface(device: &LoaderDevice, handle: u64) -> Option<u64> {
 }
 
 unsafe fn translate_instance_chain(handle: u64) -> Option<u64> {
-    let address = usize::try_from(handle).ok()?;
+    let address = handle as usize;
     let instance = unsafe { LoaderInstance::from_handle(VkInstance(address as *mut c_void)) }?;
     Some(instance.chain_handle().0 as usize as u64)
 }
 
 unsafe fn translate_physical_device_chain(handle: u64) -> Option<u64> {
-    let address = usize::try_from(handle).ok()?;
+    let address = handle as usize;
     let trampoline = unsafe {
         LoaderPhysicalDeviceTrampoline::from_handle(VkPhysicalDevice(address as *mut c_void))
     }?;
@@ -293,7 +293,7 @@ pub(crate) unsafe extern "system" fn terminator_vkSetDebugUtilsObjectTagEXT(
 /// # Safety
 ///
 /// Arguments must satisfy `vkDebugMarkerSetObjectTagEXT`'s Vulkan contract.
-pub unsafe extern "system" fn vkDebugMarkerSetObjectTagEXT(
+pub(crate) unsafe extern "system" fn vkDebugMarkerSetObjectTagEXT(
     device: VkDevice,
     tag_info: *const VkDebugMarkerObjectTagInfoEXT<'_>,
 ) -> VkResult {
@@ -327,7 +327,7 @@ pub unsafe extern "system" fn vkDebugMarkerSetObjectTagEXT(
 /// # Safety
 ///
 /// Arguments must satisfy `vkDebugMarkerSetObjectNameEXT`'s Vulkan contract.
-pub unsafe extern "system" fn vkDebugMarkerSetObjectNameEXT(
+pub(crate) unsafe extern "system" fn vkDebugMarkerSetObjectNameEXT(
     device: VkDevice,
     name_info: *const VkDebugMarkerObjectNameInfoEXT<'_>,
 ) -> VkResult {
@@ -361,7 +361,7 @@ pub unsafe extern "system" fn vkDebugMarkerSetObjectNameEXT(
 /// # Safety
 ///
 /// Arguments must satisfy `vkSetDebugUtilsObjectNameEXT`'s Vulkan contract.
-pub unsafe extern "system" fn vkSetDebugUtilsObjectNameEXT(
+pub(crate) unsafe extern "system" fn vkSetDebugUtilsObjectNameEXT(
     device: VkDevice,
     name_info: *const VkDebugUtilsObjectNameInfoEXT<'_>,
 ) -> VkResult {
@@ -395,7 +395,7 @@ pub unsafe extern "system" fn vkSetDebugUtilsObjectNameEXT(
 /// # Safety
 ///
 /// Arguments must satisfy `vkSetDebugUtilsObjectTagEXT`'s Vulkan contract.
-pub unsafe extern "system" fn vkSetDebugUtilsObjectTagEXT(
+pub(crate) unsafe extern "system" fn vkSetDebugUtilsObjectTagEXT(
     device: VkDevice,
     tag_info: *const VkDebugUtilsObjectTagInfoEXT<'_>,
 ) -> VkResult {

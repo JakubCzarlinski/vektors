@@ -65,14 +65,15 @@ impl OwnedCreateInfo {
         expected_structure_type: VkStructureType,
         callbacks: Option<&VkAllocationCallbacks<'static>>,
     ) -> Result<Self, VkResult> {
-        if source.is_null() {
-            return Err(VkResult::ERROR_INITIALIZATION_FAILED);
-        }
         const CHAIN_ALIGNMENT: usize = core::mem::size_of::<u64>();
 
         fn aligned_size(size: usize) -> Option<usize> {
             size.checked_add(CHAIN_ALIGNMENT - 1)
                 .map(|size| size & !(CHAIN_ALIGNMENT - 1))
+        }
+
+        if source.is_null() {
+            return Err(VkResult::ERROR_INITIALIZATION_FAILED);
         }
 
         // Surface create-info chains are retained because ICD objects are
@@ -356,15 +357,6 @@ unsafe fn create_passthrough_surface<T>(
     Ok(None)
 }
 
-#[cfg(not(any(target_os = "android", target_os = "ios")))]
-const unsafe fn create_passthrough_surface<T>(
-    _create_info: *const T,
-    _expected_structure_type: VkStructureType,
-    _instance_allocator: Option<&VkAllocationCallbacks<'static>>,
-) -> Result<Option<SurfaceState>, VkResult> {
-    Ok(None)
-}
-
 unsafe fn create_native_surface<T: Copy>(
     surface: &DeferredSurface,
     icd: &IcdInstance,
@@ -399,7 +391,8 @@ unsafe fn create_native_surface<T: Copy>(
 }
 
 fn surface_key(surface: VkSurfaceKHR) -> Option<usize> {
-    usize::try_from(surface.0).ok().filter(|key| *key != 0)
+    let key = surface.0 as usize;
+    (key != 0).then_some(key)
 }
 
 /// Creates a loader-owned surface whose ICD objects are materialized lazily.
@@ -429,9 +422,13 @@ pub(crate) unsafe fn create_loader_surface<T: Copy>(
     }
     // Android and iOS retain upstream's legacy loader-owned WSI ABI and never
     // invoke an ICD surface-creation command.
-    let loader_surface = match unsafe {
+    #[cfg(any(target_os = "android", target_os = "ios"))]
+    let passthrough = unsafe {
         create_passthrough_surface(create_info, expected_structure_type, instance.allocator())
-    } {
+    };
+    #[cfg(not(any(target_os = "android", target_os = "ios")))]
+    let passthrough = Ok(None);
+    let loader_surface = match passthrough {
         Ok(Some(surface)) => surface,
         Ok(None) => {
             // SAFETY: The platform create-info and optional callbacks are readable by contract.
@@ -675,13 +672,13 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceSuppor
     let Some(command) = device.icd().dispatch.vkGetPhysicalDeviceSurfaceSupportKHR else {
         return VkResult::SUCCESS;
     };
-    let native_surface =
-        match unsafe { native_surface(device.instance(), device.icd_index, surface) } {
-            Ok(surface) => surface,
-            // Upstream defines a platform-incompatible ICD as simply not supporting
-            // presentation for this surface.
-            Err(_) => return VkResult::SUCCESS,
-        };
+    let Ok(native_surface) =
+        (unsafe { native_surface(device.instance(), device.icd_index, surface) })
+    else {
+        // Upstream defines a platform-incompatible ICD as simply not supporting
+        // presentation for this surface.
+        return VkResult::SUCCESS;
+    };
     unsafe { command(device.native, queue_family_index, native_surface, supported) }
 }
 
@@ -723,7 +720,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceCapabi
     output.currentTransform = base.currentTransform;
     output.supportedCompositeAlpha = base.supportedCompositeAlpha;
     output.supportedUsageFlags = base.supportedUsageFlags;
-    output.supportedSurfaceCounters = Default::default();
+    output.supportedSurfaceCounters = vk::VkSurfaceCounterFlagBitsEXT::EMPTY;
     VkResult::SUCCESS
 }
 
@@ -788,9 +785,9 @@ unsafe fn emulate_surface_maintenance1(
                 // SAFETY: The matching sType determines the concrete node layout.
                 let scaling =
                     unsafe { &mut *next_out.cast::<VkSurfacePresentScalingCapabilitiesKHR<'_>>() };
-                scaling.supportedPresentScaling = Default::default();
-                scaling.supportedPresentGravityX = Default::default();
-                scaling.supportedPresentGravityY = Default::default();
+                scaling.supportedPresentScaling = vk::VkPresentScalingFlagBitsKHR::EMPTY;
+                scaling.supportedPresentGravityX = vk::VkPresentGravityFlagBitsKHR::EMPTY;
+                scaling.supportedPresentGravityY = vk::VkPresentGravityFlagBitsKHR::EMPTY;
                 // SAFETY: The root output structure is writable by contract.
                 let base = unsafe { &(*capabilities).surfaceCapabilities };
                 scaling.minScaledImageExtent = base.minImageExtent;
@@ -825,7 +822,7 @@ pub(crate) fn destroy_icd_surfaces(instance: &LoaderInstance, icd_index: usize) 
 ///
 /// `instance` and `surface` must identify a live parent/child pair.
 #[unsafe(no_mangle)]
-pub unsafe extern "system" fn vkDestroySurfaceKHR(
+pub(crate) unsafe extern "system" fn vkDestroySurfaceKHR(
     instance: VkInstance,
     surface: VkSurfaceKHR,
     allocator: *const VkAllocationCallbacks<'_>,
@@ -1002,7 +999,7 @@ pub(crate) unsafe extern "system" fn terminator_create_shared_swapchains(
 ///
 /// All arguments must satisfy `vkCreateSwapchainKHR`'s Vulkan contract.
 #[unsafe(no_mangle)]
-pub unsafe extern "system" fn vkCreateSwapchainKHR(
+pub(crate) unsafe extern "system" fn vkCreateSwapchainKHR(
     device: VkDevice,
     create_info: *const VkSwapchainCreateInfoKHR<'_>,
     allocator: *const VkAllocationCallbacks<'_>,
@@ -1025,7 +1022,7 @@ pub unsafe extern "system" fn vkCreateSwapchainKHR(
 ///
 /// Arguments must satisfy `vkCreateSharedSwapchainsKHR`'s Vulkan contract.
 #[unsafe(no_mangle)]
-pub unsafe extern "system" fn vkCreateSharedSwapchainsKHR(
+pub(crate) unsafe extern "system" fn vkCreateSharedSwapchainsKHR(
     device: VkDevice,
     swapchain_count: u32,
     create_infos: *const VkSwapchainCreateInfoKHR<'_>,
@@ -1049,7 +1046,7 @@ pub unsafe extern "system" fn vkCreateSharedSwapchainsKHR(
 ///
 /// Arguments must satisfy `vkGetDeviceGroupSurfacePresentModesKHR`'s contract.
 #[unsafe(no_mangle)]
-pub unsafe extern "system" fn vkGetDeviceGroupSurfacePresentModesKHR(
+pub(crate) unsafe extern "system" fn vkGetDeviceGroupSurfacePresentModesKHR(
     device: VkDevice,
     surface: VkSurfaceKHR,
     modes: *mut VkDeviceGroupPresentModeFlagsKHR,

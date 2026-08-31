@@ -531,3 +531,15 @@ features = [
   "VK_VERSION_1_4",
   # END GENERATED VULKAN FEATURES
 ]
+
+[lints.rust]
+deprecated = "allow"
+private_interfaces = "warn"
+unreachable_pub = "warn"
+
+[lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+cast_possible_truncation = "allow"
+cast_possible_wrap = "allow"
+cast_sign_loss = "allow"
+checked_conversions = "allow"

@@ -189,7 +189,7 @@ struct DeviceCreateSentinel {
 
 #[cold]
 #[inline(never)]
-fn fatal_layer_policy(message: String) -> ! {
+fn fatal_layer_policy(message: impl core::fmt::Display) -> ! {
     crate::platform::write_stderr(&format!("{message}\n"));
     // SAFETY: Fatal loader diagnostics terminate immediately, matching
     // upstream's C abort path.
@@ -445,10 +445,10 @@ pub(crate) fn implicit_manifest_is_active(manifest: &LayerManifest) -> bool {
         natural && !forced_disabled(manifest)
     };
     filtered
-        && !manifest
+        && manifest
             .disable_environment
             .as_ref()
-            .is_some_and(|environment| env::var_os(&environment.0).is_some())
+            .is_none_or(|environment| env::var_os(&environment.0).is_none())
 }
 
 fn available_layer_mask(manifests: &[LayerManifest]) -> Box<[bool]> {
@@ -517,7 +517,7 @@ fn emit_create_message(
     };
     // SAFETY: The caller's complete create-info chain is live during discovery.
     unsafe {
-        crate::debug_messenger::submit_instance_create_message(create_info, severity, &message)
+        crate::debug_messenger::submit_instance_create_message(create_info, severity, &message);
     };
 }
 
@@ -533,7 +533,7 @@ fn emit_layer_only_message(create_info: &VkInstanceCreateInfo<'_>, message: impl
             create_info,
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
             &message,
-        )
+        );
     };
 }
 
@@ -564,7 +564,7 @@ fn emit_layer_message(
     };
     // SAFETY: The create-info chain remains live throughout layer activation.
     unsafe {
-        crate::debug_messenger::submit_instance_create_message(create_info, severity, &message)
+        crate::debug_messenger::submit_instance_create_message(create_info, severity, &message);
     };
 }
 
@@ -1304,7 +1304,6 @@ fn activate_manifest(
 /// The device create info must satisfy Vulkan's string-array contract.
 // Vulkan-Loader intentionally reads these deprecated fields to diagnose legacy
 // device-layer usage; suppress deprecation only for this compatibility check.
-#[allow(deprecated)]
 pub(crate) unsafe fn has_mismatched_device_layers(
     instance_names: &[CString],
     create_info: &vk::VkDeviceCreateInfo<'_>,
@@ -1312,9 +1311,7 @@ pub(crate) unsafe fn has_mismatched_device_layers(
     if create_info.enabledLayerCount == 0 || create_info.ppEnabledLayerNames.is_null() {
         return false;
     }
-    let Ok(count) = usize::try_from(create_info.enabledLayerCount) else {
-        return true;
-    };
+    let count = create_info.enabledLayerCount as usize;
     if count != instance_names.len() {
         return true;
     }
@@ -1329,7 +1326,7 @@ pub(crate) unsafe fn has_mismatched_device_layers(
 
 pub(crate) unsafe extern "system" fn create_instance_terminator(
     create_info: *const VkInstanceCreateInfo<'_>,
-    _allocator: *const vk::VkAllocationCallbacks<'_>,
+    allocator: *const vk::VkAllocationCallbacks<'_>,
     instance: *mut vk::VkInstance,
 ) -> VkResult {
     if instance.is_null() {
@@ -1342,7 +1339,7 @@ pub(crate) unsafe extern "system" fn create_instance_terminator(
     let returned = unsafe { instance.read() };
     if returned == vk::VkInstance::NULL {
         fatal_layer_policy(
-            "terminator_CreateInstance: Loader instance pointer null encountered.  Possibly set by active layer. (Policy #LLP_LAYER_21)".into(),
+            "terminator_CreateInstance: Loader instance pointer null encountered.  Possibly set by active layer. (Policy #LLP_LAYER_21)",
         );
     }
     let magic = unsafe { crate::instance::LoaderInstance::internal_magic(returned) }.unwrap_or(0);
@@ -1362,7 +1359,7 @@ pub(crate) unsafe extern "system" fn create_instance_terminator(
     };
     // SAFETY: The layer chain retains the effective create info and allocator
     // for this synchronous call, and `loader` is the pending instance box.
-    let result = unsafe { crate::create_pending_icd_instances(loader, &*create_info, _allocator) };
+    let result = unsafe { crate::create_pending_icd_instances(loader, &*create_info, allocator) };
     if result != VkResult::SUCCESS {
         return result;
     }
@@ -1389,7 +1386,7 @@ unsafe extern "system" fn set_instance_loader_data(
     unsafe {
         object
             .cast::<*const crate::LayerInstanceDispatchTable>()
-            .write(instance.dispatch())
+            .write(instance.dispatch());
     };
     VkResult::SUCCESS
 }
@@ -1426,7 +1423,7 @@ unsafe extern "system" fn layer_create_device_callback(
             next_gdpa.write(loader.layers.get(first).map_or(
                 terminator_get_device_proc_addr as PFN_vkGetDeviceProcAddr,
                 |layer| layer.get_device_proc_addr,
-            ))
+            ));
         };
     }
     unsafe {
@@ -1629,7 +1626,7 @@ fn device_extension_property(extension: &LayerExtension) -> VkExtensionPropertie
 
 fn append_unique_device_extension(
     extensions: &mut Vec<VkExtensionProperties>,
-    extension: VkExtensionProperties,
+    extension: &VkExtensionProperties,
 ) -> Result<(), VkResult> {
     // `loader_add_to_ext_list` keeps the property encountered first.
     if extensions
@@ -1641,7 +1638,7 @@ fn append_unique_device_extension(
     extensions
         .try_reserve(1)
         .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
-    extensions.push(extension);
+    extensions.push(*extension);
     Ok(())
 }
 
@@ -1669,7 +1666,7 @@ fn named_layer_device_extensions(name: &CStr) -> Result<Vec<VkExtensionPropertie
         visited[index] = true;
         let manifest = &manifests[index];
         for extension in &manifest.device_extensions {
-            append_unique_device_extension(&mut extensions, device_extension_property(extension))?;
+            append_unique_device_extension(&mut extensions, &device_extension_property(extension))?;
         }
         for component in manifest.component_layers.iter().rev() {
             if let Some(index) = manifests
@@ -1694,7 +1691,7 @@ unsafe fn enumerate_named_layer_device_extensions(
         Ok(extensions) => extensions,
         Err(result) => return result,
     };
-    let total = u32::try_from(extensions.len()).unwrap_or(u32::MAX);
+    let total = extensions.len().min(u32::MAX as usize) as u32;
     if properties.is_null() {
         unsafe { property_count.write(total) };
         return VkResult::SUCCESS;
@@ -1777,10 +1774,7 @@ unsafe fn enumerate_icd_device_extensions(
     if result != VkResult::SUCCESS {
         return result;
     }
-    let capacity = match usize::try_from(count) {
-        Ok(capacity) => capacity,
-        Err(_) => return VkResult::ERROR_OUT_OF_HOST_MEMORY,
-    };
+    let capacity = count as usize;
     let mut extensions = Vec::new();
     if extensions.try_reserve_exact(capacity).is_err() {
         return VkResult::ERROR_OUT_OF_HOST_MEMORY;
@@ -1807,13 +1801,13 @@ unsafe fn enumerate_icd_device_extensions(
         for extension in &layer.device_extensions {
             if let Err(result) = append_unique_device_extension(
                 &mut extensions,
-                device_extension_property(extension),
+                &device_extension_property(extension),
             ) {
                 return result;
             }
         }
     }
-    unsafe { property_count.write(u32::try_from(extensions.len()).unwrap_or(u32::MAX)) };
+    unsafe { property_count.write(extensions.len().min(u32::MAX as usize) as u32) };
     VkResult::SUCCESS
 }
 
@@ -1848,7 +1842,7 @@ pub(crate) unsafe fn enumerate_active_device_layers(
     property_count: *mut u32,
     properties: *mut vk::VkLayerProperties,
 ) -> VkResult {
-    let total = u32::try_from(layers.len()).unwrap_or(u32::MAX);
+    let total = layers.len().min(u32::MAX as usize) as u32;
     if properties.is_null() {
         unsafe { property_count.write(total) };
         return VkResult::SUCCESS;
@@ -1863,7 +1857,9 @@ pub(crate) unsafe fn enumerate_active_device_layers(
         property.implementationVersion = layer.implementation_version;
         unsafe { properties.add(index).write(property) };
     }
-    unsafe { property_count.write(written as u32) };
+    unsafe {
+        property_count.write(written as u32);
+    };
     if written < layers.len() {
         VkResult::INCOMPLETE
     } else {
@@ -1900,7 +1896,7 @@ pub(crate) unsafe fn enumerate_instance_layers(
                 .then(|| manifest.manifest_path.clone()),
         ))
     });
-    let total = u32::try_from(manifests.len()).unwrap_or(u32::MAX);
+    let total = manifests.len().min(u32::MAX as usize) as u32;
     if properties.is_null() {
         unsafe { property_count.write(total) };
         return VkResult::SUCCESS;
@@ -1915,7 +1911,9 @@ pub(crate) unsafe fn enumerate_instance_layers(
         property.implementationVersion = manifest.implementation_version;
         unsafe { properties.add(index).write(property) };
     }
-    unsafe { property_count.write(written as u32) };
+    unsafe {
+        property_count.write(written as u32);
+    };
     if written < manifests.len() {
         VkResult::INCOMPLETE
     } else {
@@ -1926,8 +1924,9 @@ pub(crate) unsafe fn enumerate_instance_layers(
 fn copy_c_string<const N: usize>(source: &CStr, destination: &mut [c_char; N]) {
     let bytes = source.to_bytes_with_nul();
     let count = bytes.len().min(N);
-    for (target, byte) in destination.iter_mut().zip(&bytes[..count]) {
-        *target = *byte as c_char;
+    // SAFETY: Both element types occupy one byte and the slices have `count` entries.
+    unsafe {
+        core::ptr::copy_nonoverlapping(bytes.as_ptr(), destination.as_mut_ptr().cast(), count);
     }
     if count == N {
         destination[N - 1] = 0;
@@ -2061,15 +2060,11 @@ pub(crate) unsafe fn create_instance_chain(
 }
 
 fn extension_property_name(property: &VkExtensionProperties) -> Option<CString> {
-    let bytes = property.extensionName.as_slice();
+    let chars = property.extensionName.as_slice();
+    // SAFETY: `c_char` is exactly one byte on every supported C ABI.
+    let bytes = unsafe { core::slice::from_raw_parts(chars.as_ptr().cast::<u8>(), chars.len()) };
     let end = bytes.iter().position(|byte| *byte == 0)?;
-    CString::new(
-        bytes[..end]
-            .iter()
-            .map(|byte| *byte as u8)
-            .collect::<Vec<_>>(),
-    )
-    .ok()
+    CString::new(&bytes[..end]).ok()
 }
 
 /// Collects device extensions advertised by active layer manifests and code.
@@ -2117,7 +2112,7 @@ pub(crate) unsafe fn available_device_extensions(
     if result != VkResult::SUCCESS {
         return Err(result);
     }
-    let capacity = usize::try_from(count).map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+    let capacity = count as usize;
     let mut properties = Box::<[VkExtensionProperties]>::new_uninit_slice(capacity);
     let mut returned = count;
     // SAFETY: `properties` has `capacity` writable entries.
@@ -2190,7 +2185,7 @@ unsafe fn create_device_chain_from(
     let mut links = Box::<[LayerDeviceLink]>::new_uninit_slice(count);
     let links_ptr = links.as_mut_ptr().cast::<LayerDeviceLink>();
     for index in (0..count).rev() {
-        let (next_gipa, next_gdpa) = layers.get(index + 1).map_or(
+        let (next_instance_proc_addr, next_device_proc_addr) = layers.get(index + 1).map_or(
             (
                 terminator_get_instance_proc_addr as PFN_vkGetInstanceProcAddr,
                 terminator_get_device_proc_addr as PFN_vkGetDeviceProcAddr,
@@ -2205,8 +2200,8 @@ unsafe fn create_device_chain_from(
                 } else {
                     links_ptr.add(index + 1)
                 },
-                next_get_instance_proc_addr: next_gipa,
-                next_get_device_proc_addr: next_gdpa,
+                next_get_instance_proc_addr: next_instance_proc_addr,
+                next_get_device_proc_addr: next_device_proc_addr,
             });
         }
     }
@@ -2245,7 +2240,7 @@ unsafe fn create_device_chain_from(
     let mut created_device = vk::VkDevice(sentinel_address as *mut c_void);
     crate::pending::push_device_sentinel(sentinel_address);
     crate::pending::push_created_device_slot();
-    let (top_gipa, top_gdpa) = layers.first().map_or(
+    let (top_instance_proc_addr, top_device_proc_addr) = layers.first().map_or(
         (
             terminator_get_instance_proc_addr as PFN_vkGetInstanceProcAddr,
             terminator_get_device_proc_addr as PFN_vkGetDeviceProcAddr,
@@ -2254,7 +2249,7 @@ unsafe fn create_device_chain_from(
     );
     // SAFETY: The negotiated layer/terminator GIPA returns Vulkan ABI function pointers.
     let create: Option<vk::PFN_vkCreateDevice> = unsafe {
-        crate::load_typed(top_gipa(
+        crate::load_typed(top_instance_proc_addr(
             instance.chain_handle(),
             c"vkCreateDevice".as_ptr(),
         ))
@@ -2287,7 +2282,7 @@ unsafe fn create_device_chain_from(
         };
         // SAFETY: Device creation has not returned to the application and the
         // top layer returned this live chain handle.
-        unsafe { device.set_chain(created_device, top_gdpa) };
+        unsafe { device.set_chain(created_device, top_device_proc_addr) };
         // The public output is committed only after the full create chain and
         // dispatch initialization complete successfully, matching upstream.
         unsafe { output.write(created_device) };
@@ -2313,7 +2308,7 @@ pub(crate) unsafe fn validate_pending_device_output(output: *mut vk::VkDevice) {
     let returned = unsafe { output.read() };
     if returned == vk::VkDevice::NULL {
         fatal_layer_policy(
-            "terminator_CreateDevice: Loader device pointer null encountered.  Possibly set by active layer. (Policy #LLP_LAYER_22)".into(),
+            "terminator_CreateDevice: Loader device pointer null encountered.  Possibly set by active layer. (Policy #LLP_LAYER_22)",
         );
     }
     if returned.0 as usize != expected {
@@ -2342,7 +2337,7 @@ mod tests {
         let mut extensions = Vec::new();
         append_unique_device_extension(
             &mut extensions,
-            device_extension_property(&LayerExtension {
+            &device_extension_property(&LayerExtension {
                 name: c"VK_EXT_debug_marker".to_owned(),
                 spec_version: 1,
                 entrypoints: Box::default(),
@@ -2351,7 +2346,7 @@ mod tests {
         .unwrap();
         append_unique_device_extension(
             &mut extensions,
-            device_extension_property(&LayerExtension {
+            &device_extension_property(&LayerExtension {
                 name: c"VK_EXT_debug_marker".to_owned(),
                 spec_version: 99,
                 entrypoints: Box::default(),
