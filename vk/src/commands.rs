@@ -10646,7 +10646,7 @@ pub type PFN_vkCmdSetAttachmentFeedbackLoopEnableEXT =
 /// - `blendConstants`
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 pub type PFN_vkCmdSetBlendConstants =
-  unsafe extern "system" fn(commandBuffer: VkCommandBuffer, blendConstants: [f32; 4]);
+  unsafe extern "system" fn(commandBuffer: VkCommandBuffer, blendConstants: &[f32; 4]);
 /// [`vkCmdSetCheckpointNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkCmdSetCheckpointNV.html)
 ///
 /// Provided by:
@@ -11611,7 +11611,7 @@ pub type PFN_vkCmdSetExtraPrimitiveOverestimationSizeEXT =
 pub type PFN_vkCmdSetFragmentShadingRateEnumNV = unsafe extern "system" fn(
   commandBuffer: VkCommandBuffer,
   shadingRate: VkFragmentShadingRateNV,
-  combinerOps: [VkFragmentShadingRateCombinerOpKHR; 2],
+  combinerOps: &[VkFragmentShadingRateCombinerOpKHR; 2],
 );
 /// [`vkCmdSetFragmentShadingRateKHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkCmdSetFragmentShadingRateKHR.html)
 ///
@@ -11630,7 +11630,7 @@ pub type PFN_vkCmdSetFragmentShadingRateEnumNV = unsafe extern "system" fn(
 pub type PFN_vkCmdSetFragmentShadingRateKHR = unsafe extern "system" fn(
   commandBuffer: VkCommandBuffer,
   pFragmentSize: *const VkExtent2D,
-  combinerOps: [VkFragmentShadingRateCombinerOpKHR; 2],
+  combinerOps: &[VkFragmentShadingRateCombinerOpKHR; 2],
 );
 /// [`vkCmdSetFrontFace`](https://docs.vulkan.org/refpages/latest/refpages/source/vkCmdSetFrontFace.html)
 ///

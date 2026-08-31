@@ -743,13 +743,9 @@ pub fn param_sig_type(m: &Member) -> TokenStream {
         && m.len.is_none()
         && (m.ty.base != "void" || m.ty.pointer_depth > 1)
     {
-        let base = if m.ty.pointer_depth == 1 {
-            base_type_tokens(&m.ty.base)
-        } else {
-            let mut inner = m.ty.clone();
-            inner.pointer_depth -= 1;
-            ctype_to_tokens(&inner)
-        };
+        let mut inner = m.ty.clone();
+        inner.pointer_depth -= 1;
+        let base = ctype_to_tokens(&inner);
         if m.ty.is_const {
             quote! { &#base }
         } else {
@@ -767,18 +763,37 @@ pub fn param_sig_type_for_registry(m: &Member, reg: &Registry) -> TokenStream {
         && m.len.is_none()
         && (m.ty.base != "void" || m.ty.pointer_depth > 1)
     {
-        let base = if m.ty.pointer_depth == 1 {
-            base_type_tokens_for_registry(&m.ty.base, reg, quote! { '_ })
-        } else {
-            let mut inner = m.ty.clone();
-            inner.pointer_depth -= 1;
-            ctype_to_tokens_for_registry(&inner, reg, quote! { '_ })
-        };
+        let mut inner = m.ty.clone();
+        inner.pointer_depth -= 1;
+        let base = ctype_to_tokens_for_registry(&inner, reg, quote! { '_ });
         if m.ty.is_const {
             quote! { &#base }
         } else {
             quote! { &mut #base }
         }
+    } else {
+        ctype_to_tokens_for_registry(&m.ty, reg, quote! { '_ })
+    }
+}
+
+/// Returns the ABI-facing type of a Vulkan command parameter.
+///
+/// Required, single-pointer `const T parameter[N]` declarations use a Rust
+/// reference to the complete array. References and raw pointers are both thin
+/// for sized pointees, while the reference retains the registry's fixed extent.
+/// Parameters whose C contract permits null or mutation remain raw pointers.
+#[must_use]
+pub fn command_param_abi_type_for_registry(m: &Member, reg: &Registry) -> TokenStream {
+    if m.ty.is_array.is_some()
+        && m.ty.pointer_depth == 1
+        && m.ty.is_const
+        && m.len.is_none()
+        && matches!(m.optional, Optional::False | Optional::FalseTrue)
+    {
+        let mut inner = m.ty.clone();
+        inner.pointer_depth = 0;
+        let array = ctype_to_tokens_for_registry(&inner, reg, quote! { '_ });
+        quote! { &#array }
     } else {
         ctype_to_tokens_for_registry(&m.ty, reg, quote! { '_ })
     }

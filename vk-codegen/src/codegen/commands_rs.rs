@@ -1,7 +1,7 @@
 use crate::cfggen::cfg_availability;
 use crate::codegen::utils::{
-    ExplicitImports, create_doc, ctype_to_tokens_for_registry, resolve_alias,
-    rewrite_command_types_for_providers,
+    ExplicitImports, command_param_abi_type_for_registry, create_doc, ctype_to_tokens_for_registry,
+    resolve_alias, rewrite_command_types_for_providers,
 };
 use crate::codegen::{deprecate_attr, pretty, sanitize_ident};
 use crate::ir::{Command, Registry};
@@ -80,7 +80,7 @@ pub fn gen_commands_rs(reg: &Registry) -> String {
         let mut params = TokenStream::new();
         for p in &sig_cmd.params {
             let pname = format_ident!("{}", sanitize_ident(&p.name));
-            let pty: TokenStream = ctype_to_tokens_for_registry(&p.ty, reg, quote! { '_ });
+            let pty = command_param_abi_type_for_registry(p, reg);
             params.extend(quote! { #pname: #pty, });
         }
 

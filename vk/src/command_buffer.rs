@@ -9969,7 +9969,7 @@ impl<'dev> CommandBuffer<'dev> {
   /// - `blendConstants`
   #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
   #[inline(always)]
-  pub fn vkCmdSetBlendConstants(&self, blendConstants: [f32; 4]) {
+  pub fn vkCmdSetBlendConstants(&self, blendConstants: &[f32; 4]) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
       (self.table).vkCmdSetBlendConstants.unwrap_unchecked()(self.raw, blendConstants)
@@ -12501,7 +12501,7 @@ impl<'dev> CommandBuffer<'dev> {
   pub fn vkCmdSetFragmentShadingRateKHR(
     &self,
     pFragmentSize: &VkExtent2D,
-    combinerOps: [VkFragmentShadingRateCombinerOpKHR; 2],
+    combinerOps: &[VkFragmentShadingRateCombinerOpKHR; 2],
   ) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
@@ -13521,7 +13521,7 @@ impl<'dev> CommandBuffer<'dev> {
   pub fn vkCmdSetFragmentShadingRateEnumNV(
     &self,
     shadingRate: VkFragmentShadingRateNV,
-    combinerOps: [VkFragmentShadingRateCombinerOpKHR; 2],
+    combinerOps: &[VkFragmentShadingRateCombinerOpKHR; 2],
   ) {
     unsafe {
       // SAFETY: table is fully loaded at creation.
