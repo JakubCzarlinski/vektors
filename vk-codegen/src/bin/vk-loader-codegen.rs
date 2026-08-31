@@ -1916,7 +1916,11 @@ fn main() {
     });
 
     let syntax = syn::parse2::<syn::File>(generated).expect("generated loader source must parse");
-    fs::write(output_path, prettyplease::unparse(&syntax)).expect("write generated loader source");
+    let formatted = prettyplease::unparse(&syntax);
+    let mut output = String::with_capacity(formatted.len() + 80);
+    output.push_str("// Generated from registry/vk.xml by vk-loader-codegen. Do not edit.\n\n");
+    output.push_str(&formatted);
+    fs::write(output_path, output).expect("write generated loader source");
 }
 
 fn update_loader_features(cargo_path: &PathBuf, registry: &vk_codegen::ir::Registry) {

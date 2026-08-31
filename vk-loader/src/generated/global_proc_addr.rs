@@ -1,3 +1,5 @@
+// Generated from registry/vk.xml by vk-loader-codegen. Do not edit.
+
 pub(crate) fn global_proc_addr(name: &CStr) -> PFN_vkVoidFunction {
     match name.to_bytes() {
         b"vkCreateInstance" => {
