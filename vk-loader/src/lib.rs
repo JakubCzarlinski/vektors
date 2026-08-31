@@ -2246,7 +2246,6 @@ impl IdFilters {
     }
 }
 
-#[repr(C)]
 struct IdFilterPropertyStorage {
     basic: vk::VkPhysicalDeviceProperties,
     properties2: vk::VkPhysicalDeviceProperties2<'static>,
@@ -3201,7 +3200,6 @@ struct NativePhysicalDevice {
     handle: VkPhysicalDevice,
 }
 
-#[repr(C)]
 struct DeviceConfigurationProperties {
     properties: vk::VkPhysicalDeviceProperties2<'static>,
     identifiers: vk::VkPhysicalDeviceIDProperties<'static>,
@@ -3219,7 +3217,6 @@ struct LinuxSortedDeviceInfo {
     original_order: usize,
 }
 
-#[repr(C)]
 struct LinuxSortPropertyStorage {
     basic: vk::VkPhysicalDeviceProperties,
     properties2: vk::VkPhysicalDeviceProperties2<'static>,
