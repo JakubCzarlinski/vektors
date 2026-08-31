@@ -1,23 +1,24 @@
 //! Loader emulation for `VK_KHR_get_display_properties2` commands.
 
 use alloc::vec::Vec;
-use core::{ffi::c_void, mem::MaybeUninit};
+use core::mem::MaybeUninit;
 
 use crate::instance::LoaderPhysicalDevice;
 
-unsafe fn emulate_array<T: Copy>(
-    count: *mut u32,
-    output: *mut c_void,
-    call: impl FnOnce(*mut u32, *mut T) -> vk::VkResult,
-    mut write: impl FnMut(usize, T),
+unsafe fn emulate_array<T: Copy, U>(
+    count: &mut u32,
+    output: Option<&mut [U]>,
+    call: impl FnOnce(&mut u32, *mut T) -> vk::VkResult,
+    mut write: impl FnMut(&mut U, T),
 ) -> vk::VkResult {
-    if count.is_null() {
-        return vk::VkResult::ERROR_INITIALIZATION_FAILED;
-    }
-    let capacity = unsafe { count.read() } as usize;
-    if output.is_null() || capacity == 0 {
+    let Some(output) = output else {
+        return call(count, core::ptr::null_mut());
+    };
+    let capacity = output.len();
+    if capacity == 0 {
         return call(count, core::ptr::null_mut());
     }
+    // TODO(czarlinski): Investigate a bounded alloca-style path to match upstream's stack allocation.
     let mut temporary = Vec::<MaybeUninit<T>>::new();
     if temporary.try_reserve_exact(capacity).is_err() {
         return vk::VkResult::ERROR_OUT_OF_HOST_MEMORY;
@@ -29,9 +30,9 @@ unsafe fn emulate_array<T: Copy>(
     if result.0 < 0 {
         return result;
     }
-    let written = (unsafe { count.read() } as usize).min(capacity);
-    for (index, property) in temporary.into_iter().take(written).enumerate() {
-        write(index, unsafe { property.assume_init() });
+    let written = (*count as usize).min(capacity);
+    for (output, property) in output.iter_mut().zip(temporary).take(written) {
+        write(output, unsafe { property.assume_init() });
     }
     result
 }
@@ -41,6 +42,11 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceDisplayProper
     count: *mut u32,
     output: *mut vk::VkDisplayProperties2KHR<'_>,
 ) -> vk::VkResult {
+    if count.is_null() {
+        return vk::VkResult::ERROR_INITIALIZATION_FAILED;
+    }
+    // SAFETY: The Vulkan contract requires writable count storage.
+    let count = unsafe { &mut *count };
     let Some(device) = (unsafe { LoaderPhysicalDevice::from_handle(physical_device) }) else {
         return vk::VkResult::ERROR_INITIALIZATION_FAILED;
     };
@@ -56,9 +62,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceDisplayProper
         .dispatch
         .vkGetPhysicalDeviceDisplayPropertiesKHR
     else {
-        if !count.is_null() {
-            unsafe { count.write(0) };
-        }
+        *count = 0;
         return vk::VkResult::SUCCESS;
     };
     device.instance().submit_loader_message(
@@ -66,12 +70,15 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceDisplayProper
         vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
         c"vkGetPhysicalDeviceDisplayProperties2KHR: Emulating call in ICD",
     );
+    // SAFETY: A non-null Vulkan enumeration output points to `count` writable elements.
+    let output = (!output.is_null())
+        .then(|| unsafe { core::slice::from_raw_parts_mut(output, *count as usize) });
     unsafe {
         emulate_array(
             count,
-            output.cast(),
+            output,
             |count, temporary| command(device.native, count, temporary),
-            |index, property| (*output.add(index)).displayProperties = property,
+            |output, property| output.displayProperties = property,
         )
     }
 }
@@ -81,6 +88,11 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceDisplayPlaneP
     count: *mut u32,
     output: *mut vk::VkDisplayPlaneProperties2KHR<'_>,
 ) -> vk::VkResult {
+    if count.is_null() {
+        return vk::VkResult::ERROR_INITIALIZATION_FAILED;
+    }
+    // SAFETY: The Vulkan contract requires writable count storage.
+    let count = unsafe { &mut *count };
     let Some(device) = (unsafe { LoaderPhysicalDevice::from_handle(physical_device) }) else {
         return vk::VkResult::ERROR_INITIALIZATION_FAILED;
     };
@@ -96,9 +108,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceDisplayPlaneP
         .dispatch
         .vkGetPhysicalDeviceDisplayPlanePropertiesKHR
     else {
-        if !count.is_null() {
-            unsafe { count.write(0) };
-        }
+        *count = 0;
         return vk::VkResult::SUCCESS;
     };
     device.instance().submit_loader_message(
@@ -106,12 +116,15 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceDisplayPlaneP
         vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
         c"vkGetPhysicalDeviceDisplayPlaneProperties2KHR: Emulating call in ICD",
     );
+    // SAFETY: A non-null Vulkan enumeration output points to `count` writable elements.
+    let output = (!output.is_null())
+        .then(|| unsafe { core::slice::from_raw_parts_mut(output, *count as usize) });
     unsafe {
         emulate_array(
             count,
-            output.cast(),
+            output,
             |count, temporary| command(device.native, count, temporary),
-            |index, property| (*output.add(index)).displayPlaneProperties = property,
+            |output, property| output.displayPlaneProperties = property,
         )
     }
 }
@@ -122,6 +135,11 @@ pub(crate) unsafe extern "system" fn terminator_vkGetDisplayModeProperties2KHR(
     count: *mut u32,
     output: *mut vk::VkDisplayModeProperties2KHR<'_>,
 ) -> vk::VkResult {
+    if count.is_null() {
+        return vk::VkResult::ERROR_INITIALIZATION_FAILED;
+    }
+    // SAFETY: The Vulkan contract requires writable count storage.
+    let count = unsafe { &mut *count };
     let Some(device) = (unsafe { LoaderPhysicalDevice::from_handle(physical_device) }) else {
         return vk::VkResult::ERROR_INITIALIZATION_FAILED;
     };
@@ -129,9 +147,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetDisplayModeProperties2KHR(
         return unsafe { command(device.native, display, count, output) };
     }
     let Some(command) = device.icd().dispatch.vkGetDisplayModePropertiesKHR else {
-        if !count.is_null() {
-            unsafe { count.write(0) };
-        }
+        *count = 0;
         return vk::VkResult::SUCCESS;
     };
     device.instance().submit_loader_message(
@@ -139,12 +155,15 @@ pub(crate) unsafe extern "system" fn terminator_vkGetDisplayModeProperties2KHR(
         vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
         c"vkGetDisplayModeProperties2KHR: Emulating call in ICD",
     );
+    // SAFETY: A non-null Vulkan enumeration output points to `count` writable elements.
+    let output = (!output.is_null())
+        .then(|| unsafe { core::slice::from_raw_parts_mut(output, *count as usize) });
     unsafe {
         emulate_array(
             count,
-            output.cast(),
+            output,
             |count, temporary| command(device.native, display, count, temporary),
-            |index, property| (*output.add(index)).displayModeProperties = property,
+            |output, property| output.displayModeProperties = property,
         )
     }
 }
@@ -157,6 +176,9 @@ pub(crate) unsafe extern "system" fn terminator_vkGetDisplayPlaneCapabilities2KH
     if info.is_null() || output.is_null() {
         return vk::VkResult::ERROR_INITIALIZATION_FAILED;
     }
+    // SAFETY: Both pointers were validated and remain live for this call.
+    let info = unsafe { &*info };
+    let output = unsafe { &mut *output };
     let Some(device) = (unsafe { LoaderPhysicalDevice::from_handle(physical_device) }) else {
         return vk::VkResult::ERROR_INITIALIZATION_FAILED;
     };
@@ -164,7 +186,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetDisplayPlaneCapabilities2KH
         return unsafe { command(device.native, info, output) };
     }
     let Some(command) = device.icd().dispatch.vkGetDisplayPlaneCapabilitiesKHR else {
-        unsafe { (*output).capabilities = vk::VkDisplayPlaneCapabilitiesKHR::DEFAULT };
+        output.capabilities = vk::VkDisplayPlaneCapabilitiesKHR::DEFAULT;
         return vk::VkResult::SUCCESS;
     };
     device.instance().submit_loader_message(
@@ -175,9 +197,9 @@ pub(crate) unsafe extern "system" fn terminator_vkGetDisplayPlaneCapabilities2KH
     unsafe {
         command(
             device.native,
-            (*info).mode,
-            (*info).planeIndex,
-            &raw mut (*output).capabilities,
+            info.mode,
+            info.planeIndex,
+            &raw mut output.capabilities,
         )
     }
 }

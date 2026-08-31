@@ -1531,6 +1531,8 @@ pub unsafe extern "system" fn vkCreateDevice(
     if create_info.is_null() || device.is_null() {
         return VkResult::ERROR_INITIALIZATION_FAILED;
     }
+    // SAFETY: The Vulkan entry-point contract requires readable create info.
+    let create_info = unsafe { &*create_info };
     let trampoline = unsafe { LoaderPhysicalDeviceTrampoline::from_handle(physical_device) }
         .unwrap_or_else(|| {
             fatal_loader_error(
@@ -1545,8 +1547,7 @@ pub unsafe extern "system" fn vkCreateDevice(
                 c"vkCreateDevice: Invalid physicalDevice [VUID-vkCreateDevice-physicalDevice-parameter]",
             )
         });
-    if unsafe { layer::has_mismatched_device_layers(&instance.enabled_layer_names, &*create_info) }
-    {
+    if unsafe { layer::has_mismatched_device_layers(&instance.enabled_layer_names, create_info) } {
         instance.submit_loader_message(
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
             vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
@@ -1562,7 +1563,7 @@ pub unsafe extern "system" fn vkCreateDevice(
             Err(result) => return result,
         };
     let extension_token = pending::push_device_extensions(&layer_extensions);
-    let mut chain_create_info = unsafe { *create_info };
+    let mut chain_create_info = *create_info;
     // Translate application trampoline handles embedded in device-group
     // create info to the corresponding top-of-instance-chain handles.
     let group_patch = match unsafe {
@@ -1670,7 +1671,9 @@ pub(crate) unsafe extern "system" fn create_device_terminator(
     if create_info.is_null() || device.is_null() {
         return VkResult::ERROR_INITIALIZATION_FAILED;
     }
-    unsafe { layer::validate_pending_device_output(device) };
+    // SAFETY: The device-create contract requires readable create info.
+    let create_info = unsafe { &*create_info };
+    unsafe { layer::validate_pending_device_output(&mut *device) };
     // SAFETY: A non-null physical device supplied by the chain must be live.
     let Some(physical_device) = (unsafe { LoaderPhysicalDevice::from_handle(physical_device) })
     else {
@@ -1703,7 +1706,7 @@ pub(crate) unsafe extern "system" fn create_device_terminator(
         validate_and_filter_device_extensions(
             icd_instance,
             physical_device.native,
-            &*create_info,
+            create_info,
             layer_extensions,
         )
     } {
@@ -1719,7 +1722,7 @@ pub(crate) unsafe extern "system" fn create_device_terminator(
         return VkResult::ERROR_INITIALIZATION_FAILED;
     };
     let mut native = VkDevice::NULL;
-    let mut icd_create_info = unsafe { *create_info };
+    let mut icd_create_info = *create_info;
     icd_create_info.enabledExtensionCount = icd_extension_names.len() as u32;
     icd_create_info.ppEnabledExtensionNames = if icd_extension_names.is_empty() {
         core::ptr::null()
@@ -1933,8 +1936,8 @@ pub(crate) unsafe extern "system" fn terminator_enumerate_physical_devices(
         let device = devices.owned.entry(key).or_insert_with(|| {
             Box::new(LoaderPhysicalDevice::new(
                 native_device.icd_index,
-                core::ptr::from_ref(&instance.icds[native_device.icd_index]),
-                core::ptr::from_ref(instance),
+                &instance.icds[native_device.icd_index],
+                instance,
                 instance.api_version,
                 native_device.handle,
             ))
@@ -2777,6 +2780,7 @@ unsafe fn enumerate_physical_device_groups_impl(
     if group_count.is_null() {
         return VkResult::ERROR_INITIALIZATION_FAILED;
     }
+    let group_count = unsafe { &mut *group_count };
 
     let mut upper_bound = 0_u32;
     for (_, icd) in instance.active_icds() {
@@ -2788,7 +2792,7 @@ unsafe fn enumerate_physical_device_groups_impl(
         }
     }
     if group_properties.is_null() {
-        unsafe { group_count.write(upper_bound) };
+        *group_count = upper_bound;
         return if upper_bound == 0 {
             VkResult::ERROR_INITIALIZATION_FAILED
         } else {
@@ -2809,15 +2813,15 @@ unsafe fn enumerate_physical_device_groups_impl(
 #[inline(never)]
 unsafe fn enumerate_physical_device_group_properties(
     instance: &LoaderInstance,
-    group_count: *mut u32,
+    group_count: &mut u32,
     group_properties: *mut VkPhysicalDeviceGroupProperties<'_>,
     upper_bound: u32,
 ) -> VkResult {
-    let capacity = unsafe { group_count.read() } as usize;
+    let capacity = *group_count as usize;
     let all_devices = match unsafe { discover_all_physical_devices(instance) } {
         Ok(devices) => devices,
         Err(result) => {
-            unsafe { group_count.write(0) };
+            *group_count = 0;
             return result;
         }
     };
@@ -2825,7 +2829,7 @@ unsafe fn enumerate_physical_device_group_properties(
     let windows_sorted_devices = match unsafe { windows_sorted_physical_devices(instance) } {
         Ok(devices) => devices,
         Err(result) => {
-            unsafe { group_count.write(0) };
+            *group_count = 0;
             return result;
         }
     };
@@ -2833,7 +2837,7 @@ unsafe fn enumerate_physical_device_group_properties(
         match unsafe { discover_active_physical_devices(instance) } {
             Ok(devices) => Some(devices),
             Err(result) => {
-                unsafe { group_count.write(0) };
+                *group_count = 0;
                 return result;
             }
         }
@@ -2846,7 +2850,7 @@ unsafe fn enumerate_physical_device_group_properties(
         .try_reserve_exact(upper_bound as usize)
         .is_err()
     {
-        unsafe { group_count.write(0) };
+        *group_count = 0;
         return VkResult::ERROR_OUT_OF_HOST_MEMORY;
     }
     for (icd_index, icd) in instance.active_icds().rev() {
@@ -2864,7 +2868,7 @@ unsafe fn enumerate_physical_device_group_properties(
         } {
             Ok(groups) => groups,
             Err(result) => {
-                unsafe { group_count.write(0) };
+                *group_count = 0;
                 return result;
             }
         };
@@ -2875,7 +2879,7 @@ unsafe fn enumerate_physical_device_group_properties(
         {
             Ok(groups) => groups,
             Err(result) => {
-                unsafe { group_count.write(0) };
+                *group_count = 0;
                 return result;
             }
         };
@@ -2887,7 +2891,7 @@ unsafe fn enumerate_physical_device_group_properties(
 
     let mut state = instance.physical_devices.lock();
     if state.owned.try_reserve(all_devices.len()).is_err() {
-        unsafe { group_count.write(0) };
+        *group_count = 0;
         return VkResult::ERROR_OUT_OF_HOST_MEMORY;
     }
     for device in &all_devices {
@@ -2895,8 +2899,8 @@ unsafe fn enumerate_physical_device_group_properties(
         state.owned.entry(key).or_insert_with(|| {
             Box::new(LoaderPhysicalDevice::new(
                 device.icd_index,
-                core::ptr::from_ref(&instance.icds[device.icd_index]),
-                core::ptr::from_ref(instance),
+                &instance.icds[device.icd_index],
+                instance,
                 instance.api_version,
                 device.handle,
             ))
@@ -2908,7 +2912,7 @@ unsafe fn enumerate_physical_device_group_properties(
         .try_reserve_exact(native_groups.len())
         .is_err()
     {
-        unsafe { group_count.write(0) };
+        *group_count = 0;
         return VkResult::ERROR_OUT_OF_HOST_MEMORY;
     }
     'groups: for (icd_index, mut properties) in native_groups {
@@ -2925,7 +2929,7 @@ unsafe fn enumerate_physical_device_group_properties(
             }
             let key = (icd_index, native.0 as usize);
             let Some(wrapped) = state.owned.get(&key) else {
-                unsafe { group_count.write(0) };
+                *group_count = 0;
                 return VkResult::ERROR_INITIALIZATION_FAILED;
             };
             *native = wrapped.handle();
@@ -2937,9 +2941,7 @@ unsafe fn enumerate_physical_device_group_properties(
     for (index, properties) in visible_groups.iter().take(written).enumerate() {
         unsafe { group_properties.add(index).write(*properties) };
     }
-    unsafe {
-        group_count.write(written as u32);
-    }
+    *group_count = written as u32;
     if written < visible_groups.len() {
         VkResult::INCOMPLETE
     } else {
@@ -3152,7 +3154,7 @@ pub unsafe extern "system" fn vkEnumerateDeviceLayerProperties(
     unsafe {
         layer::enumerate_active_device_layers(
             &instance.active_layer_properties,
-            property_count,
+            &mut *property_count,
             properties,
         )
     }
@@ -3943,7 +3945,7 @@ pub unsafe extern "system" fn vkEnumerateInstanceVersion(api_version: *mut u32) 
     if api_version.is_null() {
         return VkResult::ERROR_INITIALIZATION_FAILED;
     }
-    unsafe { pre_instance::enumerate_version(api_version) }
+    unsafe { pre_instance::enumerate_version(&mut *api_version) }
 }
 
 /// Validates a bounded UTF-8-like loader string using Vulkan-Loader's legacy

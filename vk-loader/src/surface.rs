@@ -507,12 +507,15 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceCapabi
     if surface_info.is_null() || surface_capabilities.is_null() {
         return VkResult::ERROR_INITIALIZATION_FAILED;
     }
+    // SAFETY: Both pointers were validated and remain live for this call.
+    let surface_info = unsafe { &*surface_info };
+    let surface_capabilities = unsafe { &mut *surface_capabilities };
     // SAFETY: The terminator is entered with a live loader physical-device wrapper.
     let Some(device) = (unsafe { LoaderPhysicalDevice::from_handle(physical_device) }) else {
         return VkResult::ERROR_INITIALIZATION_FAILED;
     };
     // SAFETY: Both structures are readable/writable by the entry-point contract.
-    let mut native_info = unsafe { surface_info.read() };
+    let mut native_info = *surface_info;
     if native_info.surface != VkSurfaceKHR::NULL {
         // SAFETY: The surface and ICD index are retained by the same loader instance.
         native_info.surface = match unsafe {
@@ -547,7 +550,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceCapabi
     let Some(command) = icd.dispatch.vkGetPhysicalDeviceSurfaceCapabilitiesKHR else {
         // SAFETY: The output pointer was validated above.
         unsafe {
-            (*surface_capabilities).surfaceCapabilities = VkSurfaceCapabilitiesKHR::DEFAULT;
+            surface_capabilities.surfaceCapabilities = VkSurfaceCapabilitiesKHR::DEFAULT;
             emulate_surface_maintenance1(surface_info, surface_capabilities);
         }
         return VkResult::SUCCESS;
@@ -557,7 +560,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceCapabi
         command(
             device.native,
             native_info.surface,
-            &raw mut (*surface_capabilities).surfaceCapabilities,
+            &raw mut surface_capabilities.surfaceCapabilities,
         )
     };
     if !icd
@@ -582,12 +585,15 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceFormat
     if surface_info.is_null() || surface_format_count.is_null() {
         return VkResult::ERROR_INITIALIZATION_FAILED;
     }
+    // SAFETY: Both pointers were validated and remain live for this call.
+    let surface_info = unsafe { &*surface_info };
+    let surface_format_count = unsafe { &mut *surface_format_count };
     // SAFETY: The terminator is entered with a live loader physical-device wrapper.
     let Some(device) = (unsafe { LoaderPhysicalDevice::from_handle(physical_device) }) else {
         return VkResult::ERROR_INITIALIZATION_FAILED;
     };
     // SAFETY: The input structure is readable by the command contract.
-    let mut native_info = unsafe { surface_info.read() };
+    let mut native_info = *surface_info;
     if native_info.surface != VkSurfaceKHR::NULL {
         // SAFETY: The surface and ICD are retained by the same loader instance.
         native_info.surface = match unsafe {
@@ -613,11 +619,11 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceFormat
 
     let Some(command) = icd.dispatch.vkGetPhysicalDeviceSurfaceFormatsKHR else {
         // SAFETY: The count pointer was validated above.
-        unsafe { surface_format_count.write(0) };
+        *surface_format_count = 0;
         return VkResult::SUCCESS;
     };
     // SAFETY: The count pointer was validated above.
-    let capacity = unsafe { surface_format_count.read() } as usize;
+    let capacity = *surface_format_count as usize;
     if surface_formats.is_null() || capacity == 0 {
         // SAFETY: The native handles belong to this ICD and the count is writable.
         return unsafe {
@@ -645,7 +651,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceFormat
         )
     };
     // SAFETY: The driver writes the returned count; never copy beyond either array.
-    let written = (unsafe { surface_format_count.read() } as usize).min(capacity);
+    let written = (*surface_format_count as usize).min(capacity);
     for (index, format) in formats.into_iter().take(written).enumerate() {
         // Preserve the application's sType and pNext fields exactly as upstream does.
         unsafe { (*surface_formats.add(index)).surfaceFormat = format };
@@ -664,8 +670,9 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceSuppor
             c"NULL pointer passed into vkGetPhysicalDeviceSurfaceSupportKHR for pSupported!",
         );
     }
-    // SAFETY: The output pointer is required to be writable by the API contract.
-    unsafe { supported.write(0) };
+    // SAFETY: The required output pointer was validated above.
+    let supported = unsafe { &mut *supported };
+    *supported = 0;
     let Some(device) = (unsafe { LoaderPhysicalDevice::from_handle(physical_device) }) else {
         return VkResult::ERROR_INITIALIZATION_FAILED;
     };
@@ -690,6 +697,8 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceCapabi
     if capabilities.is_null() {
         return VkResult::ERROR_INITIALIZATION_FAILED;
     }
+    // SAFETY: The required output pointer was validated above.
+    let capabilities = unsafe { &mut *capabilities };
     let Some(device) = (unsafe { LoaderPhysicalDevice::from_handle(physical_device) }) else {
         return VkResult::ERROR_INITIALIZATION_FAILED;
     };
@@ -709,7 +718,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceCapabi
     if result != VkResult::SUCCESS {
         return result;
     }
-    let output = unsafe { &mut *capabilities };
+    let output = capabilities;
     output.minImageCount = base.minImageCount;
     output.maxImageCount = base.maxImageCount;
     output.currentExtent = base.currentExtent;
@@ -725,10 +734,10 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceCapabi
 }
 
 unsafe fn initialize_protected_surface_capabilities(
-    capabilities: *mut VkSurfaceCapabilities2KHR<'_>,
+    capabilities: &mut VkSurfaceCapabilities2KHR<'_>,
 ) {
     // SAFETY: The caller propagates the writable pNext-chain contract.
-    let mut next = unsafe { (*capabilities).pNext.cast::<VkBaseOutStructure<'_>>() };
+    let mut next = capabilities.pNext.cast::<VkBaseOutStructure<'_>>();
     while !next.is_null() {
         // SAFETY: Every output-chain node begins with VkBaseOutStructure.
         let header = unsafe { next.read() };
@@ -743,12 +752,12 @@ unsafe fn initialize_protected_surface_capabilities(
 }
 
 unsafe fn emulate_surface_maintenance1(
-    surface_info: *const vk::VkPhysicalDeviceSurfaceInfo2KHR<'_>,
-    capabilities: *mut VkSurfaceCapabilities2KHR<'_>,
+    surface_info: &vk::VkPhysicalDeviceSurfaceInfo2KHR<'_>,
+    capabilities: &mut VkSurfaceCapabilities2KHR<'_>,
 ) {
     let mut present_mode = None;
     // SAFETY: The caller propagates the readable input-chain contract.
-    let mut next_in = unsafe { (*surface_info).pNext.cast::<VkBaseInStructure<'_>>() };
+    let mut next_in = surface_info.pNext.cast::<VkBaseInStructure<'_>>();
     while !next_in.is_null() {
         // SAFETY: Every input-chain node begins with VkBaseInStructure.
         let header = unsafe { next_in.read() };
@@ -764,7 +773,7 @@ unsafe fn emulate_surface_maintenance1(
     };
 
     // SAFETY: The caller propagates the writable output-chain contract.
-    let mut next_out = unsafe { (*capabilities).pNext.cast::<VkBaseOutStructure<'_>>() };
+    let mut next_out = capabilities.pNext.cast::<VkBaseOutStructure<'_>>();
     while !next_out.is_null() {
         // SAFETY: Every output-chain node begins with VkBaseOutStructure.
         let header = unsafe { next_out.read() };
@@ -789,7 +798,7 @@ unsafe fn emulate_surface_maintenance1(
                 scaling.supportedPresentGravityX = vk::VkPresentGravityFlagBitsKHR::EMPTY;
                 scaling.supportedPresentGravityY = vk::VkPresentGravityFlagBitsKHR::EMPTY;
                 // SAFETY: The root output structure is writable by contract.
-                let base = unsafe { &(*capabilities).surfaceCapabilities };
+                let base = &capabilities.surfaceCapabilities;
                 scaling.minScaledImageExtent = base.minImageExtent;
                 scaling.maxScaledImageExtent = base.maxImageExtent;
             }
@@ -884,15 +893,15 @@ pub(crate) unsafe extern "system" fn terminator_create_swapchain(
     if create_info.is_null() || swapchain.is_null() {
         return VkResult::ERROR_INITIALIZATION_FAILED;
     }
+    let create_info = unsafe { &*create_info };
     // SAFETY: The Vulkan command requires a live loader device.
     let Some(device) = (unsafe { LoaderDevice::from_handle(device) }) else {
         return VkResult::ERROR_INITIALIZATION_FAILED;
     };
-    if create_info.is_null() || unsafe { (*create_info).surface } == VkSurfaceKHR::NULL {
+    if create_info.surface == VkSurfaceKHR::NULL {
         crate::fatal_loader_error(c"vkCreateSwapchainKHR: pCreateInfo->surface is VK_NULL_HANDLE");
     }
-    // SAFETY: The caller supplies a readable create info.
-    let mut native_info = unsafe { create_info.read() };
+    let mut native_info = *create_info;
     // SAFETY: The device retains its loader instance and owning ICD index.
     native_info.surface =
         match unsafe { native_surface(device.instance(), device.icd_index(), native_info.surface) }

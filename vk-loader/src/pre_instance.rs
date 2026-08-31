@@ -358,7 +358,7 @@ pub(crate) unsafe fn enumerate_extension_properties_terminator(
         enumerate_extension_properties_from_manifests(
             &manifests,
             layer_name,
-            property_count,
+            &mut *property_count,
             properties,
             global_extensions.then_some(manifests.searches()),
         )
@@ -368,7 +368,7 @@ pub(crate) unsafe fn enumerate_extension_properties_terminator(
 unsafe fn enumerate_extension_properties_from_manifests(
     manifests: &[LayerManifest],
     layer_name: *const core::ffi::c_char,
-    property_count: *mut u32,
+    property_count: &mut u32,
     properties: *mut VkExtensionProperties,
     searches_after_icds: Option<&[crate::discovery::LayerSearch]>,
 ) -> VkResult {
@@ -413,15 +413,15 @@ unsafe fn enumerate_extension_properties_from_manifests(
     }
     let total = extensions.len().min(u32::MAX as usize) as u32;
     if properties.is_null() {
-        unsafe { property_count.write(total) };
+        *property_count = total;
         return VkResult::SUCCESS;
     }
-    let capacity = unsafe { property_count.read() } as usize;
+    let capacity = *property_count as usize;
     let written = capacity.min(extensions.len());
     unsafe {
         core::ptr::copy_nonoverlapping(extensions.as_ptr(), properties, written);
-        property_count.write(written as u32);
     }
+    *property_count = written as u32;
     if written < extensions.len() {
         VkResult::INCOMPLETE
     } else {
@@ -434,7 +434,10 @@ unsafe extern "system" fn layer_terminator(
     property_count: *mut u32,
     properties: *mut VkLayerProperties,
 ) -> VkResult {
-    unsafe { crate::layer::enumerate_instance_layers(property_count, properties) }
+    if property_count.is_null() {
+        return VkResult::ERROR_INITIALIZATION_FAILED;
+    }
+    unsafe { crate::layer::enumerate_instance_layers(&mut *property_count, properties) }
 }
 
 unsafe extern "system" fn version_terminator(
@@ -533,7 +536,7 @@ pub(crate) unsafe fn enumerate_layer_properties(
     unsafe { (head.next_function)(head.next_link, property_count, properties) }
 }
 
-pub(crate) unsafe fn enumerate_version(api_version: *mut u32) -> VkResult {
+pub(crate) unsafe fn enumerate_version(api_version: &mut u32) -> VkResult {
     update_global_loader_settings();
     let manifests = discover_implicit_layers();
     emit_layer_searches(&manifests);

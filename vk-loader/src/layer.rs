@@ -1352,6 +1352,8 @@ pub(crate) unsafe extern "system" fn create_instance_terminator(
     if create_info.is_null() {
         return VkResult::ERROR_INITIALIZATION_FAILED;
     }
+    // SAFETY: The active layer chain retains readable create info for this call.
+    let create_info = unsafe { &*create_info };
     let Some(loader) =
         (unsafe { crate::instance::LoaderInstance::from_internal_handle_mut(pending) })
     else {
@@ -1359,7 +1361,7 @@ pub(crate) unsafe extern "system" fn create_instance_terminator(
     };
     // SAFETY: The layer chain retains the effective create info and allocator
     // for this synchronous call, and `loader` is the pending instance box.
-    let result = unsafe { crate::create_pending_icd_instances(loader, &*create_info, allocator) };
+    let result = unsafe { crate::create_pending_icd_instances(loader, create_info, allocator) };
     if result != VkResult::SUCCESS {
         return result;
     }
@@ -1403,6 +1405,8 @@ unsafe extern "system" fn layer_create_device_callback(
     if create_info.is_null() || device.is_null() {
         return VkResult::ERROR_INITIALIZATION_FAILED;
     }
+    // SAFETY: The active layer chain retains readable create info for this call.
+    let create_info = unsafe { &*create_info };
     let loader = unsafe {
         crate::instance::LoaderInstance::from_handle(instance)
             .or_else(|| crate::instance::LoaderInstance::from_internal_handle(instance))
@@ -1430,7 +1434,7 @@ unsafe extern "system" fn layer_create_device_callback(
         create_device_chain_from(
             loader,
             physical_device,
-            &*create_info,
+            create_info,
             allocator,
             device,
             first,
@@ -1614,7 +1618,7 @@ unsafe extern "system" fn terminator_enumerate_device_layer_properties(
         return VkResult::ERROR_INITIALIZATION_FAILED;
     };
     let layers = &physical_device.instance().active_layer_properties;
-    unsafe { enumerate_active_device_layers(layers, property_count, properties) }
+    unsafe { enumerate_active_device_layers(layers, &mut *property_count, properties) }
 }
 
 fn device_extension_property(extension: &LayerExtension) -> VkExtensionProperties {
@@ -1684,7 +1688,7 @@ fn named_layer_device_extensions(name: &CStr) -> Result<Vec<VkExtensionPropertie
 #[inline(never)]
 unsafe fn enumerate_named_layer_device_extensions(
     layer_name: &CStr,
-    property_count: *mut u32,
+    property_count: &mut u32,
     properties: *mut VkExtensionProperties,
 ) -> VkResult {
     let extensions = match named_layer_device_extensions(layer_name) {
@@ -1693,14 +1697,12 @@ unsafe fn enumerate_named_layer_device_extensions(
     };
     let total = extensions.len().min(u32::MAX as usize) as u32;
     if properties.is_null() {
-        unsafe { property_count.write(total) };
+        *property_count = total;
         return VkResult::SUCCESS;
     }
-    let written = (unsafe { property_count.read() } as usize).min(extensions.len());
-    unsafe {
-        ptr::copy_nonoverlapping(extensions.as_ptr(), properties, written);
-        property_count.write(written as u32);
-    }
+    let written = (*property_count as usize).min(extensions.len());
+    unsafe { ptr::copy_nonoverlapping(extensions.as_ptr(), properties, written) };
+    *property_count = written as u32;
     if written < extensions.len() {
         VkResult::INCOMPLETE
     } else {
@@ -1712,7 +1714,7 @@ unsafe fn enumerate_named_layer_device_extensions(
 #[inline(never)]
 unsafe fn enumerate_icd_device_extensions(
     physical_device: &crate::instance::LoaderPhysicalDevice,
-    property_count: *mut u32,
+    property_count: &mut u32,
     properties: *mut VkExtensionProperties,
 ) -> VkResult {
     let Some(enumerate) = physical_device
@@ -1723,7 +1725,7 @@ unsafe fn enumerate_icd_device_extensions(
         return VkResult::ERROR_INITIALIZATION_FAILED;
     };
     if !properties.is_null() {
-        let capacity = unsafe { property_count.read() };
+        let capacity = *property_count;
         let mut written = capacity;
         let result = unsafe {
             enumerate(
@@ -1752,14 +1754,14 @@ unsafe fn enumerate_icd_device_extensions(
                     continue;
                 }
                 if written == capacity {
-                    unsafe { property_count.write(written) };
+                    *property_count = written;
                     return VkResult::INCOMPLETE;
                 }
                 unsafe { properties.add(written as usize).write(property) };
                 written += 1;
             }
         }
-        unsafe { property_count.write(written) };
+        *property_count = written;
         return VkResult::SUCCESS;
     }
     let mut count = 0;
@@ -1807,7 +1809,7 @@ unsafe fn enumerate_icd_device_extensions(
             }
         }
     }
-    unsafe { property_count.write(extensions.len().min(u32::MAX as usize) as u32) };
+    *property_count = extensions.len().min(u32::MAX as usize) as u32;
     VkResult::SUCCESS
 }
 
@@ -1829,25 +1831,25 @@ pub(crate) unsafe extern "system" fn terminator_enumerate_device_extension_prope
         return unsafe {
             enumerate_named_layer_device_extensions(
                 CStr::from_ptr(layer_name),
-                property_count,
+                &mut *property_count,
                 properties,
             )
         };
     }
-    unsafe { enumerate_icd_device_extensions(physical_device, property_count, properties) }
+    unsafe { enumerate_icd_device_extensions(physical_device, &mut *property_count, properties) }
 }
 
 pub(crate) unsafe fn enumerate_active_device_layers(
     layers: &[ActiveLayerProperty],
-    property_count: *mut u32,
+    property_count: &mut u32,
     properties: *mut vk::VkLayerProperties,
 ) -> VkResult {
     let total = layers.len().min(u32::MAX as usize) as u32;
     if properties.is_null() {
-        unsafe { property_count.write(total) };
+        *property_count = total;
         return VkResult::SUCCESS;
     }
-    let capacity = unsafe { property_count.read() } as usize;
+    let capacity = *property_count as usize;
     let written = capacity.min(layers.len());
     for (index, layer) in layers.iter().take(written).enumerate() {
         let mut property = vk::VkLayerProperties::DEFAULT;
@@ -1857,9 +1859,7 @@ pub(crate) unsafe fn enumerate_active_device_layers(
         property.implementationVersion = layer.implementation_version;
         unsafe { properties.add(index).write(property) };
     }
-    unsafe {
-        property_count.write(written as u32);
-    };
+    *property_count = written as u32;
     if written < layers.len() {
         VkResult::INCOMPLETE
     } else {
@@ -1868,7 +1868,7 @@ pub(crate) unsafe fn enumerate_active_device_layers(
 }
 
 pub(crate) unsafe fn enumerate_instance_layers(
-    property_count: *mut u32,
+    property_count: &mut u32,
     properties: *mut vk::VkLayerProperties,
 ) -> VkResult {
     let discovered = discover_layers();
@@ -1898,10 +1898,10 @@ pub(crate) unsafe fn enumerate_instance_layers(
     });
     let total = manifests.len().min(u32::MAX as usize) as u32;
     if properties.is_null() {
-        unsafe { property_count.write(total) };
+        *property_count = total;
         return VkResult::SUCCESS;
     }
-    let capacity = unsafe { property_count.read() } as usize;
+    let capacity = *property_count as usize;
     let written = capacity.min(manifests.len());
     for (index, manifest) in manifests.iter().take(written).enumerate() {
         let mut property = vk::VkLayerProperties::DEFAULT;
@@ -1911,9 +1911,7 @@ pub(crate) unsafe fn enumerate_instance_layers(
         property.implementationVersion = manifest.implementation_version;
         unsafe { properties.add(index).write(property) };
     }
-    unsafe {
-        property_count.write(written as u32);
-    };
+    *property_count = written as u32;
     if written < manifests.len() {
         VkResult::INCOMPLETE
     } else {
@@ -2301,11 +2299,11 @@ unsafe fn create_device_chain_from(
     result
 }
 
-pub(crate) unsafe fn validate_pending_device_output(output: *mut vk::VkDevice) {
+pub(crate) unsafe fn validate_pending_device_output(output: &mut vk::VkDevice) {
     let Some(expected) = crate::pending::device_sentinel() else {
         return;
     };
-    let returned = unsafe { output.read() };
+    let returned = *output;
     if returned == vk::VkDevice::NULL {
         fatal_layer_policy(
             "terminator_CreateDevice: Loader device pointer null encountered.  Possibly set by active layer. (Policy #LLP_LAYER_22)",
