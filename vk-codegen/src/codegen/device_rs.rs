@@ -159,7 +159,7 @@ fn gen_device(
                     quote! { self.instance() },
                     quote! { &mut self },
                     quote! {
-                        if self.raw.0.is_null() {
+                        if self.raw == VkDevice::NULL {
                             return;
                         }
                     },
@@ -274,7 +274,7 @@ fn gen_device(
         #[cfg(feature = "VK_BASE_VERSION_1_0")]
         impl<'inst> Drop for Device<'inst> {
             fn drop(&mut self) {
-                if self.raw.0.is_null() {
+                if self.raw == VkDevice::NULL {
                     return;
                 }
                 unsafe {

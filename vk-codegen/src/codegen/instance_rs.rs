@@ -197,7 +197,7 @@ fn gen_instance(
                     quote! { self },
                     quote! { &mut self },
                     quote! {
-                        if self.raw.0.is_null() {
+                        if self.raw == VkInstance::NULL {
                             return;
                         }
                     },
@@ -306,7 +306,7 @@ fn gen_instance(
             #[inline]
             fn drop(&mut self) {
                 // Enusre that destroy was not already called by the user.
-                if self.raw.0.is_null() {
+                if self.raw == VkInstance::NULL {
                     return;
                 }
 
