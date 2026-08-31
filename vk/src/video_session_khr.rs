@@ -44,7 +44,7 @@ impl VideoSessionKHRDispatchTable {
     vkGetVideoSessionMemoryRequirementsKHR: None,
   };
   #[inline]
-  pub fn load<F>(loader: F) -> Self
+  pub fn load<F>(#[allow(unused_variables)] loader: F) -> Self
   where
     F: Fn(*const c_char) -> Option<unsafe extern "system" fn()>,
   {

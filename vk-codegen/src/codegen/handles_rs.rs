@@ -562,7 +562,7 @@ fn gen_handle_module(
             pub const EMPTY: Self = Self { #empty_ts };
 
             #[inline]
-            pub fn load<F>(loader: F) -> Self where F: Fn(*const c_char) -> Option<unsafe extern "system" fn()> {
+            pub fn load<F>(#[allow(unused_variables)] loader: F) -> Self where F: Fn(*const c_char) -> Option<unsafe extern "system" fn()> {
                 Self {
                     #load_ts
                 }
