@@ -285,15 +285,9 @@ impl LoaderInstance {
         &self,
         severity: VkDebugUtilsMessageSeverityFlagBitsEXT,
         message_types: VkDebugUtilsMessageTypeFlagsEXT,
-        callback_data: *const VkDebugUtilsMessengerCallbackDataEXT<'_>,
+        callback_data: &VkDebugUtilsMessengerCallbackDataEXT<'_>,
     ) {
-        if callback_data.is_null() {
-            return;
-        }
         let report_flags = crate::debug_messenger::debug_report_flags(severity, message_types);
-        // SAFETY: This function is reached from Vulkan entry points whose
-        // callback-data contract guarantees readable storage for the call.
-        let callback_data = unsafe { &*callback_data };
         let (object_type, object) = if callback_data.objectCount == 0 {
             (VkDebugReportObjectTypeEXT::UNKNOWN, 0)
         } else {
@@ -364,7 +358,7 @@ impl LoaderInstance {
             pObjects: core::ptr::from_ref(&object),
             ..VkDebugUtilsMessengerCallbackDataEXT::DEFAULT
         };
-        self.submit_debug_message(severity, message_types, core::ptr::from_ref(&callback_data));
+        self.submit_debug_message(severity, message_types, &callback_data);
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -443,23 +437,20 @@ impl LoaderInstance {
 impl LoaderPhysicalDevice {
     pub(crate) fn new(
         icd_index: usize,
-        icd: *const IcdInstance,
-        instance: *const LoaderInstance,
+        icd: &IcdInstance,
+        instance: &LoaderInstance,
         app_api_version: u32,
         native: VkPhysicalDevice,
     ) -> Self {
-        debug_assert!(!instance.is_null());
         Self {
-            // SAFETY: `instance` is a live loader instance by construction.
-            dispatch: unsafe { &*instance }.dispatch(),
-            instance,
+            dispatch: instance.dispatch(),
+            instance: core::ptr::from_ref(instance),
             magic: PHYSICAL_DEVICE_MAGIC,
             icd_index,
-            icd,
+            icd: core::ptr::from_ref(icd),
             app_api_version,
             native,
-            // SAFETY: The ICD pointer targets stable storage owned by the instance.
-            unknown_dispatch: unsafe { &*icd }.unknown_physical_device_dispatch.as_ptr(),
+            unknown_dispatch: icd.unknown_physical_device_dispatch.as_ptr(),
         }
     }
 

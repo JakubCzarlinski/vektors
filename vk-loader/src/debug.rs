@@ -179,7 +179,8 @@ pub(crate) unsafe extern "system" fn terminator_vkDebugMarkerSetObjectTagEXT(
         abort_invalid_dispatch();
     }
     // SAFETY: The caller supplies one readable tag-info structure.
-    let mut native_info = unsafe { tag_info.read() };
+    let tag_info = unsafe { &*tag_info };
+    let mut native_info = *tag_info;
     // SAFETY: `objectType` identifies the encoded handle kind.
     native_info.object = unsafe {
         translate_debug_report_object(loader_device, native_info.objectType, native_info.object)
@@ -208,7 +209,8 @@ pub(crate) unsafe extern "system" fn terminator_vkDebugMarkerSetObjectNameEXT(
         abort_invalid_dispatch();
     }
     // SAFETY: The caller supplies one readable name-info structure.
-    let mut native_info = unsafe { name_info.read() };
+    let name_info = unsafe { &*name_info };
+    let mut native_info = *name_info;
     // SAFETY: `objectType` identifies the encoded handle kind.
     native_info.object = unsafe {
         translate_debug_report_object(loader_device, native_info.objectType, native_info.object)
@@ -237,7 +239,8 @@ pub(crate) unsafe extern "system" fn terminator_vkSetDebugUtilsObjectNameEXT(
         abort_invalid_dispatch();
     }
     // SAFETY: The caller supplies one readable name-info structure.
-    let mut native_info = unsafe { name_info.read() };
+    let name_info = unsafe { &*name_info };
+    let mut native_info = *name_info;
     // SAFETY: `objectType` identifies the encoded handle kind.
     native_info.objectHandle = unsafe {
         translate_debug_utils_object(
@@ -270,7 +273,8 @@ pub(crate) unsafe extern "system" fn terminator_vkSetDebugUtilsObjectTagEXT(
         abort_invalid_dispatch();
     }
     // SAFETY: The caller supplies one readable tag-info structure.
-    let mut native_info = unsafe { tag_info.read() };
+    let tag_info = unsafe { &*tag_info };
+    let mut native_info = *tag_info;
     // SAFETY: `objectType` identifies the encoded handle kind.
     native_info.objectHandle = unsafe {
         translate_debug_utils_object(

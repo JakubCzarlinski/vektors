@@ -601,6 +601,9 @@ pub(crate) unsafe extern "system" fn terminator_submit_debug_utils_message(
     let Some(instance) = (unsafe { LoaderInstance::from_handle(instance) }) else {
         return;
     };
+    // SAFETY: The callback-data pointer was validated above and remains live
+    // for this synchronous callback delivery.
+    let callback_data = unsafe { &*callback_data };
     instance.submit_debug_message(severity, message_types, callback_data);
 }
 
