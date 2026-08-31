@@ -4,7 +4,6 @@ mod commands;
 mod debug;
 mod dispatch_tables;
 mod extensions;
-mod handles;
 mod proc_addr;
 mod terminators;
 mod trampolines;
@@ -27,8 +26,6 @@ pub(crate) use extensions::{
     VK_KHR_SURFACE_MAINTENANCE1_EXTENSION_ID, extension_id, is_known_instance_extension,
     surface_create_info_extension_size, wsi_instance_extension_supported,
 };
-#[cfg(test)]
-pub(crate) use handles::handle_info;
 pub(crate) use proc_addr::{
     exported_proc_addr, global_proc_addr, icd_device_terminator_proc_addr,
     instance_terminator_proc_addr, layer_device_dispatch_proc_addr,

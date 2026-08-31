@@ -11,7 +11,6 @@ use crate::CommandLookup;
 use crate::CommandProviderRange;
 use crate::CommandRecord;
 use crate::CommandScope;
-use crate::HandleInfo;
 use crate::command_hash;
 use crate::command_name_eq;
 use crate::command_slot_hash;
@@ -2740,1890 +2739,782 @@ pub(super) const VK_CMD_DRAW_MESH_TASKS_INDIRECT_COUNT_EXT_DEVICE_DISPATCH_OFFSE
         LayerDeviceDispatchTable,
         vkCmdDrawMeshTasksIndirectCountEXT
     ));
-#[allow(dead_code)]
-pub(super) const HANDLE_INFOS: [HandleInfo; 63] = [
-    HandleInfo {
-        name: "VkAccelerationStructureKHR",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkAccelerationStructureNV",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkBuffer",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_BUFFER"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkBufferCollectionFUCHSIA",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_BUFFER_COLLECTION_FUCHSIA"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkBufferView",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_BUFFER_VIEW"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkCommandBuffer",
-        dispatchable: true,
-        parent: Some("VkCommandPool"),
-        object_type: Some("VK_OBJECT_TYPE_COMMAND_BUFFER"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkCommandPool",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_COMMAND_POOL"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkCuFunctionNVX",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_CU_FUNCTION_NVX"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkCuModuleNVX",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_CU_MODULE_NVX"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkCudaFunctionNV",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_CUDA_FUNCTION_NV"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkCudaModuleNV",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_CUDA_MODULE_NV"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkDataGraphPipelineSessionARM",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_DATA_GRAPH_PIPELINE_SESSION_ARM"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkDebugReportCallbackEXT",
-        dispatchable: false,
-        parent: Some("VkInstance"),
-        object_type: Some("VK_OBJECT_TYPE_DEBUG_REPORT_CALLBACK_EXT"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkDebugUtilsMessengerEXT",
-        dispatchable: false,
-        parent: Some("VkInstance"),
-        object_type: Some("VK_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkDeferredOperationKHR",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_DEFERRED_OPERATION_KHR"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkDescriptorPool",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_DESCRIPTOR_POOL"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkDescriptorSet",
-        dispatchable: false,
-        parent: Some("VkDescriptorPool"),
-        object_type: Some("VK_OBJECT_TYPE_DESCRIPTOR_SET"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkDescriptorSetLayout",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkDescriptorUpdateTemplate",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkDescriptorUpdateTemplateKHR",
-        dispatchable: true,
-        parent: None,
-        object_type: None,
-        alias: Some("VkDescriptorUpdateTemplate"),
-    },
-    HandleInfo {
-        name: "VkDevice",
-        dispatchable: true,
-        parent: Some("VkPhysicalDevice"),
-        object_type: Some("VK_OBJECT_TYPE_DEVICE"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkDeviceMemory",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_DEVICE_MEMORY"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkDisplayKHR",
-        dispatchable: false,
-        parent: Some("VkPhysicalDevice"),
-        object_type: Some("VK_OBJECT_TYPE_DISPLAY_KHR"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkDisplayModeKHR",
-        dispatchable: false,
-        parent: Some("VkDisplayKHR"),
-        object_type: Some("VK_OBJECT_TYPE_DISPLAY_MODE_KHR"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkEvent",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_EVENT"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkExternalComputeQueueNV",
-        dispatchable: true,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_EXTERNAL_COMPUTE_QUEUE_NV"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkFence",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_FENCE"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkFramebuffer",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_FRAMEBUFFER"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkGpaSessionAMD",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_GPA_SESSION_AMD"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkImage",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_IMAGE"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkImageView",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_IMAGE_VIEW"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkIndirectCommandsLayoutEXT",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_EXT"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkIndirectCommandsLayoutNV",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NV"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkIndirectExecutionSetEXT",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_INDIRECT_EXECUTION_SET_EXT"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkInstance",
-        dispatchable: true,
-        parent: None,
-        object_type: Some("VK_OBJECT_TYPE_INSTANCE"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkMicromapEXT",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_MICROMAP_EXT"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkOpticalFlowSessionNV",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_OPTICAL_FLOW_SESSION_NV"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkPerformanceConfigurationINTEL",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_PERFORMANCE_CONFIGURATION_INTEL"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkPhysicalDevice",
-        dispatchable: true,
-        parent: Some("VkInstance"),
-        object_type: Some("VK_OBJECT_TYPE_PHYSICAL_DEVICE"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkPipeline",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_PIPELINE"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkPipelineBinaryKHR",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_PIPELINE_BINARY_KHR"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkPipelineCache",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_PIPELINE_CACHE"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkPipelineLayout",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_PIPELINE_LAYOUT"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkPrivateDataSlot",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_PRIVATE_DATA_SLOT"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkPrivateDataSlotEXT",
-        dispatchable: true,
-        parent: None,
-        object_type: None,
-        alias: Some("VkPrivateDataSlot"),
-    },
-    HandleInfo {
-        name: "VkQueryPool",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_QUERY_POOL"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkQueue",
-        dispatchable: true,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_QUEUE"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkRenderPass",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_RENDER_PASS"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkSampler",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_SAMPLER"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkSamplerYcbcrConversion",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_SAMPLER_YCBCR_CONVERSION"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkSamplerYcbcrConversionKHR",
-        dispatchable: true,
-        parent: None,
-        object_type: None,
-        alias: Some("VkSamplerYcbcrConversion"),
-    },
-    HandleInfo {
-        name: "VkSemaphore",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_SEMAPHORE"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkSemaphoreSciSyncPoolNV",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_SEMAPHORE_SCI_SYNC_POOL_NV"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkShaderEXT",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_SHADER_EXT"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkShaderInstrumentationARM",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_SHADER_INSTRUMENTATION_ARM"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkShaderModule",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_SHADER_MODULE"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkSurfaceKHR",
-        dispatchable: false,
-        parent: Some("VkInstance"),
-        object_type: Some("VK_OBJECT_TYPE_SURFACE_KHR"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkSwapchainKHR",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_SWAPCHAIN_KHR"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkTensorARM",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_TENSOR_ARM"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkTensorViewARM",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_TENSOR_VIEW_ARM"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkValidationCacheEXT",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_VALIDATION_CACHE_EXT"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkVideoSessionKHR",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_VIDEO_SESSION_KHR"),
-        alias: None,
-    },
-    HandleInfo {
-        name: "VkVideoSessionParametersKHR",
-        dispatchable: false,
-        parent: Some("VkDevice"),
-        object_type: Some("VK_OBJECT_TYPE_VIDEO_SESSION_PARAMETERS_KHR"),
-        alias: None,
-    },
-];
-#[allow(dead_code)]
-pub(super) const VK_ACQUIRE_FULL_SCREEN_EXCLUSIVE_MODE_EXT_COMMAND_ID: u16 = 1;
-#[allow(dead_code)]
-pub(super) const VK_ACQUIRE_NEXT_IMAGE2KHR_COMMAND_ID: u16 = 2;
-#[allow(dead_code)]
-pub(super) const VK_ACQUIRE_NEXT_IMAGE_KHR_COMMAND_ID: u16 = 3;
-#[allow(dead_code)]
-pub(super) const VK_ACQUIRE_PERFORMANCE_CONFIGURATION_INTEL_COMMAND_ID: u16 = 4;
-#[allow(dead_code)]
-pub(super) const VK_ACQUIRE_PROFILING_LOCK_KHR_COMMAND_ID: u16 = 5;
-#[allow(dead_code)]
-pub(super) const VK_ALLOCATE_COMMAND_BUFFERS_COMMAND_ID: u16 = 8;
-#[allow(dead_code)]
-pub(super) const VK_ALLOCATE_DESCRIPTOR_SETS_COMMAND_ID: u16 = 9;
-#[allow(dead_code)]
-pub(super) const VK_ALLOCATE_MEMORY_COMMAND_ID: u16 = 10;
-#[allow(dead_code)]
-pub(super) const VK_ANTI_LAG_UPDATE_AMD_COMMAND_ID: u16 = 11;
-#[allow(dead_code)]
-pub(super) const VK_BEGIN_COMMAND_BUFFER_COMMAND_ID: u16 = 12;
-#[allow(dead_code)]
-pub(super) const VK_BIND_ACCELERATION_STRUCTURE_MEMORY_NV_COMMAND_ID: u16 = 13;
-#[allow(dead_code)]
-pub(super) const VK_BIND_BUFFER_MEMORY_COMMAND_ID: u16 = 14;
-#[allow(dead_code)]
-pub(super) const VK_BIND_BUFFER_MEMORY2_COMMAND_ID: u16 = 15;
-#[allow(dead_code)]
-pub(super) const VK_BIND_BUFFER_MEMORY2KHR_COMMAND_ID: u16 = 16;
-#[allow(dead_code)]
-pub(super) const VK_BIND_DATA_GRAPH_PIPELINE_SESSION_MEMORY_ARM_COMMAND_ID: u16 = 17;
-#[allow(dead_code)]
-pub(super) const VK_BIND_IMAGE_MEMORY_COMMAND_ID: u16 = 18;
-#[allow(dead_code)]
-pub(super) const VK_BIND_IMAGE_MEMORY2_COMMAND_ID: u16 = 19;
-#[allow(dead_code)]
-pub(super) const VK_BIND_IMAGE_MEMORY2KHR_COMMAND_ID: u16 = 20;
-#[allow(dead_code)]
-pub(super) const VK_BIND_OPTICAL_FLOW_SESSION_IMAGE_NV_COMMAND_ID: u16 = 21;
-#[allow(dead_code)]
-pub(super) const VK_BIND_TENSOR_MEMORY_ARM_COMMAND_ID: u16 = 22;
-#[allow(dead_code)]
-pub(super) const VK_BIND_VIDEO_SESSION_MEMORY_KHR_COMMAND_ID: u16 = 23;
-#[allow(dead_code)]
-pub(super) const VK_BUILD_ACCELERATION_STRUCTURES_KHR_COMMAND_ID: u16 = 24;
-#[allow(dead_code)]
-pub(super) const VK_BUILD_MICROMAPS_EXT_COMMAND_ID: u16 = 25;
-#[allow(dead_code)]
-pub(super) const VK_CLEAR_SHADER_INSTRUMENTATION_METRICS_ARM_COMMAND_ID: u16 = 26;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BEGIN_CONDITIONAL_RENDERING2EXT_COMMAND_ID: u16 = 27;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BEGIN_CONDITIONAL_RENDERING_EXT_COMMAND_ID: u16 = 28;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BEGIN_CUSTOM_RESOLVE_EXT_COMMAND_ID: u16 = 29;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BEGIN_DEBUG_UTILS_LABEL_EXT_COMMAND_ID: u16 = 30;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BEGIN_GPA_SAMPLE_AMD_COMMAND_ID: u16 = 31;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BEGIN_GPA_SESSION_AMD_COMMAND_ID: u16 = 32;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BEGIN_PER_TILE_EXECUTION_QCOM_COMMAND_ID: u16 = 33;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BEGIN_QUERY_COMMAND_ID: u16 = 34;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BEGIN_QUERY_INDEXED_EXT_COMMAND_ID: u16 = 35;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BEGIN_RENDER_PASS_COMMAND_ID: u16 = 36;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BEGIN_RENDER_PASS2_COMMAND_ID: u16 = 37;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BEGIN_RENDER_PASS2KHR_COMMAND_ID: u16 = 38;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BEGIN_RENDERING_COMMAND_ID: u16 = 39;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BEGIN_RENDERING_KHR_COMMAND_ID: u16 = 40;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BEGIN_SHADER_INSTRUMENTATION_ARM_COMMAND_ID: u16 = 41;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BEGIN_TRANSFORM_FEEDBACK2EXT_COMMAND_ID: u16 = 42;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BEGIN_TRANSFORM_FEEDBACK_EXT_COMMAND_ID: u16 = 43;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BEGIN_VIDEO_CODING_KHR_COMMAND_ID: u16 = 44;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BIND_DESCRIPTOR_BUFFER_EMBEDDED_SAMPLERS2EXT_COMMAND_ID: u16 = 45;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BIND_DESCRIPTOR_BUFFER_EMBEDDED_SAMPLERS_EXT_COMMAND_ID: u16 = 46;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BIND_DESCRIPTOR_BUFFERS_EXT_COMMAND_ID: u16 = 47;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BIND_DESCRIPTOR_SETS_COMMAND_ID: u16 = 48;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BIND_DESCRIPTOR_SETS2_COMMAND_ID: u16 = 49;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BIND_DESCRIPTOR_SETS2KHR_COMMAND_ID: u16 = 50;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BIND_INDEX_BUFFER_COMMAND_ID: u16 = 51;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BIND_INDEX_BUFFER2_COMMAND_ID: u16 = 52;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BIND_INDEX_BUFFER2KHR_COMMAND_ID: u16 = 53;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BIND_INDEX_BUFFER3KHR_COMMAND_ID: u16 = 54;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BIND_INVOCATION_MASK_HUAWEI_COMMAND_ID: u16 = 55;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BIND_PIPELINE_COMMAND_ID: u16 = 56;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BIND_PIPELINE_SHADER_GROUP_NV_COMMAND_ID: u16 = 57;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BIND_RESOURCE_HEAP_EXT_COMMAND_ID: u16 = 58;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BIND_SAMPLER_HEAP_EXT_COMMAND_ID: u16 = 59;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BIND_SHADERS_EXT_COMMAND_ID: u16 = 60;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BIND_SHADING_RATE_IMAGE_NV_COMMAND_ID: u16 = 61;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BIND_TILE_MEMORY_QCOM_COMMAND_ID: u16 = 62;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BIND_TRANSFORM_FEEDBACK_BUFFERS2EXT_COMMAND_ID: u16 = 63;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BIND_TRANSFORM_FEEDBACK_BUFFERS_EXT_COMMAND_ID: u16 = 64;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BIND_VERTEX_BUFFERS_COMMAND_ID: u16 = 65;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BIND_VERTEX_BUFFERS2_COMMAND_ID: u16 = 66;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BIND_VERTEX_BUFFERS2EXT_COMMAND_ID: u16 = 67;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BIND_VERTEX_BUFFERS3KHR_COMMAND_ID: u16 = 68;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BLIT_IMAGE_COMMAND_ID: u16 = 69;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BLIT_IMAGE2_COMMAND_ID: u16 = 70;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BLIT_IMAGE2KHR_COMMAND_ID: u16 = 71;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BUILD_ACCELERATION_STRUCTURE_NV_COMMAND_ID: u16 = 72;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BUILD_ACCELERATION_STRUCTURES_INDIRECT_KHR_COMMAND_ID: u16 = 73;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BUILD_ACCELERATION_STRUCTURES_KHR_COMMAND_ID: u16 = 74;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BUILD_CLUSTER_ACCELERATION_STRUCTURE_INDIRECT_NV_COMMAND_ID: u16 = 75;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BUILD_MICROMAPS_EXT_COMMAND_ID: u16 = 76;
-#[allow(dead_code)]
-pub(super) const VK_CMD_BUILD_PARTITIONED_ACCELERATION_STRUCTURES_NV_COMMAND_ID: u16 = 77;
-#[allow(dead_code)]
-pub(super) const VK_CMD_CLEAR_ATTACHMENTS_COMMAND_ID: u16 = 78;
-#[allow(dead_code)]
-pub(super) const VK_CMD_CLEAR_COLOR_IMAGE_COMMAND_ID: u16 = 79;
-#[allow(dead_code)]
-pub(super) const VK_CMD_CLEAR_DEPTH_STENCIL_IMAGE_COMMAND_ID: u16 = 80;
-#[allow(dead_code)]
-pub(super) const VK_CMD_CONTROL_VIDEO_CODING_KHR_COMMAND_ID: u16 = 81;
-#[allow(dead_code)]
-pub(super) const VK_CMD_CONVERT_COOPERATIVE_VECTOR_MATRIX_NV_COMMAND_ID: u16 = 82;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_ACCELERATION_STRUCTURE_KHR_COMMAND_ID: u16 = 83;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_ACCELERATION_STRUCTURE_NV_COMMAND_ID: u16 = 84;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_ACCELERATION_STRUCTURE_TO_MEMORY_KHR_COMMAND_ID: u16 = 85;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_BUFFER_COMMAND_ID: u16 = 86;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_BUFFER2_COMMAND_ID: u16 = 87;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_BUFFER2KHR_COMMAND_ID: u16 = 88;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_BUFFER_TO_IMAGE_COMMAND_ID: u16 = 89;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_BUFFER_TO_IMAGE2_COMMAND_ID: u16 = 90;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_BUFFER_TO_IMAGE2KHR_COMMAND_ID: u16 = 91;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_GPA_SESSION_RESULTS_AMD_COMMAND_ID: u16 = 92;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_IMAGE_COMMAND_ID: u16 = 93;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_IMAGE2_COMMAND_ID: u16 = 94;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_IMAGE2KHR_COMMAND_ID: u16 = 95;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_IMAGE_TO_BUFFER_COMMAND_ID: u16 = 96;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_IMAGE_TO_BUFFER2_COMMAND_ID: u16 = 97;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_IMAGE_TO_BUFFER2KHR_COMMAND_ID: u16 = 98;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_IMAGE_TO_MEMORY_KHR_COMMAND_ID: u16 = 99;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_MEMORY_INDIRECT_KHR_COMMAND_ID: u16 = 100;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_MEMORY_INDIRECT_NV_COMMAND_ID: u16 = 101;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_MEMORY_KHR_COMMAND_ID: u16 = 102;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_MEMORY_TO_ACCELERATION_STRUCTURE_KHR_COMMAND_ID: u16 = 103;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_MEMORY_TO_IMAGE_INDIRECT_KHR_COMMAND_ID: u16 = 104;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_MEMORY_TO_IMAGE_INDIRECT_NV_COMMAND_ID: u16 = 105;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_MEMORY_TO_IMAGE_KHR_COMMAND_ID: u16 = 106;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_MEMORY_TO_MICROMAP_EXT_COMMAND_ID: u16 = 107;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_MICROMAP_EXT_COMMAND_ID: u16 = 108;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_MICROMAP_TO_MEMORY_EXT_COMMAND_ID: u16 = 109;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_QUERY_POOL_RESULTS_COMMAND_ID: u16 = 110;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_QUERY_POOL_RESULTS_TO_MEMORY_KHR_COMMAND_ID: u16 = 111;
-#[allow(dead_code)]
-pub(super) const VK_CMD_COPY_TENSOR_ARM_COMMAND_ID: u16 = 112;
-#[allow(dead_code)]
-pub(super) const VK_CMD_CU_LAUNCH_KERNEL_NVX_COMMAND_ID: u16 = 113;
-#[allow(dead_code)]
-pub(super) const VK_CMD_CUDA_LAUNCH_KERNEL_NV_COMMAND_ID: u16 = 114;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DEBUG_MARKER_BEGIN_EXT_COMMAND_ID: u16 = 115;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DEBUG_MARKER_END_EXT_COMMAND_ID: u16 = 116;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DEBUG_MARKER_INSERT_EXT_COMMAND_ID: u16 = 117;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DECODE_VIDEO_KHR_COMMAND_ID: u16 = 118;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DECOMPRESS_MEMORY_EXT_COMMAND_ID: u16 = 119;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DECOMPRESS_MEMORY_INDIRECT_COUNT_EXT_COMMAND_ID: u16 = 120;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DECOMPRESS_MEMORY_INDIRECT_COUNT_NV_COMMAND_ID: u16 = 121;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DECOMPRESS_MEMORY_NV_COMMAND_ID: u16 = 122;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DISPATCH_COMMAND_ID: u16 = 123;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DISPATCH_BASE_COMMAND_ID: u16 = 124;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DISPATCH_BASE_KHR_COMMAND_ID: u16 = 125;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DISPATCH_DATA_GRAPH_ARM_COMMAND_ID: u16 = 126;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DISPATCH_GRAPH_AMDX_COMMAND_ID: u16 = 127;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DISPATCH_GRAPH_INDIRECT_AMDX_COMMAND_ID: u16 = 128;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DISPATCH_GRAPH_INDIRECT_COUNT_AMDX_COMMAND_ID: u16 = 129;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DISPATCH_INDIRECT_COMMAND_ID: u16 = 130;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DISPATCH_INDIRECT2KHR_COMMAND_ID: u16 = 131;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DISPATCH_TILE_QCOM_COMMAND_ID: u16 = 132;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_COMMAND_ID: u16 = 133;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_CLUSTER_HUAWEI_COMMAND_ID: u16 = 134;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_CLUSTER_INDIRECT_HUAWEI_COMMAND_ID: u16 = 135;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_INDEXED_COMMAND_ID: u16 = 136;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_INDEXED_INDIRECT_COMMAND_ID: u16 = 137;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_INDEXED_INDIRECT2KHR_COMMAND_ID: u16 = 138;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_INDEXED_INDIRECT_COUNT_COMMAND_ID: u16 = 139;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_INDEXED_INDIRECT_COUNT2KHR_COMMAND_ID: u16 = 140;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_INDEXED_INDIRECT_COUNT_AMD_COMMAND_ID: u16 = 141;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_INDEXED_INDIRECT_COUNT_KHR_COMMAND_ID: u16 = 142;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_INDIRECT_COMMAND_ID: u16 = 143;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_INDIRECT2KHR_COMMAND_ID: u16 = 144;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_INDIRECT_BYTE_COUNT2EXT_COMMAND_ID: u16 = 145;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_INDIRECT_BYTE_COUNT_EXT_COMMAND_ID: u16 = 146;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_INDIRECT_COUNT_COMMAND_ID: u16 = 147;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_INDIRECT_COUNT2KHR_COMMAND_ID: u16 = 148;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_INDIRECT_COUNT_AMD_COMMAND_ID: u16 = 149;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_INDIRECT_COUNT_KHR_COMMAND_ID: u16 = 150;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_MESH_TASKS_EXT_COMMAND_ID: u16 = 151;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_MESH_TASKS_INDIRECT2EXT_COMMAND_ID: u16 = 152;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_MESH_TASKS_INDIRECT_COUNT2EXT_COMMAND_ID: u16 = 153;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_MESH_TASKS_INDIRECT_COUNT_EXT_COMMAND_ID: u16 = 154;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_MESH_TASKS_INDIRECT_COUNT_NV_COMMAND_ID: u16 = 155;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_MESH_TASKS_INDIRECT_EXT_COMMAND_ID: u16 = 156;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_MESH_TASKS_INDIRECT_NV_COMMAND_ID: u16 = 157;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_MESH_TASKS_NV_COMMAND_ID: u16 = 158;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_MULTI_EXT_COMMAND_ID: u16 = 159;
-#[allow(dead_code)]
-pub(super) const VK_CMD_DRAW_MULTI_INDEXED_EXT_COMMAND_ID: u16 = 160;
-#[allow(dead_code)]
-pub(super) const VK_CMD_ENCODE_VIDEO_KHR_COMMAND_ID: u16 = 161;
-#[allow(dead_code)]
-pub(super) const VK_CMD_END_CONDITIONAL_RENDERING_EXT_COMMAND_ID: u16 = 162;
-#[allow(dead_code)]
-pub(super) const VK_CMD_END_DEBUG_UTILS_LABEL_EXT_COMMAND_ID: u16 = 163;
-#[allow(dead_code)]
-pub(super) const VK_CMD_END_GPA_SAMPLE_AMD_COMMAND_ID: u16 = 164;
-#[allow(dead_code)]
-pub(super) const VK_CMD_END_GPA_SESSION_AMD_COMMAND_ID: u16 = 165;
-#[allow(dead_code)]
-pub(super) const VK_CMD_END_PER_TILE_EXECUTION_QCOM_COMMAND_ID: u16 = 166;
-#[allow(dead_code)]
-pub(super) const VK_CMD_END_QUERY_COMMAND_ID: u16 = 167;
-#[allow(dead_code)]
-pub(super) const VK_CMD_END_QUERY_INDEXED_EXT_COMMAND_ID: u16 = 168;
-#[allow(dead_code)]
-pub(super) const VK_CMD_END_RENDER_PASS_COMMAND_ID: u16 = 169;
-#[allow(dead_code)]
-pub(super) const VK_CMD_END_RENDER_PASS2_COMMAND_ID: u16 = 170;
-#[allow(dead_code)]
-pub(super) const VK_CMD_END_RENDER_PASS2KHR_COMMAND_ID: u16 = 171;
-#[allow(dead_code)]
-pub(super) const VK_CMD_END_RENDERING_COMMAND_ID: u16 = 172;
-#[allow(dead_code)]
-pub(super) const VK_CMD_END_RENDERING2EXT_COMMAND_ID: u16 = 173;
-#[allow(dead_code)]
-pub(super) const VK_CMD_END_RENDERING2KHR_COMMAND_ID: u16 = 174;
-#[allow(dead_code)]
-pub(super) const VK_CMD_END_RENDERING_KHR_COMMAND_ID: u16 = 175;
-#[allow(dead_code)]
-pub(super) const VK_CMD_END_SHADER_INSTRUMENTATION_ARM_COMMAND_ID: u16 = 176;
-#[allow(dead_code)]
-pub(super) const VK_CMD_END_TRANSFORM_FEEDBACK2EXT_COMMAND_ID: u16 = 177;
-#[allow(dead_code)]
-pub(super) const VK_CMD_END_TRANSFORM_FEEDBACK_EXT_COMMAND_ID: u16 = 178;
-#[allow(dead_code)]
-pub(super) const VK_CMD_END_VIDEO_CODING_KHR_COMMAND_ID: u16 = 179;
-#[allow(dead_code)]
-pub(super) const VK_CMD_EXECUTE_COMMANDS_COMMAND_ID: u16 = 180;
-#[allow(dead_code)]
-pub(super) const VK_CMD_EXECUTE_GENERATED_COMMANDS_EXT_COMMAND_ID: u16 = 181;
-#[allow(dead_code)]
-pub(super) const VK_CMD_EXECUTE_GENERATED_COMMANDS_NV_COMMAND_ID: u16 = 182;
-#[allow(dead_code)]
-pub(super) const VK_CMD_FILL_BUFFER_COMMAND_ID: u16 = 183;
-#[allow(dead_code)]
-pub(super) const VK_CMD_FILL_MEMORY_KHR_COMMAND_ID: u16 = 184;
-#[allow(dead_code)]
-pub(super) const VK_CMD_INITIALIZE_GRAPH_SCRATCH_MEMORY_AMDX_COMMAND_ID: u16 = 185;
-#[allow(dead_code)]
-pub(super) const VK_CMD_INSERT_DEBUG_UTILS_LABEL_EXT_COMMAND_ID: u16 = 186;
-#[allow(dead_code)]
-pub(super) const VK_CMD_NEXT_SUBPASS_COMMAND_ID: u16 = 187;
-#[allow(dead_code)]
-pub(super) const VK_CMD_NEXT_SUBPASS2_COMMAND_ID: u16 = 188;
-#[allow(dead_code)]
-pub(super) const VK_CMD_NEXT_SUBPASS2KHR_COMMAND_ID: u16 = 189;
-#[allow(dead_code)]
-pub(super) const VK_CMD_OPTICAL_FLOW_EXECUTE_NV_COMMAND_ID: u16 = 190;
-#[allow(dead_code)]
-pub(super) const VK_CMD_PIPELINE_BARRIER_COMMAND_ID: u16 = 191;
-#[allow(dead_code)]
-pub(super) const VK_CMD_PIPELINE_BARRIER2_COMMAND_ID: u16 = 192;
-#[allow(dead_code)]
-pub(super) const VK_CMD_PIPELINE_BARRIER2KHR_COMMAND_ID: u16 = 193;
-#[allow(dead_code)]
-pub(super) const VK_CMD_PREPROCESS_GENERATED_COMMANDS_EXT_COMMAND_ID: u16 = 194;
-#[allow(dead_code)]
-pub(super) const VK_CMD_PREPROCESS_GENERATED_COMMANDS_NV_COMMAND_ID: u16 = 195;
-#[allow(dead_code)]
-pub(super) const VK_CMD_PUSH_CONSTANTS_COMMAND_ID: u16 = 196;
-#[allow(dead_code)]
-pub(super) const VK_CMD_PUSH_CONSTANTS2_COMMAND_ID: u16 = 197;
-#[allow(dead_code)]
-pub(super) const VK_CMD_PUSH_CONSTANTS2KHR_COMMAND_ID: u16 = 198;
-#[allow(dead_code)]
-pub(super) const VK_CMD_PUSH_DATA_EXT_COMMAND_ID: u16 = 199;
-#[allow(dead_code)]
-pub(super) const VK_CMD_PUSH_DESCRIPTOR_SET_COMMAND_ID: u16 = 200;
-#[allow(dead_code)]
-pub(super) const VK_CMD_PUSH_DESCRIPTOR_SET2_COMMAND_ID: u16 = 201;
-#[allow(dead_code)]
-pub(super) const VK_CMD_PUSH_DESCRIPTOR_SET2KHR_COMMAND_ID: u16 = 202;
-#[allow(dead_code)]
-pub(super) const VK_CMD_PUSH_DESCRIPTOR_SET_KHR_COMMAND_ID: u16 = 203;
-#[allow(dead_code)]
-pub(super) const VK_CMD_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE_COMMAND_ID: u16 = 204;
-#[allow(dead_code)]
-pub(super) const VK_CMD_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE2_COMMAND_ID: u16 = 205;
-#[allow(dead_code)]
-pub(super) const VK_CMD_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE2KHR_COMMAND_ID: u16 = 206;
-#[allow(dead_code)]
-pub(super) const VK_CMD_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE_KHR_COMMAND_ID: u16 = 207;
-#[allow(dead_code)]
-pub(super) const VK_CMD_RESET_EVENT_COMMAND_ID: u16 = 208;
-#[allow(dead_code)]
-pub(super) const VK_CMD_RESET_EVENT2_COMMAND_ID: u16 = 209;
-#[allow(dead_code)]
-pub(super) const VK_CMD_RESET_EVENT2KHR_COMMAND_ID: u16 = 210;
-#[allow(dead_code)]
-pub(super) const VK_CMD_RESET_QUERY_POOL_COMMAND_ID: u16 = 211;
-#[allow(dead_code)]
-pub(super) const VK_CMD_RESOLVE_IMAGE_COMMAND_ID: u16 = 212;
-#[allow(dead_code)]
-pub(super) const VK_CMD_RESOLVE_IMAGE2_COMMAND_ID: u16 = 213;
-#[allow(dead_code)]
-pub(super) const VK_CMD_RESOLVE_IMAGE2KHR_COMMAND_ID: u16 = 214;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_ALPHA_TO_COVERAGE_ENABLE_EXT_COMMAND_ID: u16 = 215;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_ALPHA_TO_ONE_ENABLE_EXT_COMMAND_ID: u16 = 216;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_ATTACHMENT_FEEDBACK_LOOP_ENABLE_EXT_COMMAND_ID: u16 = 217;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_BLEND_CONSTANTS_COMMAND_ID: u16 = 218;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_CHECKPOINT_NV_COMMAND_ID: u16 = 219;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_COARSE_SAMPLE_ORDER_NV_COMMAND_ID: u16 = 220;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_COLOR_BLEND_ADVANCED_EXT_COMMAND_ID: u16 = 221;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_COLOR_BLEND_ENABLE_EXT_COMMAND_ID: u16 = 222;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_COLOR_BLEND_EQUATION_EXT_COMMAND_ID: u16 = 223;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_COLOR_WRITE_ENABLE_EXT_COMMAND_ID: u16 = 224;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_COLOR_WRITE_MASK_EXT_COMMAND_ID: u16 = 225;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_COMPUTE_OCCUPANCY_PRIORITY_NV_COMMAND_ID: u16 = 226;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_CONSERVATIVE_RASTERIZATION_MODE_EXT_COMMAND_ID: u16 = 227;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_COVERAGE_MODULATION_MODE_NV_COMMAND_ID: u16 = 228;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_COVERAGE_MODULATION_TABLE_ENABLE_NV_COMMAND_ID: u16 = 229;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_COVERAGE_MODULATION_TABLE_NV_COMMAND_ID: u16 = 230;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_COVERAGE_REDUCTION_MODE_NV_COMMAND_ID: u16 = 231;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_COVERAGE_TO_COLOR_ENABLE_NV_COMMAND_ID: u16 = 232;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_COVERAGE_TO_COLOR_LOCATION_NV_COMMAND_ID: u16 = 233;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_CULL_MODE_COMMAND_ID: u16 = 234;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_CULL_MODE_EXT_COMMAND_ID: u16 = 235;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_DEPTH_BIAS_COMMAND_ID: u16 = 236;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_DEPTH_BIAS2EXT_COMMAND_ID: u16 = 237;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_DEPTH_BIAS_ENABLE_COMMAND_ID: u16 = 238;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_DEPTH_BIAS_ENABLE_EXT_COMMAND_ID: u16 = 239;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_DEPTH_BOUNDS_COMMAND_ID: u16 = 240;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_DEPTH_BOUNDS_TEST_ENABLE_COMMAND_ID: u16 = 241;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_DEPTH_BOUNDS_TEST_ENABLE_EXT_COMMAND_ID: u16 = 242;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_DEPTH_CLAMP_ENABLE_EXT_COMMAND_ID: u16 = 243;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_DEPTH_CLAMP_RANGE_EXT_COMMAND_ID: u16 = 244;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_DEPTH_CLIP_ENABLE_EXT_COMMAND_ID: u16 = 245;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_DEPTH_CLIP_NEGATIVE_ONE_TO_ONE_EXT_COMMAND_ID: u16 = 246;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_DEPTH_COMPARE_OP_COMMAND_ID: u16 = 247;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_DEPTH_COMPARE_OP_EXT_COMMAND_ID: u16 = 248;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_DEPTH_TEST_ENABLE_COMMAND_ID: u16 = 249;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_DEPTH_TEST_ENABLE_EXT_COMMAND_ID: u16 = 250;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_DEPTH_WRITE_ENABLE_COMMAND_ID: u16 = 251;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_DEPTH_WRITE_ENABLE_EXT_COMMAND_ID: u16 = 252;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_DESCRIPTOR_BUFFER_OFFSETS2EXT_COMMAND_ID: u16 = 253;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_DESCRIPTOR_BUFFER_OFFSETS_EXT_COMMAND_ID: u16 = 254;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_DEVICE_MASK_COMMAND_ID: u16 = 255;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_DEVICE_MASK_KHR_COMMAND_ID: u16 = 256;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_DISCARD_RECTANGLE_EXT_COMMAND_ID: u16 = 257;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_DISCARD_RECTANGLE_ENABLE_EXT_COMMAND_ID: u16 = 258;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_DISCARD_RECTANGLE_MODE_EXT_COMMAND_ID: u16 = 259;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_DISPATCH_PARAMETERS_ARM_COMMAND_ID: u16 = 260;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_EVENT_COMMAND_ID: u16 = 261;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_EVENT2_COMMAND_ID: u16 = 262;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_EVENT2KHR_COMMAND_ID: u16 = 263;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_EXCLUSIVE_SCISSOR_ENABLE_NV_COMMAND_ID: u16 = 264;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_EXCLUSIVE_SCISSOR_NV_COMMAND_ID: u16 = 265;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_EXTRA_PRIMITIVE_OVERESTIMATION_SIZE_EXT_COMMAND_ID: u16 = 266;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_FRAGMENT_SHADING_RATE_ENUM_NV_COMMAND_ID: u16 = 267;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_FRAGMENT_SHADING_RATE_KHR_COMMAND_ID: u16 = 268;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_FRONT_FACE_COMMAND_ID: u16 = 269;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_FRONT_FACE_EXT_COMMAND_ID: u16 = 270;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_LINE_RASTERIZATION_MODE_EXT_COMMAND_ID: u16 = 271;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_LINE_STIPPLE_COMMAND_ID: u16 = 272;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_LINE_STIPPLE_EXT_COMMAND_ID: u16 = 273;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_LINE_STIPPLE_ENABLE_EXT_COMMAND_ID: u16 = 274;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_LINE_STIPPLE_KHR_COMMAND_ID: u16 = 275;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_LINE_WIDTH_COMMAND_ID: u16 = 276;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_LOGIC_OP_EXT_COMMAND_ID: u16 = 277;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_LOGIC_OP_ENABLE_EXT_COMMAND_ID: u16 = 278;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_PATCH_CONTROL_POINTS_EXT_COMMAND_ID: u16 = 279;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_PERFORMANCE_MARKER_INTEL_COMMAND_ID: u16 = 280;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_PERFORMANCE_OVERRIDE_INTEL_COMMAND_ID: u16 = 281;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_PERFORMANCE_STREAM_MARKER_INTEL_COMMAND_ID: u16 = 282;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_POLYGON_MODE_EXT_COMMAND_ID: u16 = 283;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_PRIMITIVE_RESTART_ENABLE_COMMAND_ID: u16 = 284;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_PRIMITIVE_RESTART_ENABLE_EXT_COMMAND_ID: u16 = 285;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_PRIMITIVE_RESTART_INDEX_EXT_COMMAND_ID: u16 = 286;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_PRIMITIVE_TOPOLOGY_COMMAND_ID: u16 = 287;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_PRIMITIVE_TOPOLOGY_EXT_COMMAND_ID: u16 = 288;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_PROVOKING_VERTEX_MODE_EXT_COMMAND_ID: u16 = 289;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_RASTERIZATION_SAMPLES_EXT_COMMAND_ID: u16 = 290;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_RASTERIZATION_STREAM_EXT_COMMAND_ID: u16 = 291;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_RASTERIZER_DISCARD_ENABLE_COMMAND_ID: u16 = 292;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_RASTERIZER_DISCARD_ENABLE_EXT_COMMAND_ID: u16 = 293;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_RAY_TRACING_PIPELINE_STACK_SIZE_KHR_COMMAND_ID: u16 = 294;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_RENDERING_ATTACHMENT_LOCATIONS_COMMAND_ID: u16 = 295;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_RENDERING_ATTACHMENT_LOCATIONS_KHR_COMMAND_ID: u16 = 296;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_RENDERING_INPUT_ATTACHMENT_INDICES_COMMAND_ID: u16 = 297;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_RENDERING_INPUT_ATTACHMENT_INDICES_KHR_COMMAND_ID: u16 = 298;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_REPRESENTATIVE_FRAGMENT_TEST_ENABLE_NV_COMMAND_ID: u16 = 299;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_SAMPLE_LOCATIONS_EXT_COMMAND_ID: u16 = 300;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_SAMPLE_LOCATIONS_ENABLE_EXT_COMMAND_ID: u16 = 301;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_SAMPLE_MASK_EXT_COMMAND_ID: u16 = 302;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_SCISSOR_COMMAND_ID: u16 = 303;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_SCISSOR_WITH_COUNT_COMMAND_ID: u16 = 304;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_SCISSOR_WITH_COUNT_EXT_COMMAND_ID: u16 = 305;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_SHADING_RATE_IMAGE_ENABLE_NV_COMMAND_ID: u16 = 306;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_STENCIL_COMPARE_MASK_COMMAND_ID: u16 = 307;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_STENCIL_OP_COMMAND_ID: u16 = 308;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_STENCIL_OP_EXT_COMMAND_ID: u16 = 309;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_STENCIL_REFERENCE_COMMAND_ID: u16 = 310;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_STENCIL_TEST_ENABLE_COMMAND_ID: u16 = 311;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_STENCIL_TEST_ENABLE_EXT_COMMAND_ID: u16 = 312;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_STENCIL_WRITE_MASK_COMMAND_ID: u16 = 313;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_TESSELLATION_DOMAIN_ORIGIN_EXT_COMMAND_ID: u16 = 314;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_VERTEX_INPUT_EXT_COMMAND_ID: u16 = 315;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_VIEWPORT_COMMAND_ID: u16 = 316;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_VIEWPORT_SHADING_RATE_PALETTE_NV_COMMAND_ID: u16 = 317;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_VIEWPORT_SWIZZLE_NV_COMMAND_ID: u16 = 318;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_VIEWPORT_W_SCALING_ENABLE_NV_COMMAND_ID: u16 = 319;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_VIEWPORT_W_SCALING_NV_COMMAND_ID: u16 = 320;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_VIEWPORT_WITH_COUNT_COMMAND_ID: u16 = 321;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SET_VIEWPORT_WITH_COUNT_EXT_COMMAND_ID: u16 = 322;
-#[allow(dead_code)]
-pub(super) const VK_CMD_SUBPASS_SHADING_HUAWEI_COMMAND_ID: u16 = 323;
-#[allow(dead_code)]
-pub(super) const VK_CMD_TRACE_RAYS_INDIRECT2KHR_COMMAND_ID: u16 = 324;
-#[allow(dead_code)]
-pub(super) const VK_CMD_TRACE_RAYS_INDIRECT_KHR_COMMAND_ID: u16 = 325;
-#[allow(dead_code)]
-pub(super) const VK_CMD_TRACE_RAYS_KHR_COMMAND_ID: u16 = 326;
-#[allow(dead_code)]
-pub(super) const VK_CMD_TRACE_RAYS_NV_COMMAND_ID: u16 = 327;
-#[allow(dead_code)]
-pub(super) const VK_CMD_UPDATE_BUFFER_COMMAND_ID: u16 = 328;
-#[allow(dead_code)]
-pub(super) const VK_CMD_UPDATE_MEMORY_KHR_COMMAND_ID: u16 = 329;
-#[allow(dead_code)]
-pub(super) const VK_CMD_UPDATE_PIPELINE_INDIRECT_BUFFER_NV_COMMAND_ID: u16 = 330;
-#[allow(dead_code)]
-pub(super) const VK_CMD_WAIT_EVENTS_COMMAND_ID: u16 = 331;
-#[allow(dead_code)]
-pub(super) const VK_CMD_WAIT_EVENTS2_COMMAND_ID: u16 = 332;
-#[allow(dead_code)]
-pub(super) const VK_CMD_WAIT_EVENTS2KHR_COMMAND_ID: u16 = 333;
-#[allow(dead_code)]
-pub(super) const VK_CMD_WRITE_ACCELERATION_STRUCTURES_PROPERTIES_KHR_COMMAND_ID: u16 = 334;
-#[allow(dead_code)]
-pub(super) const VK_CMD_WRITE_ACCELERATION_STRUCTURES_PROPERTIES_NV_COMMAND_ID: u16 = 335;
-#[allow(dead_code)]
-pub(super) const VK_CMD_WRITE_BUFFER_MARKER2AMD_COMMAND_ID: u16 = 336;
-#[allow(dead_code)]
-pub(super) const VK_CMD_WRITE_BUFFER_MARKER_AMD_COMMAND_ID: u16 = 337;
-#[allow(dead_code)]
-pub(super) const VK_CMD_WRITE_MARKER_TO_MEMORY_AMD_COMMAND_ID: u16 = 338;
-#[allow(dead_code)]
-pub(super) const VK_CMD_WRITE_MICROMAPS_PROPERTIES_EXT_COMMAND_ID: u16 = 339;
-#[allow(dead_code)]
-pub(super) const VK_CMD_WRITE_TIMESTAMP_COMMAND_ID: u16 = 340;
-#[allow(dead_code)]
-pub(super) const VK_CMD_WRITE_TIMESTAMP2_COMMAND_ID: u16 = 341;
-#[allow(dead_code)]
-pub(super) const VK_CMD_WRITE_TIMESTAMP2KHR_COMMAND_ID: u16 = 342;
-#[allow(dead_code)]
-pub(super) const VK_COMPILE_DEFERRED_NV_COMMAND_ID: u16 = 343;
-#[allow(dead_code)]
-pub(super) const VK_CONVERT_COOPERATIVE_VECTOR_MATRIX_NV_COMMAND_ID: u16 = 344;
-#[allow(dead_code)]
-pub(super) const VK_COPY_ACCELERATION_STRUCTURE_KHR_COMMAND_ID: u16 = 345;
-#[allow(dead_code)]
-pub(super) const VK_COPY_ACCELERATION_STRUCTURE_TO_MEMORY_KHR_COMMAND_ID: u16 = 346;
-#[allow(dead_code)]
-pub(super) const VK_COPY_IMAGE_TO_IMAGE_COMMAND_ID: u16 = 347;
-#[allow(dead_code)]
-pub(super) const VK_COPY_IMAGE_TO_IMAGE_EXT_COMMAND_ID: u16 = 348;
-#[allow(dead_code)]
-pub(super) const VK_COPY_IMAGE_TO_MEMORY_COMMAND_ID: u16 = 349;
-#[allow(dead_code)]
-pub(super) const VK_COPY_IMAGE_TO_MEMORY_EXT_COMMAND_ID: u16 = 350;
-#[allow(dead_code)]
-pub(super) const VK_COPY_MEMORY_TO_ACCELERATION_STRUCTURE_KHR_COMMAND_ID: u16 = 351;
-#[allow(dead_code)]
-pub(super) const VK_COPY_MEMORY_TO_IMAGE_COMMAND_ID: u16 = 352;
-#[allow(dead_code)]
-pub(super) const VK_COPY_MEMORY_TO_IMAGE_EXT_COMMAND_ID: u16 = 353;
-#[allow(dead_code)]
-pub(super) const VK_COPY_MEMORY_TO_MICROMAP_EXT_COMMAND_ID: u16 = 354;
-#[allow(dead_code)]
-pub(super) const VK_COPY_MICROMAP_EXT_COMMAND_ID: u16 = 355;
-#[allow(dead_code)]
-pub(super) const VK_COPY_MICROMAP_TO_MEMORY_EXT_COMMAND_ID: u16 = 356;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_ACCELERATION_STRUCTURE2KHR_COMMAND_ID: u16 = 357;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_ACCELERATION_STRUCTURE_KHR_COMMAND_ID: u16 = 358;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_ACCELERATION_STRUCTURE_NV_COMMAND_ID: u16 = 359;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_BUFFER_COMMAND_ID: u16 = 361;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_BUFFER_COLLECTION_FUCHSIA_COMMAND_ID: u16 = 362;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_BUFFER_VIEW_COMMAND_ID: u16 = 363;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_COMMAND_POOL_COMMAND_ID: u16 = 364;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_COMPUTE_PIPELINES_COMMAND_ID: u16 = 365;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_CU_FUNCTION_NVX_COMMAND_ID: u16 = 366;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_CU_MODULE_NVX_COMMAND_ID: u16 = 367;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_CUDA_FUNCTION_NV_COMMAND_ID: u16 = 368;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_CUDA_MODULE_NV_COMMAND_ID: u16 = 369;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_DATA_GRAPH_PIPELINE_SESSION_ARM_COMMAND_ID: u16 = 370;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_DATA_GRAPH_PIPELINES_ARM_COMMAND_ID: u16 = 371;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_DEFERRED_OPERATION_KHR_COMMAND_ID: u16 = 374;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_DESCRIPTOR_POOL_COMMAND_ID: u16 = 375;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_DESCRIPTOR_SET_LAYOUT_COMMAND_ID: u16 = 376;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_DESCRIPTOR_UPDATE_TEMPLATE_COMMAND_ID: u16 = 377;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_DESCRIPTOR_UPDATE_TEMPLATE_KHR_COMMAND_ID: u16 = 378;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_EVENT_COMMAND_ID: u16 = 383;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_EXECUTION_GRAPH_PIPELINES_AMDX_COMMAND_ID: u16 = 384;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_EXTERNAL_COMPUTE_QUEUE_NV_COMMAND_ID: u16 = 385;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_FENCE_COMMAND_ID: u16 = 386;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_FRAMEBUFFER_COMMAND_ID: u16 = 387;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_GPA_SESSION_AMD_COMMAND_ID: u16 = 388;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_GRAPHICS_PIPELINES_COMMAND_ID: u16 = 389;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_IMAGE_COMMAND_ID: u16 = 392;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_IMAGE_VIEW_COMMAND_ID: u16 = 394;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_INDIRECT_COMMANDS_LAYOUT_EXT_COMMAND_ID: u16 = 395;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_INDIRECT_COMMANDS_LAYOUT_NV_COMMAND_ID: u16 = 396;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_INDIRECT_EXECUTION_SET_EXT_COMMAND_ID: u16 = 397;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_MICROMAP_EXT_COMMAND_ID: u16 = 401;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_OPTICAL_FLOW_SESSION_NV_COMMAND_ID: u16 = 402;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_PIPELINE_BINARIES_KHR_COMMAND_ID: u16 = 403;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_PIPELINE_CACHE_COMMAND_ID: u16 = 404;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_PIPELINE_LAYOUT_COMMAND_ID: u16 = 405;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_PRIVATE_DATA_SLOT_COMMAND_ID: u16 = 406;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_PRIVATE_DATA_SLOT_EXT_COMMAND_ID: u16 = 407;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_QUERY_POOL_COMMAND_ID: u16 = 408;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_RAY_TRACING_PIPELINES_KHR_COMMAND_ID: u16 = 409;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_RAY_TRACING_PIPELINES_NV_COMMAND_ID: u16 = 410;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_RENDER_PASS_COMMAND_ID: u16 = 411;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_RENDER_PASS2_COMMAND_ID: u16 = 412;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_RENDER_PASS2KHR_COMMAND_ID: u16 = 413;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_SAMPLER_COMMAND_ID: u16 = 414;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_SAMPLER_YCBCR_CONVERSION_COMMAND_ID: u16 = 415;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_SAMPLER_YCBCR_CONVERSION_KHR_COMMAND_ID: u16 = 416;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_SEMAPHORE_COMMAND_ID: u16 = 418;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_SHADER_INSTRUMENTATION_ARM_COMMAND_ID: u16 = 419;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_SHADER_MODULE_COMMAND_ID: u16 = 420;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_SHADERS_EXT_COMMAND_ID: u16 = 421;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_SHARED_SWAPCHAINS_KHR_COMMAND_ID: u16 = 422;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_SWAPCHAIN_KHR_COMMAND_ID: u16 = 425;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_TENSOR_ARM_COMMAND_ID: u16 = 426;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_TENSOR_VIEW_ARM_COMMAND_ID: u16 = 427;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_VALIDATION_CACHE_EXT_COMMAND_ID: u16 = 429;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_VIDEO_SESSION_KHR_COMMAND_ID: u16 = 431;
-#[allow(dead_code)]
-pub(super) const VK_CREATE_VIDEO_SESSION_PARAMETERS_KHR_COMMAND_ID: u16 = 432;
-#[allow(dead_code)]
-pub(super) const VK_DEBUG_MARKER_SET_OBJECT_NAME_EXT_COMMAND_ID: u16 = 437;
-#[allow(dead_code)]
-pub(super) const VK_DEBUG_MARKER_SET_OBJECT_TAG_EXT_COMMAND_ID: u16 = 438;
-#[allow(dead_code)]
-pub(super) const VK_DEFERRED_OPERATION_JOIN_KHR_COMMAND_ID: u16 = 440;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_ACCELERATION_STRUCTURE_KHR_COMMAND_ID: u16 = 441;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_ACCELERATION_STRUCTURE_NV_COMMAND_ID: u16 = 442;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_BUFFER_COMMAND_ID: u16 = 443;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_BUFFER_COLLECTION_FUCHSIA_COMMAND_ID: u16 = 444;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_BUFFER_VIEW_COMMAND_ID: u16 = 445;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_COMMAND_POOL_COMMAND_ID: u16 = 446;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_CU_FUNCTION_NVX_COMMAND_ID: u16 = 447;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_CU_MODULE_NVX_COMMAND_ID: u16 = 448;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_CUDA_FUNCTION_NV_COMMAND_ID: u16 = 449;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_CUDA_MODULE_NV_COMMAND_ID: u16 = 450;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_DATA_GRAPH_PIPELINE_SESSION_ARM_COMMAND_ID: u16 = 451;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_DEFERRED_OPERATION_KHR_COMMAND_ID: u16 = 454;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_DESCRIPTOR_POOL_COMMAND_ID: u16 = 455;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_DESCRIPTOR_SET_LAYOUT_COMMAND_ID: u16 = 456;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_DESCRIPTOR_UPDATE_TEMPLATE_COMMAND_ID: u16 = 457;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_DESCRIPTOR_UPDATE_TEMPLATE_KHR_COMMAND_ID: u16 = 458;
-#[allow(dead_code)]
+pub(super) const VK_GET_DEVICE_PROC_ADDR_COMMAND_ID: u16 = 569;
 pub(super) const VK_DESTROY_DEVICE_COMMAND_ID: u16 = 459;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_EVENT_COMMAND_ID: u16 = 460;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_EXTERNAL_COMPUTE_QUEUE_NV_COMMAND_ID: u16 = 461;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_FENCE_COMMAND_ID: u16 = 462;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_FRAMEBUFFER_COMMAND_ID: u16 = 463;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_GPA_SESSION_AMD_COMMAND_ID: u16 = 464;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_IMAGE_COMMAND_ID: u16 = 465;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_IMAGE_VIEW_COMMAND_ID: u16 = 466;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_INDIRECT_COMMANDS_LAYOUT_EXT_COMMAND_ID: u16 = 467;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_INDIRECT_COMMANDS_LAYOUT_NV_COMMAND_ID: u16 = 468;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_INDIRECT_EXECUTION_SET_EXT_COMMAND_ID: u16 = 469;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_MICROMAP_EXT_COMMAND_ID: u16 = 471;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_OPTICAL_FLOW_SESSION_NV_COMMAND_ID: u16 = 472;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_PIPELINE_COMMAND_ID: u16 = 473;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_PIPELINE_BINARY_KHR_COMMAND_ID: u16 = 474;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_PIPELINE_CACHE_COMMAND_ID: u16 = 475;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_PIPELINE_LAYOUT_COMMAND_ID: u16 = 476;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_PRIVATE_DATA_SLOT_COMMAND_ID: u16 = 477;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_PRIVATE_DATA_SLOT_EXT_COMMAND_ID: u16 = 478;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_QUERY_POOL_COMMAND_ID: u16 = 479;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_RENDER_PASS_COMMAND_ID: u16 = 480;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_SAMPLER_COMMAND_ID: u16 = 481;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_SAMPLER_YCBCR_CONVERSION_COMMAND_ID: u16 = 482;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_SAMPLER_YCBCR_CONVERSION_KHR_COMMAND_ID: u16 = 483;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_SEMAPHORE_COMMAND_ID: u16 = 484;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_SHADER_EXT_COMMAND_ID: u16 = 485;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_SHADER_INSTRUMENTATION_ARM_COMMAND_ID: u16 = 486;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_SHADER_MODULE_COMMAND_ID: u16 = 487;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_SWAPCHAIN_KHR_COMMAND_ID: u16 = 489;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_TENSOR_ARM_COMMAND_ID: u16 = 490;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_TENSOR_VIEW_ARM_COMMAND_ID: u16 = 491;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_VALIDATION_CACHE_EXT_COMMAND_ID: u16 = 492;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_VIDEO_SESSION_KHR_COMMAND_ID: u16 = 493;
-#[allow(dead_code)]
-pub(super) const VK_DESTROY_VIDEO_SESSION_PARAMETERS_KHR_COMMAND_ID: u16 = 494;
-#[allow(dead_code)]
+pub(super) const VK_GET_DEVICE_QUEUE_COMMAND_ID: u16 = 570;
+pub(super) const VK_QUEUE_SUBMIT_COMMAND_ID: u16 = 776;
+pub(super) const VK_QUEUE_WAIT_IDLE_COMMAND_ID: u16 = 779;
 pub(super) const VK_DEVICE_WAIT_IDLE_COMMAND_ID: u16 = 495;
-#[allow(dead_code)]
-pub(super) const VK_DISPLAY_POWER_CONTROL_EXT_COMMAND_ID: u16 = 496;
-#[allow(dead_code)]
-pub(super) const VK_END_COMMAND_BUFFER_COMMAND_ID: u16 = 497;
-#[allow(dead_code)]
-pub(super) const VK_EXPORT_METAL_OBJECTS_EXT_COMMAND_ID: u16 = 509;
-#[allow(dead_code)]
-pub(super) const VK_FLUSH_MAPPED_MEMORY_RANGES_COMMAND_ID: u16 = 510;
-#[allow(dead_code)]
-pub(super) const VK_FREE_COMMAND_BUFFERS_COMMAND_ID: u16 = 511;
-#[allow(dead_code)]
-pub(super) const VK_FREE_DESCRIPTOR_SETS_COMMAND_ID: u16 = 512;
-#[allow(dead_code)]
+pub(super) const VK_ALLOCATE_MEMORY_COMMAND_ID: u16 = 10;
 pub(super) const VK_FREE_MEMORY_COMMAND_ID: u16 = 513;
-#[allow(dead_code)]
-pub(super) const VK_GET_ACCELERATION_STRUCTURE_BUILD_SIZES_KHR_COMMAND_ID: u16 = 514;
-#[allow(dead_code)]
-pub(super) const VK_GET_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_KHR_COMMAND_ID: u16 = 515;
-#[allow(dead_code)]
-pub(super) const VK_GET_ACCELERATION_STRUCTURE_HANDLE_NV_COMMAND_ID: u16 = 516;
-#[allow(dead_code)]
+pub(super) const VK_MAP_MEMORY_COMMAND_ID: u16 = 762;
+pub(super) const VK_UNMAP_MEMORY_COMMAND_ID: u16 = 823;
+pub(super) const VK_FLUSH_MAPPED_MEMORY_RANGES_COMMAND_ID: u16 = 510;
+pub(super) const VK_INVALIDATE_MAPPED_MEMORY_RANGES_COMMAND_ID: u16 = 759;
+pub(super) const VK_GET_DEVICE_MEMORY_COMMITMENT_COMMAND_ID: u16 = 565;
+pub(super) const VK_BIND_BUFFER_MEMORY_COMMAND_ID: u16 = 14;
+pub(super) const VK_BIND_IMAGE_MEMORY_COMMAND_ID: u16 = 18;
+pub(super) const VK_GET_BUFFER_MEMORY_REQUIREMENTS_COMMAND_ID: u16 = 524;
+pub(super) const VK_GET_IMAGE_MEMORY_REQUIREMENTS_COMMAND_ID: u16 = 596;
+pub(super) const VK_GET_IMAGE_SPARSE_MEMORY_REQUIREMENTS_COMMAND_ID: u16 = 601;
+pub(super) const VK_QUEUE_BIND_SPARSE_COMMAND_ID: u16 = 768;
+pub(super) const VK_CREATE_FENCE_COMMAND_ID: u16 = 386;
+pub(super) const VK_DESTROY_FENCE_COMMAND_ID: u16 = 462;
+pub(super) const VK_RESET_FENCES_COMMAND_ID: u16 = 794;
+pub(super) const VK_GET_FENCE_STATUS_COMMAND_ID: u16 = 587;
+pub(super) const VK_WAIT_FOR_FENCES_COMMAND_ID: u16 = 833;
+pub(super) const VK_CREATE_SEMAPHORE_COMMAND_ID: u16 = 418;
+pub(super) const VK_DESTROY_SEMAPHORE_COMMAND_ID: u16 = 484;
+pub(super) const VK_CREATE_QUERY_POOL_COMMAND_ID: u16 = 408;
+pub(super) const VK_DESTROY_QUERY_POOL_COMMAND_ID: u16 = 479;
+pub(super) const VK_GET_QUERY_POOL_RESULTS_COMMAND_ID: u16 = 716;
+pub(super) const VK_CREATE_BUFFER_COMMAND_ID: u16 = 361;
+pub(super) const VK_DESTROY_BUFFER_COMMAND_ID: u16 = 443;
+pub(super) const VK_CREATE_IMAGE_COMMAND_ID: u16 = 392;
+pub(super) const VK_DESTROY_IMAGE_COMMAND_ID: u16 = 465;
+pub(super) const VK_GET_IMAGE_SUBRESOURCE_LAYOUT_COMMAND_ID: u16 = 604;
+pub(super) const VK_CREATE_IMAGE_VIEW_COMMAND_ID: u16 = 394;
+pub(super) const VK_DESTROY_IMAGE_VIEW_COMMAND_ID: u16 = 466;
+pub(super) const VK_CREATE_COMMAND_POOL_COMMAND_ID: u16 = 364;
+pub(super) const VK_DESTROY_COMMAND_POOL_COMMAND_ID: u16 = 446;
+pub(super) const VK_RESET_COMMAND_POOL_COMMAND_ID: u16 = 791;
+pub(super) const VK_ALLOCATE_COMMAND_BUFFERS_COMMAND_ID: u16 = 8;
+pub(super) const VK_FREE_COMMAND_BUFFERS_COMMAND_ID: u16 = 511;
+pub(super) const VK_BEGIN_COMMAND_BUFFER_COMMAND_ID: u16 = 12;
+pub(super) const VK_END_COMMAND_BUFFER_COMMAND_ID: u16 = 497;
+pub(super) const VK_RESET_COMMAND_BUFFER_COMMAND_ID: u16 = 790;
+pub(super) const VK_CMD_COPY_BUFFER_COMMAND_ID: u16 = 86;
+pub(super) const VK_CMD_COPY_IMAGE_COMMAND_ID: u16 = 93;
+pub(super) const VK_CMD_COPY_BUFFER_TO_IMAGE_COMMAND_ID: u16 = 89;
+pub(super) const VK_CMD_COPY_IMAGE_TO_BUFFER_COMMAND_ID: u16 = 96;
+pub(super) const VK_CMD_UPDATE_BUFFER_COMMAND_ID: u16 = 328;
+pub(super) const VK_CMD_FILL_BUFFER_COMMAND_ID: u16 = 183;
+pub(super) const VK_CMD_PIPELINE_BARRIER_COMMAND_ID: u16 = 191;
+pub(super) const VK_CMD_BEGIN_QUERY_COMMAND_ID: u16 = 34;
+pub(super) const VK_CMD_END_QUERY_COMMAND_ID: u16 = 167;
+pub(super) const VK_CMD_RESET_QUERY_POOL_COMMAND_ID: u16 = 211;
+pub(super) const VK_CMD_WRITE_TIMESTAMP_COMMAND_ID: u16 = 340;
+pub(super) const VK_CMD_COPY_QUERY_POOL_RESULTS_COMMAND_ID: u16 = 110;
+pub(super) const VK_CMD_EXECUTE_COMMANDS_COMMAND_ID: u16 = 180;
+pub(super) const VK_CREATE_EVENT_COMMAND_ID: u16 = 383;
+pub(super) const VK_DESTROY_EVENT_COMMAND_ID: u16 = 460;
+pub(super) const VK_GET_EVENT_STATUS_COMMAND_ID: u16 = 582;
+pub(super) const VK_SET_EVENT_COMMAND_ID: u16 = 803;
+pub(super) const VK_RESET_EVENT_COMMAND_ID: u16 = 793;
+pub(super) const VK_CREATE_BUFFER_VIEW_COMMAND_ID: u16 = 363;
+pub(super) const VK_DESTROY_BUFFER_VIEW_COMMAND_ID: u16 = 445;
+pub(super) const VK_CREATE_SHADER_MODULE_COMMAND_ID: u16 = 420;
+pub(super) const VK_DESTROY_SHADER_MODULE_COMMAND_ID: u16 = 487;
+pub(super) const VK_CREATE_PIPELINE_CACHE_COMMAND_ID: u16 = 404;
+pub(super) const VK_DESTROY_PIPELINE_CACHE_COMMAND_ID: u16 = 475;
+pub(super) const VK_GET_PIPELINE_CACHE_DATA_COMMAND_ID: u16 = 706;
+pub(super) const VK_MERGE_PIPELINE_CACHES_COMMAND_ID: u16 = 765;
+pub(super) const VK_CREATE_COMPUTE_PIPELINES_COMMAND_ID: u16 = 365;
+pub(super) const VK_DESTROY_PIPELINE_COMMAND_ID: u16 = 473;
+pub(super) const VK_CREATE_PIPELINE_LAYOUT_COMMAND_ID: u16 = 405;
+pub(super) const VK_DESTROY_PIPELINE_LAYOUT_COMMAND_ID: u16 = 476;
+pub(super) const VK_CREATE_SAMPLER_COMMAND_ID: u16 = 414;
+pub(super) const VK_DESTROY_SAMPLER_COMMAND_ID: u16 = 481;
+pub(super) const VK_CREATE_DESCRIPTOR_SET_LAYOUT_COMMAND_ID: u16 = 376;
+pub(super) const VK_DESTROY_DESCRIPTOR_SET_LAYOUT_COMMAND_ID: u16 = 456;
+pub(super) const VK_CREATE_DESCRIPTOR_POOL_COMMAND_ID: u16 = 375;
+pub(super) const VK_DESTROY_DESCRIPTOR_POOL_COMMAND_ID: u16 = 455;
+pub(super) const VK_RESET_DESCRIPTOR_POOL_COMMAND_ID: u16 = 792;
+pub(super) const VK_ALLOCATE_DESCRIPTOR_SETS_COMMAND_ID: u16 = 9;
+pub(super) const VK_FREE_DESCRIPTOR_SETS_COMMAND_ID: u16 = 512;
+pub(super) const VK_UPDATE_DESCRIPTOR_SETS_COMMAND_ID: u16 = 829;
+pub(super) const VK_CMD_BIND_PIPELINE_COMMAND_ID: u16 = 56;
+pub(super) const VK_CMD_BIND_DESCRIPTOR_SETS_COMMAND_ID: u16 = 48;
+pub(super) const VK_CMD_CLEAR_COLOR_IMAGE_COMMAND_ID: u16 = 79;
+pub(super) const VK_CMD_DISPATCH_COMMAND_ID: u16 = 123;
+pub(super) const VK_CMD_DISPATCH_INDIRECT_COMMAND_ID: u16 = 130;
+pub(super) const VK_CMD_SET_EVENT_COMMAND_ID: u16 = 261;
+pub(super) const VK_CMD_RESET_EVENT_COMMAND_ID: u16 = 208;
+pub(super) const VK_CMD_WAIT_EVENTS_COMMAND_ID: u16 = 331;
+pub(super) const VK_CMD_PUSH_CONSTANTS_COMMAND_ID: u16 = 196;
+pub(super) const VK_CREATE_GRAPHICS_PIPELINES_COMMAND_ID: u16 = 389;
+pub(super) const VK_CREATE_FRAMEBUFFER_COMMAND_ID: u16 = 387;
+pub(super) const VK_DESTROY_FRAMEBUFFER_COMMAND_ID: u16 = 463;
+pub(super) const VK_CREATE_RENDER_PASS_COMMAND_ID: u16 = 411;
+pub(super) const VK_DESTROY_RENDER_PASS_COMMAND_ID: u16 = 480;
+pub(super) const VK_GET_RENDER_AREA_GRANULARITY_COMMAND_ID: u16 = 725;
+pub(super) const VK_CMD_SET_VIEWPORT_COMMAND_ID: u16 = 316;
+pub(super) const VK_CMD_SET_SCISSOR_COMMAND_ID: u16 = 303;
+pub(super) const VK_CMD_SET_LINE_WIDTH_COMMAND_ID: u16 = 276;
+pub(super) const VK_CMD_SET_DEPTH_BIAS_COMMAND_ID: u16 = 236;
+pub(super) const VK_CMD_SET_BLEND_CONSTANTS_COMMAND_ID: u16 = 218;
+pub(super) const VK_CMD_SET_DEPTH_BOUNDS_COMMAND_ID: u16 = 240;
+pub(super) const VK_CMD_SET_STENCIL_COMPARE_MASK_COMMAND_ID: u16 = 307;
+pub(super) const VK_CMD_SET_STENCIL_WRITE_MASK_COMMAND_ID: u16 = 313;
+pub(super) const VK_CMD_SET_STENCIL_REFERENCE_COMMAND_ID: u16 = 310;
+pub(super) const VK_CMD_BIND_INDEX_BUFFER_COMMAND_ID: u16 = 51;
+pub(super) const VK_CMD_BIND_VERTEX_BUFFERS_COMMAND_ID: u16 = 65;
+pub(super) const VK_CMD_DRAW_COMMAND_ID: u16 = 133;
+pub(super) const VK_CMD_DRAW_INDEXED_COMMAND_ID: u16 = 136;
+pub(super) const VK_CMD_DRAW_INDIRECT_COMMAND_ID: u16 = 143;
+pub(super) const VK_CMD_DRAW_INDEXED_INDIRECT_COMMAND_ID: u16 = 137;
+pub(super) const VK_CMD_BLIT_IMAGE_COMMAND_ID: u16 = 69;
+pub(super) const VK_CMD_CLEAR_DEPTH_STENCIL_IMAGE_COMMAND_ID: u16 = 80;
+pub(super) const VK_CMD_CLEAR_ATTACHMENTS_COMMAND_ID: u16 = 78;
+pub(super) const VK_CMD_RESOLVE_IMAGE_COMMAND_ID: u16 = 212;
+pub(super) const VK_CMD_BEGIN_RENDER_PASS_COMMAND_ID: u16 = 36;
+pub(super) const VK_CMD_NEXT_SUBPASS_COMMAND_ID: u16 = 187;
+pub(super) const VK_CMD_END_RENDER_PASS_COMMAND_ID: u16 = 169;
+pub(super) const VK_BIND_BUFFER_MEMORY2_COMMAND_ID: u16 = 15;
+pub(super) const VK_BIND_IMAGE_MEMORY2_COMMAND_ID: u16 = 19;
+pub(super) const VK_GET_DEVICE_GROUP_PEER_MEMORY_FEATURES_COMMAND_ID: u16 = 554;
+pub(super) const VK_CMD_SET_DEVICE_MASK_COMMAND_ID: u16 = 255;
+pub(super) const VK_GET_IMAGE_MEMORY_REQUIREMENTS2_COMMAND_ID: u16 = 597;
+pub(super) const VK_GET_BUFFER_MEMORY_REQUIREMENTS2_COMMAND_ID: u16 = 525;
+pub(super) const VK_GET_IMAGE_SPARSE_MEMORY_REQUIREMENTS2_COMMAND_ID: u16 = 602;
+pub(super) const VK_TRIM_COMMAND_POOL_COMMAND_ID: u16 = 820;
+pub(super) const VK_GET_DEVICE_QUEUE2_COMMAND_ID: u16 = 571;
+pub(super) const VK_CMD_DISPATCH_BASE_COMMAND_ID: u16 = 124;
+pub(super) const VK_CREATE_DESCRIPTOR_UPDATE_TEMPLATE_COMMAND_ID: u16 = 377;
+pub(super) const VK_DESTROY_DESCRIPTOR_UPDATE_TEMPLATE_COMMAND_ID: u16 = 457;
+pub(super) const VK_UPDATE_DESCRIPTOR_SET_WITH_TEMPLATE_COMMAND_ID: u16 = 827;
+pub(super) const VK_GET_DESCRIPTOR_SET_LAYOUT_SUPPORT_COMMAND_ID: u16 = 545;
+pub(super) const VK_CREATE_SAMPLER_YCBCR_CONVERSION_COMMAND_ID: u16 = 415;
+pub(super) const VK_DESTROY_SAMPLER_YCBCR_CONVERSION_COMMAND_ID: u16 = 482;
+pub(super) const VK_RESET_QUERY_POOL_COMMAND_ID: u16 = 796;
+pub(super) const VK_GET_SEMAPHORE_COUNTER_VALUE_COMMAND_ID: u16 = 730;
+pub(super) const VK_WAIT_SEMAPHORES_COMMAND_ID: u16 = 836;
+pub(super) const VK_SIGNAL_SEMAPHORE_COMMAND_ID: u16 = 815;
+pub(super) const VK_GET_BUFFER_DEVICE_ADDRESS_COMMAND_ID: u16 = 521;
+pub(super) const VK_GET_BUFFER_OPAQUE_CAPTURE_ADDRESS_COMMAND_ID: u16 = 527;
+pub(super) const VK_GET_DEVICE_MEMORY_OPAQUE_CAPTURE_ADDRESS_COMMAND_ID: u16 = 566;
+pub(super) const VK_CMD_DRAW_INDIRECT_COUNT_COMMAND_ID: u16 = 147;
+pub(super) const VK_CMD_DRAW_INDEXED_INDIRECT_COUNT_COMMAND_ID: u16 = 139;
+pub(super) const VK_CREATE_RENDER_PASS2_COMMAND_ID: u16 = 412;
+pub(super) const VK_CMD_BEGIN_RENDER_PASS2_COMMAND_ID: u16 = 37;
+pub(super) const VK_CMD_NEXT_SUBPASS2_COMMAND_ID: u16 = 188;
+pub(super) const VK_CMD_END_RENDER_PASS2_COMMAND_ID: u16 = 170;
+pub(super) const VK_CREATE_PRIVATE_DATA_SLOT_COMMAND_ID: u16 = 406;
+pub(super) const VK_DESTROY_PRIVATE_DATA_SLOT_COMMAND_ID: u16 = 477;
+pub(super) const VK_SET_PRIVATE_DATA_COMMAND_ID: u16 = 811;
+pub(super) const VK_GET_PRIVATE_DATA_COMMAND_ID: u16 = 714;
+pub(super) const VK_CMD_PIPELINE_BARRIER2_COMMAND_ID: u16 = 192;
+pub(super) const VK_CMD_WRITE_TIMESTAMP2_COMMAND_ID: u16 = 341;
+pub(super) const VK_QUEUE_SUBMIT2_COMMAND_ID: u16 = 777;
+pub(super) const VK_CMD_COPY_BUFFER2_COMMAND_ID: u16 = 87;
+pub(super) const VK_CMD_COPY_IMAGE2_COMMAND_ID: u16 = 94;
+pub(super) const VK_CMD_COPY_BUFFER_TO_IMAGE2_COMMAND_ID: u16 = 90;
+pub(super) const VK_CMD_COPY_IMAGE_TO_BUFFER2_COMMAND_ID: u16 = 97;
+pub(super) const VK_GET_DEVICE_BUFFER_MEMORY_REQUIREMENTS_COMMAND_ID: u16 = 548;
+pub(super) const VK_GET_DEVICE_IMAGE_MEMORY_REQUIREMENTS_COMMAND_ID: u16 = 559;
+pub(super) const VK_GET_DEVICE_IMAGE_SPARSE_MEMORY_REQUIREMENTS_COMMAND_ID: u16 = 561;
+pub(super) const VK_CMD_SET_EVENT2_COMMAND_ID: u16 = 262;
+pub(super) const VK_CMD_RESET_EVENT2_COMMAND_ID: u16 = 209;
+pub(super) const VK_CMD_WAIT_EVENTS2_COMMAND_ID: u16 = 332;
+pub(super) const VK_CMD_BLIT_IMAGE2_COMMAND_ID: u16 = 70;
+pub(super) const VK_CMD_RESOLVE_IMAGE2_COMMAND_ID: u16 = 213;
+pub(super) const VK_CMD_BEGIN_RENDERING_COMMAND_ID: u16 = 39;
+pub(super) const VK_CMD_END_RENDERING_COMMAND_ID: u16 = 172;
+pub(super) const VK_CMD_SET_CULL_MODE_COMMAND_ID: u16 = 234;
+pub(super) const VK_CMD_SET_FRONT_FACE_COMMAND_ID: u16 = 269;
+pub(super) const VK_CMD_SET_PRIMITIVE_TOPOLOGY_COMMAND_ID: u16 = 287;
+pub(super) const VK_CMD_SET_VIEWPORT_WITH_COUNT_COMMAND_ID: u16 = 321;
+pub(super) const VK_CMD_SET_SCISSOR_WITH_COUNT_COMMAND_ID: u16 = 304;
+pub(super) const VK_CMD_BIND_VERTEX_BUFFERS2_COMMAND_ID: u16 = 66;
+pub(super) const VK_CMD_SET_DEPTH_TEST_ENABLE_COMMAND_ID: u16 = 249;
+pub(super) const VK_CMD_SET_DEPTH_WRITE_ENABLE_COMMAND_ID: u16 = 251;
+pub(super) const VK_CMD_SET_DEPTH_COMPARE_OP_COMMAND_ID: u16 = 247;
+pub(super) const VK_CMD_SET_DEPTH_BOUNDS_TEST_ENABLE_COMMAND_ID: u16 = 241;
+pub(super) const VK_CMD_SET_STENCIL_TEST_ENABLE_COMMAND_ID: u16 = 311;
+pub(super) const VK_CMD_SET_STENCIL_OP_COMMAND_ID: u16 = 308;
+pub(super) const VK_CMD_SET_RASTERIZER_DISCARD_ENABLE_COMMAND_ID: u16 = 292;
+pub(super) const VK_CMD_SET_DEPTH_BIAS_ENABLE_COMMAND_ID: u16 = 238;
+pub(super) const VK_CMD_SET_PRIMITIVE_RESTART_ENABLE_COMMAND_ID: u16 = 284;
+pub(super) const VK_MAP_MEMORY2_COMMAND_ID: u16 = 763;
+pub(super) const VK_UNMAP_MEMORY2_COMMAND_ID: u16 = 824;
+pub(super) const VK_GET_DEVICE_IMAGE_SUBRESOURCE_LAYOUT_COMMAND_ID: u16 = 563;
+pub(super) const VK_GET_IMAGE_SUBRESOURCE_LAYOUT2_COMMAND_ID: u16 = 605;
+pub(super) const VK_COPY_MEMORY_TO_IMAGE_COMMAND_ID: u16 = 352;
+pub(super) const VK_COPY_IMAGE_TO_MEMORY_COMMAND_ID: u16 = 349;
+pub(super) const VK_COPY_IMAGE_TO_IMAGE_COMMAND_ID: u16 = 347;
+pub(super) const VK_TRANSITION_IMAGE_LAYOUT_COMMAND_ID: u16 = 818;
+pub(super) const VK_CMD_PUSH_DESCRIPTOR_SET_COMMAND_ID: u16 = 200;
+pub(super) const VK_CMD_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE_COMMAND_ID: u16 = 204;
+pub(super) const VK_CMD_BIND_DESCRIPTOR_SETS2_COMMAND_ID: u16 = 49;
+pub(super) const VK_CMD_PUSH_CONSTANTS2_COMMAND_ID: u16 = 197;
+pub(super) const VK_CMD_PUSH_DESCRIPTOR_SET2_COMMAND_ID: u16 = 201;
+pub(super) const VK_CMD_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE2_COMMAND_ID: u16 = 205;
+pub(super) const VK_CMD_SET_LINE_STIPPLE_COMMAND_ID: u16 = 272;
+pub(super) const VK_CMD_BIND_INDEX_BUFFER2_COMMAND_ID: u16 = 52;
+pub(super) const VK_GET_RENDERING_AREA_GRANULARITY_COMMAND_ID: u16 = 726;
+pub(super) const VK_CMD_SET_RENDERING_ATTACHMENT_LOCATIONS_COMMAND_ID: u16 = 295;
+pub(super) const VK_CMD_SET_RENDERING_INPUT_ATTACHMENT_INDICES_COMMAND_ID: u16 = 297;
+pub(super) const VK_CREATE_SWAPCHAIN_KHR_COMMAND_ID: u16 = 425;
+pub(super) const VK_DESTROY_SWAPCHAIN_KHR_COMMAND_ID: u16 = 489;
+pub(super) const VK_GET_SWAPCHAIN_IMAGES_KHR_COMMAND_ID: u16 = 742;
+pub(super) const VK_ACQUIRE_NEXT_IMAGE_KHR_COMMAND_ID: u16 = 3;
+pub(super) const VK_QUEUE_PRESENT_KHR_COMMAND_ID: u16 = 773;
+pub(super) const VK_GET_DEVICE_GROUP_PRESENT_CAPABILITIES_KHR_COMMAND_ID: u16 = 556;
+pub(super) const VK_GET_DEVICE_GROUP_SURFACE_PRESENT_MODES_KHR_COMMAND_ID: u16 = 558;
+pub(super) const VK_ACQUIRE_NEXT_IMAGE2KHR_COMMAND_ID: u16 = 2;
+pub(super) const VK_CREATE_SHARED_SWAPCHAINS_KHR_COMMAND_ID: u16 = 422;
+pub(super) const VK_CREATE_VIDEO_SESSION_KHR_COMMAND_ID: u16 = 431;
+pub(super) const VK_DESTROY_VIDEO_SESSION_KHR_COMMAND_ID: u16 = 493;
+pub(super) const VK_GET_VIDEO_SESSION_MEMORY_REQUIREMENTS_KHR_COMMAND_ID: u16 = 751;
+pub(super) const VK_BIND_VIDEO_SESSION_MEMORY_KHR_COMMAND_ID: u16 = 23;
+pub(super) const VK_CREATE_VIDEO_SESSION_PARAMETERS_KHR_COMMAND_ID: u16 = 432;
+pub(super) const VK_UPDATE_VIDEO_SESSION_PARAMETERS_KHR_COMMAND_ID: u16 = 832;
+pub(super) const VK_DESTROY_VIDEO_SESSION_PARAMETERS_KHR_COMMAND_ID: u16 = 494;
+pub(super) const VK_CMD_BEGIN_VIDEO_CODING_KHR_COMMAND_ID: u16 = 44;
+pub(super) const VK_CMD_END_VIDEO_CODING_KHR_COMMAND_ID: u16 = 179;
+pub(super) const VK_CMD_CONTROL_VIDEO_CODING_KHR_COMMAND_ID: u16 = 81;
+pub(super) const VK_CMD_DECODE_VIDEO_KHR_COMMAND_ID: u16 = 118;
+pub(super) const VK_CMD_BEGIN_RENDERING_KHR_COMMAND_ID: u16 = 40;
+pub(super) const VK_CMD_END_RENDERING_KHR_COMMAND_ID: u16 = 175;
+pub(super) const VK_GET_DEVICE_GROUP_PEER_MEMORY_FEATURES_KHR_COMMAND_ID: u16 = 555;
+pub(super) const VK_CMD_SET_DEVICE_MASK_KHR_COMMAND_ID: u16 = 256;
+pub(super) const VK_CMD_DISPATCH_BASE_KHR_COMMAND_ID: u16 = 125;
+pub(super) const VK_TRIM_COMMAND_POOL_KHR_COMMAND_ID: u16 = 821;
+#[cfg(target_os = "windows")]
+pub(super) const VK_GET_MEMORY_WIN32HANDLE_KHR_COMMAND_ID: u16 = 623;
+#[cfg(target_os = "windows")]
+pub(super) const VK_GET_MEMORY_WIN32HANDLE_PROPERTIES_KHR_COMMAND_ID: u16 = 625;
+pub(super) const VK_GET_MEMORY_FD_KHR_COMMAND_ID: u16 = 616;
+pub(super) const VK_GET_MEMORY_FD_PROPERTIES_KHR_COMMAND_ID: u16 = 617;
+#[cfg(target_os = "windows")]
+pub(super) const VK_IMPORT_SEMAPHORE_WIN32HANDLE_KHR_COMMAND_ID: u16 = 756;
+#[cfg(target_os = "windows")]
+pub(super) const VK_GET_SEMAPHORE_WIN32HANDLE_KHR_COMMAND_ID: u16 = 733;
+pub(super) const VK_IMPORT_SEMAPHORE_FD_KHR_COMMAND_ID: u16 = 755;
+pub(super) const VK_GET_SEMAPHORE_FD_KHR_COMMAND_ID: u16 = 732;
+pub(super) const VK_CMD_PUSH_DESCRIPTOR_SET_KHR_COMMAND_ID: u16 = 203;
+pub(super) const VK_CMD_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE_KHR_COMMAND_ID: u16 = 207;
+pub(super) const VK_CREATE_DESCRIPTOR_UPDATE_TEMPLATE_KHR_COMMAND_ID: u16 = 378;
+pub(super) const VK_DESTROY_DESCRIPTOR_UPDATE_TEMPLATE_KHR_COMMAND_ID: u16 = 458;
+pub(super) const VK_UPDATE_DESCRIPTOR_SET_WITH_TEMPLATE_KHR_COMMAND_ID: u16 = 828;
+pub(super) const VK_CREATE_RENDER_PASS2KHR_COMMAND_ID: u16 = 413;
+pub(super) const VK_CMD_BEGIN_RENDER_PASS2KHR_COMMAND_ID: u16 = 38;
+pub(super) const VK_CMD_NEXT_SUBPASS2KHR_COMMAND_ID: u16 = 189;
+pub(super) const VK_CMD_END_RENDER_PASS2KHR_COMMAND_ID: u16 = 171;
+pub(super) const VK_GET_SWAPCHAIN_STATUS_KHR_COMMAND_ID: u16 = 743;
+#[cfg(target_os = "windows")]
+pub(super) const VK_IMPORT_FENCE_WIN32HANDLE_KHR_COMMAND_ID: u16 = 754;
+#[cfg(target_os = "windows")]
+pub(super) const VK_GET_FENCE_WIN32HANDLE_KHR_COMMAND_ID: u16 = 588;
+pub(super) const VK_IMPORT_FENCE_FD_KHR_COMMAND_ID: u16 = 753;
+pub(super) const VK_GET_FENCE_FD_KHR_COMMAND_ID: u16 = 586;
+pub(super) const VK_ACQUIRE_PROFILING_LOCK_KHR_COMMAND_ID: u16 = 5;
+pub(super) const VK_RELEASE_PROFILING_LOCK_KHR_COMMAND_ID: u16 = 787;
+pub(super) const VK_GET_IMAGE_MEMORY_REQUIREMENTS2KHR_COMMAND_ID: u16 = 598;
+pub(super) const VK_GET_BUFFER_MEMORY_REQUIREMENTS2KHR_COMMAND_ID: u16 = 526;
+pub(super) const VK_GET_IMAGE_SPARSE_MEMORY_REQUIREMENTS2KHR_COMMAND_ID: u16 = 603;
+pub(super) const VK_CREATE_SAMPLER_YCBCR_CONVERSION_KHR_COMMAND_ID: u16 = 416;
+pub(super) const VK_DESTROY_SAMPLER_YCBCR_CONVERSION_KHR_COMMAND_ID: u16 = 483;
+pub(super) const VK_BIND_BUFFER_MEMORY2KHR_COMMAND_ID: u16 = 16;
+pub(super) const VK_BIND_IMAGE_MEMORY2KHR_COMMAND_ID: u16 = 20;
+pub(super) const VK_GET_DESCRIPTOR_SET_LAYOUT_SUPPORT_KHR_COMMAND_ID: u16 = 546;
+pub(super) const VK_CMD_DRAW_INDIRECT_COUNT_KHR_COMMAND_ID: u16 = 150;
+pub(super) const VK_CMD_DRAW_INDEXED_INDIRECT_COUNT_KHR_COMMAND_ID: u16 = 142;
+pub(super) const VK_GET_SEMAPHORE_COUNTER_VALUE_KHR_COMMAND_ID: u16 = 731;
+pub(super) const VK_WAIT_SEMAPHORES_KHR_COMMAND_ID: u16 = 837;
+pub(super) const VK_SIGNAL_SEMAPHORE_KHR_COMMAND_ID: u16 = 816;
+pub(super) const VK_CMD_SET_FRAGMENT_SHADING_RATE_KHR_COMMAND_ID: u16 = 268;
+pub(super) const VK_CMD_SET_RENDERING_ATTACHMENT_LOCATIONS_KHR_COMMAND_ID: u16 = 296;
+pub(super) const VK_CMD_SET_RENDERING_INPUT_ATTACHMENT_INDICES_KHR_COMMAND_ID: u16 = 298;
+pub(super) const VK_WAIT_FOR_PRESENT_KHR_COMMAND_ID: u16 = 835;
+pub(super) const VK_GET_BUFFER_DEVICE_ADDRESS_KHR_COMMAND_ID: u16 = 523;
+pub(super) const VK_GET_BUFFER_OPAQUE_CAPTURE_ADDRESS_KHR_COMMAND_ID: u16 = 528;
+pub(super) const VK_GET_DEVICE_MEMORY_OPAQUE_CAPTURE_ADDRESS_KHR_COMMAND_ID: u16 = 567;
+pub(super) const VK_CREATE_DEFERRED_OPERATION_KHR_COMMAND_ID: u16 = 374;
+pub(super) const VK_DESTROY_DEFERRED_OPERATION_KHR_COMMAND_ID: u16 = 454;
+pub(super) const VK_GET_DEFERRED_OPERATION_MAX_CONCURRENCY_KHR_COMMAND_ID: u16 = 538;
+pub(super) const VK_GET_DEFERRED_OPERATION_RESULT_KHR_COMMAND_ID: u16 = 539;
+pub(super) const VK_DEFERRED_OPERATION_JOIN_KHR_COMMAND_ID: u16 = 440;
+pub(super) const VK_GET_PIPELINE_EXECUTABLE_PROPERTIES_KHR_COMMAND_ID: u16 = 708;
+pub(super) const VK_GET_PIPELINE_EXECUTABLE_STATISTICS_KHR_COMMAND_ID: u16 = 709;
+pub(super) const VK_GET_PIPELINE_EXECUTABLE_INTERNAL_REPRESENTATIONS_KHR_COMMAND_ID: u16 = 707;
+pub(super) const VK_MAP_MEMORY2KHR_COMMAND_ID: u16 = 764;
+pub(super) const VK_UNMAP_MEMORY2KHR_COMMAND_ID: u16 = 825;
+pub(super) const VK_GET_ENCODED_VIDEO_SESSION_PARAMETERS_KHR_COMMAND_ID: u16 = 581;
+pub(super) const VK_CMD_ENCODE_VIDEO_KHR_COMMAND_ID: u16 = 161;
+pub(super) const VK_CMD_SET_EVENT2KHR_COMMAND_ID: u16 = 263;
+pub(super) const VK_CMD_RESET_EVENT2KHR_COMMAND_ID: u16 = 210;
+pub(super) const VK_CMD_WAIT_EVENTS2KHR_COMMAND_ID: u16 = 333;
+pub(super) const VK_CMD_PIPELINE_BARRIER2KHR_COMMAND_ID: u16 = 193;
+pub(super) const VK_CMD_WRITE_TIMESTAMP2KHR_COMMAND_ID: u16 = 342;
+pub(super) const VK_QUEUE_SUBMIT2KHR_COMMAND_ID: u16 = 778;
+pub(super) const VK_CMD_BIND_INDEX_BUFFER3KHR_COMMAND_ID: u16 = 54;
+pub(super) const VK_CMD_BIND_VERTEX_BUFFERS3KHR_COMMAND_ID: u16 = 68;
+pub(super) const VK_CMD_DRAW_INDIRECT2KHR_COMMAND_ID: u16 = 144;
+pub(super) const VK_CMD_DRAW_INDEXED_INDIRECT2KHR_COMMAND_ID: u16 = 138;
+pub(super) const VK_CMD_DISPATCH_INDIRECT2KHR_COMMAND_ID: u16 = 131;
+pub(super) const VK_CMD_COPY_MEMORY_KHR_COMMAND_ID: u16 = 102;
+pub(super) const VK_CMD_COPY_MEMORY_TO_IMAGE_KHR_COMMAND_ID: u16 = 106;
+pub(super) const VK_CMD_COPY_IMAGE_TO_MEMORY_KHR_COMMAND_ID: u16 = 99;
+pub(super) const VK_CMD_UPDATE_MEMORY_KHR_COMMAND_ID: u16 = 329;
+pub(super) const VK_CMD_FILL_MEMORY_KHR_COMMAND_ID: u16 = 184;
+pub(super) const VK_CMD_COPY_QUERY_POOL_RESULTS_TO_MEMORY_KHR_COMMAND_ID: u16 = 111;
+pub(super) const VK_CMD_DRAW_INDIRECT_COUNT2KHR_COMMAND_ID: u16 = 148;
+pub(super) const VK_CMD_DRAW_INDEXED_INDIRECT_COUNT2KHR_COMMAND_ID: u16 = 140;
+pub(super) const VK_CMD_BEGIN_CONDITIONAL_RENDERING2EXT_COMMAND_ID: u16 = 27;
+pub(super) const VK_CMD_BIND_TRANSFORM_FEEDBACK_BUFFERS2EXT_COMMAND_ID: u16 = 63;
+pub(super) const VK_CMD_BEGIN_TRANSFORM_FEEDBACK2EXT_COMMAND_ID: u16 = 42;
+pub(super) const VK_CMD_END_TRANSFORM_FEEDBACK2EXT_COMMAND_ID: u16 = 177;
+pub(super) const VK_CMD_DRAW_INDIRECT_BYTE_COUNT2EXT_COMMAND_ID: u16 = 145;
+pub(super) const VK_CMD_DRAW_MESH_TASKS_INDIRECT2EXT_COMMAND_ID: u16 = 152;
+pub(super) const VK_CMD_DRAW_MESH_TASKS_INDIRECT_COUNT2EXT_COMMAND_ID: u16 = 153;
+pub(super) const VK_CMD_WRITE_MARKER_TO_MEMORY_AMD_COMMAND_ID: u16 = 338;
+pub(super) const VK_CREATE_ACCELERATION_STRUCTURE2KHR_COMMAND_ID: u16 = 357;
+pub(super) const VK_CMD_COPY_BUFFER2KHR_COMMAND_ID: u16 = 88;
+pub(super) const VK_CMD_COPY_IMAGE2KHR_COMMAND_ID: u16 = 95;
+pub(super) const VK_CMD_COPY_BUFFER_TO_IMAGE2KHR_COMMAND_ID: u16 = 91;
+pub(super) const VK_CMD_COPY_IMAGE_TO_BUFFER2KHR_COMMAND_ID: u16 = 98;
+pub(super) const VK_CMD_BLIT_IMAGE2KHR_COMMAND_ID: u16 = 71;
+pub(super) const VK_CMD_RESOLVE_IMAGE2KHR_COMMAND_ID: u16 = 214;
+pub(super) const VK_CMD_TRACE_RAYS_INDIRECT2KHR_COMMAND_ID: u16 = 324;
+pub(super) const VK_GET_DEVICE_BUFFER_MEMORY_REQUIREMENTS_KHR_COMMAND_ID: u16 = 549;
+pub(super) const VK_GET_DEVICE_IMAGE_MEMORY_REQUIREMENTS_KHR_COMMAND_ID: u16 = 560;
+pub(super) const VK_GET_DEVICE_IMAGE_SPARSE_MEMORY_REQUIREMENTS_KHR_COMMAND_ID: u16 = 562;
+pub(super) const VK_CMD_BIND_INDEX_BUFFER2KHR_COMMAND_ID: u16 = 53;
+pub(super) const VK_GET_RENDERING_AREA_GRANULARITY_KHR_COMMAND_ID: u16 = 727;
+pub(super) const VK_GET_DEVICE_IMAGE_SUBRESOURCE_LAYOUT_KHR_COMMAND_ID: u16 = 564;
+pub(super) const VK_GET_IMAGE_SUBRESOURCE_LAYOUT2KHR_COMMAND_ID: u16 = 607;
+pub(super) const VK_WAIT_FOR_PRESENT2KHR_COMMAND_ID: u16 = 834;
+pub(super) const VK_CREATE_PIPELINE_BINARIES_KHR_COMMAND_ID: u16 = 403;
+pub(super) const VK_DESTROY_PIPELINE_BINARY_KHR_COMMAND_ID: u16 = 474;
+pub(super) const VK_GET_PIPELINE_KEY_KHR_COMMAND_ID: u16 = 712;
+pub(super) const VK_GET_PIPELINE_BINARY_DATA_KHR_COMMAND_ID: u16 = 705;
+pub(super) const VK_RELEASE_CAPTURED_PIPELINE_DATA_KHR_COMMAND_ID: u16 = 783;
+pub(super) const VK_RELEASE_SWAPCHAIN_IMAGES_KHR_COMMAND_ID: u16 = 789;
+pub(super) const VK_CMD_SET_LINE_STIPPLE_KHR_COMMAND_ID: u16 = 275;
+pub(super) const VK_GET_CALIBRATED_TIMESTAMPS_KHR_COMMAND_ID: u16 = 531;
+pub(super) const VK_CMD_BIND_DESCRIPTOR_SETS2KHR_COMMAND_ID: u16 = 50;
+pub(super) const VK_CMD_PUSH_CONSTANTS2KHR_COMMAND_ID: u16 = 198;
+pub(super) const VK_CMD_PUSH_DESCRIPTOR_SET2KHR_COMMAND_ID: u16 = 202;
+pub(super) const VK_CMD_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE2KHR_COMMAND_ID: u16 = 206;
+pub(super) const VK_CMD_SET_DESCRIPTOR_BUFFER_OFFSETS2EXT_COMMAND_ID: u16 = 253;
+pub(super) const VK_CMD_BIND_DESCRIPTOR_BUFFER_EMBEDDED_SAMPLERS2EXT_COMMAND_ID: u16 = 45;
+pub(super) const VK_CMD_COPY_MEMORY_INDIRECT_KHR_COMMAND_ID: u16 = 100;
+pub(super) const VK_CMD_COPY_MEMORY_TO_IMAGE_INDIRECT_KHR_COMMAND_ID: u16 = 104;
+pub(super) const VK_GET_DEVICE_FAULT_REPORTS_KHR_COMMAND_ID: u16 = 553;
+pub(super) const VK_GET_DEVICE_FAULT_DEBUG_INFO_KHR_COMMAND_ID: u16 = 551;
+pub(super) const VK_CMD_END_RENDERING2KHR_COMMAND_ID: u16 = 174;
+pub(super) const VK_DEBUG_MARKER_SET_OBJECT_TAG_EXT_COMMAND_ID: u16 = 438;
+pub(super) const VK_DEBUG_MARKER_SET_OBJECT_NAME_EXT_COMMAND_ID: u16 = 437;
+pub(super) const VK_CMD_DEBUG_MARKER_BEGIN_EXT_COMMAND_ID: u16 = 115;
+pub(super) const VK_CMD_DEBUG_MARKER_END_EXT_COMMAND_ID: u16 = 116;
+pub(super) const VK_CMD_DEBUG_MARKER_INSERT_EXT_COMMAND_ID: u16 = 117;
+pub(super) const VK_CMD_BIND_TRANSFORM_FEEDBACK_BUFFERS_EXT_COMMAND_ID: u16 = 64;
+pub(super) const VK_CMD_BEGIN_TRANSFORM_FEEDBACK_EXT_COMMAND_ID: u16 = 43;
+pub(super) const VK_CMD_END_TRANSFORM_FEEDBACK_EXT_COMMAND_ID: u16 = 178;
+pub(super) const VK_CMD_BEGIN_QUERY_INDEXED_EXT_COMMAND_ID: u16 = 35;
+pub(super) const VK_CMD_END_QUERY_INDEXED_EXT_COMMAND_ID: u16 = 168;
+pub(super) const VK_CMD_DRAW_INDIRECT_BYTE_COUNT_EXT_COMMAND_ID: u16 = 146;
+pub(super) const VK_CREATE_CU_MODULE_NVX_COMMAND_ID: u16 = 367;
+pub(super) const VK_CREATE_CU_FUNCTION_NVX_COMMAND_ID: u16 = 366;
+pub(super) const VK_DESTROY_CU_MODULE_NVX_COMMAND_ID: u16 = 448;
+pub(super) const VK_DESTROY_CU_FUNCTION_NVX_COMMAND_ID: u16 = 447;
+pub(super) const VK_CMD_CU_LAUNCH_KERNEL_NVX_COMMAND_ID: u16 = 113;
+pub(super) const VK_GET_IMAGE_VIEW_HANDLE_NVX_COMMAND_ID: u16 = 610;
+pub(super) const VK_GET_IMAGE_VIEW_HANDLE64NVX_COMMAND_ID: u16 = 609;
+pub(super) const VK_GET_IMAGE_VIEW_ADDRESS_NVX_COMMAND_ID: u16 = 608;
+pub(super) const VK_GET_DEVICE_COMBINED_IMAGE_SAMPLER_INDEX_NVX_COMMAND_ID: u16 = 550;
+pub(super) const VK_CMD_DRAW_INDIRECT_COUNT_AMD_COMMAND_ID: u16 = 149;
+pub(super) const VK_CMD_DRAW_INDEXED_INDIRECT_COUNT_AMD_COMMAND_ID: u16 = 141;
+pub(super) const VK_GET_SHADER_INFO_AMD_COMMAND_ID: u16 = 736;
+#[cfg(target_os = "windows")]
+pub(super) const VK_GET_MEMORY_WIN32HANDLE_NV_COMMAND_ID: u16 = 624;
+pub(super) const VK_CMD_BEGIN_CONDITIONAL_RENDERING_EXT_COMMAND_ID: u16 = 28;
+pub(super) const VK_CMD_END_CONDITIONAL_RENDERING_EXT_COMMAND_ID: u16 = 162;
+pub(super) const VK_CMD_SET_VIEWPORT_W_SCALING_NV_COMMAND_ID: u16 = 320;
+pub(super) const VK_DISPLAY_POWER_CONTROL_EXT_COMMAND_ID: u16 = 496;
+pub(super) const VK_REGISTER_DEVICE_EVENT_EXT_COMMAND_ID: u16 = 781;
+pub(super) const VK_REGISTER_DISPLAY_EVENT_EXT_COMMAND_ID: u16 = 782;
+pub(super) const VK_GET_SWAPCHAIN_COUNTER_EXT_COMMAND_ID: u16 = 741;
+pub(super) const VK_GET_REFRESH_CYCLE_DURATION_GOOGLE_COMMAND_ID: u16 = 724;
+pub(super) const VK_GET_PAST_PRESENTATION_TIMING_GOOGLE_COMMAND_ID: u16 = 632;
+pub(super) const VK_CMD_SET_DISCARD_RECTANGLE_EXT_COMMAND_ID: u16 = 257;
+pub(super) const VK_CMD_SET_DISCARD_RECTANGLE_ENABLE_EXT_COMMAND_ID: u16 = 258;
+pub(super) const VK_CMD_SET_DISCARD_RECTANGLE_MODE_EXT_COMMAND_ID: u16 = 259;
+pub(super) const VK_SET_HDR_METADATA_EXT_COMMAND_ID: u16 = 805;
+pub(super) const VK_SET_DEBUG_UTILS_OBJECT_NAME_EXT_COMMAND_ID: u16 = 800;
+pub(super) const VK_SET_DEBUG_UTILS_OBJECT_TAG_EXT_COMMAND_ID: u16 = 801;
+pub(super) const VK_QUEUE_BEGIN_DEBUG_UTILS_LABEL_EXT_COMMAND_ID: u16 = 767;
+pub(super) const VK_QUEUE_END_DEBUG_UTILS_LABEL_EXT_COMMAND_ID: u16 = 769;
+pub(super) const VK_QUEUE_INSERT_DEBUG_UTILS_LABEL_EXT_COMMAND_ID: u16 = 770;
+pub(super) const VK_CMD_BEGIN_DEBUG_UTILS_LABEL_EXT_COMMAND_ID: u16 = 30;
+pub(super) const VK_CMD_END_DEBUG_UTILS_LABEL_EXT_COMMAND_ID: u16 = 163;
+pub(super) const VK_CMD_INSERT_DEBUG_UTILS_LABEL_EXT_COMMAND_ID: u16 = 186;
+#[cfg(target_os = "android")]
+pub(super) const VK_GET_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID_COMMAND_ID: u16 = 519;
+#[cfg(target_os = "android")]
+pub(super) const VK_GET_MEMORY_ANDROID_HARDWARE_BUFFER_ANDROID_COMMAND_ID: u16 = 615;
+pub(super) const VK_CREATE_GPA_SESSION_AMD_COMMAND_ID: u16 = 388;
+pub(super) const VK_DESTROY_GPA_SESSION_AMD_COMMAND_ID: u16 = 464;
+pub(super) const VK_SET_GPA_DEVICE_CLOCK_MODE_AMD_COMMAND_ID: u16 = 804;
+pub(super) const VK_GET_GPA_DEVICE_CLOCK_INFO_AMD_COMMAND_ID: u16 = 592;
+pub(super) const VK_CMD_BEGIN_GPA_SESSION_AMD_COMMAND_ID: u16 = 32;
+pub(super) const VK_CMD_END_GPA_SESSION_AMD_COMMAND_ID: u16 = 165;
+pub(super) const VK_CMD_BEGIN_GPA_SAMPLE_AMD_COMMAND_ID: u16 = 31;
+pub(super) const VK_CMD_END_GPA_SAMPLE_AMD_COMMAND_ID: u16 = 164;
+pub(super) const VK_GET_GPA_SESSION_STATUS_AMD_COMMAND_ID: u16 = 594;
+pub(super) const VK_GET_GPA_SESSION_RESULTS_AMD_COMMAND_ID: u16 = 593;
+pub(super) const VK_RESET_GPA_SESSION_AMD_COMMAND_ID: u16 = 795;
+pub(super) const VK_CMD_COPY_GPA_SESSION_RESULTS_AMD_COMMAND_ID: u16 = 92;
+#[cfg(feature = "beta-extensions")]
+pub(super) const VK_CREATE_EXECUTION_GRAPH_PIPELINES_AMDX_COMMAND_ID: u16 = 384;
+#[cfg(feature = "beta-extensions")]
+pub(super) const VK_GET_EXECUTION_GRAPH_PIPELINE_SCRATCH_SIZE_AMDX_COMMAND_ID: u16 = 584;
+#[cfg(feature = "beta-extensions")]
+pub(super) const VK_GET_EXECUTION_GRAPH_PIPELINE_NODE_INDEX_AMDX_COMMAND_ID: u16 = 583;
+#[cfg(feature = "beta-extensions")]
+pub(super) const VK_CMD_INITIALIZE_GRAPH_SCRATCH_MEMORY_AMDX_COMMAND_ID: u16 = 185;
+#[cfg(feature = "beta-extensions")]
+pub(super) const VK_CMD_DISPATCH_GRAPH_AMDX_COMMAND_ID: u16 = 127;
+#[cfg(feature = "beta-extensions")]
+pub(super) const VK_CMD_DISPATCH_GRAPH_INDIRECT_AMDX_COMMAND_ID: u16 = 128;
+#[cfg(feature = "beta-extensions")]
+pub(super) const VK_CMD_DISPATCH_GRAPH_INDIRECT_COUNT_AMDX_COMMAND_ID: u16 = 129;
+pub(super) const VK_WRITE_SAMPLER_DESCRIPTORS_EXT_COMMAND_ID: u16 = 841;
+pub(super) const VK_WRITE_RESOURCE_DESCRIPTORS_EXT_COMMAND_ID: u16 = 840;
+pub(super) const VK_CMD_BIND_SAMPLER_HEAP_EXT_COMMAND_ID: u16 = 59;
+pub(super) const VK_CMD_BIND_RESOURCE_HEAP_EXT_COMMAND_ID: u16 = 58;
+pub(super) const VK_CMD_PUSH_DATA_EXT_COMMAND_ID: u16 = 199;
+pub(super) const VK_GET_IMAGE_OPAQUE_CAPTURE_DATA_EXT_COMMAND_ID: u16 = 599;
+pub(super) const VK_REGISTER_CUSTOM_BORDER_COLOR_EXT_COMMAND_ID: u16 = 780;
+pub(super) const VK_UNREGISTER_CUSTOM_BORDER_COLOR_EXT_COMMAND_ID: u16 = 826;
+pub(super) const VK_GET_TENSOR_OPAQUE_CAPTURE_DATA_ARM_COMMAND_ID: u16 = 747;
+pub(super) const VK_CMD_SET_SAMPLE_LOCATIONS_EXT_COMMAND_ID: u16 = 300;
+pub(super) const VK_GET_IMAGE_DRM_FORMAT_MODIFIER_PROPERTIES_EXT_COMMAND_ID: u16 = 595;
+pub(super) const VK_CREATE_VALIDATION_CACHE_EXT_COMMAND_ID: u16 = 429;
+pub(super) const VK_DESTROY_VALIDATION_CACHE_EXT_COMMAND_ID: u16 = 492;
+pub(super) const VK_MERGE_VALIDATION_CACHES_EXT_COMMAND_ID: u16 = 766;
+pub(super) const VK_GET_VALIDATION_CACHE_DATA_EXT_COMMAND_ID: u16 = 750;
+pub(super) const VK_CMD_BIND_SHADING_RATE_IMAGE_NV_COMMAND_ID: u16 = 61;
+pub(super) const VK_CMD_SET_VIEWPORT_SHADING_RATE_PALETTE_NV_COMMAND_ID: u16 = 317;
+pub(super) const VK_CMD_SET_COARSE_SAMPLE_ORDER_NV_COMMAND_ID: u16 = 220;
+pub(super) const VK_CREATE_ACCELERATION_STRUCTURE_NV_COMMAND_ID: u16 = 359;
+pub(super) const VK_DESTROY_ACCELERATION_STRUCTURE_NV_COMMAND_ID: u16 = 442;
 pub(super) const VK_GET_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_NV_COMMAND_ID: u16 = 517;
-#[allow(dead_code)]
+pub(super) const VK_BIND_ACCELERATION_STRUCTURE_MEMORY_NV_COMMAND_ID: u16 = 13;
+pub(super) const VK_CMD_BUILD_ACCELERATION_STRUCTURE_NV_COMMAND_ID: u16 = 72;
+pub(super) const VK_CMD_COPY_ACCELERATION_STRUCTURE_NV_COMMAND_ID: u16 = 84;
+pub(super) const VK_CMD_TRACE_RAYS_NV_COMMAND_ID: u16 = 327;
+pub(super) const VK_CREATE_RAY_TRACING_PIPELINES_NV_COMMAND_ID: u16 = 410;
+pub(super) const VK_GET_RAY_TRACING_SHADER_GROUP_HANDLES_KHR_COMMAND_ID: u16 = 721;
+pub(super) const VK_GET_RAY_TRACING_SHADER_GROUP_HANDLES_NV_COMMAND_ID: u16 = 722;
+pub(super) const VK_GET_ACCELERATION_STRUCTURE_HANDLE_NV_COMMAND_ID: u16 = 516;
+pub(super) const VK_CMD_WRITE_ACCELERATION_STRUCTURES_PROPERTIES_NV_COMMAND_ID: u16 = 335;
+pub(super) const VK_COMPILE_DEFERRED_NV_COMMAND_ID: u16 = 343;
+pub(super) const VK_GET_MEMORY_HOST_POINTER_PROPERTIES_EXT_COMMAND_ID: u16 = 618;
+pub(super) const VK_CMD_WRITE_BUFFER_MARKER_AMD_COMMAND_ID: u16 = 337;
+pub(super) const VK_CMD_WRITE_BUFFER_MARKER2AMD_COMMAND_ID: u16 = 336;
+pub(super) const VK_GET_CALIBRATED_TIMESTAMPS_EXT_COMMAND_ID: u16 = 530;
+pub(super) const VK_CMD_DRAW_MESH_TASKS_NV_COMMAND_ID: u16 = 158;
+pub(super) const VK_CMD_DRAW_MESH_TASKS_INDIRECT_NV_COMMAND_ID: u16 = 157;
+pub(super) const VK_CMD_DRAW_MESH_TASKS_INDIRECT_COUNT_NV_COMMAND_ID: u16 = 155;
+pub(super) const VK_CMD_SET_EXCLUSIVE_SCISSOR_ENABLE_NV_COMMAND_ID: u16 = 264;
+pub(super) const VK_CMD_SET_EXCLUSIVE_SCISSOR_NV_COMMAND_ID: u16 = 265;
+pub(super) const VK_CMD_SET_CHECKPOINT_NV_COMMAND_ID: u16 = 219;
+pub(super) const VK_GET_QUEUE_CHECKPOINT_DATA_NV_COMMAND_ID: u16 = 718;
+pub(super) const VK_GET_QUEUE_CHECKPOINT_DATA2NV_COMMAND_ID: u16 = 717;
+pub(super) const VK_SET_SWAPCHAIN_PRESENT_TIMING_QUEUE_SIZE_EXT_COMMAND_ID: u16 = 813;
+pub(super) const VK_GET_SWAPCHAIN_TIMING_PROPERTIES_EXT_COMMAND_ID: u16 = 745;
+pub(super) const VK_GET_SWAPCHAIN_TIME_DOMAIN_PROPERTIES_EXT_COMMAND_ID: u16 = 744;
+pub(super) const VK_GET_PAST_PRESENTATION_TIMING_EXT_COMMAND_ID: u16 = 631;
+pub(super) const VK_INITIALIZE_PERFORMANCE_API_INTEL_COMMAND_ID: u16 = 758;
+pub(super) const VK_UNINITIALIZE_PERFORMANCE_API_INTEL_COMMAND_ID: u16 = 822;
+pub(super) const VK_CMD_SET_PERFORMANCE_MARKER_INTEL_COMMAND_ID: u16 = 280;
+pub(super) const VK_CMD_SET_PERFORMANCE_STREAM_MARKER_INTEL_COMMAND_ID: u16 = 282;
+pub(super) const VK_CMD_SET_PERFORMANCE_OVERRIDE_INTEL_COMMAND_ID: u16 = 281;
+pub(super) const VK_ACQUIRE_PERFORMANCE_CONFIGURATION_INTEL_COMMAND_ID: u16 = 4;
+pub(super) const VK_RELEASE_PERFORMANCE_CONFIGURATION_INTEL_COMMAND_ID: u16 = 786;
+pub(super) const VK_QUEUE_SET_PERFORMANCE_CONFIGURATION_INTEL_COMMAND_ID: u16 = 775;
+pub(super) const VK_GET_PERFORMANCE_PARAMETER_INTEL_COMMAND_ID: u16 = 633;
+pub(super) const VK_SET_LOCAL_DIMMING_AMD_COMMAND_ID: u16 = 810;
+pub(super) const VK_GET_BUFFER_DEVICE_ADDRESS_EXT_COMMAND_ID: u16 = 522;
+#[cfg(target_os = "windows")]
+pub(super) const VK_ACQUIRE_FULL_SCREEN_EXCLUSIVE_MODE_EXT_COMMAND_ID: u16 = 1;
+#[cfg(target_os = "windows")]
+pub(super) const VK_RELEASE_FULL_SCREEN_EXCLUSIVE_MODE_EXT_COMMAND_ID: u16 = 785;
+#[cfg(target_os = "windows")]
+pub(super) const VK_GET_DEVICE_GROUP_SURFACE_PRESENT_MODES2EXT_COMMAND_ID: u16 = 557;
+pub(super) const VK_CMD_SET_LINE_STIPPLE_EXT_COMMAND_ID: u16 = 273;
+pub(super) const VK_RESET_QUERY_POOL_EXT_COMMAND_ID: u16 = 797;
+pub(super) const VK_CMD_SET_CULL_MODE_EXT_COMMAND_ID: u16 = 235;
+pub(super) const VK_CMD_SET_FRONT_FACE_EXT_COMMAND_ID: u16 = 270;
+pub(super) const VK_CMD_SET_PRIMITIVE_TOPOLOGY_EXT_COMMAND_ID: u16 = 288;
+pub(super) const VK_CMD_SET_VIEWPORT_WITH_COUNT_EXT_COMMAND_ID: u16 = 322;
+pub(super) const VK_CMD_SET_SCISSOR_WITH_COUNT_EXT_COMMAND_ID: u16 = 305;
+pub(super) const VK_CMD_BIND_VERTEX_BUFFERS2EXT_COMMAND_ID: u16 = 67;
+pub(super) const VK_CMD_SET_DEPTH_TEST_ENABLE_EXT_COMMAND_ID: u16 = 250;
+pub(super) const VK_CMD_SET_DEPTH_WRITE_ENABLE_EXT_COMMAND_ID: u16 = 252;
+pub(super) const VK_CMD_SET_DEPTH_COMPARE_OP_EXT_COMMAND_ID: u16 = 248;
+pub(super) const VK_CMD_SET_DEPTH_BOUNDS_TEST_ENABLE_EXT_COMMAND_ID: u16 = 242;
+pub(super) const VK_CMD_SET_STENCIL_TEST_ENABLE_EXT_COMMAND_ID: u16 = 312;
+pub(super) const VK_CMD_SET_STENCIL_OP_EXT_COMMAND_ID: u16 = 309;
+pub(super) const VK_COPY_MEMORY_TO_IMAGE_EXT_COMMAND_ID: u16 = 353;
+pub(super) const VK_COPY_IMAGE_TO_MEMORY_EXT_COMMAND_ID: u16 = 350;
+pub(super) const VK_COPY_IMAGE_TO_IMAGE_EXT_COMMAND_ID: u16 = 348;
+pub(super) const VK_TRANSITION_IMAGE_LAYOUT_EXT_COMMAND_ID: u16 = 819;
+pub(super) const VK_GET_IMAGE_SUBRESOURCE_LAYOUT2EXT_COMMAND_ID: u16 = 606;
+pub(super) const VK_RELEASE_SWAPCHAIN_IMAGES_EXT_COMMAND_ID: u16 = 788;
+pub(super) const VK_GET_GENERATED_COMMANDS_MEMORY_REQUIREMENTS_NV_COMMAND_ID: u16 = 591;
+pub(super) const VK_CMD_PREPROCESS_GENERATED_COMMANDS_NV_COMMAND_ID: u16 = 195;
+pub(super) const VK_CMD_EXECUTE_GENERATED_COMMANDS_NV_COMMAND_ID: u16 = 182;
+pub(super) const VK_CMD_BIND_PIPELINE_SHADER_GROUP_NV_COMMAND_ID: u16 = 57;
+pub(super) const VK_CREATE_INDIRECT_COMMANDS_LAYOUT_NV_COMMAND_ID: u16 = 396;
+pub(super) const VK_DESTROY_INDIRECT_COMMANDS_LAYOUT_NV_COMMAND_ID: u16 = 468;
+pub(super) const VK_CMD_SET_DEPTH_BIAS2EXT_COMMAND_ID: u16 = 237;
+pub(super) const VK_CREATE_PRIVATE_DATA_SLOT_EXT_COMMAND_ID: u16 = 407;
+pub(super) const VK_DESTROY_PRIVATE_DATA_SLOT_EXT_COMMAND_ID: u16 = 478;
+pub(super) const VK_SET_PRIVATE_DATA_EXT_COMMAND_ID: u16 = 812;
+pub(super) const VK_GET_PRIVATE_DATA_EXT_COMMAND_ID: u16 = 715;
+pub(super) const VK_QUEUE_SET_PERF_HINT_QCOM_COMMAND_ID: u16 = 774;
+#[cfg(feature = "beta-extensions")]
+pub(super) const VK_CREATE_CUDA_MODULE_NV_COMMAND_ID: u16 = 369;
+#[cfg(feature = "beta-extensions")]
+pub(super) const VK_GET_CUDA_MODULE_CACHE_NV_COMMAND_ID: u16 = 533;
+#[cfg(feature = "beta-extensions")]
+pub(super) const VK_CREATE_CUDA_FUNCTION_NV_COMMAND_ID: u16 = 368;
+#[cfg(feature = "beta-extensions")]
+pub(super) const VK_DESTROY_CUDA_MODULE_NV_COMMAND_ID: u16 = 450;
+#[cfg(feature = "beta-extensions")]
+pub(super) const VK_DESTROY_CUDA_FUNCTION_NV_COMMAND_ID: u16 = 449;
+#[cfg(feature = "beta-extensions")]
+pub(super) const VK_CMD_CUDA_LAUNCH_KERNEL_NV_COMMAND_ID: u16 = 114;
+pub(super) const VK_CMD_DISPATCH_TILE_QCOM_COMMAND_ID: u16 = 132;
+pub(super) const VK_CMD_BEGIN_PER_TILE_EXECUTION_QCOM_COMMAND_ID: u16 = 33;
+pub(super) const VK_CMD_END_PER_TILE_EXECUTION_QCOM_COMMAND_ID: u16 = 166;
+pub(super) const VK_SET_LATENCY_SLEEP_MODE_LEGACY_NV_COMMAND_ID: u16 = 808;
+pub(super) const VK_LATENCY_SLEEP_LEGACY_NV_COMMAND_ID: u16 = 760;
+pub(super) const VK_SET_LATENCY_MARKER_LEGACY_NV_COMMAND_ID: u16 = 806;
+pub(super) const VK_GET_LATENCY_TIMINGS_LEGACY_NV_COMMAND_ID: u16 = 613;
+pub(super) const VK_QUEUE_NOTIFY_OUT_OF_BAND_LEGACY_NV_COMMAND_ID: u16 = 771;
+pub(super) const VK_GET_SLEEP_STATUS_LEGACY_NV_COMMAND_ID: u16 = 740;
+pub(super) const VK_SHUTDOWN_LATENCY_DEVICE_LEGACY_NV_COMMAND_ID: u16 = 814;
+#[cfg(any(
+    target_os = "macos",
+    target_os = "ios",
+    target_os = "tvos",
+    target_os = "visionos"
+))]
+pub(super) const VK_EXPORT_METAL_OBJECTS_EXT_COMMAND_ID: u16 = 509;
+pub(super) const VK_GET_DESCRIPTOR_SET_LAYOUT_SIZE_EXT_COMMAND_ID: u16 = 544;
+pub(super) const VK_GET_DESCRIPTOR_SET_LAYOUT_BINDING_OFFSET_EXT_COMMAND_ID: u16 = 542;
+pub(super) const VK_GET_DESCRIPTOR_EXT_COMMAND_ID: u16 = 540;
+pub(super) const VK_CMD_BIND_DESCRIPTOR_BUFFERS_EXT_COMMAND_ID: u16 = 47;
+pub(super) const VK_CMD_SET_DESCRIPTOR_BUFFER_OFFSETS_EXT_COMMAND_ID: u16 = 254;
+pub(super) const VK_CMD_BIND_DESCRIPTOR_BUFFER_EMBEDDED_SAMPLERS_EXT_COMMAND_ID: u16 = 46;
+pub(super) const VK_GET_BUFFER_OPAQUE_CAPTURE_DESCRIPTOR_DATA_EXT_COMMAND_ID: u16 = 529;
+pub(super) const VK_GET_IMAGE_OPAQUE_CAPTURE_DESCRIPTOR_DATA_EXT_COMMAND_ID: u16 = 600;
+pub(super) const VK_GET_IMAGE_VIEW_OPAQUE_CAPTURE_DESCRIPTOR_DATA_EXT_COMMAND_ID: u16 = 611;
+pub(super) const VK_GET_SAMPLER_OPAQUE_CAPTURE_DESCRIPTOR_DATA_EXT_COMMAND_ID: u16 = 728;
 pub(super) const VK_GET_ACCELERATION_STRUCTURE_OPAQUE_CAPTURE_DESCRIPTOR_DATA_EXT_COMMAND_ID: u16 =
     518;
-#[allow(dead_code)]
-pub(super) const VK_GET_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID_COMMAND_ID: u16 = 519;
-#[allow(dead_code)]
+pub(super) const VK_CMD_SET_FRAGMENT_SHADING_RATE_ENUM_NV_COMMAND_ID: u16 = 267;
+pub(super) const VK_GET_DEVICE_FAULT_INFO_EXT_COMMAND_ID: u16 = 552;
+pub(super) const VK_CMD_SET_VERTEX_INPUT_EXT_COMMAND_ID: u16 = 315;
+#[cfg(target_os = "fuchsia")]
+pub(super) const VK_GET_MEMORY_ZIRCON_HANDLE_FUCHSIA_COMMAND_ID: u16 = 626;
+#[cfg(target_os = "fuchsia")]
+pub(super) const VK_GET_MEMORY_ZIRCON_HANDLE_PROPERTIES_FUCHSIA_COMMAND_ID: u16 = 627;
+#[cfg(target_os = "fuchsia")]
+pub(super) const VK_IMPORT_SEMAPHORE_ZIRCON_HANDLE_FUCHSIA_COMMAND_ID: u16 = 757;
+#[cfg(target_os = "fuchsia")]
+pub(super) const VK_GET_SEMAPHORE_ZIRCON_HANDLE_FUCHSIA_COMMAND_ID: u16 = 734;
+#[cfg(target_os = "fuchsia")]
+pub(super) const VK_CREATE_BUFFER_COLLECTION_FUCHSIA_COMMAND_ID: u16 = 362;
+#[cfg(target_os = "fuchsia")]
+pub(super) const VK_SET_BUFFER_COLLECTION_IMAGE_CONSTRAINTS_FUCHSIA_COMMAND_ID: u16 = 799;
+#[cfg(target_os = "fuchsia")]
+pub(super) const VK_SET_BUFFER_COLLECTION_BUFFER_CONSTRAINTS_FUCHSIA_COMMAND_ID: u16 = 798;
+#[cfg(target_os = "fuchsia")]
+pub(super) const VK_DESTROY_BUFFER_COLLECTION_FUCHSIA_COMMAND_ID: u16 = 444;
+#[cfg(target_os = "fuchsia")]
 pub(super) const VK_GET_BUFFER_COLLECTION_PROPERTIES_FUCHSIA_COMMAND_ID: u16 = 520;
-#[allow(dead_code)]
-pub(super) const VK_GET_BUFFER_DEVICE_ADDRESS_COMMAND_ID: u16 = 521;
-#[allow(dead_code)]
-pub(super) const VK_GET_BUFFER_DEVICE_ADDRESS_EXT_COMMAND_ID: u16 = 522;
-#[allow(dead_code)]
-pub(super) const VK_GET_BUFFER_DEVICE_ADDRESS_KHR_COMMAND_ID: u16 = 523;
-#[allow(dead_code)]
-pub(super) const VK_GET_BUFFER_MEMORY_REQUIREMENTS_COMMAND_ID: u16 = 524;
-#[allow(dead_code)]
-pub(super) const VK_GET_BUFFER_MEMORY_REQUIREMENTS2_COMMAND_ID: u16 = 525;
-#[allow(dead_code)]
-pub(super) const VK_GET_BUFFER_MEMORY_REQUIREMENTS2KHR_COMMAND_ID: u16 = 526;
-#[allow(dead_code)]
-pub(super) const VK_GET_BUFFER_OPAQUE_CAPTURE_ADDRESS_COMMAND_ID: u16 = 527;
-#[allow(dead_code)]
-pub(super) const VK_GET_BUFFER_OPAQUE_CAPTURE_ADDRESS_KHR_COMMAND_ID: u16 = 528;
-#[allow(dead_code)]
-pub(super) const VK_GET_BUFFER_OPAQUE_CAPTURE_DESCRIPTOR_DATA_EXT_COMMAND_ID: u16 = 529;
-#[allow(dead_code)]
-pub(super) const VK_GET_CALIBRATED_TIMESTAMPS_EXT_COMMAND_ID: u16 = 530;
-#[allow(dead_code)]
-pub(super) const VK_GET_CALIBRATED_TIMESTAMPS_KHR_COMMAND_ID: u16 = 531;
-#[allow(dead_code)]
-pub(super) const VK_GET_CLUSTER_ACCELERATION_STRUCTURE_BUILD_SIZES_NV_COMMAND_ID: u16 = 532;
-#[allow(dead_code)]
-pub(super) const VK_GET_CUDA_MODULE_CACHE_NV_COMMAND_ID: u16 = 533;
-#[allow(dead_code)]
-pub(super) const VK_GET_DATA_GRAPH_PIPELINE_AVAILABLE_PROPERTIES_ARM_COMMAND_ID: u16 = 534;
-#[allow(dead_code)]
-pub(super) const VK_GET_DATA_GRAPH_PIPELINE_PROPERTIES_ARM_COMMAND_ID: u16 = 535;
-#[allow(dead_code)]
+pub(super) const VK_GET_DEVICE_SUBPASS_SHADING_MAX_WORKGROUP_SIZE_HUAWEI_COMMAND_ID: u16 = 572;
+pub(super) const VK_CMD_SUBPASS_SHADING_HUAWEI_COMMAND_ID: u16 = 323;
+pub(super) const VK_CMD_BIND_INVOCATION_MASK_HUAWEI_COMMAND_ID: u16 = 55;
+pub(super) const VK_GET_MEMORY_REMOTE_ADDRESS_NV_COMMAND_ID: u16 = 622;
+pub(super) const VK_GET_PIPELINE_PROPERTIES_EXT_COMMAND_ID: u16 = 713;
+pub(super) const VK_CMD_SET_PATCH_CONTROL_POINTS_EXT_COMMAND_ID: u16 = 279;
+pub(super) const VK_CMD_SET_RASTERIZER_DISCARD_ENABLE_EXT_COMMAND_ID: u16 = 293;
+pub(super) const VK_CMD_SET_DEPTH_BIAS_ENABLE_EXT_COMMAND_ID: u16 = 239;
+pub(super) const VK_CMD_SET_LOGIC_OP_EXT_COMMAND_ID: u16 = 277;
+pub(super) const VK_CMD_SET_PRIMITIVE_RESTART_ENABLE_EXT_COMMAND_ID: u16 = 285;
+pub(super) const VK_CMD_SET_COLOR_WRITE_ENABLE_EXT_COMMAND_ID: u16 = 224;
+pub(super) const VK_CMD_DRAW_MULTI_EXT_COMMAND_ID: u16 = 159;
+pub(super) const VK_CMD_DRAW_MULTI_INDEXED_EXT_COMMAND_ID: u16 = 160;
+pub(super) const VK_CREATE_MICROMAP_EXT_COMMAND_ID: u16 = 401;
+pub(super) const VK_DESTROY_MICROMAP_EXT_COMMAND_ID: u16 = 471;
+pub(super) const VK_CMD_BUILD_MICROMAPS_EXT_COMMAND_ID: u16 = 76;
+pub(super) const VK_BUILD_MICROMAPS_EXT_COMMAND_ID: u16 = 25;
+pub(super) const VK_COPY_MICROMAP_EXT_COMMAND_ID: u16 = 355;
+pub(super) const VK_COPY_MICROMAP_TO_MEMORY_EXT_COMMAND_ID: u16 = 356;
+pub(super) const VK_COPY_MEMORY_TO_MICROMAP_EXT_COMMAND_ID: u16 = 354;
+pub(super) const VK_WRITE_MICROMAPS_PROPERTIES_EXT_COMMAND_ID: u16 = 839;
+pub(super) const VK_CMD_COPY_MICROMAP_EXT_COMMAND_ID: u16 = 108;
+pub(super) const VK_CMD_COPY_MICROMAP_TO_MEMORY_EXT_COMMAND_ID: u16 = 109;
+pub(super) const VK_CMD_COPY_MEMORY_TO_MICROMAP_EXT_COMMAND_ID: u16 = 107;
+pub(super) const VK_CMD_WRITE_MICROMAPS_PROPERTIES_EXT_COMMAND_ID: u16 = 339;
+pub(super) const VK_GET_DEVICE_MICROMAP_COMPATIBILITY_EXT_COMMAND_ID: u16 = 568;
+pub(super) const VK_GET_MICROMAP_BUILD_SIZES_EXT_COMMAND_ID: u16 = 628;
+pub(super) const VK_CMD_DRAW_CLUSTER_HUAWEI_COMMAND_ID: u16 = 134;
+pub(super) const VK_CMD_DRAW_CLUSTER_INDIRECT_HUAWEI_COMMAND_ID: u16 = 135;
+pub(super) const VK_SET_DEVICE_MEMORY_PRIORITY_EXT_COMMAND_ID: u16 = 802;
+pub(super) const VK_CMD_SET_DISPATCH_PARAMETERS_ARM_COMMAND_ID: u16 = 260;
+pub(super) const VK_GET_DESCRIPTOR_SET_LAYOUT_HOST_MAPPING_INFO_VALVE_COMMAND_ID: u16 = 543;
+pub(super) const VK_GET_DESCRIPTOR_SET_HOST_MAPPING_VALVE_COMMAND_ID: u16 = 541;
+pub(super) const VK_CMD_COPY_MEMORY_INDIRECT_NV_COMMAND_ID: u16 = 101;
+pub(super) const VK_CMD_COPY_MEMORY_TO_IMAGE_INDIRECT_NV_COMMAND_ID: u16 = 105;
+pub(super) const VK_CMD_DECOMPRESS_MEMORY_NV_COMMAND_ID: u16 = 122;
+pub(super) const VK_CMD_DECOMPRESS_MEMORY_INDIRECT_COUNT_NV_COMMAND_ID: u16 = 121;
+pub(super) const VK_GET_PIPELINE_INDIRECT_MEMORY_REQUIREMENTS_NV_COMMAND_ID: u16 = 711;
+pub(super) const VK_CMD_UPDATE_PIPELINE_INDIRECT_BUFFER_NV_COMMAND_ID: u16 = 330;
+pub(super) const VK_GET_PIPELINE_INDIRECT_DEVICE_ADDRESS_NV_COMMAND_ID: u16 = 710;
+#[cfg(target_env = "ohos")]
+pub(super) const VK_GET_NATIVE_BUFFER_PROPERTIES_OHOS_COMMAND_ID: u16 = 629;
+#[cfg(target_env = "ohos")]
+pub(super) const VK_GET_MEMORY_NATIVE_BUFFER_OHOS_COMMAND_ID: u16 = 621;
+pub(super) const VK_CMD_SET_DEPTH_CLAMP_ENABLE_EXT_COMMAND_ID: u16 = 243;
+pub(super) const VK_CMD_SET_POLYGON_MODE_EXT_COMMAND_ID: u16 = 283;
+pub(super) const VK_CMD_SET_RASTERIZATION_SAMPLES_EXT_COMMAND_ID: u16 = 290;
+pub(super) const VK_CMD_SET_SAMPLE_MASK_EXT_COMMAND_ID: u16 = 302;
+pub(super) const VK_CMD_SET_ALPHA_TO_COVERAGE_ENABLE_EXT_COMMAND_ID: u16 = 215;
+pub(super) const VK_CMD_SET_ALPHA_TO_ONE_ENABLE_EXT_COMMAND_ID: u16 = 216;
+pub(super) const VK_CMD_SET_LOGIC_OP_ENABLE_EXT_COMMAND_ID: u16 = 278;
+pub(super) const VK_CMD_SET_COLOR_BLEND_ENABLE_EXT_COMMAND_ID: u16 = 222;
+pub(super) const VK_CMD_SET_COLOR_BLEND_EQUATION_EXT_COMMAND_ID: u16 = 223;
+pub(super) const VK_CMD_SET_COLOR_WRITE_MASK_EXT_COMMAND_ID: u16 = 225;
+pub(super) const VK_CMD_SET_TESSELLATION_DOMAIN_ORIGIN_EXT_COMMAND_ID: u16 = 314;
+pub(super) const VK_CMD_SET_RASTERIZATION_STREAM_EXT_COMMAND_ID: u16 = 291;
+pub(super) const VK_CMD_SET_CONSERVATIVE_RASTERIZATION_MODE_EXT_COMMAND_ID: u16 = 227;
+pub(super) const VK_CMD_SET_EXTRA_PRIMITIVE_OVERESTIMATION_SIZE_EXT_COMMAND_ID: u16 = 266;
+pub(super) const VK_CMD_SET_DEPTH_CLIP_ENABLE_EXT_COMMAND_ID: u16 = 245;
+pub(super) const VK_CMD_SET_SAMPLE_LOCATIONS_ENABLE_EXT_COMMAND_ID: u16 = 301;
+pub(super) const VK_CMD_SET_COLOR_BLEND_ADVANCED_EXT_COMMAND_ID: u16 = 221;
+pub(super) const VK_CMD_SET_PROVOKING_VERTEX_MODE_EXT_COMMAND_ID: u16 = 289;
+pub(super) const VK_CMD_SET_LINE_RASTERIZATION_MODE_EXT_COMMAND_ID: u16 = 271;
+pub(super) const VK_CMD_SET_LINE_STIPPLE_ENABLE_EXT_COMMAND_ID: u16 = 274;
+pub(super) const VK_CMD_SET_DEPTH_CLIP_NEGATIVE_ONE_TO_ONE_EXT_COMMAND_ID: u16 = 246;
+pub(super) const VK_CMD_SET_VIEWPORT_W_SCALING_ENABLE_NV_COMMAND_ID: u16 = 319;
+pub(super) const VK_CMD_SET_VIEWPORT_SWIZZLE_NV_COMMAND_ID: u16 = 318;
+pub(super) const VK_CMD_SET_COVERAGE_TO_COLOR_ENABLE_NV_COMMAND_ID: u16 = 232;
+pub(super) const VK_CMD_SET_COVERAGE_TO_COLOR_LOCATION_NV_COMMAND_ID: u16 = 233;
+pub(super) const VK_CMD_SET_COVERAGE_MODULATION_MODE_NV_COMMAND_ID: u16 = 228;
+pub(super) const VK_CMD_SET_COVERAGE_MODULATION_TABLE_ENABLE_NV_COMMAND_ID: u16 = 229;
+pub(super) const VK_CMD_SET_COVERAGE_MODULATION_TABLE_NV_COMMAND_ID: u16 = 230;
+pub(super) const VK_CMD_SET_SHADING_RATE_IMAGE_ENABLE_NV_COMMAND_ID: u16 = 306;
+pub(super) const VK_CMD_SET_REPRESENTATIVE_FRAGMENT_TEST_ENABLE_NV_COMMAND_ID: u16 = 299;
+pub(super) const VK_CMD_SET_COVERAGE_REDUCTION_MODE_NV_COMMAND_ID: u16 = 231;
+pub(super) const VK_CREATE_TENSOR_ARM_COMMAND_ID: u16 = 426;
+pub(super) const VK_DESTROY_TENSOR_ARM_COMMAND_ID: u16 = 490;
+pub(super) const VK_CREATE_TENSOR_VIEW_ARM_COMMAND_ID: u16 = 427;
+pub(super) const VK_DESTROY_TENSOR_VIEW_ARM_COMMAND_ID: u16 = 491;
+pub(super) const VK_GET_TENSOR_MEMORY_REQUIREMENTS_ARM_COMMAND_ID: u16 = 746;
+pub(super) const VK_BIND_TENSOR_MEMORY_ARM_COMMAND_ID: u16 = 22;
+pub(super) const VK_GET_DEVICE_TENSOR_MEMORY_REQUIREMENTS_ARM_COMMAND_ID: u16 = 573;
+pub(super) const VK_CMD_COPY_TENSOR_ARM_COMMAND_ID: u16 = 112;
+pub(super) const VK_GET_TENSOR_OPAQUE_CAPTURE_DESCRIPTOR_DATA_ARM_COMMAND_ID: u16 = 748;
+pub(super) const VK_GET_TENSOR_VIEW_OPAQUE_CAPTURE_DESCRIPTOR_DATA_ARM_COMMAND_ID: u16 = 749;
+pub(super) const VK_GET_SHADER_MODULE_IDENTIFIER_EXT_COMMAND_ID: u16 = 739;
+pub(super) const VK_GET_SHADER_MODULE_CREATE_INFO_IDENTIFIER_EXT_COMMAND_ID: u16 = 738;
+pub(super) const VK_CREATE_OPTICAL_FLOW_SESSION_NV_COMMAND_ID: u16 = 402;
+pub(super) const VK_DESTROY_OPTICAL_FLOW_SESSION_NV_COMMAND_ID: u16 = 472;
+pub(super) const VK_BIND_OPTICAL_FLOW_SESSION_IMAGE_NV_COMMAND_ID: u16 = 21;
+pub(super) const VK_CMD_OPTICAL_FLOW_EXECUTE_NV_COMMAND_ID: u16 = 190;
+pub(super) const VK_ANTI_LAG_UPDATE_AMD_COMMAND_ID: u16 = 11;
+pub(super) const VK_CREATE_SHADERS_EXT_COMMAND_ID: u16 = 421;
+pub(super) const VK_DESTROY_SHADER_EXT_COMMAND_ID: u16 = 485;
+pub(super) const VK_GET_SHADER_BINARY_DATA_EXT_COMMAND_ID: u16 = 735;
+pub(super) const VK_CMD_BIND_SHADERS_EXT_COMMAND_ID: u16 = 60;
+pub(super) const VK_CMD_SET_DEPTH_CLAMP_RANGE_EXT_COMMAND_ID: u16 = 244;
+pub(super) const VK_GET_FRAMEBUFFER_TILE_PROPERTIES_QCOM_COMMAND_ID: u16 = 589;
+pub(super) const VK_GET_DYNAMIC_RENDERING_TILE_PROPERTIES_QCOM_COMMAND_ID: u16 = 580;
+pub(super) const VK_CONVERT_COOPERATIVE_VECTOR_MATRIX_NV_COMMAND_ID: u16 = 344;
+pub(super) const VK_CMD_CONVERT_COOPERATIVE_VECTOR_MATRIX_NV_COMMAND_ID: u16 = 82;
+pub(super) const VK_SET_LATENCY_SLEEP_MODE_NV_COMMAND_ID: u16 = 809;
+pub(super) const VK_LATENCY_SLEEP_NV_COMMAND_ID: u16 = 761;
+pub(super) const VK_SET_LATENCY_MARKER_NV_COMMAND_ID: u16 = 807;
+pub(super) const VK_GET_LATENCY_TIMINGS_NV_COMMAND_ID: u16 = 614;
+pub(super) const VK_QUEUE_NOTIFY_OUT_OF_BAND_NV_COMMAND_ID: u16 = 772;
+pub(super) const VK_CREATE_DATA_GRAPH_PIPELINES_ARM_COMMAND_ID: u16 = 371;
+pub(super) const VK_CREATE_DATA_GRAPH_PIPELINE_SESSION_ARM_COMMAND_ID: u16 = 370;
 pub(super) const VK_GET_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_REQUIREMENTS_ARM_COMMAND_ID: u16 =
     536;
-#[allow(dead_code)]
 pub(super) const VK_GET_DATA_GRAPH_PIPELINE_SESSION_MEMORY_REQUIREMENTS_ARM_COMMAND_ID: u16 = 537;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEFERRED_OPERATION_MAX_CONCURRENCY_KHR_COMMAND_ID: u16 = 538;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEFERRED_OPERATION_RESULT_KHR_COMMAND_ID: u16 = 539;
-#[allow(dead_code)]
-pub(super) const VK_GET_DESCRIPTOR_EXT_COMMAND_ID: u16 = 540;
-#[allow(dead_code)]
-pub(super) const VK_GET_DESCRIPTOR_SET_HOST_MAPPING_VALVE_COMMAND_ID: u16 = 541;
-#[allow(dead_code)]
-pub(super) const VK_GET_DESCRIPTOR_SET_LAYOUT_BINDING_OFFSET_EXT_COMMAND_ID: u16 = 542;
-#[allow(dead_code)]
-pub(super) const VK_GET_DESCRIPTOR_SET_LAYOUT_HOST_MAPPING_INFO_VALVE_COMMAND_ID: u16 = 543;
-#[allow(dead_code)]
-pub(super) const VK_GET_DESCRIPTOR_SET_LAYOUT_SIZE_EXT_COMMAND_ID: u16 = 544;
-#[allow(dead_code)]
-pub(super) const VK_GET_DESCRIPTOR_SET_LAYOUT_SUPPORT_COMMAND_ID: u16 = 545;
-#[allow(dead_code)]
-pub(super) const VK_GET_DESCRIPTOR_SET_LAYOUT_SUPPORT_KHR_COMMAND_ID: u16 = 546;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_ACCELERATION_STRUCTURE_COMPATIBILITY_KHR_COMMAND_ID: u16 = 547;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_BUFFER_MEMORY_REQUIREMENTS_COMMAND_ID: u16 = 548;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_BUFFER_MEMORY_REQUIREMENTS_KHR_COMMAND_ID: u16 = 549;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_COMBINED_IMAGE_SAMPLER_INDEX_NVX_COMMAND_ID: u16 = 550;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_FAULT_DEBUG_INFO_KHR_COMMAND_ID: u16 = 551;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_FAULT_INFO_EXT_COMMAND_ID: u16 = 552;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_FAULT_REPORTS_KHR_COMMAND_ID: u16 = 553;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_GROUP_PEER_MEMORY_FEATURES_COMMAND_ID: u16 = 554;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_GROUP_PEER_MEMORY_FEATURES_KHR_COMMAND_ID: u16 = 555;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_GROUP_PRESENT_CAPABILITIES_KHR_COMMAND_ID: u16 = 556;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_GROUP_SURFACE_PRESENT_MODES2EXT_COMMAND_ID: u16 = 557;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_GROUP_SURFACE_PRESENT_MODES_KHR_COMMAND_ID: u16 = 558;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_IMAGE_MEMORY_REQUIREMENTS_COMMAND_ID: u16 = 559;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_IMAGE_MEMORY_REQUIREMENTS_KHR_COMMAND_ID: u16 = 560;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_IMAGE_SPARSE_MEMORY_REQUIREMENTS_COMMAND_ID: u16 = 561;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_IMAGE_SPARSE_MEMORY_REQUIREMENTS_KHR_COMMAND_ID: u16 = 562;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_IMAGE_SUBRESOURCE_LAYOUT_COMMAND_ID: u16 = 563;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_IMAGE_SUBRESOURCE_LAYOUT_KHR_COMMAND_ID: u16 = 564;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_MEMORY_COMMITMENT_COMMAND_ID: u16 = 565;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_MEMORY_OPAQUE_CAPTURE_ADDRESS_COMMAND_ID: u16 = 566;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_MEMORY_OPAQUE_CAPTURE_ADDRESS_KHR_COMMAND_ID: u16 = 567;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_MICROMAP_COMPATIBILITY_EXT_COMMAND_ID: u16 = 568;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_PROC_ADDR_COMMAND_ID: u16 = 569;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_QUEUE_COMMAND_ID: u16 = 570;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_QUEUE2_COMMAND_ID: u16 = 571;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_SUBPASS_SHADING_MAX_WORKGROUP_SIZE_HUAWEI_COMMAND_ID: u16 = 572;
-#[allow(dead_code)]
-pub(super) const VK_GET_DEVICE_TENSOR_MEMORY_REQUIREMENTS_ARM_COMMAND_ID: u16 = 573;
-#[allow(dead_code)]
-pub(super) const VK_GET_DYNAMIC_RENDERING_TILE_PROPERTIES_QCOM_COMMAND_ID: u16 = 580;
-#[allow(dead_code)]
-pub(super) const VK_GET_ENCODED_VIDEO_SESSION_PARAMETERS_KHR_COMMAND_ID: u16 = 581;
-#[allow(dead_code)]
-pub(super) const VK_GET_EVENT_STATUS_COMMAND_ID: u16 = 582;
-#[allow(dead_code)]
-pub(super) const VK_GET_EXECUTION_GRAPH_PIPELINE_NODE_INDEX_AMDX_COMMAND_ID: u16 = 583;
-#[allow(dead_code)]
-pub(super) const VK_GET_EXECUTION_GRAPH_PIPELINE_SCRATCH_SIZE_AMDX_COMMAND_ID: u16 = 584;
-#[allow(dead_code)]
-pub(super) const VK_GET_EXTERNAL_COMPUTE_QUEUE_DATA_NV_COMMAND_ID: u16 = 585;
-#[allow(dead_code)]
-pub(super) const VK_GET_FENCE_FD_KHR_COMMAND_ID: u16 = 586;
-#[allow(dead_code)]
-pub(super) const VK_GET_FENCE_STATUS_COMMAND_ID: u16 = 587;
-#[allow(dead_code)]
-pub(super) const VK_GET_FENCE_WIN32HANDLE_KHR_COMMAND_ID: u16 = 588;
-#[allow(dead_code)]
-pub(super) const VK_GET_FRAMEBUFFER_TILE_PROPERTIES_QCOM_COMMAND_ID: u16 = 589;
-#[allow(dead_code)]
-pub(super) const VK_GET_GENERATED_COMMANDS_MEMORY_REQUIREMENTS_EXT_COMMAND_ID: u16 = 590;
-#[allow(dead_code)]
-pub(super) const VK_GET_GENERATED_COMMANDS_MEMORY_REQUIREMENTS_NV_COMMAND_ID: u16 = 591;
-#[allow(dead_code)]
-pub(super) const VK_GET_GPA_DEVICE_CLOCK_INFO_AMD_COMMAND_ID: u16 = 592;
-#[allow(dead_code)]
-pub(super) const VK_GET_GPA_SESSION_RESULTS_AMD_COMMAND_ID: u16 = 593;
-#[allow(dead_code)]
-pub(super) const VK_GET_GPA_SESSION_STATUS_AMD_COMMAND_ID: u16 = 594;
-#[allow(dead_code)]
-pub(super) const VK_GET_IMAGE_DRM_FORMAT_MODIFIER_PROPERTIES_EXT_COMMAND_ID: u16 = 595;
-#[allow(dead_code)]
-pub(super) const VK_GET_IMAGE_MEMORY_REQUIREMENTS_COMMAND_ID: u16 = 596;
-#[allow(dead_code)]
-pub(super) const VK_GET_IMAGE_MEMORY_REQUIREMENTS2_COMMAND_ID: u16 = 597;
-#[allow(dead_code)]
-pub(super) const VK_GET_IMAGE_MEMORY_REQUIREMENTS2KHR_COMMAND_ID: u16 = 598;
-#[allow(dead_code)]
-pub(super) const VK_GET_IMAGE_OPAQUE_CAPTURE_DATA_EXT_COMMAND_ID: u16 = 599;
-#[allow(dead_code)]
-pub(super) const VK_GET_IMAGE_OPAQUE_CAPTURE_DESCRIPTOR_DATA_EXT_COMMAND_ID: u16 = 600;
-#[allow(dead_code)]
-pub(super) const VK_GET_IMAGE_SPARSE_MEMORY_REQUIREMENTS_COMMAND_ID: u16 = 601;
-#[allow(dead_code)]
-pub(super) const VK_GET_IMAGE_SPARSE_MEMORY_REQUIREMENTS2_COMMAND_ID: u16 = 602;
-#[allow(dead_code)]
-pub(super) const VK_GET_IMAGE_SPARSE_MEMORY_REQUIREMENTS2KHR_COMMAND_ID: u16 = 603;
-#[allow(dead_code)]
-pub(super) const VK_GET_IMAGE_SUBRESOURCE_LAYOUT_COMMAND_ID: u16 = 604;
-#[allow(dead_code)]
-pub(super) const VK_GET_IMAGE_SUBRESOURCE_LAYOUT2_COMMAND_ID: u16 = 605;
-#[allow(dead_code)]
-pub(super) const VK_GET_IMAGE_SUBRESOURCE_LAYOUT2EXT_COMMAND_ID: u16 = 606;
-#[allow(dead_code)]
-pub(super) const VK_GET_IMAGE_SUBRESOURCE_LAYOUT2KHR_COMMAND_ID: u16 = 607;
-#[allow(dead_code)]
-pub(super) const VK_GET_IMAGE_VIEW_ADDRESS_NVX_COMMAND_ID: u16 = 608;
-#[allow(dead_code)]
-pub(super) const VK_GET_IMAGE_VIEW_HANDLE64NVX_COMMAND_ID: u16 = 609;
-#[allow(dead_code)]
-pub(super) const VK_GET_IMAGE_VIEW_HANDLE_NVX_COMMAND_ID: u16 = 610;
-#[allow(dead_code)]
-pub(super) const VK_GET_IMAGE_VIEW_OPAQUE_CAPTURE_DESCRIPTOR_DATA_EXT_COMMAND_ID: u16 = 611;
-#[allow(dead_code)]
-pub(super) const VK_GET_LATENCY_TIMINGS_LEGACY_NV_COMMAND_ID: u16 = 613;
-#[allow(dead_code)]
-pub(super) const VK_GET_LATENCY_TIMINGS_NV_COMMAND_ID: u16 = 614;
-#[allow(dead_code)]
-pub(super) const VK_GET_MEMORY_ANDROID_HARDWARE_BUFFER_ANDROID_COMMAND_ID: u16 = 615;
-#[allow(dead_code)]
-pub(super) const VK_GET_MEMORY_FD_KHR_COMMAND_ID: u16 = 616;
-#[allow(dead_code)]
-pub(super) const VK_GET_MEMORY_FD_PROPERTIES_KHR_COMMAND_ID: u16 = 617;
-#[allow(dead_code)]
-pub(super) const VK_GET_MEMORY_HOST_POINTER_PROPERTIES_EXT_COMMAND_ID: u16 = 618;
-#[allow(dead_code)]
-pub(super) const VK_GET_MEMORY_METAL_HANDLE_EXT_COMMAND_ID: u16 = 619;
-#[allow(dead_code)]
-pub(super) const VK_GET_MEMORY_METAL_HANDLE_PROPERTIES_EXT_COMMAND_ID: u16 = 620;
-#[allow(dead_code)]
-pub(super) const VK_GET_MEMORY_NATIVE_BUFFER_OHOS_COMMAND_ID: u16 = 621;
-#[allow(dead_code)]
-pub(super) const VK_GET_MEMORY_REMOTE_ADDRESS_NV_COMMAND_ID: u16 = 622;
-#[allow(dead_code)]
-pub(super) const VK_GET_MEMORY_WIN32HANDLE_KHR_COMMAND_ID: u16 = 623;
-#[allow(dead_code)]
-pub(super) const VK_GET_MEMORY_WIN32HANDLE_NV_COMMAND_ID: u16 = 624;
-#[allow(dead_code)]
-pub(super) const VK_GET_MEMORY_WIN32HANDLE_PROPERTIES_KHR_COMMAND_ID: u16 = 625;
-#[allow(dead_code)]
-pub(super) const VK_GET_MEMORY_ZIRCON_HANDLE_FUCHSIA_COMMAND_ID: u16 = 626;
-#[allow(dead_code)]
-pub(super) const VK_GET_MEMORY_ZIRCON_HANDLE_PROPERTIES_FUCHSIA_COMMAND_ID: u16 = 627;
-#[allow(dead_code)]
-pub(super) const VK_GET_MICROMAP_BUILD_SIZES_EXT_COMMAND_ID: u16 = 628;
-#[allow(dead_code)]
-pub(super) const VK_GET_NATIVE_BUFFER_PROPERTIES_OHOS_COMMAND_ID: u16 = 629;
-#[allow(dead_code)]
-pub(super) const VK_GET_PARTITIONED_ACCELERATION_STRUCTURES_BUILD_SIZES_NV_COMMAND_ID: u16 = 630;
-#[allow(dead_code)]
-pub(super) const VK_GET_PAST_PRESENTATION_TIMING_EXT_COMMAND_ID: u16 = 631;
-#[allow(dead_code)]
-pub(super) const VK_GET_PAST_PRESENTATION_TIMING_GOOGLE_COMMAND_ID: u16 = 632;
-#[allow(dead_code)]
-pub(super) const VK_GET_PERFORMANCE_PARAMETER_INTEL_COMMAND_ID: u16 = 633;
-#[allow(dead_code)]
-pub(super) const VK_GET_PIPELINE_BINARY_DATA_KHR_COMMAND_ID: u16 = 705;
-#[allow(dead_code)]
-pub(super) const VK_GET_PIPELINE_CACHE_DATA_COMMAND_ID: u16 = 706;
-#[allow(dead_code)]
-pub(super) const VK_GET_PIPELINE_EXECUTABLE_INTERNAL_REPRESENTATIONS_KHR_COMMAND_ID: u16 = 707;
-#[allow(dead_code)]
-pub(super) const VK_GET_PIPELINE_EXECUTABLE_PROPERTIES_KHR_COMMAND_ID: u16 = 708;
-#[allow(dead_code)]
-pub(super) const VK_GET_PIPELINE_EXECUTABLE_STATISTICS_KHR_COMMAND_ID: u16 = 709;
-#[allow(dead_code)]
-pub(super) const VK_GET_PIPELINE_INDIRECT_DEVICE_ADDRESS_NV_COMMAND_ID: u16 = 710;
-#[allow(dead_code)]
-pub(super) const VK_GET_PIPELINE_INDIRECT_MEMORY_REQUIREMENTS_NV_COMMAND_ID: u16 = 711;
-#[allow(dead_code)]
-pub(super) const VK_GET_PIPELINE_KEY_KHR_COMMAND_ID: u16 = 712;
-#[allow(dead_code)]
-pub(super) const VK_GET_PIPELINE_PROPERTIES_EXT_COMMAND_ID: u16 = 713;
-#[allow(dead_code)]
-pub(super) const VK_GET_PRIVATE_DATA_COMMAND_ID: u16 = 714;
-#[allow(dead_code)]
-pub(super) const VK_GET_PRIVATE_DATA_EXT_COMMAND_ID: u16 = 715;
-#[allow(dead_code)]
-pub(super) const VK_GET_QUERY_POOL_RESULTS_COMMAND_ID: u16 = 716;
-#[allow(dead_code)]
-pub(super) const VK_GET_QUEUE_CHECKPOINT_DATA2NV_COMMAND_ID: u16 = 717;
-#[allow(dead_code)]
-pub(super) const VK_GET_QUEUE_CHECKPOINT_DATA_NV_COMMAND_ID: u16 = 718;
-#[allow(dead_code)]
-pub(super) const VK_GET_RAY_TRACING_CAPTURE_REPLAY_SHADER_GROUP_HANDLES_KHR_COMMAND_ID: u16 = 720;
-#[allow(dead_code)]
-pub(super) const VK_GET_RAY_TRACING_SHADER_GROUP_HANDLES_KHR_COMMAND_ID: u16 = 721;
-#[allow(dead_code)]
-pub(super) const VK_GET_RAY_TRACING_SHADER_GROUP_HANDLES_NV_COMMAND_ID: u16 = 722;
-#[allow(dead_code)]
-pub(super) const VK_GET_RAY_TRACING_SHADER_GROUP_STACK_SIZE_KHR_COMMAND_ID: u16 = 723;
-#[allow(dead_code)]
-pub(super) const VK_GET_REFRESH_CYCLE_DURATION_GOOGLE_COMMAND_ID: u16 = 724;
-#[allow(dead_code)]
-pub(super) const VK_GET_RENDER_AREA_GRANULARITY_COMMAND_ID: u16 = 725;
-#[allow(dead_code)]
-pub(super) const VK_GET_RENDERING_AREA_GRANULARITY_COMMAND_ID: u16 = 726;
-#[allow(dead_code)]
-pub(super) const VK_GET_RENDERING_AREA_GRANULARITY_KHR_COMMAND_ID: u16 = 727;
-#[allow(dead_code)]
-pub(super) const VK_GET_SAMPLER_OPAQUE_CAPTURE_DESCRIPTOR_DATA_EXT_COMMAND_ID: u16 = 728;
-#[allow(dead_code)]
+pub(super) const VK_BIND_DATA_GRAPH_PIPELINE_SESSION_MEMORY_ARM_COMMAND_ID: u16 = 17;
+pub(super) const VK_DESTROY_DATA_GRAPH_PIPELINE_SESSION_ARM_COMMAND_ID: u16 = 451;
+pub(super) const VK_CMD_DISPATCH_DATA_GRAPH_ARM_COMMAND_ID: u16 = 126;
+pub(super) const VK_GET_DATA_GRAPH_PIPELINE_AVAILABLE_PROPERTIES_ARM_COMMAND_ID: u16 = 534;
+pub(super) const VK_GET_DATA_GRAPH_PIPELINE_PROPERTIES_ARM_COMMAND_ID: u16 = 535;
+pub(super) const VK_CMD_SET_ATTACHMENT_FEEDBACK_LOOP_ENABLE_EXT_COMMAND_ID: u16 = 217;
+#[cfg(any(target_os = "nto", target_os = "qnx"))]
 pub(super) const VK_GET_SCREEN_BUFFER_PROPERTIES_QNX_COMMAND_ID: u16 = 729;
-#[allow(dead_code)]
-pub(super) const VK_GET_SEMAPHORE_COUNTER_VALUE_COMMAND_ID: u16 = 730;
-#[allow(dead_code)]
-pub(super) const VK_GET_SEMAPHORE_COUNTER_VALUE_KHR_COMMAND_ID: u16 = 731;
-#[allow(dead_code)]
-pub(super) const VK_GET_SEMAPHORE_FD_KHR_COMMAND_ID: u16 = 732;
-#[allow(dead_code)]
-pub(super) const VK_GET_SEMAPHORE_WIN32HANDLE_KHR_COMMAND_ID: u16 = 733;
-#[allow(dead_code)]
-pub(super) const VK_GET_SEMAPHORE_ZIRCON_HANDLE_FUCHSIA_COMMAND_ID: u16 = 734;
-#[allow(dead_code)]
-pub(super) const VK_GET_SHADER_BINARY_DATA_EXT_COMMAND_ID: u16 = 735;
-#[allow(dead_code)]
-pub(super) const VK_GET_SHADER_INFO_AMD_COMMAND_ID: u16 = 736;
-#[allow(dead_code)]
-pub(super) const VK_GET_SHADER_INSTRUMENTATION_VALUES_ARM_COMMAND_ID: u16 = 737;
-#[allow(dead_code)]
-pub(super) const VK_GET_SHADER_MODULE_CREATE_INFO_IDENTIFIER_EXT_COMMAND_ID: u16 = 738;
-#[allow(dead_code)]
-pub(super) const VK_GET_SHADER_MODULE_IDENTIFIER_EXT_COMMAND_ID: u16 = 739;
-#[allow(dead_code)]
-pub(super) const VK_GET_SLEEP_STATUS_LEGACY_NV_COMMAND_ID: u16 = 740;
-#[allow(dead_code)]
-pub(super) const VK_GET_SWAPCHAIN_COUNTER_EXT_COMMAND_ID: u16 = 741;
-#[allow(dead_code)]
-pub(super) const VK_GET_SWAPCHAIN_IMAGES_KHR_COMMAND_ID: u16 = 742;
-#[allow(dead_code)]
-pub(super) const VK_GET_SWAPCHAIN_STATUS_KHR_COMMAND_ID: u16 = 743;
-#[allow(dead_code)]
-pub(super) const VK_GET_SWAPCHAIN_TIME_DOMAIN_PROPERTIES_EXT_COMMAND_ID: u16 = 744;
-#[allow(dead_code)]
-pub(super) const VK_GET_SWAPCHAIN_TIMING_PROPERTIES_EXT_COMMAND_ID: u16 = 745;
-#[allow(dead_code)]
-pub(super) const VK_GET_TENSOR_MEMORY_REQUIREMENTS_ARM_COMMAND_ID: u16 = 746;
-#[allow(dead_code)]
-pub(super) const VK_GET_TENSOR_OPAQUE_CAPTURE_DATA_ARM_COMMAND_ID: u16 = 747;
-#[allow(dead_code)]
-pub(super) const VK_GET_TENSOR_OPAQUE_CAPTURE_DESCRIPTOR_DATA_ARM_COMMAND_ID: u16 = 748;
-#[allow(dead_code)]
-pub(super) const VK_GET_TENSOR_VIEW_OPAQUE_CAPTURE_DESCRIPTOR_DATA_ARM_COMMAND_ID: u16 = 749;
-#[allow(dead_code)]
-pub(super) const VK_GET_VALIDATION_CACHE_DATA_EXT_COMMAND_ID: u16 = 750;
-#[allow(dead_code)]
-pub(super) const VK_GET_VIDEO_SESSION_MEMORY_REQUIREMENTS_KHR_COMMAND_ID: u16 = 751;
-#[allow(dead_code)]
-pub(super) const VK_IMPORT_FENCE_FD_KHR_COMMAND_ID: u16 = 753;
-#[allow(dead_code)]
-pub(super) const VK_IMPORT_FENCE_WIN32HANDLE_KHR_COMMAND_ID: u16 = 754;
-#[allow(dead_code)]
-pub(super) const VK_IMPORT_SEMAPHORE_FD_KHR_COMMAND_ID: u16 = 755;
-#[allow(dead_code)]
-pub(super) const VK_IMPORT_SEMAPHORE_WIN32HANDLE_KHR_COMMAND_ID: u16 = 756;
-#[allow(dead_code)]
-pub(super) const VK_IMPORT_SEMAPHORE_ZIRCON_HANDLE_FUCHSIA_COMMAND_ID: u16 = 757;
-#[allow(dead_code)]
-pub(super) const VK_INITIALIZE_PERFORMANCE_API_INTEL_COMMAND_ID: u16 = 758;
-#[allow(dead_code)]
-pub(super) const VK_INVALIDATE_MAPPED_MEMORY_RANGES_COMMAND_ID: u16 = 759;
-#[allow(dead_code)]
-pub(super) const VK_LATENCY_SLEEP_LEGACY_NV_COMMAND_ID: u16 = 760;
-#[allow(dead_code)]
-pub(super) const VK_LATENCY_SLEEP_NV_COMMAND_ID: u16 = 761;
-#[allow(dead_code)]
-pub(super) const VK_MAP_MEMORY_COMMAND_ID: u16 = 762;
-#[allow(dead_code)]
-pub(super) const VK_MAP_MEMORY2_COMMAND_ID: u16 = 763;
-#[allow(dead_code)]
-pub(super) const VK_MAP_MEMORY2KHR_COMMAND_ID: u16 = 764;
-#[allow(dead_code)]
-pub(super) const VK_MERGE_PIPELINE_CACHES_COMMAND_ID: u16 = 765;
-#[allow(dead_code)]
-pub(super) const VK_MERGE_VALIDATION_CACHES_EXT_COMMAND_ID: u16 = 766;
-#[allow(dead_code)]
-pub(super) const VK_QUEUE_BEGIN_DEBUG_UTILS_LABEL_EXT_COMMAND_ID: u16 = 767;
-#[allow(dead_code)]
-pub(super) const VK_QUEUE_BIND_SPARSE_COMMAND_ID: u16 = 768;
-#[allow(dead_code)]
-pub(super) const VK_QUEUE_END_DEBUG_UTILS_LABEL_EXT_COMMAND_ID: u16 = 769;
-#[allow(dead_code)]
-pub(super) const VK_QUEUE_INSERT_DEBUG_UTILS_LABEL_EXT_COMMAND_ID: u16 = 770;
-#[allow(dead_code)]
-pub(super) const VK_QUEUE_NOTIFY_OUT_OF_BAND_LEGACY_NV_COMMAND_ID: u16 = 771;
-#[allow(dead_code)]
-pub(super) const VK_QUEUE_NOTIFY_OUT_OF_BAND_NV_COMMAND_ID: u16 = 772;
-#[allow(dead_code)]
-pub(super) const VK_QUEUE_PRESENT_KHR_COMMAND_ID: u16 = 773;
-#[allow(dead_code)]
-pub(super) const VK_QUEUE_SET_PERF_HINT_QCOM_COMMAND_ID: u16 = 774;
-#[allow(dead_code)]
-pub(super) const VK_QUEUE_SET_PERFORMANCE_CONFIGURATION_INTEL_COMMAND_ID: u16 = 775;
-#[allow(dead_code)]
-pub(super) const VK_QUEUE_SUBMIT_COMMAND_ID: u16 = 776;
-#[allow(dead_code)]
-pub(super) const VK_QUEUE_SUBMIT2_COMMAND_ID: u16 = 777;
-#[allow(dead_code)]
-pub(super) const VK_QUEUE_SUBMIT2KHR_COMMAND_ID: u16 = 778;
-#[allow(dead_code)]
-pub(super) const VK_QUEUE_WAIT_IDLE_COMMAND_ID: u16 = 779;
-#[allow(dead_code)]
-pub(super) const VK_REGISTER_CUSTOM_BORDER_COLOR_EXT_COMMAND_ID: u16 = 780;
-#[allow(dead_code)]
-pub(super) const VK_REGISTER_DEVICE_EVENT_EXT_COMMAND_ID: u16 = 781;
-#[allow(dead_code)]
-pub(super) const VK_REGISTER_DISPLAY_EVENT_EXT_COMMAND_ID: u16 = 782;
-#[allow(dead_code)]
-pub(super) const VK_RELEASE_CAPTURED_PIPELINE_DATA_KHR_COMMAND_ID: u16 = 783;
-#[allow(dead_code)]
-pub(super) const VK_RELEASE_FULL_SCREEN_EXCLUSIVE_MODE_EXT_COMMAND_ID: u16 = 785;
-#[allow(dead_code)]
-pub(super) const VK_RELEASE_PERFORMANCE_CONFIGURATION_INTEL_COMMAND_ID: u16 = 786;
-#[allow(dead_code)]
-pub(super) const VK_RELEASE_PROFILING_LOCK_KHR_COMMAND_ID: u16 = 787;
-#[allow(dead_code)]
-pub(super) const VK_RELEASE_SWAPCHAIN_IMAGES_EXT_COMMAND_ID: u16 = 788;
-#[allow(dead_code)]
-pub(super) const VK_RELEASE_SWAPCHAIN_IMAGES_KHR_COMMAND_ID: u16 = 789;
-#[allow(dead_code)]
-pub(super) const VK_RESET_COMMAND_BUFFER_COMMAND_ID: u16 = 790;
-#[allow(dead_code)]
-pub(super) const VK_RESET_COMMAND_POOL_COMMAND_ID: u16 = 791;
-#[allow(dead_code)]
-pub(super) const VK_RESET_DESCRIPTOR_POOL_COMMAND_ID: u16 = 792;
-#[allow(dead_code)]
-pub(super) const VK_RESET_EVENT_COMMAND_ID: u16 = 793;
-#[allow(dead_code)]
-pub(super) const VK_RESET_FENCES_COMMAND_ID: u16 = 794;
-#[allow(dead_code)]
-pub(super) const VK_RESET_GPA_SESSION_AMD_COMMAND_ID: u16 = 795;
-#[allow(dead_code)]
-pub(super) const VK_RESET_QUERY_POOL_COMMAND_ID: u16 = 796;
-#[allow(dead_code)]
-pub(super) const VK_RESET_QUERY_POOL_EXT_COMMAND_ID: u16 = 797;
-#[allow(dead_code)]
-pub(super) const VK_SET_BUFFER_COLLECTION_BUFFER_CONSTRAINTS_FUCHSIA_COMMAND_ID: u16 = 798;
-#[allow(dead_code)]
-pub(super) const VK_SET_BUFFER_COLLECTION_IMAGE_CONSTRAINTS_FUCHSIA_COMMAND_ID: u16 = 799;
-#[allow(dead_code)]
-pub(super) const VK_SET_DEBUG_UTILS_OBJECT_NAME_EXT_COMMAND_ID: u16 = 800;
-#[allow(dead_code)]
-pub(super) const VK_SET_DEBUG_UTILS_OBJECT_TAG_EXT_COMMAND_ID: u16 = 801;
-#[allow(dead_code)]
-pub(super) const VK_SET_DEVICE_MEMORY_PRIORITY_EXT_COMMAND_ID: u16 = 802;
-#[allow(dead_code)]
-pub(super) const VK_SET_EVENT_COMMAND_ID: u16 = 803;
-#[allow(dead_code)]
-pub(super) const VK_SET_GPA_DEVICE_CLOCK_MODE_AMD_COMMAND_ID: u16 = 804;
-#[allow(dead_code)]
-pub(super) const VK_SET_HDR_METADATA_EXT_COMMAND_ID: u16 = 805;
-#[allow(dead_code)]
-pub(super) const VK_SET_LATENCY_MARKER_LEGACY_NV_COMMAND_ID: u16 = 806;
-#[allow(dead_code)]
-pub(super) const VK_SET_LATENCY_MARKER_NV_COMMAND_ID: u16 = 807;
-#[allow(dead_code)]
-pub(super) const VK_SET_LATENCY_SLEEP_MODE_LEGACY_NV_COMMAND_ID: u16 = 808;
-#[allow(dead_code)]
-pub(super) const VK_SET_LATENCY_SLEEP_MODE_NV_COMMAND_ID: u16 = 809;
-#[allow(dead_code)]
-pub(super) const VK_SET_LOCAL_DIMMING_AMD_COMMAND_ID: u16 = 810;
-#[allow(dead_code)]
-pub(super) const VK_SET_PRIVATE_DATA_COMMAND_ID: u16 = 811;
-#[allow(dead_code)]
-pub(super) const VK_SET_PRIVATE_DATA_EXT_COMMAND_ID: u16 = 812;
-#[allow(dead_code)]
-pub(super) const VK_SET_SWAPCHAIN_PRESENT_TIMING_QUEUE_SIZE_EXT_COMMAND_ID: u16 = 813;
-#[allow(dead_code)]
-pub(super) const VK_SHUTDOWN_LATENCY_DEVICE_LEGACY_NV_COMMAND_ID: u16 = 814;
-#[allow(dead_code)]
-pub(super) const VK_SIGNAL_SEMAPHORE_COMMAND_ID: u16 = 815;
-#[allow(dead_code)]
-pub(super) const VK_SIGNAL_SEMAPHORE_KHR_COMMAND_ID: u16 = 816;
-#[allow(dead_code)]
-pub(super) const VK_TRANSITION_IMAGE_LAYOUT_COMMAND_ID: u16 = 818;
-#[allow(dead_code)]
-pub(super) const VK_TRANSITION_IMAGE_LAYOUT_EXT_COMMAND_ID: u16 = 819;
-#[allow(dead_code)]
-pub(super) const VK_TRIM_COMMAND_POOL_COMMAND_ID: u16 = 820;
-#[allow(dead_code)]
-pub(super) const VK_TRIM_COMMAND_POOL_KHR_COMMAND_ID: u16 = 821;
-#[allow(dead_code)]
-pub(super) const VK_UNINITIALIZE_PERFORMANCE_API_INTEL_COMMAND_ID: u16 = 822;
-#[allow(dead_code)]
-pub(super) const VK_UNMAP_MEMORY_COMMAND_ID: u16 = 823;
-#[allow(dead_code)]
-pub(super) const VK_UNMAP_MEMORY2_COMMAND_ID: u16 = 824;
-#[allow(dead_code)]
-pub(super) const VK_UNMAP_MEMORY2KHR_COMMAND_ID: u16 = 825;
-#[allow(dead_code)]
-pub(super) const VK_UNREGISTER_CUSTOM_BORDER_COLOR_EXT_COMMAND_ID: u16 = 826;
-#[allow(dead_code)]
-pub(super) const VK_UPDATE_DESCRIPTOR_SET_WITH_TEMPLATE_COMMAND_ID: u16 = 827;
-#[allow(dead_code)]
-pub(super) const VK_UPDATE_DESCRIPTOR_SET_WITH_TEMPLATE_KHR_COMMAND_ID: u16 = 828;
-#[allow(dead_code)]
-pub(super) const VK_UPDATE_DESCRIPTOR_SETS_COMMAND_ID: u16 = 829;
-#[allow(dead_code)]
+pub(super) const VK_CMD_BIND_TILE_MEMORY_QCOM_COMMAND_ID: u16 = 62;
+pub(super) const VK_CMD_DECOMPRESS_MEMORY_EXT_COMMAND_ID: u16 = 119;
+pub(super) const VK_CMD_DECOMPRESS_MEMORY_INDIRECT_COUNT_EXT_COMMAND_ID: u16 = 120;
+pub(super) const VK_CREATE_EXTERNAL_COMPUTE_QUEUE_NV_COMMAND_ID: u16 = 385;
+pub(super) const VK_DESTROY_EXTERNAL_COMPUTE_QUEUE_NV_COMMAND_ID: u16 = 461;
+pub(super) const VK_GET_EXTERNAL_COMPUTE_QUEUE_DATA_NV_COMMAND_ID: u16 = 585;
+pub(super) const VK_GET_CLUSTER_ACCELERATION_STRUCTURE_BUILD_SIZES_NV_COMMAND_ID: u16 = 532;
+pub(super) const VK_CMD_BUILD_CLUSTER_ACCELERATION_STRUCTURE_INDIRECT_NV_COMMAND_ID: u16 = 75;
+pub(super) const VK_GET_PARTITIONED_ACCELERATION_STRUCTURES_BUILD_SIZES_NV_COMMAND_ID: u16 = 630;
+pub(super) const VK_CMD_BUILD_PARTITIONED_ACCELERATION_STRUCTURES_NV_COMMAND_ID: u16 = 77;
+pub(super) const VK_GET_GENERATED_COMMANDS_MEMORY_REQUIREMENTS_EXT_COMMAND_ID: u16 = 590;
+pub(super) const VK_CMD_PREPROCESS_GENERATED_COMMANDS_EXT_COMMAND_ID: u16 = 194;
+pub(super) const VK_CMD_EXECUTE_GENERATED_COMMANDS_EXT_COMMAND_ID: u16 = 181;
+pub(super) const VK_CREATE_INDIRECT_COMMANDS_LAYOUT_EXT_COMMAND_ID: u16 = 395;
+pub(super) const VK_DESTROY_INDIRECT_COMMANDS_LAYOUT_EXT_COMMAND_ID: u16 = 467;
+pub(super) const VK_CREATE_INDIRECT_EXECUTION_SET_EXT_COMMAND_ID: u16 = 397;
+pub(super) const VK_DESTROY_INDIRECT_EXECUTION_SET_EXT_COMMAND_ID: u16 = 469;
 pub(super) const VK_UPDATE_INDIRECT_EXECUTION_SET_PIPELINE_EXT_COMMAND_ID: u16 = 830;
-#[allow(dead_code)]
 pub(super) const VK_UPDATE_INDIRECT_EXECUTION_SET_SHADER_EXT_COMMAND_ID: u16 = 831;
-#[allow(dead_code)]
-pub(super) const VK_UPDATE_VIDEO_SESSION_PARAMETERS_KHR_COMMAND_ID: u16 = 832;
-#[allow(dead_code)]
-pub(super) const VK_WAIT_FOR_FENCES_COMMAND_ID: u16 = 833;
-#[allow(dead_code)]
-pub(super) const VK_WAIT_FOR_PRESENT2KHR_COMMAND_ID: u16 = 834;
-#[allow(dead_code)]
-pub(super) const VK_WAIT_FOR_PRESENT_KHR_COMMAND_ID: u16 = 835;
-#[allow(dead_code)]
-pub(super) const VK_WAIT_SEMAPHORES_COMMAND_ID: u16 = 836;
-#[allow(dead_code)]
-pub(super) const VK_WAIT_SEMAPHORES_KHR_COMMAND_ID: u16 = 837;
-#[allow(dead_code)]
+#[cfg(any(
+    target_os = "macos",
+    target_os = "ios",
+    target_os = "tvos",
+    target_os = "visionos"
+))]
+pub(super) const VK_GET_MEMORY_METAL_HANDLE_EXT_COMMAND_ID: u16 = 619;
+#[cfg(any(
+    target_os = "macos",
+    target_os = "ios",
+    target_os = "tvos",
+    target_os = "visionos"
+))]
+pub(super) const VK_GET_MEMORY_METAL_HANDLE_PROPERTIES_EXT_COMMAND_ID: u16 = 620;
+pub(super) const VK_CREATE_SHADER_INSTRUMENTATION_ARM_COMMAND_ID: u16 = 419;
+pub(super) const VK_DESTROY_SHADER_INSTRUMENTATION_ARM_COMMAND_ID: u16 = 486;
+pub(super) const VK_CMD_BEGIN_SHADER_INSTRUMENTATION_ARM_COMMAND_ID: u16 = 41;
+pub(super) const VK_CMD_END_SHADER_INSTRUMENTATION_ARM_COMMAND_ID: u16 = 176;
+pub(super) const VK_GET_SHADER_INSTRUMENTATION_VALUES_ARM_COMMAND_ID: u16 = 737;
+pub(super) const VK_CLEAR_SHADER_INSTRUMENTATION_METRICS_ARM_COMMAND_ID: u16 = 26;
+pub(super) const VK_CMD_END_RENDERING2EXT_COMMAND_ID: u16 = 173;
+pub(super) const VK_CMD_BEGIN_CUSTOM_RESOLVE_EXT_COMMAND_ID: u16 = 29;
+pub(super) const VK_CMD_SET_COMPUTE_OCCUPANCY_PRIORITY_NV_COMMAND_ID: u16 = 226;
+pub(super) const VK_CMD_SET_PRIMITIVE_RESTART_INDEX_EXT_COMMAND_ID: u16 = 286;
+pub(super) const VK_CREATE_ACCELERATION_STRUCTURE_KHR_COMMAND_ID: u16 = 358;
+pub(super) const VK_DESTROY_ACCELERATION_STRUCTURE_KHR_COMMAND_ID: u16 = 441;
+pub(super) const VK_CMD_BUILD_ACCELERATION_STRUCTURES_KHR_COMMAND_ID: u16 = 74;
+pub(super) const VK_CMD_BUILD_ACCELERATION_STRUCTURES_INDIRECT_KHR_COMMAND_ID: u16 = 73;
+pub(super) const VK_BUILD_ACCELERATION_STRUCTURES_KHR_COMMAND_ID: u16 = 24;
+pub(super) const VK_COPY_ACCELERATION_STRUCTURE_KHR_COMMAND_ID: u16 = 345;
+pub(super) const VK_COPY_ACCELERATION_STRUCTURE_TO_MEMORY_KHR_COMMAND_ID: u16 = 346;
+pub(super) const VK_COPY_MEMORY_TO_ACCELERATION_STRUCTURE_KHR_COMMAND_ID: u16 = 351;
 pub(super) const VK_WRITE_ACCELERATION_STRUCTURES_PROPERTIES_KHR_COMMAND_ID: u16 = 838;
-#[allow(dead_code)]
-pub(super) const VK_WRITE_MICROMAPS_PROPERTIES_EXT_COMMAND_ID: u16 = 839;
-#[allow(dead_code)]
-pub(super) const VK_WRITE_RESOURCE_DESCRIPTORS_EXT_COMMAND_ID: u16 = 840;
-#[allow(dead_code)]
-pub(super) const VK_WRITE_SAMPLER_DESCRIPTORS_EXT_COMMAND_ID: u16 = 841;
+pub(super) const VK_CMD_COPY_ACCELERATION_STRUCTURE_KHR_COMMAND_ID: u16 = 83;
+pub(super) const VK_CMD_COPY_ACCELERATION_STRUCTURE_TO_MEMORY_KHR_COMMAND_ID: u16 = 85;
+pub(super) const VK_CMD_COPY_MEMORY_TO_ACCELERATION_STRUCTURE_KHR_COMMAND_ID: u16 = 103;
+pub(super) const VK_GET_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_KHR_COMMAND_ID: u16 = 515;
+pub(super) const VK_CMD_WRITE_ACCELERATION_STRUCTURES_PROPERTIES_KHR_COMMAND_ID: u16 = 334;
+pub(super) const VK_GET_DEVICE_ACCELERATION_STRUCTURE_COMPATIBILITY_KHR_COMMAND_ID: u16 = 547;
+pub(super) const VK_GET_ACCELERATION_STRUCTURE_BUILD_SIZES_KHR_COMMAND_ID: u16 = 514;
+pub(super) const VK_CMD_TRACE_RAYS_KHR_COMMAND_ID: u16 = 326;
+pub(super) const VK_CREATE_RAY_TRACING_PIPELINES_KHR_COMMAND_ID: u16 = 409;
+pub(super) const VK_GET_RAY_TRACING_CAPTURE_REPLAY_SHADER_GROUP_HANDLES_KHR_COMMAND_ID: u16 = 720;
+pub(super) const VK_CMD_TRACE_RAYS_INDIRECT_KHR_COMMAND_ID: u16 = 325;
+pub(super) const VK_GET_RAY_TRACING_SHADER_GROUP_STACK_SIZE_KHR_COMMAND_ID: u16 = 723;
+pub(super) const VK_CMD_SET_RAY_TRACING_PIPELINE_STACK_SIZE_KHR_COMMAND_ID: u16 = 294;
+pub(super) const VK_CMD_DRAW_MESH_TASKS_EXT_COMMAND_ID: u16 = 151;
+pub(super) const VK_CMD_DRAW_MESH_TASKS_INDIRECT_EXT_COMMAND_ID: u16 = 156;
+pub(super) const VK_CMD_DRAW_MESH_TASKS_INDIRECT_COUNT_EXT_COMMAND_ID: u16 = 154;
 pub(crate) static COMMAND_NAMES: &[u8] = b"AcquireDrmDisplayEXTAcquireFullScreenExclusiveModeEXTAcquireNextImage2KHRAcquireNextImageKHRAcquirePerformanceConfigurationINTELAcquireProfilingLockKHRAcquireWinrtDisplayNVAcquireXlibDisplayEXTAllocateCommandBuffersAllocateDescriptorSetsAllocateMemoryAntiLagUpdateAMDBeginCommandBufferBindAccelerationStructureMemoryNVBindBufferMemoryBindBufferMemory2BindBufferMemory2KHRBindDataGraphPipelineSessionMemoryARMBindImageMemoryBindImageMemory2BindImageMemory2KHRBindOpticalFlowSessionImageNVBindTensorMemoryARMBindVideoSessionMemoryKHRBuildAccelerationStructuresKHRBuildMicromapsEXTClearShaderInstrumentationMetricsARMCmdBeginConditionalRendering2EXTCmdBeginConditionalRenderingEXTCmdBeginCustomResolveEXTCmdBeginDebugUtilsLabelEXTCmdBeginGpaSampleAMDCmdBeginGpaSessionAMDCmdBeginPerTileExecutionQCOMCmdBeginQueryCmdBeginQueryIndexedEXTCmdBeginRenderPassCmdBeginRenderPass2CmdBeginRenderPass2KHRCmdBeginRenderingCmdBeginRenderingKHRCmdBeginShaderInstrumentationARMCmdBeginTransformFeedback2EXTCmdBeginTransformFeedbackEXTCmdBeginVideoCodingKHRCmdBindDescriptorBufferEmbeddedSamplers2EXTCmdBindDescriptorBufferEmbeddedSamplersEXTCmdBindDescriptorBuffersEXTCmdBindDescriptorSetsCmdBindDescriptorSets2CmdBindDescriptorSets2KHRCmdBindIndexBufferCmdBindIndexBuffer2CmdBindIndexBuffer2KHRCmdBindIndexBuffer3KHRCmdBindInvocationMaskHUAWEICmdBindPipelineCmdBindPipelineShaderGroupNVCmdBindResourceHeapEXTCmdBindSamplerHeapEXTCmdBindShadersEXTCmdBindShadingRateImageNVCmdBindTileMemoryQCOMCmdBindTransformFeedbackBuffers2EXTCmdBindTransformFeedbackBuffersEXTCmdBindVertexBuffersCmdBindVertexBuffers2CmdBindVertexBuffers2EXTCmdBindVertexBuffers3KHRCmdBlitImageCmdBlitImage2CmdBlitImage2KHRCmdBuildAccelerationStructureNVCmdBuildAccelerationStructuresIndirectKHRCmdBuildAccelerationStructuresKHRCmdBuildClusterAccelerationStructureIndirectNVCmdBuildMicromapsEXTCmdBuildPartitionedAccelerationStructuresNVCmdClearAttachmentsCmdClearColorImageCmdClearDepthStencilImageCmdControlVideoCodingKHRCmdConvertCooperativeVectorMatrixNVCmdCopyAccelerationStructureKHRCmdCopyAccelerationStructureNVCmdCopyAccelerationStructureToMemoryKHRCmdCopyBufferCmdCopyBuffer2CmdCopyBuffer2KHRCmdCopyBufferToImageCmdCopyBufferToImage2CmdCopyBufferToImage2KHRCmdCopyGpaSessionResultsAMDCmdCopyImageCmdCopyImage2CmdCopyImage2KHRCmdCopyImageToBufferCmdCopyImageToBuffer2CmdCopyImageToBuffer2KHRCmdCopyImageToMemoryKHRCmdCopyMemoryIndirectKHRCmdCopyMemoryIndirectNVCmdCopyMemoryKHRCmdCopyMemoryToAccelerationStructureKHRCmdCopyMemoryToImageIndirectKHRCmdCopyMemoryToImageIndirectNVCmdCopyMemoryToImageKHRCmdCopyMemoryToMicromapEXTCmdCopyMicromapEXTCmdCopyMicromapToMemoryEXTCmdCopyQueryPoolResultsCmdCopyQueryPoolResultsToMemoryKHRCmdCopyTensorARMCmdCuLaunchKernelNVXCmdCudaLaunchKernelNVCmdDebugMarkerBeginEXTCmdDebugMarkerEndEXTCmdDebugMarkerInsertEXTCmdDecodeVideoKHRCmdDecompressMemoryEXTCmdDecompressMemoryIndirectCountEXTCmdDecompressMemoryIndirectCountNVCmdDecompressMemoryNVCmdDispatchCmdDispatchBaseCmdDispatchBaseKHRCmdDispatchDataGraphARMCmdDispatchGraphAMDXCmdDispatchGraphIndirectAMDXCmdDispatchGraphIndirectCountAMDXCmdDispatchIndirectCmdDispatchIndirect2KHRCmdDispatchTileQCOMCmdDrawCmdDrawClusterHUAWEICmdDrawClusterIndirectHUAWEICmdDrawIndexedCmdDrawIndexedIndirectCmdDrawIndexedIndirect2KHRCmdDrawIndexedIndirectCountCmdDrawIndexedIndirectCount2KHRCmdDrawIndexedIndirectCountAMDCmdDrawIndexedIndirectCountKHRCmdDrawIndirectCmdDrawIndirect2KHRCmdDrawIndirectByteCount2EXTCmdDrawIndirectByteCountEXTCmdDrawIndirectCountCmdDrawIndirectCount2KHRCmdDrawIndirectCountAMDCmdDrawIndirectCountKHRCmdDrawMeshTasksEXTCmdDrawMeshTasksIndirect2EXTCmdDrawMeshTasksIndirectCount2EXTCmdDrawMeshTasksIndirectCountEXTCmdDrawMeshTasksIndirectCountNVCmdDrawMeshTasksIndirectEXTCmdDrawMeshTasksIndirectNVCmdDrawMeshTasksNVCmdDrawMultiEXTCmdDrawMultiIndexedEXTCmdEncodeVideoKHRCmdEndConditionalRenderingEXTCmdEndDebugUtilsLabelEXTCmdEndGpaSampleAMDCmdEndGpaSessionAMDCmdEndPerTileExecutionQCOMCmdEndQueryCmdEndQueryIndexedEXTCmdEndRenderPassCmdEndRenderPass2CmdEndRenderPass2KHRCmdEndRenderingCmdEndRendering2EXTCmdEndRendering2KHRCmdEndRenderingKHRCmdEndShaderInstrumentationARMCmdEndTransformFeedback2EXTCmdEndTransformFeedbackEXTCmdEndVideoCodingKHRCmdExecuteCommandsCmdExecuteGeneratedCommandsEXTCmdExecuteGeneratedCommandsNVCmdFillBufferCmdFillMemoryKHRCmdInitializeGraphScratchMemoryAMDXCmdInsertDebugUtilsLabelEXTCmdNextSubpassCmdNextSubpass2CmdNextSubpass2KHRCmdOpticalFlowExecuteNVCmdPipelineBarrierCmdPipelineBarrier2CmdPipelineBarrier2KHRCmdPreprocessGeneratedCommandsEXTCmdPreprocessGeneratedCommandsNVCmdPushConstantsCmdPushConstants2CmdPushConstants2KHRCmdPushDataEXTCmdPushDescriptorSetCmdPushDescriptorSet2CmdPushDescriptorSet2KHRCmdPushDescriptorSetKHRCmdPushDescriptorSetWithTemplateCmdPushDescriptorSetWithTemplate2CmdPushDescriptorSetWithTemplate2KHRCmdPushDescriptorSetWithTemplateKHRCmdResetEventCmdResetEvent2CmdResetEvent2KHRCmdResetQueryPoolCmdResolveImageCmdResolveImage2CmdResolveImage2KHRCmdSetAlphaToCoverageEnableEXTCmdSetAlphaToOneEnableEXTCmdSetAttachmentFeedbackLoopEnableEXTCmdSetBlendConstantsCmdSetCheckpointNVCmdSetCoarseSampleOrderNVCmdSetColorBlendAdvancedEXTCmdSetColorBlendEnableEXTCmdSetColorBlendEquationEXTCmdSetColorWriteEnableEXTCmdSetColorWriteMaskEXTCmdSetComputeOccupancyPriorityNVCmdSetConservativeRasterizationModeEXTCmdSetCoverageModulationModeNVCmdSetCoverageModulationTableEnableNVCmdSetCoverageModulationTableNVCmdSetCoverageReductionModeNVCmdSetCoverageToColorEnableNVCmdSetCoverageToColorLocationNVCmdSetCullModeCmdSetCullModeEXTCmdSetDepthBiasCmdSetDepthBias2EXTCmdSetDepthBiasEnableCmdSetDepthBiasEnableEXTCmdSetDepthBoundsCmdSetDepthBoundsTestEnableCmdSetDepthBoundsTestEnableEXTCmdSetDepthClampEnableEXTCmdSetDepthClampRangeEXTCmdSetDepthClipEnableEXTCmdSetDepthClipNegativeOneToOneEXTCmdSetDepthCompareOpCmdSetDepthCompareOpEXTCmdSetDepthTestEnableCmdSetDepthTestEnableEXTCmdSetDepthWriteEnableCmdSetDepthWriteEnableEXTCmdSetDescriptorBufferOffsets2EXTCmdSetDescriptorBufferOffsetsEXTCmdSetDeviceMaskCmdSetDeviceMaskKHRCmdSetDiscardRectangleEXTCmdSetDiscardRectangleEnableEXTCmdSetDiscardRectangleModeEXTCmdSetDispatchParametersARMCmdSetEventCmdSetEvent2CmdSetEvent2KHRCmdSetExclusiveScissorEnableNVCmdSetExclusiveScissorNVCmdSetExtraPrimitiveOverestimationSizeEXTCmdSetFragmentShadingRateEnumNVCmdSetFragmentShadingRateKHRCmdSetFrontFaceCmdSetFrontFaceEXTCmdSetLineRasterizationModeEXTCmdSetLineStippleCmdSetLineStippleEXTCmdSetLineStippleEnableEXTCmdSetLineStippleKHRCmdSetLineWidthCmdSetLogicOpEXTCmdSetLogicOpEnableEXTCmdSetPatchControlPointsEXTCmdSetPerformanceMarkerINTELCmdSetPerformanceOverrideINTELCmdSetPerformanceStreamMarkerINTELCmdSetPolygonModeEXTCmdSetPrimitiveRestartEnableCmdSetPrimitiveRestartEnableEXTCmdSetPrimitiveRestartIndexEXTCmdSetPrimitiveTopologyCmdSetPrimitiveTopologyEXTCmdSetProvokingVertexModeEXTCmdSetRasterizationSamplesEXTCmdSetRasterizationStreamEXTCmdSetRasterizerDiscardEnableCmdSetRasterizerDiscardEnableEXTCmdSetRayTracingPipelineStackSizeKHRCmdSetRenderingAttachmentLocationsCmdSetRenderingAttachmentLocationsKHRCmdSetRenderingInputAttachmentIndicesCmdSetRenderingInputAttachmentIndicesKHRCmdSetRepresentativeFragmentTestEnableNVCmdSetSampleLocationsEXTCmdSetSampleLocationsEnableEXTCmdSetSampleMaskEXTCmdSetScissorCmdSetScissorWithCountCmdSetScissorWithCountEXTCmdSetShadingRateImageEnableNVCmdSetStencilCompareMaskCmdSetStencilOpCmdSetStencilOpEXTCmdSetStencilReferenceCmdSetStencilTestEnableCmdSetStencilTestEnableEXTCmdSetStencilWriteMaskCmdSetTessellationDomainOriginEXTCmdSetVertexInputEXTCmdSetViewportCmdSetViewportShadingRatePaletteNVCmdSetViewportSwizzleNVCmdSetViewportWScalingEnableNVCmdSetViewportWScalingNVCmdSetViewportWithCountCmdSetViewportWithCountEXTCmdSubpassShadingHUAWEICmdTraceRaysIndirect2KHRCmdTraceRaysIndirectKHRCmdTraceRaysKHRCmdTraceRaysNVCmdUpdateBufferCmdUpdateMemoryKHRCmdUpdatePipelineIndirectBufferNVCmdWaitEventsCmdWaitEvents2CmdWaitEvents2KHRCmdWriteAccelerationStructuresPropertiesKHRCmdWriteAccelerationStructuresPropertiesNVCmdWriteBufferMarker2AMDCmdWriteBufferMarkerAMDCmdWriteMarkerToMemoryAMDCmdWriteMicromapsPropertiesEXTCmdWriteTimestampCmdWriteTimestamp2CmdWriteTimestamp2KHRCompileDeferredNVConvertCooperativeVectorMatrixNVCopyAccelerationStructureKHRCopyAccelerationStructureToMemoryKHRCopyImageToImageCopyImageToImageEXTCopyImageToMemoryCopyImageToMemoryEXTCopyMemoryToAccelerationStructureKHRCopyMemoryToImageCopyMemoryToImageEXTCopyMemoryToMicromapEXTCopyMicromapEXTCopyMicromapToMemoryEXTCreateAccelerationStructure2KHRCreateAccelerationStructureKHRCreateAccelerationStructureNVCreateAndroidSurfaceKHRCreateBufferCreateBufferCollectionFUCHSIACreateBufferViewCreateCommandPoolCreateComputePipelinesCreateCuFunctionNVXCreateCuModuleNVXCreateCudaFunctionNVCreateCudaModuleNVCreateDataGraphPipelineSessionARMCreateDataGraphPipelinesARMCreateDebugReportCallbackEXTCreateDebugUtilsMessengerEXTCreateDeferredOperationKHRCreateDescriptorPoolCreateDescriptorSetLayoutCreateDescriptorUpdateTemplateCreateDescriptorUpdateTemplateKHRCreateDeviceCreateDirectFBSurfaceEXTCreateDisplayModeKHRCreateDisplayPlaneSurfaceKHRCreateEventCreateExecutionGraphPipelinesAMDXCreateExternalComputeQueueNVCreateFenceCreateFramebufferCreateGpaSessionAMDCreateGraphicsPipelinesCreateHeadlessSurfaceEXTCreateIOSSurfaceMVKCreateImageCreateImagePipeSurfaceFUCHSIACreateImageViewCreateIndirectCommandsLayoutEXTCreateIndirectCommandsLayoutNVCreateIndirectExecutionSetEXTCreateInstanceCreateMacOSSurfaceMVKCreateMetalSurfaceEXTCreateMicromapEXTCreateOpticalFlowSessionNVCreatePipelineBinariesKHRCreatePipelineCacheCreatePipelineLayoutCreatePrivateDataSlotCreatePrivateDataSlotEXTCreateQueryPoolCreateRayTracingPipelinesKHRCreateRayTracingPipelinesNVCreateRenderPassCreateRenderPass2CreateRenderPass2KHRCreateSamplerCreateSamplerYcbcrConversionCreateSamplerYcbcrConversionKHRCreateScreenSurfaceQNXCreateSemaphoreCreateShaderInstrumentationARMCreateShaderModuleCreateShadersEXTCreateSharedSwapchainsKHRCreateStreamDescriptorSurfaceGGPCreateSurfaceOHOSCreateSwapchainKHRCreateTensorARMCreateTensorViewARMCreateUbmSurfaceSECCreateValidationCacheEXTCreateViSurfaceNNCreateVideoSessionKHRCreateVideoSessionParametersKHRCreateWaylandSurfaceKHRCreateWin32SurfaceKHRCreateXcbSurfaceKHRCreateXlibSurfaceKHRDebugMarkerSetObjectNameEXTDebugMarkerSetObjectTagEXTDebugReportMessageEXTDeferredOperationJoinKHRDestroyAccelerationStructureKHRDestroyAccelerationStructureNVDestroyBufferDestroyBufferCollectionFUCHSIADestroyBufferViewDestroyCommandPoolDestroyCuFunctionNVXDestroyCuModuleNVXDestroyCudaFunctionNVDestroyCudaModuleNVDestroyDataGraphPipelineSessionARMDestroyDebugReportCallbackEXTDestroyDebugUtilsMessengerEXTDestroyDeferredOperationKHRDestroyDescriptorPoolDestroyDescriptorSetLayoutDestroyDescriptorUpdateTemplateDestroyDescriptorUpdateTemplateKHRDestroyDeviceDestroyEventDestroyExternalComputeQueueNVDestroyFenceDestroyFramebufferDestroyGpaSessionAMDDestroyImageDestroyImageViewDestroyIndirectCommandsLayoutEXTDestroyIndirectCommandsLayoutNVDestroyIndirectExecutionSetEXTDestroyInstanceDestroyMicromapEXTDestroyOpticalFlowSessionNVDestroyPipelineDestroyPipelineBinaryKHRDestroyPipelineCacheDestroyPipelineLayoutDestroyPrivateDataSlotDestroyPrivateDataSlotEXTDestroyQueryPoolDestroyRenderPassDestroySamplerDestroySamplerYcbcrConversionDestroySamplerYcbcrConversionKHRDestroySemaphoreDestroyShaderEXTDestroyShaderInstrumentationARMDestroyShaderModuleDestroySurfaceKHRDestroySwapchainKHRDestroyTensorARMDestroyTensorViewARMDestroyValidationCacheEXTDestroyVideoSessionKHRDestroyVideoSessionParametersKHRDeviceWaitIdleDisplayPowerControlEXTEndCommandBufferEnumerateDeviceExtensionPropertiesEnumerateDeviceLayerPropertiesEnumerateInstanceExtensionPropertiesEnumerateInstanceLayerPropertiesEnumerateInstanceVersionEnumeratePhysicalDeviceGroupsEnumeratePhysicalDeviceGroupsKHREnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARMEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHREnumeratePhysicalDeviceShaderInstrumentationMetricsARMEnumeratePhysicalDevicesExportMetalObjectsEXTFlushMappedMemoryRangesFreeCommandBuffersFreeDescriptorSetsFreeMemoryGetAccelerationStructureBuildSizesKHRGetAccelerationStructureDeviceAddressKHRGetAccelerationStructureHandleNVGetAccelerationStructureMemoryRequirementsNVGetAccelerationStructureOpaqueCaptureDescriptorDataEXTGetAndroidHardwareBufferPropertiesANDROIDGetBufferCollectionPropertiesFUCHSIAGetBufferDeviceAddressGetBufferDeviceAddressEXTGetBufferDeviceAddressKHRGetBufferMemoryRequirementsGetBufferMemoryRequirements2GetBufferMemoryRequirements2KHRGetBufferOpaqueCaptureAddressGetBufferOpaqueCaptureAddressKHRGetBufferOpaqueCaptureDescriptorDataEXTGetCalibratedTimestampsEXTGetCalibratedTimestampsKHRGetClusterAccelerationStructureBuildSizesNVGetCudaModuleCacheNVGetDataGraphPipelineAvailablePropertiesARMGetDataGraphPipelinePropertiesARMGetDataGraphPipelineSessionBindPointRequirementsARMGetDataGraphPipelineSessionMemoryRequirementsARMGetDeferredOperationMaxConcurrencyKHRGetDeferredOperationResultKHRGetDescriptorEXTGetDescriptorSetHostMappingVALVEGetDescriptorSetLayoutBindingOffsetEXTGetDescriptorSetLayoutHostMappingInfoVALVEGetDescriptorSetLayoutSizeEXTGetDescriptorSetLayoutSupportGetDescriptorSetLayoutSupportKHRGetDeviceAccelerationStructureCompatibilityKHRGetDeviceBufferMemoryRequirementsGetDeviceBufferMemoryRequirementsKHRGetDeviceCombinedImageSamplerIndexNVXGetDeviceFaultDebugInfoKHRGetDeviceFaultInfoEXTGetDeviceFaultReportsKHRGetDeviceGroupPeerMemoryFeaturesGetDeviceGroupPeerMemoryFeaturesKHRGetDeviceGroupPresentCapabilitiesKHRGetDeviceGroupSurfacePresentModes2EXTGetDeviceGroupSurfacePresentModesKHRGetDeviceImageMemoryRequirementsGetDeviceImageMemoryRequirementsKHRGetDeviceImageSparseMemoryRequirementsGetDeviceImageSparseMemoryRequirementsKHRGetDeviceImageSubresourceLayoutGetDeviceImageSubresourceLayoutKHRGetDeviceMemoryCommitmentGetDeviceMemoryOpaqueCaptureAddressGetDeviceMemoryOpaqueCaptureAddressKHRGetDeviceMicromapCompatibilityEXTGetDeviceProcAddrGetDeviceQueueGetDeviceQueue2GetDeviceSubpassShadingMaxWorkgroupSizeHUAWEIGetDeviceTensorMemoryRequirementsARMGetDisplayModeProperties2KHRGetDisplayModePropertiesKHRGetDisplayPlaneCapabilities2KHRGetDisplayPlaneCapabilitiesKHRGetDisplayPlaneSupportedDisplaysKHRGetDrmDisplayEXTGetDynamicRenderingTilePropertiesQCOMGetEncodedVideoSessionParametersKHRGetEventStatusGetExecutionGraphPipelineNodeIndexAMDXGetExecutionGraphPipelineScratchSizeAMDXGetExternalComputeQueueDataNVGetFenceFdKHRGetFenceStatusGetFenceWin32HandleKHRGetFramebufferTilePropertiesQCOMGetGeneratedCommandsMemoryRequirementsEXTGetGeneratedCommandsMemoryRequirementsNVGetGpaDeviceClockInfoAMDGetGpaSessionResultsAMDGetGpaSessionStatusAMDGetImageDrmFormatModifierPropertiesEXTGetImageMemoryRequirementsGetImageMemoryRequirements2GetImageMemoryRequirements2KHRGetImageOpaqueCaptureDataEXTGetImageOpaqueCaptureDescriptorDataEXTGetImageSparseMemoryRequirementsGetImageSparseMemoryRequirements2GetImageSparseMemoryRequirements2KHRGetImageSubresourceLayoutGetImageSubresourceLayout2GetImageSubresourceLayout2EXTGetImageSubresourceLayout2KHRGetImageViewAddressNVXGetImageViewHandle64NVXGetImageViewHandleNVXGetImageViewOpaqueCaptureDescriptorDataEXTGetInstanceProcAddrGetLatencyTimingsLegacyNVGetLatencyTimingsNVGetMemoryAndroidHardwareBufferANDROIDGetMemoryFdKHRGetMemoryFdPropertiesKHRGetMemoryHostPointerPropertiesEXTGetMemoryMetalHandleEXTGetMemoryMetalHandlePropertiesEXTGetMemoryNativeBufferOHOSGetMemoryRemoteAddressNVGetMemoryWin32HandleKHRGetMemoryWin32HandleNVGetMemoryWin32HandlePropertiesKHRGetMemoryZirconHandleFUCHSIAGetMemoryZirconHandlePropertiesFUCHSIAGetMicromapBuildSizesEXTGetNativeBufferPropertiesOHOSGetPartitionedAccelerationStructuresBuildSizesNVGetPastPresentationTimingEXTGetPastPresentationTimingGOOGLEGetPerformanceParameterINTELGetPhysicalDeviceCalibrateableTimeDomainsEXTGetPhysicalDeviceCalibrateableTimeDomainsKHRGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNVGetPhysicalDeviceCooperativeMatrixProperties2EXTGetPhysicalDeviceCooperativeMatrixPropertiesKHRGetPhysicalDeviceCooperativeMatrixPropertiesNVGetPhysicalDeviceCooperativeVectorPropertiesNVGetPhysicalDeviceDescriptorSizeEXTGetPhysicalDeviceDirectFBPresentationSupportEXTGetPhysicalDeviceDisplayPlaneProperties2KHRGetPhysicalDeviceDisplayPlanePropertiesKHRGetPhysicalDeviceDisplayProperties2KHRGetPhysicalDeviceDisplayPropertiesKHRGetPhysicalDeviceExternalBufferPropertiesGetPhysicalDeviceExternalBufferPropertiesKHRGetPhysicalDeviceExternalFencePropertiesGetPhysicalDeviceExternalFencePropertiesKHRGetPhysicalDeviceExternalImageFormatPropertiesNVGetPhysicalDeviceExternalSemaphorePropertiesGetPhysicalDeviceExternalSemaphorePropertiesKHRGetPhysicalDeviceExternalTensorPropertiesARMGetPhysicalDeviceFeaturesGetPhysicalDeviceFeatures2GetPhysicalDeviceFeatures2KHRGetPhysicalDeviceFormatPropertiesGetPhysicalDeviceFormatProperties2GetPhysicalDeviceFormatProperties2KHRGetPhysicalDeviceFragmentShadingRatesKHRGetPhysicalDeviceImageFormatPropertiesGetPhysicalDeviceImageFormatProperties2GetPhysicalDeviceImageFormatProperties2KHRGetPhysicalDeviceMemoryPropertiesGetPhysicalDeviceMemoryProperties2GetPhysicalDeviceMemoryProperties2KHRGetPhysicalDeviceMultisamplePropertiesEXTGetPhysicalDeviceOpticalFlowImageFormatsNVGetPhysicalDevicePresentRectanglesKHRGetPhysicalDevicePropertiesGetPhysicalDeviceProperties2GetPhysicalDeviceProperties2KHRGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARMGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARMGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARMGetPhysicalDeviceQueueFamilyDataGraphPropertiesARMGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHRGetPhysicalDeviceQueueFamilyPropertiesGetPhysicalDeviceQueueFamilyProperties2GetPhysicalDeviceQueueFamilyProperties2KHRGetPhysicalDeviceScreenPresentationSupportQNXGetPhysicalDeviceSparseImageFormatPropertiesGetPhysicalDeviceSparseImageFormatProperties2GetPhysicalDeviceSparseImageFormatProperties2KHRGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNVGetPhysicalDeviceSurfaceCapabilities2EXTGetPhysicalDeviceSurfaceCapabilities2KHRGetPhysicalDeviceSurfaceCapabilitiesKHRGetPhysicalDeviceSurfaceFormats2KHRGetPhysicalDeviceSurfaceFormatsKHRGetPhysicalDeviceSurfacePresentModes2EXTGetPhysicalDeviceSurfacePresentModesKHRGetPhysicalDeviceSurfaceSupportKHRGetPhysicalDeviceToolPropertiesGetPhysicalDeviceToolPropertiesEXTGetPhysicalDeviceUbmPresentationSupportSECGetPhysicalDeviceVideoCapabilitiesKHRGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHRGetPhysicalDeviceVideoFormatPropertiesKHRGetPhysicalDeviceWaylandPresentationSupportKHRGetPhysicalDeviceWin32PresentationSupportKHRGetPhysicalDeviceXcbPresentationSupportKHRGetPhysicalDeviceXlibPresentationSupportKHRGetPipelineBinaryDataKHRGetPipelineCacheDataGetPipelineExecutableInternalRepresentationsKHRGetPipelineExecutablePropertiesKHRGetPipelineExecutableStatisticsKHRGetPipelineIndirectDeviceAddressNVGetPipelineIndirectMemoryRequirementsNVGetPipelineKeyKHRGetPipelinePropertiesEXTGetPrivateDataGetPrivateDataEXTGetQueryPoolResultsGetQueueCheckpointData2NVGetQueueCheckpointDataNVGetRandROutputDisplayEXTGetRayTracingCaptureReplayShaderGroupHandlesKHRGetRayTracingShaderGroupHandlesKHRGetRayTracingShaderGroupHandlesNVGetRayTracingShaderGroupStackSizeKHRGetRefreshCycleDurationGOOGLEGetRenderAreaGranularityGetRenderingAreaGranularityGetRenderingAreaGranularityKHRGetSamplerOpaqueCaptureDescriptorDataEXTGetScreenBufferPropertiesQNXGetSemaphoreCounterValueGetSemaphoreCounterValueKHRGetSemaphoreFdKHRGetSemaphoreWin32HandleKHRGetSemaphoreZirconHandleFUCHSIAGetShaderBinaryDataEXTGetShaderInfoAMDGetShaderInstrumentationValuesARMGetShaderModuleCreateInfoIdentifierEXTGetShaderModuleIdentifierEXTGetSleepStatusLegacyNVGetSwapchainCounterEXTGetSwapchainImagesKHRGetSwapchainStatusKHRGetSwapchainTimeDomainPropertiesEXTGetSwapchainTimingPropertiesEXTGetTensorMemoryRequirementsARMGetTensorOpaqueCaptureDataARMGetTensorOpaqueCaptureDescriptorDataARMGetTensorViewOpaqueCaptureDescriptorDataARMGetValidationCacheDataEXTGetVideoSessionMemoryRequirementsKHRGetWinrtDisplayNVImportFenceFdKHRImportFenceWin32HandleKHRImportSemaphoreFdKHRImportSemaphoreWin32HandleKHRImportSemaphoreZirconHandleFUCHSIAInitializePerformanceApiINTELInvalidateMappedMemoryRangesLatencySleepLegacyNVLatencySleepNVMapMemoryMapMemory2MapMemory2KHRMergePipelineCachesMergeValidationCachesEXTQueueBeginDebugUtilsLabelEXTQueueBindSparseQueueEndDebugUtilsLabelEXTQueueInsertDebugUtilsLabelEXTQueueNotifyOutOfBandLegacyNVQueueNotifyOutOfBandNVQueuePresentKHRQueueSetPerfHintQCOMQueueSetPerformanceConfigurationINTELQueueSubmitQueueSubmit2QueueSubmit2KHRQueueWaitIdleRegisterCustomBorderColorEXTRegisterDeviceEventEXTRegisterDisplayEventEXTReleaseCapturedPipelineDataKHRReleaseDisplayEXTReleaseFullScreenExclusiveModeEXTReleasePerformanceConfigurationINTELReleaseProfilingLockKHRReleaseSwapchainImagesEXTReleaseSwapchainImagesKHRResetCommandBufferResetCommandPoolResetDescriptorPoolResetEventResetFencesResetGpaSessionAMDResetQueryPoolResetQueryPoolEXTSetBufferCollectionBufferConstraintsFUCHSIASetBufferCollectionImageConstraintsFUCHSIASetDebugUtilsObjectNameEXTSetDebugUtilsObjectTagEXTSetDeviceMemoryPriorityEXTSetEventSetGpaDeviceClockModeAMDSetHdrMetadataEXTSetLatencyMarkerLegacyNVSetLatencyMarkerNVSetLatencySleepModeLegacyNVSetLatencySleepModeNVSetLocalDimmingAMDSetPrivateDataSetPrivateDataEXTSetSwapchainPresentTimingQueueSizeEXTShutdownLatencyDeviceLegacyNVSignalSemaphoreSignalSemaphoreKHRSubmitDebugUtilsMessageEXTTransitionImageLayoutTransitionImageLayoutEXTTrimCommandPoolTrimCommandPoolKHRUninitializePerformanceApiINTELUnmapMemoryUnmapMemory2UnmapMemory2KHRUnregisterCustomBorderColorEXTUpdateDescriptorSetWithTemplateUpdateDescriptorSetWithTemplateKHRUpdateDescriptorSetsUpdateIndirectExecutionSetPipelineEXTUpdateIndirectExecutionSetShaderEXTUpdateVideoSessionParametersKHRWaitForFencesWaitForPresent2KHRWaitForPresentKHRWaitSemaphoresWaitSemaphoresKHRWriteAccelerationStructuresPropertiesKHRWriteMicromapsPropertiesEXTWriteResourceDescriptorsEXTWriteSamplerDescriptorsEXT";
 pub(crate) static COMMAND_TABLE: [CommandRecord; 1024] = [
     CommandRecord {
