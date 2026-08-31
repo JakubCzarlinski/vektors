@@ -76,7 +76,13 @@ pub fn parse_commands_block(node: Node, reg: &mut Registry) {
             .children()
             .filter(|n| n.is_element() && n.tag_name().name() == "param")
         {
-            let p = parse_member(pn);
+            let mut p = parse_member(pn);
+            // C adjusts array parameters to pointers as part of the function
+            // type. Retain the extent as the pointee type so raw bindings can
+            // express the contract as `*const [T; N]` without passing it by value.
+            if p.ty.is_array.is_some() {
+                p.ty.pointer_depth = p.ty.pointer_depth.saturating_add(1);
+            }
             if let Some(existing) = params.iter_mut().find(|m| m.name == p.name) {
                 if let (Some(a1), Some(a2)) = (&mut existing.api, &p.api) {
                     a1.vulkan |= a2.vulkan;

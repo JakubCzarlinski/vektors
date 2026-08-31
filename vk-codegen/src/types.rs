@@ -55,7 +55,7 @@ pub fn ctype_to_rust_str(type_info: &CType) -> String {
         }
     };
 
-    if let Some(ref array_size) = type_info.is_array {
+    let mut rust_type = if let Some(ref array_size) = type_info.is_array {
         // If the size is a named constant (not a plain integer literal) we must
         // cast it to `usize` so the array type is valid in Rust.
         let size_expression = if array_size.parse::<u64>().is_ok() {
@@ -63,27 +63,18 @@ pub fn ctype_to_rust_str(type_info: &CType) -> String {
         } else {
             format!("{array_size} as usize") // named constant like VK_UUID_SIZE
         };
-        return format!("[{base_type}; {size_expression}]");
+        format!("[{base_type}; {size_expression}]")
+    } else {
+        base_type
+    };
+    for _ in 0..type_info.pointer_depth {
+        rust_type = if type_info.is_const {
+            format!("*const {rust_type}")
+        } else {
+            format!("*mut {rust_type}")
+        };
     }
-
-    match type_info.pointer_depth {
-        0 => base_type,
-        1 => {
-            if type_info.is_const {
-                format!("*const {base_type}")
-            } else {
-                format!("*mut {base_type}")
-            }
-        }
-        2 => {
-            if type_info.is_const {
-                format!("*const *const {base_type}")
-            } else {
-                format!("*mut *mut {base_type}")
-            }
-        }
-        _ => format!("*mut {base_type}"),
-    }
+    rust_type
 }
 
 /// Determines the Rust primitive type for an API constant.
