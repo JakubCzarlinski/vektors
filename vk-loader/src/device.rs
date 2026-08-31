@@ -336,7 +336,7 @@ impl LoaderDevice {
         Some(dispatch as usize)
     }
 
-    pub(crate) fn loader_proc_addr() -> PFN_vkVoidFunction {
+    pub(crate) fn loader_proc_addr() -> unsafe extern "system" fn() {
         erase_function(vkGetDeviceProcAddr as PFN_vkGetDeviceProcAddr)
     }
 

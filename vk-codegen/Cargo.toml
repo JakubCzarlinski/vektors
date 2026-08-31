@@ -18,5 +18,5 @@ roxmltree  = "0.20"
 proc-macro2 = "1"
 quote       = "1"
 prettyplease = "0.2"
-syn         = { version = "2", features = ["full"] }
+syn         = { version = "2", features = ["full", "visit"] }
 indexmap    = ">=2.3"

@@ -6,21 +6,6 @@ compile_error!("the `apple-static-loader` feature is only supported on Apple pla
 
 extern crate alloc;
 
-use alloc::borrow::Cow;
-use core::{
-    ffi::{CStr, c_char, c_void},
-    mem::MaybeUninit,
-};
-use vk::{
-    PFN_vkCreateDevice, PFN_vkDestroyDevice, PFN_vkDestroyInstance, PFN_vkEnumeratePhysicalDevices,
-    PFN_vkGetDeviceProcAddr, PFN_vkVoidFunction, VK_API_VERSION_1_0, VK_API_VERSION_1_3,
-    VkAllocationCallbacks, VkDevice, VkDeviceCreateInfo, VkDeviceGroupDeviceCreateInfo,
-    VkDirectDriverLoadingInfoLUNARG, VkDirectDriverLoadingListLUNARG,
-    VkDirectDriverLoadingModeLUNARG, VkExtensionProperties, VkInstance, VkInstanceCreateInfo,
-    VkLayerProperties, VkPhysicalDevice, VkPhysicalDeviceGroupProperties,
-    VkPhysicalDeviceGroupPropertiesKHR, VkResult, VkStructureType,
-};
-
 mod allocation;
 mod collections;
 mod debug;
@@ -28,6 +13,8 @@ mod debug_messenger;
 mod device;
 mod discovery;
 mod display;
+#[path = "generated/mod.rs"]
+mod generated;
 mod icd;
 mod instance;
 mod layer;
@@ -39,6 +26,12 @@ mod surface;
 mod sync;
 mod unknown;
 
+use alloc::borrow::Cow;
+use core::{
+    cmp::Ordering,
+    ffi::{CStr, c_char, c_void},
+    mem::MaybeUninit,
+};
 use debug::{
     vkDebugMarkerSetObjectNameEXT, vkDebugMarkerSetObjectTagEXT, vkSetDebugUtilsObjectNameEXT,
     vkSetDebugUtilsObjectTagEXT,
@@ -53,27 +46,25 @@ use display::{
     terminator_vkGetPhysicalDeviceDisplayPlaneProperties2KHR,
     terminator_vkGetPhysicalDeviceDisplayProperties2KHR,
 };
+#[cfg(test)]
+use generated::{
+    COMMAND_COUNT, COMMAND_MAX_DISPLACEMENT, COMMAND_NAMES, COMMAND_TABLE, handle_info,
+};
+use generated::{
+    ExtensionSet, IcdDeviceTerminatorDispatchTable, InstanceDispatchTable,
+    LayerDeviceDispatchTable, LayerInstanceDispatchTable, VK_EXT_SURFACE_MAINTENANCE1_EXTENSION_ID,
+    VK_KHR_SURFACE_MAINTENANCE1_EXTENSION_ID, command_core_level,
+    command_has_device_extension_provider, command_has_enabled_device_extension,
+    command_has_enabled_instance_extension, command_lookup, command_must_use_loader_trampoline,
+    convert_core_object_to_debug_report_object, convert_debug_report_object_to_core_object,
+    exported_proc_addr, extension_id, global_proc_addr, icd_device_terminator_proc_addr,
+    instance_terminator_proc_addr, is_known_instance_extension, layer_device_dispatch_proc_addr,
+    physical_device_terminator_proc_addr, surface_create_info_extension_size,
+    wsi_instance_extension_supported,
+};
 use icd::{DirectIcdError, IcdInstance, ManifestApiVersionStatus, ScannedIcd, ScannedIcdLoadError};
 use instance::{LoaderInstance, LoaderPhysicalDevice, LoaderPhysicalDeviceTrampoline};
 use promoted::{
-    terminator_vkGetPhysicalDeviceExternalBufferProperties,
-    terminator_vkGetPhysicalDeviceExternalBufferPropertiesKHR,
-    terminator_vkGetPhysicalDeviceExternalFenceProperties,
-    terminator_vkGetPhysicalDeviceExternalFencePropertiesKHR,
-    terminator_vkGetPhysicalDeviceExternalSemaphoreProperties,
-    terminator_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR,
-    terminator_vkGetPhysicalDeviceFeatures2, terminator_vkGetPhysicalDeviceFeatures2KHR,
-    terminator_vkGetPhysicalDeviceFormatProperties2,
-    terminator_vkGetPhysicalDeviceFormatProperties2KHR,
-    terminator_vkGetPhysicalDeviceImageFormatProperties2,
-    terminator_vkGetPhysicalDeviceImageFormatProperties2KHR,
-    terminator_vkGetPhysicalDeviceMemoryProperties2,
-    terminator_vkGetPhysicalDeviceMemoryProperties2KHR, terminator_vkGetPhysicalDeviceProperties2,
-    terminator_vkGetPhysicalDeviceProperties2KHR,
-    terminator_vkGetPhysicalDeviceQueueFamilyProperties2,
-    terminator_vkGetPhysicalDeviceQueueFamilyProperties2KHR,
-    terminator_vkGetPhysicalDeviceSparseImageFormatProperties2,
-    terminator_vkGetPhysicalDeviceSparseImageFormatProperties2KHR,
     terminator_vkGetPhysicalDeviceToolProperties, terminator_vkGetPhysicalDeviceToolPropertiesEXT,
 };
 use surface::{
@@ -84,6 +75,15 @@ use surface::{
     terminator_vkGetPhysicalDeviceSurfaceSupportKHR, translate_physical_device_surface,
     vkCreateSharedSwapchainsKHR, vkCreateSwapchainKHR, vkDestroySurfaceKHR,
     vkGetDeviceGroupSurfacePresentModesKHR,
+};
+use vk::{
+    PFN_vkCreateDevice, PFN_vkDestroyDevice, PFN_vkDestroyInstance, PFN_vkEnumeratePhysicalDevices,
+    PFN_vkGetDeviceProcAddr, PFN_vkVoidFunction, VK_API_VERSION_1_0, VK_API_VERSION_1_3,
+    VkAllocationCallbacks, VkDevice, VkDeviceCreateInfo, VkDeviceGroupDeviceCreateInfo,
+    VkDirectDriverLoadingInfoLUNARG, VkDirectDriverLoadingListLUNARG,
+    VkDirectDriverLoadingModeLUNARG, VkExtensionProperties, VkInstance, VkInstanceCreateInfo,
+    VkLayerProperties, VkPhysicalDevice, VkPhysicalDeviceGroupProperties,
+    VkPhysicalDeviceGroupPropertiesKHR, VkResult, VkStructureType,
 };
 
 pub(crate) const DEVICE_DISPATCH_MAGIC: u64 = 0x10AD_ED04_0410_ADED;
@@ -154,24 +154,21 @@ unsafe fn translate_device_group_chain<'a>(
     Ok(None)
 }
 
-fn erase_function<T: Copy>(function: T) -> PFN_vkVoidFunction {
-    debug_assert_eq!(
-        core::mem::size_of::<T>(),
-        core::mem::size_of::<PFN_vkVoidFunction>()
-    );
-    // SAFETY: Vulkan function pointers use a common representation. The size
-    // debug assertion checks this invariant during development.
-    unsafe { core::mem::transmute_copy(&function) }
+union FunctionPointer<T: Copy> {
+    erased: unsafe extern "system" fn(),
+    typed: T,
+}
+
+fn erase_function<T: Copy>(typed: T) -> unsafe extern "system" fn() {
+    // SAFETY: Vulkan function pointers use a common representation.
+    unsafe { FunctionPointer { typed }.erased }
 }
 
 #[allow(dead_code)]
 unsafe fn load_typed<T: Copy>(function: PFN_vkVoidFunction) -> Option<T> {
-    function.map(|function| {
-        debug_assert_eq!(core::mem::size_of::<T>(), core::mem::size_of_val(&function));
-        // SAFETY: Vulkan requires compatible representations for all command
-        // pointers returned by its proc-address functions.
-        unsafe { core::mem::transmute_copy(&function) }
-    })
+    // SAFETY: Vulkan requires compatible representations for all command
+    // pointers returned by its proc-address functions.
+    function.map(|erased| unsafe { FunctionPointer { erased }.typed })
 }
 
 #[inline(always)]
@@ -325,7 +322,12 @@ const fn command_slot_hash(mut hash: u64) -> u64 {
     hash ^ (hash >> 31)
 }
 
-#[inline(always)]
+const fn dispatch_offset(value: usize) -> u16 {
+    assert!(value <= 65_535);
+    value as u16
+}
+
+#[inline]
 fn command_name_eq(left: &[u8], right: &[u8]) -> bool {
     if left.len() != right.len() {
         return false;
@@ -339,8 +341,6 @@ fn command_name_eq(left: &[u8], right: &[u8]) -> bool {
     }
     true
 }
-
-include!("generated/global_proc_addr.rs");
 
 /// Creates a Vulkan instance across the discovered ICDs.
 ///
@@ -1880,7 +1880,7 @@ pub unsafe extern "system" fn vkGetDeviceProcAddr(
     // SAFETY: The Vulkan entry-point contract requires a NUL-terminated name.
     let name = unsafe { CStr::from_ptr(name) };
     if name == c"vkGetDeviceProcAddr" {
-        return LoaderDevice::loader_proc_addr();
+        return Some(LoaderDevice::loader_proc_addr());
     }
     // SAFETY: A live Vulkan device stores its loader dispatch table in its
     // first machine word. The magic check rejects null or incompatible data.
@@ -3383,8 +3383,6 @@ fn compare_linux_devices(
     left: &LinuxSortedDeviceInfo,
     right: &LinuxSortedDeviceInfo,
 ) -> core::cmp::Ordering {
-    use core::cmp::Ordering;
-
     match (left.default_device, right.default_device) {
         (true, false) => return Ordering::Less,
         (false, true) => return Ordering::Greater,
@@ -4052,7 +4050,9 @@ pub unsafe extern "system" fn vkGetInstanceProcAddr(
                 .or_else(|| unknown::device_proc_addr(loader, name, true));
         };
         if name == c"vkGetInstanceProcAddr" {
-            erase_function(vkGetInstanceProcAddr as vk::PFN_vkGetInstanceProcAddr)
+            Some(erase_function(
+                vkGetInstanceProcAddr as vk::PFN_vkGetInstanceProcAddr,
+            ))
         } else if lookup.scope == CommandScope::Global {
             (loader.api_version < VK_API_VERSION_1_3)
                 .then(|| global_proc_addr(name))
@@ -4108,7 +4108,7 @@ mod tests {
         name: *const c_char,
     ) -> PFN_vkVoidFunction {
         if !name.is_null() && unsafe { CStr::from_ptr(name) } == c"vkDestroyDevice" {
-            erase_function(fake_destroy_device as PFN_vkDestroyDevice)
+            Some(erase_function(fake_destroy_device as PFN_vkDestroyDevice))
         } else {
             None
         }
