@@ -6,7 +6,7 @@ generation_date="$(date +%Y-%m-%d)"
 curl -o registry/video.xml "https://raw.githubusercontent.com/KhronosGroup/Vulkan-Docs/${registry_version}/xml/video.xml"
 curl -o registry/vk.xml "https://raw.githubusercontent.com/KhronosGroup/Vulkan-Docs/${registry_version}/xml/vk.xml"
 
-cargo run -p vk-codegen -- \
+cargo run -p vk-codegen --bin vk-codegen -- \
   --vk ./registry/vk.xml \
   --video ./registry/video.xml \
   --out ./vk \

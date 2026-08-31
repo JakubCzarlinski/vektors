@@ -669,6 +669,8 @@ pub struct Feature {
 pub struct Extension {
     pub name: String,
     pub number: u32,
+    /// Registry generator feature sort order (zero when omitted).
+    pub sort_order: u32,
     pub depends: Option<DepExpr>,
     pub api: ApiSet,
     pub supported: String,
@@ -677,9 +679,17 @@ pub struct Extension {
     pub depr: DeprecationInfo,
     pub requires_core: Option<String>,
     pub ext_type: Option<String>,
+    /// Registry platform name controlling declarations for this extension.
+    pub platform: Option<String>,
 }
 
 impl Extension {
+    /// Returns whether this extension is supported by the Vulkan API.
+    #[must_use]
+    pub fn supports_vulkan(&self) -> bool {
+        self.supported.split(',').any(|api| api.trim() == "vulkan")
+    }
+
     /// True when this extension should be excluded from code generation output
     /// (Cargo.toml features, DOT graph enabled nodes, validation checks).
     #[must_use]
@@ -759,6 +769,8 @@ pub struct RequireEnum {
 
 #[derive(Debug, Default)]
 pub struct Registry {
+    /// Registry platform name to its C preprocessor protection macro.
+    pub platforms: IndexMap<String, String>,
     pub typedefs: IndexMap<String, Vec<Typedef>>,
     pub structs: IndexMap<String, Vec<Struct>>,
     pub enums: IndexMap<String, Vec<Enum>>,

@@ -6,15 +6,10 @@
 //! Reads the Khronos Vulkan Registry XML files and produces a complete
 //! `vk` crate with feature-gated FFI bindings.
 
-mod cfggen;
-mod codegen;
-mod ir;
-mod parser;
-mod types;
-
 use clap::Parser;
 use std::fs;
 use std::path::{Path, PathBuf};
+use vk_codegen::{codegen, parser};
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]

@@ -75,6 +75,9 @@ pub fn parse_extensions(node: Node, reg: &mut Registry) {
         let ext_shell = Extension {
             name: name.clone(),
             number,
+            sort_order: attr(en, "sortorder")
+                .and_then(|value| value.parse().ok())
+                .unwrap_or(0),
             depends,
             api: api.clone(),
             supported,
@@ -83,6 +86,7 @@ pub fn parse_extensions(node: Node, reg: &mut Registry) {
             depr: depr_info(en),
             requires_core: attr(en, "requiresCore").map(str::to_owned),
             ext_type: attr(en, "type").map(str::to_owned),
+            platform: attr(en, "platform").map(str::to_owned),
         };
 
         let disabled = ext_shell.is_disabled();
