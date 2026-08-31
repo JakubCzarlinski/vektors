@@ -47,9 +47,7 @@ use display::{
     terminator_vkGetPhysicalDeviceDisplayProperties2KHR,
 };
 #[cfg(test)]
-use generated::{
-    COMMAND_COUNT, COMMAND_MAX_DISPLACEMENT, COMMAND_NAMES, COMMAND_TABLE, handle_info,
-};
+use generated::{COMMAND_COUNT, COMMAND_MAX_DISPLACEMENT, COMMAND_NAMES, COMMAND_TABLE};
 use generated::{
     ExtensionSet, IcdDeviceTerminatorDispatchTable, InstanceDispatchTable,
     LayerDeviceDispatchTable, LayerInstanceDispatchTable, VK_EXT_SURFACE_MAINTENANCE1_EXTENSION_ID,
@@ -163,7 +161,6 @@ fn erase_function<T: Copy>(typed: T) -> unsafe extern "system" fn() {
     unsafe { FunctionPointer { typed }.erased }
 }
 
-#[allow(dead_code)]
 unsafe fn load_typed<T: Copy>(function: PFN_vkVoidFunction) -> Option<T> {
     // SAFETY: Vulkan requires compatible representations for all command
     // pointers returned by its proc-address functions.
@@ -291,16 +288,6 @@ pub(crate) struct CommandRecord {
 pub(crate) struct CommandProviderRange {
     pub(crate) offset: u16,
     pub(crate) len: u8,
-}
-
-#[allow(dead_code)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(crate) struct HandleInfo {
-    pub(crate) name: &'static str,
-    pub(crate) dispatchable: bool,
-    pub(crate) parent: Option<&'static str>,
-    pub(crate) object_type: Option<&'static str>,
-    pub(crate) alias: Option<&'static str>,
 }
 
 const fn command_hash(name: &[u8]) -> u64 {
@@ -4330,21 +4317,6 @@ mod tests {
         ] {
             assert!(command_lookup(name).is_none(), "resolved {name:?}");
         }
-    }
-
-    #[test]
-    fn generated_handle_table_preserves_registry_classification() {
-        let instance = handle_info("VkInstance").unwrap();
-        assert!(instance.dispatchable);
-        assert_eq!(instance.object_type, Some("VK_OBJECT_TYPE_INSTANCE"));
-
-        let buffer = handle_info("VkBuffer").unwrap();
-        assert!(!buffer.dispatchable);
-        assert_eq!(buffer.parent, Some("VkDevice"));
-        assert_eq!(buffer.object_type, Some("VK_OBJECT_TYPE_BUFFER"));
-
-        let alias = handle_info("VkPrivateDataSlotEXT").unwrap();
-        assert_eq!(alias.alias, Some("VkPrivateDataSlot"));
     }
 
     #[test]

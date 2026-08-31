@@ -522,7 +522,6 @@ const GENERATED_LOADER_PARTS: &[&str] = &[
     "extensions",
     "debug",
     "dispatch_tables",
-    "handles",
     "commands",
     "trampolines",
     "terminators",
@@ -536,7 +535,6 @@ const GENERATED_PARENT_NAMES: &[&str] = &[
     "CommandRecord",
     "CommandScope",
     "DEVICE_DISPATCH_MAGIC",
-    "HandleInfo",
     "LoaderInstance",
     "PFN_vkVoidFunction",
     "VkStructureType",
@@ -652,7 +650,6 @@ fn generated_loader_part(item: &syn::Item) -> &'static str {
                 | "is_known_instance_extension"
                 | "surface_create_info_extension_size"
                 | "wsi_instance_extension_supported" => "extensions",
-                "handle_info" => "handles",
                 _ => "commands",
             }
         }
@@ -677,7 +674,6 @@ fn generated_loader_part(item: &syn::Item) -> &'static str {
             let name = item.ident.to_string();
             match name.as_str() {
                 name if name.contains("EXTENSION") => "extensions",
-                "HANDLE_INFOS" => "handles",
                 _ => "commands",
             }
         }
@@ -854,7 +850,6 @@ fn main() {
         }
     });
     generated.extend(quote! {
-            #[allow(dead_code)]
             #[inline]
             pub(crate) const fn convert_debug_report_object_to_core_object(
                 object_type: vk::VkDebugReportObjectTypeEXT,
@@ -865,7 +860,6 @@ fn main() {
                 }
             }
 
-            #[allow(dead_code)]
             #[inline]
             pub(crate) const fn convert_core_object_to_debug_report_object(
                 object_type: vk::VkObjectType,
@@ -1014,10 +1008,7 @@ fn main() {
             && command_has_vulkan_provider(&registry, command)
     };
     let commands = registry.commands.values().flatten().collect::<Vec<_>>();
-    for (scope, table_name) in [
-        (Scope::Instance, "InstanceDispatchTable"),
-        (Scope::Device, "DeviceDispatchTable"),
-    ] {
+    for (scope, table_name) in [(Scope::Instance, "InstanceDispatchTable")] {
         let mut scoped = commands
             .iter()
             .copied()
@@ -1051,11 +1042,6 @@ fn main() {
             ),
             Scope::Global => unreachable!(),
         };
-        let load_fields = scoped.iter().map(|name| {
-            let literal = c_string_literal(name);
-            let name = format_ident!("{name}");
-            quote! { #name: unsafe { load_typed(#loader_name(handle, #literal.as_ptr())) }, }
-        });
         let load_into_fields = scoped.iter().map(|name| {
             let literal = c_string_literal(name);
             let name = format_ident!("{name}");
@@ -1064,15 +1050,9 @@ fn main() {
             }
         });
         generated.extend(quote! {
-            #[allow(dead_code)]
             #[derive(Clone, Default)]
             pub(crate) struct #table_name { #(#fields)* }
-            #[allow(dead_code)]
             impl #table_name {
-                #[allow(clippy::too_many_lines)] // One generated field initializer per registry command.
-                pub(crate) unsafe fn load(#loader_name: #loader_type, handle: #handle_type) -> Self {
-                    Self { #(#load_fields)* }
-                }
                 #[allow(clippy::too_many_lines)] // One generated field write per registry command.
                 pub(crate) unsafe fn load_into(table: *mut Self, #loader_name: #loader_type, handle: #handle_type) {
                     #(#load_into_fields)*
@@ -1254,26 +1234,18 @@ fn main() {
     // separates it because `<` can otherwise begin a comparison expression.
     generated.extend(quote! {
         #[repr(C)]
-        #[allow(dead_code)]
         pub(crate) struct LayerInstanceDispatchTable {
             pub(crate) vk_layerGetPhysicalDeviceProcAddr: crate::layer::GetPhysicalDeviceProcAddr,
             #(#layer_instance_fields)*
         }
-        #[allow(dead_code)]
         impl LayerInstanceDispatchTable {
             #[allow(clippy::too_many_lines)] // One generated field write per registry command.
             pub(crate) unsafe fn load_into(table_ptr: *mut Self, gipa: vk::PFN_vkGetInstanceProcAddr, gpdpa: crate::layer::GetPhysicalDeviceProcAddr, instance: vk::VkInstance) {
                 unsafe { core::ptr::addr_of_mut!((*table_ptr).vk_layerGetPhysicalDeviceProcAddr).write(gpdpa); }
                 #(#layer_instance_loads)*
             }
-            pub(crate) unsafe fn load_boxed(gipa: vk::PFN_vkGetInstanceProcAddr, gpdpa: crate::layer::GetPhysicalDeviceProcAddr, instance: vk::VkInstance) -> Box<Self> {
-                let mut table = Box::<Self>::new_uninit();
-                unsafe { Self::load_into(table.as_mut_ptr(), gipa, gpdpa, instance) };
-                unsafe { table.assume_init() }
-            }
         }
         #[repr(C)]
-        #[allow(dead_code)]
         pub(crate) struct LayerDeviceDispatchTable {
             pub(crate) magic: u64,
             #(#layer_device_fields)*
@@ -1282,17 +1254,11 @@ fn main() {
         // infallible on every target and feature combination at compile time.
         const _: () = assert!(core::mem::size_of::<LayerDeviceDispatchTable>() <= 65_535);
         #(#layer_device_offsets)*
-        #[allow(dead_code)]
         impl LayerDeviceDispatchTable {
             #[allow(clippy::too_many_lines)] // One generated field write per registry command.
             pub(crate) unsafe fn load_into(table_ptr: *mut Self, gdpa: vk::PFN_vkGetDeviceProcAddr, device: vk::VkDevice) {
                 unsafe { core::ptr::addr_of_mut!((*table_ptr).magic).write(DEVICE_DISPATCH_MAGIC); }
                 #(#layer_device_loads)*
-            }
-            pub(crate) unsafe fn load_boxed(gdpa: vk::PFN_vkGetDeviceProcAddr, device: vk::VkDevice) -> Box<Self> {
-                let mut table = Box::<Self>::new_uninit();
-                unsafe { Self::load_into(table.as_mut_ptr(), gdpa, device) };
-                unsafe { table.assume_init() }
             }
             #[allow(clippy::too_many_lines)] // One generated availability check per registry command.
             pub(crate) fn mask_unavailable(&mut self, mut available: impl FnMut(u16) -> bool) {
@@ -1333,64 +1299,11 @@ fn main() {
         }
     });
     generated.extend(quote! {
-        #[allow(dead_code)]
         pub(crate) struct IcdDeviceTerminatorDispatchTable { #(#icd_terminator_fields)* }
-        #[allow(dead_code)]
         impl IcdDeviceTerminatorDispatchTable {
             pub(crate) unsafe fn load_boxed(gdpa: vk::PFN_vkGetDeviceProcAddr, device: vk::VkDevice, mut available: impl FnMut(&CStr) -> bool) -> Box<Self> {
                 Box::new(Self { #(#icd_terminator_loads)* })
             }
-        }
-    });
-
-    let mut handles = registry
-        .typedefs
-        .values()
-        .flatten()
-        .filter_map(|ty| match &ty.kind {
-            TypedefKind::Handle {
-                dispatchable,
-                parent,
-                objtypeenum,
-            } => Some((
-                ty.name.as_str(),
-                *dispatchable,
-                parent.as_deref(),
-                objtypeenum.as_deref(),
-                ty.alias.as_deref(),
-            )),
-            _ => None,
-        })
-        .collect::<Vec<_>>();
-    handles.sort_unstable_by_key(|handle| handle.0);
-    let handle_count = Literal::usize_unsuffixed(handles.len());
-    let handle_infos =
-        handles
-            .into_iter()
-            .map(|(name, dispatchable, parent, object_type, alias)| {
-                let option = |value: Option<&str>| match value {
-                    Some(value) => quote! { Some(#value) },
-                    None => quote! { None },
-                };
-                let parent = option(parent);
-                let object_type = option(object_type);
-                let alias = option(alias);
-                quote! {
-                    HandleInfo {
-                        name: #name,
-                        dispatchable: #dispatchable,
-                        parent: #parent,
-                        object_type: #object_type,
-                        alias: #alias,
-                    },
-                }
-            });
-    generated.extend(quote! {
-        #[allow(dead_code)]
-        const HANDLE_INFOS: [HandleInfo; #handle_count] = [#(#handle_infos)*];
-        #[allow(dead_code)]
-        pub(crate) fn handle_info(name: &str) -> Option<HandleInfo> {
-            HANDLE_INFOS.binary_search_by_key(&name, |info| info.name).ok().map(|index| HANDLE_INFOS[index])
         }
     });
 
@@ -1460,14 +1373,17 @@ fn main() {
             device_extensions,
         ));
     }
-    let device_command_ids = command_records
+    let device_command_ids = layer_device_commands
         .iter()
-        .enumerate()
-        .filter(|(_, record)| record.1 == "CommandScope::Device")
-        .map(|(id, record)| {
-            let name = format_ident!("{}_COMMAND_ID", screaming_snake_case(record.0));
+        .map(|command| {
+            let cfg = platform_cfg(command_platform_protect(&registry, command));
+            let name = format_ident!("{}_COMMAND_ID", screaming_snake_case(&command.name));
+            let id = command_records
+                .iter()
+                .position(|record| record.0 == command.name)
+                .expect("layer device command must have a command record");
             let id = Literal::usize_unsuffixed(id);
-            quote! { #[allow(dead_code)] const #name: u16 = #id; }
+            quote! { #cfg const #name: u16 = #id; }
         })
         .collect::<Vec<_>>();
     generated.extend(quote! { #(#device_command_ids)* });
@@ -2417,8 +2333,6 @@ fn main() {
         pub(crate) use commands::{
             COMMAND_COUNT, COMMAND_MAX_DISPLACEMENT, COMMAND_NAMES, COMMAND_TABLE,
         };
-        #[cfg(test)]
-        pub(crate) use handles::handle_info;
     })
     .expect("generated loader module must parse");
     fs::write(output_path, generated_source(&entry)).expect("write generated loader module");

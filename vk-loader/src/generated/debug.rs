@@ -1,6 +1,5 @@
 // Generated from registry/vk.xml by vk-loader-codegen. Do not edit.
 
-#[allow(dead_code)]
 #[inline]
 pub(crate) const fn convert_debug_report_object_to_core_object(
     object_type: vk::VkDebugReportObjectTypeEXT,
@@ -65,7 +64,6 @@ pub(crate) const fn convert_debug_report_object_to_core_object(
         _ => vk::VkObjectType::UNKNOWN,
     }
 }
-#[allow(dead_code)]
 #[inline]
 pub(crate) const fn convert_core_object_to_debug_report_object(
     object_type: vk::VkObjectType,
