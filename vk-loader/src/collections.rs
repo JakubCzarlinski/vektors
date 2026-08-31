@@ -3,7 +3,7 @@
 //! `std::collections::hash_map::RandomState` uses a TLS cache on Windows, while
 //! `ahash::RandomState::default` retains two heap allocations in process-global
 //! `OnceBox` values. A Vulkan loader can be loaded and unloaded repeatedly, so
-//! neither lifetime is suitable here. Keep randomized AHash performance while
+//! neither lifetime is suitable here. Keep randomized `AHash` performance while
 //! storing the base seeds inline in this image instead.
 
 use core::{hash::BuildHasher, sync::atomic::AtomicUsize};

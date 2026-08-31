@@ -120,8 +120,7 @@ unsafe fn translate_device_group_chain<'a>(
             if source.physicalDeviceCount == 0 || source.pPhysicalDevices.is_null() {
                 return Ok(None);
             }
-            let count = usize::try_from(source.physicalDeviceCount)
-                .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+            let count = source.physicalDeviceCount as usize;
             let mut devices = Vec::new();
             devices
                 .try_reserve_exact(count)
@@ -171,7 +170,7 @@ unsafe fn load_typed<T: Copy>(function: PFN_vkVoidFunction) -> Option<T> {
     function.map(|erased| unsafe { FunctionPointer { erased }.typed })
 }
 
-#[inline(always)]
+#[inline]
 unsafe fn instance_dispatch<'a>(
     dispatchable: *mut c_void,
 ) -> Option<&'a LayerInstanceDispatchTable> {
@@ -189,7 +188,7 @@ unsafe fn instance_dispatch<'a>(
     unsafe { dispatch.as_ref() }
 }
 
-#[inline(always)]
+#[inline]
 unsafe fn resolve_physical_device<T: Copy>(
     physical_device: VkPhysicalDevice,
     resolve: impl FnOnce(&InstanceDispatchTable) -> Option<T>,
@@ -223,7 +222,7 @@ unsafe fn resolve_trampoline_physical_device(
     Some((dispatch, trampoline.chain))
 }
 
-#[inline(always)]
+#[inline]
 unsafe fn device_dispatch(handle: *mut c_void) -> Option<&'static LayerDeviceDispatchTable> {
     if handle.is_null() {
         return None;
@@ -261,7 +260,7 @@ unsafe fn set_device_dispatchable(object: *mut c_void, dispatch: *const LayerDev
         unsafe {
             object
                 .cast::<*const LayerDeviceDispatchTable>()
-                .write(dispatch)
+                .write(dispatch);
         };
     }
 }
@@ -305,10 +304,10 @@ pub(crate) struct HandleInfo {
 }
 
 const fn command_hash(name: &[u8]) -> u64 {
-    let mut hash = 0xcbf29ce484222325_u64;
+    let mut hash = 0xcbf2_9ce4_8422_2325_u64;
     let mut index = 0;
     while index < name.len() {
-        hash = (hash ^ name[index] as u64).wrapping_mul(0x100000001b3);
+        hash = (hash ^ name[index] as u64).wrapping_mul(0x0100_0000_01b3);
         index += 1;
     }
     hash
@@ -372,7 +371,7 @@ pub unsafe extern "system" fn vkCreateInstance(
                     format!(
                         "VkInstanceCreateInfo::pApplicationInfo::apiVersion has value of {requested} which is not permitted. If apiVersion is not 0, then it must be greater than or equal to the value of VK_API_VERSION_1_0 [VUID-VkApplicationInfo-apiVersion]"
                     ),
-                )
+                );
             };
         }
     }
@@ -398,7 +397,7 @@ pub unsafe extern "system" fn vkCreateInstance(
                     create_info_ref,
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
                     &message,
-                )
+                );
             };
         }
     } else {
@@ -407,7 +406,7 @@ pub unsafe extern "system" fn vkCreateInstance(
                 create_info_ref,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
                 "No valid vk_loader_settings.json file found, no loader settings will be active",
-            )
+            );
         };
     }
     let selected_layers = match layer::select_active_layers(create_info_ref, settings.as_ref()) {
@@ -522,7 +521,7 @@ unsafe fn log_instance_create_info(create_info: &VkInstanceCreateInfo<'_>) {
                 vk::VK_API_VERSION_MINOR(api_version),
                 vk::VK_API_VERSION_PATCH(api_version),
             ),
-        )
+        );
     };
     unsafe {
         log_instance_name_array(
@@ -552,7 +551,7 @@ unsafe fn log_instance_name_array(
             create_info,
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
             format!("vkCreateInstance: Requested {count} instance {kind}(s):"),
-        )
+        );
     };
     if names.is_null() {
         return;
@@ -569,7 +568,7 @@ unsafe fn log_instance_name_array(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
                 format!("   {value}"),
-            )
+            );
         };
     }
 }
@@ -699,7 +698,7 @@ unsafe fn emit_driver_only_create_message(
             create_info,
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
             &message,
-        )
+        );
     };
 }
 
@@ -766,7 +765,7 @@ unsafe fn scan_direct_drivers(
                     create_info,
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
                     "loader_scan_for_direct_drivers: The VK_LUNARG_direct_driver_loading extension was enabled but the pNext chain of VkInstanceCreateInfo did not contain the VkDirectDriverLoadingListLUNARG structure.",
-                )
+                );
             };
         }
         return Ok((false, Vec::new()));
@@ -777,7 +776,7 @@ unsafe fn scan_direct_drivers(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
                 "loader_scan_for_direct_drivers: The pNext chain of VkInstanceCreateInfo contained the VkDirectDriverLoadingListLUNARG structure, but the VK_LUNARG_direct_driver_loading extension was not enabled.",
-            )
+            );
         };
         return Ok((false, Vec::new()));
     }
@@ -789,7 +788,7 @@ unsafe fn scan_direct_drivers(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
                 "loader_scan_for_direct_drivers: The VK_LUNARG_direct_driver_loading extension is active and specified VK_DIRECT_DRIVER_LOADING_MODE_EXCLUSIVE_LUNARG, skipping system and environment variable driver search mechanisms.",
-            )
+            );
         };
     }
     if list.pDrivers.is_null() {
@@ -798,7 +797,7 @@ unsafe fn scan_direct_drivers(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
                 "loader_scan_for_direct_drivers: The VkDirectDriverLoadingListLUNARG structure in the pNext chain of VkInstanceCreateInfo has a NULL pDrivers member.",
-            )
+            );
         };
         return Ok((exclusive, Vec::new()));
     }
@@ -808,7 +807,7 @@ unsafe fn scan_direct_drivers(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
                 "loader_scan_for_direct_drivers: The VkDirectDriverLoadingListLUNARG structure in the pNext chain of VkInstanceCreateInfo has a non-null pDrivers member but a driverCount member with a value of zero.",
-            )
+            );
         };
         return Ok((exclusive, Vec::new()));
     }
@@ -829,7 +828,7 @@ unsafe fn scan_direct_drivers(
                     format!(
                         "loader_add_direct_driver: VkDirectDriverLoadingInfoLUNARG structure at index {index} contains a NULL pointer for the pfnGetInstanceProcAddr member, skipping."
                     ),
-                )
+                );
             };
             continue;
         };
@@ -845,7 +844,7 @@ unsafe fn scan_direct_drivers(
                             "loader_add_direct_driver: Adding driver found in index {index} of VkDirectDriverLoadingListLUNARG::pDrivers structure. pfnGetInstanceProcAddr was set to {:p}",
                             gipa as *const ()
                         ),
-                    )
+                    );
                 };
                 drivers.push(driver);
             }
@@ -878,7 +877,7 @@ unsafe fn scan_direct_drivers(
                         create_info,
                         vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
                         message,
-                    )
+                    );
                 };
             }
         }
@@ -905,7 +904,7 @@ unsafe fn emit_driver_scan_diagnostics(
             emit_driver_only_create_message(
                 create_info,
                 format!("      {}", root.to_string_lossy()),
-            )
+            );
         };
     }
     if scan.candidates.is_empty() {
@@ -917,7 +916,7 @@ unsafe fn emit_driver_scan_diagnostics(
                 emit_driver_only_create_message(
                     create_info,
                     format!("      {}", path.to_string_lossy()),
-                )
+                );
             };
         }
     }
@@ -966,7 +965,7 @@ unsafe fn emit_driver_scan_diagnostics(
                     create_info,
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
                     message,
-                )
+                );
             };
         }
     }
@@ -995,7 +994,7 @@ unsafe fn emit_driver_manifest_diagnostics(
                         vk::VK_API_VERSION_MINOR(manifest.manifest_version),
                         vk::VK_API_VERSION_PATCH(manifest.manifest_version),
                     ),
-                )
+                );
             };
         }
         if variant != 0 {
@@ -1007,7 +1006,7 @@ unsafe fn emit_driver_manifest_diagnostics(
                         "loader_parse_icd_manifest: Driver's ICD JSON {} 'api_version' field contains a non-zero variant value of {variant}.  Skipping ICD JSON.",
                         manifest.manifest_path.to_string_lossy(),
                     ),
-                )
+                );
             };
         }
         if !manifest.architecture_supported {
@@ -1016,7 +1015,7 @@ unsafe fn emit_driver_manifest_diagnostics(
                     create_info,
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
                     "loader_parse_icd_manifest: Driver library architecture doesn't match the current running architecture, skipping this driver",
-                )
+                );
             };
         }
     }
@@ -1037,7 +1036,7 @@ unsafe fn emit_driver_manifest_found(
                 vk::VK_API_VERSION_MINOR(manifest.manifest_version),
                 vk::VK_API_VERSION_PATCH(manifest.manifest_version),
             ),
-        )
+        );
     };
 }
 
@@ -1110,7 +1109,7 @@ unsafe fn scan_icds(
                     create_info,
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
                     message,
-                )
+                );
             };
         }
         unsafe {
@@ -1118,7 +1117,7 @@ unsafe fn scan_icds(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
                 c"vkCreateInstance: Found no drivers!",
-            )
+            );
         };
         Err(VkResult::ERROR_INCOMPATIBLE_DRIVER)
     } else {
@@ -1146,7 +1145,7 @@ unsafe fn load_scanned_icd(
                 "Searching for ICD drivers named {}",
                 manifest.library_path.to_string_lossy()
             ),
-        )
+        );
     };
     let (icd, version_status) = match ScannedIcd::load_manifest(manifest) {
         Ok(loaded) => loaded,
@@ -1156,7 +1155,7 @@ unsafe fn load_scanned_icd(
                     create_info,
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
                     error,
-                )
+                );
             };
             return None;
         }
@@ -1211,7 +1210,7 @@ unsafe fn create_icd_instances(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
                 c"terminator_CreateInstance: Found no drivers!",
-            )
+            );
         };
         Err(VkResult::ERROR_INCOMPATIBLE_DRIVER)
     } else {
@@ -1282,10 +1281,9 @@ unsafe fn emit_icd_version_status(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
                 format!(
-                    "terminator_CreateInstance: Manifest ICD for \"{}\" contained a 1.1 or greater API version, but does not support vkEnumerateInstanceVersion, treating as a 1.0 ICD",
-                    library_path,
+                    "terminator_CreateInstance: Manifest ICD for \"{library_path}\" contained a 1.1 or greater API version, but does not support vkEnumerateInstanceVersion, treating as a 1.0 ICD",
                 ),
-            )
+            );
         },
         ManifestApiVersionStatus::EnumerateInstanceVersionReturned(version) => unsafe {
             emit_driver_create_message(
@@ -1297,7 +1295,7 @@ unsafe fn emit_icd_version_status(
                     vk::VK_API_VERSION_MAJOR(version),
                     vk::VK_API_VERSION_MINOR(version),
                 ),
-            )
+            );
         },
     }
 }
@@ -1405,7 +1403,7 @@ unsafe fn create_scanned_icd_instance(
             // SAFETY: The reserved vector slot is writable and `handle` was
             // just created by this ICD whose GIPA remains live.
             unsafe {
-                InstanceDispatchTable::load_into(dispatch, icd.get_instance_proc_addr, handle)
+                InstanceDispatchTable::load_into(dispatch, icd.get_instance_proc_addr, handle);
             };
             // SAFETY: `load_into` initialized the complete dispatch field.
             let dispatch_ref = unsafe { &*dispatch };
@@ -1492,7 +1490,7 @@ pub unsafe extern "system" fn vkDestroyInstance(
     if instance == VkInstance::NULL {
         return;
     }
-    let _loader_guard = platform::lock_loader();
+    let loader_guard = platform::lock_loader();
     // SAFETY: Validate through the registered dispatch key before dereferencing
     // any table supplied by an untrusted application handle.
     let loader = unsafe { LoaderInstance::from_handle(instance) }.unwrap_or_else(|| {
@@ -1510,7 +1508,7 @@ pub unsafe extern "system" fn vkDestroyInstance(
     // The layer libraries must remain loaded until every destroy frame has
     // returned, so ownership is released only after the chain call completes.
     drop(LoaderInstance::take_dispatch(dispatch_key));
-    drop(_loader_guard);
+    drop(loader_guard);
     // Match upstream's refresh boundary: a later global extension query or
     // instance creation must be able to observe a changed driver set.
     icd::unload_preloaded_icds();
@@ -1946,20 +1944,20 @@ pub(crate) unsafe extern "system" fn terminator_enumerate_physical_devices(
     for native_device in &native_devices {
         let key = (native_device.icd_index, native_device.handle.0 as usize);
         let device = devices.owned.entry(key).or_insert_with(|| {
-            LoaderPhysicalDevice::new(
+            Box::new(LoaderPhysicalDevice::new(
                 native_device.icd_index,
                 core::ptr::from_ref(&instance.icds[native_device.icd_index]),
                 core::ptr::from_ref(instance),
                 instance.api_version,
                 native_device.handle,
-            )
+            ))
         });
         active.push(device.handle());
     }
     let active = active.into_boxed_slice();
     devices.active = active;
 
-    let total = u32::try_from(devices.active.len()).unwrap_or(u32::MAX);
+    let total = devices.active.len().min(u32::MAX as usize) as u32;
     if physical_devices.is_null() {
         // SAFETY: The caller supplied writable count storage.
         unsafe { physical_device_count.write(total) };
@@ -1973,7 +1971,9 @@ pub(crate) unsafe extern "system" fn terminator_enumerate_physical_devices(
         unsafe { physical_devices.add(index).write(*device) };
     }
     // SAFETY: The caller supplied writable count storage.
-    unsafe { physical_device_count.write(written as u32) };
+    unsafe {
+        physical_device_count.write(written as u32);
+    }
     if written < devices.active.len() {
         if let Ok(message) = alloc::ffi::CString::new(format!(
             "vkEnumeratePhysicalDevices: Trimming device count from {} to {written}",
@@ -2111,7 +2111,11 @@ unsafe fn setup_trampoline_physical_devices(
         let trampoline = state
             .trampolines
             .entry(chain.0 as usize)
-            .or_insert_with(|| LoaderPhysicalDeviceTrampoline::new(instance, chain, terminator));
+            .or_insert_with(|| {
+                Box::new(LoaderPhysicalDeviceTrampoline::new(
+                    instance, chain, terminator,
+                ))
+            });
         unsafe { physical_devices.add(index).write(trampoline.handle()) };
     }
     Ok(())
@@ -2220,7 +2224,7 @@ fn parse_c_u32(bytes: &[u8]) -> (u32, usize) {
     } else {
         value
     };
-    (value as u32, index)
+    ((value & u64::from(u32::MAX)) as u32, index)
 }
 
 #[derive(Default)]
@@ -2298,7 +2302,7 @@ unsafe fn physical_device_matches_id_filters(
             get_properties2(
                 physical_device,
                 core::ptr::addr_of_mut!((*storage).properties2),
-            )
+            );
         };
     } else {
         let extension_enabled =
@@ -2322,11 +2326,11 @@ unsafe fn physical_device_matches_id_filters(
             get_properties2(
                 physical_device,
                 core::ptr::addr_of_mut!((*storage).properties2).cast(),
-            )
+            );
         };
     }
     let driver_id = unsafe { core::ptr::addr_of!((*storage).driver.driverID).read() };
-    filters.driver.matches(driver_id.0 as u32)
+    filters.driver.matches(driver_id.0.cast_unsigned())
 }
 
 #[cold]
@@ -2351,7 +2355,7 @@ unsafe fn enumerate_filtered_physical_devices(
         return VkResult::ERROR_OUT_OF_HOST_MEMORY;
     }
     chain_devices.resize(available, VkPhysicalDevice::NULL);
-    let mut returned = u32::try_from(available).unwrap_or(u32::MAX);
+    let mut returned = available.min(u32::MAX as usize) as u32;
     let result = unsafe { enumerate(instance, &raw mut returned, chain_devices.as_mut_ptr()) };
     if result != VkResult::SUCCESS {
         return result;
@@ -2378,7 +2382,9 @@ unsafe fn enumerate_filtered_physical_devices(
         matched += 1;
     }
     let written = capacity.min(matched);
-    unsafe { physical_device_count.write(written as u32) };
+    unsafe {
+        physical_device_count.write(written as u32);
+    }
     if written < matched {
         VkResult::INCOMPLETE
     } else {
@@ -2406,7 +2412,7 @@ unsafe fn enumerate_filtered_physical_device_groups(
     let mut chain_groups =
         Box::<[VkPhysicalDeviceGroupProperties<'_>]>::new_uninit_slice(available);
     unsafe { chain_groups.as_mut_ptr().write_bytes(0, available) };
-    let mut returned = u32::try_from(available).unwrap_or(u32::MAX);
+    let mut returned = available.min(u32::MAX as usize) as u32;
     let result = unsafe {
         enumerate(
             instance,
@@ -2450,7 +2456,9 @@ unsafe fn enumerate_filtered_physical_device_groups(
         matched += 1;
     }
     let written = capacity.min(matched);
-    unsafe { group_count.write(written as u32) };
+    unsafe {
+        group_count.write(written as u32);
+    }
     if written < matched {
         VkResult::INCOMPLETE
     } else {
@@ -2510,8 +2518,7 @@ unsafe fn enumerate_icd_groups(
     output_capacity: usize,
     output_offset: usize,
 ) -> Result<Box<[VkPhysicalDeviceGroupProperties<'static>]>, VkResult> {
-    let count = usize::try_from(unsafe { query_icd_group_count(icd, enumerate) }?)
-        .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+    let count = unsafe { query_icd_group_count(icd, enumerate) }? as usize;
     match enumerate {
         IcdGroupEnumerator::Core(enumerate) => {
             let mut groups = Vec::new();
@@ -2524,7 +2531,7 @@ unsafe fn enumerate_icd_groups(
                     group.pNext = unsafe { (*output.add(output_offset + index)).pNext };
                 }
             }
-            let mut returned = u32::try_from(count).unwrap_or(u32::MAX);
+            let mut returned = count.min(u32::MAX as usize) as u32;
             let result = unsafe { enumerate(icd.handle, &raw mut returned, groups.as_mut_ptr()) };
             if result != VkResult::SUCCESS && result != VkResult::INCOMPLETE {
                 return Err(result);
@@ -2543,7 +2550,7 @@ unsafe fn enumerate_icd_groups(
                     group.pNext = unsafe { (*output.add(output_offset + index)).pNext };
                 }
             }
-            let mut returned = u32::try_from(count).unwrap_or(u32::MAX);
+            let mut returned = count.min(u32::MAX as usize) as u32;
             let result = unsafe { enumerate(icd.handle, &raw mut returned, groups.as_mut_ptr()) };
             if result != VkResult::SUCCESS && result != VkResult::INCOMPLETE {
                 return Err(result);
@@ -2699,8 +2706,7 @@ unsafe fn windows_sorted_physical_devices(
 
             let mut group = None;
             loop {
-                let capacity =
-                    usize::try_from(count).map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+                let capacity = count as usize;
                 let mut storage = Box::<[VkPhysicalDevice]>::new_uninit_slice(capacity);
                 let mut returned = count;
                 // SAFETY: Storage contains `capacity` writable handles and
@@ -2900,13 +2906,13 @@ unsafe fn enumerate_physical_device_group_properties(
     for device in &all_devices {
         let key = (device.icd_index, device.handle.0 as usize);
         state.owned.entry(key).or_insert_with(|| {
-            LoaderPhysicalDevice::new(
+            Box::new(LoaderPhysicalDevice::new(
                 device.icd_index,
                 core::ptr::from_ref(&instance.icds[device.icd_index]),
                 core::ptr::from_ref(instance),
                 instance.api_version,
                 device.handle,
-            )
+            ))
         });
     }
 
@@ -2944,7 +2950,9 @@ unsafe fn enumerate_physical_device_group_properties(
     for (index, properties) in visible_groups.iter().take(written).enumerate() {
         unsafe { group_properties.add(index).write(*properties) };
     }
-    unsafe { group_count.write(written as u32) };
+    unsafe {
+        group_count.write(written as u32);
+    }
     if written < visible_groups.len() {
         VkResult::INCOMPLETE
     } else {
@@ -3096,12 +3104,8 @@ pub unsafe extern "system" fn vkEnumeratePhysicalDeviceGroupsKHR(
     };
     let filters = IdFilters::from_environment();
     let result = if let Some(filters) = filters.as_deref() {
-        debug_assert_eq!(
-            core::mem::size_of::<vk::PFN_vkEnumeratePhysicalDeviceGroupsKHR>(),
-            core::mem::size_of::<vk::PFN_vkEnumeratePhysicalDeviceGroups>()
-        );
         let enumerate: vk::PFN_vkEnumeratePhysicalDeviceGroups =
-            unsafe { core::mem::transmute_copy(&enumerate) };
+            unsafe { core::mem::transmute(enumerate) };
         unsafe {
             enumerate_filtered_physical_device_groups(
                 loader,
@@ -3140,7 +3144,6 @@ pub unsafe extern "system" fn vkEnumeratePhysicalDeviceGroupsKHR(
 /// # Safety
 ///
 /// Arguments must satisfy `vkEnumerateDeviceLayerProperties`' Vulkan contract.
-#[allow(deprecated)]
 #[unsafe(no_mangle)]
 pub unsafe extern "system" fn vkEnumerateDeviceLayerProperties(
     physical_device: VkPhysicalDevice,
@@ -3173,7 +3176,6 @@ pub unsafe extern "system" fn vkEnumerateDeviceLayerProperties(
 /// # Safety
 ///
 /// Arguments must satisfy `vkEnumerateDeviceExtensionProperties`' Vulkan contract.
-#[allow(deprecated)]
 #[unsafe(no_mangle)]
 pub unsafe extern "system" fn vkEnumerateDeviceExtensionProperties(
     physical_device: VkPhysicalDevice,
@@ -3262,7 +3264,7 @@ fn decimal_prefix_nonzero(bytes: &[u8]) -> bool {
     }
 
     let limit = if negative {
-        (libc::c_long::MAX as u64) + 1
+        libc::c_long::MAX as u64 + 1
     } else {
         libc::c_long::MAX as u64
     };
@@ -3287,14 +3289,15 @@ fn decimal_prefix_nonzero(bytes: &[u8]) -> bool {
     } else {
         magnitude as libc::c_long
     };
-    value as i32 != 0
+    let low = value.cast_unsigned() & libc::c_ulong::from(u32::MAX);
+    low != 0
 }
 
 fn scanf_hex(bytes: &[u8], mut index: usize) -> Option<(u32, usize)> {
     const C_ULONG_MAX: u128 = if core::mem::size_of::<libc::c_ulong>() == 4 {
-        u32::MAX as u128
+        0xffff_ffff
     } else {
-        u64::MAX as u128
+        0xffff_ffff_ffff_ffff
     };
 
     while bytes.get(index).is_some_and(u8::is_ascii_whitespace) {
@@ -3332,11 +3335,13 @@ fn scanf_hex(bytes: &[u8], mut index: usize) -> Option<(u32, usize)> {
         }
         index += 1;
     }
+    let magnitude = magnitude as libc::c_ulong;
     let value = if negative && !overflow {
-        (0 as libc::c_ulong).wrapping_sub(magnitude as libc::c_ulong)
+        magnitude.wrapping_neg()
     } else {
-        magnitude as libc::c_ulong
-    } as u32;
+        magnitude
+    };
+    let value = (value & libc::c_ulong::from(u32::MAX)) as u32;
     (index != digit_start).then_some((value, index))
 }
 
@@ -3525,7 +3530,7 @@ unsafe fn linux_sorted_device_info(
                     query(
                         device.handle,
                         core::ptr::addr_of_mut!((*storage).properties2),
-                    )
+                    );
                 })
         } else {
             debug_assert_eq!(
@@ -3542,7 +3547,7 @@ unsafe fn linux_sorted_device_info(
                     query(
                         device.handle,
                         core::ptr::addr_of_mut!((*storage).properties2).cast(),
-                    )
+                    );
                 })
         };
         queried.map(|()| unsafe {
@@ -3883,9 +3888,9 @@ unsafe fn enumerate_icd_physical_devices(
     if result != VkResult::SUCCESS {
         return Err(result);
     }
-    let count = usize::try_from(count).map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+    let count = count as usize;
     let mut storage = Box::<[VkPhysicalDevice]>::new_uninit_slice(count);
-    let mut returned_count = u32::try_from(count).unwrap_or(u32::MAX);
+    let mut returned_count = count.min(u32::MAX as usize) as u32;
     // SAFETY: `storage` has `count` writable elements.
     let result = unsafe {
         enumerate(
@@ -3975,10 +3980,13 @@ pub unsafe extern "C" fn vk_string_validate(
     if utf8.is_null() {
         return NULL_PTR;
     }
+    let utf8 = utf8.cast::<u8>();
     let mut result = 0;
     let mut index = 0;
     while index <= max_length {
-        let byte = unsafe { utf8.add(index as usize).read() } as u8;
+        debug_assert!(index >= 0);
+        let offset = index as usize;
+        let byte = unsafe { utf8.add(offset).read() };
         if byte == 0 {
             break;
         }
@@ -4007,7 +4015,9 @@ pub unsafe extern "C" fn vk_string_validate(
                 result |= LENGTH;
                 break;
             }
-            let continuation = unsafe { utf8.add(index as usize).read() } as u8;
+            debug_assert!(index >= 0);
+            let offset = index as usize;
+            let continuation = unsafe { utf8.add(offset).read() };
             if continuation == 0 {
                 return result | BAD_DATA;
             }
@@ -4099,7 +4109,7 @@ mod tests {
             device
                 .0
                 .cast::<*const LayerDeviceDispatchTable>()
-                .write(core::ptr::null())
+                .write(core::ptr::null());
         };
     }
 
@@ -4211,7 +4221,7 @@ mod tests {
         unsafe {
             LoaderDevice::from_dispatch_key_mut(dispatch_key)
                 .unwrap()
-                .set_chain(handle, fake_get_device_proc_addr)
+                .set_chain(handle, fake_get_device_proc_addr);
         };
 
         unsafe { vkDestroyDevice(handle, core::ptr::null()) };

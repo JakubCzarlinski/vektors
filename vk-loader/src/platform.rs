@@ -78,8 +78,8 @@ fn dynamic_library_unloading_disabled() -> bool {
 }
 
 pub(crate) fn initialize_loader() {
-    std::sync::LazyLock::force(&LOADER_LOCK);
     static LOG_INITIALIZATION: std::sync::Once = std::sync::Once::new();
+    std::sync::LazyLock::force(&LOADER_LOCK);
     LOG_INITIALIZATION.call_once(|| {
         let version = vk::VK_HEADER_VERSION_COMPLETE;
         write_loader_log(
@@ -427,17 +427,19 @@ impl LoaderLock {
         #[cfg(not(target_os = "hurd"))]
         let recursive_mutex_type = libc::PTHREAD_MUTEX_RECURSIVE;
         // SAFETY: The attributes object is initialized and exclusively owned.
-        if unsafe { libc::pthread_mutexattr_settype(&mut attributes, recursive_mutex_type) } != 0 {
+        if unsafe { libc::pthread_mutexattr_settype(&raw mut attributes, recursive_mutex_type) }
+            != 0
+        {
             // SAFETY: The attributes object was initialized successfully.
-            unsafe { libc::pthread_mutexattr_destroy(&mut attributes) };
+            unsafe { libc::pthread_mutexattr_destroy(&raw mut attributes) };
             std::process::abort();
         }
 
         let mut mutex = core::mem::MaybeUninit::<libc::pthread_mutex_t>::uninit();
         // SAFETY: Both arguments point to initialized/writable native objects.
-        let result = unsafe { libc::pthread_mutex_init(mutex.as_mut_ptr(), &attributes) };
+        let result = unsafe { libc::pthread_mutex_init(mutex.as_mut_ptr(), &raw const attributes) };
         // SAFETY: The attributes object is no longer needed after mutex init.
-        unsafe { libc::pthread_mutexattr_destroy(&mut attributes) };
+        unsafe { libc::pthread_mutexattr_destroy(&raw mut attributes) };
         if result != 0 {
             std::process::abort();
         }
@@ -498,8 +500,6 @@ pub(crate) const fn executable_path() -> Option<PathBuf> {
 
 #[cfg(any(target_os = "linux", target_os = "android", target_os = "hurd"))]
 pub(crate) fn executable_path() -> Option<PathBuf> {
-    use std::os::unix::ffi::OsStringExt as _;
-
     let mut bytes = [0_u8; 1024];
     // SAFETY: `bytes` supplies exactly the writable extent passed to readlink.
     let length = unsafe {
@@ -509,7 +509,10 @@ pub(crate) fn executable_path() -> Option<PathBuf> {
             bytes.len(),
         )
     };
-    let length = usize::try_from(length).ok()?;
+    if length < 0 {
+        return None;
+    }
+    let length = length as usize;
     if length == 0 || length >= bytes.len() {
         return None;
     }
@@ -520,9 +523,6 @@ pub(crate) fn executable_path() -> Option<PathBuf> {
 
 #[cfg(target_os = "macos")]
 pub(crate) fn executable_path() -> Option<PathBuf> {
-    use core::ffi::c_int;
-    use std::os::unix::ffi::OsStringExt as _;
-
     unsafe extern "C" {
         fn proc_pidpath(pid: libc::pid_t, buffer: *mut c_void, buffer_size: u32) -> c_int;
     }
@@ -537,7 +537,10 @@ pub(crate) fn executable_path() -> Option<PathBuf> {
             bytes.len() as u32,
         )
     };
-    let length = usize::try_from(length).ok()?;
+    if length < 0 {
+        return None;
+    }
+    let length = length as usize;
     if length == 0 || length >= bytes.len() {
         return None;
     }
@@ -559,8 +562,6 @@ pub(crate) fn executable_path() -> Option<PathBuf> {
 
 #[cfg(any(target_os = "dragonfly", target_os = "freebsd", target_os = "netbsd"))]
 pub(crate) fn executable_path() -> Option<PathBuf> {
-    use std::os::unix::ffi::OsStringExt as _;
-
     #[cfg(target_os = "netbsd")]
     let mut mib = [
         libc::CTL_KERN,
@@ -603,8 +604,6 @@ pub(crate) fn executable_path() -> Option<PathBuf> {
 
 #[cfg(any(target_os = "nto", target_os = "qnx"))]
 pub(crate) fn executable_path() -> Option<PathBuf> {
-    use std::{io::Read as _, os::unix::ffi::OsStringExt as _};
-
     let mut file = std::fs::File::open("/proc/self/exefile").ok()?;
     let mut bytes = Vec::with_capacity(1024);
     file.by_ref().take(1024).read_to_end(&mut bytes).ok()?;
@@ -616,12 +615,6 @@ pub(crate) fn executable_path() -> Option<PathBuf> {
 
 #[cfg(windows)]
 pub(crate) fn executable_path() -> Option<PathBuf> {
-    use std::os::windows::ffi::OsStringExt as _;
-    use windows_sys::Win32::{
-        Foundation::{ERROR_INSUFFICIENT_BUFFER, GetLastError},
-        System::LibraryLoader::GetModuleFileNameW,
-    };
-
     let mut units = [0_u16; 1024];
     // SAFETY: A null module requests the executable and `units` supplies the
     // exact writable extent passed to Win32.
@@ -635,7 +628,7 @@ pub(crate) fn executable_path() -> Option<PathBuf> {
     if length == 0 || unsafe { GetLastError() } == ERROR_INSUFFICIENT_BUFFER {
         return None;
     }
-    let length = usize::try_from(length).ok()?;
+    let length = length as usize;
     if length >= units.len() {
         return None;
     }
@@ -675,13 +668,13 @@ pub(crate) fn current_thread_key() -> usize {
 pub(crate) fn current_thread_key() -> usize {
     // POSIX guarantees `pthread_self` uniquely identifies the calling live
     // thread; the supported Unix ABIs represent `pthread_t` in one word.
-    unsafe { libc::pthread_self() as usize }
+    let thread = unsafe { libc::pthread_self() };
+    thread as usize
 }
 
 #[cfg(not(any(unix, windows)))]
 #[inline]
 pub(crate) fn current_thread_key() -> usize {
-    use core::hash::{Hash, Hasher};
     let mut hasher = std::collections::hash_map::DefaultHasher::new();
     std::thread::current().id().hash(&mut hasher);
     hasher.finish() as usize
@@ -773,15 +766,6 @@ pub(crate) fn has_elevated_privileges() -> bool {
 
 #[cfg(windows)]
 pub(crate) fn has_elevated_privileges() -> bool {
-    use windows_sys::Win32::{
-        Foundation::CloseHandle,
-        Security::{
-            GetSidSubAuthority, GetSidSubAuthorityCount, GetTokenInformation,
-            TOKEN_MANDATORY_LABEL, TokenIntegrityLevel,
-        },
-        System::Threading::{GetCurrentProcess, OpenProcessToken},
-    };
-
     const TOKEN_QUERY: u32 = 0x0008;
     const TOKEN_QUERY_SOURCE: u32 = 0x0010;
     const SECURITY_MANDATORY_HIGH_RID: u32 = 0x0000_3000;
@@ -811,7 +795,7 @@ pub(crate) fn has_elevated_privileges() -> bool {
             token,
             TokenIntegrityLevel,
             buffer.0.as_mut_ptr().cast(),
-            u32::try_from(buffer.0.len()).expect("fixed token buffer fits DWORD"),
+            buffer.0.len() as u32,
             &mut required,
         )
     } != 0;
@@ -846,14 +830,6 @@ pub(crate) const fn has_elevated_privileges() -> bool {
 #[cold]
 #[inline(never)]
 fn registry_values(location: &core::ffi::CStr, current_user: bool) -> Box<[PathBuf]> {
-    use windows_sys::Win32::{
-        Foundation::ERROR_SUCCESS,
-        System::Registry::{
-            HKEY, HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, KEY_QUERY_VALUE, RegCloseKey,
-            RegEnumValueA, RegOpenKeyExA,
-        },
-    };
-
     let hive = if current_user {
         HKEY_CURRENT_USER
     } else {
@@ -870,10 +846,9 @@ fn registry_values(location: &core::ffi::CStr, current_user: bool) -> Box<[PathB
     let mut paths = Vec::new();
     let mut name = Box::new([0_u8; 2048]);
     for index in 0.. {
-        let mut name_length = u32::try_from(name.len()).expect("registry name buffer fits DWORD");
+        let mut name_length = name.len() as u32;
         let mut value = 0_u32;
-        let mut value_length =
-            u32::try_from(core::mem::size_of_val(&value)).expect("registry DWORD size fits DWORD");
+        let mut value_length = core::mem::size_of_val(&value) as u32;
         // SAFETY: All buffers are writable for the lengths supplied. This is
         // the same RegEnumValueA contract used by upstream and its test shim.
         let status = unsafe {
@@ -891,9 +866,8 @@ fn registry_values(location: &core::ffi::CStr, current_user: bool) -> Box<[PathB
         if status != ERROR_SUCCESS {
             break;
         }
-        if value_length == u32::try_from(core::mem::size_of_val(&value)).unwrap_or(0) && value == 0
-        {
-            let length = usize::try_from(name_length).unwrap_or(0).min(name.len());
+        if value_length == core::mem::size_of_val(&value) as u32 && value == 0 {
+            let length = (name_length as usize).min(name.len());
             let length = name[..length]
                 .iter()
                 .position(|byte| *byte == 0)
@@ -972,11 +946,6 @@ pub(crate) fn registry_manifest_files(leaf: &str) -> Box<[PathBuf]> {
 #[cold]
 #[inline(never)]
 fn d3dkmt_manifest_files(leaf: &str) -> Box<[PathBuf]> {
-    use std::{ffi::OsString, os::windows::ffi::OsStringExt};
-    use windows_sys::Win32::System::LibraryLoader::{
-        GetModuleHandleA, GetProcAddress, LoadLibraryExA,
-    };
-
     const STATUS_SUCCESS: i32 = 0;
     const LOAD_LIBRARY_SEARCH_SYSTEM32: u32 = 0x0000_0800;
     const QUERY_TYPE_REGISTRY: u32 = 48;
@@ -1082,16 +1051,13 @@ fn d3dkmt_manifest_files(leaf: &str) -> Box<[PathBuf]> {
     {
         return Box::default();
     }
-    let mut adapters =
-        Box::<[Adapter]>::new_uninit_slice(usize::try_from(enumeration.adapter_count).unwrap_or(0));
+    let mut adapters = Box::<[Adapter]>::new_uninit_slice(enumeration.adapter_count as usize);
     enumeration.adapters = adapters.as_mut_ptr().cast();
     // SAFETY: The adapter array has the count requested by the first query.
     if unsafe { enum_adapters(&mut enumeration) } != STATUS_SUCCESS {
         return Box::default();
     }
-    let initialized = usize::try_from(enumeration.adapter_count)
-        .unwrap_or(0)
-        .min(adapters.len());
+    let initialized = (enumeration.adapter_count as usize).min(adapters.len());
     // SAFETY: A successful query initialized the reported adapter prefix. The
     // MaybeUninit backing allocation remains live throughout this borrow.
     let initialized_adapters =
@@ -1120,8 +1086,7 @@ fn d3dkmt_manifest_files(leaf: &str) -> Box<[PathBuf]> {
             handle: adapter.handle,
             kind: QUERY_TYPE_REGISTRY,
             private_data: (&mut *registry as *mut QueryRegistryInfo).cast(),
-            private_data_size: u32::try_from(core::mem::size_of::<QueryRegistryInfo>())
-                .expect("registry query header fits UINT"),
+            private_data_size: core::mem::size_of::<QueryRegistryInfo>() as u32,
         };
         // SAFETY: The query header has the exact D3DKMT registry ABI.
         let mut status = unsafe { query_adapter(&mut query) };
@@ -1137,7 +1102,7 @@ fn d3dkmt_manifest_files(leaf: &str) -> Box<[PathBuf]> {
         let mut response = None;
         for _ in 0..4 {
             let byte_length = core::mem::size_of::<QueryRegistryInfo>()
-                .checked_add(usize::try_from(registry.output_value_size).unwrap_or(usize::MAX));
+                .checked_add(registry.output_value_size as usize);
             let Some(byte_length) = byte_length else {
                 break;
             };
@@ -1152,10 +1117,10 @@ fn d3dkmt_manifest_files(leaf: &str) -> Box<[PathBuf]> {
                     .write(*registry)
             };
             query.private_data = storage.as_mut_ptr().cast();
-            query.private_data_size = match u32::try_from(byte_length) {
-                Ok(length) => length,
-                Err(_) => break,
-            };
+            if byte_length > u32::MAX as usize {
+                break;
+            }
+            query.private_data_size = byte_length as u32;
             // SAFETY: `query` points at the aligned, writable response buffer.
             if unsafe { query_adapter(&mut query) } != STATUS_SUCCESS {
                 break;
@@ -1175,8 +1140,7 @@ fn d3dkmt_manifest_files(leaf: &str) -> Box<[PathBuf]> {
         let Some(response) = response else { continue };
         // SAFETY: The successful response contains an initialized header.
         let header = unsafe { &*response.as_ptr().cast::<QueryRegistryInfo>() };
-        let output_units =
-            usize::try_from(header.output_value_size).unwrap_or(0) / core::mem::size_of::<u16>();
+        let output_units = header.output_value_size as usize / core::mem::size_of::<u16>();
         // SAFETY: The allocation included `output_value_size` bytes following
         // the output union, which is aligned for UTF-16.
         let output = unsafe {
@@ -1204,11 +1168,6 @@ fn d3dkmt_manifest_files(leaf: &str) -> Box<[PathBuf]> {
 #[cold]
 #[inline(never)]
 pub(crate) fn adapter_luids() -> Box<[AdapterLuid]> {
-    use windows_sys::{
-        Win32::System::LibraryLoader::{GetModuleHandleA, GetProcAddress, LoadLibraryExA},
-        core::GUID,
-    };
-
     const S_OK: i32 = 0;
     const DXGI_ERROR_NOT_FOUND: i32 = 0x887a_0002_u32 as i32;
     const LOAD_LIBRARY_SEARCH_SYSTEM32: u32 = 0x0000_0800;
@@ -1339,12 +1298,6 @@ pub(crate) fn adapter_luids() -> Box<[AdapterLuid]> {
 #[cold]
 #[inline(never)]
 fn app_package_manifest_path() -> Option<PathBuf> {
-    use std::{ffi::OsString, os::windows::ffi::OsStringExt};
-    use windows_sys::Win32::{
-        Foundation::{ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS},
-        System::LibraryLoader::{GetModuleHandleA, GetProcAddress},
-    };
-
     type GetPackagesByPackageFamily =
         unsafe extern "system" fn(*const u16, *mut u32, *mut *mut u16, *mut u32, *mut u16) -> u32;
     type GetPackagePathByFullName =
@@ -1395,8 +1348,8 @@ fn app_package_manifest_path() -> Option<PathBuf> {
         return None;
     }
 
-    let mut names = Box::<[u16]>::new_uninit_slice(usize::try_from(buffer_length).ok()?);
-    let mut packages = Box::<[*mut u16]>::new_uninit_slice(usize::try_from(count).ok()?);
+    let mut names = Box::<[u16]>::new_uninit_slice(buffer_length as usize);
+    let mut packages = Box::<[*mut u16]>::new_uninit_slice(count as usize);
     // SAFETY: Both buffers have exactly the capacities returned by the sizing
     // query, and the API initializes them on success.
     if unsafe {
@@ -1428,7 +1381,7 @@ fn app_package_manifest_path() -> Option<PathBuf> {
     // Upstream zero-initializes MAX_PATH before the call. The API's returned
     // length includes room for NUL, but providers (including the parity shim)
     // need not overwrite that final unit themselves.
-    let mut path = vec![0_u16; usize::try_from(path_length).ok()?].into_boxed_slice();
+    let mut path = vec![0_u16; path_length as usize].into_boxed_slice();
     // SAFETY: `path` has the capacity returned by the sizing query.
     if unsafe { get_path(package, &mut path_length, path.as_mut_ptr()) } != ERROR_SUCCESS {
         return None;
@@ -1482,7 +1435,10 @@ pub(crate) fn read_file(path: &Path) -> Option<Box<[u8]>> {
         }
         // SAFETY: The preceding `fstat` call initialized the complete object.
         let metadata = unsafe { metadata.assume_init() };
-        let length = usize::try_from(metadata.st_size).ok()?;
+        if metadata.st_size < 0 {
+            return None;
+        }
+        let length = metadata.st_size as usize;
         let mut bytes = Box::<[u8]>::new_uninit_slice(length);
         // SAFETY: `bytes` has writable capacity for exactly `length` bytes.
         let read = unsafe { libc::fread(bytes.as_mut_ptr().cast::<c_void>(), 1, length, file) };
@@ -1617,22 +1573,11 @@ fn write_loader_log_enabled(label: &str, message: core::fmt::Arguments<'_>) {
 
 #[cfg(not(any(unix, windows)))]
 pub(crate) fn write_stderr(message: &str) {
-    use std::io::Write;
-
     let _ = std::io::stderr().lock().write_all(message.as_bytes());
 }
 
 #[cfg(windows)]
 pub(crate) fn write_stderr(message: &str) {
-    use windows_sys::Win32::{
-        Foundation::INVALID_HANDLE_VALUE,
-        Storage::FileSystem::WriteFile,
-        System::{
-            Console::{GetStdHandle, STD_ERROR_HANDLE},
-            Diagnostics::Debug::OutputDebugStringA,
-        },
-    };
-
     // Upstream writes every loader log message to stderr before mirroring it
     // to the debugger. Death tests and console applications rely on the first
     // channel; GUI debuggers and the Windows parity shim rely on the second.
@@ -1699,10 +1644,6 @@ pub(crate) fn manifest_files(path: &Path) -> Box<[PathBuf]> {
 
 #[cfg(unix)]
 fn read_directory(path: &Path) -> Option<Box<[PathBuf]>> {
-    use core::ffi::CStr;
-    use std::ffi::OsStr;
-    use std::os::unix::ffi::OsStrExt;
-
     let path_c = CString::new(path.as_os_str().as_bytes()).ok()?;
     // SAFETY: `path_c` is a live, NUL-terminated path.
     let directory = unsafe { opendir()(path_c.as_ptr()) };

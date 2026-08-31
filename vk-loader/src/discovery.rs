@@ -3,7 +3,7 @@
 use std::{
     borrow::Cow,
     env,
-    ffi::{CStr, CString, OsString},
+    ffi::{CStr, CString, OsStr, OsString},
     fmt,
     marker::PhantomData,
     ops::Deref,
@@ -110,9 +110,9 @@ pub(crate) struct LayerFunctions {
 
 #[derive(Debug, Default, PartialEq, Eq)]
 pub(crate) struct PreInstanceFunctions {
-    pub(crate) enumerate_instance_extension_properties: Option<CString>,
-    pub(crate) enumerate_instance_layer_properties: Option<CString>,
-    pub(crate) enumerate_instance_version: Option<CString>,
+    pub(crate) extension_properties: Option<CString>,
+    pub(crate) layer_properties: Option<CString>,
+    pub(crate) version: Option<CString>,
 }
 
 /// Marks manifests whose complete meta-layer dependency graph is present and acyclic.
@@ -178,7 +178,7 @@ fn strtoul_prefix(value: &str) -> libc::c_ulong {
                 overflow = true;
                 u128::MAX
             });
-        if parsed > libc::c_ulong::MAX as u128 {
+        if parsed > u128::from(libc::c_ulong::MAX) {
             overflow = true;
         }
         index += 1;
@@ -199,15 +199,14 @@ fn parse_api_version(version: Option<&str>) -> Option<u32> {
     let mut next_component = || {
         components
             .find(|component| !component.is_empty())
-            .map(|component| strtoul_prefix(component) as u16 as u32)
-            .unwrap_or(0)
+            .map_or(0, |component| u32::from(strtoul_prefix(component) as u16))
     };
     let first = next_component();
     let second = next_component();
     let third = next_component();
     let fourth = components
         .find(|component| !component.is_empty())
-        .map(|component| strtoul_prefix(component) as u16 as u32);
+        .map(|component| u32::from(strtoul_prefix(component) as u16));
     Some(match fourth {
         Some(patch) => VK_MAKE_API_VERSION(first, second, third, patch),
         None => VK_MAKE_API_VERSION(0, first, second, third),
@@ -218,8 +217,8 @@ fn parse_manifest_u32(value: &str) -> u32 {
     strtoul_prefix(value) as u32
 }
 
-fn split_paths(value: OsString) -> Box<[PathBuf]> {
-    env::split_paths(&value)
+fn split_paths(value: &OsStr) -> Box<[PathBuf]> {
+    env::split_paths(value)
         .filter(|path| !path.as_os_str().is_empty())
         .collect()
 }
@@ -246,19 +245,8 @@ pub(crate) fn default_search_paths(leaf: &str) -> Box<[PathBuf]> {
         }
     }
 
-    if !elevated {
-        if let Some(value) = env::var_os("XDG_CONFIG_HOME") {
-            for root in split_paths(value) {
-                append_search_root(&mut paths, root, leaf);
-            }
-        } else if let Some(value) = env::var_os("HOME") {
-            append_search_root(&mut paths, PathBuf::from(value).join(".config"), leaf);
-        }
-        if let Some(value) = env::var_os("XDG_CONFIG_DIRS") {
-            for root in split_paths(value) {
-                append_search_root(&mut paths, root, leaf);
-            }
-        } else if !cfg!(any(
+    if elevated {
+        if !cfg!(any(
             target_os = "fuchsia",
             target_os = "nto",
             target_os = "qnx"
@@ -266,7 +254,18 @@ pub(crate) fn default_search_paths(leaf: &str) -> Box<[PathBuf]> {
             append_search_root(&mut paths, "/etc/xdg", leaf);
         }
     } else {
-        if !cfg!(any(
+        if let Some(value) = env::var_os("XDG_CONFIG_HOME") {
+            for root in split_paths(&value) {
+                append_search_root(&mut paths, root, leaf);
+            }
+        } else if let Some(value) = env::var_os("HOME") {
+            append_search_root(&mut paths, PathBuf::from(value).join(".config"), leaf);
+        }
+        if let Some(value) = env::var_os("XDG_CONFIG_DIRS") {
+            for root in split_paths(&value) {
+                append_search_root(&mut paths, root, leaf);
+            }
+        } else if !cfg!(any(
             target_os = "fuchsia",
             target_os = "nto",
             target_os = "qnx"
@@ -287,14 +286,14 @@ pub(crate) fn default_search_paths(leaf: &str) -> Box<[PathBuf]> {
 
     if !elevated {
         if let Some(value) = env::var_os("XDG_DATA_HOME") {
-            for root in split_paths(value) {
+            for root in split_paths(&value) {
                 append_search_root(&mut paths, root, leaf);
             }
         } else if let Some(value) = env::var_os("HOME") {
             append_search_root(&mut paths, PathBuf::from(value).join(".local/share"), leaf);
         }
         if let Some(value) = env::var_os("XDG_DATA_DIRS") {
-            for root in split_paths(value) {
+            for root in split_paths(&value) {
                 append_search_root(&mut paths, root, leaf);
             }
         } else if !cfg!(any(
@@ -1003,7 +1002,6 @@ fn parse_raw_layer(
         borrowed_c_string_limited(layer.name.take(), vk::VK_MAX_EXTENSION_NAME_SIZE as usize)?;
     match layer.layer_type.take()?.0?.as_ref() {
         "INSTANCE" | "GLOBAL" => {}
-        "DEVICE" => return None,
         _ => return None,
     }
     let is_override = name.as_c_str() == c"VK_LAYER_LUNARG_override";
@@ -1049,13 +1047,11 @@ fn parse_raw_layer(
     };
     let pre_instance = pre_instance.unwrap_or_default();
     let pre_instance_functions = PreInstanceFunctions {
-        enumerate_instance_extension_properties: borrowed_c_string(
+        extension_properties: borrowed_c_string(
             pre_instance.enumerate_instance_extension_properties,
         ),
-        enumerate_instance_layer_properties: borrowed_c_string(
-            pre_instance.enumerate_instance_layer_properties,
-        ),
-        enumerate_instance_version: borrowed_c_string(pre_instance.enumerate_instance_version),
+        layer_properties: borrowed_c_string(pre_instance.enumerate_instance_layer_properties),
+        version: borrowed_c_string(pre_instance.enumerate_instance_version),
     };
     Some(LayerManifest {
         name,
@@ -1144,14 +1140,15 @@ pub(crate) fn layer_search_roots(implicit: bool) -> Box<[PathBuf]> {
     let elevated = platform::has_elevated_privileges();
     let override_paths = (!elevated).then(|| env::var_os(override_name)).flatten();
     let has_override = override_paths.is_some();
-    let mut roots = override_paths
-        .map(|value| split_paths(value).into_vec())
-        .unwrap_or_else(|| default_search_paths(leaf).into_vec());
+    let mut roots = override_paths.map_or_else(
+        || default_search_paths(leaf).into_vec(),
+        |value| split_paths(&value).into_vec(),
+    );
     if !elevated
         && !has_override
         && let Some(value) = env::var_os(add_name)
     {
-        let mut additional = split_paths(value).into_vec();
+        let mut additional = split_paths(&value).into_vec();
         additional.append(&mut roots);
         roots = additional;
     }
@@ -1256,8 +1253,10 @@ pub(crate) fn discover_implicit_layers() -> DiscoveredLayers {
     let explicit_search = if active_override.is_some() || has_implicit_meta_layer {
         let explicit_roots = active_override
             .filter(|manifest| !manifest.override_paths.is_empty())
-            .map(|manifest| Box::from(manifest.override_paths.as_ref()))
-            .unwrap_or_else(|| layer_search_roots(false));
+            .map_or_else(
+                || layer_search_roots(false),
+                |manifest| Box::from(manifest.override_paths.as_ref()),
+            );
         let (explicit, explicit_files) =
             discover_layers_in_roots_with_files(&explicit_roots, false);
         manifests.extend(explicit);
@@ -1325,9 +1324,8 @@ fn discover_layers_from_search_paths_with_diagnostics() -> (Box<[LayerManifest]>
                 && !layer.override_paths.is_empty()
         })
         .map(|layer| layer.override_paths.as_ref());
-    let explicit_roots = override_roots
-        .map(Box::<[PathBuf]>::from)
-        .unwrap_or_else(|| layer_search_roots(false));
+    let explicit_roots =
+        override_roots.map_or_else(|| layer_search_roots(false), Box::<[PathBuf]>::from);
     let (explicit, explicit_files) = discover_layers_in_roots_with_files(&explicit_roots, false);
     layers.extend(explicit);
     let searches = Box::from([
@@ -1713,15 +1711,24 @@ fn parse_device_configuration(value: &Value) -> Option<DeviceConfiguration> {
         }
         let mut uuid = [0; vk::VK_UUID_SIZE as usize];
         for (destination, value) in uuid.iter_mut().zip(values) {
-            *destination = u8::try_from(value.as_u64()?).ok()?;
+            let value = value.as_u64()?;
+            if value > u64::from(u8::MAX) {
+                return None;
+            }
+            *destination = value as u8;
         }
         Some(uuid)
+    }
+
+    let driver_version = value.get("driverVersion")?.as_u64()?;
+    if driver_version > u64::from(u32::MAX) {
+        return None;
     }
 
     Some(DeviceConfiguration {
         device_uuid: uuid(value.get("deviceUUID")?)?,
         driver_uuid: uuid(value.get("driverUUID")?)?,
-        driver_version: u32::try_from(value.get("driverVersion")?.as_u64()?).ok()?,
+        driver_version: driver_version as u32,
         device_name: value
             .get("deviceName")
             .and_then(Value::as_str)
@@ -1906,13 +1913,13 @@ fn driver_search_roots_with_diagnostics() -> (Box<[PathBuf]>, Option<platform::R
             let (files, diagnostics) = platform::registry_manifest_files_with_diagnostics("icd.d");
             (files.into_vec(), Some(diagnostics))
         },
-        |value| (split_paths(value).into_vec(), None),
+        |value| (split_paths(&value).into_vec(), None),
     );
     if !elevated
         && !has_override
         && let Some(value) = env::var_os("VK_ADD_DRIVER_FILES")
     {
-        roots.extend(split_paths(value));
+        roots.extend(split_paths(&value));
     }
     (roots.into_boxed_slice(), diagnostics)
 }
@@ -1999,20 +2006,22 @@ pub(crate) fn scan_drivers_with_settings(settings: Option<&LoaderSettings>) -> D
     }
 }
 
+#[cfg(not(windows))]
 pub(crate) fn driver_search_roots() -> Box<[PathBuf]> {
     let elevated = platform::has_elevated_privileges();
     let override_paths = (!elevated)
         .then(|| env::var_os("VK_DRIVER_FILES").or_else(|| env::var_os("VK_ICD_FILENAMES")))
         .flatten();
     let has_override = override_paths.is_some();
-    let mut roots = override_paths
-        .map(|value| split_paths(value).into_vec())
-        .unwrap_or_else(|| default_search_paths("icd.d").into_vec());
+    let mut roots = override_paths.map_or_else(
+        || default_search_paths("icd.d").into_vec(),
+        |value| split_paths(&value).into_vec(),
+    );
     if !elevated
         && !has_override
         && let Some(value) = env::var_os("VK_ADD_DRIVER_FILES")
     {
-        roots.extend(split_paths(value));
+        roots.extend(split_paths(&value));
     }
     roots.into_boxed_slice()
 }
@@ -2085,7 +2094,7 @@ mod tests {
 
     #[test]
     fn manifest_integer_overflow_saturates_at_target_ulong_like_strtoul() {
-        let overflow = (libc::c_ulong::MAX as u128 + 1).to_string();
+        let overflow = (u128::from(libc::c_ulong::MAX) + 1).to_string();
         assert_eq!(strtoul_prefix(&overflow), libc::c_ulong::MAX);
         assert_eq!(strtoul_prefix(&format!("-{overflow}")), libc::c_ulong::MAX);
     }

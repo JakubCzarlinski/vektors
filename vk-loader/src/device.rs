@@ -78,7 +78,7 @@ impl LoaderDeviceDispatch {
         // ICD dispatchable.
         unsafe {
             core::ptr::addr_of_mut!((*storage.as_mut_ptr()).layer.magic)
-                .write(crate::DEVICE_DISPATCH_MAGIC)
+                .write(crate::DEVICE_DISPATCH_MAGIC);
         };
         Self { storage }
     }
@@ -212,7 +212,7 @@ impl LoaderDevice {
         unsafe {
             object
                 .cast::<*const LayerDeviceDispatchTable>()
-                .write(self.dispatch())
+                .write(self.dispatch());
         };
     }
 
@@ -222,7 +222,7 @@ impl LoaderDevice {
             handle
                 .0
                 .cast::<*const LayerDeviceDispatchTable>()
-                .write(dispatch)
+                .write(dispatch);
         };
     }
 
@@ -265,7 +265,7 @@ impl LoaderDevice {
         // SAFETY: Creation is not yet externally visible, so the stable table
         // may be populated in place for the completed top-level chain.
         unsafe {
-            LayerDeviceDispatchTable::load_into(self.dispatch_table.layer_mut(), resolver, handle)
+            LayerDeviceDispatchTable::load_into(self.dispatch_table.layer_mut(), resolver, handle);
         };
         let app_core_level = self.app_core_level;
         let ignore_newer_core_commands = self.ignore_newer_core_commands;
@@ -387,10 +387,10 @@ pub(crate) fn initialize_unknown_dispatches(instance: &LoaderInstance, index: us
 }
 
 const fn api_core_level(version: u32) -> u16 {
-    let major = vk::VK_API_VERSION_MAJOR(version) as u16;
-    let minor = vk::VK_API_VERSION_MINOR(version) as u16;
+    let major = vk::VK_API_VERSION_MAJOR(version);
+    let minor = vk::VK_API_VERSION_MINOR(version);
     debug_assert!(major < 64 && minor < 1024);
-    (major << 10) | minor
+    ((major << 10) | minor) as u16
 }
 
 /// Returns whether maintenance5 requests strict device-command version checks.
@@ -470,7 +470,7 @@ pub(crate) unsafe fn validate_and_filter_device_extensions(
     if result != VkResult::SUCCESS {
         return Err(result);
     }
-    let capacity = usize::try_from(count).map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+    let capacity = count as usize;
     let mut properties = Box::<[VkExtensionProperties]>::new_uninit_slice(capacity);
     let mut returned_count = count;
     // SAFETY: The storage contains `capacity` writable entries.
@@ -485,9 +485,7 @@ pub(crate) unsafe fn validate_and_filter_device_extensions(
     if result != VkResult::SUCCESS && result != VkResult::INCOMPLETE {
         return Err(result);
     }
-    let initialized = usize::try_from(returned_count)
-        .unwrap_or(usize::MAX)
-        .min(capacity);
+    let initialized = (returned_count as usize).min(capacity);
     let mut icd_names = Vec::new();
     icd_names
         .try_reserve_exact(create_info.enabledExtensionCount as usize)
@@ -506,16 +504,15 @@ pub(crate) unsafe fn validate_and_filter_device_extensions(
         let supported_by_icd = properties[..initialized].iter().any(|property| {
             // SAFETY: The ICD reported these leading entries as initialized.
             let property = unsafe { property.assume_init_ref() };
-            let bytes = property.extensionName.as_slice();
+            let chars = property.extensionName.as_slice();
+            // SAFETY: `c_char` is exactly one byte on every supported C ABI.
+            let bytes =
+                unsafe { core::slice::from_raw_parts(chars.as_ptr().cast::<u8>(), chars.len()) };
             let end = bytes
                 .iter()
                 .position(|byte| *byte == 0)
                 .unwrap_or(bytes.len());
-            requested.len() == end
-                && requested
-                    .iter()
-                    .zip(&bytes[..end])
-                    .all(|(left, right)| *left == *right as u8)
+            requested.len() == end && requested == &bytes[..end]
         });
         if !supported_by_layer && !supported_by_icd {
             return Err(VkResult::ERROR_EXTENSION_NOT_PRESENT);

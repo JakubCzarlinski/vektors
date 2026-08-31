@@ -455,7 +455,7 @@ pub(crate) unsafe fn submit_instance_create_warning(
             create_info,
             VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
             message,
-        )
+        );
     }
 }
 
@@ -497,7 +497,9 @@ pub(crate) unsafe extern "system" fn terminator_create_debug_utils_messenger(
         }
     };
     // SAFETY: The index allocation contains one writable `u32`.
-    unsafe { index_allocation.pointer().write(slot as u32) };
+    unsafe {
+        index_allocation.pointer().write(slot as u32);
+    };
 
     let mut native = vec![VkDebugUtilsMessengerEXT::NULL; instance.icds.len()].into_boxed_slice();
     for (index, icd) in instance.active_icds() {
@@ -564,9 +566,7 @@ pub(crate) unsafe extern "system" fn terminator_destroy_debug_utils_messenger(
     let Some(instance) = (unsafe { LoaderInstance::from_handle(instance) }) else {
         return;
     };
-    let Ok(key) = usize::try_from(messenger.0) else {
-        return;
-    };
+    let key = messenger.0 as usize;
     let owned = {
         let mut state = instance.debug_messengers.lock();
         let Some(index) = state.callbacks.iter().position(|entry| {
@@ -697,9 +697,7 @@ pub(crate) unsafe extern "system" fn terminator_destroy_debug_report_callback(
     let Some(instance) = (unsafe { LoaderInstance::from_handle(instance) }) else {
         return;
     };
-    let Ok(key) = usize::try_from(callback.0) else {
-        return;
-    };
+    let key = callback.0 as usize;
     let owned = {
         let mut state = instance.debug_messengers.lock();
         let Some(index) = state.callbacks.iter().position(|entry| {
@@ -750,7 +748,7 @@ pub(crate) unsafe extern "system" fn terminator_debug_report_message(
                     message_code,
                     layer_prefix,
                     message,
-                )
+                );
             };
         }
     }
@@ -870,7 +868,7 @@ fn destroy_native(
 /// # Safety
 ///
 /// Arguments must satisfy `vkCreateDebugReportCallbackEXT`'s Vulkan contract.
-pub unsafe extern "system" fn vkCreateDebugReportCallbackEXT(
+pub(crate) unsafe extern "system" fn vkCreateDebugReportCallbackEXT(
     instance: VkInstance,
     create_info: *const VkDebugReportCallbackCreateInfoEXT<'_>,
     allocator: *const VkAllocationCallbacks<'_>,
@@ -900,7 +898,7 @@ pub unsafe extern "system" fn vkCreateDebugReportCallbackEXT(
 /// # Safety
 ///
 /// Arguments must satisfy `vkDestroyDebugReportCallbackEXT`'s Vulkan contract.
-pub unsafe extern "system" fn vkDestroyDebugReportCallbackEXT(
+pub(crate) unsafe extern "system" fn vkDestroyDebugReportCallbackEXT(
     instance: VkInstance,
     callback: VkDebugReportCallbackEXT,
     allocator: *const VkAllocationCallbacks<'_>,
@@ -928,7 +926,7 @@ pub unsafe extern "system" fn vkDestroyDebugReportCallbackEXT(
 ///
 /// Arguments must satisfy `vkDebugReportMessageEXT`'s Vulkan contract.
 #[allow(clippy::too_many_arguments)]
-pub unsafe extern "system" fn vkDebugReportMessageEXT(
+pub(crate) unsafe extern "system" fn vkDebugReportMessageEXT(
     instance: VkInstance,
     flags: VkDebugReportFlagsEXT,
     object_type: VkDebugReportObjectTypeEXT,
@@ -954,7 +952,7 @@ pub unsafe extern "system" fn vkDebugReportMessageEXT(
                 message_code,
                 layer_prefix,
                 message,
-            )
+            );
         };
         return;
     }
@@ -972,7 +970,7 @@ pub unsafe extern "system" fn vkDebugReportMessageEXT(
                 message_code,
                 layer_prefix,
                 message,
-            )
+            );
         };
     }
 }
@@ -982,7 +980,7 @@ pub unsafe extern "system" fn vkDebugReportMessageEXT(
 /// # Safety
 ///
 /// Arguments must satisfy `vkCreateDebugUtilsMessengerEXT`'s Vulkan contract.
-pub unsafe extern "system" fn vkCreateDebugUtilsMessengerEXT(
+pub(crate) unsafe extern "system" fn vkCreateDebugUtilsMessengerEXT(
     instance: VkInstance,
     create_info: *const VkDebugUtilsMessengerCreateInfoEXT<'_>,
     allocator: *const VkAllocationCallbacks<'_>,
@@ -1012,7 +1010,7 @@ pub unsafe extern "system" fn vkCreateDebugUtilsMessengerEXT(
 /// # Safety
 ///
 /// Arguments must satisfy `vkDestroyDebugUtilsMessengerEXT`'s Vulkan contract.
-pub unsafe extern "system" fn vkDestroyDebugUtilsMessengerEXT(
+pub(crate) unsafe extern "system" fn vkDestroyDebugUtilsMessengerEXT(
     instance: VkInstance,
     messenger: VkDebugUtilsMessengerEXT,
     allocator: *const VkAllocationCallbacks<'_>,
@@ -1039,7 +1037,7 @@ pub unsafe extern "system" fn vkDestroyDebugUtilsMessengerEXT(
 /// # Safety
 ///
 /// Arguments must satisfy `vkSubmitDebugUtilsMessageEXT`'s Vulkan contract.
-pub unsafe extern "system" fn vkSubmitDebugUtilsMessageEXT(
+pub(crate) unsafe extern "system" fn vkSubmitDebugUtilsMessageEXT(
     instance: VkInstance,
     severity: VkDebugUtilsMessageSeverityFlagBitsEXT,
     message_types: VkDebugUtilsMessageTypeFlagsEXT,
@@ -1052,7 +1050,7 @@ pub unsafe extern "system" fn vkSubmitDebugUtilsMessageEXT(
     if loader.layers.is_empty() {
         // SAFETY: Forwarded from this entry point's contract.
         unsafe {
-            terminator_submit_debug_utils_message(instance, severity, message_types, callback_data)
+            terminator_submit_debug_utils_message(instance, severity, message_types, callback_data);
         };
         return;
     }
