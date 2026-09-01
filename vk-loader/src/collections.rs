@@ -13,6 +13,8 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
+pub(crate) use std::collections::hash_map::Entry as HashMapEntry;
+
 static SEQUENCE: AtomicUsize = AtomicUsize::new(0);
 static BASE_SEEDS: LazyLock<[u64; 4]> = LazyLock::new(|| {
     let time = SystemTime::now()

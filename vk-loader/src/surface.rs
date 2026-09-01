@@ -76,6 +76,10 @@ impl OwnedCreateInfo {
                 .map(|size| size & !(CHAIN_ALIGNMENT - 1))
         }
 
+        const {
+            assert!(core::mem::align_of::<T>() <= CHAIN_ALIGNMENT);
+        }
+
         if source.is_null() {
             return Err(VkResult::ERROR_INITIALIZATION_FAILED);
         }

@@ -1,6 +1,6 @@
 //! Loader-owned dispatchable instance state.
 
-use alloc::ffi::CString;
+use alloc::{ffi::CString, vec::Vec};
 use core::{
     ffi::c_void,
     mem::MaybeUninit,
@@ -14,11 +14,12 @@ use vk::{
     VK_API_VERSION_1_0, VkAllocationCallbacks, VkDebugReportFlagsEXT, VkDebugReportObjectTypeEXT,
     VkDebugUtilsMessageSeverityFlagBitsEXT, VkDebugUtilsMessageTypeFlagBitsEXT,
     VkDebugUtilsMessageTypeFlagsEXT, VkDebugUtilsMessengerCallbackDataEXT,
-    VkDebugUtilsObjectNameInfoEXT, VkInstance, VkObjectType, VkPhysicalDevice,
+    VkDebugUtilsObjectNameInfoEXT, VkInstance, VkObjectType, VkPhysicalDevice, VkResult,
 };
 
 use crate::{
     ExtensionSet, LayerInstanceDispatchTable,
+    allocation::{try_box, try_box_uninit},
     collections::HashMap,
     debug_messenger::{DebugCallback, DebugMessengerState},
     discovery::DeviceConfiguration,
@@ -33,8 +34,44 @@ const INSTANCE_MAGIC: u64 = 0x10AD_ED01_0110_ADED;
 const PHYSICAL_DEVICE_MAGIC: u64 = 0x10AD_ED02_0210_ADED;
 const PHYSICAL_DEVICE_TRAMPOLINE_MAGIC: u64 = 0x10AD_ED03_0310_ADED;
 
-static INSTANCES: LazyLock<Mutex<HashMap<usize, usize>>> =
-    LazyLock::new(|| Mutex::new(HashMap::default()));
+#[derive(Default)]
+struct InstanceRegistry {
+    owned: HashMap<usize, usize>,
+    reservations: usize,
+}
+
+static INSTANCES: LazyLock<Mutex<InstanceRegistry>> =
+    LazyLock::new(|| Mutex::new(InstanceRegistry::default()));
+
+struct InstanceRegistrationReservation {
+    active: bool,
+}
+
+impl InstanceRegistrationReservation {
+    fn new() -> Result<Self, VkResult> {
+        let mut registry = INSTANCES.lock();
+        let additional = registry
+            .reservations
+            .checked_add(1)
+            .ok_or(VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+        registry
+            .owned
+            .try_reserve(additional)
+            .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+        registry.reservations = additional;
+        Ok(Self { active: true })
+    }
+}
+
+impl Drop for InstanceRegistrationReservation {
+    fn drop(&mut self) {
+        if self.active {
+            let mut registry = INSTANCES.lock();
+            debug_assert!(registry.reservations != 0);
+            registry.reservations -= 1;
+        }
+    }
+}
 
 #[repr(C)]
 pub(crate) struct LoaderInstance {
@@ -45,14 +82,14 @@ pub(crate) struct LoaderInstance {
     chain_instance: VkInstance,
     pub(crate) api_version: u32,
     pub(crate) enabled_extensions: ExtensionSet,
-    pub(crate) icds: Box<[IcdInstance]>,
+    pub(crate) icds: Vec<IcdInstance>,
     pub(crate) layers: Box<[LoadedLayer]>,
     pub(crate) physical_devices: Mutex<PhysicalDeviceState>,
     pub(crate) unknown_physical_devices: Mutex<UnknownPhysicalDeviceState>,
     pub(crate) unknown_devices: Mutex<UnknownDeviceState>,
     // Less frequently accessed metadata and object registries.
     dispatch_table: Box<MaybeUninit<LayerInstanceDispatchTable>>,
-    pub(crate) pending_icds: Option<Box<[crate::ScannedIcdRecord]>>,
+    pub(crate) pending_icds: Option<Vec<crate::ScannedIcdRecord>>,
     pub(crate) active_layer_properties: Box<[ActiveLayerProperty]>,
     pub(crate) enabled_layer_names: Box<[CString]>,
     pub(crate) device_configurations: Option<Box<[DeviceConfiguration]>>,
@@ -60,13 +97,14 @@ pub(crate) struct LoaderInstance {
     pub(crate) surfaces: Mutex<HashMap<usize, SurfaceState>>,
     pub(crate) debug_messengers: Mutex<DebugMessengerState>,
     has_debug_callbacks: AtomicBool,
+    registration: InstanceRegistrationReservation,
 }
 
 #[derive(Default)]
 pub(crate) struct PhysicalDeviceState {
     pub(crate) owned: HashMap<(usize, usize), Box<LoaderPhysicalDevice>>,
     pub(crate) trampolines: HashMap<usize, Box<LoaderPhysicalDeviceTrampoline>>,
-    pub(crate) active: Box<[VkPhysicalDevice]>,
+    pub(crate) active: Vec<VkPhysicalDevice>,
 }
 
 #[repr(C)]
@@ -104,13 +142,13 @@ impl LoaderInstance {
     pub(crate) fn new(
         api_version: u32,
         enabled_extensions: ExtensionSet,
-        scanned_icds: Box<[crate::ScannedIcdRecord]>,
+        scanned_icds: Vec<crate::ScannedIcdRecord>,
         active_layers: layer::ActiveLayers,
         device_configurations: Option<Box<[DeviceConfiguration]>>,
         allocator: *const VkAllocationCallbacks<'_>,
-    ) -> Box<Self> {
+    ) -> Result<Box<Self>, VkResult> {
         let has_layers = !active_layers.loaded.is_empty();
-        let mut dispatch_table = Box::<LayerInstanceDispatchTable>::new_uninit();
+        let mut dispatch_table = try_box_uninit::<LayerInstanceDispatchTable>()?;
         // SAFETY: The boxed table has stable, non-null storage.
         let dispatch = unsafe { NonNull::new_unchecked(dispatch_table.as_mut_ptr()) };
         let allocator = if allocator.is_null() {
@@ -124,16 +162,18 @@ impl LoaderInstance {
                 )
             })
         };
-        let mut instance = Box::new(Self {
+        let unknown_physical_devices = UnknownPhysicalDeviceState::try_new()?;
+        let registration = InstanceRegistrationReservation::new()?;
+        let mut instance = try_box(Self {
             dispatch,
             magic: INSTANCE_MAGIC,
             chain_instance: VkInstance::NULL,
             api_version: api_version.max(VK_API_VERSION_1_0),
             enabled_extensions,
-            icds: Box::default(),
+            icds: Vec::new(),
             layers: active_layers.loaded,
             physical_devices: Mutex::new(PhysicalDeviceState::default()),
-            unknown_physical_devices: Mutex::new(UnknownPhysicalDeviceState::new()),
+            unknown_physical_devices: Mutex::new(unknown_physical_devices),
             unknown_devices: Mutex::new(UnknownDeviceState::new()),
             dispatch_table,
             pending_icds: Some(scanned_icds),
@@ -144,7 +184,9 @@ impl LoaderInstance {
             surfaces: Mutex::new(HashMap::default()),
             debug_messengers: Mutex::new(DebugMessengerState::new()),
             has_debug_callbacks: AtomicBool::new(false),
-        });
+            registration,
+        })
+        .map_err(|(result, _instance)| result)?;
         let handle = instance.handle();
         instance.chain_instance = handle;
         if has_layers {
@@ -169,13 +211,18 @@ impl LoaderInstance {
                 );
             };
         }
-        instance
+        Ok(instance)
     }
 
-    pub(crate) fn register(instance: Box<Self>) {
+    pub(crate) fn register(mut instance: Box<Self>) {
         let key = instance.dispatch() as usize;
+        let mut registry = INSTANCES.lock();
+        debug_assert!(instance.registration.active);
+        debug_assert!(registry.reservations != 0);
+        registry.reservations -= 1;
+        instance.registration.active = false;
         let pointer = Box::into_raw(instance) as usize;
-        let previous = INSTANCES.lock().insert(key, pointer);
+        let previous = registry.owned.insert(key, pointer);
         debug_assert!(previous.is_none());
         let _ = previous;
     }
@@ -259,7 +306,7 @@ impl LoaderInstance {
         // SAFETY: Every live instance dispatchable stores its dispatch table in
         // the first word, including handles wrapped by layers.
         let dispatch = unsafe { handle.cast::<*const LayerInstanceDispatchTable>().read() };
-        let pointer = *INSTANCES.lock().get(&(dispatch as usize))?;
+        let pointer = *INSTANCES.lock().owned.get(&(dispatch as usize))?;
         // SAFETY: Registration retains this boxed allocation until destruction.
         let instance = unsafe { &*(pointer as *const Self) };
         (instance.magic == INSTANCE_MAGIC).then_some(instance)
@@ -288,9 +335,9 @@ impl LoaderInstance {
 
     pub(crate) fn take_dispatch(dispatch: *const LayerInstanceDispatchTable) -> Option<Box<Self>> {
         let mut instances = INSTANCES.lock();
-        let pointer = instances.remove(&(dispatch as usize))?;
-        if instances.is_empty() {
-            *instances = HashMap::default();
+        let pointer = instances.owned.remove(&(dispatch as usize))?;
+        if instances.owned.is_empty() && instances.reservations == 0 {
+            instances.owned = HashMap::default();
         }
         drop(instances);
         // SAFETY: Registration stored the unique Box allocation and removal

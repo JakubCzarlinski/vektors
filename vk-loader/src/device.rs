@@ -18,8 +18,13 @@ use vk::{
 };
 
 use crate::{
-    ExtensionSet, IcdDeviceTerminatorDispatchTable, LayerDeviceDispatchTable, collections::HashMap,
-    emulation::find_input_chain, erase_function, icd::IcdInstance, instance::LoaderInstance,
+    ExtensionSet, IcdDeviceTerminatorDispatchTable, LayerDeviceDispatchTable,
+    allocation::{try_box, try_box_uninit},
+    collections::HashMap,
+    emulation::find_input_chain,
+    erase_function,
+    icd::IcdInstance,
+    instance::LoaderInstance,
     vkGetDeviceProcAddr,
 };
 
@@ -27,15 +32,54 @@ use crate::{
 struct DeviceRegistry {
     owned: HashMap<usize, Box<LoaderDevice>>,
     aliases: HashMap<usize, usize>,
+    alias_reservations: usize,
 }
 
 static DEVICES: LazyLock<Mutex<DeviceRegistry>> =
     LazyLock::new(|| Mutex::new(DeviceRegistry::default()));
 
+struct DeviceAliasReservation {
+    active: bool,
+}
+
+impl DeviceAliasReservation {
+    fn new() -> Result<Self, VkResult> {
+        let mut devices = DEVICES.lock();
+        let additional = devices
+            .alias_reservations
+            .checked_add(1)
+            .ok_or(VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+        devices
+            .aliases
+            .try_reserve(additional)
+            .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+        devices.alias_reservations = additional;
+        Ok(Self { active: true })
+    }
+
+    fn insert(mut self, key: usize, value: usize) -> Option<usize> {
+        let mut devices = DEVICES.lock();
+        debug_assert!(devices.alias_reservations != 0);
+        devices.alias_reservations -= 1;
+        self.active = false;
+        devices.aliases.insert(key, value)
+    }
+}
+
+impl Drop for DeviceAliasReservation {
+    fn drop(&mut self) {
+        if self.active {
+            let mut devices = DEVICES.lock();
+            debug_assert!(devices.alias_reservations != 0);
+            devices.alias_reservations -= 1;
+        }
+    }
+}
+
 /// Internal state for a device returned by a layer or ICD dispatch chain.
 pub(crate) struct LoaderDevice {
     dispatch_table: LoaderDeviceDispatch,
-    icd_terminator_dispatch: Option<Box<IcdDeviceTerminatorDispatchTable>>,
+    icd_terminator_dispatch: IcdDeviceTerminatorDispatchTable,
     pub(crate) chain_device: VkDevice,
     pub(crate) icd_device: VkDevice,
     get_device_proc_addr: PFN_vkGetDeviceProcAddr,
@@ -68,8 +112,8 @@ struct LoaderDeviceDispatch {
 }
 
 impl LoaderDeviceDispatch {
-    fn new() -> Self {
-        let mut storage = Box::<LoaderDeviceDispatchLayout>::new_uninit();
+    fn try_new() -> Result<Self, VkResult> {
+        let mut storage = try_box_uninit::<LoaderDeviceDispatchLayout>()?;
         // SAFETY: Null is the valid initial value for every optional command
         // pointer and AtomicPtr slot. The non-optional magic field and all
         // generated fields are populated before the device becomes externally
@@ -81,7 +125,7 @@ impl LoaderDeviceDispatch {
             core::ptr::addr_of_mut!((*storage.as_mut_ptr()).layer.magic)
                 .write(crate::DEVICE_DISPATCH_MAGIC);
         };
-        Self { storage }
+        Ok(Self { storage })
     }
 
     fn layer(&self) -> &LayerDeviceDispatchTable {
@@ -140,32 +184,11 @@ impl LoaderDevice {
         app_api_version: u32,
         ignore_newer_core_commands: bool,
         enabled_extensions: ExtensionSet,
-    ) -> Box<Self> {
-        let dispatch_table = LoaderDeviceDispatch::new();
-        let mut device = Box::new(Self {
-            dispatch_table,
-            icd_terminator_dispatch: None,
-            chain_device: native,
-            icd_device: native,
-            get_device_proc_addr,
-            chain_get_device_proc_addr: get_device_proc_addr,
-            chain_dispatch_key: 0,
-            instance: NonNull::from(instance),
-            icd_index,
-            app_core_level: api_core_level(app_api_version),
-            ignore_newer_core_commands,
-            enabled_extensions,
-        });
-        // Upstream consumes the ICD loader-magic word immediately after
-        // vkCreateDevice returns, before making any GDPA calls for the device.
-        // SAFETY: A successfully-created ICD dispatchable has writable loader
-        // data in its first word, as required by the loader/driver interface.
-        unsafe { Self::set_dispatch(native, device.dispatch()) };
-        // Retain the direct ICD functions used by loader terminators after the
-        // native dispatchable has received its loader data, matching upstream.
-        let instance_extensions = device.instance().enabled_extensions;
-        device.icd_terminator_dispatch = Some(unsafe {
-            IcdDeviceTerminatorDispatchTable::load_boxed(get_device_proc_addr, native, |name| {
+    ) -> Result<Box<Self>, VkResult> {
+        let dispatch_table = LoaderDeviceDispatch::try_new()?;
+        let instance_extensions = instance.enabled_extensions;
+        let icd_terminator_dispatch = unsafe {
+            IcdDeviceTerminatorDispatchTable::load(get_device_proc_addr, native, |name| {
                 let Some(lookup) = crate::command_lookup(name) else {
                     return false;
                 };
@@ -176,14 +199,42 @@ impl LoaderDevice {
                     )
                     || crate::command_has_enabled_device_extension(lookup.id, &enabled_extensions)
             })
-        });
-        device
+        };
+        let device = try_box(Self {
+            dispatch_table,
+            icd_terminator_dispatch,
+            chain_device: native,
+            icd_device: native,
+            get_device_proc_addr,
+            chain_get_device_proc_addr: get_device_proc_addr,
+            chain_dispatch_key: 0,
+            instance: NonNull::from(instance),
+            icd_index,
+            app_core_level: api_core_level(app_api_version),
+            ignore_newer_core_commands,
+            enabled_extensions,
+        })
+        .map_err(|(result, _device)| result)?;
+        // Upstream consumes the ICD loader-magic word immediately after
+        // vkCreateDevice returns, before making any GDPA calls for the device.
+        // SAFETY: A successfully-created ICD dispatchable has writable loader
+        // data in its first word, as required by the loader/driver interface.
+        unsafe { Self::set_dispatch(native, device.dispatch()) };
+        Ok(device)
     }
 
-    pub(crate) fn register(device: Box<Self>) -> VkDevice {
+    pub(crate) fn try_register(device: Box<Self>) -> Result<VkDevice, Box<Self>> {
         let handle = device.chain_device;
         let dispatch_key = device.dispatch() as usize;
         let mut devices = DEVICES.lock();
+        let Some(alias_capacity) = devices.alias_reservations.checked_add(1) else {
+            return Err(device);
+        };
+        if devices.owned.try_reserve(1).is_err()
+            || devices.aliases.try_reserve(alias_capacity).is_err()
+        {
+            return Err(device);
+        }
         let previous = devices.owned.insert(dispatch_key, device);
         let previous_alias = devices.aliases.insert(dispatch_key, dispatch_key);
         debug_assert!(previous.is_none());
@@ -191,7 +242,7 @@ impl LoaderDevice {
         drop(previous);
         drop(devices);
         crate::pending::set_created_device(dispatch_key);
-        handle
+        Ok(handle)
     }
 
     pub(crate) fn dispatch(&self) -> *const LayerDeviceDispatchTable {
@@ -231,10 +282,8 @@ impl LoaderDevice {
     ///
     pub(crate) fn resolve(&self, name: &CStr) -> PFN_vkVoidFunction {
         if let Some(lookup) = crate::command_lookup(name)
-            && let Some(command) = self
-                .icd_terminator_dispatch
-                .as_deref()
-                .and_then(|dispatch| crate::icd_device_terminator_proc_addr(dispatch, lookup.id))
+            && let Some(command) =
+                crate::icd_device_terminator_proc_addr(&self.icd_terminator_dispatch, lookup.id)
         {
             return Some(command);
         }
@@ -262,7 +311,15 @@ impl LoaderDevice {
         Some(unsafe { &mut *device })
     }
 
-    pub(crate) unsafe fn set_chain(&mut self, handle: VkDevice, resolver: PFN_vkGetDeviceProcAddr) {
+    pub(crate) unsafe fn set_chain(
+        &mut self,
+        handle: VkDevice,
+        resolver: PFN_vkGetDeviceProcAddr,
+    ) -> Result<(), VkResult> {
+        let chain_dispatch_key = unsafe { Self::dispatch_key(handle) }.unwrap_or(0);
+        let alias_reservation = (chain_dispatch_key != 0)
+            .then(DeviceAliasReservation::new)
+            .transpose()?;
         // SAFETY: Creation is not yet externally visible, so the stable table
         // may be populated in place for the completed top-level chain.
         unsafe {
@@ -282,17 +339,19 @@ impl LoaderDevice {
         });
         self.chain_device = handle;
         self.chain_get_device_proc_addr = resolver;
-        self.chain_dispatch_key = unsafe { Self::dispatch_key(handle) }.unwrap_or(0);
+        self.chain_dispatch_key = chain_dispatch_key;
         if self.chain_dispatch_key != 0 {
             let own_key = self.dispatch() as usize;
-            let previous = DEVICES
-                .lock()
-                .aliases
-                .insert(self.chain_dispatch_key, own_key);
+            let Some(alias_reservation) = alias_reservation else {
+                // The non-zero key created a reservation immediately above.
+                unsafe { core::hint::unreachable_unchecked() }
+            };
+            let previous = alias_reservation.insert(self.chain_dispatch_key, own_key);
             debug_assert!(previous.is_none() || previous == Some(own_key));
         }
         // Replace direct-ICD unknown slots with top-of-layer-chain targets.
         crate::unknown::initialize_device_dispatch(self);
+        Ok(())
     }
 
     pub(crate) unsafe fn from_handle<'a>(handle: VkDevice) -> Option<&'a Self> {
@@ -318,7 +377,8 @@ impl LoaderDevice {
         if device.chain_dispatch_key != 0 {
             devices.aliases.remove(&device.chain_dispatch_key);
         }
-        if devices.owned.is_empty() && devices.aliases.is_empty() {
+        if devices.owned.is_empty() && devices.aliases.is_empty() && devices.alias_reservations == 0
+        {
             *devices = DeviceRegistry::default();
         }
         Some(device)
@@ -355,10 +415,7 @@ impl LoaderDevice {
     }
 
     pub(crate) fn icd_destroy_device(&self) -> Option<vk::PFN_vkDestroyDevice> {
-        match self.icd_terminator_dispatch.as_deref() {
-            Some(dispatch) => dispatch.vkDestroyDevice,
-            None => None,
-        }
+        self.icd_terminator_dispatch.vkDestroyDevice
     }
 }
 
@@ -474,7 +531,8 @@ pub(crate) unsafe fn validate_and_filter_device_extensions(
         return Err(result);
     }
     let capacity = count as usize;
-    let mut properties = Box::<[VkExtensionProperties]>::new_uninit_slice(capacity);
+    let mut properties =
+        crate::allocation::try_box_uninit_slice::<VkExtensionProperties>(capacity)?;
     let mut returned_count = count;
     // SAFETY: The storage contains `capacity` writable entries.
     let result = unsafe {

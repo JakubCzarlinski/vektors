@@ -13,7 +13,11 @@ use vk::{
     VkStructureType, VkSystemAllocationScope,
 };
 
-use crate::{allocation::LoaderBox, emulation::for_each_input_chain, instance::LoaderInstance};
+use crate::{
+    allocation::{LoaderBox, try_boxed_slice_filled},
+    emulation::for_each_input_chain,
+    instance::LoaderInstance,
+};
 
 /// Converts debug-utils severity/type bits to the legacy debug-report flag,
 /// matching Vulkan-Loader's `debug_utils_AnnotFlagsToReportFlags` priority.
@@ -263,7 +267,9 @@ impl IndexAllocation {
             })
         };
         let Some(callbacks) = callbacks else {
-            return Ok(Self::Rust(Box::new(0)));
+            return crate::allocation::try_box(0)
+                .map(Self::Rust)
+                .map_err(|(result, _index)| result);
         };
         let Some(allocate) = callbacks.pfnAllocation else {
             return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
@@ -496,7 +502,14 @@ pub(crate) unsafe extern "system" fn terminator_create_debug_utils_messenger(
         index_allocation.pointer().write(slot as u32);
     };
 
-    let mut native = vec![VkDebugUtilsMessengerEXT::NULL; instance.icds.len()].into_boxed_slice();
+    let mut native =
+        match try_boxed_slice_filled(instance.icds.len(), VkDebugUtilsMessengerEXT::NULL) {
+            Ok(native) => native,
+            Err(result) => {
+                instance.debug_messengers.lock().release_messenger(slot);
+                return result;
+            }
+        };
     for (index, icd) in instance.active_icds() {
         let Some(create) = icd.dispatch.vkCreateDebugUtilsMessengerEXT else {
             continue;
@@ -641,7 +654,11 @@ pub(crate) unsafe extern "system" fn terminator_create_debug_report_callback(
     };
     // SAFETY: The command contract guarantees readable create info.
     let create_info = unsafe { &*create_info };
-    let mut native = vec![VkDebugReportCallbackEXT::NULL; instance.icds.len()].into_boxed_slice();
+    let mut native =
+        match try_boxed_slice_filled(instance.icds.len(), VkDebugReportCallbackEXT::NULL) {
+            Ok(native) => native,
+            Err(result) => return result,
+        };
     for (index, icd) in instance.active_icds() {
         let Some(create) = icd.dispatch.vkCreateDebugReportCallbackEXT else {
             continue;
