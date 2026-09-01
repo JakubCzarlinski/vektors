@@ -71,12 +71,18 @@ if [[ "$preflight_status" -ne 0 ]]; then
     exit 77
   fi
   echo "Host Valgrind cannot decode the system linker; using $container_image"
+  private_execution_dir="$(mktemp -d "$repo_root/target/vk-loader-valgrind-execution.XXXXXX")"
   exec docker run --rm \
     -v "$repo_root:$repo_root" -w "$repo_root" \
+    -v "$private_execution_dir:$upstream_build_dir/tests/executing_tests" \
     -e VK_LOADER_VALGRIND_IN_CONTAINER=1 \
     -e VK_LOADER_VALGRIND_LOG_DIR="$log_dir" \
     -e VK_LOADER_VALGRIND_UID="$(id -u)" \
     -e VK_LOADER_VALGRIND_GID="$(id -g)" \
+    -e VK_LOADER_VALGRIND_JOBS \
+    -e VK_LOADER_VALGRIND_REGRESSION_JOBS \
+    -e VK_LOADER_VALGRIND_FUZZING_JOBS \
+    -e VK_LOADER_VALGRIND_THREADING_JOBS \
     "$container_image" bash -lc '
       set -e
       pacman -Sy --noconfirm --needed valgrind elfutils >/dev/null
@@ -137,17 +143,31 @@ case "${1:-}" in
 esac
 
 summary="$log_dir/status.tsv"
-printf 'suite\tshard\tshard_count\texit_status\tmemcheck_errors\n' >"$summary"
+printf 'suite\tshard\tshard_count\texit_status\tmemcheck_errors\tduration_seconds\n' >"$summary"
 for suite in "${suites[@]}"; do
-  jobs="${VK_LOADER_VALGRIND_JOBS:-$(loader_test_jobs)}"
+  case "$suite" in
+    test_regression) suite_jobs="${VK_LOADER_VALGRIND_REGRESSION_JOBS:-8}" ;;
+    test_fuzzing) suite_jobs="${VK_LOADER_VALGRIND_FUZZING_JOBS:-4}" ;;
+    test_threading) suite_jobs="${VK_LOADER_VALGRIND_THREADING_JOBS:-3}" ;;
+  esac
+  jobs="${VK_LOADER_VALGRIND_JOBS:-$suite_jobs}"
   [[ "$jobs" =~ ^[1-9][0-9]*$ ]] || {
     echo "VK_LOADER_VALGRIND_JOBS must be a positive integer" >&2
     exit 2
   }
-  (( jobs > 4 )) && jobs=4
+  (( jobs > 8 )) && jobs=8
   count="$(gtest_case_count "$suite")"
   (( jobs > count )) && jobs="$count"
   ((${#filter[@]} != 0)) && jobs=1
+  suite_filter=("${filter[@]}")
+  isolated_filter=()
+  if [[ "$suite" == test_regression ]] && ((${#filter[@]} == 0)) && (( jobs > 1 )); then
+    # These tests deliberately share literal paths such as /tmp/carol. Keep
+    # them out of the sharded pass because the container cannot create an
+    # unprivileged mount namespace for every shard.
+    suite_filter=(--gtest_filter=-EnvVarICDOverrideSetup.*)
+    isolated_filter=(--gtest_filter=EnvVarICDOverrideSetup.*)
+  fi
 
   echo "valgrind: $suite ($jobs shards)"
   pids=()
@@ -158,6 +178,8 @@ for suite in "${suites[@]}"; do
     xml="$log_dir/$suite.shard-$shard.xml"
     output="$log_dir/$suite.shard-$shard.output.log"
     shard_status="$log_dir/$suite.shard-$shard.status"
+    started="$log_dir/$suite.shard-$shard.started"
+    date +%s >"$started"
     outputs+=("$output")
     xmls+=("$xml")
     env \
@@ -167,7 +189,7 @@ for suite in "${suites[@]}"; do
       VK_LOADER_TEST_LOADER_PATH="$loader" \
       valgrind "${valgrind_options[@]}" --log-file="$log" \
         --xml=yes --xml-file="$xml" \
-        "$test_copy_dir/$suite" --gtest_brief=1 "${filter[@]}" >"$output" 2>&1 &
+        "$test_copy_dir/$suite" --gtest_brief=1 "${suite_filter[@]}" >"$output" 2>&1 &
     pids+=("$!")
   done
 
@@ -176,10 +198,14 @@ for suite in "${suites[@]}"; do
     status=0
     wait "${pids[$shard]}" || status=$?
     errors=0
+    finished="$(date +%s)"
+    started="$(<"$log_dir/$suite.shard-$shard.started")"
+    rm -f "$log_dir/$suite.shard-$shard.started"
     if [[ -f "${xmls[$shard]}" ]]; then
       errors="$(grep -c '<error>' "${xmls[$shard]}" || true)"
     fi
-    printf '%s\t%d\t%d\t%d\t%d\n' "$suite" "$shard" "$jobs" "$status" "$errors" >>"$summary"
+    printf '%s\t%d\t%d\t%d\t%d\t%d\n' "$suite" "$shard" "$jobs" "$status" "$errors" \
+      "$((finished - started))" >>"$summary"
     if (( status != 0 || errors != 0 )); then
       suite_failed=1
       tail -n 200 "${outputs[$shard]}" >&2
@@ -188,6 +214,29 @@ for suite in "${suites[@]}"; do
     fi
   done
   (( suite_failed == 0 )) || exit "$error_exitcode"
+
+  if ((${#isolated_filter[@]} != 0)); then
+    log="$log_dir/$suite.isolated.log"
+    xml="$log_dir/$suite.isolated.xml"
+    output="$log_dir/$suite.isolated.output.log"
+    started="$(date +%s)"
+    status=0
+    env VK_LOADER_TEST_LOADER_PATH="$loader" \
+      valgrind "${valgrind_options[@]}" --log-file="$log" \
+        --xml=yes --xml-file="$xml" \
+        "$test_copy_dir/$suite" --gtest_brief=1 "${isolated_filter[@]}" \
+        >"$output" 2>&1 || status=$?
+    finished="$(date +%s)"
+    errors=0
+    [[ ! -f "$xml" ]] || errors="$(grep -c '<error>' "$xml" || true)"
+    printf '%s\t%d\t%d\t%d\t%d\t%d\n' "${suite}_isolated" 0 1 "$status" "$errors" \
+      "$((finished - started))" >>"$summary"
+    if (( status != 0 || errors != 0 )); then
+      tail -n 200 "$output" >&2
+      exit "$error_exitcode"
+    fi
+    rm -f "$output"
+  fi
 done
 
 echo "Valgrind parity tests passed"

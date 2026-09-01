@@ -8,7 +8,7 @@ VK_LOADER_SCRIPT_COMMON_LOADED=1
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 loader_scripts="$repo_root/vk-loader/scripts"
 upstream_dir="$repo_root/.upstream/vulkan-loader"
-upstream_build_dir="$upstream_dir/build-rust-parity"
+upstream_build_dir="${VK_LOADER_UPSTREAM_BUILD_DIR:-$upstream_dir/build-rust-parity}"
 
 require_tools() {
   local tool
