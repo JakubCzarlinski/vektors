@@ -2,6 +2,7 @@
 
 use std::{
     borrow::Cow,
+    cell::Cell,
     env,
     ffi::{CStr, CString, OsStr, OsString},
     fmt,
@@ -21,6 +22,38 @@ use serde_json::value::RawValue;
 use vk::VK_MAKE_API_VERSION;
 
 use crate::platform;
+
+thread_local! {
+    static SETTINGS_CACHE_STATE: Cell<SettingsCacheState> = const {
+        Cell::new(SettingsCacheState::Uncached)
+    };
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum SettingsCacheState {
+    Uncached,
+    Scoped,
+    Absent,
+}
+
+struct SettingsCacheGuard(SettingsCacheState);
+
+impl Drop for SettingsCacheGuard {
+    fn drop(&mut self) {
+        SETTINGS_CACHE_STATE.set(self.0);
+    }
+}
+
+pub(crate) fn with_loader_settings_absence_cache<T>(operation: impl FnOnce() -> T) -> T {
+    SETTINGS_CACHE_STATE.with(|state| {
+        if state.get() != SettingsCacheState::Uncached {
+            return operation();
+        }
+        let previous = state.replace(SettingsCacheState::Scoped);
+        let _guard = SettingsCacheGuard(previous);
+        operation()
+    })
+}
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct DriverManifest {
@@ -60,7 +93,7 @@ pub(crate) struct LayerManifest {
     pub(crate) functions: LayerFunctions,
     pub(crate) pre_instance_functions: PreInstanceFunctions,
     pub(crate) implicit: bool,
-    pub(crate) settings_control: Option<Box<str>>,
+    pub(crate) settings_control: Option<LayerControl>,
 }
 
 pub(crate) struct DiscoveredLayers {
@@ -217,19 +250,65 @@ fn parse_manifest_u32(value: &str) -> u32 {
     strtoul_prefix(value) as u32
 }
 
-fn split_paths(value: &OsStr) -> Box<[PathBuf]> {
+fn split_paths(value: &OsStr) -> Vec<PathBuf> {
     env::split_paths(value)
         .filter(|path| !path.as_os_str().is_empty())
         .collect()
 }
 
-#[cfg(unix)]
-fn append_search_root(paths: &mut Vec<PathBuf>, root: impl AsRef<Path>, leaf: &str) {
-    paths.push(root.as_ref().join("vulkan").join(leaf));
+fn deduplicate_paths(paths: &mut Vec<PathBuf>) {
+    let mut index = 1;
+    while index < paths.len() {
+        let duplicate = paths[..index]
+            .iter()
+            .any(|existing| existing.as_os_str() == paths[index].as_os_str());
+        if duplicate {
+            paths.remove(index);
+        } else {
+            index += 1;
+        }
+    }
+}
+
+fn unique_paths(paths: &[PathBuf]) -> Box<[PathBuf]> {
+    let mut paths = paths.to_vec();
+    deduplicate_paths(&mut paths);
+    paths.into_boxed_slice()
+}
+
+fn deduplicate_manifests_by_name(manifests: &mut Vec<LayerManifest>) {
+    let mut index = 1;
+    while index < manifests.len() {
+        let duplicate = manifests[..index]
+            .iter()
+            .any(|existing| existing.name == manifests[index].name);
+        if duplicate {
+            manifests.remove(index);
+        } else {
+            index += 1;
+        }
+    }
 }
 
 #[cfg(unix)]
-pub(crate) fn default_search_paths(leaf: &str) -> Box<[PathBuf]> {
+fn append_search_root(paths: &mut Vec<PathBuf>, root: impl AsRef<Path>, leaf: &str) {
+    let root = root.as_ref();
+    let mut path = PathBuf::with_capacity(root.as_os_str().len() + "vulkan".len() + leaf.len() + 2);
+    path.push(root);
+    path.push("vulkan");
+    path.push(leaf);
+    let path_string = path.as_os_str();
+    if !paths
+        .iter()
+        .any(|existing| existing.as_os_str() == path_string)
+    {
+        paths.push(path);
+    }
+}
+
+#[cfg(unix)]
+pub(crate) fn default_search_paths(directory: platform::ManifestDirectory) -> Box<[PathBuf]> {
+    let leaf = directory.as_str();
     let mut paths = Vec::new();
     let elevated = platform::has_elevated_privileges();
 
@@ -316,12 +395,12 @@ pub(crate) fn default_search_paths(leaf: &str) -> Box<[PathBuf]> {
 }
 
 #[cfg(windows)]
-pub(crate) fn default_search_paths(leaf: &str) -> Box<[PathBuf]> {
-    platform::registry_manifest_files(leaf)
+pub(crate) fn default_search_paths(directory: platform::ManifestDirectory) -> Box<[PathBuf]> {
+    platform::registry_manifest_files(directory)
 }
 
 #[cfg(not(any(unix, windows)))]
-pub(crate) fn default_search_paths(_leaf: &str) -> Box<[PathBuf]> {
+pub(crate) fn default_search_paths(_directory: platform::ManifestDirectory) -> Box<[PathBuf]> {
     Box::default()
 }
 
@@ -444,7 +523,7 @@ impl<'de: 'a, 'a> Deserialize<'de> for RawDriverIcd<'a> {
 fn raw_json_path(value: &RawValue) -> Option<PathBuf> {
     let raw = value.get();
     if raw.as_bytes().first() == Some(&b'"') {
-        let value: BorrowedString<'_> = serde_json::from_str(raw).ok()?;
+        let value: BorrowedString<'_> = serde_json::from_slice(raw.as_bytes()).ok()?;
         Some(PathBuf::from(value.as_ref()))
     } else {
         Some(PathBuf::from(raw))
@@ -927,7 +1006,9 @@ fn borrowed_c_string_limited(value: Option<LenientString<'_>>, capacity: usize) 
 
 fn raw_c_string_array(value: Option<&RawValue>) -> Box<[CString]> {
     value
-        .and_then(|value| serde_json::from_str::<BorrowedStrings<'_>>(value.get()).ok())
+        .and_then(|value| {
+            serde_json::from_slice::<BorrowedStrings<'_>>(value.get().as_bytes()).ok()
+        })
         .map(|values| {
             values
                 .0
@@ -940,7 +1021,9 @@ fn raw_c_string_array(value: Option<&RawValue>) -> Box<[CString]> {
 
 fn raw_path_array(value: Option<&RawValue>) -> Box<[PathBuf]> {
     value
-        .and_then(|value| serde_json::from_str::<BorrowedStrings<'_>>(value.get()).ok())
+        .and_then(|value| {
+            serde_json::from_slice::<BorrowedStrings<'_>>(value.get().as_bytes()).ok()
+        })
         .map(|values| {
             values
                 .0
@@ -952,7 +1035,8 @@ fn raw_path_array(value: Option<&RawValue>) -> Box<[PathBuf]> {
 }
 
 fn raw_environment(value: Option<&RawValue>) -> Option<(OsString, OsString)> {
-    let environment = serde_json::from_str::<BorrowedEnvironment<'_>>(value?.get()).ok()?;
+    let environment =
+        serde_json::from_slice::<BorrowedEnvironment<'_>>(value?.get().as_bytes()).ok()?;
     let (name, value) = environment.0?;
     Some((
         OsString::from(name.as_ref()),
@@ -961,7 +1045,7 @@ fn raw_environment(value: Option<&RawValue>) -> Option<(OsString, OsString)> {
 }
 
 fn parse_raw_layer_extension(value: &RawValue) -> Option<LayerExtension> {
-    let extension = serde_json::from_str::<RawLayerExtension<'_>>(value.get()).ok()?;
+    let extension = serde_json::from_slice::<RawLayerExtension<'_>>(value.get().as_bytes()).ok()?;
     Some(LayerExtension {
         name: borrowed_c_string_limited(extension.name, vk::VK_MAX_EXTENSION_NAME_SIZE as usize)?,
         spec_version: extension
@@ -975,7 +1059,7 @@ fn parse_raw_layer_extension(value: &RawValue) -> Option<LayerExtension> {
 
 fn parse_raw_layer_extensions(value: Option<&RawValue>, instance: bool) -> Box<[LayerExtension]> {
     value
-        .and_then(|value| serde_json::from_str::<Box<[&RawValue]>>(value.get()).ok())
+        .and_then(|value| serde_json::from_slice::<Box<[&RawValue]>>(value.get().as_bytes()).ok())
         .map(|values| {
             values
                 .into_iter()
@@ -1022,14 +1106,15 @@ fn parse_raw_layer(
     {
         return None;
     }
-    let functions = layer
-        .functions
-        .take()
-        .and_then(|value| serde_json::from_str::<RawLayerFunctions<'_>>(value.get()).ok());
+    let functions = layer.functions.take().and_then(|value| {
+        serde_json::from_slice::<RawLayerFunctions<'_>>(value.get().as_bytes()).ok()
+    });
     let pre_instance = (implicit && supports_pre_instance)
         .then(|| layer.pre_instance_functions.take())
         .flatten()
-        .and_then(|value| serde_json::from_str::<RawLayerFunctions<'_>>(value.get()).ok());
+        .and_then(|value| {
+            serde_json::from_slice::<RawLayerFunctions<'_>>(value.get().as_bytes()).ok()
+        });
     let api_version = parse_api_version(Some(layer.api_version.take()?.0?.as_ref()))?;
     // Preserve rejected records until layer diagnostics are emitted. Upstream
     // logs these conditions inside `loader_read_layer_json`; our discovery
@@ -1128,30 +1213,35 @@ fn parse_layer_manifest(path: &Path, implicit: bool) -> Box<[LayerManifest]> {
 }
 
 pub(crate) fn layer_search_roots(implicit: bool) -> Box<[PathBuf]> {
-    let (override_name, add_name, leaf) = if implicit {
+    let (override_name, add_name, directory) = if implicit {
         (
             "VK_IMPLICIT_LAYER_PATH",
             "VK_ADD_IMPLICIT_LAYER_PATH",
-            "implicit_layer.d",
+            platform::ManifestDirectory::ImplicitLayer,
         )
     } else {
-        ("VK_LAYER_PATH", "VK_ADD_LAYER_PATH", "explicit_layer.d")
+        (
+            "VK_LAYER_PATH",
+            "VK_ADD_LAYER_PATH",
+            platform::ManifestDirectory::ExplicitLayer,
+        )
     };
     let elevated = platform::has_elevated_privileges();
     let override_paths = (!elevated).then(|| env::var_os(override_name)).flatten();
     let has_override = override_paths.is_some();
     let mut roots = override_paths.map_or_else(
-        || default_search_paths(leaf).into_vec(),
-        |value| split_paths(&value).into_vec(),
+        || default_search_paths(directory).into_vec(),
+        |value| split_paths(&value),
     );
     if !elevated
         && !has_override
         && let Some(value) = env::var_os(add_name)
     {
-        let mut additional = split_paths(&value).into_vec();
+        let mut additional = split_paths(&value);
         additional.append(&mut roots);
         roots = additional;
     }
+    deduplicate_paths(&mut roots);
     roots.into_boxed_slice()
 }
 
@@ -1174,17 +1264,17 @@ pub(crate) fn discover_layers_with_settings(settings: Option<&LoaderSettings>) -
         let mut layers = Vec::new();
         let configured_names: HashSet<&CStr> = configurations
             .iter()
-            .filter(|configuration| configuration.control.as_ref() != "unordered_layer_location")
+            .filter(|configuration| configuration.control != LayerControl::UnorderedLayerLocation)
             .map(|configuration| configuration.name.as_c_str())
             .collect();
         for configuration in configurations {
-            if configuration.control.as_ref() == "unordered_layer_location" {
+            if configuration.control == LayerControl::UnorderedLayerLocation {
                 let mut regular = discover_layers_from_search_paths().into_vec();
                 regular.retain(|manifest| !configured_names.contains(manifest.name.as_c_str()));
                 layers.extend(regular);
                 continue;
             }
-            if configuration.control.as_ref() == "off" {
+            if configuration.control == LayerControl::Off {
                 continue;
             }
             let mut configured = parse_layer_manifest(
@@ -1194,7 +1284,7 @@ pub(crate) fn discover_layers_with_settings(settings: Option<&LoaderSettings>) -
             .into_vec();
             configured.retain(|layer| layer.name.as_c_str() == configuration.name.as_c_str());
             for layer in &mut configured {
-                layer.settings_control = Some(configuration.control.clone());
+                layer.settings_control = Some(configuration.control);
             }
             for layer in configured {
                 let duplicate = layers.iter().any(|existing: &LayerManifest| {
@@ -1214,8 +1304,7 @@ pub(crate) fn discover_layers_with_settings(settings: Option<&LoaderSettings>) -
     }
     let (manifests, searches) = discover_layers_from_search_paths_with_diagnostics();
     let mut manifests = manifests.into_vec();
-    let mut names = HashSet::default();
-    manifests.retain(|manifest| names.insert(manifest.name.clone()));
+    deduplicate_manifests_by_name(&mut manifests);
     DiscoveredLayers {
         manifests: manifests.into_boxed_slice(),
         searches,
@@ -1255,7 +1344,7 @@ pub(crate) fn discover_implicit_layers() -> DiscoveredLayers {
             .filter(|manifest| !manifest.override_paths.is_empty())
             .map_or_else(
                 || layer_search_roots(false),
-                |manifest| Box::from(manifest.override_paths.as_ref()),
+                |manifest| unique_paths(&manifest.override_paths),
             );
         let (explicit, explicit_files) =
             discover_layers_in_roots_with_files(&explicit_roots, false);
@@ -1269,8 +1358,7 @@ pub(crate) fn discover_implicit_layers() -> DiscoveredLayers {
     } else {
         None
     };
-    let mut names = HashSet::default();
-    manifests.retain(|manifest| names.insert(manifest.name.clone()));
+    deduplicate_manifests_by_name(&mut manifests);
     let implicit_search = LayerSearch {
         implicit: true,
         roots: implicit_roots,
@@ -1324,8 +1412,7 @@ fn discover_layers_from_search_paths_with_diagnostics() -> (Box<[LayerManifest]>
                 && !layer.override_paths.is_empty()
         })
         .map(|layer| layer.override_paths.as_ref());
-    let explicit_roots =
-        override_roots.map_or_else(|| layer_search_roots(false), Box::<[PathBuf]>::from);
+    let explicit_roots = override_roots.map_or_else(|| layer_search_roots(false), unique_paths);
     let (explicit, explicit_files) = discover_layers_in_roots_with_files(&explicit_roots, false);
     layers.extend(explicit);
     let searches = Box::from([
@@ -1391,8 +1478,36 @@ fn select_override_layer_for_executable(
 struct SettingsLayerConfiguration {
     name: CString,
     path: PathBuf,
-    control: Box<str>,
+    control: LayerControl,
     treat_as_implicit_manifest: bool,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum LayerControl {
+    Default,
+    On,
+    Off,
+    UnorderedLayerLocation,
+}
+
+impl LayerControl {
+    const fn parse(value: &str) -> Self {
+        match value.as_bytes() {
+            b"on" => Self::On,
+            b"off" => Self::Off,
+            b"unordered_layer_location" => Self::UnorderedLayerLocation,
+            _ => Self::Default,
+        }
+    }
+
+    pub(crate) const fn as_str(self) -> &'static str {
+        match self {
+            Self::Default => "auto",
+            Self::On => "on",
+            Self::Off => "off",
+            Self::UnorderedLayerLocation => "unordered_layer_location",
+        }
+    }
 }
 
 pub(crate) struct LoaderSettings {
@@ -1445,34 +1560,49 @@ fn format_uuid(uuid: &[u8; vk::VK_UUID_SIZE as usize]) -> String {
 }
 
 pub(crate) fn loader_settings() -> Option<LoaderSettings> {
+    if SETTINGS_CACHE_STATE.get() == SettingsCacheState::Absent {
+        return None;
+    }
+    let settings = load_loader_settings();
+    if settings.is_none() && SETTINGS_CACHE_STATE.get() == SettingsCacheState::Scoped {
+        SETTINGS_CACHE_STATE.set(SettingsCacheState::Absent);
+    }
+    settings
+}
+
+fn load_loader_settings() -> Option<LoaderSettings> {
     let (file_path, bytes) = find_loader_settings_file()?;
     let root: Value = serde_json::from_slice(&bytes).ok()?;
     root.get("file_format_version")?.as_str()?;
     let settings = select_settings(&root)?;
-    let stderr_filters = settings.get("stderr_log").and_then(Value::as_array);
-    let settings_filter_enabled = |name: &str| {
-        stderr_filters.is_some_and(|filters| {
-            filters.iter().any(|filter| {
-                filter.as_str().is_some_and(|filter| {
-                    filter.eq_ignore_ascii_case("all") || filter.eq_ignore_ascii_case(name)
+    let settings_log_filters =
+        settings
+            .get("stderr_log")
+            .and_then(Value::as_array)
+            .map_or(0, |filters| {
+                filters.iter().fold(0, |mask, value| {
+                    let Some(name) = value.as_str() else {
+                        return mask;
+                    };
+                    if name.eq_ignore_ascii_case("all") {
+                        return u8::MAX;
+                    }
+                    platform::LogFilter::ALL
+                        .into_iter()
+                        .filter(|filter| filter.matches_name(name))
+                        .fold(mask, |mask, filter| mask | filter.bit())
                 })
-            })
-        })
-    };
-    let settings_logging_active = [
-        "error", "warn", "warning", "info", "debug", "perf", "driver", "layer",
-    ]
-    .into_iter()
-    .any(settings_filter_enabled);
-    let filter_enabled = |name: &str| {
+            });
+    let settings_logging_active = settings_log_filters != 0;
+    let filter_enabled = |filter: platform::LogFilter| {
         if settings_logging_active {
-            settings_filter_enabled(name)
+            settings_log_filters & filter.bit() != 0
         } else {
-            platform::loader_debug_filter_enabled(name)
+            platform::loader_debug_filter_enabled(filter)
         }
     };
     let stderr_logging_active = settings_logging_active
-        || ["error", "warn", "info", "debug", "perf", "driver", "layer"]
+        || platform::LogFilter::ALL
             .into_iter()
             .any(platform::loader_debug_filter_enabled);
     let layer_configurations: Option<Box<[SettingsLayerConfiguration]>> =
@@ -1483,18 +1613,19 @@ pub(crate) fn loader_settings() -> Option<LoaderSettings> {
                     .iter()
                     .filter_map(|layer| {
                         let control = layer.get("control")?.as_str()?;
-                        if control == "unordered_layer_location" {
+                        let control = LayerControl::parse(control);
+                        if control == LayerControl::UnorderedLayerLocation {
                             return Some(SettingsLayerConfiguration {
                                 name: CString::default(),
                                 path: PathBuf::new(),
-                                control: control.into(),
+                                control,
                                 treat_as_implicit_manifest: false,
                             });
                         }
                         Some(SettingsLayerConfiguration {
                             name: CString::new(layer.get("name")?.as_str()?).ok()?,
                             path: PathBuf::from(layer.get("path")?.as_str()?),
-                            control: control.into(),
+                            control,
                             treat_as_implicit_manifest: layer
                                 .get("treat_as_implicit_manifest")
                                 .and_then(Value::as_bool)
@@ -1532,7 +1663,7 @@ pub(crate) fn loader_settings() -> Option<LoaderSettings> {
         return None;
     }
     if stderr_logging_active {
-        if filter_enabled("info") {
+        if filter_enabled(platform::LogFilter::Info) {
             let display_path = file_path
                 .to_string_lossy()
                 .replace("/vulkan/loader_settings.d", "/vulkan//loader_settings.d");
@@ -1541,30 +1672,30 @@ pub(crate) fn loader_settings() -> Option<LoaderSettings> {
             ));
         }
         let mut enabled = Vec::new();
-        if filter_enabled("error") {
+        if filter_enabled(platform::LogFilter::Error) {
             enabled.push("ERROR");
         }
-        if filter_enabled("warn") || filter_enabled("warning") {
+        if filter_enabled(platform::LogFilter::Warning) {
             enabled.push("WARNING");
         }
-        for (filter, label) in [
-            ("info", "INFO"),
-            ("debug", "DEBUG"),
-            ("perf", "PERF"),
-            ("driver", "DRIVER"),
-            ("layer", "LAYER"),
+        for filter in [
+            platform::LogFilter::Info,
+            platform::LogFilter::Debug,
+            platform::LogFilter::Performance,
+            platform::LogFilter::Driver,
+            platform::LogFilter::Layer,
         ] {
             if filter_enabled(filter) {
-                enabled.push(label);
+                enabled.push(filter.label());
             }
         }
-        if settings_logging_active && filter_enabled("debug") {
+        if settings_logging_active && filter_enabled(platform::LogFilter::Debug) {
             platform::write_stderr(&format!(
                 "[Vulkan Loader] DEBUG:          Loader Settings Filters for Logging to Standard Error: {}\n",
                 enabled.join(" | ")
             ));
         }
-        if filter_enabled("debug")
+        if filter_enabled(platform::LogFilter::Debug)
             && let Some(configurations) = &layer_configurations
         {
             platform::write_stderr(&format!(
@@ -1575,7 +1706,7 @@ pub(crate) fn loader_settings() -> Option<LoaderSettings> {
                 platform::write_stderr(&format!(
                     "[Vulkan Loader] DEBUG:          ---- Layer Configuration [{index}] ----\n"
                 ));
-                if configuration.control.as_ref() != "unordered_layer_location" {
+                if configuration.control != LayerControl::UnorderedLayerLocation {
                     platform::write_stderr(&format!(
                         "[Vulkan Loader] DEBUG:          Name: {}\n",
                         configuration.name.to_string_lossy()
@@ -1595,11 +1726,11 @@ pub(crate) fn loader_settings() -> Option<LoaderSettings> {
                 }
                 platform::write_stderr(&format!(
                     "[Vulkan Loader] DEBUG:          Control: {}\n",
-                    configuration.control
+                    configuration.control.as_str()
                 ));
             }
         }
-        if filter_enabled("debug") && !additional_drivers.is_empty() {
+        if filter_enabled(platform::LogFilter::Debug) && !additional_drivers.is_empty() {
             platform::write_stderr("[Vulkan Loader] DEBUG:          ----\n");
             platform::write_stderr(&format!(
                 "[Vulkan Loader] DEBUG:          Use Additional Drivers Exclusively = {}\n",
@@ -1627,7 +1758,7 @@ pub(crate) fn loader_settings() -> Option<LoaderSettings> {
                 ));
             }
         }
-        if filter_enabled("debug")
+        if filter_enabled(platform::LogFilter::Debug)
             && let Some(configurations) = &device_configurations
         {
             platform::write_stderr("[Vulkan Loader] DEBUG:          ----\n");
@@ -1663,15 +1794,15 @@ pub(crate) fn loader_settings() -> Option<LoaderSettings> {
                 }
             }
         }
-        if filter_enabled("debug") {
+        if filter_enabled(platform::LogFilter::Debug) {
             platform::write_stderr(
                 "[Vulkan Loader] DEBUG:          ---------------------------------\n",
             );
         }
         if let Some(configurations) = &layer_configurations {
             for configuration in configurations {
-                if (filter_enabled("warn") || filter_enabled("warning"))
-                    && configuration.control.as_ref() != "unordered_layer_location"
+                if filter_enabled(platform::LogFilter::Warning)
+                    && configuration.control != LayerControl::UnorderedLayerLocation
                     && !configuration.name.to_bytes().starts_with(b"VK_LAYER_")
                 {
                     platform::write_stderr(&format!(
@@ -1679,8 +1810,8 @@ pub(crate) fn loader_settings() -> Option<LoaderSettings> {
                         configuration.name.to_string_lossy()
                     ));
                 }
-                if filter_enabled("error")
-                    && configuration.control.as_ref() != "unordered_layer_location"
+                if filter_enabled(platform::LogFilter::Error)
+                    && configuration.control != LayerControl::UnorderedLayerLocation
                     && !platform::file_exists(&configuration.path)
                 {
                     platform::write_stderr(&format!(
@@ -1775,37 +1906,49 @@ fn read_settings_file(path: &Path) -> Option<(PathBuf, Box<[u8]>)> {
 }
 
 #[cfg(unix)]
-fn find_loader_settings_file() -> Option<(PathBuf, Box<[u8]>)> {
-    const DIRECTORY_SUFFIX: &str = "vulkan/loader_settings.d";
-    const FILE_NAME: &str = "vk_loader_settings.json";
-
-    fn read_from_root(root: &Path) -> Option<(PathBuf, Box<[u8]>)> {
-        read_settings_file(&root.join(DIRECTORY_SUFFIX).join(FILE_NAME))
+fn read_settings_from_root(
+    path: &mut PathBuf,
+    root: &Path,
+    nested: Option<&str>,
+) -> Option<(PathBuf, Box<[u8]>)> {
+    path.clear();
+    path.push(root);
+    if let Some(nested) = nested {
+        path.push(nested);
     }
+    path.push("vulkan/loader_settings.d");
+    path.push("vk_loader_settings.json");
+    read_settings_file(path)
+}
 
+#[cfg(unix)]
+fn find_loader_settings_file() -> Option<(PathBuf, Box<[u8]>)> {
+    let mut candidate = PathBuf::new();
     let secure_environment = !platform::has_elevated_privileges();
     let environment = |name| secure_environment.then(|| env::var_os(name)).flatten();
     let config_home = environment("XDG_CONFIG_HOME");
     let data_home = environment("XDG_DATA_HOME");
     if let Some(path) = config_home.as_deref()
-        && let Some(settings) = read_from_root(Path::new(path))
+        && let Some(settings) = read_settings_from_root(&mut candidate, Path::new(path), None)
     {
         return Some(settings);
     }
     if let Some(path) = data_home.as_deref()
-        && let Some(settings) = read_from_root(Path::new(path))
+        && let Some(settings) = read_settings_from_root(&mut candidate, Path::new(path), None)
     {
         return Some(settings);
     }
 
     if let Some(home) = environment("HOME") {
         if config_home.is_none()
-            && let Some(settings) = read_from_root(&PathBuf::from(&home).join(".config"))
+            && let Some(settings) =
+                read_settings_from_root(&mut candidate, Path::new(&home), Some(".config"))
         {
             return Some(settings);
         }
         if data_home.is_none()
-            && let Some(settings) = read_from_root(&PathBuf::from(home).join(".local/share"))
+            && let Some(settings) =
+                read_settings_from_root(&mut candidate, Path::new(&home), Some(".local/share"))
         {
             return Some(settings);
         }
@@ -1813,7 +1956,7 @@ fn find_loader_settings_file() -> Option<(PathBuf, Box<[u8]>)> {
 
     if let Some(config_dirs) = environment("XDG_CONFIG_DIRS").filter(|paths| !paths.is_empty()) {
         for path in env::split_paths(&config_dirs) {
-            if let Some(settings) = read_from_root(&path) {
+            if let Some(settings) = read_settings_from_root(&mut candidate, &path, None) {
                 return Some(settings);
             }
         }
@@ -1829,12 +1972,12 @@ fn find_loader_settings_file() -> Option<(PathBuf, Box<[u8]>)> {
 
     if cfg!(target_os = "fuchsia") {
         for root in [Path::new("/config"), Path::new("/pkg/data")] {
-            if let Some(settings) = read_from_root(root) {
+            if let Some(settings) = read_settings_from_root(&mut candidate, root, None) {
                 return Some(settings);
             }
         }
     } else if cfg!(any(target_os = "nto", target_os = "qnx")) {
-        if let Some(settings) = read_from_root(Path::new("/etc")) {
+        if let Some(settings) = read_settings_from_root(&mut candidate, Path::new("/etc"), None) {
             return Some(settings);
         }
     } else {
@@ -1852,7 +1995,7 @@ fn find_loader_settings_file() -> Option<(PathBuf, Box<[u8]>)> {
 
     if let Some(data_dirs) = environment("XDG_DATA_DIRS").filter(|paths| !paths.is_empty()) {
         for path in env::split_paths(&data_dirs) {
-            if let Some(settings) = read_from_root(&path) {
+            if let Some(settings) = read_settings_from_root(&mut candidate, &path, None) {
                 return Some(settings);
             }
         }
@@ -1910,10 +2053,12 @@ fn driver_search_roots_with_diagnostics() -> (Box<[PathBuf]>, Option<platform::R
     let has_override = override_paths.is_some();
     let (mut roots, diagnostics) = override_paths.map_or_else(
         || {
-            let (files, diagnostics) = platform::registry_manifest_files_with_diagnostics("icd.d");
+            let (files, diagnostics) = platform::registry_manifest_files_with_diagnostics(
+                platform::ManifestDirectory::Driver,
+            );
             (files.into_vec(), Some(diagnostics))
         },
-        |value| (split_paths(&value).into_vec(), None),
+        |value| (split_paths(&value), None),
     );
     if !elevated
         && !has_override
@@ -1921,6 +2066,7 @@ fn driver_search_roots_with_diagnostics() -> (Box<[PathBuf]>, Option<platform::R
     {
         roots.extend(split_paths(&value));
     }
+    deduplicate_paths(&mut roots);
     (roots.into_boxed_slice(), diagnostics)
 }
 
@@ -1939,13 +2085,16 @@ pub(crate) fn scan_drivers_with_settings(settings: Option<&LoaderSettings>) -> D
     let (roots, registry_diagnostics) = if use_driver_environment {
         driver_search_roots_with_diagnostics()
     } else {
-        (default_search_paths("icd.d"), None)
+        (
+            default_search_paths(platform::ManifestDirectory::Driver),
+            None,
+        )
     };
     #[cfg(not(windows))]
     let roots = if use_driver_environment {
         driver_search_roots()
     } else {
-        default_search_paths("icd.d")
+        default_search_paths(platform::ManifestDirectory::Driver)
     };
     let mut files = Vec::new();
     if let Some(settings) = settings {
@@ -1961,8 +2110,7 @@ pub(crate) fn scan_drivers_with_settings(settings: Option<&LoaderSettings>) -> D
         }
     }
 
-    let mut seen = HashSet::default();
-    files.retain(|path| seen.insert(path.clone()));
+    deduplicate_paths(&mut files);
     let select = (!elevated && use_driver_environment)
         .then(|| env::var("VK_LOADER_DRIVERS_SELECT").ok())
         .flatten()
@@ -2014,8 +2162,8 @@ pub(crate) fn driver_search_roots() -> Box<[PathBuf]> {
         .flatten();
     let has_override = override_paths.is_some();
     let mut roots = override_paths.map_or_else(
-        || default_search_paths("icd.d").into_vec(),
-        |value| split_paths(&value).into_vec(),
+        || default_search_paths(platform::ManifestDirectory::Driver).into_vec(),
+        |value| split_paths(&value),
     );
     if !elevated
         && !has_override
@@ -2023,6 +2171,7 @@ pub(crate) fn driver_search_roots() -> Box<[PathBuf]> {
     {
         roots.extend(split_paths(&value));
     }
+    deduplicate_paths(&mut roots);
     roots.into_boxed_slice()
 }
 

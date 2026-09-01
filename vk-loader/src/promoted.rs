@@ -1,10 +1,11 @@
 //! Vulkan core-promotion terminators requiring pre-promotion ICD emulation.
 
-use alloc::vec::Vec;
-
 use vk::{VkBaseOutStructure, VkPhysicalDevice, VkStructureType};
 
+use crate::collections::ScratchArray;
 use crate::instance::LoaderPhysicalDevice;
+
+const STACK_PROPERTIES: usize = 8;
 
 #[inline]
 fn properties2_extension_enabled(device: &LoaderPhysicalDevice) -> bool {
@@ -448,16 +449,20 @@ pub(crate) unsafe fn queue_family_properties2_impl(
         unsafe { command(device.native, count, core::ptr::null_mut()) };
         return;
     }
-    let mut temporary = Vec::new();
-    if temporary.try_reserve_exact(capacity).is_err() {
+    let Ok(mut temporary) =
+        ScratchArray::<vk::VkQueueFamilyProperties, STACK_PROPERTIES>::try_new(capacity)
+    else {
         *count = 0;
         return;
-    }
-    temporary.resize(capacity, vk::VkQueueFamilyProperties::DEFAULT);
+    };
     unsafe { command(device.native, count, temporary.as_mut_ptr()) };
     let written = (*count as usize).min(capacity);
     let output = unsafe { core::slice::from_raw_parts_mut(output, capacity) };
-    for (slot, property) in output.iter_mut().zip(temporary).take(written) {
+    // SAFETY: The ICD initialized the prefix reported through `count`.
+    for (slot, &property) in output
+        .iter_mut()
+        .zip(unsafe { temporary.initialized(written) })
+    {
         slot.queueFamilyProperties = property;
     }
 }
@@ -530,12 +535,12 @@ pub(crate) unsafe fn sparse_image_format_properties2_impl(
         };
         return;
     }
-    let mut temporary = Vec::new();
-    if temporary.try_reserve_exact(capacity).is_err() {
+    let Ok(mut temporary) =
+        ScratchArray::<vk::VkSparseImageFormatProperties, STACK_PROPERTIES>::try_new(capacity)
+    else {
         *count = 0;
         return;
-    }
-    temporary.resize(capacity, vk::VkSparseImageFormatProperties::DEFAULT);
+    };
     unsafe {
         command(
             device.native,
@@ -550,7 +555,11 @@ pub(crate) unsafe fn sparse_image_format_properties2_impl(
     };
     let written = (*count as usize).min(capacity);
     let output = unsafe { core::slice::from_raw_parts_mut(output, capacity) };
-    for (slot, property) in output.iter_mut().zip(temporary).take(written) {
+    // SAFETY: The ICD initialized the prefix reported through `count`.
+    for (slot, &property) in output
+        .iter_mut()
+        .zip(unsafe { temporary.initialized(written) })
+    {
         slot.properties = property;
     }
 }

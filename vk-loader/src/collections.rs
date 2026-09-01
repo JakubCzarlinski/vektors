@@ -6,7 +6,8 @@
 //! neither lifetime is suitable here. Keep randomized `AHash` performance while
 //! storing the base seeds inline in this image instead.
 
-use core::{hash::BuildHasher, sync::atomic::AtomicUsize};
+use alloc::vec::Vec;
+use core::{hash::BuildHasher, mem::MaybeUninit, sync::atomic::AtomicUsize};
 use std::{
     sync::LazyLock,
     time::{SystemTime, UNIX_EPOCH},
@@ -55,3 +56,55 @@ impl BuildHasher for RandomState {
 
 pub(crate) type HashMap<K, V> = std::collections::HashMap<K, V, RandomState>;
 pub(crate) type HashSet<T> = std::collections::HashSet<T, RandomState>;
+
+/// Call-scoped uninitialized storage with a bounded stack fast path.
+pub(crate) struct ScratchArray<T, const STACK_CAPACITY: usize> {
+    stack: [MaybeUninit<T>; STACK_CAPACITY],
+    heap: Vec<MaybeUninit<T>>,
+    len: usize,
+}
+
+impl<T, const STACK_CAPACITY: usize> ScratchArray<T, STACK_CAPACITY> {
+    pub(crate) fn try_new(len: usize) -> Result<Self, ()> {
+        let mut heap = Vec::new();
+        if len > STACK_CAPACITY {
+            heap.try_reserve_exact(len).map_err(|_| ())?;
+            // SAFETY: `MaybeUninit<T>` does not require initialization.
+            unsafe { heap.set_len(len) };
+        }
+        Ok(Self {
+            // SAFETY: An array of `MaybeUninit<T>` may be left uninitialized.
+            stack: unsafe { MaybeUninit::uninit().assume_init() },
+            heap,
+            len,
+        })
+    }
+
+    #[inline]
+    pub(crate) fn as_mut_ptr(&mut self) -> *mut T {
+        match self.heap.as_mut_slice() {
+            [] => self.stack.as_mut_ptr().cast(),
+            heap => heap.as_mut_ptr().cast(),
+        }
+    }
+
+    /// Returns the initialized prefix written by an external call.
+    ///
+    /// # Safety
+    ///
+    /// The first `initialized` elements must have been initialized as `T`.
+    pub(crate) unsafe fn initialized(&self, initialized: usize) -> &[T] {
+        debug_assert!(initialized <= self.len);
+        // SAFETY: The caller guarantees the prefix is initialized, and both
+        // backing stores have at least `self.len` elements.
+        unsafe { core::slice::from_raw_parts(self.as_ptr(), initialized) }
+    }
+
+    #[inline]
+    const fn as_ptr(&self) -> *const T {
+        match self.heap.as_slice() {
+            [] => self.stack.as_ptr().cast(),
+            heap => heap.as_ptr().cast(),
+        }
+    }
+}

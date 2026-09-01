@@ -197,7 +197,7 @@ fn first_layer_physical_device_proc_addr<'a>(
 }
 
 fn emit_unknown_debug(message: core::fmt::Arguments<'_>) {
-    crate::platform::write_loader_log("debug", "DEBUG", message);
+    crate::platform::write_loader_log(crate::platform::LogFilter::Debug, message);
 }
 
 /// Resolves a physical-device command unknown to the compiled registry.
