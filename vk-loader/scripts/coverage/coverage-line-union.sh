@@ -21,8 +21,7 @@ covered_lines=0
   printf '%-44s %10s %10s %10s\n' Filename Lines Covered Cover
   printf '%s\n' '-------------------------------------------------------------------------------'
   while IFS= read -r relative; do
-    source="$repo_root/$relative"
-    [[ -f "$source" ]] || continue
+    source="$(resolve_coverage_source "$relative")" || continue
     llvm-cov show "$loader" -instr-profile="$profile" \
       --show-line-counts-or-regions --show-expansions=false "$source" \
       > "$scratch/release.txt"

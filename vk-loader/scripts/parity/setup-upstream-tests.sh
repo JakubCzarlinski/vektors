@@ -6,6 +6,16 @@ expected_revision="b1d75f38257ffa71d7aa93552d2e2793296309aa"
 
 require_tools cmake git mold ninja
 
+coverage_args=()
+if [[ "${VK_LOADER_UPSTREAM_CODE_COVERAGE:-0}" == 1 ]]; then
+  require_tools clang clang++ llvm-cov llvm-profdata
+  coverage_args+=(
+    -D CODE_COVERAGE=ON
+    -D CMAKE_C_COMPILER=clang
+    -D CMAKE_CXX_COMPILER=clang++
+  )
+fi
+
 if [[ ! -d "$upstream_dir/.git" ]]; then
   git clone https://github.com/KhronosGroup/Vulkan-Loader.git "$upstream_dir"
 fi
@@ -26,5 +36,6 @@ cmake \
   -D CMAKE_BUILD_TYPE=Debug \
   -D UPDATE_DEPS=ON \
   -D BUILD_TESTS=ON \
-  -D BUILD_WERROR=OFF
+  -D BUILD_WERROR=OFF \
+  "${coverage_args[@]}"
 cmake --build "$upstream_build_dir" --parallel

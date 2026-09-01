@@ -4,6 +4,7 @@ set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
 comparison_script="$loader_scripts/parity/compare-observable-parity.sh"
 output_root="${VK_LOADER_PARITY_AUDIT_DIR:-$repo_root/target/observable-parity-audit}"
+profile_root="${VK_LOADER_PARITY_PROFILE_DIR:-}"
 summary="$output_root/summary.tsv"
 rust_loader="$(resolve_rust_loader "${VK_LOADER_PARITY_RUST_LIBRARY:-}" release)"
 shard_count="${VK_LOADER_PARITY_SHARD_COUNT:-1}"
@@ -84,7 +85,16 @@ run_case() {
   result_dir="$output_root/$case_dir"
   rm -rf "$result_dir"
 
-  if VK_LOADER_PARITY_SUITE="$suite" \
+  local upstream_profile= rust_profile=
+  if [[ -n "$profile_root" ]]; then
+    mkdir -p "$profile_root/$case_dir/upstream" "$profile_root/$case_dir/rust"
+    upstream_profile="$profile_root/$case_dir/upstream/%p-%m.profraw"
+    rust_profile="$profile_root/$case_dir/rust/%p-%m.profraw"
+  fi
+
+  if VK_LOADER_UPSTREAM_PROFILE_FILE="$upstream_profile" \
+    VK_LOADER_RUST_PROFILE_FILE="$rust_profile" \
+    VK_LOADER_PARITY_SUITE="$suite" \
     VK_LOADER_PARITY_QUIET=1 \
     VK_LOADER_PARITY_RUST_LIBRARY="$rust_loader" \
     VK_LOADER_PARITY_DIFF_DIR="$result_dir" \
