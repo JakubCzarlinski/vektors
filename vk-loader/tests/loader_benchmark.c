@@ -2,6 +2,7 @@
 
 #include <vulkan/vulkan.h>
 
+#include <dlfcn.h>
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -10,6 +11,43 @@
 #include <time.h>
 
 static volatile uintptr_t sink;
+
+struct allocation_stats {
+    uint64_t allocations;
+    uint64_t bytes;
+    uint64_t frees;
+};
+
+typedef void (*allocation_reset_function)(void);
+typedef void (*allocation_snapshot_function)(uint64_t *allocations, uint64_t *bytes, uint64_t *frees);
+
+static allocation_reset_function allocation_reset;
+static allocation_snapshot_function allocation_snapshot;
+static int allocation_functions_resolved;
+
+static void resolve_allocation_functions(void) {
+    if (!allocation_functions_resolved) {
+        allocation_reset = (allocation_reset_function)dlsym(RTLD_DEFAULT, "loader_bench_alloc_reset");
+        allocation_snapshot =
+            (allocation_snapshot_function)dlsym(RTLD_DEFAULT, "loader_bench_alloc_snapshot");
+        allocation_functions_resolved = 1;
+    }
+}
+
+static void reset_allocation_stats(void) {
+    resolve_allocation_functions();
+    if (allocation_reset != NULL) {
+        allocation_reset();
+    }
+}
+
+static struct allocation_stats read_allocation_stats(void) {
+    struct allocation_stats stats = {0};
+    if (allocation_snapshot != NULL) {
+        allocation_snapshot(&stats.allocations, &stats.bytes, &stats.frees);
+    }
+    return stats;
+}
 
 static uint64_t now_ns(void) {
     struct timespec time;
@@ -120,25 +158,47 @@ static VkDevice create_device(VkPhysicalDevice physical_device) {
     return device;
 }
 
-static void benchmark_enumerate_extensions(uint64_t iterations) {
+static void benchmark_enumerate_extensions(uint64_t iterations, int warmup, int fill) {
     uint32_t count = 0;
-    require_success(vkEnumerateInstanceExtensionProperties(NULL, &count, NULL),
-                    "vkEnumerateInstanceExtensionProperties(warmup)");
+    VkExtensionProperties *properties = NULL;
+    if (warmup || fill) {
+        require_success(vkEnumerateInstanceExtensionProperties(NULL, &count, NULL),
+                        "vkEnumerateInstanceExtensionProperties(warmup count)");
+    }
+    if (fill) {
+        properties = calloc(count, sizeof(*properties));
+        if (properties == NULL) {
+            fputs("out of host memory\n", stderr);
+            exit(2);
+        }
+        uint32_t capacity = count;
+        require_success(vkEnumerateInstanceExtensionProperties(NULL, &capacity, properties),
+                        "vkEnumerateInstanceExtensionProperties(warmup data)");
+    }
+    const uint32_t capacity = count;
+    reset_allocation_stats();
     const uint64_t start = now_ns();
     for (uint64_t index = 0; index < iterations; ++index) {
-        count = 0;
-        require_success(vkEnumerateInstanceExtensionProperties(NULL, &count, NULL),
+        count = fill ? capacity : 0;
+        require_success(vkEnumerateInstanceExtensionProperties(NULL, &count, properties),
                         "vkEnumerateInstanceExtensionProperties");
         sink ^= count;
     }
     const uint64_t elapsed = now_ns() - start;
-    printf("enumerate-extensions,%" PRIu64 ",%" PRIu64 ",%.3f,%" PRIuPTR "\n", iterations,
-           elapsed, (double)elapsed / (double)iterations, sink);
+    const struct allocation_stats stats = read_allocation_stats();
+    free(properties);
+    const char *mode = fill ? "enumerate-extensions-fill"
+                            : (warmup ? "enumerate-extensions-warm" : "enumerate-extensions-cold");
+    printf("%s,%" PRIu64 ",%" PRIu64 ",%.3f,%" PRIuPTR ",%" PRIu64 ",%" PRIu64
+           ",%" PRIu64 "\n",
+           mode, iterations, elapsed, (double)elapsed / (double)iterations, sink, stats.allocations,
+           stats.bytes, stats.frees);
 }
 
 static void benchmark_instance_cycle(uint64_t iterations) {
     VkInstance warmup = create_instance();
     vkDestroyInstance(warmup, NULL);
+    reset_allocation_stats();
     const uint64_t start = now_ns();
     for (uint64_t index = 0; index < iterations; ++index) {
         VkInstance instance = create_instance();
@@ -146,8 +206,11 @@ static void benchmark_instance_cycle(uint64_t iterations) {
         vkDestroyInstance(instance, NULL);
     }
     const uint64_t elapsed = now_ns() - start;
-    printf("instance-cycle,%" PRIu64 ",%" PRIu64 ",%.3f,%" PRIuPTR "\n", iterations, elapsed,
-           (double)elapsed / (double)iterations, sink);
+    const struct allocation_stats stats = read_allocation_stats();
+    printf("instance-cycle,%" PRIu64 ",%" PRIu64 ",%.3f,%" PRIuPTR ",%" PRIu64 ",%" PRIu64
+           ",%" PRIu64 "\n",
+           iterations, elapsed, (double)elapsed / (double)iterations, sink, stats.allocations,
+           stats.bytes, stats.frees);
 }
 
 static void benchmark_device_cycle(uint64_t iterations) {
@@ -155,6 +218,7 @@ static void benchmark_device_cycle(uint64_t iterations) {
     VkPhysicalDevice physical_device = first_physical_device(instance);
     VkDevice warmup = create_device(physical_device);
     vkDestroyDevice(warmup, NULL);
+    reset_allocation_stats();
     const uint64_t start = now_ns();
     for (uint64_t index = 0; index < iterations; ++index) {
         VkDevice device = create_device(physical_device);
@@ -162,12 +226,15 @@ static void benchmark_device_cycle(uint64_t iterations) {
         vkDestroyDevice(device, NULL);
     }
     const uint64_t elapsed = now_ns() - start;
+    const struct allocation_stats stats = read_allocation_stats();
     vkDestroyInstance(instance, NULL);
-    printf("device-cycle,%" PRIu64 ",%" PRIu64 ",%.3f,%" PRIuPTR "\n", iterations, elapsed,
-           (double)elapsed / (double)iterations, sink);
+    printf("device-cycle,%" PRIu64 ",%" PRIu64 ",%.3f,%" PRIuPTR ",%" PRIu64 ",%" PRIu64
+           ",%" PRIu64 "\n",
+           iterations, elapsed, (double)elapsed / (double)iterations, sink, stats.allocations,
+           stats.bytes, stats.frees);
 }
 
-static void benchmark_instance_gpa(uint64_t iterations, int missing) {
+static void benchmark_instance_gpa(uint64_t iterations, int missing, const char *command) {
     static const char *known_names[] = {
         "vkDestroyInstance",
         "vkEnumeratePhysicalDevices",
@@ -184,21 +251,29 @@ static void benchmark_instance_gpa(uint64_t iterations, int missing) {
     };
     VkInstance instance = create_instance();
     const char **names = missing ? missing_names : known_names;
-    for (uint32_t index = 0; index < 10000; ++index) {
-        sink ^= (uintptr_t)vkGetInstanceProcAddr(instance, names[index & 7]);
+    const uint32_t name_count = command == NULL ? 8 : 1;
+    if (command != NULL) {
+        names = &command;
     }
+    for (uint32_t index = 0; index < 10000; ++index) {
+        sink ^= (uintptr_t)vkGetInstanceProcAddr(instance, names[index % name_count]);
+    }
+    reset_allocation_stats();
     const uint64_t start = now_ns();
     for (uint64_t index = 0; index < iterations; ++index) {
-        sink ^= (uintptr_t)vkGetInstanceProcAddr(instance, names[index & 7]);
+        sink ^= (uintptr_t)vkGetInstanceProcAddr(instance, names[index % name_count]);
     }
     const uint64_t elapsed = now_ns() - start;
+    const struct allocation_stats stats = read_allocation_stats();
     vkDestroyInstance(instance, NULL);
-    printf("instance-gpa-%s,%" PRIu64 ",%" PRIu64 ",%.3f,%" PRIuPTR "\n",
-           missing ? "missing" : "known", iterations, elapsed,
-           (double)elapsed / (double)iterations, sink);
+    printf("instance-gpa-%s%s%s,%" PRIu64 ",%" PRIu64 ",%.3f,%" PRIuPTR ",%" PRIu64
+           ",%" PRIu64 ",%" PRIu64 "\n",
+           missing ? "missing" : "known", command == NULL ? "" : "-", command == NULL ? "" : command,
+           iterations, elapsed, (double)elapsed / (double)iterations, sink, stats.allocations,
+           stats.bytes, stats.frees);
 }
 
-static void benchmark_device_gpa(uint64_t iterations, int missing) {
+static void benchmark_device_gpa(uint64_t iterations, int missing, const char *command) {
     static const char *known_names[] = {
         "vkDestroyDevice", "vkGetDeviceQueue", "vkQueueSubmit", "vkDeviceWaitIdle",
         "vkAllocateMemory", "vkCreateBuffer", "vkCreateImage", "vkCmdDraw",
@@ -211,19 +286,27 @@ static void benchmark_device_gpa(uint64_t iterations, int missing) {
     VkInstance instance = create_instance();
     VkDevice device = create_device(first_physical_device(instance));
     const char **names = missing ? missing_names : known_names;
-    for (uint32_t index = 0; index < 10000; ++index) {
-        sink ^= (uintptr_t)vkGetDeviceProcAddr(device, names[index & 7]);
+    const uint32_t name_count = command == NULL ? 8 : 1;
+    if (command != NULL) {
+        names = &command;
     }
+    for (uint32_t index = 0; index < 10000; ++index) {
+        sink ^= (uintptr_t)vkGetDeviceProcAddr(device, names[index % name_count]);
+    }
+    reset_allocation_stats();
     const uint64_t start = now_ns();
     for (uint64_t index = 0; index < iterations; ++index) {
-        sink ^= (uintptr_t)vkGetDeviceProcAddr(device, names[index & 7]);
+        sink ^= (uintptr_t)vkGetDeviceProcAddr(device, names[index % name_count]);
     }
     const uint64_t elapsed = now_ns() - start;
+    const struct allocation_stats stats = read_allocation_stats();
     vkDestroyDevice(device, NULL);
     vkDestroyInstance(instance, NULL);
-    printf("device-gpa-%s,%" PRIu64 ",%" PRIu64 ",%.3f,%" PRIuPTR "\n",
-           missing ? "missing" : "known", iterations, elapsed,
-           (double)elapsed / (double)iterations, sink);
+    printf("device-gpa-%s%s%s,%" PRIu64 ",%" PRIu64 ",%.3f,%" PRIuPTR ",%" PRIu64
+           ",%" PRIu64 ",%" PRIu64 "\n",
+           missing ? "missing" : "known", command == NULL ? "" : "-", command == NULL ? "" : command,
+           iterations, elapsed, (double)elapsed / (double)iterations, sink, stats.allocations,
+           stats.bytes, stats.frees);
 }
 
 static void benchmark_physical_device_properties(uint64_t iterations) {
@@ -234,20 +317,24 @@ static void benchmark_physical_device_properties(uint64_t iterations) {
         vkGetPhysicalDeviceProperties(physical_device, &properties);
         sink ^= properties.vendorID;
     }
+    reset_allocation_stats();
     const uint64_t start = now_ns();
     for (uint64_t index = 0; index < iterations; ++index) {
         vkGetPhysicalDeviceProperties(physical_device, &properties);
         sink ^= properties.vendorID;
     }
     const uint64_t elapsed = now_ns() - start;
+    const struct allocation_stats stats = read_allocation_stats();
     vkDestroyInstance(instance, NULL);
-    printf("physical-device-properties,%" PRIu64 ",%" PRIu64 ",%.3f,%" PRIuPTR "\n",
-           iterations, elapsed, (double)elapsed / (double)iterations, sink);
+    printf("physical-device-properties,%" PRIu64 ",%" PRIu64 ",%.3f,%" PRIuPTR ",%" PRIu64
+           ",%" PRIu64 ",%" PRIu64 "\n",
+           iterations, elapsed, (double)elapsed / (double)iterations, sink, stats.allocations,
+           stats.bytes, stats.frees);
 }
 
 int main(int argc, char **argv) {
-    if (argc != 3) {
-        fprintf(stderr, "usage: %s MODE ITERATIONS\n", argv[0]);
+    if (argc != 3 && argc != 4) {
+        fprintf(stderr, "usage: %s MODE ITERATIONS [COMMAND]\n", argv[0]);
         return 2;
     }
     char *end = NULL;
@@ -256,20 +343,26 @@ int main(int argc, char **argv) {
         fputs("ITERATIONS must be a positive integer\n", stderr);
         return 2;
     }
-    if (strcmp(argv[1], "enumerate-extensions") == 0) {
-        benchmark_enumerate_extensions(iterations);
+    const char *command = argc == 4 ? argv[3] : NULL;
+    if (strcmp(argv[1], "enumerate-extensions") == 0 ||
+        strcmp(argv[1], "enumerate-extensions-warm") == 0) {
+        benchmark_enumerate_extensions(iterations, 1, 0);
+    } else if (strcmp(argv[1], "enumerate-extensions-cold") == 0) {
+        benchmark_enumerate_extensions(iterations, 0, 0);
+    } else if (strcmp(argv[1], "enumerate-extensions-fill") == 0) {
+        benchmark_enumerate_extensions(iterations, 1, 1);
     } else if (strcmp(argv[1], "instance-cycle") == 0) {
         benchmark_instance_cycle(iterations);
     } else if (strcmp(argv[1], "device-cycle") == 0) {
         benchmark_device_cycle(iterations);
     } else if (strcmp(argv[1], "instance-gpa-known") == 0) {
-        benchmark_instance_gpa(iterations, 0);
+        benchmark_instance_gpa(iterations, 0, command);
     } else if (strcmp(argv[1], "instance-gpa-missing") == 0) {
-        benchmark_instance_gpa(iterations, 1);
+        benchmark_instance_gpa(iterations, 1, command);
     } else if (strcmp(argv[1], "device-gpa-known") == 0) {
-        benchmark_device_gpa(iterations, 0);
+        benchmark_device_gpa(iterations, 0, command);
     } else if (strcmp(argv[1], "device-gpa-missing") == 0) {
-        benchmark_device_gpa(iterations, 1);
+        benchmark_device_gpa(iterations, 1, command);
     } else if (strcmp(argv[1], "physical-device-properties") == 0) {
         benchmark_physical_device_properties(iterations);
     } else {
