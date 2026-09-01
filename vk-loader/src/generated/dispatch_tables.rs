@@ -7097,12 +7097,12 @@ pub(crate) struct IcdDeviceTerminatorDispatchTable {
         Option<vk::PFN_vkGetDeviceGroupSurfacePresentModes2EXT>,
 }
 impl IcdDeviceTerminatorDispatchTable {
-    pub(crate) unsafe fn load_boxed(
+    pub(crate) unsafe fn load(
         gdpa: vk::PFN_vkGetDeviceProcAddr,
         device: vk::VkDevice,
         mut available: impl FnMut(&CStr) -> bool,
-    ) -> Box<Self> {
-        Box::new(Self {
+    ) -> Self {
+        Self {
             vkDestroyDevice: if available(c"vkDestroyDevice") {
                 unsafe { load_typed(gdpa(device, c"vkDestroyDevice".as_ptr())) }
             } else {
@@ -7193,6 +7193,6 @@ impl IcdDeviceTerminatorDispatchTable {
             } else {
                 None
             },
-        })
+        }
     }
 }

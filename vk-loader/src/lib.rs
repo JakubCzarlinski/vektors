@@ -89,7 +89,7 @@ pub(crate) const DEVICE_DISPATCH_MAGIC: u64 = 0x10AD_ED04_0410_ADED;
 
 struct DeviceGroupChainPatch<'a> {
     _group: Box<VkDeviceGroupDeviceCreateInfo<'a>>,
-    _physical_devices: Box<[VkPhysicalDevice]>,
+    _physical_devices: Vec<VkPhysicalDevice>,
     restore: Option<(*mut *const c_void, *const c_void)>,
 }
 
@@ -129,8 +129,7 @@ unsafe fn translate_device_group_chain<'a>(
                 let handle = unsafe { source.pPhysicalDevices.add(index).read() };
                 devices.push(translate(handle).ok_or(VkResult::ERROR_INITIALIZATION_FAILED)?);
             }
-            let devices = devices.into_boxed_slice();
-            let mut group = Box::new(*source);
+            let mut group = allocation::try_box(*source).map_err(|(result, _group)| result)?;
             group.pPhysicalDevices = devices.as_ptr();
             let replacement = core::ptr::from_ref(group.as_ref()).cast::<c_void>();
             let original = current.cast::<c_void>();
@@ -509,14 +508,17 @@ pub unsafe extern "system" fn vkCreateInstance(
     };
     let device_configurations =
         settings.and_then(discovery::LoaderSettings::into_device_configurations);
-    let mut loader_instance = LoaderInstance::new(
+    let mut loader_instance = match LoaderInstance::new(
         api_version,
         enabled_extensions,
         scanned_icds,
         active_layers,
         device_configurations,
         allocator,
-    );
+    ) {
+        Ok(instance) => instance,
+        Err(result) => return result,
+    };
     if loader_instance.layers.is_empty() {
         let previous = pending::replace_instance(loader_instance.handle());
         // SAFETY: The public entrypoint validated the output and create-info
@@ -1112,7 +1114,7 @@ unsafe fn emit_driver_manifest_found(
 unsafe fn scan_icds(
     create_info: &VkInstanceCreateInfo<'_>,
     settings: Option<&discovery::LoaderSettings>,
-) -> Result<Box<[ScannedIcdRecord]>, VkResult> {
+) -> Result<Vec<ScannedIcdRecord>, VkResult> {
     let (exclusive, direct_drivers) = unsafe { scan_direct_drivers(create_info) }?;
     let scan = (!exclusive).then(|| discovery::scan_drivers_with_settings(settings));
     if let Some(scan) = &scan {
@@ -1188,7 +1190,7 @@ unsafe fn scan_icds(
         };
         Err(VkResult::ERROR_INCOMPATIBLE_DRIVER)
     } else {
-        Ok(scanned_icds.into_boxed_slice())
+        Ok(scanned_icds)
     }
 }
 
@@ -1263,12 +1265,12 @@ unsafe fn load_scanned_icd(
 #[cold]
 #[inline(never)]
 unsafe fn create_icd_instances(
-    scanned_icds: Box<[ScannedIcdRecord]>,
+    scanned_icds: Vec<ScannedIcdRecord>,
     create_info: &VkInstanceCreateInfo<'_>,
     allocator: *const VkAllocationCallbacks<'_>,
     requested_api_version: u32,
     has_device_configurations: bool,
-) -> Result<Box<[IcdInstance]>, VkResult> {
+) -> Result<Vec<IcdInstance>, VkResult> {
     let mut icds = Vec::new();
     icds.try_reserve_exact(scanned_icds.len())
         .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
@@ -1307,7 +1309,7 @@ unsafe fn create_icd_instances(
         };
         Err(VkResult::ERROR_INCOMPATIBLE_DRIVER)
     } else {
-        Ok(icds.into_boxed_slice())
+        Ok(icds)
     }
 }
 
@@ -1488,6 +1490,7 @@ unsafe fn create_scanned_icd_instance(
         icd_application_info.apiVersion = api_version;
         icd_create_info.pApplicationInfo = &raw const icd_application_info;
     }
+    let unknown_physical_device_dispatch = unknown::UnknownDispatchTable::try_new()?;
     let mut handle = VkInstance::NULL;
     // SAFETY: The scanned function has the registry ABI and receives valid structures.
     match unsafe { (icd.create_instance)(&raw const icd_create_info, allocator, &raw mut handle) } {
@@ -1543,7 +1546,7 @@ unsafe fn create_scanned_icd_instance(
                 core::ptr::addr_of_mut!((*output).handle).write(handle);
                 core::ptr::addr_of_mut!((*output).enabled_extensions).write(enabled_extensions);
                 core::ptr::addr_of_mut!((*output).unknown_physical_device_dispatch)
-                    .write(unknown::UnknownDispatchTable::new());
+                    .write(unknown_physical_device_dispatch);
                 IcdInstance::initialize_active(output);
             }
             Ok(true)
@@ -1988,7 +1991,7 @@ pub(crate) unsafe extern "system" fn create_device_terminator(
     };
     // SAFETY: `native` was just returned by this ICD, its GDPA was resolved
     // from the matching live instance, and the parent instance owns this path.
-    let loader_device = unsafe {
+    let loader_device = match unsafe {
         LoaderDevice::new(
             native,
             get_device_proc_addr,
@@ -1998,9 +2001,34 @@ pub(crate) unsafe extern "system" fn create_device_terminator(
             strict_version_checks,
             enabled_extensions,
         )
+    } {
+        Ok(device) => device,
+        Err(result) => {
+            // SAFETY: The native device was created above with this allocator.
+            let destroy: Option<PFN_vkDestroyDevice> = unsafe {
+                icd_instance
+                    .icd
+                    .resolve(icd_instance.handle, c"vkDestroyDevice")
+            };
+            if let Some(destroy) = destroy {
+                // SAFETY: The native device and allocator match the successful create call.
+                unsafe { destroy(native, allocator) };
+            }
+            return result;
+        }
+    };
+    let loader_device = match LoaderDevice::try_register(loader_device) {
+        Ok(handle) => handle,
+        Err(loader_device) => {
+            if let Some(destroy) = loader_device.icd_destroy_device() {
+                // SAFETY: The loader record retains the matching live native device.
+                unsafe { destroy(loader_device.icd_device, allocator) };
+            }
+            return VkResult::ERROR_OUT_OF_HOST_MEMORY;
+        }
     };
     // SAFETY: The caller supplied writable device storage.
-    unsafe { device.write(LoaderDevice::register(loader_device)) };
+    unsafe { device.write(loader_device) };
     VkResult::SUCCESS
 }
 
@@ -2144,23 +2172,31 @@ pub(crate) unsafe extern "system" fn terminator_enumerate_physical_devices(
     }
     let mut devices = instance.physical_devices.lock();
     let mut active = Vec::new();
-    if active.try_reserve_exact(native_devices.len()).is_err() {
+    if active.try_reserve_exact(native_devices.len()).is_err()
+        || devices.owned.try_reserve(native_devices.len()).is_err()
+    {
         return VkResult::ERROR_OUT_OF_HOST_MEMORY;
     }
     for native_device in &native_devices {
         let key = (native_device.icd_index, native_device.handle.0 as usize);
-        let device = devices.owned.entry(key).or_insert_with(|| {
-            Box::new(LoaderPhysicalDevice::new(
-                native_device.icd_index,
-                &instance.icds[native_device.icd_index],
-                instance,
-                instance.api_version,
-                native_device.handle,
-            ))
-        });
+        let device = match devices.owned.entry(key) {
+            collections::HashMapEntry::Occupied(entry) => entry.into_mut(),
+            collections::HashMapEntry::Vacant(entry) => {
+                let device = match crate::allocation::try_box(LoaderPhysicalDevice::new(
+                    native_device.icd_index,
+                    &instance.icds[native_device.icd_index],
+                    instance,
+                    instance.api_version,
+                    native_device.handle,
+                )) {
+                    Ok(device) => device,
+                    Err((result, _device)) => return result,
+                };
+                entry.insert(device)
+            }
+        };
         active.push(device.handle());
     }
-    let active = active.into_boxed_slice();
     devices.active = active;
 
     let total = devices.active.len().min(u32::MAX as usize) as u32;
@@ -2232,7 +2268,7 @@ pub unsafe extern "system" fn vkEnumeratePhysicalDevices(
     let enumerate = unsafe { dispatch.vkEnumeratePhysicalDevices.unwrap_unchecked() };
     let filters = IdFilters::from_environment();
     // SAFETY: The caller's Vulkan contracts are forwarded unchanged.
-    let result = if let Some(filters) = filters.as_deref() {
+    let result = if let Some(filters) = filters.as_ref() {
         unsafe {
             enumerate_filtered_physical_devices(
                 loader,
@@ -2313,14 +2349,17 @@ unsafe fn setup_trampoline_physical_devices(
     for index in 0..count {
         let chain = unsafe { physical_devices.add(index).read() };
         let terminator = state.active.get(index).copied().unwrap_or(chain);
-        let trampoline = state
-            .trampolines
-            .entry(chain.0 as usize)
-            .or_insert_with(|| {
-                Box::new(LoaderPhysicalDeviceTrampoline::new(
+        let key = chain.0 as usize;
+        let trampoline = match state.trampolines.entry(key) {
+            collections::HashMapEntry::Occupied(entry) => entry.into_mut(),
+            collections::HashMapEntry::Vacant(entry) => {
+                let trampoline = crate::allocation::try_box(LoaderPhysicalDeviceTrampoline::new(
                     instance, chain, terminator,
                 ))
-            });
+                .map_err(|(result, _trampoline)| result)?;
+                entry.insert(trampoline)
+            }
+        };
         unsafe { physical_devices.add(index).write(trampoline.handle()) };
     }
     Ok(())
@@ -2348,7 +2387,7 @@ unsafe fn setup_trampoline_physical_device_groups(
 
 const MAX_ID_FILTERS: usize = 16;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Default)]
 struct IdRange {
     begin: u32,
     end: u32,
@@ -2356,33 +2395,38 @@ struct IdRange {
 
 #[derive(Default)]
 struct IdFilter {
-    ranges: Box<[IdRange]>,
+    ranges: [IdRange; MAX_ID_FILTERS],
+    len: usize,
 }
 
 impl IdFilter {
     fn parse(value: &std::ffi::OsStr) -> Self {
-        let mut ranges = Vec::with_capacity(MAX_ID_FILTERS);
-        for token in value.to_string_lossy().split(',').take(MAX_ID_FILTERS) {
+        let mut filter = Self::default();
+        for (index, token) in value
+            .to_string_lossy()
+            .split(',')
+            .take(MAX_ID_FILTERS)
+            .enumerate()
+        {
             let (begin, consumed) = parse_c_u32(token.as_bytes());
             let end = token
                 .as_bytes()
                 .get(consumed.saturating_add(1)..)
                 .map_or(begin, |tail| parse_c_u32(tail).0);
-            ranges.push(IdRange { begin, end });
+            filter.ranges[index] = IdRange { begin, end };
+            filter.len += 1;
         }
-        Self {
-            ranges: ranges.into_boxed_slice(),
-        }
+        filter
     }
 
     fn matches(&self, value: u32) -> bool {
-        self.ranges
+        self.ranges[..self.len]
             .iter()
             .any(|range| range.begin <= value && value <= range.end)
     }
 
     fn is_empty(&self) -> bool {
-        self.ranges.is_empty()
+        self.len == 0
     }
 }
 
@@ -2440,7 +2484,7 @@ struct IdFilters {
 }
 
 impl IdFilters {
-    fn from_environment() -> Option<Box<Self>> {
+    fn from_environment() -> Option<Self> {
         if platform::has_elevated_privileges() {
             return None;
         }
@@ -2453,11 +2497,11 @@ impl IdFilters {
         {
             return None;
         }
-        Some(Box::new(Self {
+        Some(Self {
             device: device.as_deref().map(IdFilter::parse).unwrap_or_default(),
             vendor: vendor.as_deref().map(IdFilter::parse).unwrap_or_default(),
             driver: driver.as_deref().map(IdFilter::parse).unwrap_or_default(),
-        }))
+        })
     }
 }
 
@@ -2571,7 +2615,10 @@ unsafe fn enumerate_filtered_physical_devices(
     } else {
         (unsafe { physical_device_count.read() }) as usize
     };
-    let mut storage = Box::<IdFilterPropertyStorage>::new_uninit();
+    let mut storage = match allocation::try_box_uninit::<IdFilterPropertyStorage>() {
+        Ok(storage) => storage,
+        Err(result) => return result,
+    };
     let storage = storage.as_mut_ptr();
     let mut matched = 0_usize;
     for physical_device in chain_devices {
@@ -2614,7 +2661,10 @@ unsafe fn enumerate_filtered_physical_device_groups(
     }
     let available = available as usize;
     let mut chain_groups =
-        Box::<[VkPhysicalDeviceGroupProperties<'_>]>::new_uninit_slice(available);
+        match allocation::try_box_uninit_slice::<VkPhysicalDeviceGroupProperties<'_>>(available) {
+            Ok(groups) => groups,
+            Err(result) => return result,
+        };
     unsafe { chain_groups.as_mut_ptr().write_bytes(0, available) };
     let mut returned = available.min(u32::MAX as usize) as u32;
     let result = unsafe {
@@ -2635,7 +2685,10 @@ unsafe fn enumerate_filtered_physical_device_groups(
     } else {
         (unsafe { group_count.read() }) as usize
     };
-    let mut storage = Box::<IdFilterPropertyStorage>::new_uninit();
+    let mut storage = match allocation::try_box_uninit::<IdFilterPropertyStorage>() {
+        Ok(storage) => storage,
+        Err(result) => return result,
+    };
     let storage = storage.as_mut_ptr();
     let mut matched = 0_usize;
     'groups: for group in &chain_groups[..returned] {
@@ -2721,7 +2774,7 @@ unsafe fn enumerate_icd_groups(
     output: *mut VkPhysicalDeviceGroupProperties<'_>,
     output_capacity: usize,
     output_offset: usize,
-) -> Result<Box<[VkPhysicalDeviceGroupProperties<'static>]>, VkResult> {
+) -> Result<Vec<VkPhysicalDeviceGroupProperties<'static>>, VkResult> {
     let count = unsafe { query_icd_group_count(icd, enumerate) }? as usize;
     match enumerate {
         IcdGroupEnumerator::Core(enumerate) => {
@@ -2741,7 +2794,7 @@ unsafe fn enumerate_icd_groups(
                 return Err(result);
             }
             groups.truncate((returned as usize).min(count));
-            Ok(groups.into_boxed_slice())
+            Ok(groups)
         }
         IcdGroupEnumerator::Khr(enumerate) => {
             let mut groups = Vec::new();
@@ -2774,7 +2827,7 @@ unsafe fn enumerate_icd_groups(
                     ..VkPhysicalDeviceGroupProperties::DEFAULT
                 }
             }));
-            Ok(promoted.into_boxed_slice())
+            Ok(promoted)
         }
         IcdGroupEnumerator::PhysicalDevices(_) => {
             let devices = unsafe { enumerate_icd_physical_devices(icd) }?;
@@ -2793,16 +2846,16 @@ unsafe fn enumerate_icd_groups(
                 }
                 groups.push(group);
             }
-            Ok(groups.into_boxed_slice())
+            Ok(groups)
         }
     }
 }
 
 unsafe fn discover_all_physical_devices(
     instance: &LoaderInstance,
-) -> Result<Box<[NativePhysicalDevice]>, VkResult> {
+) -> Result<Vec<NativePhysicalDevice>, VkResult> {
     #[cfg(windows)]
-    let mut devices = unsafe { windows_sorted_physical_devices(instance) }?.into_vec();
+    let mut devices = unsafe { windows_sorted_physical_devices(instance) }?;
     #[cfg(not(windows))]
     let mut devices = Vec::new();
     let mut successful_icds = usize::from(!devices.is_empty());
@@ -2827,7 +2880,7 @@ unsafe fn discover_all_physical_devices(
         if linux_sort_enabled(instance) {
             unsafe { linux_sort_physical_devices(instance, &mut devices) }?;
         }
-        Ok(devices.into_boxed_slice())
+        Ok(devices)
     }
 }
 
@@ -2836,10 +2889,10 @@ unsafe fn discover_all_physical_devices(
 #[inline(never)]
 unsafe fn windows_sorted_physical_devices(
     instance: &LoaderInstance,
-) -> Result<Box<[NativePhysicalDevice]>, VkResult> {
+) -> Result<Vec<NativePhysicalDevice>, VkResult> {
     struct AdapterDevices {
         luid: platform::AdapterLuid,
-        devices: Box<[NativePhysicalDevice]>,
+        devices: Vec<NativePhysicalDevice>,
     }
 
     unsafe fn is_d3d12_layered(instance: &LoaderInstance, group: &AdapterDevices) -> bool {
@@ -2847,7 +2900,9 @@ unsafe fn windows_sorted_physical_devices(
         let Some(get_properties) = icd.dispatch.vkGetPhysicalDeviceProperties else {
             return false;
         };
-        let mut basic = Box::<vk::VkPhysicalDeviceProperties>::new_uninit();
+        let Ok(mut basic) = allocation::try_box_uninit::<vk::VkPhysicalDeviceProperties>() else {
+            return false;
+        };
         for device in &group.devices {
             // SAFETY: `basic` points to writable storage of the exact Vulkan
             // output type, and the native handle belongs to this ICD.
@@ -2911,7 +2966,7 @@ unsafe fn windows_sorted_physical_devices(
             let mut group = None;
             loop {
                 let capacity = count as usize;
-                let mut storage = Box::<[VkPhysicalDevice]>::new_uninit_slice(capacity);
+                let mut storage = allocation::try_box_uninit_slice::<VkPhysicalDevice>(capacity)?;
                 let mut returned = count;
                 // SAFETY: Storage contains `capacity` writable handles and
                 // `returned` supplies that capacity to the ICD.
@@ -2946,7 +3001,7 @@ unsafe fn windows_sorted_physical_devices(
                         handle: unsafe { device.assume_init() },
                     }
                 }));
-                group = Some(devices.into_boxed_slice());
+                group = Some(devices);
                 break;
             }
             let Some(group) = group else { continue };
@@ -2977,7 +3032,7 @@ unsafe fn windows_sorted_physical_devices(
         .try_reserve_exact(count)
         .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
     devices.extend(groups.into_iter().flat_map(|group| group.devices));
-    Ok(devices.into_boxed_slice())
+    Ok(devices)
 }
 
 unsafe fn enumerate_physical_device_groups_impl(
@@ -3110,15 +3165,22 @@ unsafe fn enumerate_physical_device_group_properties(
     }
     for device in &all_devices {
         let key = (device.icd_index, device.handle.0 as usize);
-        state.owned.entry(key).or_insert_with(|| {
-            Box::new(LoaderPhysicalDevice::new(
+        if let collections::HashMapEntry::Vacant(entry) = state.owned.entry(key) {
+            let physical_device = match crate::allocation::try_box(LoaderPhysicalDevice::new(
                 device.icd_index,
                 &instance.icds[device.icd_index],
                 instance,
                 instance.api_version,
                 device.handle,
-            ))
-        });
+            )) {
+                Ok(device) => device,
+                Err((result, _device)) => {
+                    *group_count = 0;
+                    return result;
+                }
+            };
+            entry.insert(physical_device);
+        }
     }
 
     let mut visible_groups = Vec::new();
@@ -3258,7 +3320,7 @@ pub unsafe extern "system" fn vkEnumeratePhysicalDeviceGroups(
         return VkResult::ERROR_INITIALIZATION_FAILED;
     };
     let filters = IdFilters::from_environment();
-    let result = if let Some(filters) = filters.as_deref() {
+    let result = if let Some(filters) = filters.as_ref() {
         unsafe {
             enumerate_filtered_physical_device_groups(
                 loader,
@@ -3306,7 +3368,7 @@ pub unsafe extern "system" fn vkEnumeratePhysicalDeviceGroupsKHR(
         return VkResult::ERROR_INITIALIZATION_FAILED;
     };
     let filters = IdFilters::from_environment();
-    let result = if let Some(filters) = filters.as_deref() {
+    let result = if let Some(filters) = filters.as_ref() {
         let enumerate: vk::PFN_vkEnumeratePhysicalDeviceGroups =
             unsafe { core::mem::transmute(enumerate) };
         unsafe {
@@ -3787,7 +3849,7 @@ unsafe fn linux_sort_physical_devices(
     instance: &LoaderInstance,
     devices: &mut [NativePhysicalDevice],
 ) -> Result<(), VkResult> {
-    let mut storage = Box::<LinuxSortPropertyStorage>::new_uninit();
+    let mut storage = allocation::try_box_uninit::<LinuxSortPropertyStorage>()?;
     let storage = storage.as_mut_ptr();
     let mut sorted = Vec::new();
     sorted
@@ -3851,7 +3913,7 @@ unsafe fn linux_sort_physical_devices(
 
 struct LinuxSortableGroup {
     group_index: usize,
-    devices: Box<[LinuxSortedDeviceInfo]>,
+    devices: Vec<LinuxSortedDeviceInfo>,
     original_order: usize,
 }
 
@@ -3862,7 +3924,7 @@ unsafe fn linux_sort_physical_device_groups(
     mut groups: Vec<(usize, VkPhysicalDeviceGroupProperties<'static>)>,
 ) -> Result<Vec<(usize, VkPhysicalDeviceGroupProperties<'static>)>, VkResult> {
     let selected = selected_linux_device();
-    let mut storage = Box::<LinuxSortPropertyStorage>::new_uninit();
+    let mut storage = allocation::try_box_uninit::<LinuxSortPropertyStorage>()?;
     let storage = storage.as_mut_ptr();
     let mut sortable = Vec::new();
     sortable
@@ -3909,7 +3971,7 @@ unsafe fn linux_sort_physical_device_groups(
         }
         sortable.push(LinuxSortableGroup {
             group_index,
-            devices: devices.into_boxed_slice(),
+            devices,
             original_order: group_index,
         });
     }
@@ -3938,7 +4000,7 @@ unsafe fn linux_sort_physical_device_groups(
 #[inline(never)]
 unsafe fn discover_active_physical_devices(
     instance: &LoaderInstance,
-) -> Result<Box<[NativePhysicalDevice]>, VkResult> {
+) -> Result<Vec<NativePhysicalDevice>, VkResult> {
     let devices = unsafe { discover_all_physical_devices(instance) }?;
     let Some(configurations) = instance.device_configurations.as_deref() else {
         return Ok(devices);
@@ -3954,7 +4016,7 @@ unsafe fn discover_active_physical_devices(
     ordered
         .try_reserve_exact(configurations.len())
         .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
-    let mut query = Box::<DeviceConfigurationProperties>::new_uninit();
+    let mut query = allocation::try_box_uninit::<DeviceConfigurationProperties>()?;
     let query_pointer = query.as_mut_ptr();
     for configuration in configurations {
         for device in &devices {
@@ -4045,7 +4107,7 @@ unsafe fn discover_active_physical_devices(
     if ordered.is_empty() {
         Err(VkResult::ERROR_INITIALIZATION_FAILED)
     } else {
-        Ok(ordered.into_boxed_slice())
+        Ok(ordered)
     }
 }
 
@@ -4145,7 +4207,7 @@ unsafe fn enumerate_icd_physical_devices(
         return Err(result);
     }
     let count = count as usize;
-    let mut storage = Box::<[VkPhysicalDevice]>::new_uninit_slice(count);
+    let mut storage = allocation::try_box_uninit_slice::<VkPhysicalDevice>(count)?;
     let mut returned_count = count.min(u32::MAX as usize) as u32;
     // SAFETY: `storage` has `count` writable elements.
     let result = unsafe {
@@ -4450,7 +4512,7 @@ mod tests {
         let instance = LoaderInstance::new(
             VK_API_VERSION_1_0,
             ExtensionSet::default(),
-            Box::default(),
+            Vec::new(),
             layer::ActiveLayers {
                 loaded: Box::default(),
                 reported: Box::default(),
@@ -4458,7 +4520,8 @@ mod tests {
             },
             None,
             core::ptr::null(),
-        );
+        )
+        .unwrap();
         let mut native = FakeNativeDevice {
             dispatch: core::ptr::null(),
         };
@@ -4475,15 +4538,19 @@ mod tests {
                 false,
                 ExtensionSet::default(),
             )
+        }
+        .unwrap();
+        let Ok(handle) = LoaderDevice::try_register(device) else {
+            panic!("test device registry allocation failed");
         };
-        let handle = LoaderDevice::register(device);
         let dispatch_key = native.dispatch as usize;
         // SAFETY: The test has exclusive creation-time access and the fake
         // resolver represents the completed one-element device chain.
         unsafe {
             LoaderDevice::from_dispatch_key_mut(dispatch_key)
                 .unwrap()
-                .set_chain(handle, fake_get_device_proc_addr);
+                .set_chain(handle, fake_get_device_proc_addr)
+                .unwrap();
         };
 
         unsafe { vkDestroyDevice(handle, core::ptr::null()) };

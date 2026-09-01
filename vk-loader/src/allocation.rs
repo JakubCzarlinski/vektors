@@ -1,15 +1,75 @@
 //! Loader-owned allocations honoring Vulkan allocation callbacks.
 
-use alloc::alloc::{Layout, alloc, dealloc};
+use alloc::{
+    alloc::{Layout, alloc, dealloc},
+    boxed::Box,
+};
 use core::{
     marker::PhantomData,
+    mem::MaybeUninit,
     ops::{Deref, DerefMut},
     ptr::NonNull,
 };
 
 use vk::{VkAllocationCallbacks, VkResult, VkSystemAllocationScope};
 
-const LOADER_ALIGNMENT: usize = core::mem::size_of::<u64>();
+pub(crate) const LOADER_ALIGNMENT: usize = core::mem::size_of::<u64>();
+
+/// Allocates one value through Rust's global allocator without invoking the
+/// process-wide allocation-error handler.
+pub(crate) fn try_box<T>(value: T) -> Result<Box<T>, (VkResult, T)> {
+    if core::mem::size_of::<T>() == 0 {
+        return Ok(Box::new(value));
+    }
+    let layout = Layout::new::<T>();
+    // SAFETY: `layout` is non-zero and valid for `T`.
+    let pointer = unsafe { alloc(layout) }.cast::<T>();
+    let Some(pointer) = NonNull::new(pointer) else {
+        return Err((VkResult::ERROR_OUT_OF_HOST_MEMORY, value));
+    };
+    // SAFETY: The allocation has the exact layout of `T` and is uniquely owned.
+    unsafe { pointer.as_ptr().write(value) };
+    // SAFETY: The initialized allocation was made with the global allocator
+    // and is transferred directly into `Box` ownership.
+    Ok(unsafe { Box::from_raw(pointer.as_ptr()) })
+}
+
+/// Allocates uninitialized stable storage without aborting on exhaustion.
+pub(crate) fn try_box_uninit<T>() -> Result<Box<MaybeUninit<T>>, VkResult> {
+    if core::mem::size_of::<T>() == 0 {
+        return Ok(Box::new(MaybeUninit::uninit()));
+    }
+    let layout = Layout::new::<T>();
+    // SAFETY: `layout` is non-zero and valid for `T`.
+    let pointer = unsafe { alloc(layout) }.cast::<MaybeUninit<T>>();
+    let pointer = NonNull::new(pointer).ok_or(VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+    // SAFETY: `MaybeUninit<T>` has `T`'s layout and permits uninitialized bytes.
+    Ok(unsafe { Box::from_raw(pointer.as_ptr()) })
+}
+
+/// Allocates an uninitialized boxed slice without aborting on exhaustion.
+pub(crate) fn try_box_uninit_slice<T>(len: usize) -> Result<Box<[MaybeUninit<T>]>, VkResult> {
+    let layout = Layout::array::<T>(len).map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+    if layout.size() == 0 {
+        return Ok(Box::new([]));
+    }
+    // SAFETY: `layout` is non-zero and valid for an array of `len` values.
+    let pointer = unsafe { alloc(layout) }.cast::<MaybeUninit<T>>();
+    let pointer = NonNull::new(pointer).ok_or(VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+    let slice = core::ptr::slice_from_raw_parts_mut(pointer.as_ptr(), len);
+    // SAFETY: The allocation describes exactly `len` uninitialized entries and
+    // is transferred directly into boxed-slice ownership.
+    Ok(unsafe { Box::from_raw(slice) })
+}
+
+pub(crate) fn try_boxed_slice_filled<T: Copy>(len: usize, value: T) -> Result<Box<[T]>, VkResult> {
+    let mut storage = try_box_uninit_slice::<T>(len)?;
+    for entry in &mut storage {
+        entry.write(value);
+    }
+    // SAFETY: Every element was initialized exactly once above.
+    Ok(unsafe { storage.assume_init() })
+}
 
 pub(crate) struct LoaderAllocation {
     pointer: NonNull<u8>,
@@ -74,8 +134,10 @@ impl<T> LoaderBox<T> {
         value: T,
         scope: VkSystemAllocationScope,
     ) -> Result<Self, (VkResult, T)> {
-        debug_assert!(core::mem::size_of::<T>() != 0);
-        debug_assert!(core::mem::align_of::<T>() <= LOADER_ALIGNMENT);
+        const {
+            assert!(core::mem::size_of::<T>() != 0);
+            assert!(core::mem::align_of::<T>() <= LOADER_ALIGNMENT);
+        }
         let allocation = match LoaderAllocation::new(callbacks, core::mem::size_of::<T>(), scope) {
             Ok(allocation) => allocation,
             Err(result) => return Err((result, value)),
@@ -133,8 +195,10 @@ impl<T: Copy> LoaderArray<T> {
         value: T,
         scope: VkSystemAllocationScope,
     ) -> Result<Self, VkResult> {
-        debug_assert!(core::mem::size_of::<T>() != 0);
-        debug_assert!(core::mem::align_of::<T>() <= LOADER_ALIGNMENT);
+        const {
+            assert!(core::mem::size_of::<T>() != 0);
+            assert!(core::mem::align_of::<T>() <= LOADER_ALIGNMENT);
+        }
         let Some(size) = core::mem::size_of::<T>().checked_mul(len) else {
             return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
         };
@@ -290,5 +354,13 @@ mod tests {
         assert_eq!(&*filled, &[7, 7, 7]);
         filled[1] = 9;
         assert_eq!(&*filled, &[7, 9, 7]);
+    }
+
+    #[test]
+    fn fallible_slice_allocation_rejects_layout_overflow() {
+        assert!(matches!(
+            try_box_uninit_slice::<u64>(usize::MAX),
+            Err(VkResult::ERROR_OUT_OF_HOST_MEMORY)
+        ));
     }
 }

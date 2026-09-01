@@ -849,6 +849,9 @@ fn generated_loader_part(item: &syn::Item) -> &'static str {
         }
         syn::Item::Const(item) => {
             let name = item.ident.to_string();
+            if name == "_" && quote! { #item }.to_string().contains("LOADER_ALIGNMENT") {
+                return "extensions";
+            }
             match name.as_str() {
                 name if name.contains("EXTENSION_ID") => "extensions",
                 _ => "commands",
@@ -1132,6 +1135,15 @@ fn main() {
             }
         }
     });
+    let surface_alignment_assertions = surface_chain_extensions.iter().map(|(_, extension)| {
+        let extension = format_ident!("{extension}");
+        quote! {
+            const _: () = assert!(
+                core::mem::align_of::<vk::#extension<'static>>()
+                    <= crate::allocation::LOADER_ALIGNMENT
+            );
+        }
+    });
     let extension_id_constants = extension_records
         .iter()
         .enumerate()
@@ -1176,6 +1188,7 @@ fn main() {
         #[repr(transparent)]
         struct ExtensionName(&'static CStr);
         static EXTENSION_NAMES: [ExtensionName; #extension_name_count] = [#(#extension_names)*];
+        #(#surface_alignment_assertions)*
         pub(crate) const fn surface_create_info_extension_size(root: VkStructureType, structure_type: VkStructureType) -> Option<usize> {
             match (root, structure_type) { #(#surface_extension_arms)* _ => None }
         }
@@ -1558,8 +1571,8 @@ fn main() {
     generated.extend(quote! {
         pub(crate) struct IcdDeviceTerminatorDispatchTable { #(#icd_terminator_fields)* }
         impl IcdDeviceTerminatorDispatchTable {
-            pub(crate) unsafe fn load_boxed(gdpa: vk::PFN_vkGetDeviceProcAddr, device: vk::VkDevice, mut available: impl FnMut(&CStr) -> bool) -> Box<Self> {
-                Box::new(Self { #(#icd_terminator_loads)* })
+            pub(crate) unsafe fn load(gdpa: vk::PFN_vkGetDeviceProcAddr, device: vk::VkDevice, mut available: impl FnMut(&CStr) -> bool) -> Self {
+                Self { #(#icd_terminator_loads)* }
             }
         }
     });

@@ -497,6 +497,10 @@ pub(super) static EXTENSION_NAMES: [ExtensionName; 474] = [
     ExtensionName(vk::VK_VALVE_SHADER_MIXED_FLOAT_DOT_PRODUCT_EXTENSION_NAME),
     ExtensionName(vk::VK_VALVE_VIDEO_ENCODE_RGB_CONVERSION_EXTENSION_NAME),
 ];
+const _: () = assert!(
+    core::mem::align_of::<vk::VkDisplaySurfaceStereoCreateInfoNV<'static>>()
+        <= crate::allocation::LOADER_ALIGNMENT
+);
 pub(crate) const fn surface_create_info_extension_size(
     root: VkStructureType,
     structure_type: VkStructureType,

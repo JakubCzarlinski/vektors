@@ -18,7 +18,6 @@ use core::{
 };
 use vk::PFN_vkVoidFunction;
 
-use crate::instance::LoaderInstance;
 #[cfg(any(
     target_arch = "aarch64",
     target_arch = "arm",
@@ -26,6 +25,7 @@ use crate::instance::LoaderInstance;
     target_arch = "x86_64"
 ))]
 use crate::instance::{LoaderPhysicalDevice, LoaderPhysicalDeviceTrampoline};
+use crate::{allocation::try_box_uninit_slice, instance::LoaderInstance};
 
 pub(crate) const MAX_UNKNOWN_COMMANDS: usize = 250;
 #[cfg(target_arch = "x86_64")]
@@ -58,15 +58,15 @@ pub(crate) struct UnknownDispatchTable {
 }
 
 impl UnknownDispatchTable {
-    pub(crate) fn new() -> Self {
-        let mut entries = Box::<[AtomicPtr<c_void>]>::new_uninit_slice(MAX_UNKNOWN_COMMANDS);
+    pub(crate) fn try_new() -> Result<Self, vk::VkResult> {
+        let mut entries = try_box_uninit_slice::<AtomicPtr<c_void>>(MAX_UNKNOWN_COMMANDS)?;
         for entry in &mut entries {
             entry.write(AtomicPtr::new(core::ptr::null_mut()));
         }
         // SAFETY: Every element was initialized exactly once above.
-        Self {
+        Ok(Self {
             entries: unsafe { entries.assume_init() },
-        }
+        })
     }
 
     pub(crate) fn as_ptr(&self) -> *const AtomicPtr<c_void> {
@@ -119,11 +119,11 @@ impl UnknownDeviceState {
 }
 
 impl UnknownPhysicalDeviceState {
-    pub(crate) fn new() -> Self {
-        Self {
+    pub(crate) fn try_new() -> Result<Self, vk::VkResult> {
+        Ok(Self {
             names: Vec::new(),
-            dispatch: UnknownDispatchTable::new(),
-        }
+            dispatch: UnknownDispatchTable::try_new()?,
+        })
     }
 
     pub(crate) const fn dispatch(&self) -> &UnknownDispatchTable {
@@ -1041,7 +1041,7 @@ mod tests {
 
     #[test]
     fn physical_trampoline_preserves_unknown_signature_and_unwraps_handle() {
-        let dispatch = UnknownDispatchTable::new();
+        let dispatch = UnknownDispatchTable::try_new().unwrap();
         dispatch.store(SLOT, Some(erase_physical(physical_target)));
         let chain = VkPhysicalDevice(0x1234_5678usize as *mut c_void);
         let wrapper = LoaderPhysicalDeviceTrampoline::test_stub(chain, dispatch.as_ptr());
@@ -1056,7 +1056,7 @@ mod tests {
 
     #[test]
     fn physical_terminator_preserves_unknown_signature_and_unwraps_handle() {
-        let dispatch = UnknownDispatchTable::new();
+        let dispatch = UnknownDispatchTable::try_new().unwrap();
         dispatch.store(SLOT, Some(erase_physical(physical_target)));
         let native = VkPhysicalDevice(0x7654_3210usize as *mut c_void);
         let wrapper = LoaderPhysicalDevice::test_stub(native, dispatch.as_ptr());

@@ -2324,7 +2324,8 @@ pub(crate) unsafe fn available_device_extensions(
         return Err(result);
     }
     let capacity = count as usize;
-    let mut properties = Box::<[VkExtensionProperties]>::new_uninit_slice(capacity);
+    let mut properties =
+        crate::allocation::try_box_uninit_slice::<VkExtensionProperties>(capacity)?;
     let mut returned = count;
     // SAFETY: `properties` has `capacity` writable entries.
     let result = unsafe {
@@ -2443,10 +2444,13 @@ unsafe fn create_device_chain_from(
     };
     let mut layered_create_info = *create_info;
     layered_create_info.pNext = core::ptr::from_ref(&data_callback).cast();
-    let sentinel = Box::new(DeviceCreateSentinel {
+    let sentinel = match crate::allocation::try_box(DeviceCreateSentinel {
         magic: crate::DEVICE_DISPATCH_MAGIC,
         padding: [0; 120],
-    });
+    }) {
+        Ok(sentinel) => sentinel,
+        Err((result, _sentinel)) => return result,
+    };
     let sentinel_address = core::ptr::from_ref(sentinel.as_ref()) as usize;
     let mut created_device = vk::VkDevice(sentinel_address as *mut c_void);
     crate::pending::push_device_sentinel(sentinel_address);
@@ -2493,7 +2497,28 @@ unsafe fn create_device_chain_from(
         };
         // SAFETY: Device creation has not returned to the application and the
         // top layer returned this live chain handle.
-        unsafe { device.set_chain(created_device, top_device_proc_addr) };
+        if let Err(result) = unsafe { device.set_chain(created_device, top_device_proc_addr) } {
+            // The top-level chain succeeded, but loader bookkeeping could not
+            // retain its alias. Destroy the completed chain before releasing
+            // the direct loader record.
+            let destroy: Option<vk::PFN_vkDestroyDevice> = unsafe {
+                crate::load_typed(top_device_proc_addr(
+                    created_device,
+                    c"vkDestroyDevice".as_ptr(),
+                ))
+            };
+            if let Some(destroy) = destroy {
+                // SAFETY: This is the live top-level device returned above and
+                // the allocator matches its successful creation call.
+                unsafe { destroy(created_device, allocator) };
+            }
+            if let Some(dispatch) = created_dispatch {
+                drop(crate::device::LoaderDevice::take_dispatch(
+                    dispatch as *const crate::LayerDeviceDispatchTable,
+                ));
+            }
+            return result;
+        }
         // The public output is committed only after the full create chain and
         // dispatch initialization complete successfully, matching upstream.
         unsafe { output.write(created_device) };
