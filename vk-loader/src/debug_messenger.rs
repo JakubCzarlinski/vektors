@@ -1,7 +1,7 @@
 //! Loader-owned `VK_EXT_debug_utils` messenger state and entry points.
 
 use alloc::{boxed::Box, vec::Vec};
-use core::{ffi::c_void, mem};
+use core::{ffi::c_void, mem, ptr::NonNull};
 
 use vk::{
     PFN_vkDebugReportCallbackEXT, PFN_vkDebugUtilsMessengerCallbackEXT, VkAllocationCallbacks,
@@ -75,7 +75,7 @@ pub(crate) struct DebugMessengerState {
 }
 
 pub(crate) enum DebugCallback {
-    Messenger(Box<DebugMessenger>),
+    Messenger(LoaderBox<DebugMessenger>),
     Report(LoaderBox<DebugReport>),
 }
 
@@ -139,7 +139,7 @@ struct UsedObjectStatus {
 }
 
 struct CallbackBuffer {
-    pointer: *mut c_void,
+    pointer: Option<NonNull<c_void>>,
     entries: usize,
 }
 
@@ -149,7 +149,7 @@ unsafe impl Send for CallbackBuffer {}
 impl CallbackBuffer {
     const fn new() -> Self {
         Self {
-            pointer: core::ptr::null_mut(),
+            pointer: None,
             entries: 0,
         }
     }
@@ -170,7 +170,21 @@ impl CallbackBuffer {
             .checked_mul(entry_size)
             .ok_or(VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
         if let Some(callbacks) = callbacks {
-            let pointer = if self.pointer.is_null() {
+            let pointer = if let Some(pointer) = self.pointer {
+                let Some(reallocate) = callbacks.pfnReallocation else {
+                    return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
+                };
+                // SAFETY: `pointer` came from these same callbacks.
+                unsafe {
+                    reallocate(
+                        callbacks.pUserData,
+                        pointer.as_ptr(),
+                        size,
+                        mem::align_of::<UsedObjectStatus>().max(mem::align_of::<usize>()),
+                        VkSystemAllocationScope::OBJECT,
+                    )
+                }
+            } else {
                 let Some(allocate) = callbacks.pfnAllocation else {
                     return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
                 };
@@ -183,46 +197,32 @@ impl CallbackBuffer {
                         VkSystemAllocationScope::OBJECT,
                     )
                 }
-            } else {
-                let Some(reallocate) = callbacks.pfnReallocation else {
-                    return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
-                };
-                // SAFETY: `pointer` came from these same callbacks.
-                unsafe {
-                    reallocate(
-                        callbacks.pUserData,
-                        self.pointer,
-                        size,
-                        mem::align_of::<UsedObjectStatus>().max(mem::align_of::<usize>()),
-                        VkSystemAllocationScope::OBJECT,
-                    )
-                }
             };
-            if pointer.is_null() {
+            let Some(pointer) = NonNull::new(pointer) else {
                 return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
-            }
-            self.pointer = pointer;
+            };
+            self.pointer = Some(pointer);
         }
         self.entries = new_entries;
         Ok(())
     }
 
     fn release(&mut self, callbacks: Option<&VkAllocationCallbacks<'static>>) {
-        if !self.pointer.is_null()
+        if let Some(pointer) = self.pointer
             && let Some(callbacks) = callbacks
             && let Some(free) = callbacks.pfnFree
         {
             // SAFETY: This block was allocated by the matching instance callbacks.
-            unsafe { free(callbacks.pUserData, self.pointer) };
+            unsafe { free(callbacks.pUserData, pointer.as_ptr()) };
         }
-        self.pointer = core::ptr::null_mut();
+        self.pointer = None;
         self.entries = 0;
     }
 }
 
 enum IndexAllocation {
     Callback {
-        pointer: *mut u32,
+        pointer: NonNull<u32>,
         callbacks: VkAllocationCallbacks<'static>,
     },
     Rust(Box<u32>),
@@ -262,15 +262,15 @@ impl IndexAllocation {
             )
         }
         .cast::<u32>();
-        if pointer.is_null() {
+        let Some(pointer) = NonNull::new(pointer) else {
             return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
-        }
+        };
         Ok(Self::Callback { pointer, callbacks })
     }
 
     fn pointer(&self) -> *mut u32 {
         match self {
-            Self::Callback { pointer, .. } => *pointer,
+            Self::Callback { pointer, .. } => pointer.as_ptr(),
             Self::Rust(index) => core::ptr::from_ref(index.as_ref()).cast_mut(),
         }
     }
@@ -282,7 +282,7 @@ impl Drop for IndexAllocation {
             && let Some(free) = callbacks.pfnFree
         {
             // SAFETY: This pointer was allocated by these matching callbacks.
-            unsafe { free(callbacks.pUserData, pointer.cast()) };
+            unsafe { free(callbacks.pUserData, pointer.as_ptr().cast()) };
         }
     }
 }
@@ -524,16 +524,33 @@ pub(crate) unsafe extern "system" fn terminator_create_debug_utils_messenger(
         }
     }
 
-    let owned = Box::new(DebugMessenger {
+    let object_allocator = unsafe { retain_allocator(allocator) };
+    let storage_allocator = object_allocator
+        .as_ref()
+        .or_else(|| instance.allocator())
+        .copied();
+    let messenger_state = DebugMessenger {
         callback: create_info.pfnUserCallback,
         severity: create_info.messageSeverity,
         message_types: create_info.messageType,
         user_data: create_info.pUserData,
         icd_handles: native,
-        allocator: unsafe { retain_allocator(allocator) },
+        allocator: object_allocator,
         slot,
         index_allocation,
-    });
+    };
+    let owned = match LoaderBox::try_new(
+        storage_allocator.as_ref(),
+        messenger_state,
+        VkSystemAllocationScope::OBJECT,
+    ) {
+        Ok(owned) => owned,
+        Err((result, messenger_state)) => {
+            instance.debug_messengers.lock().release_messenger(slot);
+            destroy_native(instance, &messenger_state.icd_handles, allocator);
+            return result;
+        }
+    };
     let address = owned.index_allocation.pointer() as usize;
     let mut state = instance.debug_messengers.lock();
     if state.callbacks.try_reserve(1).is_err() {
