@@ -5,7 +5,7 @@ rustflags = [
   "-C", "link-arg=-Wl,--icf=safe",
 ]
 
-[target.'cfg(all())']
+[target.'cfg(not(windows))']
 rustflags = ["-C", "force-unwind-tables=no"]
 
 
