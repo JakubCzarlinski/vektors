@@ -4,14 +4,7 @@
 //! A Rust function cannot express the same contract because the command's
 //! integer, SIMD, and stack arguments are intentionally unknown.
 
-use crate::instance::LoaderInstance;
-#[cfg(any(
-    target_arch = "aarch64",
-    target_arch = "arm",
-    target_arch = "x86",
-    target_arch = "x86_64"
-))]
-use crate::instance::{LoaderPhysicalDevice, LoaderPhysicalDeviceTrampoline};
+use alloc::ffi::CString;
 #[cfg(any(
     target_arch = "aarch64",
     target_arch = "arm",
@@ -23,8 +16,16 @@ use core::{
     ffi::{CStr, c_void},
     sync::atomic::{AtomicPtr, Ordering},
 };
-use std::ffi::CString;
 use vk::PFN_vkVoidFunction;
+
+use crate::instance::LoaderInstance;
+#[cfg(any(
+    target_arch = "aarch64",
+    target_arch = "arm",
+    target_arch = "x86",
+    target_arch = "x86_64"
+))]
+use crate::instance::{LoaderPhysicalDevice, LoaderPhysicalDeviceTrampoline};
 
 pub(crate) const MAX_UNKNOWN_COMMANDS: usize = 250;
 #[cfg(target_arch = "x86_64")]

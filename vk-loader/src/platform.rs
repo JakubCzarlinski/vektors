@@ -5,6 +5,11 @@ mod apple;
 #[cfg(target_os = "fuchsia")]
 mod fuchsia;
 
+#[cfg(any(unix, windows))]
+use alloc::ffi::CString;
+use core::cell::Cell;
+#[cfg(not(any(windows, target_os = "fuchsia")))]
+use core::error::Error as _;
 #[cfg(unix)]
 use core::ffi::CStr;
 #[cfg(target_os = "macos")]
@@ -12,9 +17,6 @@ use core::ffi::c_int;
 use core::ffi::c_void;
 #[cfg(not(any(unix, windows)))]
 use core::hash::{Hash, Hasher};
-use std::cell::Cell;
-#[cfg(not(any(windows, target_os = "fuchsia")))]
-use std::error::Error as _;
 #[cfg(unix)]
 use std::ffi::OsStr;
 #[cfg(windows)]
@@ -41,7 +43,7 @@ use std::os::unix::ffi::OsStringExt as _;
 use std::os::windows::ffi::{OsStrExt as _, OsStringExt as _};
 use std::path::{Path, PathBuf};
 #[cfg(unix)]
-use std::{ffi::CString, sync::OnceLock};
+use std::sync::OnceLock;
 #[cfg(windows)]
 use windows_sys::Win32::{
     Foundation::{
@@ -1743,7 +1745,7 @@ pub(crate) fn write_stderr(message: &str) {
             remaining = &remaining[written as usize..];
         }
     }
-    if let Ok(message) = std::ffi::CString::new(message) {
+    if let Ok(message) = CString::new(message) {
         // SAFETY: The message is NUL-terminated and remains live for the call.
         unsafe { OutputDebugStringA(message.as_ptr().cast()) };
     }
