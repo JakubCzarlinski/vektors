@@ -5,6 +5,7 @@ use core::{
     ffi::{CStr, c_void},
     mem::MaybeUninit,
     ops::{Deref, DerefMut},
+    ptr::NonNull,
     sync::atomic::{AtomicPtr, Ordering},
 };
 use std::sync::LazyLock;
@@ -40,7 +41,7 @@ pub(crate) struct LoaderDevice {
     get_device_proc_addr: PFN_vkGetDeviceProcAddr,
     chain_get_device_proc_addr: PFN_vkGetDeviceProcAddr,
     chain_dispatch_key: usize,
-    instance: *const LoaderInstance,
+    instance: NonNull<LoaderInstance>,
     icd_index: usize,
     app_core_level: u16,
     ignore_newer_core_commands: bool,
@@ -134,7 +135,7 @@ impl LoaderDevice {
     pub(crate) unsafe fn new(
         native: VkDevice,
         get_device_proc_addr: PFN_vkGetDeviceProcAddr,
-        instance: *const LoaderInstance,
+        instance: &LoaderInstance,
         icd_index: usize,
         app_api_version: u32,
         ignore_newer_core_commands: bool,
@@ -149,7 +150,7 @@ impl LoaderDevice {
             get_device_proc_addr,
             chain_get_device_proc_addr: get_device_proc_addr,
             chain_dispatch_key: 0,
-            instance,
+            instance: NonNull::from(instance),
             icd_index,
             app_core_level: api_core_level(app_api_version),
             ignore_newer_core_commands,
@@ -341,9 +342,8 @@ impl LoaderDevice {
     }
 
     pub(crate) fn instance(&self) -> &LoaderInstance {
-        debug_assert!(!self.instance.is_null());
         // SAFETY: Vulkan requires the parent instance to outlive this device.
-        unsafe { &*self.instance }
+        unsafe { self.instance.as_ref() }
     }
 
     pub(crate) const fn icd_index(&self) -> usize {
