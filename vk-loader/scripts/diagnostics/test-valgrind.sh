@@ -39,7 +39,9 @@ if [[ "$in_container" != 1 ]]; then
   test_copy_dir="$repo_root/target/vk-loader-valgrind-tests"
   mkdir -p "$test_copy_dir"
   for suite in test_regression test_fuzzing test_threading; do
-    cp --reflink=auto "$upstream_build_dir/tests/$suite" "$test_copy_dir/$suite"
+    # `objcopy` rewrites the following file in place. Avoid copy-on-write
+    # reflinks: some filesystems can SIGBUS while an ELF mapping is replaced.
+    cp --reflink=never "$upstream_build_dir/tests/$suite" "$test_copy_dir/$suite"
     # CachyOS marks its startup objects as requiring x86-64-v4 even when the
     # test's actual instruction stream is baseline. Work on a disposable copy.
     if [[ "$target" == x86_64-* ]]; then
