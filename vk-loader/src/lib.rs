@@ -4202,7 +4202,7 @@ mod tests {
             LoaderDevice::new(
                 handle,
                 fake_get_device_proc_addr,
-                core::ptr::from_ref(instance.as_ref()),
+                instance.as_ref(),
                 0,
                 VK_API_VERSION_1_0,
                 false,

@@ -1,7 +1,7 @@
 //! Loader-owned dispatchable instance state.
 
 use alloc::ffi::CString;
-use core::{ffi::c_void, mem::MaybeUninit};
+use core::{ffi::c_void, mem::MaybeUninit, ptr::NonNull};
 use std::sync::LazyLock;
 
 use crate::sync::Mutex;
@@ -32,24 +32,27 @@ static INSTANCES: LazyLock<Mutex<HashMap<usize, usize>>> =
 
 #[repr(C)]
 pub(crate) struct LoaderInstance {
-    dispatch: *const LayerInstanceDispatchTable,
-    chain_instance: VkInstance,
+    // Vulkan's dispatchable-handle ABI requires this to remain the first field.
+    dispatch: NonNull<LayerInstanceDispatchTable>,
+    // Hot handle-validation and dispatch state.
     magic: u64,
-    dispatch_table: Box<MaybeUninit<LayerInstanceDispatchTable>>,
+    chain_instance: VkInstance,
     pub(crate) api_version: u32,
     pub(crate) enabled_extensions: ExtensionSet,
-    pub(crate) pending_icds: Option<Box<[crate::ScannedIcdRecord]>>,
     pub(crate) icds: Box<[IcdInstance]>,
     pub(crate) layers: Box<[LoadedLayer]>,
+    pub(crate) physical_devices: Mutex<PhysicalDeviceState>,
+    pub(crate) unknown_physical_devices: Mutex<UnknownPhysicalDeviceState>,
+    pub(crate) unknown_devices: Mutex<UnknownDeviceState>,
+    // Less frequently accessed metadata and object registries.
+    dispatch_table: Box<MaybeUninit<LayerInstanceDispatchTable>>,
+    pub(crate) pending_icds: Option<Box<[crate::ScannedIcdRecord]>>,
     pub(crate) active_layer_properties: Box<[ActiveLayerProperty]>,
     pub(crate) enabled_layer_names: Box<[CString]>,
     pub(crate) device_configurations: Option<Box<[DeviceConfiguration]>>,
     allocator: Option<VkAllocationCallbacks<'static>>,
-    pub(crate) physical_devices: Mutex<PhysicalDeviceState>,
     pub(crate) surfaces: Mutex<HashMap<usize, SurfaceState>>,
     pub(crate) debug_messengers: Mutex<DebugMessengerState>,
-    pub(crate) unknown_physical_devices: Mutex<UnknownPhysicalDeviceState>,
-    pub(crate) unknown_devices: Mutex<UnknownDeviceState>,
 }
 
 #[derive(Default)]
@@ -61,25 +64,29 @@ pub(crate) struct PhysicalDeviceState {
 
 #[repr(C)]
 pub(crate) struct LoaderPhysicalDevice {
-    dispatch: *const LayerInstanceDispatchTable,
-    instance: *const LoaderInstance,
+    dispatch: NonNull<LayerInstanceDispatchTable>,
+    instance: NonNull<LoaderInstance>,
     magic: u64,
-    pub(crate) icd_index: usize,
-    icd: *const IcdInstance,
-    pub(crate) app_api_version: u32,
     pub(crate) native: VkPhysicalDevice,
-    pub(crate) unknown_dispatch: *const core::sync::atomic::AtomicPtr<c_void>,
+    pub(crate) unknown_dispatch: NonNull<core::sync::atomic::AtomicPtr<c_void>>,
+    icd: NonNull<IcdInstance>,
+    pub(crate) icd_index: usize,
+    pub(crate) app_api_version: u32,
 }
 
 #[repr(C)]
 pub(crate) struct LoaderPhysicalDeviceTrampoline {
-    dispatch: *const LayerInstanceDispatchTable,
-    instance: *const LoaderInstance,
+    dispatch: NonNull<LayerInstanceDispatchTable>,
+    instance: NonNull<LoaderInstance>,
     magic: u64,
     pub(crate) chain: VkPhysicalDevice,
     pub(crate) terminator: VkPhysicalDevice,
-    pub(crate) unknown_dispatch: *const core::sync::atomic::AtomicPtr<c_void>,
+    pub(crate) unknown_dispatch: NonNull<core::sync::atomic::AtomicPtr<c_void>>,
 }
+
+const _: () = assert!(core::mem::offset_of!(LoaderInstance, dispatch) == 0);
+const _: () = assert!(core::mem::offset_of!(LoaderPhysicalDevice, dispatch) == 0);
+const _: () = assert!(core::mem::offset_of!(LoaderPhysicalDeviceTrampoline, dispatch) == 0);
 
 impl LoaderInstance {
     pub(crate) unsafe fn internal_magic(handle: VkInstance) -> Option<u64> {
@@ -97,7 +104,8 @@ impl LoaderInstance {
     ) -> Box<Self> {
         let has_layers = !active_layers.loaded.is_empty();
         let mut dispatch_table = Box::<LayerInstanceDispatchTable>::new_uninit();
-        let dispatch = dispatch_table.as_mut_ptr().cast_const();
+        // SAFETY: The boxed table has stable, non-null storage.
+        let dispatch = unsafe { NonNull::new_unchecked(dispatch_table.as_mut_ptr()) };
         let allocator = if allocator.is_null() {
             None
         } else {
@@ -111,23 +119,23 @@ impl LoaderInstance {
         };
         let mut instance = Box::new(Self {
             dispatch,
-            chain_instance: VkInstance::NULL,
             magic: INSTANCE_MAGIC,
-            dispatch_table,
+            chain_instance: VkInstance::NULL,
             api_version: api_version.max(VK_API_VERSION_1_0),
             enabled_extensions,
-            pending_icds: Some(scanned_icds),
             icds: Box::default(),
             layers: active_layers.loaded,
+            physical_devices: Mutex::new(PhysicalDeviceState::default()),
+            unknown_physical_devices: Mutex::new(UnknownPhysicalDeviceState::new()),
+            unknown_devices: Mutex::new(UnknownDeviceState::new()),
+            dispatch_table,
+            pending_icds: Some(scanned_icds),
             active_layer_properties: active_layers.reported,
             enabled_layer_names: active_layers.requested,
             device_configurations,
             allocator,
-            physical_devices: Mutex::new(PhysicalDeviceState::default()),
             surfaces: Mutex::new(HashMap::default()),
             debug_messengers: Mutex::new(DebugMessengerState::new()),
-            unknown_physical_devices: Mutex::new(UnknownPhysicalDeviceState::new()),
-            unknown_devices: Mutex::new(UnknownDeviceState::new()),
         });
         let handle = instance.handle();
         instance.chain_instance = handle;
@@ -173,7 +181,7 @@ impl LoaderInstance {
     }
 
     pub(crate) const fn dispatch(&self) -> *const LayerInstanceDispatchTable {
-        self.dispatch
+        self.dispatch.as_ptr()
     }
 
     pub(crate) fn allocator(&self) -> Option<&VkAllocationCallbacks<'static>> {
@@ -444,14 +452,17 @@ impl LoaderPhysicalDevice {
         native: VkPhysicalDevice,
     ) -> Self {
         Self {
-            dispatch: instance.dispatch(),
-            instance: core::ptr::from_ref(instance),
+            dispatch: instance.dispatch,
+            instance: NonNull::from(instance),
             magic: PHYSICAL_DEVICE_MAGIC,
-            icd_index,
-            icd: core::ptr::from_ref(icd),
-            app_api_version,
             native,
-            unknown_dispatch: icd.unknown_physical_device_dispatch.as_ptr(),
+            // SAFETY: The ICD owns a stable, non-null unknown-command table.
+            unknown_dispatch: unsafe {
+                NonNull::new_unchecked(icd.unknown_physical_device_dispatch.as_ptr().cast_mut())
+            },
+            icd: NonNull::from(icd),
+            icd_index,
+            app_api_version,
         }
     }
 
@@ -482,16 +493,14 @@ impl LoaderPhysicalDevice {
     }
 
     pub(crate) fn icd(&self) -> &IcdInstance {
-        debug_assert!(!self.icd.is_null());
         // SAFETY: The pointer targets the owning instance's boxed ICD slice,
         // which outlives every physical-device wrapper stored by that instance.
-        unsafe { &*self.icd }
+        unsafe { self.icd.as_ref() }
     }
 
     pub(crate) fn instance(&self) -> &LoaderInstance {
-        debug_assert!(!self.instance.is_null());
         // SAFETY: Physical-device wrappers are owned by this loader instance.
-        unsafe { &*self.instance }
+        unsafe { self.instance.as_ref() }
     }
 
     #[cfg(test)]
@@ -500,14 +509,15 @@ impl LoaderPhysicalDevice {
         unknown_dispatch: *const core::sync::atomic::AtomicPtr<c_void>,
     ) -> Self {
         Self {
-            dispatch: core::ptr::null(),
-            instance: core::ptr::null(),
+            dispatch: NonNull::dangling(),
+            instance: NonNull::dangling(),
             magic: PHYSICAL_DEVICE_MAGIC,
-            icd_index: 0,
-            icd: core::ptr::null(),
-            app_api_version: 0,
             native,
-            unknown_dispatch,
+            // SAFETY: Test callers pass a live dispatch-table allocation.
+            unknown_dispatch: unsafe { NonNull::new_unchecked(unknown_dispatch.cast_mut()) },
+            icd: NonNull::dangling(),
+            icd_index: 0,
+            app_api_version: 0,
         }
     }
 }
@@ -520,12 +530,14 @@ impl LoaderPhysicalDeviceTrampoline {
     ) -> Self {
         let unknown_dispatch = instance.unknown_physical_devices.lock().dispatch().as_ptr();
         Self {
-            dispatch: instance.dispatch(),
-            instance,
+            dispatch: instance.dispatch,
+            instance: NonNull::from(instance),
             magic: PHYSICAL_DEVICE_TRAMPOLINE_MAGIC,
             chain,
             terminator,
-            unknown_dispatch,
+            // SAFETY: `dispatch` returns the stable, non-null table backing the
+            // instance's unknown-command state.
+            unknown_dispatch: unsafe { NonNull::new_unchecked(unknown_dispatch.cast_mut()) },
         }
     }
 
@@ -548,12 +560,13 @@ impl LoaderPhysicalDeviceTrampoline {
         unknown_dispatch: *const core::sync::atomic::AtomicPtr<c_void>,
     ) -> Self {
         Self {
-            dispatch: core::ptr::null(),
-            instance: core::ptr::null(),
+            dispatch: NonNull::dangling(),
+            instance: NonNull::dangling(),
             magic: PHYSICAL_DEVICE_TRAMPOLINE_MAGIC,
             chain,
             terminator: VkPhysicalDevice::NULL,
-            unknown_dispatch,
+            // SAFETY: Test callers pass a live dispatch-table allocation.
+            unknown_dispatch: unsafe { NonNull::new_unchecked(unknown_dispatch.cast_mut()) },
         }
     }
 }
