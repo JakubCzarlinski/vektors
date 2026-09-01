@@ -290,22 +290,32 @@ pub(crate) struct CommandProviderRange {
     pub(crate) len: u8,
 }
 
-const fn command_hash(name: &[u8]) -> u64 {
-    let mut hash = 0xcbf2_9ce4_8422_2325_u64;
-    let mut index = 0;
-    while index < name.len() {
-        hash = (hash ^ name[index] as u64).wrapping_mul(0x0100_0000_01b3);
-        index += 1;
+fn command_hash(name: &[u8]) -> u64 {
+    if name.len() < 8 {
+        let mut hash = 0xcbf2_9ce4_8422_2325_u64;
+        for byte in name {
+            hash = (hash ^ u64::from(*byte)).wrapping_mul(0x0100_0000_01b3);
+        }
+        return hash;
     }
-    hash
+    let word = |start| {
+        // SAFETY: Every caller-selected start leaves eight bytes in `name`.
+        u64::from_le(unsafe { name.as_ptr().add(start).cast::<u64>().read_unaligned() })
+    };
+    let middle = (name.len() - 8) / 2;
+    word(0)
+        ^ word(middle).rotate_left(21)
+        ^ word(name.len() - 8).rotate_left(42)
+        // SAFETY: This branch requires `name.len() >= 8`, and 5/8 of a
+        // positive length is strictly inside the slice.
+        ^ u64::from(unsafe { *name.get_unchecked(name.len() * 5 / 8) }).rotate_left(7)
+        ^ name.len() as u64
 }
 
 const fn command_slot_hash(mut hash: u64) -> u64 {
-    hash ^= hash >> 30;
-    hash = hash.wrapping_mul(0xbf58_476d_1ce4_e5b9);
-    hash ^= hash >> 27;
-    hash = hash.wrapping_mul(0x94d0_49bb_1331_11eb);
-    hash ^ (hash >> 31)
+    hash ^= hash >> 32;
+    hash = hash.wrapping_mul(0xd6e8_feb8_6659_fd93);
+    hash ^ (hash >> 32)
 }
 
 const fn dispatch_offset(value: usize) -> u16 {
@@ -4248,7 +4258,7 @@ mod tests {
         assert!(command_lookup(c"vCreateInstance").is_none());
         assert!(exported_proc_addr(command_lookup(c"vkQueueSubmit").unwrap().id).is_some());
         assert!(core::hint::black_box(COMMAND_COUNT) > 800);
-        assert!(core::hint::black_box(COMMAND_MAX_DISPLACEMENT) < u16::MAX);
+        assert!(core::hint::black_box(COMMAND_MAX_DISPLACEMENT) < u8::MAX);
     }
 
     #[test]

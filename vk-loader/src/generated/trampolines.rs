@@ -28,7 +28,10 @@ pub(crate) unsafe extern "system" fn vkAcquireDrmDisplayEXT(
         .vkAcquireDrmDisplayEXT
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, drmFd, display) },
     )
 }
@@ -142,7 +145,10 @@ pub(crate) unsafe extern "system" fn vkAcquireWinrtDisplayNV(
         .vkAcquireWinrtDisplayNV
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, display) },
     )
 }
@@ -179,7 +185,10 @@ pub(crate) unsafe extern "system" fn vkAcquireXlibDisplayEXT(
         .vkAcquireXlibDisplayEXT
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, dpy, display) },
     )
 }
@@ -7894,7 +7903,10 @@ pub(crate) unsafe extern "system" fn vkCreateDisplayModeKHR(
         .vkCreateDisplayModeKHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, display, pCreateInfo, pAllocator, pMode)
         },
@@ -10053,7 +10065,10 @@ pub(crate) unsafe extern "system" fn vkEnumeratePhysicalDeviceQueueFamilyPerform
         .vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(
                 physicalDevice,
@@ -10088,7 +10103,10 @@ pub(crate) unsafe extern "system" fn vkEnumeratePhysicalDeviceQueueFamilyPerform
         .vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(
                 physicalDevice,
@@ -10121,7 +10139,10 @@ pub(crate) unsafe extern "system" fn vkEnumeratePhysicalDeviceShaderInstrumentat
         .vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, pDescriptionCount, pDescriptions)
         },
@@ -11393,7 +11414,10 @@ pub(crate) unsafe extern "system" fn vkGetDisplayModeProperties2KHR(
         .vkGetDisplayModeProperties2KHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, display, pPropertyCount, pProperties)
         },
@@ -11422,7 +11446,10 @@ pub(crate) unsafe extern "system" fn vkGetDisplayModePropertiesKHR(
         .vkGetDisplayModePropertiesKHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, display, pPropertyCount, pProperties)
         },
@@ -11450,7 +11477,10 @@ pub(crate) unsafe extern "system" fn vkGetDisplayPlaneCapabilities2KHR(
         .vkGetDisplayPlaneCapabilities2KHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, pDisplayPlaneInfo, pCapabilities)
         },
@@ -11479,7 +11509,10 @@ pub(crate) unsafe extern "system" fn vkGetDisplayPlaneCapabilitiesKHR(
         .vkGetDisplayPlaneCapabilitiesKHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, mode, planeIndex, pCapabilities)
         },
@@ -11508,7 +11541,10 @@ pub(crate) unsafe extern "system" fn vkGetDisplayPlaneSupportedDisplaysKHR(
         .vkGetDisplayPlaneSupportedDisplaysKHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, planeIndex, pDisplayCount, pDisplays)
         },
@@ -11536,7 +11572,10 @@ pub(crate) unsafe extern "system" fn vkGetDrmDisplayEXT(
         .vkGetDrmDisplayEXT
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, drmFd, connectorId, display) },
     )
 }
@@ -12592,7 +12631,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceCalibrateableTimeDomains
         .vkGetPhysicalDeviceCalibrateableTimeDomainsEXT
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, pTimeDomainCount, pTimeDomains)
         },
@@ -12619,7 +12661,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceCalibrateableTimeDomains
         .vkGetPhysicalDeviceCalibrateableTimeDomainsKHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, pTimeDomainCount, pTimeDomains)
         },
@@ -12646,7 +12691,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceCooperativeMatrixFlexibl
         .vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, pPropertyCount, pProperties) },
     )
 }
@@ -12672,7 +12720,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceCooperativeMatrixPropert
         .vkGetPhysicalDeviceCooperativeMatrixProperties2EXT
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(
                 physicalDevice,
@@ -12704,7 +12755,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceCooperativeMatrixPropert
         .vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, pPropertyCount, pProperties) },
     )
 }
@@ -12729,7 +12783,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceCooperativeMatrixPropert
         .vkGetPhysicalDeviceCooperativeMatrixPropertiesNV
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, pPropertyCount, pProperties) },
     )
 }
@@ -12754,7 +12811,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceCooperativeVectorPropert
         .vkGetPhysicalDeviceCooperativeVectorPropertiesNV
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, pPropertyCount, pProperties) },
     )
 }
@@ -12778,7 +12838,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceDescriptorSizeEXT(
         .vkGetPhysicalDeviceDescriptorSizeEXT
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || unsafe { core::mem::zeroed::<vk::VkDeviceSize>() },
+        || {
+            core::hint::cold_path();
+            unsafe { core::mem::zeroed::<vk::VkDeviceSize>() }
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, descriptorType) },
     )
 }
@@ -12805,7 +12868,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceDirectFBPresentationSupp
         .vkGetPhysicalDeviceDirectFBPresentationSupportEXT
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || unsafe { core::mem::zeroed::<vk::VkBool32>() },
+        || {
+            core::hint::cold_path();
+            unsafe { core::mem::zeroed::<vk::VkBool32>() }
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, queueFamilyIndex, dfb) },
     )
 }
@@ -12831,7 +12897,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceDisplayPlaneProperties2K
         .vkGetPhysicalDeviceDisplayPlaneProperties2KHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, pPropertyCount, pProperties) },
     )
 }
@@ -12857,7 +12926,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceDisplayPlanePropertiesKH
         .vkGetPhysicalDeviceDisplayPlanePropertiesKHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, pPropertyCount, pProperties) },
     )
 }
@@ -12883,7 +12955,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceDisplayProperties2KHR(
         .vkGetPhysicalDeviceDisplayProperties2KHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, pPropertyCount, pProperties) },
     )
 }
@@ -12909,7 +12984,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceDisplayPropertiesKHR(
         .vkGetPhysicalDeviceDisplayPropertiesKHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, pPropertyCount, pProperties) },
     )
 }
@@ -13053,7 +13131,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceExternalImageFormatPrope
         .vkGetPhysicalDeviceExternalImageFormatPropertiesNV
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(
                 physicalDevice,
@@ -13337,7 +13418,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceFragmentShadingRatesKHR(
         .vkGetPhysicalDeviceFragmentShadingRatesKHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(
                 physicalDevice,
@@ -13373,7 +13457,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceImageFormatProperties(
         .vkGetPhysicalDeviceImageFormatProperties
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(
                 physicalDevice,
@@ -13409,7 +13496,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceImageFormatProperties2(
         .vkGetPhysicalDeviceImageFormatProperties2
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, pImageFormatInfo, pImageFormatProperties)
         },
@@ -13436,7 +13526,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceImageFormatProperties2KH
         .vkGetPhysicalDeviceImageFormatProperties2KHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, pImageFormatInfo, pImageFormatProperties)
         },
@@ -13567,7 +13660,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceOpticalFlowImageFormatsN
         .vkGetPhysicalDeviceOpticalFlowImageFormatsNV
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(
                 physicalDevice,
@@ -13601,7 +13697,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDevicePresentRectanglesKHR(
         .vkGetPhysicalDevicePresentRectanglesKHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, surface, pRectCount, pRects) },
     )
 }
@@ -13704,7 +13803,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceQueueFamilyDataGraphEngi
         .vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(
                 physicalDevice,
@@ -13739,7 +13841,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceQueueFamilyDataGraphOpti
         .vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(
                 physicalDevice,
@@ -13808,7 +13913,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceQueueFamilyDataGraphProp
         .vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(
                 physicalDevice,
@@ -13960,7 +14068,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceScreenPresentationSuppor
         .vkGetPhysicalDeviceScreenPresentationSupportQNX
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || unsafe { core::mem::zeroed::<vk::VkBool32>() },
+        || {
+            core::hint::cold_path();
+            unsafe { core::mem::zeroed::<vk::VkBool32>() }
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, queueFamilyIndex, window) },
     )
 }
@@ -14081,7 +14192,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceSupportedFramebufferMixe
         .vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, pCombinationCount, pCombinations)
         },
@@ -14108,7 +14222,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceSurfaceCapabilities2EXT(
         .vkGetPhysicalDeviceSurfaceCapabilities2EXT
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, surface, pSurfaceCapabilities)
         },
@@ -14136,7 +14253,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceSurfaceCapabilities2KHR(
         .vkGetPhysicalDeviceSurfaceCapabilities2KHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, pSurfaceInfo, pSurfaceCapabilities)
         },
@@ -14164,7 +14284,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
         .vkGetPhysicalDeviceSurfaceCapabilitiesKHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, surface, pSurfaceCapabilities)
         },
@@ -14193,7 +14316,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceSurfaceFormats2KHR(
         .vkGetPhysicalDeviceSurfaceFormats2KHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(
                 physicalDevice,
@@ -14227,7 +14353,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceSurfaceFormatsKHR(
         .vkGetPhysicalDeviceSurfaceFormatsKHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(
                 physicalDevice,
@@ -14261,7 +14390,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceSurfacePresentModes2EXT(
         .vkGetPhysicalDeviceSurfacePresentModes2EXT
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(
                 physicalDevice,
@@ -14295,7 +14427,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceSurfacePresentModesKHR(
         .vkGetPhysicalDeviceSurfacePresentModesKHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, surface, pPresentModeCount, pPresentModes)
         },
@@ -14324,7 +14459,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceSurfaceSupportKHR(
         .vkGetPhysicalDeviceSurfaceSupportKHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, queueFamilyIndex, surface, pSupported)
         },
@@ -14352,7 +14490,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceToolProperties(
         .vkGetPhysicalDeviceToolProperties
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, pToolCount, pToolProperties) },
     )
 }
@@ -14377,7 +14518,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceToolPropertiesEXT(
         .vkGetPhysicalDeviceToolPropertiesEXT
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, pToolCount, pToolProperties) },
     )
 }
@@ -14403,7 +14547,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceUbmPresentationSupportSE
         .vkGetPhysicalDeviceUbmPresentationSupportSEC
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || unsafe { core::mem::zeroed::<vk::VkBool32>() },
+        || {
+            core::hint::cold_path();
+            unsafe { core::mem::zeroed::<vk::VkBool32>() }
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, queueFamilyIndex, device) },
     )
 }
@@ -14428,7 +14575,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceVideoCapabilitiesKHR(
         .vkGetPhysicalDeviceVideoCapabilitiesKHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, pVideoProfile, pCapabilities)
         },
@@ -14455,7 +14605,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceVideoEncodeQualityLevelP
         .vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, pQualityLevelInfo, pQualityLevelProperties)
         },
@@ -14483,7 +14636,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceVideoFormatPropertiesKHR
         .vkGetPhysicalDeviceVideoFormatPropertiesKHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(
                 physicalDevice,
@@ -14528,7 +14684,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceWaylandPresentationSuppo
         .vkGetPhysicalDeviceWaylandPresentationSupportKHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || unsafe { core::mem::zeroed::<vk::VkBool32>() },
+        || {
+            core::hint::cold_path();
+            unsafe { core::mem::zeroed::<vk::VkBool32>() }
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, queueFamilyIndex, display) },
     )
 }
@@ -14554,7 +14713,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceWin32PresentationSupport
         .vkGetPhysicalDeviceWin32PresentationSupportKHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || unsafe { core::mem::zeroed::<vk::VkBool32>() },
+        || {
+            core::hint::cold_path();
+            unsafe { core::mem::zeroed::<vk::VkBool32>() }
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, queueFamilyIndex) },
     )
 }
@@ -14593,7 +14755,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceXcbPresentationSupportKH
         .vkGetPhysicalDeviceXcbPresentationSupportKHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || unsafe { core::mem::zeroed::<vk::VkBool32>() },
+        || {
+            core::hint::cold_path();
+            unsafe { core::mem::zeroed::<vk::VkBool32>() }
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, queueFamilyIndex, connection, visual_id)
         },
@@ -14634,7 +14799,10 @@ pub(crate) unsafe extern "system" fn vkGetPhysicalDeviceXlibPresentationSupportK
         .vkGetPhysicalDeviceXlibPresentationSupportKHR
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || unsafe { core::mem::zeroed::<vk::VkBool32>() },
+        || {
+            core::hint::cold_path();
+            unsafe { core::mem::zeroed::<vk::VkBool32>() }
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, queueFamilyIndex, dpy, visualID)
         },
@@ -14958,7 +15126,10 @@ pub(crate) unsafe extern "system" fn vkGetRandROutputDisplayEXT(
         .vkGetRandROutputDisplayEXT
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, dpy, rrOutput, pDisplay) },
     )
 }
@@ -15599,7 +15770,10 @@ pub(crate) unsafe extern "system" fn vkGetWinrtDisplayNV(
         .vkGetWinrtDisplayNV
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, deviceRelativeId, pDisplay) },
     )
 }
@@ -16166,7 +16340,10 @@ pub(crate) unsafe extern "system" fn vkReleaseDisplayEXT(
         .vkReleaseDisplayEXT
         .map(|command| (command, physicalDevice));
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, display) },
     )
 }

@@ -191,17 +191,30 @@ const ICD_DEVICE_TERMINATOR_COMMANDS: &[&str] = &[
 ];
 
 fn command_hash(name: &[u8]) -> u64 {
-    name.iter().fold(0xcbf29ce484222325, |hash, byte| {
-        (hash ^ u64::from(*byte)).wrapping_mul(0x100000001b3)
-    })
+    if name.len() < 8 {
+        return name.iter().fold(0xcbf29ce484222325, |hash, byte| {
+            (hash ^ u64::from(*byte)).wrapping_mul(0x100000001b3)
+        });
+    }
+    let word = |start: usize| {
+        let mut value = 0_u64;
+        for offset in 0..8 {
+            value |= u64::from(name[start + offset]) << (offset * 8);
+        }
+        value
+    };
+    let middle = (name.len() - 8) / 2;
+    word(0)
+        ^ word(middle).rotate_left(21)
+        ^ word(name.len() - 8).rotate_left(42)
+        ^ u64::from(name[name.len() * 5 / 8]).rotate_left(7)
+        ^ name.len() as u64
 }
 
 fn command_slot_hash(mut hash: u64) -> u64 {
-    hash ^= hash >> 30;
-    hash = hash.wrapping_mul(0xbf58_476d_1ce4_e5b9);
-    hash ^= hash >> 27;
-    hash = hash.wrapping_mul(0x94d0_49bb_1331_11eb);
-    hash ^ (hash >> 31)
+    hash ^= hash >> 32;
+    hash = hash.wrapping_mul(0xd6e8_feb8_6659_fd93);
+    hash ^ (hash >> 32)
 }
 
 fn qualify_registry_type(ty: &str, base: &str) -> String {
@@ -1224,11 +1237,28 @@ fn main() {
             }
         }
     });
-    let layer_device_masks = layer_device_commands.iter().map(|command| {
+    let layer_device_mask_entries = layer_device_commands.iter().map(|command| {
         let cfg = platform_cfg(command_platform_protect(&registry, command));
-        let name = format_ident!("{}", command.name);
         let id = format_ident!("{}_COMMAND_ID", screaming_snake_case(&command.name));
-        quote! { #cfg if !available(#id) { self.#name = None; } }
+        let offset = format_ident!(
+            "{}_DEVICE_DISPATCH_OFFSET",
+            screaming_snake_case(&command.name)
+        );
+        quote! { #cfg DeviceDispatchMask { command_id: #id, offset: #offset }, }
+    });
+    let layer_device_layout_assertions = layer_device_commands.iter().map(|command| {
+        let cfg = platform_cfg(command_platform_protect(&registry, command));
+        let pfn = format_ident!("PFN_{}", command.name);
+        quote! {
+            #cfg const _: () = assert!(
+                core::mem::size_of::<Option<vk::#pfn>>()
+                    == core::mem::size_of::<vk::PFN_vkVoidFunction>()
+            );
+            #cfg const _: () = assert!(
+                core::mem::align_of::<Option<vk::#pfn>>()
+                    == core::mem::align_of::<vk::PFN_vkVoidFunction>()
+            );
+        }
     });
     // Preserve the joint `::<` punctuation inside the macro input. `quote!`
     // separates it because `<` can otherwise begin a comparison expression.
@@ -1254,15 +1284,33 @@ fn main() {
         // infallible on every target and feature combination at compile time.
         const _: () = assert!(core::mem::size_of::<LayerDeviceDispatchTable>() <= 65_535);
         #(#layer_device_offsets)*
+        #(#layer_device_layout_assertions)*
+        struct DeviceDispatchMask {
+            pub(super) command_id: u16,
+            pub(super) offset: u16,
+        }
+        static DEVICE_DISPATCH_MASKS: &[DeviceDispatchMask] = &[#(#layer_device_mask_entries)*];
         impl LayerDeviceDispatchTable {
             #[allow(clippy::too_many_lines)] // One generated field write per registry command.
             pub(crate) unsafe fn load_into(table_ptr: *mut Self, gdpa: vk::PFN_vkGetDeviceProcAddr, device: vk::VkDevice) {
                 unsafe { core::ptr::addr_of_mut!((*table_ptr).magic).write(DEVICE_DISPATCH_MAGIC); }
                 #(#layer_device_loads)*
             }
-            #[allow(clippy::too_many_lines)] // One generated availability check per registry command.
             pub(crate) fn mask_unavailable(&mut self, mut available: impl FnMut(u16) -> bool) {
-                #(#layer_device_masks)*
+                let table = core::ptr::from_mut(self).cast::<u8>();
+                for mask in DEVICE_DISPATCH_MASKS {
+                    if !available(mask.command_id) {
+                        // SAFETY: Each generated offset names an `Option<PFN_vk*>` field. The
+                        // compile-time assertions above verify that it has the size and alignment
+                        // of `PFN_vkVoidFunction`; the nullable-pointer representation guarantees
+                        // that all-zero bytes represent `None` for function pointers.
+                        unsafe {
+                            table
+                                .add(usize::from(mask.offset))
+                                .write_bytes(0, core::mem::size_of::<vk::PFN_vkVoidFunction>());
+                        }
+                    }
+                }
             }
         }
     });
@@ -1402,14 +1450,14 @@ fn main() {
     let mut bucket_order = (0..bucket_count).collect::<Vec<_>>();
     bucket_order.sort_unstable_by_key(|bucket| core::cmp::Reverse(buckets[*bucket].len()));
     let mut slots = vec![None; table_len];
-    let mut displacements = vec![0_u16; bucket_count];
+    let mut displacements = vec![0_u8; bucket_count];
     let mut candidate_slots = Vec::new();
     let mut max_displacement = 0;
     for bucket in bucket_order {
         if buckets[bucket].is_empty() {
             break;
         }
-        let displacement = (0..=u16::MAX)
+        let displacement = (0..=u8::MAX)
             .find(|displacement| {
                 candidate_slots.clear();
                 for record_index in &buckets[bucket] {
@@ -1472,11 +1520,19 @@ fn main() {
     let bucket_count = Literal::usize_unsuffixed(bucket_count);
     let displacements = displacements
         .into_iter()
-        .map(Literal::u16_unsuffixed)
+        .map(Literal::u8_unsuffixed)
         .collect::<Vec<_>>();
     let core_levels = command_records
         .iter()
-        .map(|record| Literal::u16_unsuffixed(record.3))
+        .map(|record| match record.3 {
+            0 => quote! { CommandCoreLevel::None },
+            1024 => quote! { CommandCoreLevel::Vulkan10 },
+            1025 => quote! { CommandCoreLevel::Vulkan11 },
+            1026 => quote! { CommandCoreLevel::Vulkan12 },
+            1027 => quote! { CommandCoreLevel::Vulkan13 },
+            1028 => quote! { CommandCoreLevel::Vulkan14 },
+            level => panic!("unsupported command core level {level}"),
+        })
         .collect::<Vec<_>>();
     let device_dispatch_offsets = command_records
         .iter()
@@ -1545,18 +1601,40 @@ fn main() {
         });
     }
     let command_count = Literal::usize_unsuffixed(command_records.len());
-    let max_displacement = Literal::u16_unsuffixed(max_displacement);
+    let max_displacement = Literal::u8_unsuffixed(max_displacement);
     generated.extend(quote! {
+        #[repr(u8)]
+        #[derive(Clone, Copy)]
+        enum CommandCoreLevel {
+            None,
+            Vulkan10,
+            Vulkan11,
+            Vulkan12,
+            Vulkan13,
+            Vulkan14,
+        }
+        impl CommandCoreLevel {
+            const fn packed(self) -> u16 {
+                match self {
+                    Self::None => 0,
+                    Self::Vulkan10 => 1024,
+                    Self::Vulkan11 => 1025,
+                    Self::Vulkan12 => 1026,
+                    Self::Vulkan13 => 1027,
+                    Self::Vulkan14 => 1028,
+                }
+            }
+        }
         pub(crate) static COMMAND_NAMES: &[u8] = #command_names_literal;
         pub(crate) static COMMAND_TABLE: [CommandRecord; #table_len_literal] = [#(#command_table)*];
-        static COMMAND_DISPLACEMENTS: [u16; #bucket_count] = [#(#displacements),*];
-        static COMMAND_CORE_LEVELS: [u16; COMMAND_COUNT] = [#(#core_levels),*];
+        static COMMAND_DISPLACEMENTS: [u8; #bucket_count] = [#(#displacements),*];
+        static COMMAND_CORE_LEVELS: [CommandCoreLevel; COMMAND_COUNT] = [#(#core_levels),*];
         static COMMAND_DEVICE_DISPATCH_OFFSETS: [u16; COMMAND_COUNT] = [#(#device_dispatch_offsets)*];
         static COMMAND_LOADER_TRAMPOLINE_WORDS: [u64; #loader_trampoline_word_count] = [#(#loader_trampoline_words),*];
         #extension_metadata
         pub(crate) const COMMAND_COUNT: usize = #command_count;
         #[cfg(test)]
-        pub(crate) const COMMAND_MAX_DISPLACEMENT: u16 = #max_displacement;
+        pub(crate) const COMMAND_MAX_DISPLACEMENT: u8 = #max_displacement;
         #[inline(never)]
         pub(crate) fn command_lookup(name: &CStr) -> Option<CommandLookup> {
             let suffix = name.to_bytes().strip_prefix(b"vk")?;
@@ -1593,7 +1671,7 @@ fn main() {
         pub(crate) fn command_core_level(id: u16) -> u16 {
             let index = usize::from(id);
             debug_assert!(index < COMMAND_CORE_LEVELS.len());
-            unsafe { *COMMAND_CORE_LEVELS.get_unchecked(index) }
+            unsafe { *COMMAND_CORE_LEVELS.get_unchecked(index) }.packed()
         }
         #[inline]
         fn command_extension_enabled(id: u16, ranges: &[CommandProviderRange; COMMAND_COUNT], ids: &[u16], enabled: &ExtensionSet) -> bool {
@@ -1912,7 +1990,13 @@ fn main() {
                 });
             } else {
                 body.extend(quote! {
-                    command.map_or_else(|| #missing, |(command, #first)| unsafe { command(#(#args),*) })
+                    command.map_or_else(
+                        || {
+                            core::hint::cold_path();
+                            #missing
+                        },
+                        |(command, #first)| unsafe { command(#(#args),*) },
+                    )
                 });
             }
             generated.extend(quote! {
@@ -2046,7 +2130,10 @@ fn main() {
                 body.extend(quote! {
                     let #parameter = match unsafe { translate_physical_device_surface(#first, #parameter) } {
                         Ok(surface) => surface,
-                        Err(result) => return result,
+                        Err(result) => {
+                            core::hint::cold_path();
+                            return result;
+                        }
                     };
                 });
             }
@@ -2114,7 +2201,13 @@ fn main() {
                 quote! { unsafe { core::mem::zeroed::<#return_type>() } }
             };
             body.extend(quote! {
-                command.map_or_else(|| #missing, |#closure_pattern| unsafe { command(#(#args),*) })
+                command.map_or_else(
+                    || {
+                        core::hint::cold_path();
+                        #missing
+                    },
+                    |#closure_pattern| unsafe { command(#(#args),*) },
+                )
             });
         }
         if first_type == "VkPhysicalDevice" {

@@ -320,7 +320,10 @@ pub(crate) unsafe extern "system" fn terminator_vkAcquireDrmDisplayEXT(
         )
     };
     command.map_or_else(
-        || vk::VkResult::ERROR_EXTENSION_NOT_PRESENT,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_EXTENSION_NOT_PRESENT
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, drmFd, display) },
     )
 }
@@ -342,7 +345,10 @@ pub(crate) unsafe extern "system" fn terminator_vkAcquireWinrtDisplayNV(
         )
     };
     command.map_or_else(
-        || fatal_loader_error(c"vkAcquireWinrtDisplayNV: Driver's function pointer was NULL"),
+        || {
+            core::hint::cold_path();
+            fatal_loader_error(c"vkAcquireWinrtDisplayNV: Driver's function pointer was NULL")
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, display) },
     )
 }
@@ -376,7 +382,10 @@ pub(crate) unsafe extern "system" fn terminator_vkAcquireXlibDisplayEXT(
         )
     };
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, dpy, display) },
     )
 }
@@ -448,7 +457,10 @@ pub(crate) unsafe extern "system" fn terminator_vkCreateDisplayModeKHR(
         )
     };
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, display, pCreateInfo, pAllocator, pMode)
         },
@@ -874,9 +886,12 @@ pub(crate) unsafe extern "system" fn terminator_vkEnumeratePhysicalDeviceQueueFa
     };
     command
         .map_or_else(
-            || fatal_loader_error(
-                c"vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM: Driver's function pointer was NULL",
-            ),
+            || {
+                core::hint::cold_path();
+                fatal_loader_error(
+                    c"vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM: Driver's function pointer was NULL",
+                )
+            },
             |(command, physicalDevice)| unsafe {
                 command(
                     physicalDevice,
@@ -912,9 +927,12 @@ pub(crate) unsafe extern "system" fn terminator_vkEnumeratePhysicalDeviceQueueFa
     };
     command
         .map_or_else(
-            || fatal_loader_error(
-                c"vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR: Driver's function pointer was NULL",
-            ),
+            || {
+                core::hint::cold_path();
+                fatal_loader_error(
+                    c"vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR: Driver's function pointer was NULL",
+                )
+            },
             |(command, physicalDevice)| unsafe {
                 command(
                     physicalDevice,
@@ -948,9 +966,12 @@ pub(crate) unsafe extern "system" fn terminator_vkEnumeratePhysicalDeviceShaderI
     };
     command
         .map_or_else(
-            || fatal_loader_error(
-                c"vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM: Driver's function pointer was NULL",
-            ),
+            || {
+                core::hint::cold_path();
+                fatal_loader_error(
+                    c"vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM: Driver's function pointer was NULL",
+                )
+            },
             |(command, physicalDevice)| unsafe {
                 command(physicalDevice, pDescriptionCount, pDescriptions)
             },
@@ -976,12 +997,15 @@ pub(crate) unsafe extern "system" fn terminator_vkGetDisplayModePropertiesKHR(
     };
     command.map_or_else(
         || {
-            if !pPropertyCount.is_null() {
-                unsafe {
-                    pPropertyCount.write(0);
+            core::hint::cold_path();
+            {
+                if !pPropertyCount.is_null() {
+                    unsafe {
+                        pPropertyCount.write(0);
+                    }
                 }
+                vk::VkResult::SUCCESS
             }
-            vk::VkResult::SUCCESS
         },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, display, pPropertyCount, pProperties)
@@ -1011,12 +1035,15 @@ pub(crate) unsafe extern "system" fn terminator_vkGetDisplayPlaneCapabilitiesKHR
     };
     command.map_or_else(
         || {
-            if !pCapabilities.is_null() {
-                unsafe {
-                    pCapabilities.write(vk::VkDisplayPlaneCapabilitiesKHR::DEFAULT);
+            core::hint::cold_path();
+            {
+                if !pCapabilities.is_null() {
+                    unsafe {
+                        pCapabilities.write(vk::VkDisplayPlaneCapabilitiesKHR::DEFAULT);
+                    }
                 }
+                vk::VkResult::SUCCESS
             }
-            vk::VkResult::SUCCESS
         },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, mode, planeIndex, pCapabilities)
@@ -1046,12 +1073,15 @@ pub(crate) unsafe extern "system" fn terminator_vkGetDisplayPlaneSupportedDispla
     };
     command.map_or_else(
         || {
-            if !pDisplayCount.is_null() {
-                unsafe {
-                    pDisplayCount.write(0);
+            core::hint::cold_path();
+            {
+                if !pDisplayCount.is_null() {
+                    unsafe {
+                        pDisplayCount.write(0);
+                    }
                 }
+                vk::VkResult::SUCCESS
             }
-            vk::VkResult::SUCCESS
         },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, planeIndex, pDisplayCount, pDisplays)
@@ -1077,7 +1107,10 @@ pub(crate) unsafe extern "system" fn terminator_vkGetDrmDisplayEXT(
         )
     };
     command.map_or_else(
-        || vk::VkResult::ERROR_EXTENSION_NOT_PRESENT,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_EXTENSION_NOT_PRESENT
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, drmFd, connectorId, display) },
     )
 }
@@ -1103,9 +1136,12 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceCalibrateable
     };
     command
         .map_or_else(
-            || fatal_loader_error(
-                c"vkGetPhysicalDeviceCalibrateableTimeDomainsEXT: Driver's function pointer was NULL",
-            ),
+            || {
+                core::hint::cold_path();
+                fatal_loader_error(
+                    c"vkGetPhysicalDeviceCalibrateableTimeDomainsEXT: Driver's function pointer was NULL",
+                )
+            },
             |(command, physicalDevice)| unsafe {
                 command(physicalDevice, pTimeDomainCount, pTimeDomains)
             },
@@ -1133,9 +1169,12 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceCalibrateable
     };
     command
         .map_or_else(
-            || fatal_loader_error(
-                c"vkGetPhysicalDeviceCalibrateableTimeDomainsKHR: Driver's function pointer was NULL",
-            ),
+            || {
+                core::hint::cold_path();
+                fatal_loader_error(
+                    c"vkGetPhysicalDeviceCalibrateableTimeDomainsKHR: Driver's function pointer was NULL",
+                )
+            },
             |(command, physicalDevice)| unsafe {
                 command(physicalDevice, pTimeDomainCount, pTimeDomains)
             },
@@ -1163,9 +1202,12 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceCooperativeMa
     };
     command
         .map_or_else(
-            || fatal_loader_error(
-                c"vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV: Driver's function pointer was NULL",
-            ),
+            || {
+                core::hint::cold_path();
+                fatal_loader_error(
+                    c"vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV: Driver's function pointer was NULL",
+                )
+            },
             |(command, physicalDevice)| unsafe {
                 command(physicalDevice, pPropertyCount, pProperties)
             },
@@ -1194,9 +1236,12 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceCooperativeMa
     };
     command
         .map_or_else(
-            || fatal_loader_error(
-                c"vkGetPhysicalDeviceCooperativeMatrixProperties2EXT: Driver's function pointer was NULL",
-            ),
+            || {
+                core::hint::cold_path();
+                fatal_loader_error(
+                    c"vkGetPhysicalDeviceCooperativeMatrixProperties2EXT: Driver's function pointer was NULL",
+                )
+            },
             |(command, physicalDevice)| unsafe {
                 command(
                     physicalDevice,
@@ -1229,9 +1274,12 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceCooperativeMa
     };
     command
         .map_or_else(
-            || fatal_loader_error(
-                c"vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR: Driver's function pointer was NULL",
-            ),
+            || {
+                core::hint::cold_path();
+                fatal_loader_error(
+                    c"vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR: Driver's function pointer was NULL",
+                )
+            },
             |(command, physicalDevice)| unsafe {
                 command(physicalDevice, pPropertyCount, pProperties)
             },
@@ -1259,9 +1307,12 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceCooperativeMa
     };
     command
         .map_or_else(
-            || fatal_loader_error(
-                c"vkGetPhysicalDeviceCooperativeMatrixPropertiesNV: Driver's function pointer was NULL",
-            ),
+            || {
+                core::hint::cold_path();
+                fatal_loader_error(
+                    c"vkGetPhysicalDeviceCooperativeMatrixPropertiesNV: Driver's function pointer was NULL",
+                )
+            },
             |(command, physicalDevice)| unsafe {
                 command(physicalDevice, pPropertyCount, pProperties)
             },
@@ -1289,9 +1340,12 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceCooperativeVe
     };
     command
         .map_or_else(
-            || fatal_loader_error(
-                c"vkGetPhysicalDeviceCooperativeVectorPropertiesNV: Driver's function pointer was NULL",
-            ),
+            || {
+                core::hint::cold_path();
+                fatal_loader_error(
+                    c"vkGetPhysicalDeviceCooperativeVectorPropertiesNV: Driver's function pointer was NULL",
+                )
+            },
             |(command, physicalDevice)| unsafe {
                 command(physicalDevice, pPropertyCount, pProperties)
             },
@@ -1318,6 +1372,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceDescriptorSiz
     };
     command.map_or_else(
         || {
+            core::hint::cold_path();
             fatal_loader_error(
                 c"vkGetPhysicalDeviceDescriptorSizeEXT: Driver's function pointer was NULL",
             )
@@ -1347,7 +1402,10 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceDirectFBPrese
         )
     };
     command.map_or_else(
-        || unsafe { core::mem::zeroed::<vk::VkBool32>() },
+        || {
+            core::hint::cold_path();
+            unsafe { core::mem::zeroed::<vk::VkBool32>() }
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, queueFamilyIndex, dfb) },
     )
 }
@@ -1373,12 +1431,15 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceDisplayPlaneP
     };
     command.map_or_else(
         || {
-            if !pPropertyCount.is_null() {
-                unsafe {
-                    pPropertyCount.write(0);
+            core::hint::cold_path();
+            {
+                if !pPropertyCount.is_null() {
+                    unsafe {
+                        pPropertyCount.write(0);
+                    }
                 }
+                vk::VkResult::SUCCESS
             }
-            vk::VkResult::SUCCESS
         },
         |(command, physicalDevice)| unsafe { command(physicalDevice, pPropertyCount, pProperties) },
     )
@@ -1405,12 +1466,15 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceDisplayProper
     };
     command.map_or_else(
         || {
-            if !pPropertyCount.is_null() {
-                unsafe {
-                    pPropertyCount.write(0);
+            core::hint::cold_path();
+            {
+                if !pPropertyCount.is_null() {
+                    unsafe {
+                        pPropertyCount.write(0);
+                    }
                 }
+                vk::VkResult::SUCCESS
             }
-            vk::VkResult::SUCCESS
         },
         |(command, physicalDevice)| unsafe { command(physicalDevice, pPropertyCount, pProperties) },
     )
@@ -1441,7 +1505,10 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceExternalImage
         )
     };
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(
                 physicalDevice,
@@ -1559,6 +1626,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceFragmentShadi
     };
     command.map_or_else(
         || {
+            core::hint::cold_path();
             fatal_loader_error(
                 c"vkGetPhysicalDeviceFragmentShadingRatesKHR: Driver's function pointer was NULL",
             )
@@ -1597,7 +1665,10 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceImageFormatPr
         )
     };
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(
                 physicalDevice,
@@ -1688,6 +1759,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceOpticalFlowIm
     };
     command.map_or_else(
         || {
+            core::hint::cold_path();
             fatal_loader_error(
                 c"vkGetPhysicalDeviceOpticalFlowImageFormatsNV: Driver's function pointer was NULL",
             )
@@ -1715,7 +1787,10 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDevicePresentRectan
 ) -> vk::VkResult {
     let surface = match unsafe { translate_physical_device_surface(physicalDevice, surface) } {
         Ok(surface) => surface,
-        Err(result) => return result,
+        Err(result) => {
+            core::hint::cold_path();
+            return result;
+        }
     };
     let command: Option<(
         vk::PFN_vkGetPhysicalDevicePresentRectanglesKHR,
@@ -1729,6 +1804,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDevicePresentRectan
     };
     command.map_or_else(
         || {
+            core::hint::cold_path();
             fatal_loader_error(
                 c"vkGetPhysicalDevicePresentRectanglesKHR: Driver's function pointer was NULL",
             )
@@ -1781,9 +1857,12 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceQueueFamilyDa
     };
     command
         .map_or_else(
-            || fatal_loader_error(
-                c"vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM: Driver's function pointer was NULL",
-            ),
+            || {
+                core::hint::cold_path();
+                fatal_loader_error(
+                    c"vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM: Driver's function pointer was NULL",
+                )
+            },
             |(command, physicalDevice)| unsafe {
                 command(
                     physicalDevice,
@@ -1819,9 +1898,12 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceQueueFamilyDa
     };
     command
         .map_or_else(
-            || fatal_loader_error(
-                c"vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM: Driver's function pointer was NULL",
-            ),
+            || {
+                core::hint::cold_path();
+                fatal_loader_error(
+                    c"vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM: Driver's function pointer was NULL",
+                )
+            },
             |(command, physicalDevice)| unsafe {
                 command(
                     physicalDevice,
@@ -1896,9 +1978,12 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceQueueFamilyDa
     };
     command
         .map_or_else(
-            || fatal_loader_error(
-                c"vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM: Driver's function pointer was NULL",
-            ),
+            || {
+                core::hint::cold_path();
+                fatal_loader_error(
+                    c"vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM: Driver's function pointer was NULL",
+                )
+            },
             |(command, physicalDevice)| unsafe {
                 command(
                     physicalDevice,
@@ -1990,7 +2075,10 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceScreenPresent
         )
     };
     command.map_or_else(
-        || unsafe { core::mem::zeroed::<vk::VkBool32>() },
+        || {
+            core::hint::cold_path();
+            unsafe { core::mem::zeroed::<vk::VkBool32>() }
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, queueFamilyIndex, window) },
     )
 }
@@ -2056,9 +2144,12 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSupportedFram
     };
     command
         .map_or_else(
-            || fatal_loader_error(
-                c"vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV: Driver's function pointer was NULL",
-            ),
+            || {
+                core::hint::cold_path();
+                fatal_loader_error(
+                    c"vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV: Driver's function pointer was NULL",
+                )
+            },
             |(command, physicalDevice)| unsafe {
                 command(physicalDevice, pCombinationCount, pCombinations)
             },
@@ -2076,7 +2167,10 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceCapabi
 ) -> vk::VkResult {
     let surface = match unsafe { translate_physical_device_surface(physicalDevice, surface) } {
         Ok(surface) => surface,
-        Err(result) => return result,
+        Err(result) => {
+            core::hint::cold_path();
+            return result;
+        }
     };
     let command: Option<(
         vk::PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR,
@@ -2089,7 +2183,10 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceCapabi
         )
     };
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, surface, pSurfaceCapabilities)
         },
@@ -2108,7 +2205,10 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceFormat
 ) -> vk::VkResult {
     let surface = match unsafe { translate_physical_device_surface(physicalDevice, surface) } {
         Ok(surface) => surface,
-        Err(result) => return result,
+        Err(result) => {
+            core::hint::cold_path();
+            return result;
+        }
     };
     let command: Option<(
         vk::PFN_vkGetPhysicalDeviceSurfaceFormatsKHR,
@@ -2121,7 +2221,10 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceFormat
         )
     };
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(
                 physicalDevice,
@@ -2156,6 +2259,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfacePresen
     };
     command.map_or_else(
         || {
+            core::hint::cold_path();
             fatal_loader_error(
                 c"vkGetPhysicalDeviceSurfacePresentModes2EXT: Driver's function pointer was NULL",
             )
@@ -2183,7 +2287,10 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfacePresen
 ) -> vk::VkResult {
     let surface = match unsafe { translate_physical_device_surface(physicalDevice, surface) } {
         Ok(surface) => surface,
-        Err(result) => return result,
+        Err(result) => {
+            core::hint::cold_path();
+            return result;
+        }
     };
     let command: Option<(
         vk::PFN_vkGetPhysicalDeviceSurfacePresentModesKHR,
@@ -2196,7 +2303,10 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfacePresen
         )
     };
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, surface, pPresentModeCount, pPresentModes)
         },
@@ -2224,7 +2334,10 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceUbmPresentati
         )
     };
     command.map_or_else(
-        || unsafe { core::mem::zeroed::<vk::VkBool32>() },
+        || {
+            core::hint::cold_path();
+            unsafe { core::mem::zeroed::<vk::VkBool32>() }
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, queueFamilyIndex, device) },
     )
 }
@@ -2250,6 +2363,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceVideoCapabili
     };
     command.map_or_else(
         || {
+            core::hint::cold_path();
             fatal_loader_error(
                 c"vkGetPhysicalDeviceVideoCapabilitiesKHR: Driver's function pointer was NULL",
             )
@@ -2281,9 +2395,12 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceVideoEncodeQu
     };
     command
         .map_or_else(
-            || fatal_loader_error(
-                c"vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR: Driver's function pointer was NULL",
-            ),
+            || {
+                core::hint::cold_path();
+                fatal_loader_error(
+                    c"vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR: Driver's function pointer was NULL",
+                )
+            },
             |(command, physicalDevice)| unsafe {
                 command(physicalDevice, pQualityLevelInfo, pQualityLevelProperties)
             },
@@ -2312,6 +2429,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceVideoFormatPr
     };
     command.map_or_else(
         || {
+            core::hint::cold_path();
             fatal_loader_error(
                 c"vkGetPhysicalDeviceVideoFormatPropertiesKHR: Driver's function pointer was NULL",
             )
@@ -2359,7 +2477,10 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceWaylandPresen
         )
     };
     command.map_or_else(
-        || unsafe { core::mem::zeroed::<vk::VkBool32>() },
+        || {
+            core::hint::cold_path();
+            unsafe { core::mem::zeroed::<vk::VkBool32>() }
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, queueFamilyIndex, display) },
     )
 }
@@ -2384,7 +2505,10 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceWin32Presenta
         )
     };
     command.map_or_else(
-        || unsafe { core::mem::zeroed::<vk::VkBool32>() },
+        || {
+            core::hint::cold_path();
+            unsafe { core::mem::zeroed::<vk::VkBool32>() }
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, queueFamilyIndex) },
     )
 }
@@ -2422,7 +2546,10 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceXcbPresentati
         )
     };
     command.map_or_else(
-        || unsafe { core::mem::zeroed::<vk::VkBool32>() },
+        || {
+            core::hint::cold_path();
+            unsafe { core::mem::zeroed::<vk::VkBool32>() }
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, queueFamilyIndex, connection, visual_id)
         },
@@ -2462,7 +2589,10 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceXlibPresentat
         )
     };
     command.map_or_else(
-        || unsafe { core::mem::zeroed::<vk::VkBool32>() },
+        || {
+            core::hint::cold_path();
+            unsafe { core::mem::zeroed::<vk::VkBool32>() }
+        },
         |(command, physicalDevice)| unsafe {
             command(physicalDevice, queueFamilyIndex, dpy, visualID)
         },
@@ -2499,7 +2629,10 @@ pub(crate) unsafe extern "system" fn terminator_vkGetRandROutputDisplayEXT(
         )
     };
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, dpy, rrOutput, pDisplay) },
     )
 }
@@ -2522,7 +2655,10 @@ pub(crate) unsafe extern "system" fn terminator_vkGetWinrtDisplayNV(
         )
     };
     command.map_or_else(
-        || fatal_loader_error(c"vkGetWinrtDisplayNV: Driver's function pointer was NULL"),
+        || {
+            core::hint::cold_path();
+            fatal_loader_error(c"vkGetWinrtDisplayNV: Driver's function pointer was NULL")
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, deviceRelativeId, pDisplay) },
     )
 }
@@ -2543,7 +2679,10 @@ pub(crate) unsafe extern "system" fn terminator_vkReleaseDisplayEXT(
         )
     };
     command.map_or_else(
-        || vk::VkResult::ERROR_INITIALIZATION_FAILED,
+        || {
+            core::hint::cold_path();
+            vk::VkResult::ERROR_INITIALIZATION_FAILED
+        },
         |(command, physicalDevice)| unsafe { command(physicalDevice, display) },
     )
 }
