@@ -56,12 +56,23 @@ require_files "$rust_loader"
 
 mkdir -p "$output_root"
 printf 'suite\tfilter\tresult\tupstream_status\trust_status\tdiff\n' >"$summary"
+rows="$(mktemp -d "$output_root/.rows.XXXXXX")"
+cleanup_rows() {
+  find "$rows" -type f -delete
+  rmdir "$rows"
+}
+trap cleanup_rows EXIT
 
 differences=0
 executed=0
+total=0
 for index in "${!filters[@]}"; do
-  (( index % shard_count == shard_index )) || continue
-  record="${filters[$index]}"
+  (( index % shard_count == shard_index )) && total=$((total + 1))
+done
+run_case() {
+  local index="$1"
+  local record="${filters[$index]}"
+  local suite filter case_dir result_dir result upstream_status rust_status
   if [[ "$record" == test_*:* ]]; then
     suite="${record%%:*}"
     filter="${record#*:}"
@@ -74,12 +85,12 @@ for index in "${!filters[@]}"; do
   rm -rf "$result_dir"
 
   if VK_LOADER_PARITY_SUITE="$suite" \
+    VK_LOADER_PARITY_QUIET=1 \
     VK_LOADER_PARITY_RUST_LIBRARY="$rust_loader" \
     VK_LOADER_PARITY_DIFF_DIR="$result_dir" \
     "$comparison_script" "$filter"; then
     result=match
   else
-    differences=$((differences + 1))
     result=difference
   fi
 
@@ -90,8 +101,37 @@ for index in "${!filters[@]}"; do
     rust_status="$(awk -F '\t' '$1 == "rust" { print $2 }' "$result_dir/status.tsv")"
   fi
   printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$suite" "$filter" "$result" \
-    "$upstream_status" "$rust_status" "$result_dir/observable.diff" >>"$summary"
+    "$upstream_status" "$rust_status" "$result_dir/observable.diff" >"$rows/$index.tsv"
+}
+
+jobs="$(loader_test_jobs)"
+pids=()
+for index in "${!filters[@]}"; do
+  (( index % shard_count == shard_index )) || continue
+  run_case "$index" &
+  pids+=("$!")
+  if ((${#pids[@]} == jobs)); then
+    for pid in "${pids[@]}"; do
+      wait "$pid"
+    done
+    pids=()
+  fi
+done
+for pid in "${pids[@]}"; do
+  wait "$pid"
+done
+
+for index in "${!filters[@]}"; do
+  (( index % shard_count == shard_index )) || continue
+  row="$rows/$index.tsv"
+  cat "$row" >>"$summary"
+  if [[ "$(cut -f3 "$row")" == difference ]]; then
+    differences=$((differences + 1))
+  fi
   executed=$((executed + 1))
+  if (( executed % 50 == 0 || executed == total )); then
+    echo "Observable parity progress: $executed/$total cases, $differences differences"
+  fi
 done
 
 echo "Observable parity audit: $executed cases, $differences differences (shard $shard_index/$shard_count)"

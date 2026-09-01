@@ -1776,12 +1776,12 @@ pub(crate) unsafe extern "system" fn create_device_terminator(
     };
 
     // SAFETY: The validated create info remains live for this call.
-    let strict_version_checks = unsafe { maintenance5_version_checks(&*create_info) };
+    let strict_version_checks = unsafe { maintenance5_version_checks(create_info) };
     // SAFETY: Device extension names satisfy the create-info string-array contract.
     let enabled_extensions = unsafe {
         ExtensionSet::from_names(
-            (*create_info).enabledExtensionCount,
-            (*create_info).ppEnabledExtensionNames,
+            create_info.enabledExtensionCount,
+            create_info.ppEnabledExtensionNames,
         )
     };
     // SAFETY: `native` was just returned by this ICD, its GDPA was resolved

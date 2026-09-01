@@ -6,7 +6,7 @@ source_dir="$repo_root/.upstream/sascha-willems-vulkan"
 expected_revision="e56bc4f10d5b86b792dbda750e65cd1f9657b053"
 wsi="${VK_LOADER_SASCHA_WSI:-}"
 
-require_tools cmake git ninja
+require_tools cmake git mold ninja
 
 if [[ ! -d "$source_dir/.git" ]]; then
   git clone --recursive https://github.com/SaschaWillems/Vulkan.git "$source_dir"
@@ -37,19 +37,13 @@ case "$wsi" in
 esac
 
 build_dir="$repo_root/target/sascha-willems-vulkan-$wsi"
-targets=(
-  triangle
-  trianglevulkan13
-  descriptorsets
-  dynamicrendering
-  computenbody
-  indirectdraw
-  multithreading
-  raytracingbasic
-)
 
 cmake -S "$source_dir" -B "$build_dir" -G Ninja \
-  -D CMAKE_BUILD_TYPE=Release "${wsi_options[@]}"
-cmake --build "$build_dir" --parallel --target "${targets[@]}"
+  -D CMAKE_BUILD_TYPE=Release \
+  -D CMAKE_EXE_LINKER_FLAGS=-fuse-ld=mold \
+  -D CMAKE_MODULE_LINKER_FLAGS=-fuse-ld=mold \
+  -D CMAKE_SHARED_LINKER_FLAGS=-fuse-ld=mold \
+  "${wsi_options[@]}"
+cmake --build "$build_dir" --parallel
 
-echo "Sascha Willems examples $expected_revision built for $wsi"
+echo "All Sascha Willems examples from $expected_revision built for $wsi"

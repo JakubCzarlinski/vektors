@@ -38,6 +38,84 @@ ensure_upstream_tests() {
   fi
 }
 
+gtest_case_count() {
+  local suite="$1"
+  "$upstream_build_dir/tests/$suite" --gtest_list_tests |
+    awk '
+      /^[^[:space:]].*\.$/ { suite = $1; next }
+      /^  [^[:space:]]/ {
+        test = $1
+        if (suite !~ /(^|\/)DISABLED_/ && test !~ /^DISABLED_/) count++
+      }
+      END { print count + 0 }
+    '
+}
+
+loader_test_jobs() {
+  if [[ -n "${VK_LOADER_TEST_JOBS:-}" ]]; then
+    [[ "$VK_LOADER_TEST_JOBS" =~ ^[1-9][0-9]*$ ]] || {
+      echo "VK_LOADER_TEST_JOBS must be a positive integer" >&2
+      return 2
+    }
+    printf '%s\n' "$VK_LOADER_TEST_JOBS"
+    return
+  fi
+  local jobs
+  jobs="$(nproc 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || printf '1')"
+  (( jobs > 8 )) && jobs=8
+  printf '%s\n' "$jobs"
+}
+
+run_gtest_shards() {
+  local loader="$1"
+  local suite="$2"
+  local output="$3"
+  shift 3
+
+  local jobs count
+  jobs="$(loader_test_jobs)" || return
+  count="$(gtest_case_count "$suite")"
+  (( jobs > count )) && jobs="$count"
+  local argument
+  for argument in "$@"; do
+    if [[ "$argument" == --gtest_filter=* ]]; then
+      jobs=1
+      break
+    fi
+  done
+
+  local -a pids=() logs=() status_files=()
+  local shard log status_file
+  for ((shard = 0; shard < jobs; shard++)); do
+    log="$output.shard-$shard.log"
+    status_file="$output.shard-$shard.status"
+    logs+=("$log")
+    status_files+=("$status_file")
+    env \
+      GTEST_TOTAL_SHARDS="$jobs" \
+      GTEST_SHARD_INDEX="$shard" \
+      GTEST_SHARD_STATUS_FILE="$status_file" \
+      VK_LOADER_TEST_LOADER_PATH="$loader" \
+      "$upstream_build_dir/tests/$suite" "$@" >"$log" 2>&1 &
+    pids+=("$!")
+  done
+
+  local result=0 pid
+  for pid in "${pids[@]}"; do
+    wait "$pid" || result=1
+  done
+  : >"$output"
+  for log in "${logs[@]}"; do
+    cat "$log" >>"$output"
+  done
+  if (( result == 0 )); then
+    rm -f "${logs[@]}" "${status_files[@]}"
+  else
+    tail -n 200 "$output" >&2
+  fi
+  return "$result"
+}
+
 build_rust_loader() {
   local profile="${1:-release}"
   local target_dir="${2:-$repo_root/target}"

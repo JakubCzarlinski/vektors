@@ -2,10 +2,10 @@
 set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
-upstream_loader="${VK_LOADER_PARITY_UPSTREAM_LIBRARY:-$repo_root/.upstream/vulkan-loader/build-rust-parity/loader/libvulkan.so.1.4.361}"
+upstream_loader="${VK_LOADER_PARITY_UPSTREAM_LIBRARY:-$upstream_build_dir/loader/libvulkan.so.1.4.361}"
 output_dir="${VK_LOADER_CONTRACT_PARITY_DIR:-$repo_root/target/pre-instance-contract-parity}"
 
-require_tools cargo cc
+require_tools cargo cc mold
 ensure_upstream_tests test_regression "$upstream_loader"
 rust_loader="$(resolve_rust_loader "${VK_LOADER_PARITY_RUST_LIBRARY:-}" release)"
 require_files "$rust_loader" "$upstream_loader"
@@ -19,7 +19,7 @@ mkdir -p "$empty_dir" "$rust_dir" "$upstream_dir"
 ln -sfn "$rust_loader" "$rust_dir/libvulkan.so.1"
 ln -sfn "$upstream_loader" "$upstream_dir/libvulkan.so.1"
 
-cc -std=c11 -Wall -Wextra -Werror \
+cc -fuse-ld=mold -std=c11 -Wall -Wextra -Werror \
   "$repo_root/vk-loader/tests/pre_instance_contract.c" -lvulkan -o "$probe"
 
 run_probe() {

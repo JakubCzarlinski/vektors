@@ -33,6 +33,8 @@ registry/
 .upstream/sascha-willems-vulkan/
 .upstream/vulkan-tools/
 *.log
+*.ppm
+*.ini
 *.profraw
 vgcore.*
 *.dot

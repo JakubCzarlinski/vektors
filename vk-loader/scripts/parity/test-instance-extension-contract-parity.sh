@@ -5,7 +5,7 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
 upstream_loader="${VK_LOADER_PARITY_UPSTREAM_LIBRARY:-$upstream_build_dir/loader/libvulkan.so.1.4.361}"
 output_dir="${VK_LOADER_EXTENSION_CONTRACT_PARITY_DIR:-$repo_root/target/instance-extension-contract-parity}"
 
-require_tools cargo cc
+require_tools cargo cc mold
 ensure_upstream_tests test_regression "$upstream_loader"
 rust_loader="$(resolve_rust_loader "${VK_LOADER_PARITY_RUST_LIBRARY:-}" release)"
 
@@ -21,7 +21,7 @@ mkdir -p "$rust_dir" "$upstream_dir"
 ln -sfn "$rust_loader" "$rust_dir/libvulkan.so.1"
 ln -sfn "$upstream_loader" "$upstream_dir/libvulkan.so.1"
 
-cc -std=c11 -Wall -Wextra -Werror \
+cc -fuse-ld=mold -std=c11 -Wall -Wextra -Werror \
   "$repo_root/vk-loader/tests/instance_extension_contract.c" -lvulkan -o "$probe"
 printf '{"file_format_version":"1.0.0","ICD":{"library_path":"%s","api_version":"1.0.0"}}\n' \
   "$fake_icd" >"$manifest"

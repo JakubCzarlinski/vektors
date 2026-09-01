@@ -12,7 +12,7 @@ loader_library="$(resolve_rust_loader "${VK_LOADER_PARITY_RUST_LIBRARY:-}" debug
 
 mkdir -p "$output_dir"
 summary="$output_dir/status.tsv"
-printf 'suite\tselection\tupstream_status\trust_status\n' > "$summary"
+printf 'suite\tselection\tavailable_test_count\tupstream_status\trust_status\n' > "$summary"
 
 run_pair() {
   local suite="$1"
@@ -20,19 +20,19 @@ run_pair() {
   shift 2
   local upstream_log="$output_dir/$suite.upstream.log"
   local rust_log="$output_dir/$suite.rust.log"
+  local test_count
+  test_count="$(gtest_case_count "$suite")"
 
   echo "parity: $suite $selection (upstream, then Rust)"
   set +e
-  VK_LOADER_TEST_LOADER_PATH="$upstream_loader" \
-    "$upstream_build_dir/tests/$suite" --gtest_color=no --gtest_brief=1 "$@" \
-    > "$upstream_log" 2>&1
+  run_gtest_shards "$upstream_loader" "$suite" "$upstream_log" \
+    --gtest_color=no --gtest_brief=1 "$@"
   local upstream_status=$?
-  VK_LOADER_TEST_LOADER_PATH="$loader_library" \
-    "$upstream_build_dir/tests/$suite" --gtest_color=no --gtest_brief=1 "$@" \
-    > "$rust_log" 2>&1
+  run_gtest_shards "$loader_library" "$suite" "$rust_log" \
+    --gtest_color=no --gtest_brief=1 "$@"
   local rust_status=$?
   set -e
-  printf '%s\t%s\t%d\t%d\n' "$suite" "$selection" \
+  printf '%s\t%s\t%d\t%d\t%d\n' "$suite" "$selection" "$test_count" \
     "$upstream_status" "$rust_status" >> "$summary"
 
   if (( upstream_status != 0 || rust_status != 0 )); then

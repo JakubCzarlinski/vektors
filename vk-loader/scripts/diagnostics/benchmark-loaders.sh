@@ -8,7 +8,7 @@ upstream_loader="${VK_LOADER_BENCH_UPSTREAM_LIBRARY:-$repo_root/.upstream/vulkan
 repetitions="${VK_LOADER_BENCH_REPETITIONS:-15}"
 bench_cpu="${VK_LOADER_BENCH_CPU:-2}"
 
-require_tools cc taskset
+require_tools cc mold taskset
 for loader in "$rust_loader" "$upstream_loader"; do
   [[ -f "$loader" ]] || {
     echo "loader not found: $loader" >&2
@@ -18,7 +18,7 @@ done
 
 mkdir -p "$output_dir"
 harness="$output_dir/loader-benchmark"
-cc -O3 -std=c11 -Wall -Wextra -Werror "$repo_root/vk-loader/tests/loader_benchmark.c" -lvulkan -o "$harness"
+cc -fuse-ld=mold -O3 -std=c11 -Wall -Wextra -Werror "$repo_root/vk-loader/tests/loader_benchmark.c" -lvulkan -o "$harness"
 
 printf 'loader,layer,mode,iteration_count,total_ns,ns_per_operation,sink\n' >"$output_dir/microbenchmarks.csv"
 

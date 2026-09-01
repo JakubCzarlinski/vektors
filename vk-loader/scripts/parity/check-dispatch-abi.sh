@@ -6,7 +6,7 @@ upstream_root="${1:-$repo_root/.upstream/vulkan-loader}"
 upstream_table="$upstream_root/loader/generated/vk_layer_dispatch_table.h"
 upstream_extensions="$upstream_root/loader/generated/vk_loader_extensions.h"
 upstream_header="$upstream_root/external/Debug/64/Vulkan-Headers/include/vulkan/vulkan_core.h"
-rust_table="$repo_root/vk-loader/src/generated/global_proc_addr.rs"
+rust_table="$repo_root/vk-loader/src/generated/dispatch_tables.rs"
 
 require_files "$upstream_table" "$upstream_extensions" "$upstream_header" "$rust_table"
 
