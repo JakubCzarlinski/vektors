@@ -5,13 +5,15 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
 upstream_loader="$upstream_build_dir/loader/libvulkan.so.1.4.361"
 target_dir="${VK_LOADER_COVERAGE_DIR:-$repo_root/target/vk-loader-coverage}"
 profile_dir="$target_dir/profiles"
+upstream_profile_dir="$target_dir/upstream-profiles"
 
-require_tools llvm-cov llvm-profdata
+require_tools jq llvm-cov llvm-profdata
 
 ensure_upstream_tests test_regression "$upstream_loader"
 
-mkdir -p "$profile_dir"
+mkdir -p "$profile_dir" "$upstream_profile_dir"
 find "$profile_dir" -type f -name '*.profraw' -delete
+find "$upstream_profile_dir" -type f -name '*.profraw' -delete
 find "$target_dir" -maxdepth 1 -type f -name 'test_*.log' -delete
 
 RUSTFLAGS='-Cinstrument-coverage -Cforce-frame-pointers=yes' \
@@ -36,7 +38,8 @@ for suite in test_regression test_fuzzing test_threading; do
   upstream_log="$target_dir/$suite.upstream.log"
   rust_log="$target_dir/$suite.rust.log"
   echo "coverage parity: $suite (upstream)"
-  if ! run_gtest_shards "$upstream_loader" "$suite" "$upstream_log" --gtest_brief=1; then
+  if ! LLVM_PROFILE_FILE="$upstream_profile_dir/$suite-%p-%m.profraw" \
+    run_gtest_shards "$upstream_loader" "$suite" "$upstream_log" --gtest_brief=1; then
     tail -n 200 "$upstream_log" >&2
     exit 1
   fi
@@ -96,6 +99,39 @@ llvm-cov report "$loader" \
   --ignore-filename-regex='(/rustc/|/\.cargo/registry/|vk-loader/src/generated/)' \
   > "$report"
 
+upstream_profiles=("$upstream_profile_dir"/*.profraw)
+upstream_report="$target_dir/upstream-report.txt"
+upstream_uncovered="$target_dir/upstream-uncovered-lines.txt"
+if [[ -e "${upstream_profiles[0]}" ]]; then
+  upstream_profile="$target_dir/upstream-merged.profdata"
+  llvm-profdata merge -sparse "${upstream_profiles[@]}" -o "$upstream_profile"
+  llvm-cov report "$upstream_loader" \
+    -instr-profile="$upstream_profile" \
+    --ignore-filename-regex='(/tests/|/external/|/generated/|/cJSON\.c$|/\.upstream/vulkan-loader/build)' \
+    > "$upstream_report"
+  {
+    while IFS= read -r source; do
+      [[ "$source" == "$upstream_dir"/* ]] || continue
+      [[ "$source" == */generated/* || "$source" == */cJSON.c ]] && continue
+      echo "== ${source#"$upstream_dir/"} =="
+      llvm-cov show "$upstream_loader" -instr-profile="$upstream_profile" \
+        --show-line-counts-or-regions --show-expansions=false "$source" |
+        awk -F '|' '$2 ~ /^[[:space:]]*0[[:space:]]*$/ && $3 ~ /[^[:space:]]/ {
+          gsub(/^[[:space:]]+|[[:space:]]+$/, "", $1)
+          print $1 ":" $3
+        }'
+    done < <(
+      llvm-cov export "$upstream_loader" -instr-profile="$upstream_profile" \
+        --summary-only | jq -r '.data[].files[].filename'
+    )
+  } > "$upstream_uncovered"
+else
+  printf '%s\n' \
+    'Upstream loader was not coverage-instrumented.' \
+    'Rebuild it with VK_LOADER_UPSTREAM_CODE_COVERAGE=1.' > "$upstream_report"
+  : > "$upstream_uncovered"
+fi
+
 unit_binary="$({
   find "$target_dir/release/deps" -maxdepth 1 -type f -perm -u+x \
     -name 'vulkan-*' -printf '%T@\t%p\n'
@@ -112,7 +148,7 @@ uncovered="$target_dir/uncovered-lines.txt"
 mapfile -t coverage_sources < <(
   awk 'NR > 2 && $1 != "TOTAL" && $1 !~ /^-+$/ { print $1 }' "$report" |
     while IFS= read -r relative; do
-      [[ -f "$repo_root/$relative" ]] && printf '%s\n' "$repo_root/$relative"
+      resolve_coverage_source "$relative" || true
     done
 )
 {
@@ -133,8 +169,10 @@ union_total="$(awk '$1 == "TOTAL" { print $4 }' "$union_report")"
 echo "External differential line coverage: $external_total"
 echo "Production line coverage including unit tests: $union_total"
 echo "Coverage report: $report"
+echo "Upstream coverage report: $upstream_report"
 echo "Production line-union report: $union_report"
 echo "Uncovered source lines: $uncovered"
+echo "Upstream uncovered source lines: $upstream_uncovered"
 
 minimum_line_coverage="${VK_LOADER_MIN_LINE_COVERAGE:-90.0}"
 line_coverage="$(awk '$1 == "TOTAL" { value = $10; gsub(/%/, "", value); print value }' "$report")"
@@ -159,4 +197,5 @@ fi
 # are numerous and can include a root-level file from env-sanitizing death-test
 # children, so discard them after a successful run.
 find "$profile_dir" -type f -name '*.profraw' -delete
+find "$upstream_profile_dir" -type f -name '*.profraw' -delete
 find "$repo_root" -maxdepth 1 -type f -name '*.profraw' -delete

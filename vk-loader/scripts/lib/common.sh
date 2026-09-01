@@ -30,6 +30,20 @@ require_files() {
   done
 }
 
+resolve_coverage_source() {
+  local reported="$1"
+  if [[ "$reported" == /* && -f "$reported" ]]; then
+    printf '%s\n' "$reported"
+  elif [[ -f "$repo_root/$reported" ]]; then
+    printf '%s\n' "$repo_root/$reported"
+  elif [[ -f "/$reported" ]]; then
+    # llvm-cov can omit the leading slash from absolute paths in text reports.
+    printf '/%s\n' "$reported"
+  else
+    return 1
+  fi
+}
+
 ensure_upstream_tests() {
   local suite="${1:-test_regression}"
   local loader="${2:-$upstream_build_dir/loader/libvulkan.so}"

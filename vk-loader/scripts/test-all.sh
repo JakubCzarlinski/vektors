@@ -72,20 +72,26 @@ if [[ "$mode" == --quick ]]; then
     "$loader_scripts/parity/audit-observable-parity.sh"
   run_test cross-targets required "$loader_scripts/platform/check-cross-targets.sh"
 else
-  coverage_upstream_build_dir="${VK_LOADER_COVERAGE_UPSTREAM_BUILD_DIR:-$upstream_dir/build-rust-parity-coverage}"
+  coverage_upstream_build_dir="${VK_LOADER_COVERAGE_UPSTREAM_BUILD_DIR:-$upstream_dir/build-rust-parity-source-coverage}"
+  coverage_dir="${VK_LOADER_COVERAGE_DIR:-$repo_root/target/vk-loader-coverage}"
   asan_upstream_build_dir="${VK_LOADER_ASAN_UPSTREAM_BUILD_DIR:-$upstream_dir/build-rust-parity-asan}"
-  for instrumentation_build_dir in "$coverage_upstream_build_dir" "$asan_upstream_build_dir"; do
-    if [[ ! -x "$instrumentation_build_dir/tests/test_regression" ]]; then
-      env VK_LOADER_UPSTREAM_BUILD_DIR="$instrumentation_build_dir" \
-        "$loader_scripts/parity/setup-upstream-tests.sh"
-    fi
-  done
+  if [[ ! -x "$coverage_upstream_build_dir/tests/test_regression" ]] ||
+      ! rg -q '^CODE_COVERAGE:BOOL=ON$' "$coverage_upstream_build_dir/CMakeCache.txt"; then
+    env VK_LOADER_UPSTREAM_BUILD_DIR="$coverage_upstream_build_dir" \
+      VK_LOADER_UPSTREAM_CODE_COVERAGE=1 \
+      "$loader_scripts/parity/setup-upstream-tests.sh"
+  fi
+  if [[ ! -x "$asan_upstream_build_dir/tests/test_regression" ]]; then
+    env VK_LOADER_UPSTREAM_BUILD_DIR="$asan_upstream_build_dir" \
+      "$loader_scripts/parity/setup-upstream-tests.sh"
+  fi
 
   run_test valgrind required \
     "$loader_scripts/diagnostics/test-valgrind.sh" --full &
   valgrind_lane_pid=$!
   run_test coverage-and-paired-suites required env \
     VK_LOADER_UPSTREAM_BUILD_DIR="$coverage_upstream_build_dir" \
+    VK_LOADER_COVERAGE_DIR="$coverage_dir" \
     "$loader_scripts/coverage/test-coverage.sh" &
   coverage_lane_pid=$!
   run_test address-sanitizer required env \
@@ -105,9 +111,21 @@ else
   wait "$sanitizer_lane_pid"
   wait "$build_lane_pid"
 
+  parity_coverage_dir="$output_dir/observable-full"
   run_test observable-parity required env \
-    VK_LOADER_PARITY_AUDIT_DIR="$output_dir/observable-full" \
+    VK_LOADER_UPSTREAM_BUILD_DIR="$coverage_upstream_build_dir" \
+    VK_LOADER_PARITY_UPSTREAM_LIBRARY="$coverage_upstream_build_dir/loader/libvulkan.so" \
+    VK_LOADER_PARITY_RUST_LIBRARY="$coverage_dir/release/libvulkan.so" \
+    VK_LOADER_PARITY_AUDIT_DIR="$parity_coverage_dir" \
+    VK_LOADER_PARITY_PROFILE_DIR="$parity_coverage_dir/profiles" \
     "$loader_scripts/parity/audit-observable-parity.sh" --full
+  run_test coverage-ranked-parity required env \
+    VK_LOADER_UPSTREAM_BUILD_DIR="$coverage_upstream_build_dir" \
+    VK_LOADER_PARITY_UPSTREAM_LIBRARY="$coverage_upstream_build_dir/loader/libvulkan.so" \
+    VK_LOADER_PARITY_RUST_LIBRARY="$coverage_dir/release/libvulkan.so" \
+    VK_LOADER_PARITY_AUDIT_DIR="$parity_coverage_dir" \
+    VK_LOADER_PARITY_PROFILE_DIR="$parity_coverage_dir/profiles" \
+    "$loader_scripts/coverage/rank-parity-cases.sh"
   run_test real-apps optional "$loader_scripts/apps/test-real-apps.sh"
   sascha_pids=()
   for wsi in wayland xcb; do

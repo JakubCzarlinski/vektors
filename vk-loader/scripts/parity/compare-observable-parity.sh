@@ -29,9 +29,17 @@ status_file="$output_dir/status.tsv"
 run_suite() {
   local loader="$1"
   local output="$2"
-  VK_LOADER_TEST_LOADER_PATH="$loader" \
-    "$upstream_build_dir/tests/$suite" --gtest_color=no "--gtest_filter=$filter" \
-    >"$output" 2>&1
+  local profile_file="${3:-}"
+  if [[ -n "$profile_file" ]]; then
+    LLVM_PROFILE_FILE="$profile_file" \
+      VK_LOADER_TEST_LOADER_PATH="$loader" \
+      "$upstream_build_dir/tests/$suite" --gtest_color=no "--gtest_filter=$filter" \
+      >"$output" 2>&1
+  else
+    VK_LOADER_TEST_LOADER_PATH="$loader" \
+      "$upstream_build_dir/tests/$suite" --gtest_color=no "--gtest_filter=$filter" \
+      >"$output" 2>&1
+  fi
 }
 
 normalize() {
@@ -49,9 +57,9 @@ if [[ "${VK_LOADER_PARITY_QUIET:-0}" != 1 ]]; then
   echo "observable parity: $suite --gtest_filter=$filter"
 fi
 set +e
-run_suite "$upstream_loader" "$upstream_raw"
+run_suite "$upstream_loader" "$upstream_raw" "${VK_LOADER_UPSTREAM_PROFILE_FILE:-}"
 upstream_status=$?
-run_suite "$rust_loader" "$rust_raw"
+run_suite "$rust_loader" "$rust_raw" "${VK_LOADER_RUST_PROFILE_FILE:-}"
 rust_status=$?
 set -e
 normalize "$upstream_raw" "$upstream_normalized"
