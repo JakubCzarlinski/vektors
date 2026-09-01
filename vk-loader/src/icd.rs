@@ -320,7 +320,7 @@ impl ScannedIcd {
             match enumerate_version {
                 Some(enumerate_version) => {
                     // SAFETY: `version` points to writable local storage.
-                    let result = unsafe { enumerate_version(&mut version) };
+                    let result = unsafe { enumerate_version(&raw mut version) };
                     if result == VkResult::SUCCESS {
                         let status = if version >= vk::VK_API_VERSION_1_1 {
                             ManifestApiVersionStatus::Consistent
@@ -419,7 +419,7 @@ impl ScannedIcd {
         let mut api_version = vk::VK_API_VERSION_1_1;
         if let Some(enumerate_version) = enumerate_version {
             // SAFETY: `api_version` is writable for the duration of the call.
-            let result = unsafe { enumerate_version(&mut api_version) };
+            let result = unsafe { enumerate_version(&raw mut api_version) };
             if result != VkResult::SUCCESS {
                 return Err(DirectIcdError::EnumerateVersion(result));
             }

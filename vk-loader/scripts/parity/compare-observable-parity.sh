@@ -45,7 +45,9 @@ normalize() {
     "$input" >"$output"
 }
 
-echo "observable parity: $suite --gtest_filter=$filter"
+if [[ "${VK_LOADER_PARITY_QUIET:-0}" != 1 ]]; then
+  echo "observable parity: $suite --gtest_filter=$filter"
+fi
 set +e
 run_suite "$upstream_loader" "$upstream_raw"
 upstream_status=$?
@@ -65,11 +67,18 @@ if (( upstream_status != 0 || rust_status != 0 )); then
 fi
 
 if diff -u "$upstream_normalized" "$rust_normalized" >"$comparison"; then
-  echo "Observable output matches after pointer, timing and build-ID normalization"
+  if [[ "${VK_LOADER_KEEP_MATCH_LOGS:-0}" != 1 ]]; then
+    rm -f "$upstream_raw" "$rust_raw" "$upstream_normalized" "$rust_normalized" "$comparison"
+  fi
+  if [[ "${VK_LOADER_PARITY_QUIET:-0}" != 1 ]]; then
+    echo "Observable output matches after pointer, timing and build-ID normalization"
+  fi
   exit 0
 fi
 
-echo "Observable output differs (diff: $comparison)" >&2
-echo "Upstream raw log: $upstream_raw" >&2
-echo "Rust raw log: $rust_raw" >&2
+if [[ "${VK_LOADER_PARITY_QUIET:-0}" != 1 ]]; then
+  echo "Observable output differs (diff: $comparison)" >&2
+  echo "Upstream raw log: $upstream_raw" >&2
+  echo "Rust raw log: $rust_raw" >&2
+fi
 exit 1

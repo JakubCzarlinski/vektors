@@ -30,22 +30,23 @@ fi
 rm -f "$unit_log"
 
 loader="$target_dir/release/libvulkan.so"
+status_summary="$target_dir/status.tsv"
+printf 'suite\ttest_count\tupstream_status\trust_status\n' >"$status_summary"
 for suite in test_regression test_fuzzing test_threading; do
   upstream_log="$target_dir/$suite.upstream.log"
   rust_log="$target_dir/$suite.rust.log"
   echo "coverage parity: $suite (upstream)"
-  if ! VK_LOADER_TEST_LOADER_PATH="$upstream_loader" \
-    "$upstream_build_dir/tests/$suite" --gtest_brief=1 > "$upstream_log" 2>&1; then
+  if ! run_gtest_shards "$upstream_loader" "$suite" "$upstream_log" --gtest_brief=1; then
     tail -n 200 "$upstream_log" >&2
     exit 1
   fi
   echo "coverage parity: $suite (Rust)"
   if ! LLVM_PROFILE_FILE="$profile_dir/%p-%m.profraw" \
-    VK_LOADER_TEST_LOADER_PATH="$loader" \
-    "$upstream_build_dir/tests/$suite" --gtest_brief=1 > "$rust_log" 2>&1; then
+    run_gtest_shards "$loader" "$suite" "$rust_log" --gtest_brief=1; then
     tail -n 200 "$rust_log" >&2
     exit 1
   fi
+  printf '%s\t%s\t0\t0\n' "$suite" "$(gtest_case_count "$suite")" >>"$status_summary"
   rm -f "$upstream_log" "$rust_log"
 done
 

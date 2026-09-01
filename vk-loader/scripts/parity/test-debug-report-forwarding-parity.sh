@@ -5,7 +5,7 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
 upstream_loader="${VK_LOADER_PARITY_UPSTREAM_LIBRARY:-$upstream_build_dir/loader/libvulkan.so.1.4.361}"
 output_dir="${VK_LOADER_DEBUG_REPORT_PARITY_DIR:-$repo_root/target/debug-report-forwarding-parity}"
 
-require_tools cargo cc
+require_tools cargo cc mold
 ensure_upstream_tests test_regression "$upstream_loader"
 rust_loader="$(resolve_rust_loader "${VK_LOADER_PARITY_RUST_LIBRARY:-}" release)"
 
@@ -13,9 +13,9 @@ mkdir -p "$output_dir/empty" "$output_dir/upstream-loader" "$output_dir/rust-loa
 icd="$output_dir/libdebug_report_icd.so"
 probe="$output_dir/debug-report-forwarding"
 manifest="$output_dir/debug-report-icd.json"
-cc -std=c11 -Wall -Wextra -Werror -fPIC -shared \
+cc -fuse-ld=mold -std=c11 -Wall -Wextra -Werror -fPIC -shared \
   "$repo_root/vk-loader/tests/fixtures/debug_report_icd.c" -o "$icd"
-cc -std=c11 -Wall -Wextra -Werror \
+cc -fuse-ld=mold -std=c11 -Wall -Wextra -Werror \
   "$repo_root/vk-loader/tests/debug_report_icd_forwarding.c" -ldl -lvulkan -o "$probe"
 printf '{"file_format_version":"1.0.0","ICD":{"library_path":"%s","api_version":"1.0.0"}}\n' \
   "$icd" > "$manifest"

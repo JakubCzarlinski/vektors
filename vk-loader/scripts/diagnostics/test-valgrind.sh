@@ -136,18 +136,59 @@ case "${1:-}" in
     ;;
 esac
 
+summary="$log_dir/status.tsv"
+printf 'suite\tshard\tshard_count\texit_status\tmemcheck_errors\n' >"$summary"
 for suite in "${suites[@]}"; do
-  log="$log_dir/$suite.log"
-  xml="$log_dir/$suite.xml"
-  echo "valgrind: $suite (log: $log, XML: $xml)"
-  VK_LOADER_TEST_LOADER_PATH="$loader" \
-    valgrind "${valgrind_options[@]}" --log-file="$log" \
-      --xml=yes --xml-file="$xml" \
-    "$test_copy_dir/$suite" "${filter[@]}"
-  if grep -q '<error>' "$xml"; then
-    echo "Valgrind reported an error in $suite despite a zero exit status" >&2
-    exit "$error_exitcode"
-  fi
+  jobs="${VK_LOADER_VALGRIND_JOBS:-$(loader_test_jobs)}"
+  [[ "$jobs" =~ ^[1-9][0-9]*$ ]] || {
+    echo "VK_LOADER_VALGRIND_JOBS must be a positive integer" >&2
+    exit 2
+  }
+  (( jobs > 4 )) && jobs=4
+  count="$(gtest_case_count "$suite")"
+  (( jobs > count )) && jobs="$count"
+  ((${#filter[@]} != 0)) && jobs=1
+
+  echo "valgrind: $suite ($jobs shards)"
+  pids=()
+  outputs=()
+  xmls=()
+  for ((shard = 0; shard < jobs; shard++)); do
+    log="$log_dir/$suite.shard-$shard.log"
+    xml="$log_dir/$suite.shard-$shard.xml"
+    output="$log_dir/$suite.shard-$shard.output.log"
+    shard_status="$log_dir/$suite.shard-$shard.status"
+    outputs+=("$output")
+    xmls+=("$xml")
+    env \
+      GTEST_TOTAL_SHARDS="$jobs" \
+      GTEST_SHARD_INDEX="$shard" \
+      GTEST_SHARD_STATUS_FILE="$shard_status" \
+      VK_LOADER_TEST_LOADER_PATH="$loader" \
+      valgrind "${valgrind_options[@]}" --log-file="$log" \
+        --xml=yes --xml-file="$xml" \
+        "$test_copy_dir/$suite" --gtest_brief=1 "${filter[@]}" >"$output" 2>&1 &
+    pids+=("$!")
+  done
+
+  suite_failed=0
+  for shard in "${!pids[@]}"; do
+    status=0
+    wait "${pids[$shard]}" || status=$?
+    errors=0
+    if [[ -f "${xmls[$shard]}" ]]; then
+      errors="$(grep -c '<error>' "${xmls[$shard]}" || true)"
+    fi
+    printf '%s\t%d\t%d\t%d\t%d\n' "$suite" "$shard" "$jobs" "$status" "$errors" >>"$summary"
+    if (( status != 0 || errors != 0 )); then
+      suite_failed=1
+      tail -n 200 "${outputs[$shard]}" >&2
+    else
+      rm -f "${outputs[$shard]}"
+    fi
+  done
+  (( suite_failed == 0 )) || exit "$error_exitcode"
 done
 
 echo "Valgrind parity tests passed"
+echo "Summary: $summary"

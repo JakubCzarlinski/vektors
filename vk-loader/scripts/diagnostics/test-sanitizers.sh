@@ -63,8 +63,7 @@ for suite in "${suites[@]}"; do
   echo "asan: $suite (log: $log)"
   ASAN_OPTIONS='abort_on_error=1:detect_leaks=0:strict_string_checks=1:check_initialization_order=1' \
     LD_PRELOAD="$runtime" \
-    VK_LOADER_TEST_LOADER_PATH="$loader" \
-    "$upstream_build_dir/tests/$suite" "${filter[@]}" > "$log" 2>&1
+    run_gtest_shards "$loader" "$suite" "$log" "${filter[@]}"
 done
 
 echo "AddressSanitizer parity tests passed"
