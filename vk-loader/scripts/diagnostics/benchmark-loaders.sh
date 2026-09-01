@@ -29,6 +29,7 @@ repetitions="${VK_LOADER_BENCH_REPETITIONS:-9}"
 bench_cpu="${VK_LOADER_BENCH_CPU:-2}"
 collect_perf="${VK_LOADER_BENCH_PERF:-1}"
 mode_filter="${VK_LOADER_BENCH_MODE_FILTER:-}"
+IFS=, read -r -a log_levels <<<"${VK_LOADER_BENCH_LOG_LEVELS:-disabled}"
 
 require_tools clang cmake column mold ninja python3 sha256sum taskset
 [[ "$repetitions" =~ ^[1-9][0-9]*$ ]] || {
@@ -78,7 +79,7 @@ summary="$output_dir/summary.csv"
 perf_results="$output_dir/perf-counters.csv"
 metadata="$output_dir/environment.txt"
 rm -f "$perf_results"
-printf 'loader,layer,sample,pair_order,mode,iteration_count,total_ns,ns_per_operation,sink,allocation_calls,allocated_bytes,free_calls\n' >"$samples"
+printf 'loader,layer,log_level,sample,pair_order,mode,iteration_count,total_ns,ns_per_operation,sink,allocation_calls,allocated_bytes,free_calls\n' >"$samples"
 
 modes=(
   'enumerate-extensions-cold|1|'
@@ -134,43 +135,48 @@ ln -s "$rust_loader" "$rust_library_dir/libvulkan.so.1"
 ln -s "$upstream_loader" "$upstream_library_dir/libvulkan.so.1"
 
 run_sample() {
-  local loader_name="$1" layer="$2" mode="$3" iterations="$4"
-  local command="$5" repetition="$6" pair_order="$7" library_dir result
+  local loader_name="$1" layer="$2" log_level="$3" mode="$4" iterations="$5"
+  local command="$6" repetition="$7" pair_order="$8" library_dir result
   if [[ "$loader_name" == rust ]]; then
     library_dir="$rust_library_dir"
   else
     library_dir="$upstream_library_dir"
   fi
   local -a command_argument=()
+  local -a environment=(env -u VK_LOADER_DEBUG)
+  [[ "$log_level" == disabled ]] || environment=(env "VK_LOADER_DEBUG=$log_level")
   [[ -z "$command" ]] || command_argument+=("$command")
   if [[ "$layer" == none ]]; then
-    result="$(LD_LIBRARY_PATH="$library_dir${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
-      taskset -c "$bench_cpu" "$harness" "$mode" "$iterations" "${command_argument[@]}")"
+    result="$("${environment[@]}" LD_LIBRARY_PATH="$library_dir${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
+      taskset -c "$bench_cpu" "$harness" "$mode" "$iterations" "${command_argument[@]}" \
+      2>/dev/null)"
   else
-    result="$(LD_LIBRARY_PATH="$library_dir${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
+    result="$("${environment[@]}" LD_LIBRARY_PATH="$library_dir${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
       VK_LOADER_BENCH_LAYER="$layer" taskset -c "$bench_cpu" \
-      "$harness" "$mode" "$iterations" "${command_argument[@]}")"
+      "$harness" "$mode" "$iterations" "${command_argument[@]}" 2>/dev/null)"
   fi
-  printf '%s,%s,%d,%d,%s\n' "$loader_name" "$layer" "$repetition" "$pair_order" "$result" \
+  printf '%s,%s,%s,%d,%d,%s\n' "$loader_name" "$layer" "$log_level" "$repetition" "$pair_order" "$result" \
     >>"$samples"
 }
 
 for layer in "${layers[@]}"; do
-  for mode_record in "${modes[@]}"; do
-    IFS='|' read -r mode iterations command <<<"$mode_record"
-    [[ -z "$mode_filter" || "$mode${command:+-$command}" == "$mode_filter" ]] || continue
-    if [[ "$layer" != none && "$mode" == device-gpa-known && -z "$command" ]]; then
-      iterations=1000000
-    fi
-    for ((repetition = 0; repetition < repetitions; repetition++)); do
-      case $((repetition % 4)) in
-        0|3) order=(rust upstream) ;;
-        1|2) order=(upstream rust) ;;
-      esac
-      run_sample "${order[0]}" "$layer" "$mode" "$iterations" "$command" "$repetition" 0
-      run_sample "${order[1]}" "$layer" "$mode" "$iterations" "$command" "$repetition" 1
+  for log_level in "${log_levels[@]}"; do
+    for mode_record in "${modes[@]}"; do
+      IFS='|' read -r mode iterations command <<<"$mode_record"
+      [[ -z "$mode_filter" || "$mode${command:+-$command}" == "$mode_filter" ]] || continue
+      if [[ "$layer" != none && "$mode" == device-gpa-known && -z "$command" ]]; then
+        iterations=1000000
+      fi
+      for ((repetition = 0; repetition < repetitions; repetition++)); do
+        case $((repetition % 4)) in
+          0|3) order=(rust upstream) ;;
+          1|2) order=(upstream rust) ;;
+        esac
+        run_sample "${order[0]}" "$layer" "$log_level" "$mode" "$iterations" "$command" "$repetition" 0
+        run_sample "${order[1]}" "$layer" "$log_level" "$mode" "$iterations" "$command" "$repetition" 1
+      done
+      echo "benchmark: $layer $log_level $mode${command:+ $command}"
     done
-    echo "benchmark: $layer $mode${command:+ $command}"
   done
 done
 
@@ -226,6 +232,7 @@ done
   echo "kernel=$(uname -srvmo)"
   echo "cpu=$bench_cpu"
   echo "repetitions=$repetitions"
+  echo "log_levels=${log_levels[*]}"
   echo "variant=$variant"
   echo "rustc=$(rustc --version)"
   echo "clang=$(clang --version | head -n 1)"

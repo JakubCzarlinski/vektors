@@ -41,17 +41,18 @@ def main() -> int:
 
     input_path = Path(sys.argv[1])
     output_path = Path(sys.argv[2])
-    groups: dict[tuple[str, str], dict[str, list[float]]] = defaultdict(
+    groups: dict[tuple[str, str, str], dict[str, list[float]]] = defaultdict(
         lambda: defaultdict(list)
     )
     with input_path.open(newline="") as input_file:
         for row in csv.DictReader(input_file):
-            groups[(row["layer"], row["mode"])][row["loader"]].append(
+            groups[(row["layer"], row["log_level"], row["mode"])][row["loader"]].append(
                 float(row["ns_per_operation"])
             )
 
     fieldnames = [
         "layer",
+        "log_level",
         "mode",
         "rust_samples",
         "upstream_samples",
@@ -68,7 +69,7 @@ def main() -> int:
     with output_path.open("w", newline="") as output_file:
         writer = csv.DictWriter(output_file, fieldnames=fieldnames)
         writer.writeheader()
-        for (layer, mode), implementations in sorted(groups.items()):
+        for (layer, log_level, mode), implementations in sorted(groups.items()):
             if "rust" not in implementations or "upstream" not in implementations:
                 continue
             rust, rust_outliers = reject_outliers(implementations["rust"])
@@ -79,6 +80,7 @@ def main() -> int:
             writer.writerow(
                 {
                     "layer": layer,
+                    "log_level": log_level,
                     "mode": mode,
                     "rust_samples": len(rust),
                     "upstream_samples": len(upstream),

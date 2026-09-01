@@ -13,14 +13,14 @@ use std::sync::LazyLock;
 use crate::sync::Mutex;
 use vk::{
     PFN_vkEnumerateDeviceExtensionProperties, PFN_vkGetDeviceProcAddr, PFN_vkVoidFunction,
-    VK_KHR_MAINTENANCE_5_EXTENSION_NAME, VkBaseInStructure, VkDevice, VkDeviceCreateInfo,
-    VkExtensionProperties, VkPhysicalDevice, VkPhysicalDeviceMaintenance5FeaturesKHR, VkResult,
-    VkStructureType,
+    VK_KHR_MAINTENANCE_5_EXTENSION_NAME, VkDevice, VkDeviceCreateInfo, VkExtensionProperties,
+    VkPhysicalDevice, VkPhysicalDeviceMaintenance5FeaturesKHR, VkResult, VkStructureType,
 };
 
 use crate::{
     ExtensionSet, IcdDeviceTerminatorDispatchTable, LayerDeviceDispatchTable, collections::HashMap,
-    erase_function, icd::IcdInstance, instance::LoaderInstance, vkGetDeviceProcAddr,
+    emulation::find_input_chain, erase_function, icd::IcdInstance, instance::LoaderInstance,
+    vkGetDeviceProcAddr,
 };
 
 #[derive(Default)]
@@ -404,18 +404,20 @@ pub(crate) unsafe fn maintenance5_version_checks(create_info: &VkDeviceCreateInf
     if !unsafe { extension_enabled(create_info, VK_KHR_MAINTENANCE_5_EXTENSION_NAME) } {
         return false;
     }
-    let mut next = create_info.pNext.cast::<VkBaseInStructure<'_>>();
-    while !next.is_null() {
-        // SAFETY: The caller guarantees a valid pNext chain.
-        let structure = unsafe { &*next };
-        if structure.sType == VkStructureType::PHYSICAL_DEVICE_MAINTENANCE_5_FEATURES_KHR {
-            // SAFETY: `sType` identifies the concrete structure layout.
-            let features = unsafe { &*next.cast::<VkPhysicalDeviceMaintenance5FeaturesKHR<'_>>() };
-            return features.maintenance5 != 0;
-        }
-        next = structure.pNext;
-    }
-    false
+    // SAFETY: The caller guarantees a valid pNext chain.
+    let Some(features) = (unsafe {
+        find_input_chain(
+            create_info.pNext,
+            VkStructureType::PHYSICAL_DEVICE_MAINTENANCE_5_FEATURES_KHR,
+        )
+    }) else {
+        return false;
+    };
+    // SAFETY: `sType` identifies the concrete structure layout.
+    let features = unsafe {
+        &*core::ptr::from_ref(features).cast::<VkPhysicalDeviceMaintenance5FeaturesKHR<'_>>()
+    };
+    features.maintenance5 != 0
 }
 
 unsafe fn extension_enabled(create_info: &VkDeviceCreateInfo<'_>, name: &CStr) -> bool {
@@ -442,6 +444,7 @@ unsafe fn extension_enabled(create_info: &VkDeviceCreateInfo<'_>, name: &CStr) -
 /// `physical_device` must belong to `icd`, and every enabled-extension name in
 /// `create_info` must satisfy Vulkan's string-array contract.
 pub(crate) unsafe fn validate_and_filter_device_extensions(
+    instance: &LoaderInstance,
     icd: &IcdInstance,
     physical_device: VkPhysicalDevice,
     create_info: &VkDeviceCreateInfo<'_>,
@@ -497,10 +500,11 @@ pub(crate) unsafe fn validate_and_filter_device_extensions(
             return Err(VkResult::ERROR_INITIALIZATION_FAILED);
         }
         // SAFETY: Each requested extension is NUL-terminated by contract.
-        let requested = unsafe { CStr::from_ptr(requested) }.to_bytes();
+        let requested = unsafe { CStr::from_ptr(requested) };
+        let requested_bytes = requested.to_bytes();
         let supported_by_layer = layer_extensions
             .iter()
-            .any(|extension| extension.as_bytes() == requested);
+            .any(|extension| extension.as_c_str() == requested);
         let supported_by_icd = properties[..initialized].iter().any(|property| {
             // SAFETY: The ICD reported these leading entries as initialized.
             let property = unsafe { property.assume_init_ref() };
@@ -512,9 +516,22 @@ pub(crate) unsafe fn validate_and_filter_device_extensions(
                 .iter()
                 .position(|byte| *byte == 0)
                 .unwrap_or(bytes.len());
-            requested.len() == end && requested == &bytes[..end]
+            requested_bytes.len() == end && requested_bytes == &bytes[..end]
         });
         if !supported_by_layer && !supported_by_icd {
+            instance.log_loader_message_text(
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
+                vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
+                format_args!(
+                    "loader_validate_device_extensions: Device extension {} not supported by selected physical device or enabled layers.",
+                    requested.to_string_lossy()
+                ),
+            );
+            instance.log_loader_message(
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
+                vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
+                c"vkCreateDevice: Failed to validate extensions in list",
+            );
             return Err(VkResult::ERROR_EXTENSION_NOT_PRESENT);
         }
         if supported_by_icd {

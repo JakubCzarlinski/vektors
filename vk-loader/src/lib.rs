@@ -13,6 +13,7 @@ mod debug_messenger;
 mod device;
 mod discovery;
 mod display;
+mod emulation;
 #[path = "generated/mod.rs"]
 mod generated;
 mod icd;
@@ -206,15 +207,42 @@ unsafe fn resolve_physical_device<T: Copy>(
 #[cold]
 #[inline(never)]
 fn report_missing_physical_device_command(physical_device: &LoaderPhysicalDevice, name: &CStr) {
-    if let Ok(message) = alloc::ffi::CString::new(format!(
-        "ICD for selected physical device does not export {}!",
-        name.to_string_lossy()
-    )) {
-        physical_device.instance().submit_loader_message(
-            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
+    use vk::VkDebugUtilsMessageSeverityFlagBitsEXT as Severity;
+
+    let instance = physical_device.instance();
+    match name.to_bytes() {
+        b"vkGetDisplayPlaneCapabilitiesKHR"
+        | b"vkGetDisplayPlaneSupportedDisplaysKHR"
+        | b"vkGetPhysicalDeviceDisplayPropertiesKHR"
+        | b"vkGetDisplayModePropertiesKHR"
+        | b"vkGetPhysicalDeviceDisplayPlanePropertiesKHR" => instance.log_loader_message_text(
+            Severity::WARNING,
             vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
-            &message,
-        );
+            format_args!(
+                "ICD for selected physical device does not export {}!",
+                name.to_string_lossy()
+            ),
+        ),
+        b"vkAcquireDrmDisplayEXT" => instance.log_loader_message_text(
+            Severity::ERROR,
+            vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
+            format_args!(
+                "ICD associated with VkPhysicalDevice does not support AcquireDrmDisplayEXT"
+            ),
+        ),
+        b"vkGetDrmDisplayEXT" => instance.log_loader_message_text(
+            Severity::ERROR,
+            vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
+            format_args!("ICD associated with VkPhysicalDevice does not support GetDrmDisplayEXT"),
+        ),
+        _ => instance.log_loader_message_text(
+            Severity::ERROR,
+            vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
+            format_args!(
+                "ICD for selected physical device does not export {}!",
+                name.to_string_lossy()
+            ),
+        ),
     }
 }
 
@@ -415,6 +443,38 @@ pub unsafe extern "system" fn vkCreateInstance(
             );
         };
     }
+    let portability_flag = create_info_ref
+        .flags
+        .intersects(vk::VkInstanceCreateFlagBits::ENUMERATE_PORTABILITY_BIT_KHR);
+    let portability_extension = unsafe {
+        instance_extension_enabled(
+            create_info_ref,
+            vk::VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
+        )
+    };
+    if portability_flag && portability_extension {
+        // SAFETY: The caller's complete create-info chain remains live.
+        unsafe {
+            emit_driver_create_message(
+                create_info_ref,
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+                "Portability enumeration bit was set, enumerating portability drivers.",
+            );
+        };
+    }
+    let variant = vk::VK_API_VERSION_VARIANT(api_version);
+    if variant != 0 {
+        // SAFETY: The caller's complete create-info chain remains live.
+        unsafe {
+            emit_driver_create_message(
+                create_info_ref,
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+                format!(
+                    "vkCreateInstance: The API Variant specified in pCreateInfo->pApplicationInfo.apiVersion is {variant} instead of the expected value of 0."
+                ),
+            );
+        };
+    }
     let selected_layers = match layer::select_active_layers(create_info_ref, settings.as_ref()) {
         Ok(layers) => layers,
         Err(result) => return result,
@@ -457,15 +517,6 @@ pub unsafe extern "system" fn vkCreateInstance(
         device_configurations,
         allocator,
     );
-    let variant = vk::VK_API_VERSION_VARIANT(api_version);
-    if variant != 0
-        && let Ok(message) = alloc::ffi::CString::new(format!(
-            "vkCreateInstance: The API Variant specified in pCreateInfo->pApplicationInfo.apiVersion is {variant} instead of the expected value of 0."
-        ))
-    {
-        // SAFETY: The caller's complete create-info chain remains live.
-        unsafe { debug_messenger::submit_instance_create_warning(create_info_ref, &message) };
-    }
     if loader_instance.layers.is_empty() {
         let previous = pending::replace_instance(loader_instance.handle());
         // SAFETY: The public entrypoint validated the output and create-info
@@ -590,6 +641,14 @@ unsafe fn validate_instance_extensions(
         return Ok(());
     }
     if create_info.ppEnabledExtensionNames.is_null() {
+        // SAFETY: The caller retains the complete instance-create chain.
+        unsafe {
+            emit_driver_create_message(
+                create_info,
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
+                "loader_validate_instance_extensions: Instance ppEnabledExtensionNames is NULL but enabledExtensionCount is greater than zero",
+            );
+        };
         return Err(VkResult::ERROR_EXTENSION_NOT_PRESENT);
     }
     let mut available = Vec::new();
@@ -609,6 +668,17 @@ unsafe fn validate_instance_extensions(
         }
         let name = unsafe { CStr::from_ptr(name) };
         if filter_unknown && !is_known_instance_extension(name) {
+            // SAFETY: The caller retains the complete instance-create chain.
+            unsafe {
+                emit_driver_create_message(
+                    create_info,
+                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
+                    format!(
+                        "loader_validate_instance_extensions: Extension {} not found in list of known instance extensions.",
+                        name.to_string_lossy()
+                    ),
+                );
+            };
             return Err(VkResult::ERROR_EXTENSION_NOT_PRESENT);
         }
         let loader_available = loader_instance_extension_supported(name);
@@ -619,6 +689,17 @@ unsafe fn validate_instance_extensions(
             });
         let layer_available = layers.supports_instance_extension(name);
         if !loader_available && !globally_available && !layer_available {
+            // SAFETY: The caller retains the complete instance-create chain.
+            unsafe {
+                emit_driver_create_message(
+                    create_info,
+                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
+                    format!(
+                        "loader_validate_instance_extensions: Instance extension {} not supported by available ICDs or enabled layers.",
+                        name.to_string_lossy()
+                    ),
+                );
+            };
             return Err(VkResult::ERROR_EXTENSION_NOT_PRESENT);
         }
     }
@@ -722,17 +803,15 @@ unsafe fn instance_extension_enabled(
 unsafe fn direct_driver_list<'a>(
     create_info: &VkInstanceCreateInfo<'a>,
 ) -> Option<&'a VkDirectDriverLoadingListLUNARG<'a>> {
-    let mut next = create_info.pNext.cast::<vk::VkBaseInStructure<'a>>();
-    while !next.is_null() {
-        // SAFETY: The instance-create pNext chain is readable by contract.
-        let structure = unsafe { &*next };
-        if structure.sType == VkStructureType::DIRECT_DRIVER_LOADING_LIST_LUNARG {
-            // SAFETY: sType identifies the concrete structure layout.
-            return Some(unsafe { &*next.cast::<VkDirectDriverLoadingListLUNARG<'a>>() });
-        }
-        next = structure.pNext;
-    }
-    None
+    // SAFETY: The instance-create pNext chain is readable by contract.
+    let structure = unsafe {
+        emulation::find_input_chain(
+            create_info.pNext,
+            VkStructureType::DIRECT_DRIVER_LOADING_LIST_LUNARG,
+        )
+    }?;
+    // SAFETY: sType identifies the concrete structure layout.
+    Some(unsafe { &*core::ptr::from_ref(structure).cast::<VkDirectDriverLoadingListLUNARG<'a>>() })
 }
 
 fn fatal_direct_driver_scan_error(result: VkResult) -> Option<VkResult> {
@@ -749,7 +828,7 @@ unsafe fn scan_direct_drivers(
     let Some(list) = list else {
         if enabled {
             unsafe {
-                emit_driver_create_message(
+                emit_driver_category_create_message(
                     create_info,
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
                     "loader_scan_for_direct_drivers: The VK_LUNARG_direct_driver_loading extension was enabled but the pNext chain of VkInstanceCreateInfo did not contain the VkDirectDriverLoadingListLUNARG structure.",
@@ -760,7 +839,7 @@ unsafe fn scan_direct_drivers(
     };
     if !enabled {
         unsafe {
-            emit_driver_create_message(
+            emit_driver_category_create_message(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
                 "loader_scan_for_direct_drivers: The pNext chain of VkInstanceCreateInfo contained the VkDirectDriverLoadingListLUNARG structure, but the VK_LUNARG_direct_driver_loading extension was not enabled.",
@@ -772,7 +851,7 @@ unsafe fn scan_direct_drivers(
     let exclusive = list.mode == VkDirectDriverLoadingModeLUNARG::EXCLUSIVE;
     if exclusive {
         unsafe {
-            emit_driver_create_message(
+            emit_driver_category_create_message(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
                 "loader_scan_for_direct_drivers: The VK_LUNARG_direct_driver_loading extension is active and specified VK_DIRECT_DRIVER_LOADING_MODE_EXCLUSIVE_LUNARG, skipping system and environment variable driver search mechanisms.",
@@ -781,7 +860,7 @@ unsafe fn scan_direct_drivers(
     }
     if list.pDrivers.is_null() {
         unsafe {
-            emit_driver_create_message(
+            emit_driver_category_create_message(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
                 "loader_scan_for_direct_drivers: The VkDirectDriverLoadingListLUNARG structure in the pNext chain of VkInstanceCreateInfo has a NULL pDrivers member.",
@@ -791,7 +870,7 @@ unsafe fn scan_direct_drivers(
     }
     if list.driverCount == 0 {
         unsafe {
-            emit_driver_create_message(
+            emit_driver_category_create_message(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
                 "loader_scan_for_direct_drivers: The VkDirectDriverLoadingListLUNARG structure in the pNext chain of VkInstanceCreateInfo has a non-null pDrivers member but a driverCount member with a value of zero.",
@@ -972,7 +1051,7 @@ unsafe fn emit_driver_manifest_diagnostics(
         }
         if manifest.manifest_version >= vk::VK_MAKE_API_VERSION(0, 1, 0, 2) {
             unsafe {
-                emit_driver_create_message(
+                emit_driver_category_create_message(
                     create_info,
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
                     format!(
@@ -1101,10 +1180,10 @@ unsafe fn scan_icds(
             };
         }
         unsafe {
-            debug_messenger::submit_instance_create_message(
+            emit_driver_category_create_message(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-                c"vkCreateInstance: Found no drivers!",
+                "vkCreateInstance: Found no drivers!",
             );
         };
         Err(VkResult::ERROR_INCOMPATIBLE_DRIVER)
@@ -1137,18 +1216,44 @@ unsafe fn load_scanned_icd(
     };
     let (icd, version_status) = match ScannedIcd::load_manifest(manifest) {
         Ok(loaded) => loaded,
-        Err(ScannedIcdLoadError::OpenLibrary(error)) => {
+        Err(ScannedIcdLoadError::OpenLibrary {
+            message,
+            wrong_bit_type,
+        }) => {
             unsafe {
                 emit_driver_create_message(
                     create_info,
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                    error,
+                    message,
                 );
             };
+            if wrong_bit_type {
+                unsafe {
+                    emit_driver_only_create_message(
+                        create_info,
+                        format!(
+                            "Requested ICD {} was wrong bit-type. Ignoring this JSON",
+                            manifest.library_path.to_string_lossy()
+                        ),
+                    );
+                };
+            }
             return None;
         }
         Err(ScannedIcdLoadError::InvalidInterface) => return None,
     };
+    if icd.interface_version == 0 {
+        unsafe {
+            emit_driver_create_message(
+                create_info,
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+                format!(
+                    "loader_scanned_icd_add: Using deprecated ICD interface of 'vkGetInstanceProcAddr' instead of 'vk_icdGetInstanceProcAddr' for ICD {}",
+                    manifest.library_path.to_string_lossy()
+                ),
+            );
+        };
+    }
     Some(ScannedIcdRecord {
         icd,
         version_status,
@@ -1194,10 +1299,10 @@ unsafe fn create_icd_instances(
     }
     if icds.is_empty() {
         unsafe {
-            debug_messenger::submit_instance_create_message(
+            emit_driver_category_create_message(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-                c"terminator_CreateInstance: Found no drivers!",
+                "terminator_CreateInstance: Found no drivers!",
             );
         };
         Err(VkResult::ERROR_INCOMPATIBLE_DRIVER)
@@ -1265,7 +1370,7 @@ unsafe fn emit_icd_version_status(
     match scanned.version_status {
         ManifestApiVersionStatus::Consistent => {}
         ManifestApiVersionStatus::EnumerateInstanceVersionMissing => unsafe {
-            emit_driver_create_message(
+            emit_driver_category_create_message(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
                 format!(
@@ -1274,7 +1379,7 @@ unsafe fn emit_icd_version_status(
             );
         },
         ManifestApiVersionStatus::EnumerateInstanceVersionReturned(version) => unsafe {
-            emit_driver_create_message(
+            emit_driver_category_create_message(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
                 format!(
@@ -1396,6 +1501,32 @@ unsafe fn create_scanned_icd_instance(
             // SAFETY: `load_into` initialized the complete dispatch field.
             let dispatch_ref = unsafe { &*dispatch };
             if !dispatch_ref.has_required_core_1_0() {
+                if dispatch_ref.vkGetPhysicalDeviceFeatures.is_none()
+                    && let Some(path) = icd.library_path()
+                {
+                    unsafe {
+                        emit_driver_create_message(
+                            create_info,
+                            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+                            format!(
+                                "Unable to load vkGetPhysicalDeviceFeatures from ICD {}",
+                                path.to_string_lossy()
+                            ),
+                        );
+                    };
+                }
+                if let Some(path) = icd.library_path() {
+                    unsafe {
+                        emit_driver_create_message(
+                            create_info,
+                            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+                            format!(
+                                "terminator_CreateInstance: Failed to find required entrypoints in ICD {}. Skipping this driver.",
+                                path.to_string_lossy()
+                            ),
+                        );
+                    };
+                }
                 let destroy: Option<PFN_vkDestroyInstance> = unsafe {
                     load_typed((icd.get_instance_proc_addr)(
                         handle,
@@ -1549,7 +1680,7 @@ pub unsafe extern "system" fn vkCreateDevice(
             )
         });
     if unsafe { layer::has_mismatched_device_layers(&instance.enabled_layer_names, create_info) } {
-        instance.submit_loader_message(
+        instance.log_loader_message(
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
             vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
             c"loader_create_device_chain: Using deprecated and ignored 'ppEnabledLayerNames' member of 'VkDeviceCreateInfo' when creating a Vulkan device.",
@@ -1580,6 +1711,18 @@ pub unsafe extern "system" fn vkCreateDevice(
             return result;
         }
     };
+    for layer in &instance.layers {
+        emit_instance_loader_category_message(
+            instance,
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+            platform::LogFilter::Layer,
+            format!(
+                "Inserted device layer \"{}\" ({})",
+                layer.name.to_string_lossy(),
+                layer.library_path.to_string_lossy()
+            ),
+        );
+    }
     // SAFETY: The trampoline retains its terminator wrapper and native ICD.
     unsafe { emit_device_layer_callstack(instance, trampoline) };
     // Upstream executes the chain builder even when no layers are active. In
@@ -1639,6 +1782,53 @@ unsafe fn emit_device_layer_callstack(
                 } else {
                     "Explicit"
                 }
+            ),
+        );
+        emit_instance_category_message(
+            instance,
+            &[platform::LogFilter::Layer],
+            "LAYER",
+            format!("           Enabled By: {}", layer.enabled_by()),
+        );
+        if let Some(disable_environment) = layer.disable_environment() {
+            emit_instance_category_message(
+                instance,
+                &[platform::LogFilter::Layer],
+                "LAYER",
+                format!(
+                    "               Disable Env Var:  {}",
+                    disable_environment.to_string_lossy()
+                ),
+            );
+        }
+        if let Some((name, value)) = layer.matched_enable_environment() {
+            emit_instance_category_message(
+                instance,
+                &[platform::LogFilter::Layer],
+                "LAYER",
+                format!(
+                    "               This layer was enabled because Env Var {} was set to Value {}",
+                    name.to_string_lossy(),
+                    value.to_string_lossy()
+                ),
+            );
+        }
+        emit_instance_category_message(
+            instance,
+            &[platform::LogFilter::Layer],
+            "LAYER",
+            format!(
+                "           Manifest: {}",
+                layer.manifest_path().to_string_lossy()
+            ),
+        );
+        emit_instance_category_message(
+            instance,
+            &[platform::LogFilter::Layer],
+            "LAYER",
+            format!(
+                "           Library:  {}",
+                layer.library_path.to_string_lossy()
             ),
         );
         emit_instance_category_message(instance, &[platform::LogFilter::Layer], "LAYER", "     ||");
@@ -1715,6 +1905,7 @@ pub(crate) unsafe extern "system" fn create_device_terminator(
     // SAFETY: The terminator has recovered the ICD's native physical device.
     let icd_extension_names = match unsafe {
         validate_and_filter_device_extensions(
+            physical_device.instance(),
             icd_instance,
             physical_device.native,
             create_info,
@@ -1920,11 +2111,11 @@ pub(crate) unsafe extern "system" fn terminator_enumerate_physical_devices(
         return VkResult::ERROR_INITIALIZATION_FAILED;
     };
     if physical_device_count.is_null() {
-        instance.submit_loader_message(
+        instance.log_loader_message(
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
             vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL
                 | vk::VkDebugUtilsMessageTypeFlagBitsEXT::VALIDATION,
-            c"vkEnumeratePhysicalDevices: Invalid pPhysicalDeviceCount pointer [VUID-vkEnumeratePhysicalDevices-pPhysicalDeviceCount-parameter]",
+            c"vkEnumeratePhysicalDevices: Received NULL pointer for physical device count return value. [VUID-vkEnumeratePhysicalDevices-pPhysicalDeviceCount-parameter]",
         );
         return VkResult::ERROR_INITIALIZATION_FAILED;
     }
@@ -1932,11 +2123,25 @@ pub(crate) unsafe extern "system" fn terminator_enumerate_physical_devices(
     let native_devices = match unsafe { discover_active_physical_devices(instance) } {
         Ok(devices) => devices,
         Err(result) => {
+            if result == VkResult::ERROR_INITIALIZATION_FAILED {
+                instance.log_loader_message(
+                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
+                    vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
+                    c"setup_loader_term_phys_devs:  Failed to detect any valid GPUs in the current config",
+                );
+            }
             // SAFETY: The caller supplied writable count storage.
             unsafe { physical_device_count.write(0) };
             return result;
         }
     };
+    if native_devices.is_empty() {
+        instance.log_loader_message(
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
+            vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
+            c"setup_loader_term_phys_devs:  Failed to detect any valid GPUs in the current config",
+        );
+    }
     let mut devices = instance.physical_devices.lock();
     let mut active = Vec::new();
     if active.try_reserve_exact(native_devices.len()).is_err() {
@@ -1977,10 +2182,10 @@ pub(crate) unsafe extern "system" fn terminator_enumerate_physical_devices(
     }
     if written < devices.active.len() {
         if let Ok(message) = alloc::ffi::CString::new(format!(
-            "vkEnumeratePhysicalDevices: Trimming device count from {} to {written}",
+            "terminator_EnumeratePhysicalDevices : Trimming device count from {} to {written}.",
             devices.active.len()
         )) {
-            instance.submit_loader_message(
+            instance.log_loader_message(
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
                 vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
                 &message,
@@ -2012,11 +2217,11 @@ pub unsafe extern "system" fn vkEnumeratePhysicalDevices(
         )
     });
     if physical_device_count.is_null() {
-        loader.submit_loader_message(
+        loader.log_loader_message(
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
             vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL
                 | vk::VkDebugUtilsMessageTypeFlagBitsEXT::VALIDATION,
-            c"vkEnumeratePhysicalDevices: Invalid pPhysicalDeviceCount pointer [VUID-vkEnumeratePhysicalDevices-pPhysicalDeviceCount-parameter]",
+            c"vkEnumeratePhysicalDevices: Received NULL pointer for physical device count return value. [VUID-vkEnumeratePhysicalDevices-pPhysicalDeviceCount-parameter]",
         );
         return VkResult::ERROR_INITIALIZATION_FAILED;
     }
@@ -2057,7 +2262,7 @@ pub unsafe extern "system" fn vkEnumeratePhysicalDevices(
 #[cold]
 #[inline(never)]
 fn retire_icds_without_physical_devices(instance: &LoaderInstance) {
-    for (icd_index, icd) in instance.active_icds() {
+    for (icd_index, icd) in instance.active_icds().rev() {
         let has_physical_devices = {
             let devices = instance.physical_devices.lock();
             devices.active.iter().any(|handle| {
@@ -2070,16 +2275,15 @@ fn retire_icds_without_physical_devices(instance: &LoaderInstance) {
             continue;
         }
 
-        if let Some(path) = icd.icd.library_path()
-            && let Ok(message) = alloc::ffi::CString::new(format!(
-                "Removing driver {} due to not having any physical devices",
-                path.to_string_lossy()
-            ))
-        {
-            instance.submit_loader_message(
+        if let Some(path) = icd.icd.library_path() {
+            emit_instance_loader_category_message(
+                instance,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
-                &message,
+                platform::LogFilter::Driver,
+                format!(
+                    "Removing driver {} due to not having any physical devices",
+                    path.to_string_lossy()
+                ),
             );
         }
         destroy_icd_surfaces(instance, icd_index);
@@ -3220,6 +3424,7 @@ struct DeviceConfigurationProperties {
 #[derive(Clone, Copy)]
 struct LinuxSortedDeviceInfo {
     device: NativePhysicalDevice,
+    device_name: [c_char; vk::VK_MAX_PHYSICAL_DEVICE_NAME_SIZE as usize],
     device_type: vk::VkPhysicalDeviceType,
     vendor_id: u32,
     device_id: u32,
@@ -3503,6 +3708,7 @@ unsafe fn linux_sorted_device_info(
     };
     unsafe { get_properties(device.handle, core::ptr::addr_of_mut!((*storage).basic)) };
     let device_type = unsafe { core::ptr::addr_of!((*storage).basic.deviceType).read() };
+    let device_name = unsafe { core::ptr::addr_of!((*storage).basic.deviceName).read() };
     let api_version = unsafe { core::ptr::addr_of!((*storage).basic.apiVersion).read() };
     let vendor_id = unsafe { core::ptr::addr_of!((*storage).basic.vendorID).read() };
     let device_id = unsafe { core::ptr::addr_of!((*storage).basic.deviceID).read() };
@@ -3560,6 +3766,7 @@ unsafe fn linux_sorted_device_info(
     };
     Ok(LinuxSortedDeviceInfo {
         device,
+        device_name,
         device_type,
         vendor_id,
         device_id,
@@ -3586,9 +3793,28 @@ unsafe fn linux_sort_physical_devices(
     sorted
         .try_reserve_exact(devices.len())
         .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+    emit_instance_loader_category_message(
+        instance,
+        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+        platform::LogFilter::Driver,
+        "linux_read_sorted_physical_devices:",
+    );
+    emit_instance_loader_category_message(
+        instance,
+        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+        platform::LogFilter::Driver,
+        "     Original order:",
+    );
     for (original_order, &device) in devices.iter().enumerate() {
         let mut info = unsafe { linux_sorted_device_info(instance, device, storage) }?;
         info.original_order = original_order;
+        let name = unsafe { CStr::from_ptr(info.device_name.as_ptr()) }.to_string_lossy();
+        emit_instance_loader_category_message(
+            instance,
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+            platform::LogFilter::Driver,
+            format!("           [{original_order}] {name}"),
+        );
         sorted.push(info);
     }
     if let Some((vendor_id, device_id)) = selected_linux_device()
@@ -3599,7 +3825,25 @@ unsafe fn linux_sort_physical_devices(
         selected.default_device = true;
     }
     heap_sort_by(&mut sorted, compare_linux_devices);
-    for (output, sorted) in devices.iter_mut().zip(sorted) {
+    emit_instance_loader_category_message(
+        instance,
+        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+        platform::LogFilter::Driver,
+        "     Sorted order:",
+    );
+    for (index, (output, sorted)) in devices.iter_mut().zip(sorted).enumerate() {
+        let name = unsafe { CStr::from_ptr(sorted.device_name.as_ptr()) }.to_string_lossy();
+        let default = if sorted.default_device {
+            "[default]"
+        } else {
+            ""
+        };
+        emit_instance_loader_category_message(
+            instance,
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+            platform::LogFilter::Driver,
+            format!("           [{index}] {name}  {default}"),
+        );
         *output = sorted.device;
     }
     Ok(())
@@ -3842,6 +4086,29 @@ fn emit_instance_category_message(
     };
     instance.submit_loader_message(
         vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+        vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
+        &message,
+    );
+}
+
+#[cold]
+fn emit_instance_loader_category_message(
+    instance: &LoaderInstance,
+    severity: vk::VkDebugUtilsMessageSeverityFlagBitsEXT,
+    category: platform::LogFilter,
+    message: impl AsRef<str>,
+) {
+    let message = message.as_ref();
+    platform::write_loader_log_with_category(
+        platform::LogFilter::from_severity(severity),
+        category,
+        format_args!("{message}"),
+    );
+    let Ok(message) = alloc::ffi::CString::new(message) else {
+        return;
+    };
+    instance.submit_loader_message(
+        severity,
         vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
         &message,
     );

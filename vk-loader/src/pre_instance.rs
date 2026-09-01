@@ -40,7 +40,7 @@ fn update_global_loader_settings() {
 }
 
 fn emit_layer_searches(layers: &crate::discovery::DiscoveredLayers) {
-    crate::layer::emit_global_layer_search_diagnostics(layers.searches());
+    crate::layer::emit_global_layer_search_diagnostics(layers.searches(), layers);
 }
 
 #[repr(C)]
@@ -378,7 +378,7 @@ unsafe fn enumerate_extension_properties_from_manifests(
             return result;
         }
         if let Some(searches) = searches_after_icds {
-            crate::layer::emit_global_layer_search_diagnostics(searches);
+            crate::layer::emit_global_layer_search_diagnostics(searches, &[]);
         }
         if let Err(result) = append_loader_extensions(&mut extensions) {
             return result;
