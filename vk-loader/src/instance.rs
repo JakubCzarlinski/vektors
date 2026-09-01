@@ -1,7 +1,8 @@
 //! Loader-owned dispatchable instance state.
 
+use alloc::ffi::CString;
 use core::{ffi::c_void, mem::MaybeUninit};
-use std::{ffi::CString, sync::LazyLock};
+use std::sync::LazyLock;
 
 use crate::sync::Mutex;
 use vk::{

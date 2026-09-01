@@ -1,5 +1,6 @@
+use alloc::ffi::CString;
 use core::ffi::{CStr, c_char, c_int, c_void};
-use std::{ffi::CString, os::unix::ffi::OsStrExt as _, path::Path, sync::OnceLock};
+use std::{os::unix::ffi::OsStrExt as _, path::Path, sync::OnceLock};
 
 use super::{LoaderLibrary, OpenLibraryError};
 

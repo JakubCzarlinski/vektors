@@ -4077,8 +4077,8 @@ pub unsafe extern "system" fn vkGetInstanceProcAddr(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::ffi::CString;
-    use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+    use alloc::ffi::CString;
+    use core::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 
     static DESTROY_SAW_REGISTERED_DEVICE: AtomicBool = AtomicBool::new(false);
     static DESTROY_DISPATCH_KEY: AtomicUsize = AtomicUsize::new(0);

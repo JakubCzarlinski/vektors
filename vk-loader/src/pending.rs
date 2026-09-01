@@ -6,7 +6,8 @@
 //! chains are cold paths; keying a small process map by the native thread ID
 //! preserves nesting semantics without imposing work on dispatch trampolines.
 
-use std::{ffi::CString, sync::LazyLock};
+use alloc::ffi::CString;
+use std::sync::LazyLock;
 
 use crate::collections::HashMap;
 use crate::sync::Mutex;

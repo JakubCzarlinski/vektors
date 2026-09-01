@@ -1,13 +1,10 @@
 //! Driver manifest discovery and parsing.
 
+use alloc::{borrow::Cow, ffi::CString};
+use core::{cell::Cell, ffi::CStr, fmt, marker::PhantomData, ops::Deref};
 use std::{
-    borrow::Cow,
-    cell::Cell,
     env,
-    ffi::{CStr, CString, OsStr, OsString},
-    fmt,
-    marker::PhantomData,
-    ops::Deref,
+    ffi::{OsStr, OsString},
     path::{Path, PathBuf},
 };
 

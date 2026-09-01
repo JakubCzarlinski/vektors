@@ -1,11 +1,12 @@
 //! Loader-layer discovery, interface negotiation, and chain ABI.
 
+use alloc::ffi::CString;
 use core::{
     cell::RefCell,
     ffi::{CStr, c_char, c_void},
     ptr,
 };
-use std::{env, ffi::CString};
+use std::env;
 
 use vk::{
     PFN_vkEnumerateDeviceExtensionProperties, PFN_vkGetDeviceProcAddr, PFN_vkGetInstanceProcAddr,
