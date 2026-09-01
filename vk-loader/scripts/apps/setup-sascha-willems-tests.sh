@@ -28,22 +28,45 @@ if [[ -z "$wsi" ]]; then
 fi
 
 case "$wsi" in
-  wayland) wsi_options=(-DUSE_WAYLAND_WSI=ON) ;;
-  xcb) wsi_options=(-DUSE_WAYLAND_WSI=OFF) ;;
+  wayland|xcb|all) ;;
   *)
-    echo "VK_LOADER_SASCHA_WSI must be 'wayland' or 'xcb', got: $wsi" >&2
+    echo "VK_LOADER_SASCHA_WSI must be 'wayland', 'xcb', or 'all', got: $wsi" >&2
     exit 2
     ;;
 esac
 
-build_dir="$repo_root/target/sascha-willems-vulkan-$wsi"
+build_jobs="${VK_LOADER_SASCHA_BUILD_JOBS:-$(loader_test_jobs)}"
+[[ "$build_jobs" =~ ^[1-9][0-9]*$ ]] || {
+  echo "VK_LOADER_SASCHA_BUILD_JOBS must be a positive integer" >&2
+  exit 2
+}
 
-cmake -S "$source_dir" -B "$build_dir" -G Ninja \
-  -D CMAKE_BUILD_TYPE=Release \
-  -D CMAKE_EXE_LINKER_FLAGS=-fuse-ld=mold \
-  -D CMAKE_MODULE_LINKER_FLAGS=-fuse-ld=mold \
-  -D CMAKE_SHARED_LINKER_FLAGS=-fuse-ld=mold \
-  "${wsi_options[@]}"
-cmake --build "$build_dir" --parallel
+build_wsi() {
+  local build_wsi="$1"
+  local jobs="$2"
+  local build_dir="$repo_root/target/sascha-willems-vulkan-$build_wsi"
+  local wayland=OFF
+  [[ "$build_wsi" == wayland ]] && wayland=ON
 
-echo "All Sascha Willems examples from $expected_revision built for $wsi"
+  cmake -S "$source_dir" -B "$build_dir" -G Ninja \
+    -D CMAKE_BUILD_TYPE=Release \
+    -D CMAKE_EXE_LINKER_FLAGS=-fuse-ld=mold \
+    -D CMAKE_MODULE_LINKER_FLAGS=-fuse-ld=mold \
+    -D CMAKE_SHARED_LINKER_FLAGS=-fuse-ld=mold \
+    -D USE_WAYLAND_WSI="$wayland"
+  cmake --build "$build_dir" --parallel "$jobs"
+  echo "All Sascha Willems examples from $expected_revision built for $build_wsi"
+}
+
+if [[ "$wsi" == all ]]; then
+  wayland_jobs=$(((build_jobs + 1) / 2))
+  xcb_jobs=$((build_jobs / 2))
+  (( xcb_jobs == 0 )) && xcb_jobs=1
+  build_wsi wayland "$wayland_jobs" &
+  wayland_pid=$!
+  build_wsi xcb "$xcb_jobs" &
+  xcb_pid=$!
+  wait "$wayland_pid" "$xcb_pid"
+else
+  build_wsi "$wsi" "$build_jobs"
+fi

@@ -47,12 +47,21 @@ run_test() {
     "$((finished - started))" "$retained_log" >"$results_dir/$name.tsv"
 }
 
-run_test workspace-units required cargo test --workspace --lib --bins
-run_test formatting required cargo fmt --all --check
-run_test loader-clippy required cargo clippy -p vk-loader --all-targets
-run_test generated-sources required "$loader_scripts/codegen/generate.sh" --check
-run_test dispatch-abi required "$loader_scripts/parity/check-dispatch-abi.sh"
-run_test elf-exports required "$loader_scripts/parity/compare-exports.sh"
+run_test workspace-units required cargo test --workspace --lib --bins &
+workspace_units_pid=$!
+run_test formatting required cargo fmt --all --check &
+formatting_pid=$!
+run_test dispatch-abi required "$loader_scripts/parity/check-dispatch-abi.sh" &
+dispatch_abi_pid=$!
+run_test elf-exports required "$loader_scripts/parity/compare-exports.sh" &
+elf_exports_pid=$!
+wait "$workspace_units_pid" "$formatting_pid" "$dispatch_abi_pid" "$elf_exports_pid"
+
+run_test loader-clippy required cargo clippy -p vk-loader --all-targets &
+loader_clippy_pid=$!
+run_test generated-sources required "$loader_scripts/codegen/generate.sh" --check &
+generated_sources_pid=$!
+wait "$loader_clippy_pid" "$generated_sources_pid"
 
 if [[ "$mode" == --quick ]]; then
   run_test paired-smoke required env \
@@ -63,9 +72,26 @@ if [[ "$mode" == --quick ]]; then
     "$loader_scripts/parity/audit-observable-parity.sh"
   run_test cross-targets required "$loader_scripts/platform/check-cross-targets.sh"
 else
+  coverage_upstream_build_dir="${VK_LOADER_COVERAGE_UPSTREAM_BUILD_DIR:-$upstream_dir/build-rust-parity-coverage}"
+  asan_upstream_build_dir="${VK_LOADER_ASAN_UPSTREAM_BUILD_DIR:-$upstream_dir/build-rust-parity-asan}"
+  for instrumentation_build_dir in "$coverage_upstream_build_dir" "$asan_upstream_build_dir"; do
+    if [[ ! -x "$instrumentation_build_dir/tests/test_regression" ]]; then
+      env VK_LOADER_UPSTREAM_BUILD_DIR="$instrumentation_build_dir" \
+        "$loader_scripts/parity/setup-upstream-tests.sh"
+    fi
+  done
+
   run_test valgrind required \
     "$loader_scripts/diagnostics/test-valgrind.sh" --full &
   valgrind_lane_pid=$!
+  run_test coverage-and-paired-suites required env \
+    VK_LOADER_UPSTREAM_BUILD_DIR="$coverage_upstream_build_dir" \
+    "$loader_scripts/coverage/test-coverage.sh" &
+  coverage_lane_pid=$!
+  run_test address-sanitizer required env \
+    VK_LOADER_UPSTREAM_BUILD_DIR="$asan_upstream_build_dir" \
+    "$loader_scripts/diagnostics/test-sanitizers.sh" --full &
+  sanitizer_lane_pid=$!
 
   {
     run_test cross-targets required "$loader_scripts/platform/check-cross-targets.sh"
@@ -75,18 +101,15 @@ else
   build_lane_pid=$!
 
   wait "$valgrind_lane_pid"
+  wait "$coverage_lane_pid"
+  wait "$sanitizer_lane_pid"
   wait "$build_lane_pid"
 
-  # These stages either modify or consume Vulkan's process-external manifest
-  # discovery state, so they must not overlap with one another or Valgrind.
-  # Coverage already executes all unchanged upstream suites against both
-  # loaders, the Rust unit tests, and every focused differential probe.
-  run_test coverage-and-paired-suites required "$loader_scripts/coverage/test-coverage.sh"
   run_test observable-parity required env \
     VK_LOADER_PARITY_AUDIT_DIR="$output_dir/observable-full" \
     "$loader_scripts/parity/audit-observable-parity.sh" --full
-  run_test address-sanitizer required "$loader_scripts/diagnostics/test-sanitizers.sh" --full
   run_test real-apps optional "$loader_scripts/apps/test-real-apps.sh"
+  sascha_pids=()
   for wsi in wayland xcb; do
     for validation in 0 1; do
       run_test "sascha-$wsi-validation-$validation" optional env \
@@ -95,9 +118,11 @@ else
         VK_LOADER_SASCHA_COMPARE_UPSTREAM=1 \
         VK_LOADER_SASCHA_NO_SETUP=1 \
         VK_LOADER_SASCHA_OUTPUT_DIR="$output_dir/sascha" \
-        "$loader_scripts/apps/test-sascha-willems.sh"
+        "$loader_scripts/apps/test-sascha-willems.sh" &
+      sascha_pids+=("$!")
     done
   done
+  wait "${sascha_pids[@]}"
 fi
 
 printf 'test\tresult\texit_status\tduration_seconds\tlog\n' >"$summary"

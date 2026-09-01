@@ -7,9 +7,14 @@ frames="${VK_LOADER_SASCHA_FRAMES:-120}"
 duration_seconds="${VK_LOADER_SASCHA_DURATION:-30}"
 timeout_seconds="${VK_LOADER_SASCHA_TIMEOUT:-60}"
 validation="${VK_LOADER_SASCHA_VALIDATION:-0}"
+jobs="${VK_LOADER_SASCHA_JOBS:-2}"
 output_dir="${VK_LOADER_SASCHA_OUTPUT_DIR:-$repo_root/target/sascha-willems-results}"
 
 require_tools cargo timeout
+[[ "$jobs" =~ ^[1-9][0-9]*$ ]] || {
+  echo "VK_LOADER_SASCHA_JOBS must be a positive integer" >&2
+  exit 2
+}
 
 if [[ -z "$wsi" ]]; then
   if [[ -n "${WAYLAND_DISPLAY:-}" ]]; then
@@ -64,7 +69,6 @@ fi
 mkdir -p "$output_dir"
 summary="$output_dir/status-$wsi-validation-$validation.tsv"
 printf 'implementation\tsample\tstatus\n' >"$summary"
-failures=0
 
 active_library_dir=""
 cleanup_suite() {
@@ -79,23 +83,46 @@ trap cleanup_suite EXIT
 run_suite() {
   local label="$1"
   local loader="$2"
-  local library_dir
+  local library_dir label_slug result_dir
   library_dir="$(mktemp -d)"
   active_library_dir="$library_dir"
   ln -s "$loader" "$library_dir/libvulkan.so.1"
+  label_slug="${label,,}"
+  label_slug="${label_slug// /-}"
+  result_dir="$output_dir/results-$wsi-validation-$validation-$label_slug"
+  mkdir -p "$result_dir" "$output_dir/logs" \
+    "$output_dir/work/$wsi/validation-$validation/$label_slug"
 
-  echo "$label ($wsi, $frames frames per example)"
-  local sample
+  echo "$label ($wsi, $frames frames per example, $jobs workers)"
+  local sample log work_dir
+  local -a pids=()
   for sample in "${samples[@]}"; do
     echo "  $sample"
-    if LD_LIBRARY_PATH="$library_dir${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
-      timeout "${timeout_seconds}s" "$build_dir/bin/$sample" "${benchmark_args[@]}"; then
-      printf '%s\t%s\tpass\n' "$label" "$sample" >>"$summary"
-    else
-      printf '%s\t%s\tfail\n' "$label" "$sample" >>"$summary"
-      failures=$((failures + 1))
+    log="$output_dir/logs/$wsi-validation-$validation-$label_slug-$sample.log"
+    work_dir="$output_dir/work/$wsi/validation-$validation/$label_slug/$sample"
+    mkdir -p "$work_dir"
+    (
+      if (
+        cd "$work_dir"
+        LD_LIBRARY_PATH="$library_dir${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
+          timeout "${timeout_seconds}s" "$build_dir/bin/$sample" "${benchmark_args[@]}"
+      ) >"$log" 2>&1; then
+        printf '%s\t%s\tpass\n' "$label" "$sample" >"$result_dir/$sample.tsv"
+        rm -f "$log"
+      else
+        printf '%s\t%s\tfail\n' "$label" "$sample" >"$result_dir/$sample.tsv"
+      fi
+    ) &
+    pids+=("$!")
+    if ((${#pids[@]} == jobs)); then
+      wait "${pids[@]}"
+      pids=()
     fi
   done
+  ((${#pids[@]} == 0)) || wait "${pids[@]}"
+  find "$result_dir" -maxdepth 1 -type f -name '*.tsv' -print0 \
+    | sort -z \
+    | xargs -0 cat >>"$summary"
   cleanup_suite
 }
 
@@ -112,6 +139,7 @@ if [[ "${VK_LOADER_SASCHA_COMPARE_UPSTREAM:-0}" == "1" ]]; then
   run_suite "Upstream loader" "$upstream_loader"
 fi
 
+failures="$(awk -F '\t' '$3 == "fail" { count++ } END { print count + 0 }' "$summary")"
 if (( failures != 0 )); then
   echo "$failures Sascha Willems behavioural tests failed (summary: $summary)" >&2
   exit 1
