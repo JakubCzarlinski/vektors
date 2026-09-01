@@ -10,7 +10,7 @@ use vk::{
 
 use crate::{
     discovery::{LayerManifest, discover_implicit_layers, discover_layers, valid_layer_mask},
-    platform::LoaderLibrary,
+    platform::{LoaderLibrary, LogFilter},
 };
 
 const CURRENT_CHAIN_VERSION: u32 = 1;
@@ -26,14 +26,12 @@ fn update_global_loader_settings() {
             .to_string_lossy()
             .replace("/vulkan/loader_settings.d", "/vulkan//loader_settings.d");
         crate::platform::write_loader_log(
-            "info",
-            "INFO",
+            LogFilter::Info,
             format_args!("Using layer configurations found in loader settings from {display_path}"),
         );
     } else {
         crate::platform::write_loader_log(
-            "info",
-            "INFO",
+            LogFilter::Info,
             format_args!(
                 "No valid vk_loader_settings.json file found, no loader settings will be active"
             ),
@@ -104,9 +102,6 @@ fn load_functions<F: Copy>(
 ) -> Result<Vec<LoadedFunction<F>>, VkResult> {
     let valid = valid_layer_mask(manifests);
     let mut functions = Vec::new();
-    functions
-        .try_reserve_exact(manifests.len())
-        .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
     for (manifest, valid) in manifests.iter().zip(valid.iter()) {
         if !valid || !is_enabled_implicit(manifest) {
             continue;
@@ -129,6 +124,9 @@ fn load_functions<F: Copy>(
                 .map(|symbol| *symbol)
         };
         if let Some(function) = function {
+            functions
+                .try_reserve(1)
+                .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
             functions.push(LoadedFunction {
                 _library: library,
                 function,
@@ -170,9 +168,10 @@ fn push_extension(
     property: &VkExtensionProperties,
 ) -> Result<(), VkResult> {
     // `loader_add_to_ext_list` retains the first property for a duplicate name.
+    let name = extension_name(property);
     if extensions
         .iter()
-        .any(|existing| extension_name(existing) == extension_name(property))
+        .any(|existing| extension_name(existing) == name)
     {
         return Ok(());
     }

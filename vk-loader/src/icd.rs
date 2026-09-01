@@ -11,7 +11,10 @@ use vk::{
 };
 
 use crate::{
-    InstanceDispatchTable, discovery::DriverManifest, load_typed, platform::LoaderLibrary,
+    InstanceDispatchTable,
+    discovery::DriverManifest,
+    load_typed,
+    platform::{LoaderLibrary, LogFilter},
 };
 
 #[cfg(windows)]
@@ -65,38 +68,32 @@ pub(crate) fn scan_global_icds() -> Result<Vec<ScannedIcd>, VkResult> {
 
 fn emit_global_scan_diagnostics(scan: &crate::discovery::DriverScan) {
     crate::platform::write_loader_category_log(
-        "driver",
-        "DRIVER",
+        LogFilter::Driver,
         format_args!("Searching for driver manifest files"),
     );
     crate::platform::write_loader_category_log(
-        "driver",
-        "DRIVER",
+        LogFilter::Driver,
         format_args!("   In following locations:"),
     );
     for root in &scan.search_roots {
         crate::platform::write_loader_category_log(
-            "driver",
-            "DRIVER",
+            LogFilter::Driver,
             format_args!("      {}", root.to_string_lossy()),
         );
     }
     if scan.candidates.is_empty() {
         crate::platform::write_loader_category_log(
-            "driver",
-            "DRIVER",
+            LogFilter::Driver,
             format_args!("   Found no files"),
         );
     } else {
         crate::platform::write_loader_category_log(
-            "driver",
-            "DRIVER",
+            LogFilter::Driver,
             format_args!("   Found the following files:"),
         );
         for (path, _) in &scan.candidates {
             crate::platform::write_loader_category_log(
-                "driver",
-                "DRIVER",
+                LogFilter::Driver,
                 format_args!("      {}", path.to_string_lossy()),
             );
         }
@@ -105,8 +102,7 @@ fn emit_global_scan_diagnostics(scan: &crate::discovery::DriverScan) {
 
 fn load_global_icd(manifest: &DriverManifest) -> Option<ScannedIcd> {
     crate::platform::write_loader_category_log(
-        "driver",
-        "DRIVER",
+        LogFilter::Driver,
         format_args!(
             "Found ICD manifest file {}, version {}.{}.{}",
             manifest.manifest_path.to_string_lossy(),
@@ -116,10 +112,8 @@ fn load_global_icd(manifest: &DriverManifest) -> Option<ScannedIcd> {
         ),
     );
     crate::platform::write_loader_log_with_category(
-        "debug",
-        "DEBUG",
-        "driver",
-        "DRIVER",
+        LogFilter::Debug,
+        LogFilter::Driver,
         format_args!(
             "Searching for ICD drivers named {}",
             manifest.library_path.to_string_lossy()

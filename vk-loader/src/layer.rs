@@ -1,6 +1,7 @@
 //! Loader-layer discovery, interface negotiation, and chain ABI.
 
 use core::{
+    cell::RefCell,
     ffi::{CStr, c_char, c_void},
     ptr,
 };
@@ -12,13 +13,93 @@ use vk::{
 };
 
 use crate::{
-    collections::HashSet,
+    collections::{HashSet, ScratchArray},
     discovery::{
-        LayerExtension, LayerManifest, LayerSearch, LoaderSettings, discover_layers,
+        LayerControl, LayerExtension, LayerManifest, LayerSearch, LoaderSettings, discover_layers,
         discover_layers_with_settings, valid_layer_mask,
     },
     platform::LoaderLibrary,
 };
+
+const STACK_LAYER_LINKS: usize = 8;
+
+thread_local! {
+    static LAYER_FILTER_ENVIRONMENT: RefCell<LayerFilterEnvironment> =
+        const { RefCell::new(LayerFilterEnvironment::new()) };
+}
+
+#[derive(Clone, Copy)]
+enum LayerFilterVariable {
+    Enable,
+    Disable,
+    Allow,
+}
+
+impl LayerFilterVariable {
+    const fn name(self) -> &'static str {
+        match self {
+            Self::Enable => "VK_LOADER_LAYERS_ENABLE",
+            Self::Disable => "VK_LOADER_LAYERS_DISABLE",
+            Self::Allow => "VK_LOADER_LAYERS_ALLOW",
+        }
+    }
+}
+
+struct LayerFilterEnvironment {
+    scoped: bool,
+    enable: Option<Result<String, env::VarError>>,
+    disable: Option<Result<String, env::VarError>>,
+    allow: Option<Result<String, env::VarError>>,
+}
+
+impl LayerFilterEnvironment {
+    const fn new() -> Self {
+        Self {
+            scoped: false,
+            enable: None,
+            disable: None,
+            allow: None,
+        }
+    }
+
+    fn value(&mut self, variable: LayerFilterVariable) -> Result<&str, &env::VarError> {
+        let value = match variable {
+            LayerFilterVariable::Enable => &mut self.enable,
+            LayerFilterVariable::Disable => &mut self.disable,
+            LayerFilterVariable::Allow => &mut self.allow,
+        };
+        value
+            .get_or_insert_with(|| env::var(variable.name()))
+            .as_deref()
+    }
+}
+
+struct LayerFilterEnvironmentGuard(LayerFilterEnvironment);
+
+impl Drop for LayerFilterEnvironmentGuard {
+    fn drop(&mut self) {
+        LAYER_FILTER_ENVIRONMENT.with(|environment| {
+            environment.replace(core::mem::replace(
+                &mut self.0,
+                LayerFilterEnvironment::new(),
+            ));
+        });
+    }
+}
+
+pub(crate) fn with_layer_filter_environment<T>(operation: impl FnOnce() -> T) -> T {
+    LAYER_FILTER_ENVIRONMENT.with(|environment| {
+        if environment.borrow().scoped {
+            return operation();
+        }
+        let previous = environment.replace(LayerFilterEnvironment {
+            scoped: true,
+            ..LayerFilterEnvironment::new()
+        });
+        let _guard = LayerFilterEnvironmentGuard(previous);
+        operation()
+    })
+}
 
 pub(crate) type GetPhysicalDeviceProcAddr =
     unsafe extern "system" fn(vk::VkInstance, *const c_char) -> PFN_vkVoidFunction;
@@ -327,10 +408,8 @@ impl LoadedLayer {
 impl Drop for LoadedLayer {
     fn drop(&mut self) {
         crate::platform::write_loader_log_with_category(
-            "debug",
-            "DEBUG",
-            "layer",
-            "LAYER",
+            crate::platform::LogFilter::Debug,
+            crate::platform::LogFilter::Layer,
             format_args!(
                 "Unloading layer library {}",
                 self.library_path.to_string_lossy()
@@ -395,11 +474,22 @@ fn wildcard_matches(pattern: &[u8], name: &[u8]) -> bool {
     pattern_index == pattern.len()
 }
 
-fn filter_matches(variable: &str, name: &CStr) -> bool {
+fn filter_value_matches(variable: LayerFilterVariable, matches: impl Fn(&str) -> bool) -> bool {
     if crate::platform::has_elevated_privileges() {
         return false;
     }
-    env::var(variable).is_ok_and(|filters| {
+    LAYER_FILTER_ENVIRONMENT.with(|environment| {
+        let mut environment = environment.borrow_mut();
+        if environment.scoped {
+            environment.value(variable).is_ok_and(matches)
+        } else {
+            env::var(variable.name()).is_ok_and(|value| matches(&value))
+        }
+    })
+}
+
+fn filter_matches(variable: LayerFilterVariable, name: &CStr) -> bool {
+    filter_value_matches(variable, |filters| {
         filters.split(',').any(|filter| {
             filter.eq_ignore_ascii_case("~all~")
                 || wildcard_matches(filter.as_bytes(), name.to_bytes())
@@ -408,22 +498,21 @@ fn filter_matches(variable: &str, name: &CStr) -> bool {
 }
 
 fn forced_enabled(manifest: &LayerManifest) -> bool {
-    filter_matches("VK_LOADER_LAYERS_ENABLE", &manifest.name)
+    filter_matches(LayerFilterVariable::Enable, &manifest.name)
 }
 
 fn forced_disabled(manifest: &LayerManifest) -> bool {
-    let disabled = !crate::platform::has_elevated_privileges()
-        && env::var("VK_LOADER_LAYERS_DISABLE").is_ok_and(|filters| {
-            filters.split(',').any(|filter| {
-                filter.eq_ignore_ascii_case("~all~")
-                    || filter == "*"
-                    || filter == "**"
-                    || (manifest.implicit && filter.eq_ignore_ascii_case("~implicit~"))
-                    || (!manifest.implicit && filter.eq_ignore_ascii_case("~explicit~"))
-                    || wildcard_matches(filter.as_bytes(), manifest.name.to_bytes())
-            })
-        });
-    disabled && !filter_matches("VK_LOADER_LAYERS_ALLOW", &manifest.name)
+    let disabled = filter_value_matches(LayerFilterVariable::Disable, |filters| {
+        filters.split(',').any(|filter| {
+            filter.eq_ignore_ascii_case("~all~")
+                || filter == "*"
+                || filter == "**"
+                || (manifest.implicit && filter.eq_ignore_ascii_case("~implicit~"))
+                || (!manifest.implicit && filter.eq_ignore_ascii_case("~explicit~"))
+                || wildcard_matches(filter.as_bytes(), manifest.name.to_bytes())
+        })
+    });
+    disabled && !filter_matches(LayerFilterVariable::Allow, &manifest.name)
 }
 
 fn naturally_enabled(manifest: &LayerManifest) -> bool {
@@ -500,14 +589,12 @@ fn emit_create_message(
     severity: vk::VkDebugUtilsMessageSeverityFlagBitsEXT,
     message: String,
 ) {
-    let (filter, prefix) = if severity == vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR {
-        ("error", "[Vulkan Loader] ERROR:          ")
-    } else if severity == vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING {
-        ("warn", "[Vulkan Loader] WARNING:        ")
-    } else if severity == vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO {
-        ("info", "[Vulkan Loader] INFO:           ")
-    } else {
-        ("debug", "[Vulkan Loader] DEBUG:          ")
+    let filter = crate::platform::LogFilter::from_severity(severity);
+    let prefix = match filter {
+        crate::platform::LogFilter::Error => "[Vulkan Loader] ERROR:          ",
+        crate::platform::LogFilter::Warning => "[Vulkan Loader] WARNING:        ",
+        crate::platform::LogFilter::Info => "[Vulkan Loader] INFO:           ",
+        _ => "[Vulkan Loader] DEBUG:          ",
     };
     if crate::platform::loader_debug_filter_enabled(filter) {
         crate::platform::write_stderr(&format!("{prefix}{message}\n"));
@@ -523,7 +610,10 @@ fn emit_create_message(
 
 fn emit_layer_only_message(create_info: &VkInstanceCreateInfo<'_>, message: impl AsRef<str>) {
     let message = message.as_ref();
-    crate::platform::write_loader_category_log("layer", "LAYER", format_args!("{message}"));
+    crate::platform::write_loader_category_log(
+        crate::platform::LogFilter::Layer,
+        format_args!("{message}"),
+    );
     let Ok(message) = CString::new(message) else {
         return;
     };
@@ -543,20 +633,10 @@ fn emit_layer_message(
     message: impl AsRef<str>,
 ) {
     let message = message.as_ref();
-    let (filter, label) = if severity == vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR {
-        ("error", "ERROR")
-    } else if severity == vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING {
-        ("warn", "WARNING")
-    } else if severity == vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO {
-        ("info", "INFO")
-    } else {
-        ("debug", "DEBUG")
-    };
+    let filter = crate::platform::LogFilter::from_severity(severity);
     crate::platform::write_loader_log_with_category(
         filter,
-        label,
-        "layer",
-        "LAYER",
+        crate::platform::LogFilter::Layer,
         format_args!("{message}"),
     );
     let Ok(message) = CString::new(message) else {
@@ -624,38 +704,32 @@ pub(crate) fn emit_global_layer_search_diagnostics(searches: &[LayerSearch]) {
             "explicit"
         };
         crate::platform::write_loader_category_log(
-            "layer",
-            "LAYER",
+            crate::platform::LogFilter::Layer,
             format_args!("Searching for {kind} layer manifest files"),
         );
         crate::platform::write_loader_category_log(
-            "layer",
-            "LAYER",
+            crate::platform::LogFilter::Layer,
             format_args!("   In following locations:"),
         );
         for root in &search.roots {
             crate::platform::write_loader_category_log(
-                "layer",
-                "LAYER",
+                crate::platform::LogFilter::Layer,
                 format_args!("      {}", root.to_string_lossy()),
             );
         }
         if search.files.is_empty() {
             crate::platform::write_loader_category_log(
-                "layer",
-                "LAYER",
+                crate::platform::LogFilter::Layer,
                 format_args!("   Found no files"),
             );
         } else {
             crate::platform::write_loader_category_log(
-                "layer",
-                "LAYER",
+                crate::platform::LogFilter::Layer,
                 format_args!("   Found the following files:"),
             );
             for file in &search.files {
                 crate::platform::write_loader_category_log(
-                    "layer",
-                    "LAYER",
+                    crate::platform::LogFilter::Layer,
                     format_args!("      {}", file.to_string_lossy()),
                 );
             }
@@ -1016,9 +1090,9 @@ pub(crate) fn select_active_layers(
             let requested_by_name = requested
                 .iter()
                 .any(|name| name.as_c_str() == manifest.name.as_c_str());
-            let active = match manifest.settings_control.as_deref() {
-                Some("on") => true,
-                Some("off") => false,
+            let active = match manifest.settings_control {
+                Some(LayerControl::On) => true,
+                Some(LayerControl::Off) => false,
                 _ => {
                     implicit_manifest_is_active(manifest)
                         || requested_by_name
@@ -1163,7 +1237,7 @@ pub(crate) fn load_selected_layers(
         {
             continue;
         }
-        let enabled_by = if manifest.settings_control.as_deref() == Some("on") {
+        let enabled_by = if manifest.settings_control == Some(LayerControl::On) {
             "Loader Settings File (Vulkan Configurator)"
         } else if requested[..environment_count]
             .iter()
@@ -1242,12 +1316,12 @@ pub(crate) fn load_selected_layers(
     })
 }
 
-fn activate_manifest(
-    manifest: &LayerManifest,
-    manifests: &[LayerManifest],
+fn activate_manifest<'a>(
+    manifest: &'a LayerManifest,
+    manifests: &'a [LayerManifest],
     selected: &mut Vec<usize>,
     reported: &mut Vec<ActiveLayerProperty>,
-    expanding: &mut HashSet<CString>,
+    expanding: &mut HashSet<&'a CStr>,
 ) -> bool {
     if reported.iter().any(|layer| {
         layer.name == manifest.name
@@ -1256,7 +1330,7 @@ fn activate_manifest(
     }) {
         return true;
     }
-    if !expanding.insert(manifest.name.clone()) {
+    if !expanding.insert(manifest.name.as_c_str()) {
         return false;
     }
     let result = if manifest.component_layers.is_empty() {
@@ -1264,7 +1338,7 @@ fn activate_manifest(
             .iter()
             .position(|candidate| core::ptr::eq(candidate, manifest))
         else {
-            expanding.remove(&manifest.name);
+            expanding.remove(manifest.name.as_c_str());
             return false;
         };
         selected.push(index);
@@ -1293,7 +1367,7 @@ fn activate_manifest(
         }
         complete
     };
-    expanding.remove(&manifest.name);
+    expanding.remove(manifest.name.as_c_str());
     result
 }
 
@@ -1970,15 +2044,17 @@ pub(crate) unsafe fn create_instance_chain(
 ) -> VkResult {
     debug_assert!(!instance.layers.is_empty());
     let count = instance.layers.len();
-    let mut links = Box::<[LayerInstanceLink]>::new_uninit_slice(count);
-    let links_ptr = links.as_mut_ptr().cast::<LayerInstanceLink>();
+    let Ok(mut links) = ScratchArray::<LayerInstanceLink, STACK_LAYER_LINKS>::try_new(count) else {
+        return VkResult::ERROR_OUT_OF_HOST_MEMORY;
+    };
+    let links_ptr = links.as_mut_ptr();
     let mut next_gpdpa = terminator_get_physical_device_proc_addr as GetPhysicalDeviceProcAddr;
     for index in (0..count).rev() {
         let next_gipa = instance.layers.get(index + 1).map_or(
             terminator_get_instance_proc_addr as PFN_vkGetInstanceProcAddr,
             |layer| layer.get_instance_proc_addr,
         );
-        // SAFETY: `links_ptr` has `count` writable entries and is stable in its box.
+        // SAFETY: `links_ptr` has `count` writable entries and remains stable.
         unsafe {
             links_ptr.add(index).write(LayerInstanceLink {
                 next: if index + 1 == count {
@@ -1994,8 +2070,6 @@ pub(crate) unsafe fn create_instance_chain(
             next_gpdpa = gpdpa;
         }
     }
-    // SAFETY: Every element was initialized exactly once above.
-    let links = unsafe { links.assume_init() };
     let link_info = LayerInstanceCreateInfo {
         s_type: VkStructureType::LOADER_INSTANCE_CREATE_INFO,
         next: create_info.pNext,
@@ -2053,7 +2127,6 @@ pub(crate) unsafe fn create_instance_chain(
         // remain loaded in `instance.layers`.
         unsafe { instance.load_dispatch(top.get_instance_proc_addr, next_gpdpa, output.read()) };
     }
-    drop(links);
     result
 }
 
@@ -2180,8 +2253,10 @@ unsafe fn create_device_chain_from(
 ) -> VkResult {
     let layers = &instance.layers[first..];
     let count = layers.len();
-    let mut links = Box::<[LayerDeviceLink]>::new_uninit_slice(count);
-    let links_ptr = links.as_mut_ptr().cast::<LayerDeviceLink>();
+    let Ok(mut links) = ScratchArray::<LayerDeviceLink, STACK_LAYER_LINKS>::try_new(count) else {
+        return VkResult::ERROR_OUT_OF_HOST_MEMORY;
+    };
+    let links_ptr = links.as_mut_ptr();
     for index in (0..count).rev() {
         let (next_instance_proc_addr, next_device_proc_addr) = layers.get(index + 1).map_or(
             (
@@ -2203,8 +2278,6 @@ unsafe fn create_device_chain_from(
             });
         }
     }
-    // SAFETY: Every boxed element was initialized above.
-    let links = unsafe { links.assume_init() };
     let link_info = LayerDeviceCreateInfo {
         s_type: VkStructureType::LOADER_DEVICE_CREATE_INFO,
         next: create_info.pNext,

@@ -1,9 +1,9 @@
 //! Loader emulation for `VK_KHR_get_display_properties2` commands.
 
-use alloc::vec::Vec;
-use core::mem::MaybeUninit;
-
+use crate::collections::ScratchArray;
 use crate::instance::LoaderPhysicalDevice;
+
+const STACK_PROPERTIES: usize = 8;
 
 unsafe fn emulate_array<T: Copy, U>(
     count: &mut u32,
@@ -18,21 +18,20 @@ unsafe fn emulate_array<T: Copy, U>(
     if capacity == 0 {
         return call(count, core::ptr::null_mut());
     }
-    // TODO(czarlinski): Investigate a bounded alloca-style path to match upstream's stack allocation.
-    let mut temporary = Vec::<MaybeUninit<T>>::new();
-    if temporary.try_reserve_exact(capacity).is_err() {
+    let Ok(mut temporary) = ScratchArray::<T, STACK_PROPERTIES>::try_new(capacity) else {
         return vk::VkResult::ERROR_OUT_OF_HOST_MEMORY;
-    }
-    // SAFETY: The ICD receives all elements as writable output storage, and we
-    // only read the number it reports as written after a non-error result.
-    unsafe { temporary.set_len(capacity) };
+    };
     let result = call(count, temporary.as_mut_ptr().cast());
     if result.0 < 0 {
         return result;
     }
     let written = (*count as usize).min(capacity);
-    for (output, property) in output.iter_mut().zip(temporary).take(written) {
-        write(output, unsafe { property.assume_init() });
+    // SAFETY: A non-error ICD result initialized its reported prefix.
+    for (output, &property) in output
+        .iter_mut()
+        .zip(unsafe { temporary.initialized(written) })
+    {
+        write(output, property);
     }
     result
 }

@@ -1,6 +1,5 @@
 //! Loader-owned WSI surface state and surface-aware terminators.
 
-use alloc::vec::Vec;
 use core::ffi::{CStr, c_void};
 
 use crate::sync::Mutex;
@@ -17,11 +16,15 @@ use vk::{
 
 use crate::{
     allocation::{LoaderAllocation, LoaderArray, LoaderBox},
+    collections::ScratchArray,
     device::LoaderDevice,
     icd::IcdInstance,
     instance::{LoaderInstance, LoaderPhysicalDevice},
     load_typed, surface_create_info_extension_size,
 };
+
+const STACK_SURFACE_FORMATS: usize = 32;
+const STACK_SWAPCHAIN_CREATE_INFOS: usize = 4;
 
 type NativeSurfaceCreate<T> = unsafe extern "system" fn(
     VkInstance,
@@ -636,11 +639,11 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceFormat
         };
     }
 
-    let mut formats = Vec::new();
-    if formats.try_reserve_exact(capacity).is_err() {
+    let Ok(mut formats) =
+        ScratchArray::<VkSurfaceFormatKHR, STACK_SURFACE_FORMATS>::try_new(capacity)
+    else {
         return VkResult::ERROR_OUT_OF_HOST_MEMORY;
-    }
-    formats.resize(capacity, VkSurfaceFormatKHR::DEFAULT);
+    };
     // SAFETY: The temporary array has exactly `capacity` writable elements.
     let result = unsafe {
         command(
@@ -652,7 +655,8 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceFormat
     };
     // SAFETY: The driver writes the returned count; never copy beyond either array.
     let written = (*surface_format_count as usize).min(capacity);
-    for (index, format) in formats.into_iter().take(written).enumerate() {
+    // SAFETY: The ICD initialized the prefix reported through the count.
+    for (index, &format) in (unsafe { formats.initialized(written) }).iter().enumerate() {
         // Preserve the application's sType and pNext fields exactly as upstream does.
         unsafe { (*surface_formats.add(index)).surfaceFormat = format };
     }
@@ -973,15 +977,18 @@ pub(crate) unsafe extern "system" fn terminator_create_shared_swapchains(
     if count != 0 && (create_infos.is_null() || swapchains.is_null()) {
         return VkResult::ERROR_INITIALIZATION_FAILED;
     }
-    let mut native_infos = Vec::new();
-    if native_infos.try_reserve_exact(count).is_err() {
+    let Ok(mut native_infos) =
+        ScratchArray::<VkSwapchainCreateInfoKHR<'_>, STACK_SWAPCHAIN_CREATE_INFOS>::try_new(count)
+    else {
         return VkResult::ERROR_OUT_OF_HOST_MEMORY;
-    }
+    };
     if count != 0 {
         // SAFETY: The command contract guarantees `count` readable create infos.
-        native_infos.extend_from_slice(unsafe { core::slice::from_raw_parts(create_infos, count) });
+        unsafe { core::ptr::copy_nonoverlapping(create_infos, native_infos.as_mut_ptr(), count) };
     }
-    for create_info in &mut native_infos {
+    // SAFETY: The input array was copied into the complete scratch buffer.
+    let native_infos = unsafe { core::slice::from_raw_parts_mut(native_infos.as_mut_ptr(), count) };
+    for create_info in &mut *native_infos {
         // SAFETY: Each loader surface belongs to the retained instance.
         create_info.surface = match unsafe {
             native_surface(device.instance(), device.icd_index(), create_info.surface)

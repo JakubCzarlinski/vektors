@@ -12,6 +12,7 @@ use core::ffi::c_int;
 use core::ffi::c_void;
 #[cfg(not(any(unix, windows)))]
 use core::hash::{Hash, Hasher};
+use std::cell::Cell;
 #[cfg(not(any(windows, target_os = "fuchsia")))]
 use std::error::Error as _;
 #[cfg(unix)]
@@ -69,6 +70,120 @@ use windows_sys::Win32::{
 #[cfg(windows)]
 use windows_sys::core::GUID;
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ManifestDirectory {
+    Driver,
+    ExplicitLayer,
+    ImplicitLayer,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum LogFilter {
+    Error,
+    Warning,
+    Info,
+    Debug,
+    Performance,
+    Driver,
+    Layer,
+}
+
+impl LogFilter {
+    pub(crate) const ALL: [Self; 7] = [
+        Self::Error,
+        Self::Warning,
+        Self::Info,
+        Self::Debug,
+        Self::Performance,
+        Self::Driver,
+        Self::Layer,
+    ];
+
+    pub(crate) const fn name(self) -> &'static str {
+        match self {
+            Self::Error => "error",
+            Self::Warning => "warn",
+            Self::Info => "info",
+            Self::Debug => "debug",
+            Self::Performance => "perf",
+            Self::Driver => "driver",
+            Self::Layer => "layer",
+        }
+    }
+
+    pub(crate) const fn label(self) -> &'static str {
+        match self {
+            Self::Error => "ERROR",
+            Self::Warning => "WARNING",
+            Self::Info => "INFO",
+            Self::Debug => "DEBUG",
+            Self::Performance => "PERF",
+            Self::Driver => "DRIVER",
+            Self::Layer => "LAYER",
+        }
+    }
+
+    pub(crate) const fn bit(self) -> u8 {
+        match self {
+            Self::Error => 1 << 0,
+            Self::Warning => 1 << 1,
+            Self::Info => 1 << 2,
+            Self::Debug => 1 << 3,
+            Self::Performance => 1 << 4,
+            Self::Driver => 1 << 5,
+            Self::Layer => 1 << 6,
+        }
+    }
+
+    pub(crate) fn matches_name(self, name: &str) -> bool {
+        name.eq_ignore_ascii_case(self.name())
+            || (self == Self::Warning && name.eq_ignore_ascii_case("warning"))
+    }
+
+    pub(crate) fn from_severity(severity: vk::VkDebugUtilsMessageSeverityFlagBitsEXT) -> Self {
+        match severity {
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR => Self::Error,
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING => Self::Warning,
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO => Self::Info,
+            _ => Self::Debug,
+        }
+    }
+}
+
+impl ManifestDirectory {
+    #[cfg(unix)]
+    pub(crate) const fn as_str(self) -> &'static str {
+        match self {
+            Self::Driver => "icd.d",
+            Self::ExplicitLayer => "explicit_layer.d",
+            Self::ImplicitLayer => "implicit_layer.d",
+        }
+    }
+}
+
+thread_local! {
+    static ELEVATED_PRIVILEGES: Cell<Option<bool>> = const { Cell::new(None) };
+}
+
+struct ElevatedPrivilegesGuard(Option<bool>);
+
+impl Drop for ElevatedPrivilegesGuard {
+    fn drop(&mut self) {
+        ELEVATED_PRIVILEGES.set(self.0);
+    }
+}
+
+pub(crate) fn with_elevated_privileges_snapshot<T>(operation: impl FnOnce() -> T) -> T {
+    ELEVATED_PRIVILEGES.with(|cached| {
+        if cached.get().is_some() {
+            return operation();
+        }
+        let previous = cached.replace(Some(query_elevated_privileges()));
+        let _guard = ElevatedPrivilegesGuard(previous);
+        operation()
+    })
+}
+
 fn dynamic_library_unloading_disabled() -> bool {
     static DISABLED: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
     *DISABLED.get_or_init(|| {
@@ -83,8 +198,7 @@ pub(crate) fn initialize_loader() {
     LOG_INITIALIZATION.call_once(|| {
         let version = vk::VK_HEADER_VERSION_COMPLETE;
         write_loader_log(
-            "info",
-            "INFO",
+            LogFilter::Info,
             format_args!(
                 "Vulkan Loader Version {}.{}.{}",
                 vk::VK_API_VERSION_MAJOR(version),
@@ -93,8 +207,7 @@ pub(crate) fn initialize_loader() {
             ),
         );
         write_loader_log(
-            "info",
-            "INFO",
+            LogFilter::Info,
             format_args!(
                 "[Vulkan Loader Git - Tag: {}, Branch/Commit: {}]",
                 env!("VK_LOADER_GIT_BRANCH_NAME"),
@@ -103,8 +216,7 @@ pub(crate) fn initialize_loader() {
         );
         if dynamic_library_unloading_disabled() {
             write_loader_log(
-                "warn",
-                "WARNING",
+                LogFilter::Warning,
                 format_args!("Vulkan Loader: library unloading is disabled"),
             );
         }
@@ -759,6 +871,13 @@ fn closedir() -> unsafe extern "C" fn(*mut libc::DIR) -> libc::c_int {
 
 #[cfg(unix)]
 pub(crate) fn has_elevated_privileges() -> bool {
+    ELEVATED_PRIVILEGES
+        .get()
+        .unwrap_or_else(query_elevated_privileges)
+}
+
+#[cfg(unix)]
+fn query_elevated_privileges() -> bool {
     // SAFETY: These process identity queries have no pointer contracts. The
     // upstream parity harness interposes them to exercise secure discovery.
     unsafe { libc::geteuid() != libc::getuid() || libc::getegid() != libc::getgid() }
@@ -766,6 +885,13 @@ pub(crate) fn has_elevated_privileges() -> bool {
 
 #[cfg(windows)]
 pub(crate) fn has_elevated_privileges() -> bool {
+    ELEVATED_PRIVILEGES
+        .get()
+        .unwrap_or_else(query_elevated_privileges)
+}
+
+#[cfg(windows)]
+fn query_elevated_privileges() -> bool {
     const TOKEN_QUERY: u32 = 0x0008;
     const TOKEN_QUERY_SOURCE: u32 = 0x0010;
     const SECURITY_MANDATORY_HIGH_RID: u32 = 0x0000_3000;
@@ -822,7 +948,12 @@ pub(crate) fn has_elevated_privileges() -> bool {
 }
 
 #[cfg(not(any(unix, windows)))]
-pub(crate) const fn has_elevated_privileges() -> bool {
+pub(crate) fn has_elevated_privileges() -> bool {
+    false
+}
+
+#[cfg(not(any(unix, windows)))]
+const fn query_elevated_privileges() -> bool {
     false
 }
 
@@ -890,29 +1021,20 @@ pub(crate) struct RegistryDiagnostics {
 
 #[cfg(windows)]
 pub(crate) fn registry_manifest_files_with_diagnostics(
-    leaf: &str,
+    directory: ManifestDirectory,
 ) -> (Box<[PathBuf]>, RegistryDiagnostics) {
-    let location = match leaf {
-        "icd.d" => c"SOFTWARE\\Khronos\\Vulkan\\Drivers",
-        "implicit_layer.d" => c"SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers",
-        "explicit_layer.d" => c"SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers",
-        _ => {
-            return (
-                Box::default(),
-                RegistryDiagnostics {
-                    located: Box::default(),
-                    no_unique_files: true,
-                },
-            );
-        }
+    let location = match directory {
+        ManifestDirectory::Driver => c"SOFTWARE\\Khronos\\Vulkan\\Drivers",
+        ManifestDirectory::ImplicitLayer => c"SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers",
+        ManifestDirectory::ExplicitLayer => c"SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers",
     };
     let mut paths = Vec::new();
-    if leaf != "explicit_layer.d"
+    if directory != ManifestDirectory::ExplicitLayer
         && let Some(package) = app_package_manifest_path()
     {
         paths.push(package);
     }
-    paths.extend(d3dkmt_manifest_files(leaf));
+    paths.extend(d3dkmt_manifest_files(directory));
     let mut located = Vec::new();
     let count_before = paths.len();
     let mut add_registry_values = |values: Box<[PathBuf]>| {
@@ -924,7 +1046,7 @@ pub(crate) fn registry_manifest_files_with_diagnostics(
         }
     };
     add_registry_values(registry_values(location, false));
-    if leaf != "icd.d" && !has_elevated_privileges() {
+    if directory != ManifestDirectory::Driver && !has_elevated_privileges() {
         add_registry_values(registry_values(location, true));
     }
     let no_unique_files = paths.len() == count_before;
@@ -938,14 +1060,14 @@ pub(crate) fn registry_manifest_files_with_diagnostics(
 }
 
 #[cfg(windows)]
-pub(crate) fn registry_manifest_files(leaf: &str) -> Box<[PathBuf]> {
-    registry_manifest_files_with_diagnostics(leaf).0
+pub(crate) fn registry_manifest_files(directory: ManifestDirectory) -> Box<[PathBuf]> {
+    registry_manifest_files_with_diagnostics(directory).0
 }
 
 #[cfg(windows)]
 #[cold]
 #[inline(never)]
-fn d3dkmt_manifest_files(leaf: &str) -> Box<[PathBuf]> {
+fn d3dkmt_manifest_files(directory: ManifestDirectory) -> Box<[PathBuf]> {
     const STATUS_SUCCESS: i32 = 0;
     const LOAD_LIBRARY_SEARCH_SYSTEM32: u32 = 0x0000_0800;
     const QUERY_TYPE_REGISTRY: u32 = 48;
@@ -1035,11 +1157,10 @@ fn d3dkmt_manifest_files(leaf: &str) -> Box<[PathBuf]> {
         return Box::default();
     };
 
-    let value_name = match leaf {
-        "icd.d" => "VulkanDriverName",
-        "implicit_layer.d" => "VulkanImplicitLayers",
-        "explicit_layer.d" => "VulkanExplicitLayers",
-        _ => return Box::default(),
+    let value_name = match directory {
+        ManifestDirectory::Driver => "VulkanDriverName",
+        ManifestDirectory::ImplicitLayer => "VulkanImplicitLayers",
+        ManifestDirectory::ExplicitLayer => "VulkanExplicitLayers",
     };
     let mut enumeration = EnumAdapters {
         adapter_count: 0,
@@ -1404,6 +1525,27 @@ pub(crate) fn settings_files() -> Box<[PathBuf]> {
     paths.into_boxed_slice()
 }
 
+#[cfg(unix)]
+fn with_c_path<T>(path: &Path, operation: impl FnOnce(&CStr) -> T) -> Option<T> {
+    const STACK_CAPACITY: usize = 256;
+
+    let bytes = path.as_os_str().as_encoded_bytes();
+    if bytes.contains(&0) {
+        core::hint::cold_path();
+        return None;
+    }
+    if bytes.len() < STACK_CAPACITY {
+        let mut storage = [0_u8; STACK_CAPACITY];
+        storage[..bytes.len()].copy_from_slice(bytes);
+        // SAFETY: The copied path contains no interior NUL and zero-filled
+        // storage supplies the terminator immediately after it.
+        let path = unsafe { CStr::from_bytes_with_nul_unchecked(&storage[..=bytes.len()]) };
+        return Some(operation(path));
+    }
+    let path = CString::new(bytes).ok()?;
+    Some(operation(&path))
+}
+
 /// Reads a file through the C runtime.
 ///
 /// The upstream test harness interposes the platform C API to provide an
@@ -1411,9 +1553,10 @@ pub(crate) fn settings_files() -> Box<[PathBuf]> {
 /// rather than an interchangeable implementation detail.
 #[cfg(unix)]
 pub(crate) fn read_file(path: &Path) -> Option<Box<[u8]>> {
-    let path = CString::new(path.as_os_str().as_encoded_bytes()).ok()?;
     // SAFETY: Both strings are NUL-terminated and live for the call.
-    let file = unsafe { fopen()(path.as_ptr(), c"rb".as_ptr()) };
+    let file = with_c_path(path, |path| unsafe {
+        fopen()(path.as_ptr(), c"rb".as_ptr())
+    })?;
     if file.is_null() {
         return None;
     }
@@ -1468,12 +1611,12 @@ pub(crate) fn read_file(path: &Path) -> Option<Box<[u8]>> {
 /// test harness.
 #[cfg(unix)]
 pub(crate) fn file_exists(path: &Path) -> bool {
-    let Ok(path) = CString::new(path.as_os_str().as_encoded_bytes()) else {
-        return false;
-    };
     // SAFETY: `path` is NUL-terminated and live for the call; `F_OK` only
     // performs an existence check.
-    unsafe { access()(path.as_ptr(), libc::F_OK) == 0 }
+    with_c_path(path, |path| unsafe {
+        access()(path.as_ptr(), libc::F_OK) == 0
+    })
+    .unwrap_or(false)
 }
 
 #[cfg(unix)]
@@ -1491,7 +1634,7 @@ pub(crate) fn write_stderr(message: &str) {
     }
 }
 
-fn loader_debug_filter_matches(filters: &str, name: &str) -> bool {
+fn loader_debug_filter_matches(filters: &str, filter_kind: LogFilter) -> bool {
     filters.split(',').any(|filter| {
         if filter.is_empty() {
             return false;
@@ -1501,32 +1644,30 @@ fn loader_debug_filter_matches(filters: &str, name: &str) -> bool {
         if "all".starts_with(filter) {
             return true;
         }
-        let canonical = if name == "warning" { "warn" } else { name };
-        canonical.starts_with(filter)
-            || (name == "driver"
+        filter_kind.name().starts_with(filter)
+            || (filter_kind == LogFilter::Warning && "warning".starts_with(filter))
+            || (filter_kind == LogFilter::Driver
                 && ["driver", "implem", "icd"]
                     .into_iter()
                     .any(|keyword| keyword.starts_with(filter)))
     })
 }
 
-pub(crate) fn loader_debug_filter_enabled(name: &str) -> bool {
+pub(crate) fn loader_debug_filter_enabled(filter_kind: LogFilter) -> bool {
     std::env::var("VK_LOADER_DEBUG")
-        .is_ok_and(|filters| loader_debug_filter_matches(&filters, name))
+        .is_ok_and(|filters| loader_debug_filter_matches(&filters, filter_kind))
 }
 
-pub(crate) fn write_loader_log(filter: &str, label: &str, message: core::fmt::Arguments<'_>) {
-    if !loader_debug_filter_enabled(filter) {
+pub(crate) fn write_loader_log(filter_kind: LogFilter, message: core::fmt::Arguments<'_>) {
+    if !loader_debug_filter_enabled(filter_kind) {
         return;
     }
-    write_loader_log_enabled(label, message);
+    write_loader_log_enabled(filter_kind.label(), message);
 }
 
 pub(crate) fn write_loader_log_with_category(
-    severity_filter: &str,
-    severity_label: &str,
-    category_filter: &str,
-    category_label: &str,
+    severity_filter: LogFilter,
+    category_filter: LogFilter,
     message: core::fmt::Arguments<'_>,
 ) {
     if !loader_debug_filter_enabled(severity_filter)
@@ -1534,32 +1675,28 @@ pub(crate) fn write_loader_log_with_category(
     {
         return;
     }
-    let label = if severity_label.is_empty() {
-        category_label.to_owned()
-    } else {
-        format!("{severity_label} | {category_label}")
-    };
+    let label = format!("{} | {}", severity_filter.label(), category_filter.label());
     write_loader_log_enabled(&label, message);
 }
 
 pub(crate) fn write_loader_category_log(
-    category_filter: &str,
-    category_label: &str,
+    category_filter: LogFilter,
     message: core::fmt::Arguments<'_>,
 ) {
     if loader_debug_filter_enabled(category_filter) {
-        write_loader_log_enabled(category_label, message);
+        write_loader_log_enabled(category_filter.label(), message);
     }
 }
 
 pub(crate) fn write_loader_category_log_any(
-    category_filters: &[&str],
+    category_filters: &[LogFilter],
     category_label: &str,
     message: core::fmt::Arguments<'_>,
 ) {
     if category_filters
         .iter()
-        .any(|filter| loader_debug_filter_enabled(filter))
+        .copied()
+        .any(loader_debug_filter_enabled)
     {
         write_loader_log_enabled(category_label, message);
     }
@@ -1623,34 +1760,26 @@ pub(crate) fn file_exists(path: &Path) -> bool {
 }
 
 pub(crate) fn manifest_files(path: &Path) -> Box<[PathBuf]> {
-    if path
-        .extension()
-        .is_some_and(|extension| extension == "json")
-    {
+    if is_json_path(path) {
         return Box::from([path.to_owned()]);
     }
 
-    let Some(files) = read_directory(path) else {
-        return Box::default();
-    };
-    let mut files = files.into_vec();
-    files.retain(|entry| {
-        entry
-            .extension()
-            .is_some_and(|extension| extension == "json")
-    });
-    files.into_boxed_slice()
+    read_manifest_directory(path).unwrap_or_default()
+}
+
+fn is_json_path(path: &Path) -> bool {
+    path.extension()
+        .is_some_and(|extension| extension == "json")
 }
 
 #[cfg(unix)]
-fn read_directory(path: &Path) -> Option<Box<[PathBuf]>> {
-    let path_c = CString::new(path.as_os_str().as_bytes()).ok()?;
-    // SAFETY: `path_c` is a live, NUL-terminated path.
-    let directory = unsafe { opendir()(path_c.as_ptr()) };
+fn read_manifest_directory(path: &Path) -> Option<Box<[PathBuf]>> {
+    // SAFETY: The converted path is live and NUL-terminated for the call.
+    let directory = with_c_path(path, |path| unsafe { opendir()(path.as_ptr()) })?;
     if directory.is_null() {
         return None;
     }
-    let mut entries = Vec::new();
+    let mut entries = Vec::with_capacity(8);
     loop {
         // SAFETY: `directory` remains open and access is serialized by this function.
         let entry = unsafe { readdir()(directory) };
@@ -1659,8 +1788,9 @@ fn read_directory(path: &Path) -> Option<Box<[PathBuf]>> {
         }
         // SAFETY: POSIX guarantees a NUL-terminated `d_name` in a live dirent.
         let name = unsafe { CStr::from_ptr((*entry).d_name.as_ptr()) }.to_bytes();
-        if name != b"." && name != b".." {
-            entries.push(path.join(OsStr::from_bytes(name)));
+        let name = Path::new(OsStr::from_bytes(name));
+        if is_json_path(name) {
+            entries.push(path.join(name));
         }
     }
     // SAFETY: This function owns the open directory stream.
@@ -1669,12 +1799,13 @@ fn read_directory(path: &Path) -> Option<Box<[PathBuf]>> {
 }
 
 #[cfg(not(unix))]
-fn read_directory(path: &Path) -> Option<Box<[PathBuf]>> {
+fn read_manifest_directory(path: &Path) -> Option<Box<[PathBuf]>> {
     Some(
         path.read_dir()
             .ok()?
             .filter_map(Result::ok)
             .map(|entry| entry.path())
+            .filter(|entry| is_json_path(entry))
             .collect(),
     )
 }
@@ -1687,17 +1818,20 @@ mod tests {
 
     #[test]
     fn debug_filter_matches_upstream_prefix_rules() {
-        assert!(loader_debug_filter_matches("all", "info"));
-        assert!(loader_debug_filter_matches("a", "layer"));
-        assert!(loader_debug_filter_matches("w", "warn"));
-        assert!(loader_debug_filter_matches("warn", "warning"));
-        assert!(loader_debug_filter_matches("implem", "driver"));
-        assert!(loader_debug_filter_matches("ic", "driver"));
-        assert!(loader_debug_filter_matches("debug,driver", "driver"));
-        assert!(!loader_debug_filter_matches("", "info"));
-        assert!(!loader_debug_filter_matches("INFO", "info"));
-        assert!(!loader_debug_filter_matches("warnings", "warning"));
-        assert!(!loader_debug_filter_matches("layer", "driver"));
+        assert!(loader_debug_filter_matches("all", LogFilter::Info));
+        assert!(loader_debug_filter_matches("a", LogFilter::Layer));
+        assert!(loader_debug_filter_matches("w", LogFilter::Warning));
+        assert!(loader_debug_filter_matches("warn", LogFilter::Warning));
+        assert!(loader_debug_filter_matches("implem", LogFilter::Driver));
+        assert!(loader_debug_filter_matches("ic", LogFilter::Driver));
+        assert!(loader_debug_filter_matches(
+            "debug,driver",
+            LogFilter::Driver
+        ));
+        assert!(!loader_debug_filter_matches("", LogFilter::Info));
+        assert!(!loader_debug_filter_matches("INFO", LogFilter::Info));
+        assert!(!loader_debug_filter_matches("warnings", LogFilter::Warning));
+        assert!(!loader_debug_filter_matches("layer", LogFilter::Driver));
     }
 
     #[test]

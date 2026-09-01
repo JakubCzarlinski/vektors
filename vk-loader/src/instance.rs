@@ -469,6 +469,17 @@ impl LoaderPhysicalDevice {
         (device.magic == PHYSICAL_DEVICE_MAGIC).then_some(device)
     }
 
+    /// Borrows the loader-owned handle passed through an internal terminator chain.
+    ///
+    /// # Safety
+    ///
+    /// `handle` must be the live terminator handle supplied by this loader to
+    /// the layer chain for a physical device.
+    pub(crate) unsafe fn from_terminator_handle<'a>(handle: VkPhysicalDevice) -> &'a Self {
+        // SAFETY: The caller guarantees this is the loader-owned terminator object.
+        unsafe { &*handle.0.cast::<Self>() }
+    }
+
     pub(crate) fn icd(&self) -> &IcdInstance {
         debug_assert!(!self.icd.is_null());
         // SAFETY: The pointer targets the owning instance's boxed ICD slice,

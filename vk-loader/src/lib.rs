@@ -191,24 +191,31 @@ unsafe fn resolve_physical_device<T: Copy>(
     resolve: impl FnOnce(&InstanceDispatchTable) -> Option<T>,
     name: &CStr,
 ) -> Option<(T, VkPhysicalDevice)> {
-    // SAFETY: The caller supplies a live loader physical-device handle.
-    let physical_device = unsafe { LoaderPhysicalDevice::from_handle(physical_device) }?;
+    // SAFETY: Generated terminators receive the live internal handle installed
+    // by this loader in the physical-device layer chain.
+    let physical_device = unsafe { LoaderPhysicalDevice::from_terminator_handle(physical_device) };
     let icd = physical_device.icd();
     let command = resolve(&icd.dispatch);
     let Some(command) = command else {
-        if let Ok(message) = alloc::ffi::CString::new(format!(
-            "ICD for selected physical device does not export {}!",
-            name.to_string_lossy()
-        )) {
-            physical_device.instance().submit_loader_message(
-                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-                vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
-                &message,
-            );
-        }
+        report_missing_physical_device_command(physical_device, name);
         return None;
     };
     Some((command, physical_device.native))
+}
+
+#[cold]
+#[inline(never)]
+fn report_missing_physical_device_command(physical_device: &LoaderPhysicalDevice, name: &CStr) {
+    if let Ok(message) = alloc::ffi::CString::new(format!(
+        "ICD for selected physical device does not export {}!",
+        name.to_string_lossy()
+    )) {
+        physical_device.instance().submit_loader_message(
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
+            vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
+            &message,
+        );
+    }
 }
 
 unsafe fn resolve_trampoline_physical_device(
@@ -237,6 +244,7 @@ unsafe fn device_dispatch(handle: *mut c_void) -> Option<&'static LayerDeviceDis
 #[cold]
 #[inline(never)]
 fn invalid_device_dispatch() -> ! {
+    core::hint::cold_path();
     // SAFETY: A corrupted dispatchable handle is an unrecoverable loader ABI
     // violation and upstream terminates the process on this path.
     unsafe { libc::abort() }
@@ -245,6 +253,7 @@ fn invalid_device_dispatch() -> ! {
 #[cold]
 #[inline(never)]
 fn fatal_loader_error(message: &CStr) -> ! {
+    core::hint::cold_path();
     crate::platform::write_stderr(&format!("{}\n", message.to_string_lossy()));
     // SAFETY: A missing required driver entry point is fatal by loader ABI
     // contract; no Rust cleanup can make continued execution valid.
@@ -631,16 +640,8 @@ unsafe fn emit_driver_create_message(
     message: impl AsRef<str>,
 ) {
     let message = message.as_ref();
-    let (filter, label) = if severity == vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR {
-        ("error", "ERROR")
-    } else if severity == vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING {
-        ("warn", "WARNING")
-    } else if severity == vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO {
-        ("info", "INFO")
-    } else {
-        ("debug", "DEBUG")
-    };
-    platform::write_loader_log(filter, label, format_args!("{message}"));
+    let filter = platform::LogFilter::from_severity(severity);
+    platform::write_loader_log(filter, format_args!("{message}"));
     let Ok(message) = alloc::ffi::CString::new(message) else {
         return;
     };
@@ -656,20 +657,10 @@ unsafe fn emit_driver_category_create_message(
     message: impl AsRef<str>,
 ) {
     let message = message.as_ref();
-    let (filter, label) = if severity == vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR {
-        ("error", "ERROR")
-    } else if severity == vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING {
-        ("warn", "WARNING")
-    } else if severity == vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO {
-        ("info", "INFO")
-    } else {
-        ("debug", "DEBUG")
-    };
+    let filter = platform::LogFilter::from_severity(severity);
     platform::write_loader_log_with_category(
         filter,
-        label,
-        "driver",
-        "DRIVER",
+        platform::LogFilter::Driver,
         format_args!("{message}"),
     );
     let Ok(message) = alloc::ffi::CString::new(message) else {
@@ -685,7 +676,7 @@ unsafe fn emit_driver_only_create_message(
     message: impl AsRef<str>,
 ) {
     let message = message.as_ref();
-    platform::write_loader_category_log("driver", "DRIVER", format_args!("{message}"));
+    platform::write_loader_category_log(platform::LogFilter::Driver, format_args!("{message}"));
     let Ok(message) = alloc::ffi::CString::new(message) else {
         return;
     };
@@ -1623,18 +1614,23 @@ unsafe fn emit_device_layer_callstack(
         "   <Loader>",
         "     ||",
     ] {
-        emit_instance_category_message(instance, &["layer", "driver"], "DRIVER", message);
+        emit_instance_category_message(
+            instance,
+            &[platform::LogFilter::Layer, platform::LogFilter::Driver],
+            "DRIVER",
+            message,
+        );
     }
     for layer in instance.layers.iter().rev() {
         emit_instance_category_message(
             instance,
-            &["layer"],
+            &[platform::LogFilter::Layer],
             "LAYER",
             format!("   {}", layer.name.to_string_lossy()),
         );
         emit_instance_category_message(
             instance,
-            &["layer"],
+            &[platform::LogFilter::Layer],
             "LAYER",
             format!(
                 "           Type: {}",
@@ -1645,9 +1641,14 @@ unsafe fn emit_device_layer_callstack(
                 }
             ),
         );
-        emit_instance_category_message(instance, &["layer"], "LAYER", "     ||");
+        emit_instance_category_message(instance, &[platform::LogFilter::Layer], "LAYER", "     ||");
     }
-    emit_instance_category_message(instance, &["layer", "driver"], "DRIVER", "   <Device>");
+    emit_instance_category_message(
+        instance,
+        &[platform::LogFilter::Layer, platform::LogFilter::Driver],
+        "DRIVER",
+        "   <Device>",
+    );
 
     let Some(physical_device) =
         (unsafe { LoaderPhysicalDevice::from_handle(trampoline.terminator) })
@@ -1666,7 +1667,7 @@ unsafe fn emit_device_layer_callstack(
     );
     emit_instance_category_message(
         instance,
-        &["layer", "driver"],
+        &[platform::LogFilter::Layer, platform::LogFilter::Driver],
         "DRIVER",
         format!("       Using \"{name}\" with driver: \"{path}\""),
     );
@@ -3811,16 +3812,8 @@ fn emit_instance_loader_message(
     message: impl AsRef<str>,
 ) {
     let message = message.as_ref();
-    let (filter, label) = if severity == vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR {
-        ("error", "ERROR")
-    } else if severity == vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING {
-        ("warn", "WARNING")
-    } else if severity == vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO {
-        ("info", "INFO")
-    } else {
-        ("debug", "DEBUG")
-    };
-    platform::write_loader_log(filter, label, format_args!("{message}"));
+    let filter = platform::LogFilter::from_severity(severity);
+    platform::write_loader_log(filter, format_args!("{message}"));
     let Ok(message) = alloc::ffi::CString::new(message) else {
         return;
     };
@@ -3834,7 +3827,7 @@ fn emit_instance_loader_message(
 #[cold]
 fn emit_instance_category_message(
     instance: &LoaderInstance,
-    category_filters: &[&str],
+    category_filters: &[platform::LogFilter],
     category_label: &str,
     message: impl AsRef<str>,
 ) {
@@ -3920,7 +3913,13 @@ pub unsafe extern "system" fn vkEnumerateInstanceExtensionProperties(
     if property_count.is_null() {
         return VkResult::ERROR_INITIALIZATION_FAILED;
     }
-    unsafe { pre_instance::enumerate_extension_properties(layer_name, property_count, properties) }
+    platform::with_elevated_privileges_snapshot(|| {
+        discovery::with_loader_settings_absence_cache(|| {
+            layer::with_layer_filter_environment(|| unsafe {
+                pre_instance::enumerate_extension_properties(layer_name, property_count, properties)
+            })
+        })
+    })
 }
 
 /// Enumerates available explicit and implicit layers.
