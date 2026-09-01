@@ -5,19 +5,20 @@ use core::ffi::{CStr, c_void};
 use crate::sync::Mutex;
 use vk::{
     PFN_vkCreateSharedSwapchainsKHR, PFN_vkCreateSwapchainKHR,
-    PFN_vkGetDeviceGroupSurfacePresentModesKHR, VkAllocationCallbacks, VkBaseInStructure,
-    VkBaseOutStructure, VkDevice, VkDeviceGroupPresentModeFlagsKHR, VkInstance, VkResult,
-    VkStructureType, VkSurfaceCapabilities2EXT, VkSurfaceCapabilities2KHR,
-    VkSurfaceCapabilitiesKHR, VkSurfaceFormat2KHR, VkSurfaceFormatKHR, VkSurfaceKHR,
-    VkSurfacePresentModeCompatibilityKHR, VkSurfacePresentModeKHR,
-    VkSurfacePresentScalingCapabilitiesKHR, VkSurfaceProtectedCapabilitiesKHR,
-    VkSwapchainCreateInfoKHR, VkSwapchainKHR,
+    PFN_vkGetDeviceGroupSurfacePresentModesKHR, VkAllocationCallbacks, VkBaseInStructure, VkDevice,
+    VkDeviceGroupPresentModeFlagsKHR, VkInstance, VkResult, VkStructureType,
+    VkSurfaceCapabilities2EXT, VkSurfaceCapabilities2KHR, VkSurfaceCapabilitiesKHR,
+    VkSurfaceFormat2KHR, VkSurfaceKHR, VkSurfacePresentModeCompatibilityKHR,
+    VkSurfacePresentModeKHR, VkSurfacePresentScalingCapabilitiesKHR,
+    VkSurfaceProtectedCapabilitiesKHR, VkSwapchainCreateInfoKHR, VkSwapchainKHR,
 };
 
 use crate::{
     allocation::{LoaderAllocation, LoaderArray, LoaderBox},
     collections::ScratchArray,
     device::LoaderDevice,
+    emulation::{emulate_result_array, for_each_output_chain, optional_output_slice},
+    generated::EmulatedCommand,
     icd::IcdInstance,
     instance::{LoaderInstance, LoaderPhysicalDevice},
     load_typed, surface_create_info_extension_size,
@@ -497,6 +498,19 @@ pub(crate) unsafe fn translate_physical_device_surface(
     unsafe { native_surface(device.instance(), device.icd_index, surface) }
 }
 
+unsafe fn native_surface_info<'a>(
+    device: &LoaderPhysicalDevice,
+    surface_info: &vk::VkPhysicalDeviceSurfaceInfo2KHR<'a>,
+) -> Result<vk::VkPhysicalDeviceSurfaceInfo2KHR<'a>, VkResult> {
+    let mut native_info = *surface_info;
+    if native_info.surface != VkSurfaceKHR::NULL {
+        // SAFETY: The surface and ICD index are retained by the same loader instance.
+        native_info.surface =
+            unsafe { native_surface(device.instance(), device.icd_index, native_info.surface) }?;
+    }
+    Ok(native_info)
+}
+
 /// Implements the loader's `VK_KHR_get_surface_capabilities2` ICD boundary.
 ///
 /// The input structure is copied so its loader-owned surface can be replaced
@@ -518,16 +532,11 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceCapabi
         return VkResult::ERROR_INITIALIZATION_FAILED;
     };
     // SAFETY: Both structures are readable/writable by the entry-point contract.
-    let mut native_info = *surface_info;
-    if native_info.surface != VkSurfaceKHR::NULL {
-        // SAFETY: The surface and ICD index are retained by the same loader instance.
-        native_info.surface = match unsafe {
-            native_surface(device.instance(), device.icd_index, native_info.surface)
-        } {
-            Ok(surface) => surface,
-            Err(result) => return result,
-        };
-    }
+    // SAFETY: The copied input retains its live application-owned pNext chain.
+    let native_info = match unsafe { native_surface_info(device, surface_info) } {
+        Ok(info) => info,
+        Err(result) => return result,
+    };
 
     let icd = device.icd();
     if let Some(command) = icd.dispatch.vkGetPhysicalDeviceSurfaceCapabilities2KHR {
@@ -549,6 +558,8 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceCapabi
         }
         return result;
     }
+
+    device.log_icd_emulation(EmulatedCommand::GetPhysicalDeviceSurfaceCapabilities2KHR);
 
     let Some(command) = icd.dispatch.vkGetPhysicalDeviceSurfaceCapabilitiesKHR else {
         // SAFETY: The output pointer was validated above.
@@ -596,16 +607,11 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceFormat
         return VkResult::ERROR_INITIALIZATION_FAILED;
     };
     // SAFETY: The input structure is readable by the command contract.
-    let mut native_info = *surface_info;
-    if native_info.surface != VkSurfaceKHR::NULL {
-        // SAFETY: The surface and ICD are retained by the same loader instance.
-        native_info.surface = match unsafe {
-            native_surface(device.instance(), device.icd_index, native_info.surface)
-        } {
-            Ok(surface) => surface,
-            Err(result) => return result,
-        };
-    }
+    // SAFETY: The copied input retains its live application-owned pNext chain.
+    let native_info = match unsafe { native_surface_info(device, surface_info) } {
+        Ok(info) => info,
+        Err(result) => return result,
+    };
 
     let icd = device.icd();
     if let Some(command) = icd.dispatch.vkGetPhysicalDeviceSurfaceFormats2KHR {
@@ -619,6 +625,8 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceFormat
             )
         };
     }
+
+    device.log_icd_emulation(EmulatedCommand::GetPhysicalDeviceSurfaceFormats2KHR);
 
     let Some(command) = icd.dispatch.vkGetPhysicalDeviceSurfaceFormatsKHR else {
         // SAFETY: The count pointer was validated above.
@@ -639,28 +647,17 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceFormat
         };
     }
 
-    let Ok(mut formats) =
-        ScratchArray::<VkSurfaceFormatKHR, STACK_SURFACE_FORMATS>::try_new(capacity)
-    else {
-        return VkResult::ERROR_OUT_OF_HOST_MEMORY;
-    };
-    // SAFETY: The temporary array has exactly `capacity` writable elements.
-    let result = unsafe {
-        command(
-            device.native,
-            native_info.surface,
+    // SAFETY: A non-null Vulkan enumeration output points to `count` writable elements.
+    let output = unsafe { optional_output_slice(surface_formats, *surface_format_count) };
+    unsafe {
+        emulate_result_array::<_, _, STACK_SURFACE_FORMATS>(
             surface_format_count,
-            formats.as_mut_ptr(),
+            output,
+            |count, formats| command(device.native, native_info.surface, count, formats),
+            |output, format| output.surfaceFormat = format,
         )
-    };
-    // SAFETY: The driver writes the returned count; never copy beyond either array.
-    let written = (*surface_format_count as usize).min(capacity);
-    // SAFETY: The ICD initialized the prefix reported through the count.
-    for (index, &format) in (unsafe { formats.initialized(written) }).iter().enumerate() {
-        // Preserve the application's sType and pNext fields exactly as upstream does.
-        unsafe { (*surface_formats.add(index)).surfaceFormat = format };
+        .unwrap_or(VkResult::ERROR_OUT_OF_HOST_MEMORY)
     }
-    result
 }
 
 pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceSupportKHR(
@@ -717,6 +714,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceCapabi
     let Some(command) = icd.dispatch.vkGetPhysicalDeviceSurfaceCapabilitiesKHR else {
         return VkResult::ERROR_INITIALIZATION_FAILED;
     };
+    device.log_icd_emulation(EmulatedCommand::GetPhysicalDeviceSurfaceCapabilities2EXT);
     let mut base = VkSurfaceCapabilitiesKHR::DEFAULT;
     let result = unsafe { command(device.native, surface, &raw mut base) };
     if result != VkResult::SUCCESS {
@@ -734,24 +732,30 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceCapabi
     output.supportedCompositeAlpha = base.supportedCompositeAlpha;
     output.supportedUsageFlags = base.supportedUsageFlags;
     output.supportedSurfaceCounters = vk::VkSurfaceCounterFlagBitsEXT::EMPTY;
+    if !output.pNext.is_null() {
+        device.instance().log_loader_message(
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+            vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
+            c"vkGetPhysicalDeviceSurfaceCapabilities2EXT: Emulation found unrecognized structure type in pSurfaceCapabilities->pNext - this struct will be ignored",
+        );
+    }
     VkResult::SUCCESS
 }
 
 unsafe fn initialize_protected_surface_capabilities(
     capabilities: &mut VkSurfaceCapabilities2KHR<'_>,
 ) {
+    let next = capabilities.pNext;
     // SAFETY: The caller propagates the writable pNext-chain contract.
-    let mut next = capabilities.pNext.cast::<VkBaseOutStructure<'_>>();
-    while !next.is_null() {
-        // SAFETY: Every output-chain node begins with VkBaseOutStructure.
-        let header = unsafe { next.read() };
-        if header.sType == VkStructureType::SURFACE_PROTECTED_CAPABILITIES_KHR {
-            // SAFETY: The matching sType determines the concrete node layout.
-            unsafe {
-                (*next.cast::<VkSurfaceProtectedCapabilitiesKHR<'_>>()).supportsProtected = 0;
+    unsafe {
+        for_each_output_chain(next, |header| {
+            if header.sType == VkStructureType::SURFACE_PROTECTED_CAPABILITIES_KHR {
+                // SAFETY: The matching sType determines the concrete node layout.
+                let protected =
+                    core::ptr::from_mut(header).cast::<VkSurfaceProtectedCapabilitiesKHR<'_>>();
+                (*protected).supportsProtected = 0;
             }
-        }
-        next = header.pNext;
+        });
     }
 }
 
@@ -759,56 +763,52 @@ unsafe fn emulate_surface_maintenance1(
     surface_info: &vk::VkPhysicalDeviceSurfaceInfo2KHR<'_>,
     capabilities: &mut VkSurfaceCapabilities2KHR<'_>,
 ) {
-    let mut present_mode = None;
     // SAFETY: The caller propagates the readable input-chain contract.
-    let mut next_in = surface_info.pNext.cast::<VkBaseInStructure<'_>>();
-    while !next_in.is_null() {
-        // SAFETY: Every input-chain node begins with VkBaseInStructure.
-        let header = unsafe { next_in.read() };
-        if header.sType == VkStructureType::SURFACE_PRESENT_MODE_KHR {
-            // SAFETY: The matching sType determines the concrete node layout.
-            present_mode =
-                Some(unsafe { (*next_in.cast::<VkSurfacePresentModeKHR<'_>>()).presentMode });
-        }
-        next_in = header.pNext;
-    }
-    let Some(present_mode) = present_mode else {
+    let Some(present_mode) = (unsafe {
+        crate::emulation::find_input_chain(
+            surface_info.pNext,
+            VkStructureType::SURFACE_PRESENT_MODE_KHR,
+        )
+    }) else {
         return;
     };
+    // SAFETY: The matching sType determines the concrete node layout.
+    let present_mode = unsafe {
+        (*core::ptr::from_ref(present_mode).cast::<VkSurfacePresentModeKHR<'_>>()).presentMode
+    };
 
+    let next_out = capabilities.pNext;
     // SAFETY: The caller propagates the writable output-chain contract.
-    let mut next_out = capabilities.pNext.cast::<VkBaseOutStructure<'_>>();
-    while !next_out.is_null() {
-        // SAFETY: Every output-chain node begins with VkBaseOutStructure.
-        let header = unsafe { next_out.read() };
-        match header.sType {
-            VkStructureType::SURFACE_PRESENT_MODE_COMPATIBILITY_KHR => {
-                // SAFETY: The matching sType determines the concrete node layout.
-                let compatibility =
-                    unsafe { &mut *next_out.cast::<VkSurfacePresentModeCompatibilityKHR<'_>>() };
-                if compatibility.pPresentModes.is_null() {
-                    compatibility.presentModeCount = 1;
-                } else if compatibility.presentModeCount != 0 {
-                    // SAFETY: A nonzero count makes the first element writable.
-                    unsafe { compatibility.pPresentModes.write(present_mode) };
-                    compatibility.presentModeCount = 1;
+    unsafe {
+        for_each_output_chain(next_out, |header| {
+            match header.sType {
+                VkStructureType::SURFACE_PRESENT_MODE_COMPATIBILITY_KHR => {
+                    // SAFETY: The matching sType determines the concrete node layout.
+                    let compatibility = &mut *core::ptr::from_mut(header)
+                        .cast::<VkSurfacePresentModeCompatibilityKHR<'_>>();
+                    if compatibility.pPresentModes.is_null() {
+                        compatibility.presentModeCount = 1;
+                    } else if compatibility.presentModeCount != 0 {
+                        // SAFETY: A nonzero count makes the first element writable.
+                        compatibility.pPresentModes.write(present_mode);
+                        compatibility.presentModeCount = 1;
+                    }
                 }
+                VkStructureType::SURFACE_PRESENT_SCALING_CAPABILITIES_KHR => {
+                    // SAFETY: The matching sType determines the concrete node layout.
+                    let scaling = &mut *core::ptr::from_mut(header)
+                        .cast::<VkSurfacePresentScalingCapabilitiesKHR<'_>>();
+                    scaling.supportedPresentScaling = vk::VkPresentScalingFlagBitsKHR::EMPTY;
+                    scaling.supportedPresentGravityX = vk::VkPresentGravityFlagBitsKHR::EMPTY;
+                    scaling.supportedPresentGravityY = vk::VkPresentGravityFlagBitsKHR::EMPTY;
+                    // SAFETY: The root output structure is writable by contract.
+                    let base = &capabilities.surfaceCapabilities;
+                    scaling.minScaledImageExtent = base.minImageExtent;
+                    scaling.maxScaledImageExtent = base.maxImageExtent;
+                }
+                _ => {}
             }
-            VkStructureType::SURFACE_PRESENT_SCALING_CAPABILITIES_KHR => {
-                // SAFETY: The matching sType determines the concrete node layout.
-                let scaling =
-                    unsafe { &mut *next_out.cast::<VkSurfacePresentScalingCapabilitiesKHR<'_>>() };
-                scaling.supportedPresentScaling = vk::VkPresentScalingFlagBitsKHR::EMPTY;
-                scaling.supportedPresentGravityX = vk::VkPresentGravityFlagBitsKHR::EMPTY;
-                scaling.supportedPresentGravityY = vk::VkPresentGravityFlagBitsKHR::EMPTY;
-                // SAFETY: The root output structure is writable by contract.
-                let base = &capabilities.surfaceCapabilities;
-                scaling.minScaledImageExtent = base.minImageExtent;
-                scaling.maxScaledImageExtent = base.maxImageExtent;
-            }
-            _ => {}
-        }
-        next_out = header.pNext;
+        });
     }
 }
 
@@ -944,6 +944,12 @@ pub(crate) unsafe extern "system" fn terminator_get_device_group_surface_present
     let command: Option<PFN_vkGetDeviceGroupSurfacePresentModesKHR> =
         unsafe { load_typed(device.resolve(c"vkGetDeviceGroupSurfacePresentModesKHR")) };
     let Some(command) = command else {
+        crate::platform::write_loader_log(
+            crate::platform::LogFilter::Error,
+            format_args!(
+                "vkGetDeviceGroupSurfacePresentModesKHR: Driver's function pointer was NULL, returning VK_SUCCESS. Was either Vulkan 1.1 and VK_KHR_swapchain enabled or both the VK_KHR_device_group and VK_KHR_surface extensions enabled when using Vulkan 1.0?"
+            ),
+        );
         return VkResult::SUCCESS;
     };
     // SAFETY: The device retains its parent instance and ICD index.

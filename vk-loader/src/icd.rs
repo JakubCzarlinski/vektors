@@ -157,7 +157,10 @@ pub(crate) enum ManifestApiVersionStatus {
 }
 
 pub(crate) enum ScannedIcdLoadError {
-    OpenLibrary(String),
+    OpenLibrary {
+        message: String,
+        wrong_bit_type: bool,
+    },
     InvalidInterface,
 }
 
@@ -190,7 +193,10 @@ impl ScannedIcd {
         // symbols are copied function pointers with Vulkan-defined ABIs.
         let library =
             unsafe { LoaderLibrary::open_driver(&manifest.library_path) }.map_err(|error| {
-                ScannedIcdLoadError::OpenLibrary(error.message(&manifest.library_path))
+                ScannedIcdLoadError::OpenLibrary {
+                    message: error.message(&manifest.library_path),
+                    wrong_bit_type: error.is_wrong_bit_type(),
+                }
             })?;
         // SAFETY: Symbol type is defined by the loader-driver interface.
         let direct_gipa = unsafe {
@@ -452,6 +458,10 @@ impl ScannedIcd {
 }
 
 impl IcdInstance {
+    pub(crate) fn library_path(&self) -> Option<&Path> {
+        self.icd.library_path()
+    }
+
     pub(crate) fn initialize_active(output: *mut Self) {
         // SAFETY: The caller supplies the uninitialized reserved vector slot
         // after every preceding field has been written.

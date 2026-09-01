@@ -6,7 +6,7 @@ use core::{
     ffi::{CStr, c_char, c_void},
     ptr,
 };
-use std::env;
+use std::{env, ffi::OsStr, path::Path};
 
 use vk::{
     PFN_vkEnumerateDeviceExtensionProperties, PFN_vkGetDeviceProcAddr, PFN_vkGetInstanceProcAddr,
@@ -209,6 +209,7 @@ pub(crate) struct LoadedLayer {
     pub(crate) name: CString,
     pub(crate) library_path: std::path::PathBuf,
     manifest_path: std::path::PathBuf,
+    enable_environment: Option<(std::ffi::OsString, std::ffi::OsString)>,
     disable_environment: Option<std::ffi::OsString>,
     enabled_by: &'static str,
     pub(crate) implicit: bool,
@@ -301,6 +302,25 @@ enum LayerLoadError {
 }
 
 impl LoadedLayer {
+    pub(crate) fn manifest_path(&self) -> &Path {
+        &self.manifest_path
+    }
+
+    pub(crate) fn disable_environment(&self) -> Option<&OsStr> {
+        self.disable_environment.as_deref()
+    }
+
+    pub(crate) fn matched_enable_environment(&self) -> Option<(&OsStr, &OsStr)> {
+        self.enable_environment
+            .as_ref()
+            .filter(|(name, value)| env::var_os(name).as_deref() == Some(value.as_os_str()))
+            .map(|(name, value)| (name.as_os_str(), value.as_os_str()))
+    }
+
+    pub(crate) const fn enabled_by(&self) -> &'static str {
+        self.enabled_by
+    }
+
     fn load(manifest: &LayerManifest, enabled_by: &'static str) -> Result<Self, LayerLoadError> {
         let path = manifest
             .library_path
@@ -392,6 +412,7 @@ impl LoadedLayer {
             name: manifest.name.clone(),
             library_path: path.clone(),
             manifest_path: manifest.manifest_path.clone(),
+            enable_environment: manifest.enable_environment.clone(),
             disable_environment: manifest
                 .disable_environment
                 .as_ref()
@@ -691,13 +712,95 @@ fn emit_layer_search_diagnostics(
                     vk::VK_API_VERSION_PATCH(manifest.manifest_version),
                 ),
             );
+            let manifest_major = vk::VK_API_VERSION_MAJOR(manifest.manifest_version);
+            let manifest_minor = vk::VK_API_VERSION_MINOR(manifest.manifest_version);
+            let manifest_patch = vk::VK_API_VERSION_PATCH(manifest.manifest_version);
+            let known_manifest_version = manifest_major == 1
+                && ((manifest_minor == 0 && manifest_patch < 2)
+                    || (manifest_minor == 1 && manifest_patch < 3)
+                    || (manifest_minor == 2 && manifest_patch < 2));
+            if !known_manifest_version {
+                emit_layer_message(
+                    create_info,
+                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+                    format!(
+                        "loader_add_layer_properties: {} has unknown layer manifest file version {manifest_major}.{manifest_minor}.{manifest_patch}.  May cause errors.",
+                        manifest.manifest_path.to_string_lossy(),
+                    ),
+                );
+            }
+            if !manifest.name.to_bytes().starts_with(b"VK_LAYER_") {
+                emit_create_message(
+                    create_info,
+                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+                    format!(
+                        "Layer name {} does not conform to naming standard (Policy #LLP_LAYER_3)",
+                        manifest.name.to_string_lossy()
+                    ),
+                );
+            }
+            let variant = vk::VK_API_VERSION_VARIANT(manifest.api_version);
+            if variant != 0 {
+                emit_layer_message(
+                    create_info,
+                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+                    format!(
+                        "Layer \"{}\" has an 'api_version' field which contains a non-zero variant value of {variant}.  Skipping Layer.",
+                        manifest.name.to_string_lossy(),
+                    ),
+                );
+            }
+            if !manifest.architecture_supported {
+                emit_layer_message(
+                    create_info,
+                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+                    format!(
+                        "The library architecture in layer {} doesn't match the current running architecture, skipping this layer",
+                        manifest.manifest_path.to_string_lossy(),
+                    ),
+                );
+            }
+            if !manifest.component_layers.is_empty() {
+                emit_layer_message(
+                    create_info,
+                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+                    format!(
+                        "Encountered meta-layer \"{}\"",
+                        manifest.name.to_string_lossy()
+                    ),
+                );
+            }
+        }
+    }
+    for manifest in manifests {
+        let reported_by_search = searches.iter().any(|search| {
+            search
+                .files
+                .iter()
+                .any(|file| file == &manifest.manifest_path)
+        });
+        if !reported_by_search {
+            emit_create_message(
+                create_info,
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+                format!(
+                    "Found manifest file {} (file version {}.{}.{})",
+                    manifest.manifest_path.to_string_lossy(),
+                    vk::VK_API_VERSION_MAJOR(manifest.manifest_version),
+                    vk::VK_API_VERSION_MINOR(manifest.manifest_version),
+                    vk::VK_API_VERSION_PATCH(manifest.manifest_version),
+                ),
+            );
         }
     }
 }
 
 /// Emits pre-instance layer discovery diagnostics when no instance-create
 /// callback chain exists yet.
-pub(crate) fn emit_global_layer_search_diagnostics(searches: &[LayerSearch]) {
+pub(crate) fn emit_global_layer_search_diagnostics(
+    searches: &[LayerSearch],
+    manifests: &[LayerManifest],
+) {
     for search in searches {
         let kind = if search.implicit {
             "implicit"
@@ -732,6 +835,40 @@ pub(crate) fn emit_global_layer_search_diagnostics(searches: &[LayerSearch]) {
                 crate::platform::write_loader_category_log(
                     crate::platform::LogFilter::Layer,
                     format_args!("      {}", file.to_string_lossy()),
+                );
+            }
+        }
+        for manifest in manifests
+            .iter()
+            .filter(|manifest| manifest.implicit == search.implicit)
+        {
+            crate::platform::write_loader_log(
+                crate::platform::LogFilter::Info,
+                format_args!(
+                    "Found manifest file {} (file version {}.{}.{})",
+                    manifest.manifest_path.to_string_lossy(),
+                    vk::VK_API_VERSION_MAJOR(manifest.manifest_version),
+                    vk::VK_API_VERSION_MINOR(manifest.manifest_version),
+                    vk::VK_API_VERSION_PATCH(manifest.manifest_version),
+                ),
+            );
+            if !manifest.name.to_bytes().starts_with(b"VK_LAYER_") {
+                crate::platform::write_loader_log(
+                    crate::platform::LogFilter::Warning,
+                    format_args!(
+                        "Layer name {} does not conform to naming standard (Policy #LLP_LAYER_3)",
+                        manifest.name.to_string_lossy()
+                    ),
+                );
+            }
+            if !manifest.component_layers.is_empty() {
+                crate::platform::write_loader_log_with_category(
+                    crate::platform::LogFilter::Info,
+                    crate::platform::LogFilter::Layer,
+                    format_args!(
+                        "Encountered meta-layer \"{}\"",
+                        manifest.name.to_string_lossy()
+                    ),
                 );
             }
         }
@@ -772,6 +909,16 @@ pub(crate) fn emit_instance_layer_callstack(
                 format!(
                     "               Disable Env Var:  {}",
                     disable_environment.to_string_lossy()
+                ),
+            );
+        }
+        if let Some((name, value)) = layer.matched_enable_environment() {
+            emit_layer_only_message(
+                create_info,
+                format!(
+                    "               This layer was enabled because Env Var {} was set to Value {}",
+                    name.to_string_lossy(),
+                    value.to_string_lossy()
                 ),
             );
         }
@@ -934,53 +1081,19 @@ pub(crate) fn select_active_layers(
             .map(|name| name.to_string_lossy())
             .collect::<Vec<_>>()
             .join(":");
-        emit_create_message(
+        emit_layer_message(
             create_info,
-            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-            format!("env var 'VK_INSTANCE_LAYERS' defined and adding layers: {names}"),
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+            if settings.is_some() {
+                format!("env var 'VK_INSTANCE_LAYERS' defined and adding layers: {names}")
+            } else {
+                format!("env var 'VK_INSTANCE_LAYERS' defined and adding layers \"{names}\"")
+            },
         );
     }
     let manifests = discover_layers_with_settings(settings);
     emit_layer_search_diagnostics(create_info, manifests.searches(), &manifests);
     for manifest in &manifests {
-        let manifest_major = vk::VK_API_VERSION_MAJOR(manifest.manifest_version);
-        let manifest_minor = vk::VK_API_VERSION_MINOR(manifest.manifest_version);
-        let manifest_patch = vk::VK_API_VERSION_PATCH(manifest.manifest_version);
-        let known_manifest_version = manifest_major == 1
-            && ((manifest_minor == 0 && manifest_patch < 2)
-                || (manifest_minor == 1 && manifest_patch < 3)
-                || (manifest_minor == 2 && manifest_patch < 2));
-        if !known_manifest_version {
-            emit_create_message(
-                create_info,
-                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                format!(
-                    "loader_add_layer_properties: {} has unknown layer manifest file version {manifest_major}.{manifest_minor}.{manifest_patch}.  May cause errors.",
-                    manifest.manifest_path.to_string_lossy(),
-                ),
-            );
-        }
-        let variant = vk::VK_API_VERSION_VARIANT(manifest.api_version);
-        if variant != 0 {
-            emit_create_message(
-                create_info,
-                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                format!(
-                    "Layer \"{}\" has an 'api_version' field which contains a non-zero variant value of {variant}.  Skipping Layer.",
-                    manifest.name.to_string_lossy(),
-                ),
-            );
-        }
-        if !manifest.architecture_supported {
-            emit_create_message(
-                create_info,
-                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                format!(
-                    "The library architecture in layer {} doesn't match the current running architecture, skipping this layer",
-                    manifest.manifest_path.to_string_lossy(),
-                ),
-            );
-        }
         if !manifest.override_paths.is_empty()
             && manifest.manifest_version < vk::VK_MAKE_API_VERSION(0, 1, 1, 0)
         {
@@ -996,16 +1109,21 @@ pub(crate) fn select_active_layers(
         let natural = naturally_enabled(manifest);
         let enabled = forced_enabled(manifest);
         if enabled && !natural {
-            emit_create_message(
+            let kind = if manifest.implicit {
+                "Implicit layer"
+            } else {
+                "Layer"
+            };
+            emit_layer_message(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
                 format!(
-                    "Layer \"{}\" forced enabled due to env var 'VK_LOADER_LAYERS_ENABLE'.",
+                    "{kind} \"{}\" forced enabled due to env var 'VK_LOADER_LAYERS_ENABLE'.",
                     manifest.name.to_string_lossy()
                 ),
             );
         } else if !enabled && forced_disabled(manifest) {
-            emit_create_message(
+            emit_layer_message(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
                 format!(
@@ -1161,6 +1279,13 @@ pub(crate) fn select_active_layers(
                     );
                     continue;
                 }
+                emit_create_message(
+                    create_info,
+                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
+                    format!(
+                        "loader_validate_layers: Layer {requested_index} does not exist in the list of available layers"
+                    ),
+                );
                 return Err(VkResult::ERROR_LAYER_NOT_PRESENT);
             };
             if forced_disabled(manifest) && !forced_enabled(manifest) {
@@ -1212,6 +1337,29 @@ pub(crate) fn load_selected_layers(
         requested,
         environment_count,
     } = selected_layers;
+    let application_api_version = if create_info.pApplicationInfo.is_null() {
+        vk::VK_API_VERSION_1_0
+    } else {
+        // SAFETY: The instance-create contract keeps application info readable.
+        unsafe { (*create_info.pApplicationInfo).apiVersion }.max(vk::VK_API_VERSION_1_0)
+    };
+    for &index in &selected {
+        let manifest = &manifests[index];
+        if manifest.api_version < application_api_version {
+            emit_layer_message(
+                create_info,
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+                format!(
+                    "Layer {} uses API version {}.{} which is older than the application specified API version of {}.{}. May cause issues.",
+                    manifest.name.to_string_lossy(),
+                    vk::VK_API_VERSION_MAJOR(manifest.api_version),
+                    vk::VK_API_VERSION_MINOR(manifest.api_version),
+                    vk::VK_API_VERSION_MAJOR(application_api_version),
+                    vk::VK_API_VERSION_MINOR(application_api_version),
+                ),
+            );
+        }
+    }
     let mut loaded = Vec::new();
     loaded
         .try_reserve_exact(selected.len())
@@ -1242,7 +1390,7 @@ pub(crate) fn load_selected_layers(
             .iter()
             .any(|name| name.as_c_str() == manifest.name.as_c_str())
         {
-            "Application"
+            "By the Application"
         } else if manifest.implicit {
             "Implicit Layer"
         } else {
@@ -1938,7 +2086,7 @@ pub(crate) unsafe fn enumerate_instance_layers(
     properties: *mut vk::VkLayerProperties,
 ) -> VkResult {
     let discovered = discover_layers();
-    emit_global_layer_search_diagnostics(discovered.searches());
+    emit_global_layer_search_diagnostics(discovered.searches(), &discovered);
     let mut manifests = discovered.into_vec();
     let valid = available_layer_mask(&manifests);
     let mut index = 0;

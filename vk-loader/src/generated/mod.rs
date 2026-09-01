@@ -5,6 +5,7 @@ mod debug;
 mod dispatch_tables;
 mod extensions;
 mod proc_addr;
+mod promotions;
 mod terminators;
 mod trampolines;
 #[cfg(test)]
@@ -30,4 +31,12 @@ pub(crate) use proc_addr::{
     exported_proc_addr, global_proc_addr, icd_device_terminator_proc_addr,
     instance_terminator_proc_addr, layer_device_dispatch_proc_addr,
     physical_device_terminator_proc_addr,
+};
+pub(crate) use promotions::{
+    EmulatedCommand, PromotedDispatch, dispatch_promoted_external_buffer_properties,
+    dispatch_promoted_external_fence_properties, dispatch_promoted_external_semaphore_properties,
+    dispatch_promoted_features2, dispatch_promoted_format_properties2,
+    dispatch_promoted_image_format_properties2, dispatch_promoted_memory_properties2,
+    dispatch_promoted_properties2, dispatch_promoted_queue_family_properties2,
+    dispatch_promoted_sparse_image_format_properties2,
 };

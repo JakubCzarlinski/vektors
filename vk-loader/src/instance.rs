@@ -1,15 +1,20 @@
 //! Loader-owned dispatchable instance state.
 
 use alloc::ffi::CString;
-use core::{ffi::c_void, mem::MaybeUninit, ptr::NonNull};
+use core::{
+    ffi::c_void,
+    mem::MaybeUninit,
+    ptr::NonNull,
+    sync::atomic::{AtomicBool, Ordering as AtomicOrdering},
+};
 use std::sync::LazyLock;
 
 use crate::sync::Mutex;
 use vk::{
     VK_API_VERSION_1_0, VkAllocationCallbacks, VkDebugReportFlagsEXT, VkDebugReportObjectTypeEXT,
-    VkDebugUtilsMessageSeverityFlagBitsEXT, VkDebugUtilsMessageTypeFlagsEXT,
-    VkDebugUtilsMessengerCallbackDataEXT, VkDebugUtilsObjectNameInfoEXT, VkInstance, VkObjectType,
-    VkPhysicalDevice,
+    VkDebugUtilsMessageSeverityFlagBitsEXT, VkDebugUtilsMessageTypeFlagBitsEXT,
+    VkDebugUtilsMessageTypeFlagsEXT, VkDebugUtilsMessengerCallbackDataEXT,
+    VkDebugUtilsObjectNameInfoEXT, VkInstance, VkObjectType, VkPhysicalDevice,
 };
 
 use crate::{
@@ -17,6 +22,7 @@ use crate::{
     collections::HashMap,
     debug_messenger::{DebugCallback, DebugMessengerState},
     discovery::DeviceConfiguration,
+    generated::EmulatedCommand,
     icd::IcdInstance,
     layer::{self, ActiveLayerProperty, LoadedLayer},
     surface::SurfaceState,
@@ -53,6 +59,7 @@ pub(crate) struct LoaderInstance {
     allocator: Option<VkAllocationCallbacks<'static>>,
     pub(crate) surfaces: Mutex<HashMap<usize, SurfaceState>>,
     pub(crate) debug_messengers: Mutex<DebugMessengerState>,
+    has_debug_callbacks: AtomicBool,
 }
 
 #[derive(Default)]
@@ -136,6 +143,7 @@ impl LoaderInstance {
             allocator,
             surfaces: Mutex::new(HashMap::default()),
             debug_messengers: Mutex::new(DebugMessengerState::new()),
+            has_debug_callbacks: AtomicBool::new(false),
         });
         let handle = instance.handle();
         instance.chain_instance = handle;
@@ -370,6 +378,48 @@ impl LoaderInstance {
         self.submit_debug_message(severity, message_types, &callback_data);
     }
 
+    /// Writes an ordinary loader diagnostic and mirrors it to debug callbacks.
+    pub(crate) fn log_loader_message(
+        &self,
+        severity: VkDebugUtilsMessageSeverityFlagBitsEXT,
+        message_types: VkDebugUtilsMessageTypeFlagsEXT,
+        message: &core::ffi::CStr,
+    ) {
+        crate::platform::write_loader_log(
+            crate::platform::LogFilter::from_severity(severity),
+            format_args!("{}", message.to_string_lossy()),
+        );
+        self.submit_loader_message(severity, message_types, message);
+    }
+
+    pub(crate) fn log_loader_message_text(
+        &self,
+        severity: VkDebugUtilsMessageSeverityFlagBitsEXT,
+        message_types: VkDebugUtilsMessageTypeFlagsEXT,
+        message: core::fmt::Arguments<'_>,
+    ) {
+        let message = message.to_string();
+        crate::platform::write_loader_log(
+            crate::platform::LogFilter::from_severity(severity),
+            format_args!("{message}"),
+        );
+        if let Ok(message) = CString::new(message) {
+            self.submit_loader_message(severity, message_types, &message);
+        }
+    }
+
+    pub(crate) fn set_has_debug_callbacks(&self, has_callbacks: bool) {
+        self.has_debug_callbacks
+            .store(has_callbacks, AtomicOrdering::Release);
+    }
+
+    #[inline]
+    fn wants_loader_message(&self, severity: VkDebugUtilsMessageSeverityFlagBitsEXT) -> bool {
+        crate::platform::loader_debug_filter_enabled(crate::platform::LogFilter::from_severity(
+            severity,
+        )) || self.has_debug_callbacks.load(AtomicOrdering::Acquire)
+    }
+
     #[allow(clippy::too_many_arguments)]
     pub(crate) fn submit_debug_report(
         &self,
@@ -444,6 +494,41 @@ impl LoaderInstance {
 }
 
 impl LoaderPhysicalDevice {
+    #[inline]
+    pub(crate) fn log_icd_emulation(&self, command: EmulatedCommand) {
+        if !self
+            .instance()
+            .wants_loader_message(VkDebugUtilsMessageSeverityFlagBitsEXT::INFO)
+        {
+            return;
+        }
+        self.log_icd_emulation_enabled(command);
+    }
+
+    #[cold]
+    #[inline(never)]
+    fn log_icd_emulation_enabled(&self, command: EmulatedCommand) {
+        let library = self
+            .icd()
+            .library_path()
+            .map_or_else(|| "".into(), |path| path.to_string_lossy());
+        match command.diagnostic_legacy_name() {
+            Some(legacy) => self.instance().log_loader_message_text(
+                VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+                VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
+                format_args!(
+                    "{}: Emulating call in ICD \"{library}\" using {legacy}",
+                    command.name(),
+                ),
+            ),
+            None => self.instance().log_loader_message_text(
+                VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+                VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
+                format_args!("{}: Emulating call in ICD \"{library}\"", command.name()),
+            ),
+        }
+    }
+
     pub(crate) fn new(
         icd_index: usize,
         icd: &IcdInstance,

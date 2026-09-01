@@ -108,54 +108,140 @@ const LOADER_DEVICE_TRAMPOLINES: &[&str] = &[
 
 // These retain their generated public trampoline, but require loader-owned
 // handle translation or emulation at the ICD boundary.
-const HANDWRITTEN_PHYSICAL_DEVICE_TERMINATORS: &[&str] = &[
-    "vkGetPhysicalDeviceFeatures2",
-    "vkGetPhysicalDeviceFeatures2KHR",
-    "vkGetDisplayModeProperties2KHR",
-    "vkGetDisplayPlaneCapabilities2KHR",
-    "vkGetPhysicalDeviceExternalBufferProperties",
-    "vkGetPhysicalDeviceExternalBufferPropertiesKHR",
-    "vkGetPhysicalDeviceExternalFenceProperties",
-    "vkGetPhysicalDeviceExternalFencePropertiesKHR",
-    "vkGetPhysicalDeviceExternalSemaphoreProperties",
-    "vkGetPhysicalDeviceExternalSemaphorePropertiesKHR",
-    "vkGetPhysicalDeviceFormatProperties2",
-    "vkGetPhysicalDeviceFormatProperties2KHR",
-    "vkGetPhysicalDeviceImageFormatProperties2",
-    "vkGetPhysicalDeviceImageFormatProperties2KHR",
-    "vkGetPhysicalDeviceMemoryProperties2",
-    "vkGetPhysicalDeviceMemoryProperties2KHR",
-    "vkGetPhysicalDeviceProperties2",
-    "vkGetPhysicalDeviceProperties2KHR",
-    "vkGetPhysicalDeviceDisplayPlaneProperties2KHR",
-    "vkGetPhysicalDeviceDisplayProperties2KHR",
-    "vkGetPhysicalDeviceQueueFamilyProperties2",
-    "vkGetPhysicalDeviceQueueFamilyProperties2KHR",
-    "vkGetPhysicalDeviceSparseImageFormatProperties2",
-    "vkGetPhysicalDeviceSparseImageFormatProperties2KHR",
+const MANUAL_PHYSICAL_DEVICE_TERMINATORS: &[&str] = &[
     "vkGetPhysicalDeviceToolProperties",
     "vkGetPhysicalDeviceToolPropertiesEXT",
-    "vkGetPhysicalDeviceSurfaceCapabilities2KHR",
-    "vkGetPhysicalDeviceSurfaceCapabilities2EXT",
-    "vkGetPhysicalDeviceSurfaceFormats2KHR",
     "vkGetPhysicalDeviceSurfaceSupportKHR",
 ];
 
-// These terminators share registry-defined core/KHR signatures around a
-// handwritten emulation body. Generate the ABI wrappers and retain only the
-// loader policy in `promoted.rs`.
-const PROMOTED_TERMINATOR_IMPLEMENTATIONS: &[&str] = &[
-    "vkGetPhysicalDeviceFeatures2",
-    "vkGetPhysicalDeviceProperties2",
-    "vkGetPhysicalDeviceFormatProperties2",
-    "vkGetPhysicalDeviceMemoryProperties2",
-    "vkGetPhysicalDeviceImageFormatProperties2",
-    "vkGetPhysicalDeviceExternalBufferProperties",
-    "vkGetPhysicalDeviceExternalSemaphoreProperties",
-    "vkGetPhysicalDeviceExternalFenceProperties",
-    "vkGetPhysicalDeviceQueueFamilyProperties2",
-    "vkGetPhysicalDeviceSparseImageFormatProperties2",
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum EmulationKind {
+    CorePromotion,
+    ExtensionAdapter,
+}
+
+struct EmulatedCommandPolicy {
+    name: &'static str,
+    legacy_name: Option<&'static str>,
+    diagnostic_mentions_legacy: bool,
+    kind: EmulationKind,
+}
+
+const EMULATED_COMMANDS: &[EmulatedCommandPolicy] = &[
+    EmulatedCommandPolicy {
+        name: "vkGetPhysicalDeviceFeatures2",
+        legacy_name: Some("vkGetPhysicalDeviceFeatures"),
+        diagnostic_mentions_legacy: true,
+        kind: EmulationKind::CorePromotion,
+    },
+    EmulatedCommandPolicy {
+        name: "vkGetPhysicalDeviceProperties2",
+        legacy_name: Some("vkGetPhysicalDeviceProperties"),
+        diagnostic_mentions_legacy: true,
+        kind: EmulationKind::CorePromotion,
+    },
+    EmulatedCommandPolicy {
+        name: "vkGetPhysicalDeviceFormatProperties2",
+        legacy_name: Some("vkGetPhysicalDeviceFormatProperties"),
+        diagnostic_mentions_legacy: true,
+        kind: EmulationKind::CorePromotion,
+    },
+    EmulatedCommandPolicy {
+        name: "vkGetPhysicalDeviceMemoryProperties2",
+        legacy_name: Some("vkGetPhysicalDeviceMemoryProperties"),
+        diagnostic_mentions_legacy: true,
+        kind: EmulationKind::CorePromotion,
+    },
+    EmulatedCommandPolicy {
+        name: "vkGetPhysicalDeviceImageFormatProperties2",
+        legacy_name: Some("vkGetPhysicalDeviceImageFormatProperties"),
+        diagnostic_mentions_legacy: true,
+        kind: EmulationKind::CorePromotion,
+    },
+    EmulatedCommandPolicy {
+        name: "vkGetPhysicalDeviceExternalBufferProperties",
+        legacy_name: None,
+        diagnostic_mentions_legacy: false,
+        kind: EmulationKind::CorePromotion,
+    },
+    EmulatedCommandPolicy {
+        name: "vkGetPhysicalDeviceExternalSemaphoreProperties",
+        legacy_name: None,
+        diagnostic_mentions_legacy: false,
+        kind: EmulationKind::CorePromotion,
+    },
+    EmulatedCommandPolicy {
+        name: "vkGetPhysicalDeviceExternalFenceProperties",
+        legacy_name: None,
+        diagnostic_mentions_legacy: false,
+        kind: EmulationKind::CorePromotion,
+    },
+    EmulatedCommandPolicy {
+        name: "vkGetPhysicalDeviceQueueFamilyProperties2",
+        legacy_name: Some("vkGetPhysicalDeviceQueueFamilyProperties"),
+        diagnostic_mentions_legacy: true,
+        kind: EmulationKind::CorePromotion,
+    },
+    EmulatedCommandPolicy {
+        name: "vkGetPhysicalDeviceSparseImageFormatProperties2",
+        legacy_name: Some("vkGetPhysicalDeviceSparseImageFormatProperties"),
+        diagnostic_mentions_legacy: true,
+        kind: EmulationKind::CorePromotion,
+    },
+    EmulatedCommandPolicy {
+        name: "vkGetPhysicalDeviceDisplayProperties2KHR",
+        legacy_name: Some("vkGetPhysicalDeviceDisplayPropertiesKHR"),
+        diagnostic_mentions_legacy: false,
+        kind: EmulationKind::ExtensionAdapter,
+    },
+    EmulatedCommandPolicy {
+        name: "vkGetPhysicalDeviceDisplayPlaneProperties2KHR",
+        legacy_name: Some("vkGetPhysicalDeviceDisplayPlanePropertiesKHR"),
+        diagnostic_mentions_legacy: false,
+        kind: EmulationKind::ExtensionAdapter,
+    },
+    EmulatedCommandPolicy {
+        name: "vkGetDisplayModeProperties2KHR",
+        legacy_name: Some("vkGetDisplayModePropertiesKHR"),
+        diagnostic_mentions_legacy: false,
+        kind: EmulationKind::ExtensionAdapter,
+    },
+    EmulatedCommandPolicy {
+        name: "vkGetDisplayPlaneCapabilities2KHR",
+        legacy_name: Some("vkGetDisplayPlaneCapabilitiesKHR"),
+        diagnostic_mentions_legacy: false,
+        kind: EmulationKind::ExtensionAdapter,
+    },
+    EmulatedCommandPolicy {
+        name: "vkGetPhysicalDeviceSurfaceCapabilities2KHR",
+        legacy_name: Some("vkGetPhysicalDeviceSurfaceCapabilitiesKHR"),
+        diagnostic_mentions_legacy: true,
+        kind: EmulationKind::ExtensionAdapter,
+    },
+    EmulatedCommandPolicy {
+        name: "vkGetPhysicalDeviceSurfaceFormats2KHR",
+        legacy_name: Some("vkGetPhysicalDeviceSurfaceFormatsKHR"),
+        diagnostic_mentions_legacy: true,
+        kind: EmulationKind::ExtensionAdapter,
+    },
+    EmulatedCommandPolicy {
+        name: "vkGetPhysicalDeviceSurfaceCapabilities2EXT",
+        legacy_name: Some("vkGetPhysicalDeviceSurfaceCapabilitiesKHR"),
+        diagnostic_mentions_legacy: true,
+        kind: EmulationKind::ExtensionAdapter,
+    },
 ];
+
+const DIRECT_PROMOTED_PHYSICAL_DEVICE_COMMANDS: &[&str] =
+    &["vkGetPhysicalDevicePresentRectanglesKHR"];
+const MANUAL_PROMOTED_PHYSICAL_DEVICE_COMMANDS: &[&str] = &["vkGetPhysicalDeviceToolPropertiesEXT"];
+
+fn has_handwritten_physical_device_terminator(command: &vk_codegen::ir::Command) -> bool {
+    MANUAL_PHYSICAL_DEVICE_TERMINATORS.contains(&command.name.as_str())
+        || EMULATED_COMMANDS.iter().any(|policy| {
+            command.name == policy.name || command.alias.as_deref() == Some(policy.name)
+        })
+}
 
 // These commands are implemented by the loader itself or are legacy device-layer
 // discovery, so the loader must not require an ICD to expose them through GIPA.
@@ -487,6 +573,68 @@ fn promoted_implementation_name(command_name: &str) -> String {
     implementation
 }
 
+fn emulated_command_variant(command_name: &str) -> proc_macro2::Ident {
+    format_ident!(
+        "{}",
+        command_name
+            .strip_prefix("vk")
+            .unwrap_or_else(|| panic!("invalid Vulkan command name {command_name}"))
+    )
+}
+
+fn validate_promoted_physical_device_commands(registry: &vk_codegen::ir::Registry) {
+    let promoted = registry
+        .extensions
+        .iter()
+        .filter(|extension| {
+            extension
+                .depr
+                .promoted_to
+                .as_deref()
+                .is_some_and(|provider| provider.starts_with("VK_VERSION_"))
+        })
+        .flat_map(|extension| &extension.requires)
+        .flat_map(|requirement| &requirement.commands)
+        .filter(|name| {
+            let command = registry
+                .commands
+                .values()
+                .flatten()
+                .find(|command| command.name == **name)
+                .unwrap_or_else(|| panic!("missing promoted command {name}"));
+            resolved_command_signature(command, registry)
+                .params
+                .first()
+                .is_some_and(|parameter| parameter.ty.base == "VkPhysicalDevice")
+        })
+        .cloned()
+        .collect::<BTreeSet<_>>();
+
+    let mut classified = EMULATED_COMMANDS
+        .iter()
+        .filter(|command| command.kind == EmulationKind::CorePromotion)
+        .flat_map(|policy| {
+            let core_name = policy.name;
+            registry
+                .commands
+                .values()
+                .flatten()
+                .filter(|command| command.alias.as_deref() == Some(core_name))
+                .map(|command| command.name.clone())
+        })
+        .collect::<BTreeSet<_>>();
+    classified.extend(
+        DIRECT_PROMOTED_PHYSICAL_DEVICE_COMMANDS
+            .iter()
+            .chain(MANUAL_PROMOTED_PHYSICAL_DEVICE_COMMANDS)
+            .map(|name| (*name).to_owned()),
+    );
+    assert_eq!(
+        promoted, classified,
+        "every promoted physical-device command must have explicit loader policy"
+    );
+}
+
 fn screaming_snake_case(name: &str) -> String {
     let characters = name.as_bytes();
     let mut result = String::with_capacity(name.len() + 16);
@@ -536,6 +684,7 @@ const GENERATED_LOADER_PARTS: &[&str] = &[
     "debug",
     "dispatch_tables",
     "commands",
+    "promotions",
     "trampolines",
     "terminators",
     "proc_addr",
@@ -549,6 +698,7 @@ const GENERATED_PARENT_NAMES: &[&str] = &[
     "CommandScope",
     "DEVICE_DISPATCH_MAGIC",
     "LoaderInstance",
+    "LoaderPhysicalDevice",
     "PFN_vkVoidFunction",
     "VkStructureType",
     "c_char",
@@ -659,6 +809,7 @@ fn generated_loader_part(item: &syn::Item) -> &'static str {
                 name if name.starts_with("vk") => "trampolines",
                 name if name.contains("proc_addr") => "proc_addr",
                 name if name.starts_with("convert_") => "debug",
+                name if name.starts_with("dispatch_promoted_") => "promotions",
                 "extension_id"
                 | "is_known_instance_extension"
                 | "surface_create_info_extension_size"
@@ -680,8 +831,14 @@ fn generated_loader_part(item: &syn::Item) -> &'static str {
             match self_type.as_str() {
                 name if name.contains("DispatchTable") => "dispatch_tables",
                 name if name.contains("ExtensionSet") => "extensions",
+                name if name.contains("EmulatedCommand") => "promotions",
                 _ => "commands",
             }
+        }
+        syn::Item::Enum(item)
+            if item.ident == "EmulatedCommand" || item.ident == "PromotedDispatch" =>
+        {
+            "promotions"
         }
         syn::Item::Static(item) => {
             let name = item.ident.to_string();
@@ -741,6 +898,7 @@ fn main() {
     let xml = fs::read_to_string(&registry_path).expect("read Vulkan registry");
     let mut registry = parse_registry(&xml);
     apply_require_extensions(&mut registry);
+    validate_promoted_physical_device_commands(&registry);
     update_loader_features(&cargo_path, &registry);
     let extension_name_constants = registry
         .constants
@@ -833,7 +991,58 @@ fn main() {
         let name = format_ident!("{name}");
         quote! { #bytes => Some(erase_function(#name as *const ())), }
     });
+    let emulated_variants = EMULATED_COMMANDS
+        .iter()
+        .map(|command| emulated_command_variant(command.name))
+        .collect::<Vec<_>>();
+    let emulated_name_arms = EMULATED_COMMANDS.iter().map(|command| {
+        let variant = emulated_command_variant(command.name);
+        let name = command.name;
+        quote! { Self::#variant => #name, }
+    });
+    let mut emulated_legacy_groups = BTreeMap::<Option<&str>, Vec<proc_macro2::Ident>>::new();
+    for command in EMULATED_COMMANDS {
+        let legacy = match (command.diagnostic_mentions_legacy, command.legacy_name) {
+            (true, Some(legacy)) => Some(legacy),
+            _ => None,
+        };
+        emulated_legacy_groups
+            .entry(legacy)
+            .or_default()
+            .push(emulated_command_variant(command.name));
+    }
+    let emulated_legacy_arms = emulated_legacy_groups.iter().map(|(legacy, variants)| {
+        let legacy = match legacy {
+            Some(legacy) => quote! { Some(#legacy) },
+            None => quote! { None },
+        };
+        quote! { #(Self::#variants)|* => #legacy, }
+    });
     let mut generated = quote! {
+        #[derive(Clone, Copy)]
+        pub(crate) enum EmulatedCommand {
+            #(#emulated_variants),*
+        }
+
+        pub(crate) enum PromotedDispatch<T> {
+            Dispatched(T),
+            Unavailable,
+        }
+
+        impl EmulatedCommand {
+            pub(crate) const fn name(self) -> &'static str {
+                match self {
+                    #(#emulated_name_arms)*
+                }
+            }
+
+            pub(crate) const fn diagnostic_legacy_name(self) -> Option<&'static str> {
+                match self {
+                    #(#emulated_legacy_arms)*
+                }
+            }
+        }
+
         pub(crate) fn global_proc_addr(name: &CStr) -> PFN_vkVoidFunction {
             match name.to_bytes() {
                 #(#global_arms)*
@@ -1700,7 +1909,12 @@ fn main() {
     });
 
     let mut promoted_wrappers = Vec::new();
-    for &core_name in PROMOTED_TERMINATOR_IMPLEMENTATIONS {
+    let mut promoted_dispatchers = Vec::new();
+    for policy in EMULATED_COMMANDS
+        .iter()
+        .filter(|command| command.kind == EmulationKind::CorePromotion)
+    {
+        let core_name = policy.name;
         let implementation_name = promoted_implementation_name(core_name);
         let mut commands = registry
             .commands
@@ -1715,6 +1929,150 @@ fn main() {
         commands.sort_unstable_by(|left, right| left.name.cmp(&right.name));
         commands.dedup_by(|left, right| left.name == right.name);
         assert!(!commands.is_empty(), "missing promoted command {core_name}");
+
+        let core_command = commands
+            .iter()
+            .copied()
+            .find(|command| command.name == core_name)
+            .unwrap_or_else(|| panic!("missing core promoted command {core_name}"));
+        let alias_command = commands
+            .iter()
+            .copied()
+            .find(|command| command.alias.as_deref() == Some(core_name))
+            .unwrap_or_else(|| panic!("missing extension alias for {core_name}"));
+        let extension = registry
+            .extensions
+            .iter()
+            .find(|extension| {
+                extension
+                    .requires
+                    .iter()
+                    .any(|requirement| requirement.commands.contains(&alias_command.name))
+                    && extension
+                        .depr
+                        .promoted_to
+                        .as_deref()
+                        .is_some_and(|provider| provider.starts_with("VK_VERSION_"))
+            })
+            .unwrap_or_else(|| panic!("missing promoted extension for {}", alias_command.name));
+        let extension_name = extension_name_constants
+            .get(&extension.name)
+            .unwrap_or_else(|| panic!("missing extension-name constant for {}", extension.name));
+        let extension_name = format_ident!("{extension_name}");
+        let core_version = format_ident!(
+            "{}",
+            extension
+                .depr
+                .promoted_to
+                .as_deref()
+                .expect("promoted extension core version")
+                .replacen("VK_VERSION_", "VK_API_VERSION_", 1)
+        );
+        let signature = resolved_command_signature(core_command, &registry);
+        let dispatcher = format_ident!(
+            "dispatch_promoted_{}",
+            implementation_name
+                .strip_suffix("_impl")
+                .expect("promoted implementation suffix")
+        );
+        let dispatcher_params = signature
+            .params
+            .iter()
+            .skip(1)
+            .map(|parameter| {
+                let name = match parameter.name.as_str() {
+                    "type" => format_ident!("type_"),
+                    "match" => format_ident!("match_"),
+                    name => format_ident!("{name}"),
+                };
+                let ty = command_param_abi_type_for_registry(parameter, &registry).to_string();
+                let ty = qualify_registry_type(&ty, &parameter.ty.base);
+                let ty = syn::parse_str::<syn::Type>(&ty)
+                    .expect("promoted dispatcher parameter type must be valid Rust syntax");
+                quote! { #name: #ty }
+            })
+            .collect::<Vec<_>>();
+        let core_args = signature
+            .params
+            .iter()
+            .skip(1)
+            .map(|parameter| match parameter.name.as_str() {
+                "type" => format_ident!("type_"),
+                "match" => format_ident!("match_"),
+                name => format_ident!("{name}"),
+            })
+            .collect::<Vec<_>>();
+        let alias_args = signature
+            .params
+            .iter()
+            .skip(1)
+            .map(|parameter| {
+                let name = match parameter.name.as_str() {
+                    "type" => format_ident!("type_"),
+                    "match" => format_ident!("match_"),
+                    name => format_ident!("{name}"),
+                };
+                match (
+                    parameter.ty.pointer_depth,
+                    parameter.ty.base.starts_with("Vk"),
+                ) {
+                    (1.., true) => quote! { #name.cast() },
+                    _ => quote! { #name },
+                }
+            })
+            .collect::<Vec<_>>();
+        let core_field = format_ident!("{core_name}");
+        let alias_field = format_ident!("{}", alias_command.name);
+        let returns_void =
+            signature.return_type.base == "void" || signature.return_type.base.is_empty();
+        let result_type = match returns_void {
+            true => quote! { () },
+            false => {
+                let return_type = qualify_registry_type(
+                    &ctype_to_rust_str(&signature.return_type),
+                    &signature.return_type.base,
+                );
+                let return_type = syn::parse_str::<syn::Type>(&return_type)
+                    .expect("promoted dispatcher return type must be valid Rust syntax");
+                quote! { #return_type }
+            }
+        };
+        let core_call = match returns_void {
+            true => quote! {
+                unsafe { command(device.native, #(#core_args),*); }
+                PromotedDispatch::Dispatched(())
+            },
+            false => quote! {
+                PromotedDispatch::Dispatched(unsafe { command(device.native, #(#core_args),*) })
+            },
+        };
+        let alias_call = match returns_void {
+            true => quote! {
+                unsafe { command(device.native, #(#alias_args),*); }
+                PromotedDispatch::Dispatched(())
+            },
+            false => quote! {
+                PromotedDispatch::Dispatched(unsafe { command(device.native, #(#alias_args),*) })
+            },
+        };
+        promoted_dispatchers.push(quote! {
+            pub(crate) unsafe fn #dispatcher(
+                device: &LoaderPhysicalDevice,
+                #(#dispatcher_params),*
+            ) -> PromotedDispatch<#result_type> {
+                if device.app_api_version >= vk::#core_version
+                    && let Some(command) = device.icd().dispatch.#core_field
+                {
+                    return { #core_call };
+                }
+                if device.instance().enabled_extensions.contains_name(vk::#extension_name)
+                    && let Some(command) = device.icd().dispatch.#alias_field
+                {
+                    return { #alias_call };
+                }
+                PromotedDispatch::Unavailable
+            }
+        });
 
         for command in commands {
             let is_alias = command.name != core_name;
@@ -1785,7 +2143,7 @@ fn main() {
             });
         }
     }
-    generated.extend(quote! { #(#promoted_wrappers)* });
+    generated.extend(quote! { #(#promoted_dispatchers)* #(#promoted_wrappers)* });
 
     let is_exported = |command: &&vk_codegen::ir::Command| {
         (command.export.is_empty() || command.export.contains(&ExportScope::Vulkan))
@@ -2009,7 +2367,7 @@ fn main() {
                 #export
                 pub(crate) unsafe extern "system" fn #name(#(#params),*) #return_clause { #body }
             });
-            if HANDWRITTEN_PHYSICAL_DEVICE_TERMINATORS.contains(&name_text) {
+            if has_handwritten_physical_device_terminator(command) {
                 let id = command_records
                     .iter()
                     .position(|record| record.0 == command.name)
@@ -2421,6 +2779,15 @@ fn main() {
             exported_proc_addr, global_proc_addr, icd_device_terminator_proc_addr,
             instance_terminator_proc_addr, layer_device_dispatch_proc_addr,
             physical_device_terminator_proc_addr,
+        };
+        pub(crate) use promotions::{
+            EmulatedCommand, PromotedDispatch, dispatch_promoted_external_buffer_properties,
+            dispatch_promoted_external_fence_properties,
+            dispatch_promoted_external_semaphore_properties, dispatch_promoted_features2,
+            dispatch_promoted_format_properties2, dispatch_promoted_image_format_properties2,
+            dispatch_promoted_memory_properties2, dispatch_promoted_properties2,
+            dispatch_promoted_queue_family_properties2,
+            dispatch_promoted_sparse_image_format_properties2,
         };
         #[cfg(test)]
         pub(crate) use commands::{

@@ -5,15 +5,15 @@ use core::{ffi::c_void, mem, ptr::NonNull};
 
 use vk::{
     PFN_vkDebugReportCallbackEXT, PFN_vkDebugUtilsMessengerCallbackEXT, VkAllocationCallbacks,
-    VkBaseInStructure, VkDebugReportCallbackCreateInfoEXT, VkDebugReportCallbackEXT,
-    VkDebugReportFlagBitsEXT, VkDebugReportFlagsEXT, VkDebugReportObjectTypeEXT,
-    VkDebugUtilsMessageSeverityFlagBitsEXT, VkDebugUtilsMessageTypeFlagBitsEXT,
-    VkDebugUtilsMessageTypeFlagsEXT, VkDebugUtilsMessengerCallbackDataEXT,
-    VkDebugUtilsMessengerCreateInfoEXT, VkDebugUtilsMessengerEXT, VkInstance, VkInstanceCreateInfo,
-    VkObjectType, VkResult, VkStructureType, VkSystemAllocationScope,
+    VkDebugReportCallbackCreateInfoEXT, VkDebugReportCallbackEXT, VkDebugReportFlagBitsEXT,
+    VkDebugReportFlagsEXT, VkDebugReportObjectTypeEXT, VkDebugUtilsMessageSeverityFlagBitsEXT,
+    VkDebugUtilsMessageTypeFlagBitsEXT, VkDebugUtilsMessageTypeFlagsEXT,
+    VkDebugUtilsMessengerCallbackDataEXT, VkDebugUtilsMessengerCreateInfoEXT,
+    VkDebugUtilsMessengerEXT, VkInstance, VkInstanceCreateInfo, VkObjectType, VkResult,
+    VkStructureType, VkSystemAllocationScope,
 };
 
-use crate::{allocation::LoaderBox, instance::LoaderInstance};
+use crate::{allocation::LoaderBox, emulation::for_each_input_chain, instance::LoaderInstance};
 
 /// Converts debug-utils severity/type bits to the legacy debug-report flag,
 /// matching Vulkan-Loader's `debug_utils_AnnotFlagsToReportFlags` priority.
@@ -95,8 +95,18 @@ impl DebugMessengerState {
             return Ok(index);
         }
         let old_len = self.messenger_slots.len();
-        self.messenger_slot_allocation
-            .grow(instance.allocator(), mem::size_of::<UsedObjectStatus>())?;
+        if let Err(result) = self
+            .messenger_slot_allocation
+            .grow(instance.allocator(), mem::size_of::<UsedObjectStatus>())
+        {
+            crate::platform::write_loader_log(
+                crate::platform::LogFilter::Error,
+                format_args!(
+                    "loader_resize_generic_list: Failed to allocate space for generic list"
+                ),
+            );
+            return Err(result);
+        }
         self.messenger_slots
             .resize(self.messenger_slot_allocation.entries, false);
         self.messenger_slots[old_len] = true;
@@ -112,6 +122,12 @@ impl DebugMessengerState {
                 )
             {
                 self.messenger_slots[old_len] = false;
+                crate::platform::write_loader_log(
+                    crate::platform::LogFilter::Error,
+                    format_args!(
+                        "loader_resize_generic_list: Failed to allocate space for generic list"
+                    ),
+                );
                 return Err(result);
             }
         }
@@ -387,41 +403,39 @@ pub(crate) unsafe fn submit_instance_create_message(
         pObjects: core::ptr::from_ref(&object),
         ..VkDebugUtilsMessengerCallbackDataEXT::DEFAULT
     };
-    let mut next = create_info.pNext.cast::<VkBaseInStructure<'_>>();
-    while !next.is_null() {
-        // SAFETY: The caller guarantees a valid input structure chain.
-        let structure = unsafe { &*next };
-        match structure.sType {
-            VkStructureType::DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT => {
-                // SAFETY: `sType` identifies the concrete structure layout.
-                let create = unsafe { &*next.cast::<VkDebugUtilsMessengerCreateInfoEXT<'_>>() };
-                if create.messageSeverity.intersects(severity)
-                    && create
-                        .messageType
-                        .intersects(VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL)
-                    && let Some(callback) = create.pfnUserCallback
-                {
-                    // SAFETY: The application provided this callback and live user data.
-                    unsafe {
+    // SAFETY: The caller guarantees a valid input structure chain.
+    unsafe {
+        for_each_input_chain(create_info.pNext, |structure| {
+            match structure.sType {
+                VkStructureType::DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT => {
+                    // SAFETY: `sType` identifies the concrete structure layout.
+                    let create = &*core::ptr::from_ref(structure)
+                        .cast::<VkDebugUtilsMessengerCreateInfoEXT<'_>>();
+                    if create.messageSeverity.intersects(severity)
+                        && create
+                            .messageType
+                            .intersects(VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL)
+                        && let Some(callback) = create.pfnUserCallback
+                    {
+                        // SAFETY: The application provided this callback and live user data.
                         callback(
                             severity,
                             VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
                             core::ptr::from_ref(&callback_data),
                             create.pUserData,
-                        )
-                    };
+                        );
+                    }
                 }
-            }
-            VkStructureType::DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT => {
-                // SAFETY: `sType` identifies the concrete structure layout.
-                let create = unsafe { &*next.cast::<VkDebugReportCallbackCreateInfoEXT<'_>>() };
-                let report_flags =
-                    debug_report_flags(severity, VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL);
-                if create.flags.intersects(report_flags)
-                    && let Some(callback) = create.pfnCallback
-                {
-                    // SAFETY: The application provided this callback and live user data.
-                    unsafe {
+                VkStructureType::DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT => {
+                    // SAFETY: `sType` identifies the concrete structure layout.
+                    let create = &*core::ptr::from_ref(structure)
+                        .cast::<VkDebugReportCallbackCreateInfoEXT<'_>>();
+                    let report_flags =
+                        debug_report_flags(severity, VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL);
+                    if create.flags.intersects(report_flags)
+                        && let Some(callback) = create.pfnCallback
+                    {
+                        // SAFETY: The application provided this callback and live user data.
                         callback(
                             report_flags,
                             VkDebugReportObjectTypeEXT::INSTANCE,
@@ -431,31 +445,12 @@ pub(crate) unsafe fn submit_instance_create_message(
                             c"Loader Message".as_ptr(),
                             message.as_ptr(),
                             create.pUserData,
-                        )
-                    };
+                        );
+                    }
                 }
+                _ => {}
             }
-            _ => {}
-        }
-        next = structure.pNext;
-    }
-}
-
-/// Delivers a loader warning to callbacks embedded in instance creation.
-///
-/// # Safety
-///
-/// The complete instance-create `pNext` chain must be live and well formed.
-pub(crate) unsafe fn submit_instance_create_warning(
-    create_info: &VkInstanceCreateInfo<'_>,
-    message: &core::ffi::CStr,
-) {
-    unsafe {
-        submit_instance_create_message(
-            create_info,
-            VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-            message,
-        );
+        });
     }
 }
 
@@ -559,6 +554,7 @@ pub(crate) unsafe extern "system" fn terminator_create_debug_utils_messenger(
         destroy_native(instance, &owned.icd_handles, allocator);
         return VkResult::ERROR_OUT_OF_HOST_MEMORY;
     }
+    instance.set_has_debug_callbacks(true);
     state.callbacks.push(DebugCallback::Messenger(owned));
     drop(state);
     // SAFETY: The caller supplies writable output storage.
@@ -595,6 +591,7 @@ pub(crate) unsafe extern "system" fn terminator_destroy_debug_utils_messenger(
             unreachable!();
         };
         state.release_messenger(owned.slot);
+        instance.set_has_debug_callbacks(!state.callbacks.is_empty());
         owned
     };
     destroy_native(instance, &owned.icd_handles, allocator);
@@ -693,6 +690,7 @@ pub(crate) unsafe extern "system" fn terminator_create_debug_report_callback(
         destroy_native_reports(instance, &owned.icd_handles, allocator);
         return VkResult::ERROR_OUT_OF_HOST_MEMORY;
     }
+    instance.set_has_debug_callbacks(true);
     state.callbacks.push(DebugCallback::Report(owned));
     drop(state);
     // SAFETY: The caller supplies writable output storage.
@@ -728,6 +726,7 @@ pub(crate) unsafe extern "system" fn terminator_destroy_debug_report_callback(
         let DebugCallback::Report(owned) = state.callbacks.remove(index) else {
             unreachable!();
         };
+        instance.set_has_debug_callbacks(!state.callbacks.is_empty());
         owned
     };
     destroy_native_reports(instance, &owned.icd_handles, allocator);
@@ -786,7 +785,9 @@ pub(crate) unsafe extern "system" fn terminator_debug_report_message(
 pub(crate) fn destroy_all(instance: &LoaderInstance, _allocator: *const VkAllocationCallbacks<'_>) {
     let callbacks = {
         let mut state = instance.debug_messengers.lock();
-        core::mem::take(&mut state.callbacks)
+        let callbacks = core::mem::take(&mut state.callbacks);
+        instance.set_has_debug_callbacks(false);
+        callbacks
     };
     for callback in callbacks {
         match callback {

@@ -1,40 +1,10 @@
 //! Loader emulation for `VK_KHR_get_display_properties2` commands.
 
-use crate::collections::ScratchArray;
+use crate::emulation::{emulate_result_array, optional_output_slice};
+use crate::generated::EmulatedCommand;
 use crate::instance::LoaderPhysicalDevice;
 
 const STACK_PROPERTIES: usize = 8;
-
-unsafe fn emulate_array<T: Copy, U>(
-    count: &mut u32,
-    output: Option<&mut [U]>,
-    call: impl FnOnce(&mut u32, *mut T) -> vk::VkResult,
-    mut write: impl FnMut(&mut U, T),
-) -> vk::VkResult {
-    let Some(output) = output else {
-        return call(count, core::ptr::null_mut());
-    };
-    let capacity = output.len();
-    if capacity == 0 {
-        return call(count, core::ptr::null_mut());
-    }
-    let Ok(mut temporary) = ScratchArray::<T, STACK_PROPERTIES>::try_new(capacity) else {
-        return vk::VkResult::ERROR_OUT_OF_HOST_MEMORY;
-    };
-    let result = call(count, temporary.as_mut_ptr().cast());
-    if result.0 < 0 {
-        return result;
-    }
-    let written = (*count as usize).min(capacity);
-    // SAFETY: A non-error ICD result initialized its reported prefix.
-    for (output, &property) in output
-        .iter_mut()
-        .zip(unsafe { temporary.initialized(written) })
-    {
-        write(output, property);
-    }
-    result
-}
 
 pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceDisplayProperties2KHR(
     physical_device: vk::VkPhysicalDevice,
@@ -64,21 +34,17 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceDisplayProper
         *count = 0;
         return vk::VkResult::SUCCESS;
     };
-    device.instance().submit_loader_message(
-        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-        vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
-        c"vkGetPhysicalDeviceDisplayProperties2KHR: Emulating call in ICD",
-    );
+    device.log_icd_emulation(EmulatedCommand::GetPhysicalDeviceDisplayProperties2KHR);
     // SAFETY: A non-null Vulkan enumeration output points to `count` writable elements.
-    let output = (!output.is_null())
-        .then(|| unsafe { core::slice::from_raw_parts_mut(output, *count as usize) });
+    let output = unsafe { optional_output_slice(output, *count) };
     unsafe {
-        emulate_array(
+        emulate_result_array::<_, _, STACK_PROPERTIES>(
             count,
             output,
             |count, temporary| command(device.native, count, temporary),
             |output, property| output.displayProperties = property,
         )
+        .unwrap_or(vk::VkResult::ERROR_OUT_OF_HOST_MEMORY)
     }
 }
 
@@ -110,21 +76,17 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceDisplayPlaneP
         *count = 0;
         return vk::VkResult::SUCCESS;
     };
-    device.instance().submit_loader_message(
-        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-        vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
-        c"vkGetPhysicalDeviceDisplayPlaneProperties2KHR: Emulating call in ICD",
-    );
+    device.log_icd_emulation(EmulatedCommand::GetPhysicalDeviceDisplayPlaneProperties2KHR);
     // SAFETY: A non-null Vulkan enumeration output points to `count` writable elements.
-    let output = (!output.is_null())
-        .then(|| unsafe { core::slice::from_raw_parts_mut(output, *count as usize) });
+    let output = unsafe { optional_output_slice(output, *count) };
     unsafe {
-        emulate_array(
+        emulate_result_array::<_, _, STACK_PROPERTIES>(
             count,
             output,
             |count, temporary| command(device.native, count, temporary),
             |output, property| output.displayPlaneProperties = property,
         )
+        .unwrap_or(vk::VkResult::ERROR_OUT_OF_HOST_MEMORY)
     }
 }
 
@@ -149,21 +111,17 @@ pub(crate) unsafe extern "system" fn terminator_vkGetDisplayModeProperties2KHR(
         *count = 0;
         return vk::VkResult::SUCCESS;
     };
-    device.instance().submit_loader_message(
-        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-        vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
-        c"vkGetDisplayModeProperties2KHR: Emulating call in ICD",
-    );
+    device.log_icd_emulation(EmulatedCommand::GetDisplayModeProperties2KHR);
     // SAFETY: A non-null Vulkan enumeration output points to `count` writable elements.
-    let output = (!output.is_null())
-        .then(|| unsafe { core::slice::from_raw_parts_mut(output, *count as usize) });
+    let output = unsafe { optional_output_slice(output, *count) };
     unsafe {
-        emulate_array(
+        emulate_result_array::<_, _, STACK_PROPERTIES>(
             count,
             output,
             |count, temporary| command(device.native, display, count, temporary),
             |output, property| output.displayModeProperties = property,
         )
+        .unwrap_or(vk::VkResult::ERROR_OUT_OF_HOST_MEMORY)
     }
 }
 
@@ -188,11 +146,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetDisplayPlaneCapabilities2KH
         output.capabilities = vk::VkDisplayPlaneCapabilitiesKHR::DEFAULT;
         return vk::VkResult::SUCCESS;
     };
-    device.instance().submit_loader_message(
-        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-        vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
-        c"vkGetDisplayPlaneCapabilities2KHR: Emulating call in ICD",
-    );
+    device.log_icd_emulation(EmulatedCommand::GetDisplayPlaneCapabilities2KHR);
     unsafe {
         command(
             device.native,
