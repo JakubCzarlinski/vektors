@@ -1,6 +1,6 @@
 //! Driver manifest discovery and parsing.
 
-use alloc::{borrow::Cow, ffi::CString};
+use alloc::{borrow::Cow, ffi::CString, string::String};
 use core::{cell::Cell, ffi::CStr, fmt, marker::PhantomData, ops::Deref};
 use std::{
     env,
@@ -1668,28 +1668,18 @@ fn load_loader_settings() -> Option<LoaderSettings> {
                 "[Vulkan Loader] INFO:           Using layer configurations found in loader settings from {display_path}\n"
             ));
         }
-        let mut enabled = Vec::new();
-        if filter_enabled(platform::LogFilter::Error) {
-            enabled.push("ERROR");
-        }
-        if filter_enabled(platform::LogFilter::Warning) {
-            enabled.push("WARNING");
-        }
-        for filter in [
-            platform::LogFilter::Info,
-            platform::LogFilter::Debug,
-            platform::LogFilter::Performance,
-            platform::LogFilter::Driver,
-            platform::LogFilter::Layer,
-        ] {
-            if filter_enabled(filter) {
-                enabled.push(filter.label());
-            }
-        }
         if settings_logging_active && filter_enabled(platform::LogFilter::Debug) {
+            let mut enabled = String::with_capacity(54);
+            for filter in platform::LogFilter::ALL {
+                if filter_enabled(filter) {
+                    if !enabled.is_empty() {
+                        enabled.push_str(" | ");
+                    }
+                    enabled.push_str(filter.label());
+                }
+            }
             platform::write_stderr(&format!(
-                "[Vulkan Loader] DEBUG:          Loader Settings Filters for Logging to Standard Error: {}\n",
-                enabled.join(" | ")
+                "[Vulkan Loader] DEBUG:          Loader Settings Filters for Logging to Standard Error: {enabled}\n"
             ));
         }
         if filter_enabled(platform::LogFilter::Debug)

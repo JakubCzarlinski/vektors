@@ -994,7 +994,8 @@ pub(crate) fn select_active_layers(
             );
         }
         let natural = naturally_enabled(manifest);
-        if forced_enabled(manifest) && !natural {
+        let enabled = forced_enabled(manifest);
+        if enabled && !natural {
             emit_create_message(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
@@ -1003,7 +1004,7 @@ pub(crate) fn select_active_layers(
                     manifest.name.to_string_lossy()
                 ),
             );
-        } else if !forced_enabled(manifest) && forced_disabled(manifest) {
+        } else if !enabled && forced_disabled(manifest) {
             emit_create_message(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
@@ -1016,17 +1017,16 @@ pub(crate) fn select_active_layers(
     }
     emit_meta_layer_diagnostics(create_info, &manifests);
     let valid = available_layer_mask(&manifests);
-    if let Some(override_layer) =
-        manifests
-            .iter()
-            .zip(valid.iter())
-            .find_map(|(manifest, valid)| {
-                (*valid
-                    && manifest.name.as_c_str() == c"VK_LAYER_LUNARG_override"
-                    && implicit_manifest_is_active(manifest))
-                .then_some(manifest)
-            })
-    {
+    let override_layer = manifests
+        .iter()
+        .zip(valid.iter())
+        .find_map(|(manifest, valid)| {
+            (*valid
+                && manifest.name.as_c_str() == c"VK_LAYER_LUNARG_override"
+                && implicit_manifest_is_active(manifest))
+            .then_some(manifest)
+        });
+    if let Some(override_layer) = override_layer {
         for blacklisted in &override_layer.blacklisted_layers {
             if manifests
                 .iter()
@@ -1043,17 +1043,8 @@ pub(crate) fn select_active_layers(
             }
         }
     }
-    if let Some(override_layer) =
-        manifests
-            .iter()
-            .zip(valid.iter())
-            .find_map(|(manifest, valid)| {
-                (*valid
-                    && manifest.name.as_c_str() == c"VK_LAYER_LUNARG_override"
-                    && implicit_manifest_is_active(manifest)
-                    && !manifest.override_paths.is_empty())
-                .then_some(manifest)
-            })
+    if let Some(override_layer) = override_layer
+        && !override_layer.override_paths.is_empty()
     {
         if !crate::platform::has_elevated_privileges()
             && let Ok(layer_path) = env::var("VK_LAYER_PATH")
