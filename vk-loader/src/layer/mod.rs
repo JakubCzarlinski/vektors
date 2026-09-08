@@ -43,7 +43,7 @@ use core::{
 };
 use std::{
     ffi::OsStr,
-    path::{Path, PathBuf},
+    path::Path,
 };
 
 use vk::{

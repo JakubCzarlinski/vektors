@@ -94,9 +94,7 @@ impl UnknownDeviceState {
     }
 
     fn index_of(&self, name: &CStr) -> Option<usize> {
-        self.names
-            .iter()
-            .position(|candidate| candidate.as_c_str() == name)
+        name_index(&self.names, name)
     }
 
     fn get_or_insert(&mut self, name: &CStr) -> Option<usize> {
@@ -117,10 +115,7 @@ impl UnknownPhysicalDeviceState {
     }
 
     fn index_of(&self, name: &CStr) -> Option<usize> {
-        // TODO(czarlinski): this is duplicated in `UnknownDeviceState` and intern_name.
-        self.names
-            .iter()
-            .position(|candidate| candidate.as_c_str() == name)
+        name_index(&self.names, name)
     }
 
     fn get_or_insert(&mut self, name: &CStr) -> Option<usize> {
@@ -128,11 +123,14 @@ impl UnknownPhysicalDeviceState {
     }
 }
 
-fn intern_name(names: &mut Vec<CString>, name: &CStr) -> Option<usize> {
-    if let Some(index) = names
+fn name_index(names: &[CString], name: &CStr) -> Option<usize> {
+    names
         .iter()
         .position(|candidate| candidate.as_c_str() == name)
-    {
+}
+
+fn intern_name(names: &mut Vec<CString>, name: &CStr) -> Option<usize> {
+    if let Some(index) = name_index(names, name) {
         return Some(index);
     }
     if names.len() == MAX_UNKNOWN_COMMANDS {

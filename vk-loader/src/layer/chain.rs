@@ -607,13 +607,7 @@ pub(crate) unsafe fn enumerate_instance_layers(
     property_count: &mut u32,
     properties: *mut vk::VkLayerProperties,
 ) -> VkResult {
-    emit_global_layer_search_diagnostics(
-        discovered.searches(),
-        &discovered,
-        discovered.configured_manifest_reports(),
-        discovered.implicit_only(),
-        false,
-    );
+    emit_global_layer_search_diagnostics(&discovered, false);
     let mut manifests = discovered.into_vec();
     let valid = match available_layer_mask(&manifests) {
         Ok(valid) => valid,
