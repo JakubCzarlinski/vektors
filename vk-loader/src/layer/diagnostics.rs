@@ -5,15 +5,15 @@ use core::fmt::Write as _;
 use crate::{
     allocation,
     debug::diagnostics,
-    discovery::LayerManifestDiagnostic,
+    discovery::{self, DiscoveredLayers, LayerManifestDiagnostic},
     pending,
     platform::{self, LogFilter},
 };
 
 use super::{
-    CString, LayerManifest, LayerSearch, LoadedLayer, Path, PathBuf, VkInstanceCreateInfo,
-    VkResult, forced_disabled, forced_enabled, implicit_manifest_is_active, meta_reaches,
-    naturally_enabled, valid_layer_mask,
+    CString, LayerManifest, LayerSearch, LoadedLayer, Path, VkInstanceCreateInfo, VkResult,
+    forced_disabled, forced_enabled, implicit_manifest_is_active, meta_reaches, naturally_enabled,
+    valid_layer_mask,
 };
 
 pub(super) fn emit_create_message(
@@ -157,12 +157,12 @@ pub(super) fn emit_layer_search_diagnostics(
             let needs_compatibility_diagnostics =
                 search.diagnostic_files.iter().any(|path| path == file);
             let diagnostics = if needs_compatibility_diagnostics {
-                crate::discovery::layer_manifest_diagnostics(file, search.implicit)
+                discovery::layer_manifest_diagnostics(file, search.implicit)
             } else {
                 Box::default()
             };
             let compatibility_manifests = needs_compatibility_diagnostics
-                .then(|| crate::discovery::reparse_layer_manifest(file, search.implicit));
+                .then(|| discovery::reparse_layer_manifest(file, search.implicit));
             let diagnostic_manifests = compatibility_manifests.as_deref().unwrap_or(manifests);
             let mut diagnostic_indices = diagnostics
                 .iter()
@@ -202,7 +202,7 @@ pub(super) fn emit_layer_search_diagnostics(
                 if emit_found {
                     if !known_manifest_version
                         && let Some(version) =
-                            crate::discovery::layer_manifest_version_text(&manifest.manifest_path)
+                            discovery::layer_manifest_version_text(&manifest.manifest_path)
                     {
                         emit_create_message(
                             create_info,
@@ -334,7 +334,7 @@ pub(super) fn emit_layer_search_diagnostics(
             }
             if needs_compatibility_diagnostics && let Some(executable) = platform::executable_path()
             {
-                for _ in 0..crate::discovery::unused_override_layer_count(file, &executable) {
+                for _ in 0..discovery::unused_override_layer_count(file, &executable) {
                     emit_layer_message(
                         create_info,
                         vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
@@ -348,7 +348,7 @@ pub(super) fn emit_layer_search_diagnostics(
             if found {
                 continue;
             }
-            let duplicates = crate::discovery::reparse_layer_manifest(file, search.implicit);
+            let duplicates = discovery::reparse_layer_manifest(file, search.implicit);
             if duplicates.is_empty() {
                 emit_layer_manifest_diagnostic(create_info, file, search.implicit, true, None);
             }
@@ -507,11 +507,10 @@ pub(super) fn emit_layer_manifest_diagnostic(
     emit_found: bool,
     source_index: Option<usize>,
 ) {
-    for (diagnostic_index, (_, diagnostic)) in
-        crate::discovery::layer_manifest_diagnostics(path, implicit)
-            .into_iter()
-            .filter(|(index, _)| source_index.is_none_or(|source_index| *index == source_index))
-            .enumerate()
+    for (diagnostic_index, (_, diagnostic)) in discovery::layer_manifest_diagnostics(path, implicit)
+        .into_iter()
+        .filter(|(index, _)| source_index.is_none_or(|source_index| *index == source_index))
+        .enumerate()
     {
         match diagnostic {
             LayerManifestDiagnostic::FailedOpen => emit_create_message(
@@ -643,7 +642,7 @@ pub(super) fn emit_layer_manifest_diagnostic(
             } => {
                 if emit_found && diagnostic_index == 0 {
                     let version = ManifestVersion {
-                        text: crate::discovery::layer_manifest_version_text(path),
+                        text: discovery::layer_manifest_version_text(path),
                         version: manifest_version,
                     };
                     emit_create_message(
@@ -774,8 +773,7 @@ pub(super) fn emit_global_discovered_manifest(manifest: &LayerManifest, emit_fou
             || (manifest_minor == 2 && manifest_patch < 2));
     if emit_found {
         if !known_manifest_version
-            && let Some(version) =
-                crate::discovery::layer_manifest_version_text(&manifest.manifest_path)
+            && let Some(version) = discovery::layer_manifest_version_text(&manifest.manifest_path)
         {
             platform::write_loader_log(
                 LogFilter::Info,
@@ -868,17 +866,17 @@ pub(super) fn emit_global_discovered_manifest(manifest: &LayerManifest, emit_fou
 
 /// Emits pre-instance layer discovery diagnostics when no instance-create
 /// callback chain exists yet.
-/// TODO(czarlinski): why not just use `DiscoveredLayers`
 pub(crate) fn emit_global_layer_search_diagnostics(
-    searches: &[LayerSearch],
-    manifests: &[LayerManifest],
-    configured_manifest_reports: &[(PathBuf, u32)],
-    implicit_only: bool,
+    discovered: &DiscoveredLayers,
     emit_implicit_meta_pruning: bool,
 ) {
     if !platform::loader_debug_logging_enabled() {
         return;
     }
+    let searches = discovered.searches();
+    let manifests: &[LayerManifest] = discovered;
+    let configured_manifest_reports = discovered.configured_manifest_reports();
+    let implicit_only = discovered.implicit_only();
     let Ok(compatibility_manifests) = compatibility_manifest_graph(searches) else {
         pending::mark_json_allocation_failed();
         return;
@@ -952,12 +950,12 @@ pub(crate) fn emit_global_layer_search_diagnostics(
             let needs_compatibility_diagnostics =
                 search.diagnostic_files.iter().any(|path| path == file);
             let diagnostics = if needs_compatibility_diagnostics {
-                crate::discovery::layer_manifest_diagnostics(file, search.implicit)
+                discovery::layer_manifest_diagnostics(file, search.implicit)
             } else {
                 Box::default()
             };
             let compatibility_manifests = needs_compatibility_diagnostics
-                .then(|| crate::discovery::reparse_layer_manifest(file, search.implicit));
+                .then(|| discovery::reparse_layer_manifest(file, search.implicit));
             let diagnostic_manifests = compatibility_manifests.as_deref().unwrap_or(manifests);
             let mut diagnostic_indices = diagnostics
                 .iter()
@@ -1000,7 +998,7 @@ pub(crate) fn emit_global_layer_search_diagnostics(
             }
             if needs_compatibility_diagnostics && let Some(executable) = platform::executable_path()
             {
-                for _ in 0..crate::discovery::unused_override_layer_count(file, &executable) {
+                for _ in 0..discovery::unused_override_layer_count(file, &executable) {
                     platform::write_loader_log_with_category(
                         LogFilter::Info,
                         LogFilter::Layer,
@@ -1014,7 +1012,7 @@ pub(crate) fn emit_global_layer_search_diagnostics(
             if found {
                 continue;
             }
-            let duplicates = crate::discovery::reparse_layer_manifest(file, search.implicit);
+            let duplicates = discovery::reparse_layer_manifest(file, search.implicit);
             if duplicates.is_empty() {
                 emit_global_layer_manifest_diagnostic(file, search.implicit, true, None);
             }
@@ -1175,7 +1173,7 @@ pub(crate) fn emit_global_layer_search_diagnostics(
     {
         for search in searches.iter().filter(|search| !search.implicit) {
             for file in &search.files {
-                for layer in &crate::discovery::reparse_layer_manifest(file, search.implicit) {
+                for layer in &discovery::reparse_layer_manifest(file, search.implicit) {
                     if !layer.component_layers.is_empty()
                         || (!self_referencing_meta_layer
                             && manifests.iter().any(|meta| {
@@ -1213,11 +1211,10 @@ pub(crate) fn emit_global_layer_manifest_diagnostic(
     emit_found: bool,
     source_index: Option<usize>,
 ) {
-    for (diagnostic_index, (_, diagnostic)) in
-        crate::discovery::layer_manifest_diagnostics(path, implicit)
-            .into_iter()
-            .filter(|(index, _)| source_index.is_none_or(|source_index| *index == source_index))
-            .enumerate()
+    for (diagnostic_index, (_, diagnostic)) in discovery::layer_manifest_diagnostics(path, implicit)
+        .into_iter()
+        .filter(|(index, _)| source_index.is_none_or(|source_index| *index == source_index))
+        .enumerate()
     {
         match diagnostic {
             LayerManifestDiagnostic::FailedOpen => {
@@ -1346,7 +1343,7 @@ pub(crate) fn emit_global_layer_manifest_diagnostic(
             } => {
                 if emit_found && diagnostic_index == 0 {
                     let version = ManifestVersion {
-                        text: crate::discovery::layer_manifest_version_text(path),
+                        text: discovery::layer_manifest_version_text(path),
                         version: manifest_version,
                     };
                     platform::write_loader_log(
@@ -1839,9 +1836,10 @@ pub(super) fn compatibility_manifest_graph(
         return Ok(None);
     }
     allocation::try_collect(searches.iter().flat_map(|search| {
-        search.files.iter().flat_map(|file| {
-            crate::discovery::reparse_layer_manifest(file, search.implicit).into_vec()
-        })
+        search
+            .files
+            .iter()
+            .flat_map(|file| discovery::reparse_layer_manifest(file, search.implicit).into_vec())
     }))
     .map(Some)
 }

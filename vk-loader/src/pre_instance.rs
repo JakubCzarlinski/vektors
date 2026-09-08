@@ -35,13 +35,7 @@ fn update_global_loader_settings() -> Option<LoaderSettings> {
 }
 
 fn emit_layer_searches(layers: &discovery::DiscoveredLayers) {
-    layer::emit_global_layer_search_diagnostics(
-        layers.searches(),
-        layers,
-        layers.configured_manifest_reports(),
-        layers.implicit_only(),
-        true,
-    );
+    layer::emit_global_layer_search_diagnostics(layers, true);
 }
 
 #[repr(C)]
