@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use core::ffi::c_char;
 use core::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use core::time::Duration;
@@ -1022,6 +1024,7 @@ fn record_command_buffer(
         .expect("vkEndCommandBuffer failed");
 }
 
+#[allow(clippy::too_many_arguments)]
 fn recreate_swapchain_state<'a>(
     physical_device: &'a PhysicalDevice<'a>,
     device: &'a Device<'a>,

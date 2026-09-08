@@ -207,6 +207,7 @@ fn create_compute_pipeline<'a>(
     Ok((pipeline_layout, pipelines))
 }
 
+#[allow(clippy::too_many_arguments)]
 fn run_prefix_sum_benchmark(
     device: &Device<'_>,
     queue: &Queue<'_>,
