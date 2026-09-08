@@ -16,6 +16,7 @@ use core::{
     ffi::{CStr, c_void},
     sync::atomic::{AtomicPtr, Ordering},
 };
+use std::path::Path;
 use vk::PFN_vkVoidFunction;
 
 #[cfg(any(
@@ -99,22 +100,7 @@ impl UnknownDeviceState {
     }
 
     fn get_or_insert(&mut self, name: &CStr) -> Option<usize> {
-        if let Some(index) = self.index_of(name) {
-            return Some(index);
-        }
-        if self.names.len() == MAX_UNKNOWN_COMMANDS || self.names.try_reserve(1).is_err() {
-            return None;
-        }
-        let bytes = name.to_bytes_with_nul();
-        let mut owned = Vec::new();
-        if owned.try_reserve_exact(bytes.len()).is_err() {
-            return None;
-        }
-        owned.extend_from_slice(bytes);
-        // SAFETY: This is an exact copy of a valid C string.
-        self.names
-            .push(unsafe { CString::from_vec_with_nul_unchecked(owned) });
-        Some(self.names.len() - 1)
+        intern_name(&mut self.names, name)
     }
 }
 
@@ -131,30 +117,30 @@ impl UnknownPhysicalDeviceState {
     }
 
     fn index_of(&self, name: &CStr) -> Option<usize> {
+        // TODO(czarlinski): this is duplicated in `UnknownDeviceState` and intern_name.
         self.names
             .iter()
             .position(|candidate| candidate.as_c_str() == name)
     }
 
     fn get_or_insert(&mut self, name: &CStr) -> Option<usize> {
-        if let Some(index) = self.index_of(name) {
-            return Some(index);
-        }
-        if self.names.len() == MAX_UNKNOWN_COMMANDS || self.names.try_reserve(1).is_err() {
-            return None;
-        }
-        let bytes = name.to_bytes_with_nul();
-        let mut owned = Vec::new();
-        if owned.try_reserve_exact(bytes.len()).is_err() {
-            return None;
-        }
-        owned.extend_from_slice(bytes);
-        // SAFETY: `name` is a C string, so this copied buffer has one trailing
-        // NUL and no interior NUL bytes.
-        self.names
-            .push(unsafe { CString::from_vec_with_nul_unchecked(owned) });
-        Some(self.names.len() - 1)
+        intern_name(&mut self.names, name)
     }
+}
+
+fn intern_name(names: &mut Vec<CString>, name: &CStr) -> Option<usize> {
+    if let Some(index) = names
+        .iter()
+        .position(|candidate| candidate.as_c_str() == name)
+    {
+        return Some(index);
+    }
+    if names.len() == MAX_UNKNOWN_COMMANDS {
+        return None;
+    }
+    names.try_reserve(1).ok()?;
+    names.push(crate::allocation::try_c_string(name).ok()?);
+    Some(names.len() - 1)
 }
 
 fn function_address(function: PFN_vkVoidFunction) -> *mut c_void {
@@ -201,6 +187,20 @@ fn emit_unknown_debug(message: core::fmt::Arguments<'_>) {
     crate::platform::write_loader_log(crate::platform::LogFilter::Debug, message);
 }
 
+pub(crate) fn log_unrecognized_physical_device_command(name: &CStr) {
+    emit_unknown_debug(format_args!(
+        "loader_gpdpa_instance_terminator() unrecognized name {}",
+        crate::debug::diagnostics::LossyBytes(name.to_bytes())
+    ));
+}
+
+pub(crate) fn log_unrecognized_instance_command(name: &CStr) {
+    emit_unknown_debug(format_args!(
+        "loader_gpa_instance_terminator() unrecognized name {}",
+        crate::debug::diagnostics::LossyBytes(name.to_bytes())
+    ));
+}
+
 /// Resolves a physical-device command unknown to the compiled registry.
 ///
 /// `trampoline` selects the application-facing wrapper or the bottom-of-layer
@@ -231,7 +231,7 @@ pub(crate) fn physical_device_proc_addr(
             let index = state.get_or_insert(name)?;
             emit_unknown_debug(format_args!(
                 "loader_phys_dev_ext_gpa: Adding unknown physical function {} to internal store at index {index}",
-                name.to_string_lossy()
+                crate::debug::diagnostics::LossyBytes(name.to_bytes())
             ));
             index
         }
@@ -247,11 +247,12 @@ pub(crate) fn physical_device_proc_addr(
             let path = instance.icds[icd_index]
                 .icd
                 .library_path()
-                .map_or_else(|| "<direct_driver>".into(), |path| path.to_string_lossy());
+                .unwrap_or_else(|| Path::new("<direct_driver>"))
+                .display();
             emit_unknown_debug(format_args!(
                 "loader_phys_dev_ext_gpa: Driver {path} returned ptr {:p} for {}",
                 function_address(terminator_function(index)),
-                name.to_string_lossy()
+                crate::debug::diagnostics::LossyBytes(name.to_bytes())
             ));
         }
         terminator_needed |= function.is_some();
@@ -272,9 +273,9 @@ pub(crate) fn physical_device_proc_addr(
                 .store(index, Some(function));
             emit_unknown_debug(format_args!(
                 "loader_phys_dev_ext_gpa: Layer {} returned ptr {:p} for {}",
-                layer.name.to_string_lossy(),
+                crate::debug::diagnostics::LossyBytes(layer.name.to_bytes()),
                 function_address(Some(function)),
-                name.to_string_lossy()
+                crate::debug::diagnostics::LossyBytes(name.to_bytes())
             ));
         }
         trampoline_function(index)
@@ -329,6 +330,9 @@ pub(crate) fn device_proc_addr(
     name: &CStr,
     trampoline: bool,
 ) -> PFN_vkVoidFunction {
+    // Serialize name publication and dispatch updates with device creation and
+    // destruction. Keep this on the unknown-command path, not ordinary GPA.
+    let loader_guard = crate::platform::lock_loader();
     {
         let state = instance.unknown_devices.lock();
         if let Some(index) = state.index_of(name) {
@@ -341,10 +345,12 @@ pub(crate) fn device_proc_addr(
         return None;
     }
 
-    let index = instance.unknown_devices.lock().get_or_insert(name)?;
     // Existing logical devices must gain the new slot immediately. A device
     // created later initializes every recorded slot in `LoaderDevice::new`.
-    crate::device::initialize_unknown_dispatches(instance, index, name);
+    let index =
+        crate::device::initialize_unknown_dispatches(&loader_guard, instance, name, || {
+            instance.unknown_devices.lock().get_or_insert(name)
+        })?;
     device_trampoline_function(index)
 }
 
@@ -870,10 +876,11 @@ unsafe extern "C" fn vk_loader_unknown_phys_terminator_error(
             .lock()
             .names
             .get(index)
-            .map(|name| name.to_string_lossy().into_owned())
+            .and_then(|name| crate::allocation::try_c_string(name).ok())
     };
-    let name = name.as_deref().unwrap_or("<unknown>");
-    crate::platform::write_stderr(&format!(
+    let name =
+        crate::debug::diagnostics::LossyBytes(name.as_deref().unwrap_or(c"<unknown>").to_bytes());
+    crate::platform::write_stderr_fmt(format_args!(
         "Function {name} not supported for this physical device\n"
     ));
     // SAFETY: This is the required terminal path for invoking an unsupported
@@ -897,6 +904,27 @@ mod tests {
     use crate::{device::UNKNOWN_DEVICE_DISPATCH_OFFSET, instance::LoaderPhysicalDeviceTrampoline};
     use vk::{VkDevice, VkPhysicalDevice};
 
+    #[test]
+    fn name_interning_recovers_from_allocation_failures() {
+        crate::allocation::fault::sweep_operation(|| {
+            let mut names = Vec::new();
+            for name in [c"vkAllocationTestFirst", c"vkAllocationTestSecond"] {
+                if super::intern_name(&mut names, name).is_none() {
+                    let count = names.len();
+                    // The injected allocator fails once; retry the same insertion.
+                    assert_eq!(super::intern_name(&mut names, name), Some(count));
+                    assert_eq!(names[count].as_c_str(), name);
+                    return vk::VkResult::ERROR_OUT_OF_HOST_MEMORY;
+                }
+            }
+            assert_eq!(
+                super::intern_name(&mut names, c"vkAllocationTestFirst"),
+                Some(0)
+            );
+            assert_eq!(names.len(), 2);
+            vk::VkResult::SUCCESS
+        });
+    }
     const SLOT: usize = 137;
 
     type PhysicalCommand =

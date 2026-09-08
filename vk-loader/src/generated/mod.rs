@@ -24,8 +24,9 @@ pub(crate) use dispatch_tables::{
 };
 pub(crate) use extensions::{
     ExtensionSet, VK_EXT_SURFACE_MAINTENANCE1_EXTENSION_ID,
-    VK_KHR_SURFACE_MAINTENANCE1_EXTENSION_ID, extension_id, is_known_instance_extension,
-    surface_create_info_extension_size, wsi_instance_extension_supported,
+    VK_KHR_SURFACE_MAINTENANCE1_EXTENSION_ID, extension_id, extension_name,
+    is_known_instance_extension, surface_create_info_extension_size,
+    wsi_instance_extension_supported,
 };
 pub(crate) use proc_addr::{
     exported_proc_addr, global_proc_addr, icd_device_terminator_proc_addr,

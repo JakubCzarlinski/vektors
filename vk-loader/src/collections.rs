@@ -6,37 +6,21 @@
 //! neither lifetime is suitable here. Keep randomized `AHash` performance while
 //! storing the base seeds inline in this image instead.
 
+mod seeds;
+
 use alloc::vec::Vec;
 use core::{hash::BuildHasher, mem::MaybeUninit, sync::atomic::AtomicUsize};
-use std::{
-    sync::LazyLock,
-    time::{SystemTime, UNIX_EPOCH},
-};
 
 pub(crate) use std::collections::hash_map::Entry as HashMapEntry;
 
 static SEQUENCE: AtomicUsize = AtomicUsize::new(0);
-static BASE_SEEDS: LazyLock<[u64; 4]> = LazyLock::new(|| {
-    let time = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map_or(0, |duration| duration.as_nanos());
-    let image_address = core::ptr::addr_of!(BASE_SEEDS) as usize as u64;
-    let process = u64::from(std::process::id());
-    [
-        time as u64,
-        (time >> 64) as u64 ^ image_address.rotate_left(17),
-        process ^ image_address.rotate_right(13),
-        crate::platform::current_thread_key() as u64 ^ time as u64,
-    ]
-});
 
-#[derive(Clone)]
 pub(crate) struct RandomState(ahash::RandomState);
 
 impl Default for RandomState {
     #[inline]
     fn default() -> Self {
-        let [k0, k1, k2, k3] = *BASE_SEEDS;
+        let [k0, k1, k2, k3] = seeds::base_seeds();
         let sequence = SEQUENCE.fetch_add(1, core::sync::atomic::Ordering::Relaxed) as u64;
         Self(ahash::RandomState::with_seeds(
             k0,
@@ -75,8 +59,7 @@ impl<T, const STACK_CAPACITY: usize> ScratchArray<T, STACK_CAPACITY> {
             unsafe { heap.set_len(len) };
         }
         Ok(Self {
-            // SAFETY: An array of `MaybeUninit<T>` may be left uninitialized.
-            stack: unsafe { MaybeUninit::uninit().assume_init() },
+            stack: [const { MaybeUninit::uninit() }; STACK_CAPACITY],
             heap,
             len,
         })

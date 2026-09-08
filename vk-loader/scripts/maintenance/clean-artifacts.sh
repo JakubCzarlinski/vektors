@@ -19,10 +19,10 @@ delete_generated_tree() {
 }
 
 # Core images are purely diagnostic and dwarf the useful Valgrind XML logs.
-if [[ -d "$target_dir/valgrind" ]]; then
-  core_count="$(find "$target_dir/valgrind" -type f -name '*.core.*' | wc -l)"
+if [[ -d "$loader_test_root/valgrind" ]]; then
+  core_count="$(find "$loader_test_root/valgrind" -type f -name '*.core.*' | wc -l)"
   if (( core_count > 0 )); then
-    find "$target_dir/valgrind" -type f -name '*.core.*' -delete
+    find "$loader_test_root/valgrind" -type f -name '*.core.*' -delete
     echo "clean: removed $core_count Valgrind core images"
   fi
 fi
@@ -32,6 +32,7 @@ if [[ "${1:-}" == "--deep" ]]; then
   # code-generation audits. Keep ordinary debug/release artifacts usable, but
   # discard the especially large debug incremental cache.
   build_trees=(
+    test
     debug/incremental
     aarch64-apple-darwin
     aarch64-unknown-fuchsia

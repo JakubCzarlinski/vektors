@@ -1,7 +1,8 @@
 //! Installable Client Driver loading and interface negotiation.
 
-use crate::sync::Mutex;
-use core::ffi::{CStr, c_char};
+use crate::sync::{GlobalMutex, MutexAcquire, MutexInit, ObjectMutex};
+use crate::{ExtensionSet, allocation, discovery, platform, unknown};
+use core::ffi::{CStr, c_char, c_void};
 use core::sync::atomic::{AtomicBool, Ordering};
 use std::path::{Path, PathBuf};
 
@@ -20,7 +21,7 @@ use crate::{
 #[cfg(windows)]
 pub(crate) type EnumerateAdapterPhysicalDevices = unsafe extern "system" fn(
     VkInstance,
-    crate::platform::AdapterLuid,
+    platform::AdapterLuid,
     *mut u32,
     *mut vk::VkPhysicalDevice,
 ) -> VkResult;
@@ -31,106 +32,163 @@ pub(crate) type GetPhysicalDeviceProcAddr =
 
 const CURRENT_INTERFACE_VERSION: u32 = 7;
 
-static PRELOADED_ICDS: Mutex<Option<Vec<ScannedIcd>>> = Mutex::new(None);
+static PRELOADED_ICDS: GlobalMutex<Option<Vec<ScannedIcd>>> = GlobalMutex::new(None);
 
 /// Retains one scanned reference to each currently discoverable ICD.
 ///
 /// Upstream does this before global extension enumeration so repeated scans do
 /// not unload and reinitialize driver modules between calls.
-pub(crate) fn preload_icds() {
-    let mut preloaded = PRELOADED_ICDS.lock();
+pub(crate) fn preload_icds() -> Result<(), VkResult> {
+    let mut preloaded = PRELOADED_ICDS.try_lock()?;
     if preloaded.is_some() {
-        return;
+        return Ok(());
     }
-    let scan = crate::discovery::scan_drivers();
+    let scan = discovery::scan_drivers();
     emit_global_scan_diagnostics(&scan);
     let mut loaded = Vec::new();
-    if loaded.try_reserve_exact(scan.manifests.len()).is_err() {
-        return;
+    if crate::pending::json_allocation_failed() {
+        return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
     }
-    loaded.extend(scan.manifests.iter().filter_map(load_global_icd));
+    loaded
+        .try_reserve_exact(scan.manifests.len())
+        .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+    for manifest in &scan.manifests {
+        if let Some(icd) = load_global_icd(manifest)? {
+            loaded.push(icd);
+        }
+    }
     *preloaded = Some(loaded);
+    Ok(())
 }
 
 /// Performs the transient ICD scan used by global extension enumeration.
 /// Upstream retains a preloaded reference and independently scans a second
 /// set so driver modules cannot unload between repeated enumeration calls.
 pub(crate) fn scan_global_icds() -> Result<Vec<ScannedIcd>, VkResult> {
-    let scan = crate::discovery::scan_drivers();
+    let scan = discovery::scan_drivers();
     emit_global_scan_diagnostics(&scan);
+    if crate::pending::json_allocation_failed() {
+        return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
+    }
     let mut loaded = Vec::new();
     loaded
         .try_reserve_exact(scan.manifests.len())
         .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
-    loaded.extend(scan.manifests.iter().filter_map(load_global_icd));
+    for manifest in &scan.manifests {
+        if let Some(icd) = load_global_icd(manifest)? {
+            loaded.push(icd);
+        }
+    }
     Ok(loaded)
 }
 
-fn emit_global_scan_diagnostics(scan: &crate::discovery::DriverScan) {
-    crate::platform::write_loader_category_log(
+fn emit_global_scan_diagnostics(scan: &discovery::DriverScan) {
+    platform::write_loader_category_log(
         LogFilter::Driver,
         format_args!("Searching for driver manifest files"),
     );
-    crate::platform::write_loader_category_log(
+    platform::write_loader_category_log(
         LogFilter::Driver,
         format_args!("   In following locations:"),
     );
     for root in &scan.search_roots {
-        crate::platform::write_loader_category_log(
+        platform::write_loader_category_log(
             LogFilter::Driver,
-            format_args!("      {}", root.to_string_lossy()),
+            format_args!("      {}", root.display()),
         );
     }
-    if scan.candidates.is_empty() {
-        crate::platform::write_loader_category_log(
-            LogFilter::Driver,
-            format_args!("   Found no files"),
-        );
+    if scan.reported_files.is_empty() {
+        platform::write_loader_category_log(LogFilter::Driver, format_args!("   Found no files"));
     } else {
-        crate::platform::write_loader_category_log(
+        platform::write_loader_category_log(
             LogFilter::Driver,
             format_args!("   Found the following files:"),
         );
-        for (path, _) in &scan.candidates {
-            crate::platform::write_loader_category_log(
+        for path in &scan.reported_files {
+            platform::write_loader_category_log(
                 LogFilter::Driver,
-                format_args!("      {}", path.to_string_lossy()),
+                format_args!("      {}", path.display()),
             );
         }
     }
 }
 
-fn load_global_icd(manifest: &DriverManifest) -> Option<ScannedIcd> {
-    crate::platform::write_loader_category_log(
+fn load_global_icd(manifest: &DriverManifest) -> Result<Option<ScannedIcd>, VkResult> {
+    platform::write_loader_category_log(
         LogFilter::Driver,
         format_args!(
             "Found ICD manifest file {}, version {}.{}.{}",
-            manifest.manifest_path.to_string_lossy(),
+            manifest.manifest_path.display(),
             vk::VK_API_VERSION_MAJOR(manifest.manifest_version),
             vk::VK_API_VERSION_MINOR(manifest.manifest_version),
             vk::VK_API_VERSION_PATCH(manifest.manifest_version),
         ),
     );
-    crate::platform::write_loader_log_with_category(
+    let displayed_library_path = manifest
+        .library_path
+        .to_str()
+        .and_then(|path| path.rfind("/./").map(|index| &path[index + 1..]))
+        .map_or(manifest.library_path.as_path(), Path::new);
+    platform::write_loader_log_with_category(
         LogFilter::Debug,
         LogFilter::Driver,
         format_args!(
             "Searching for ICD drivers named {}",
-            manifest.library_path.to_string_lossy()
+            displayed_library_path.display()
         ),
     );
     if vk::VK_API_VERSION_VARIANT(manifest.api_version) != 0 || !manifest.architecture_supported {
-        return None;
+        return Ok(None);
     }
-    ScannedIcd::load(manifest)
+    let icd = match ScannedIcd::load(manifest) {
+        Ok((icd, _, _)) => icd,
+        Err(ScannedIcdLoadError::OutOfMemory) => return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY),
+        Err(ScannedIcdLoadError::MutexInitialization(error)) => return Err(error),
+        Err(_) => return Ok(None),
+    };
+    if manifest.library_path.is_absolute()
+        && icd.library_path() != Some(manifest.library_path.as_path())
+        && !platform::path_normalizes(&manifest.library_path)?
+    {
+        platform::write_loader_log(
+            LogFilter::Debug,
+            format_args!(
+                "normalize_path: Call to realpath() failed with error code 2 when given the path {}",
+                manifest.library_path.display()
+            ),
+        );
+        if let Some(loaded_path) = icd.library_path() {
+            platform::write_loader_log_with_category(
+                LogFilter::Warning,
+                LogFilter::Layer,
+                format_args!(
+                    "Path to given binary {} was found to differ from OS loaded path {}",
+                    manifest.library_path.display(),
+                    loaded_path.display()
+                ),
+            );
+        }
+    }
+    Ok(Some(icd))
 }
 
 pub(crate) fn unload_preloaded_icds() {
-    *PRELOADED_ICDS.lock() = None;
+    if let Some(mut preloaded) = PRELOADED_ICDS.lock_if_initialized() {
+        *preloaded = None;
+    }
+}
+
+/// Releases native synchronization only after loader entry points have stopped.
+#[cfg(not(all(target_vendor = "apple", feature = "apple-static-loader")))]
+pub(crate) unsafe fn destroy_preloaded_icd_lock() {
+    // SAFETY: The caller supplies the library-termination exclusion guarantee.
+    unsafe { PRELOADED_ICDS.destroy() };
 }
 
 pub(crate) fn unload_preloaded_icd(path: &Path) {
-    let mut preloaded = PRELOADED_ICDS.lock();
+    let Some(mut preloaded) = PRELOADED_ICDS.lock_if_initialized() else {
+        return;
+    };
     let Some(icds) = preloaded.as_mut() else {
         return;
     };
@@ -146,7 +204,7 @@ pub(crate) struct ScannedIcd {
     #[cfg(windows)]
     pub(crate) enumerate_adapter_physical_devices: Option<EnumerateAdapterPhysicalDevices>,
     library_path: Option<PathBuf>,
-    library: Mutex<Option<LoaderLibrary>>,
+    library: ObjectMutex<Option<LoaderLibrary>>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -157,14 +215,18 @@ pub(crate) enum ManifestApiVersionStatus {
 }
 
 pub(crate) enum ScannedIcdLoadError {
+    OutOfMemory,
+    MutexInitialization(VkResult),
     OpenLibrary {
         message: String,
         wrong_bit_type: bool,
     },
+    MissingPrefixedGetInstanceProcAddr(u32),
     InvalidInterface,
 }
 
 pub(crate) enum DirectIcdError {
+    MutexInitialization(VkResult),
     MissingNegotiate,
     IncompatibleInterface(u32),
     MissingCreateInstance,
@@ -176,26 +238,27 @@ pub(crate) struct IcdInstance {
     pub(crate) icd: ScannedIcd,
     pub(crate) handle: VkInstance,
     pub(crate) dispatch: InstanceDispatchTable,
-    pub(crate) enabled_extensions: crate::ExtensionSet,
-    pub(crate) unknown_physical_device_dispatch: crate::unknown::UnknownDispatchTable,
+    pub(crate) enabled_extensions: ExtensionSet,
+    pub(crate) unknown_physical_device_dispatch: unknown::UnknownDispatchTable,
     active: AtomicBool,
 }
 
 impl ScannedIcd {
-    pub(crate) fn load(manifest: &DriverManifest) -> Option<Self> {
-        Self::load_manifest(manifest).ok().map(|(icd, _)| icd)
-    }
-
-    pub(crate) fn load_manifest(
+    pub(crate) fn load(
         manifest: &DriverManifest,
-    ) -> Result<(Self, ManifestApiVersionStatus), ScannedIcdLoadError> {
+    ) -> Result<(Self, ManifestApiVersionStatus, bool), ScannedIcdLoadError> {
         // SAFETY: Driver lifetime is retained by `ScannedIcd` and all queried
         // symbols are copied function pointers with Vulkan-defined ABIs.
         let library =
             unsafe { LoaderLibrary::open_driver(&manifest.library_path) }.map_err(|error| {
-                ScannedIcdLoadError::OpenLibrary {
-                    message: error.message(&manifest.library_path),
-                    wrong_bit_type: error.is_wrong_bit_type(),
+                let wrong_bit_type = error.is_wrong_bit_type();
+                match error.into_message(&manifest.library_path) {
+                    Ok(message) => ScannedIcdLoadError::OpenLibrary {
+                        wrong_bit_type,
+                        message,
+                    },
+                    Err(VkResult::ERROR_OUT_OF_HOST_MEMORY) => ScannedIcdLoadError::OutOfMemory,
+                    Err(error) => ScannedIcdLoadError::MutexInitialization(error),
                 }
             })?;
         // SAFETY: Symbol type is defined by the loader-driver interface.
@@ -235,12 +298,14 @@ impl ScannedIcd {
             // Falling back to Vulkan's public GIPA here would incorrectly
             // accept a driver that violates the loader/driver ABI contract.
             if interface_version != 0 && direct_gipa.is_none() {
-                return Err(ScannedIcdLoadError::InvalidInterface);
+                return Err(ScannedIcdLoadError::MissingPrefixedGetInstanceProcAddr(
+                    interface_version,
+                ));
             }
         }
 
-        let get_instance_proc_addr = if let Some(gipa) = direct_gipa {
-            gipa
+        let (get_instance_proc_addr, uses_deprecated_interface) = if let Some(gipa) = direct_gipa {
+            (gipa, false)
         } else {
             // SAFETY: Version-zero ICDs export the Vulkan-named entry point.
             unsafe {
@@ -249,7 +314,8 @@ impl ScannedIcd {
                     .ok()
                     .map(|symbol| *symbol)
             }
-            .ok_or(ScannedIcdLoadError::InvalidInterface)?
+            .ok_or(ScannedIcdLoadError::InvalidInterface)
+            .map(|gipa| (gipa, true))?
         };
         let mut get_physical_device_proc_addr = if interface_version >= 7 {
             // SAFETY: Interface 7 exposes the ICD GPDPA through ICD GIPA.
@@ -355,10 +421,18 @@ impl ScannedIcd {
                 interface_version,
                 #[cfg(windows)]
                 enumerate_adapter_physical_devices,
-                library_path: Some(manifest.library_path.clone()),
-                library: Mutex::new(Some(library)),
+                library_path: platform::loaded_library_path(
+                    (get_instance_proc_addr as *const ()).cast::<c_void>(),
+                )
+                .map_err(|_| ScannedIcdLoadError::OutOfMemory)?
+                .map_or_else(|| allocation::try_path(&manifest.library_path), Ok)
+                .map(Some)
+                .map_err(|_| ScannedIcdLoadError::OutOfMemory)?,
+                library: ObjectMutex::try_new(Some(library))
+                    .map_err(ScannedIcdLoadError::MutexInitialization)?,
             },
             version_status,
+            uses_deprecated_interface,
         ))
     }
 
@@ -434,7 +508,7 @@ impl ScannedIcd {
             #[cfg(windows)]
             enumerate_adapter_physical_devices,
             library_path: None,
-            library: Mutex::new(None),
+            library: ObjectMutex::try_new(None).map_err(DirectIcdError::MutexInitialization)?,
         })
     }
 
@@ -462,7 +536,11 @@ impl IcdInstance {
         self.icd.library_path()
     }
 
-    pub(crate) fn initialize_active(output: *mut Self) {
+    /// Initializes the activation flag in reserved instance storage.
+    ///
+    /// # Safety
+    /// `output` must point to writable, aligned storage for an `IcdInstance`.
+    pub(crate) unsafe fn initialize_active(output: *mut Self) {
         // SAFETY: The caller supplies the uninitialized reserved vector slot
         // after every preceding field has been written.
         unsafe { core::ptr::addr_of_mut!((*output).active).write(AtomicBool::new(true)) };

@@ -3,7 +3,7 @@ set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
 
-audit_dir="${VK_LOADER_PARITY_AUDIT_DIR:-$repo_root/target/coverage-parity-audit}"
+audit_dir="${VK_LOADER_PARITY_AUDIT_DIR:-$loader_test_root/coverage/parity-audit}"
 profile_root="${VK_LOADER_PARITY_PROFILE_DIR:-$audit_dir/profiles}"
 output="${VK_LOADER_PARITY_COVERAGE_RANKING:-$audit_dir/coverage.tsv}"
 summary="$audit_dir/summary.tsv"

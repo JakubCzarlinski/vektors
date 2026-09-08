@@ -5,14 +5,14 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
 variant="${VK_LOADER_BENCH_VARIANT:-baseline}"
 case "$variant" in
   baseline)
-    default_output_dir="$repo_root/target/loader-benchmarks"
-    rust_target_dir="$repo_root/target"
+    default_output_dir="$loader_test_root/benchmarks/baseline/results"
+    rust_target_dir="$loader_test_root/benchmarks/baseline/build"
     rust_profile='opt-level=3,lto=false,codegen-units=1,strip=symbols,panic=abort'
     upstream_lto=none
     ;;
   fat-lto)
-    default_output_dir="$repo_root/target/loader-benchmarks-fat-lto"
-    rust_target_dir="$repo_root/target/vk-loader-benchmark-fat-lto"
+    default_output_dir="$loader_test_root/benchmarks/fat-lto/results"
+    rust_target_dir="$loader_test_root/benchmarks/fat-lto/build"
     rust_profile='opt-level=3,lto=fat,codegen-units=1,strip=symbols,panic=abort'
     upstream_lto=full
     ;;
@@ -23,7 +23,7 @@ case "$variant" in
 esac
 output_dir="${VK_LOADER_BENCH_OUTPUT_DIR:-$default_output_dir}"
 rust_loader="${VK_LOADER_BENCH_RUST_LIBRARY:-$rust_target_dir/release/libvulkan.so}"
-performance_build_dir="${VK_LOADER_BENCH_UPSTREAM_BUILD_DIR:-$upstream_dir/build-performance-clang-$variant}"
+performance_build_dir="${VK_LOADER_BENCH_UPSTREAM_BUILD_DIR:-$loader_test_root/benchmarks/$variant/upstream}"
 upstream_loader="${VK_LOADER_BENCH_UPSTREAM_LIBRARY:-$performance_build_dir/loader/libvulkan.so.1.4.361}"
 repetitions="${VK_LOADER_BENCH_REPETITIONS:-9}"
 bench_cpu="${VK_LOADER_BENCH_CPU:-2}"
@@ -46,7 +46,7 @@ if [[ "${VK_LOADER_BENCH_NO_BUILD:-0}" != 1 ]]; then
     CARGO_TARGET_DIR="$rust_target_dir" CARGO_PROFILE_RELEASE_LTO=fat \
       cargo build --quiet --manifest-path "$repo_root/Cargo.toml" -p vk-loader --release
   else
-    cargo build --quiet --manifest-path "$repo_root/Cargo.toml" -p vk-loader --release
+    CARGO_TARGET_DIR="$rust_target_dir" cargo build --quiet --manifest-path "$repo_root/Cargo.toml" -p vk-loader --release
   fi
   upstream_c_flags='-O3 -DNDEBUG'
   upstream_linker_flags='-fuse-ld=mold'
@@ -123,8 +123,8 @@ if [[ "${VK_LOADER_BENCH_COMMAND_MATRIX:-0}" == 1 ]]; then
 fi
 IFS=, read -r -a layers <<<"${VK_LOADER_BENCH_LAYERS:-none,VK_LAYER_KHRONOS_validation}"
 
-rust_library_dir="$(mktemp -d)"
-upstream_library_dir="$(mktemp -d)"
+rust_library_dir="$(test_scratch_dir benchmarks)"
+upstream_library_dir="$(test_scratch_dir benchmarks)"
 cleanup() {
   unlink "$rust_library_dir/libvulkan.so.1" 2>/dev/null || true
   unlink "$upstream_library_dir/libvulkan.so.1" 2>/dev/null || true

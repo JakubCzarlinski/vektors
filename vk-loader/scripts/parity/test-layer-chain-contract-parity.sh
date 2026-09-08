@@ -2,7 +2,7 @@
 set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
-output_dir="${VK_LOADER_LAYER_CHAIN_PARITY_DIR:-$repo_root/target/layer-chain-contract-parity}"
+output_dir="${VK_LOADER_LAYER_CHAIN_PARITY_DIR:-$loader_test_root/parity/layer-chain}"
 
 # This is deliberately the unchanged upstream regression test. Its two-layer
 # unknown-command path observes manifest discovery, reverse library loading,

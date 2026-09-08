@@ -9,9 +9,10 @@ ensure_upstream_tests test_regression "$upstream_loader"
 rust_loader="$(resolve_rust_loader "${VK_LOADER_PARITY_RUST_LIBRARY:-}" release)"
 require_files "$upstream_loader" "$rust_loader"
 
-probe="$(mktemp)"
-rust_dir="$(mktemp -d)"
-upstream_dir="$(mktemp -d)"
+mkdir -p "$loader_test_root/parity/device-group"
+probe="$(mktemp "$loader_test_root/parity/device-group/probe.XXXXXX")"
+rust_dir="$(test_scratch_dir parity/device-group)"
+upstream_dir="$(test_scratch_dir parity/device-group)"
 cleanup() {
   unlink "$rust_dir/libvulkan.so.1" 2>/dev/null || true
   unlink "$upstream_dir/libvulkan.so.1" 2>/dev/null || true

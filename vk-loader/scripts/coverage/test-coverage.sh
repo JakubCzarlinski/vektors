@@ -3,13 +3,13 @@ set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
 upstream_loader="$upstream_build_dir/loader/libvulkan.so.1.4.361"
-target_dir="${VK_LOADER_COVERAGE_DIR:-$repo_root/target/vk-loader-coverage}"
+target_dir="${VK_LOADER_COVERAGE_DIR:-$loader_test_root/coverage/rust}"
 profile_dir="$target_dir/profiles"
 upstream_profile_dir="$target_dir/upstream-profiles"
 
 require_tools jq llvm-cov llvm-profdata
 
-ensure_upstream_tests test_regression "$upstream_loader"
+ensure_upstream_tests test_fuzzing_loader_neutral "$upstream_loader"
 
 mkdir -p "$profile_dir" "$upstream_profile_dir"
 find "$profile_dir" -type f -name '*.profraw' -delete
@@ -53,6 +53,27 @@ for suite in test_regression test_fuzzing test_threading; do
   rm -f "$upstream_log" "$rust_log"
 done
 
+# The ordinary fuzz executable links private upstream implementation helpers.
+# Exercise the public JSON/settings corpus through the loader-neutral binary as
+# well, so those paths contribute Rust coverage rather than upstream coverage.
+suite=test_fuzzing_loader_neutral
+upstream_log="$target_dir/$suite.upstream.log"
+rust_log="$target_dir/$suite.rust.log"
+echo "coverage parity: $suite (upstream)"
+if ! LLVM_PROFILE_FILE="$upstream_profile_dir/$suite-%p-%m.profraw" \
+  run_gtest_shards "$upstream_loader" "$suite" "$upstream_log" --gtest_brief=1; then
+  tail -n 200 "$upstream_log" >&2
+  exit 1
+fi
+echo "coverage parity: $suite (Rust)"
+if ! LLVM_PROFILE_FILE="$profile_dir/%p-%m.profraw" \
+  run_gtest_shards "$loader" "$suite" "$rust_log" --gtest_brief=1; then
+  tail -n 200 "$rust_log" >&2
+  exit 1
+fi
+printf '%s\t%s\t0\t0\n' "$suite" "$(gtest_case_count "$suite")" >>"$status_summary"
+rm -f "$upstream_log" "$rust_log"
+
 parity_status=0
 run_coverage_probe() {
   local label="$1"
@@ -70,6 +91,9 @@ run_coverage_probe() {
 run_coverage_probe "differential pre-instance public-contract probe" pre-instance \
   VK_LOADER_CONTRACT_PARITY_DIR="$target_dir/pre-instance-contract-parity" \
   "$loader_scripts/parity/test-pre-instance-contract-parity.sh"
+run_coverage_probe "differential string-validation contract probe" string-validation \
+  VK_LOADER_STRING_VALIDATION_PARITY_DIR="$target_dir/string-validation-contract-parity" \
+  "$loader_scripts/parity/test-string-validation-contract-parity.sh"
 run_coverage_probe "differential valid-driver instance-extension contract probe" instance-extension \
   VK_LOADER_EXTENSION_CONTRACT_PARITY_DIR="$target_dir/instance-extension-contract-parity" \
   "$loader_scripts/parity/test-instance-extension-contract-parity.sh"
@@ -145,17 +169,20 @@ union_report="$target_dir/production-line-union.txt"
   "$loader" "$unit_binary" "$profile" "$report" "$union_report"
 
 uncovered="$target_dir/uncovered-lines.txt"
+llvm-cov export "$loader" -instr-profile="$profile" --summary-only \
+  --ignore-filename-regex='(/rustc/|/\.cargo/registry/|vk-loader/src/generated/)' \
+  > "$target_dir/summary.json"
 mapfile -t coverage_sources < <(
-  awk 'NR > 2 && $1 != "TOTAL" && $1 !~ /^-+$/ { print $1 }' "$report" |
-    while IFS= read -r relative; do
-      resolve_coverage_source "$relative" || true
-    done
+  jq -r '.data[].files[].filename' "$target_dir/summary.json"
 )
 {
   for source in "${coverage_sources[@]}"; do
+    recorded="$source"
+    source="$(realpath -m -- "$source")"
     relative="${source#"$repo_root/"}"
     echo "== $relative =="
     llvm-cov show "$loader" -instr-profile="$profile" \
+      --path-equivalence="${recorded%/*},${source%/*}" \
       --show-line-counts-or-regions --show-expansions=false "$source" |
       awk -F '|' '$2 ~ /^[[:space:]]*0[[:space:]]*$/ && $3 ~ /[^[:space:]]/ {
         gsub(/^[[:space:]]+|[[:space:]]+$/, "", $1)

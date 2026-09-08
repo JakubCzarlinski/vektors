@@ -9,7 +9,7 @@ case "$mode" in
   *) echo "usage: $0 [--quick | --full]" >&2; exit 2 ;;
 esac
 
-output_dir="${VK_LOADER_TEST_ALL_DIR:-$repo_root/target/vk-loader-test-all}"
+output_dir="${VK_LOADER_TEST_ALL_DIR:-$loader_test_root/suite}"
 mkdir -p "$output_dir/logs"
 summary="$output_dir/status.tsv"
 results_dir="$output_dir/results"
@@ -47,7 +47,7 @@ run_test() {
     "$((finished - started))" "$retained_log" >"$results_dir/$name.tsv"
 }
 
-run_test workspace-units required cargo test --workspace --lib --bins &
+run_test workspace-units required env CARGO_TARGET_DIR="$loader_test_build_dir" cargo test --workspace --lib --bins &
 workspace_units_pid=$!
 run_test formatting required cargo fmt --all --check &
 formatting_pid=$!
@@ -57,7 +57,10 @@ run_test elf-exports required "$loader_scripts/parity/compare-exports.sh" &
 elf_exports_pid=$!
 wait "$workspace_units_pid" "$formatting_pid" "$dispatch_abi_pid" "$elf_exports_pid"
 
-run_test loader-clippy required cargo clippy -p vk-loader --all-targets &
+run_test artifact-layout required "$loader_scripts/maintenance/check-artifact-layout.sh"
+run_test allocation-inventory required "$loader_scripts/diagnostics/audit-allocations.sh"
+
+run_test loader-clippy required env CARGO_TARGET_DIR="$loader_test_build_dir" cargo clippy -p vk-loader --all-targets &
 loader_clippy_pid=$!
 run_test generated-sources required "$loader_scripts/codegen/generate.sh" --check &
 generated_sources_pid=$!
@@ -72,12 +75,21 @@ if [[ "$mode" == --quick ]]; then
     "$loader_scripts/parity/audit-observable-parity.sh"
   run_test cross-targets required "$loader_scripts/platform/check-cross-targets.sh"
 else
-  coverage_upstream_build_dir="${VK_LOADER_COVERAGE_UPSTREAM_BUILD_DIR:-$upstream_dir/build-rust-parity-source-coverage}"
-  coverage_dir="${VK_LOADER_COVERAGE_DIR:-$repo_root/target/vk-loader-coverage}"
-  asan_upstream_build_dir="${VK_LOADER_ASAN_UPSTREAM_BUILD_DIR:-$upstream_dir/build-rust-parity-asan}"
+  coverage_upstream_build_dir="${VK_LOADER_COVERAGE_UPSTREAM_BUILD_DIR:-$loader_test_root/coverage/upstream}"
+  observable_upstream_build_dir="${VK_LOADER_OBSERVABLE_UPSTREAM_BUILD_DIR:-$loader_test_root/coverage/upstream-observable}"
+  coverage_dir="${VK_LOADER_COVERAGE_DIR:-$loader_test_root/coverage/rust}"
+  asan_upstream_build_dir="${VK_LOADER_ASAN_UPSTREAM_BUILD_DIR:-$loader_test_root/sanitizers/asan/upstream}"
   if [[ ! -x "$coverage_upstream_build_dir/tests/test_regression" ]] ||
+      [[ ! -x "$coverage_upstream_build_dir/tests/test_fuzzing_loader_neutral" ]] ||
       ! rg -q '^CODE_COVERAGE:BOOL=ON$' "$coverage_upstream_build_dir/CMakeCache.txt"; then
     env VK_LOADER_UPSTREAM_BUILD_DIR="$coverage_upstream_build_dir" \
+      VK_LOADER_UPSTREAM_CODE_COVERAGE=1 \
+      "$loader_scripts/parity/setup-upstream-tests.sh"
+  fi
+  if [[ ! -x "$observable_upstream_build_dir/tests/test_regression" ]] ||
+      [[ ! -x "$observable_upstream_build_dir/tests/test_fuzzing_loader_neutral" ]] ||
+      ! rg -q '^CODE_COVERAGE:BOOL=ON$' "$observable_upstream_build_dir/CMakeCache.txt"; then
+    env VK_LOADER_UPSTREAM_BUILD_DIR="$observable_upstream_build_dir" \
       VK_LOADER_UPSTREAM_CODE_COVERAGE=1 \
       "$loader_scripts/parity/setup-upstream-tests.sh"
   fi
@@ -113,15 +125,15 @@ else
 
   parity_coverage_dir="$output_dir/observable-full"
   run_test observable-parity required env \
-    VK_LOADER_UPSTREAM_BUILD_DIR="$coverage_upstream_build_dir" \
-    VK_LOADER_PARITY_UPSTREAM_LIBRARY="$coverage_upstream_build_dir/loader/libvulkan.so" \
+    VK_LOADER_UPSTREAM_BUILD_DIR="$observable_upstream_build_dir" \
+    VK_LOADER_PARITY_UPSTREAM_LIBRARY="$observable_upstream_build_dir/loader/libvulkan.so" \
     VK_LOADER_PARITY_RUST_LIBRARY="$coverage_dir/release/libvulkan.so" \
     VK_LOADER_PARITY_AUDIT_DIR="$parity_coverage_dir" \
     VK_LOADER_PARITY_PROFILE_DIR="$parity_coverage_dir/profiles" \
     "$loader_scripts/parity/audit-observable-parity.sh" --full
   run_test coverage-ranked-parity required env \
-    VK_LOADER_UPSTREAM_BUILD_DIR="$coverage_upstream_build_dir" \
-    VK_LOADER_PARITY_UPSTREAM_LIBRARY="$coverage_upstream_build_dir/loader/libvulkan.so" \
+    VK_LOADER_UPSTREAM_BUILD_DIR="$observable_upstream_build_dir" \
+    VK_LOADER_PARITY_UPSTREAM_LIBRARY="$observable_upstream_build_dir/loader/libvulkan.so" \
     VK_LOADER_PARITY_RUST_LIBRARY="$coverage_dir/release/libvulkan.so" \
     VK_LOADER_PARITY_AUDIT_DIR="$parity_coverage_dir" \
     VK_LOADER_PARITY_PROFILE_DIR="$parity_coverage_dir/profiles" \
@@ -141,6 +153,7 @@ else
     done
   done
   wait "${sascha_pids[@]}"
+  run_test generated-corpus required bash "$loader_scripts/coverage/test-generated-corpus.sh"
 fi
 
 printf 'test\tresult\texit_status\tduration_seconds\tlog\n' >"$summary"

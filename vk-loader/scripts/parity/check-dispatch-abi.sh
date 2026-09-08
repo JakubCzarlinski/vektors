@@ -17,7 +17,7 @@ if [[ "$registry_version" != "$upstream_version" ]]; then
   exit 1
 fi
 
-audit_dir="$(mktemp -d)"
+audit_dir="$(test_scratch_dir parity/abi)"
 trap 'rm -f "$audit_dir"/*; rmdir "$audit_dir"' EXIT
 
 awk '

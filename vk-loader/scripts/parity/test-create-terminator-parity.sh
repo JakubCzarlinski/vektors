@@ -3,7 +3,7 @@ set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
 upstream_loader="${VK_LOADER_PARITY_UPSTREAM_LIBRARY:-$upstream_build_dir/loader/libvulkan.so}"
-output_dir="${VK_LOADER_CREATE_TERMINATOR_PARITY_DIR:-$repo_root/target/create-terminator-parity}"
+output_dir="${VK_LOADER_CREATE_TERMINATOR_PARITY_DIR:-$loader_test_root/parity/create-terminator}"
 filter='LoaderInstPhysDevExts.PhysDevProps2Simple:LoaderInstPhysDevExts.PhysDevFeats2Simple'
 
 ensure_upstream_tests test_regression "$upstream_loader"

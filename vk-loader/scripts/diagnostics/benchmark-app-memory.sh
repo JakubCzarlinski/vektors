@@ -3,10 +3,10 @@ set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
 
-output_dir="${VK_LOADER_E2E_MEMORY_DIR:-$repo_root/target/loader-e2e-memory}"
+output_dir="${VK_LOADER_E2E_MEMORY_DIR:-$loader_test_root/memory/e2e}"
 repetitions="${VK_LOADER_E2E_MEMORY_REPETITIONS:-7}"
 rust_loader="$(resolve_rust_loader "${VK_LOADER_LIBRARY:-}" release)"
-upstream_loader="${VK_LOADER_E2E_UPSTREAM_LIBRARY:-$upstream_dir/build-performance-clang-baseline/loader/libvulkan.so.1.4.361}"
+upstream_loader="${VK_LOADER_E2E_UPSTREAM_LIBRARY:-$loader_test_root/benchmarks/baseline/upstream/loader/libvulkan.so.1.4.361}"
 collect_heaptrack="${VK_LOADER_E2E_HEAPTRACK:-0}"
 IFS=, read -r -a layers <<<"${VK_LOADER_E2E_LAYERS:-none,VK_LAYER_KHRONOS_validation}"
 if (( $# == 0 )); then
@@ -29,8 +29,8 @@ mkdir -p "$output_dir"
 samples="$output_dir/samples.csv"
 printf 'loader,layer,sample,pair_order,elapsed_seconds,max_rss_kib,minor_faults,major_faults,voluntary_context_switches,involuntary_context_switches,exit_status\n' >"$samples"
 
-rust_library_dir="$(mktemp -d)"
-upstream_library_dir="$(mktemp -d)"
+rust_library_dir="$(test_scratch_dir memory/e2e)"
+upstream_library_dir="$(test_scratch_dir memory/e2e)"
 cleanup() {
   unlink "$rust_library_dir/libvulkan.so.1" "$upstream_library_dir/libvulkan.so.1" 2>/dev/null || true
   rmdir "$rust_library_dir" "$upstream_library_dir" 2>/dev/null || true

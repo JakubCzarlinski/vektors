@@ -2,7 +2,7 @@
 set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
-output_dir="${VK_LOADER_HEAPTRACK_DIR:-$repo_root/target/heaptrack}"
+output_dir="${VK_LOADER_HEAPTRACK_DIR:-$loader_test_root/allocations/heaptrack/results}"
 label="${VK_LOADER_HEAPTRACK_LABEL:-rust-loader}"
 filter="${1:-SettingsFile.DeviceConfigurationWithSameDriver}"
 benchmark_mode="${VK_LOADER_HEAPTRACK_BENCHMARK_MODE:-}"
@@ -16,7 +16,7 @@ fi
 if [[ -n "${VK_LOADER_HEAPTRACK_LIBRARY:-}" ]]; then
   loader="$VK_LOADER_HEAPTRACK_LIBRARY"
 else
-  profile_target="$repo_root/target/vk-loader-heaptrack"
+  profile_target="$loader_test_root/allocations/heaptrack/build"
   CARGO_TARGET_DIR="$profile_target" \
     CARGO_PROFILE_RELEASE_DEBUG=1 \
     CARGO_PROFILE_RELEASE_STRIP=none \
@@ -28,7 +28,7 @@ mkdir -p "$output_dir"
 output_pattern="$output_dir/$label.%p"
 if [[ -n "$benchmark_mode" ]]; then
   harness="$output_dir/loader-benchmark"
-  library_dir="$(mktemp -d)"
+  library_dir="$(test_scratch_dir allocations/heaptrack)"
   trap 'rm -f "$library_dir/libvulkan.so.1"; rmdir "$library_dir"' EXIT
   ln -s "$loader" "$library_dir/libvulkan.so.1"
   clang -fuse-ld=mold -O3 -g -DNDEBUG -std=c11 -Wall -Wextra -Werror \

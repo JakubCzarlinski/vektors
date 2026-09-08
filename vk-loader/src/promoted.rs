@@ -373,12 +373,19 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceToolPropertie
     let Some(device) = (unsafe { LoaderPhysicalDevice::from_handle(physical_device) }) else {
         return vk::VkResult::ERROR_INITIALIZATION_FAILED;
     };
+    let Some(command) = device.icd().dispatch.vkGetPhysicalDeviceToolProperties else {
+        device.instance().log_loader_message(
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
+            vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
+            c"terminator_GetPhysicalDeviceToolProperties: The ICD's vkGetPhysicalDeviceToolProperties was NULL yet the physical device supports Vulkan API Version 1.3.",
+        );
+        unsafe { count.write(0) };
+        return vk::VkResult::SUCCESS;
+    };
     let mut physical_properties = vk::VkPhysicalDeviceProperties::DEFAULT;
     if let Some(get_properties) = device.icd().dispatch.vkGetPhysicalDeviceProperties {
         unsafe { get_properties(device.native, &raw mut physical_properties) };
-        if physical_properties.apiVersion >= vk::VK_API_VERSION_1_3
-            && let Some(command) = device.icd().dispatch.vkGetPhysicalDeviceToolProperties
-        {
+        if vk::VK_API_VERSION_MINOR(physical_properties.apiVersion) >= 3 {
             return unsafe { command(device.native, count, properties) };
         }
     }

@@ -12,7 +12,7 @@ fi
 ensure_upstream_tests test_regression "$upstream_library"
 build_rust_loader debug >/dev/null
 
-tmp_dir="$(mktemp -d)"
+tmp_dir="$(test_scratch_dir parity/exports)"
 trap 'rm -rf "$tmp_dir"' EXIT
 nm -D --defined-only "$upstream_library" | awk '$NF ~ /^vk/ { print $NF }' | sort -u > "$tmp_dir/upstream"
 nm -D --defined-only "$rust_library" | awk '$NF ~ /^vk/ { print $NF }' | sort -u > "$tmp_dir/rust"

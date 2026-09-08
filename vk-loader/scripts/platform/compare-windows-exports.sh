@@ -6,7 +6,8 @@ target="${1:-x86_64-pc-windows-gnu}"
 tool_prefix="${target%-pc-windows-gnu}-w64-mingw32"
 objdump="${OBJDUMP:-$tool_prefix-objdump}"
 definition="$repo_root/.upstream/vulkan-loader/loader/vulkan-1.def"
-library="$repo_root/target/$target/release/vulkan.dll"
+target_dir="$loader_test_root/platform/windows/rust"
+library="$target_dir/$target/release/vulkan.dll"
 
 require_tools rustup
 toolchain="$(rustup show active-toolchain | awk '{print $1}')"
@@ -16,14 +17,14 @@ if [[ ! -f "$definition" ]]; then
   "$loader_scripts/parity/setup-upstream-tests.sh"
 fi
 
-PATH="$toolchain_bin:$PATH" RUSTC="$toolchain_bin/rustc" "$toolchain_bin/cargo" build \
+PATH="$toolchain_bin:$PATH" RUSTC="$toolchain_bin/rustc" CARGO_TARGET_DIR="$target_dir" "$toolchain_bin/cargo" build \
   --quiet \
   --manifest-path "$repo_root/Cargo.toml" \
   -p vk-loader \
   --target "$target" \
   --release
 
-tmp_dir="$(mktemp -d)"
+tmp_dir="$(test_scratch_dir platform/windows)"
 trap 'rm -rf "$tmp_dir"' EXIT
 
 awk '

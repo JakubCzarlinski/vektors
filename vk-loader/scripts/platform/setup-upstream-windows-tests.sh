@@ -3,7 +3,7 @@ set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
 upstream_dir="$repo_root/.upstream/vulkan-loader"
-build_dir="$upstream_dir/build-windows-rust-parity"
+build_dir="$windows_upstream_build_dir"
 expected_revision="b1d75f38257ffa71d7aa93552d2e2793296309aa"
 compiler_prefix="${VK_LOADER_MINGW_PREFIX:-x86_64-w64-mingw32}"
 cc="$compiler_prefix-gcc"

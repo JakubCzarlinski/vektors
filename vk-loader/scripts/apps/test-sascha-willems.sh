@@ -8,7 +8,7 @@ duration_seconds="${VK_LOADER_SASCHA_DURATION:-30}"
 timeout_seconds="${VK_LOADER_SASCHA_TIMEOUT:-60}"
 validation="${VK_LOADER_SASCHA_VALIDATION:-0}"
 jobs="${VK_LOADER_SASCHA_JOBS:-2}"
-output_dir="${VK_LOADER_SASCHA_OUTPUT_DIR:-$repo_root/target/sascha-willems-results}"
+output_dir="${VK_LOADER_SASCHA_OUTPUT_DIR:-$loader_test_root/apps/sascha-willems/results}"
 
 require_tools cargo timeout
 [[ "$jobs" =~ ^[1-9][0-9]*$ ]] || {
@@ -43,7 +43,7 @@ case "$wsi" in
     ;;
 esac
 
-build_dir="$repo_root/target/sascha-willems-vulkan-$wsi"
+build_dir="$loader_test_root/apps/sascha-willems/build-$wsi"
 if [[ ! -x "$build_dir/bin/triangle" ]]; then
   if [[ "${VK_LOADER_SASCHA_NO_SETUP:-0}" == 1 ]]; then
     echo "Sascha Willems examples are not built for $wsi" >&2
@@ -84,7 +84,7 @@ run_suite() {
   local label="$1"
   local loader="$2"
   local library_dir label_slug result_dir
-  library_dir="$(mktemp -d)"
+  library_dir="$(test_scratch_dir apps/sascha-willems)"
   active_library_dir="$library_dir"
   ln -s "$loader" "$library_dir/libvulkan.so.1"
   label_slug="${label,,}"

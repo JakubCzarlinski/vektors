@@ -3,7 +3,7 @@ set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
 upstream_loader="${VK_LOADER_PARITY_UPSTREAM_LIBRARY:-$upstream_build_dir/loader/libvulkan.so.1.4.361}"
-output_dir="${VK_LOADER_EXTENSION_CONTRACT_PARITY_DIR:-$repo_root/target/instance-extension-contract-parity}"
+output_dir="${VK_LOADER_EXTENSION_CONTRACT_PARITY_DIR:-$loader_test_root/parity/instance-extension}"
 
 require_tools cargo cc mold
 ensure_upstream_tests test_regression "$upstream_loader"

@@ -44,7 +44,7 @@ build_jobs="${VK_LOADER_SASCHA_BUILD_JOBS:-$(loader_test_jobs)}"
 build_wsi() {
   local build_wsi="$1"
   local jobs="$2"
-  local build_dir="$repo_root/target/sascha-willems-vulkan-$build_wsi"
+  local build_dir="$loader_test_root/apps/sascha-willems/build-$build_wsi"
   local wayland=OFF
   [[ "$build_wsi" == wayland ]] && wayland=ON
 
