@@ -3,17 +3,140 @@
 use alloc::{
     alloc::{Layout, alloc, dealloc},
     boxed::Box,
+    ffi::CString,
+    string::String,
+    vec::Vec,
 };
 use core::{
+    ffi::CStr,
     marker::PhantomData,
     mem::MaybeUninit,
     ops::{Deref, DerefMut},
     ptr::NonNull,
 };
 
+use std::{
+    ffi::{OsStr, OsString},
+    path::{Path, PathBuf},
+};
 use vk::{VkAllocationCallbacks, VkResult, VkSystemAllocationScope};
 
 pub(crate) const LOADER_ALIGNMENT: usize = core::mem::size_of::<u64>();
+
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) enum CStringError {
+    InteriorNul,
+    OutOfMemory,
+}
+
+pub(crate) fn try_c_string_bytes(bytes: &[u8]) -> Result<CString, CStringError> {
+    if bytes.contains(&0) {
+        return Err(CStringError::InteriorNul);
+    }
+    let length = bytes
+        .len()
+        .checked_add(1)
+        .ok_or(CStringError::OutOfMemory)?;
+    let mut storage =
+        try_boxed_slice_filled(length, 0_u8).map_err(|_| CStringError::OutOfMemory)?;
+    storage[..bytes.len()].copy_from_slice(bytes);
+    // SAFETY: Interior NULs were rejected and the final byte remains NUL.
+    // The byte slice and CStr have identical allocation layouts.
+    let string = unsafe { Box::from_raw(Box::into_raw(storage) as *mut CStr) };
+    Ok(CString::from(string))
+}
+
+/// Transfers exact-capacity storage directly; otherwise moves elements into
+/// fallibly allocated exact storage instead of an infallible shrinking realloc.
+pub(crate) fn try_into_boxed_slice<T>(values: Vec<T>) -> Result<Box<[T]>, VkResult> {
+    if values.len() == values.capacity() || core::mem::size_of::<T>() == 0 {
+        return Ok(values.into_boxed_slice());
+    }
+    let mut storage = try_box_uninit_slice(values.len())?;
+    for (slot, value) in storage.iter_mut().zip(values) {
+        slot.write(value);
+    }
+    // SAFETY: Every element was initialized by moving one input element.
+    Ok(unsafe { storage.assume_init() })
+}
+
+pub(crate) fn try_collect<T>(values: impl IntoIterator<Item = T>) -> Result<Box<[T]>, VkResult> {
+    try_collect_results(values.into_iter().map(Ok))
+}
+
+pub(crate) fn try_collect_results<T>(
+    values: impl IntoIterator<Item = Result<T, VkResult>>,
+) -> Result<Box<[T]>, VkResult> {
+    let values = values.into_iter();
+    let mut output = Vec::new();
+    output
+        .try_reserve_exact(values.size_hint().0)
+        .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+    for value in values {
+        let value = value?;
+        output
+            .try_reserve(1)
+            .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+        output.push(value);
+    }
+    try_into_boxed_slice(output)
+}
+
+pub(crate) fn try_os_string(value: &OsStr) -> Result<OsString, VkResult> {
+    let mut owned = OsString::new();
+    owned
+        .try_reserve_exact(value.len())
+        .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+    owned.push(value);
+    Ok(owned)
+}
+
+pub(crate) fn try_path(value: &Path) -> Result<PathBuf, VkResult> {
+    try_os_string(value.as_os_str()).map(PathBuf::from)
+}
+
+pub(crate) fn try_string(value: &str) -> Result<String, VkResult> {
+    let mut owned = String::new();
+    owned
+        .try_reserve_exact(value.len())
+        .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+    owned.push_str(value);
+    Ok(owned)
+}
+
+pub(crate) fn try_box_str(value: &str) -> Result<Box<str>, VkResult> {
+    let mut storage = try_box_uninit_slice::<u8>(value.len())?;
+    for (slot, byte) in storage.iter_mut().zip(value.bytes()) {
+        slot.write(byte);
+    }
+    // SAFETY: All bytes were initialized from valid UTF-8. str and [u8]
+    // have identical allocation layouts and lengths.
+    let bytes = unsafe { storage.assume_init() };
+    Ok(unsafe { Box::from_raw(Box::into_raw(bytes) as *mut str) })
+}
+
+pub(crate) fn try_push<T>(values: &mut Vec<T>, value: T) -> Result<(), VkResult> {
+    values
+        .try_reserve(1)
+        .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+    values.push(value);
+    Ok(())
+}
+
+/// Copies a C string into exact-sized storage without a shrinking allocation.
+pub(crate) fn try_c_string(value: &CStr) -> Result<CString, VkResult> {
+    let bytes = value.to_bytes_with_nul();
+    let mut storage = try_box_uninit_slice::<u8>(bytes.len())?;
+    for (output, byte) in storage.iter_mut().zip(bytes) {
+        output.write(*byte);
+    }
+    // SAFETY: Every byte was initialized from the original C string.
+    let storage = unsafe { storage.assume_init() };
+    // SAFETY: CStr is a transparent byte slice with a terminating NUL. This
+    // exact copy preserves its invariant, allocation layout and slice length.
+    let string = unsafe { Box::from_raw(Box::into_raw(storage) as *mut CStr) };
+    Ok(CString::from(string))
+}
 
 /// Allocates one value through Rust's global allocator without invoking the
 /// process-wide allocation-error handler.
@@ -51,7 +174,13 @@ pub(crate) fn try_box_uninit<T>() -> Result<Box<MaybeUninit<T>>, VkResult> {
 pub(crate) fn try_box_uninit_slice<T>(len: usize) -> Result<Box<[MaybeUninit<T>]>, VkResult> {
     let layout = Layout::array::<T>(len).map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
     if layout.size() == 0 {
-        return Ok(Box::new([]));
+        let slice = core::ptr::slice_from_raw_parts_mut(
+            NonNull::<MaybeUninit<T>>::dangling().as_ptr(),
+            len,
+        );
+        // SAFETY: A zero-sized allocation requires only an aligned non-null
+        // pointer. Preserve `len` for non-empty slices of zero-sized elements.
+        return Ok(unsafe { Box::from_raw(slice) });
     }
     // SAFETY: `layout` is non-zero and valid for an array of `len` values.
     let pointer = unsafe { alloc(layout) }.cast::<MaybeUninit<T>>();
@@ -283,6 +412,20 @@ mod tests {
 
     use super::*;
 
+    #[test]
+    fn collection_does_not_allocate_for_an_error_item() {
+        crate::allocation::fault::sweep_operation(|| {
+            let mut item = Some(Err::<u64, _>(VkResult::ERROR_INITIALIZATION_FAILED));
+            // An unknown size hint exercises growth at the first yielded item.
+            let values = core::iter::from_fn(|| item.take());
+            assert_eq!(
+                try_collect_results(values),
+                Err(VkResult::ERROR_INITIALIZATION_FAILED)
+            );
+            VkResult::SUCCESS
+        });
+    }
+
     struct Counts {
         allocations: AtomicUsize,
         frees: AtomicUsize,
@@ -362,5 +505,10 @@ mod tests {
             try_box_uninit_slice::<u64>(usize::MAX),
             Err(VkResult::ERROR_OUT_OF_HOST_MEMORY)
         ));
+    }
+
+    #[test]
+    fn fallible_slice_preserves_zero_sized_element_count() {
+        assert_eq!(try_boxed_slice_filled(7, ()).unwrap().len(), 7);
     }
 }

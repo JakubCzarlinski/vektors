@@ -8,7 +8,8 @@ manifest="$repo_root/vk-loader/Cargo.toml"
 check=0
 if [[ "${1:-}" == "--check" ]]; then
   check=1
-  temporary="$(mktemp -d)"
+  temporary="$(test_scratch_dir codegen)"
+  export CARGO_TARGET_DIR="$loader_test_root/codegen/tools"
   trap 'rm -rf "$temporary"' EXIT
   mkdir -p "$temporary/generated"
   cp "$repo_root/vk-loader/src/generated/"*.rs "$temporary/generated/"

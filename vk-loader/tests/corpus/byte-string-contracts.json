@@ -1,0 +1,25 @@
+{
+  "file_format_version\u0000suffix": "1.2.0",
+  "layers": [
+    {
+      "name\u0000suffix": "VK_LAYER_test_byte_contract_32",
+      "type": "GLOBAL",
+      "library_path": "missing-byte-contract-library.so",
+      "library_arch": "32",
+      "api_version": "1.3.127",
+      "implementation_version": "1",
+      "description": "Byte-preserving JSON contract",
+      "disable_environment": {"VK_TEST_DISABLE_BYTE_CONTRACT": "1"}
+    },
+    {
+      "name": "VK_LAYER_test_byte_contract_64",
+      "type": "GLOBAL",
+      "library_path": "missing-byte-contract-library.so",
+      "library_arch": "64",
+      "api_version": "1.3.127",
+      "implementation_version": "1",
+      "description": "Byte-preserving JSON contract",
+      "disable_environment": {"VK_TEST_DISABLE_BYTE_CONTRACT": "1"}
+    }
+  ]
+}

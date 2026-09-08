@@ -2,8 +2,8 @@
 set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
-target_dir="$repo_root/target/vk-loader-asan"
-log_dir="${VK_LOADER_ASAN_LOG_DIR:-$repo_root/target/asan}"
+target_dir="$loader_test_root/sanitizers/asan/build"
+log_dir="${VK_LOADER_ASAN_LOG_DIR:-$loader_test_root/sanitizers/asan/logs}"
 
 if [[ "$(uname -s)" != "Linux" ]]; then
   echo "AddressSanitizer parity testing currently supports Linux only" >&2

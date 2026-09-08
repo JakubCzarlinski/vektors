@@ -3,10 +3,11 @@ set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
 comparison_script="$loader_scripts/parity/compare-observable-parity.sh"
-output_root="${VK_LOADER_PARITY_AUDIT_DIR:-$repo_root/target/observable-parity-audit}"
+output_root="${VK_LOADER_PARITY_AUDIT_DIR:-$loader_test_root/parity/observable-audit}"
 profile_root="${VK_LOADER_PARITY_PROFILE_DIR:-}"
 summary="$output_root/summary.tsv"
 rust_loader="$(resolve_rust_loader "${VK_LOADER_PARITY_RUST_LIBRARY:-}" release)"
+upstream_loader_source="${VK_LOADER_PARITY_UPSTREAM_LIBRARY:-$upstream_build_dir/loader/libvulkan.so}"
 shard_count="${VK_LOADER_PARITY_SHARD_COUNT:-1}"
 shard_index="${VK_LOADER_PARITY_SHARD_INDEX:-0}"
 
@@ -25,10 +26,14 @@ if [[ "${1:-}" == "--full" ]]; then
   suites=(test_regression test_fuzzing test_threading)
   filters=()
   for suite in "${suites[@]}"; do
+    executable="$suite"
+    if [[ "$suite" == test_fuzzing ]]; then
+      executable=test_fuzzing_loader_neutral
+    fi
     while IFS= read -r filter; do
       filters+=("$suite:$filter")
     done < <(
-      "$upstream_build_dir/tests/$suite" --gtest_list_tests |
+      "$upstream_build_dir/tests/$executable" --gtest_list_tests |
         awk '
           /^[^[:space:]].*\.$/ {
             suite = $1
@@ -73,13 +78,17 @@ done
 run_case() {
   local index="$1"
   local record="${filters[$index]}"
-  local suite filter case_dir result_dir result upstream_status rust_status
+  local suite executable filter case_dir result_dir result upstream_status rust_status
   if [[ "$record" == test_*:* ]]; then
     suite="${record%%:*}"
     filter="${record#*:}"
   else
     suite=test_regression
     filter="$record"
+  fi
+  executable="$suite"
+  if [[ "$suite" == test_fuzzing ]]; then
+    executable=test_fuzzing_loader_neutral
   fi
   case_dir="$(printf '%s_%s' "$suite" "$filter" | tr -c '[:alnum:]_-' '_')"
   result_dir="$output_root/$case_dir"
@@ -95,7 +104,9 @@ run_case() {
   if VK_LOADER_UPSTREAM_PROFILE_FILE="$upstream_profile" \
     VK_LOADER_RUST_PROFILE_FILE="$rust_profile" \
     VK_LOADER_PARITY_SUITE="$suite" \
+    VK_LOADER_PARITY_EXECUTABLE="$executable" \
     VK_LOADER_PARITY_QUIET=1 \
+    VK_LOADER_PARITY_UPSTREAM_LIBRARY="$upstream_loader_source" \
     VK_LOADER_PARITY_RUST_LIBRARY="$rust_loader" \
     VK_LOADER_PARITY_DIFF_DIR="$result_dir" \
     "$comparison_script" "$filter"; then

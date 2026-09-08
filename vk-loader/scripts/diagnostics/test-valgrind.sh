@@ -7,19 +7,26 @@ set -euo pipefail
 ulimit -c 0
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
-log_dir="${VK_LOADER_VALGRIND_LOG_DIR:-$repo_root/target/valgrind}"
+log_dir="${VK_LOADER_VALGRIND_LOG_DIR:-$loader_test_root/valgrind/logs}"
 error_exitcode=99
 container_image="${VK_LOADER_VALGRIND_IMAGE:-archlinux:latest}"
 in_container="${VK_LOADER_VALGRIND_IN_CONTAINER:-0}"
+rust_units=0
+[[ "${1:-}" != --rust-units ]] || rust_units=1
 
 if [[ "$in_container" != 1 ]]; then
-  ensure_upstream_tests
+  if (( rust_units == 0 )); then
+    ensure_upstream_tests test_fuzzing_loader_neutral
+  fi
 
   require_tools objcopy
 
   target="$(rustc -vV | sed -n 's/^host: //p')"
   target_env="$(tr '[:lower:]-' '[:upper:]_' <<<"$target")"
-  valgrind_target="$repo_root/target/vk-loader-valgrind"
+  valgrind_target="$loader_test_root/valgrind/build"
+  # libtest uses unwinding; keep its rebuilt standard-library artifacts apart
+  # from the production loader's panic-abort build.
+  (( rust_units == 0 )) || valgrind_target="$valgrind_target/rust-units"
   # Valgrind 3.25 advertises AVX/AVX2 to the guest but not AVX-512, GFNI,
   # VAES or VPCLMULQDQ. Disabling AVX512F also disables its dependent
   # AVX-512 features in LLVM, while retaining the supported AVX2 code paths.
@@ -27,21 +34,62 @@ if [[ "$in_container" != 1 ]]; then
   if [[ "$target" != x86_64-* ]]; then
     rustflags='-Cforce-frame-pointers=yes'
   fi
-  env RUSTC_BOOTSTRAP=1 \
-    CARGO_TARGET_DIR="$valgrind_target" \
-    CARGO_PROFILE_RELEASE_DEBUG=1 \
-    CARGO_PROFILE_RELEASE_STRIP=none \
-    "CARGO_TARGET_${target_env}_RUSTFLAGS=$rustflags" \
-    cargo build --quiet --manifest-path "$repo_root/Cargo.toml" -p vk-loader \
-      --release --target "$target" -Zbuild-std=std,panic_abort
+  build_environment=(
+    RUSTC_BOOTSTRAP=1
+    "CARGO_TARGET_DIR=$valgrind_target"
+    CARGO_PROFILE_RELEASE_DEBUG=1
+    CARGO_PROFILE_RELEASE_STRIP=none
+    "CARGO_TARGET_${target_env}_RUSTFLAGS=$rustflags"
+  )
+  if (( rust_units == 1 )); then
+    require_tools python3
+    build_environment+=(CARGO_PROFILE_RELEASE_PANIC=unwind)
+    mkdir -p "$valgrind_target"
+    unit_artifacts="$valgrind_target/rust-unit-artifacts.jsonl"
+    # Rebuild the test harness and standard library too: the host libtest/libstd
+    # can contain instructions that Valgrind cannot decode, even when loader
+    # code itself was built with the restricted feature set above.
+    env "${build_environment[@]}" \
+      cargo test --quiet --manifest-path "$repo_root/Cargo.toml" -p vk-loader \
+        --release --target "$target" --lib --no-run --message-format=json-render-diagnostics \
+        -Zbuild-std=std,panic_unwind,test >"$unit_artifacts"
+    unit_binary="$(python3 - "$unit_artifacts" <<'PY'
+import json
+import sys
+
+with open(sys.argv[1]) as source:
+    executables = [
+        record["executable"]
+        for line in source
+        if (record := json.loads(line)).get("reason") == "compiler-artifact"
+        and record.get("executable")
+        and record.get("profile", {}).get("test")
+    ]
+if len(executables) != 1:
+    raise SystemExit(f"expected one Rust unit-test executable, found {len(executables)}")
+print(executables[0])
+PY
+)"
+  else
+    env "${build_environment[@]}" \
+      cargo build --quiet --manifest-path "$repo_root/Cargo.toml" -p vk-loader \
+        --release --target "$target" -Zbuild-std=std,panic_abort
+  fi
   loader="$valgrind_target/$target/release/libvulkan.so"
 
-  test_copy_dir="$repo_root/target/vk-loader-valgrind-tests"
+  test_copy_dir="$loader_test_root/valgrind/tests"
   mkdir -p "$test_copy_dir"
-  for suite in test_regression test_fuzzing test_threading; do
+  if (( rust_units == 1 )); then
+    copy_suites=(test_rust_units)
+  else
+    copy_suites=(test_regression test_fuzzing test_threading test_fuzzing_loader_neutral)
+  fi
+  for suite in "${copy_suites[@]}"; do
     # `objcopy` rewrites the following file in place. Avoid copy-on-write
     # reflinks: some filesystems can SIGBUS while an ELF mapping is replaced.
-    cp --reflink=never "$upstream_build_dir/tests/$suite" "$test_copy_dir/$suite"
+    source_binary="$upstream_build_dir/tests/$suite"
+    (( rust_units == 0 )) || source_binary="$unit_binary"
+    cp --reflink=never "$source_binary" "$test_copy_dir/$suite"
     # CachyOS marks its startup objects as requiring x86-64-v4 even when the
     # test's actual instruction stream is baseline. Work on a disposable copy.
     if [[ "$target" == x86_64-* ]]; then
@@ -51,8 +99,8 @@ if [[ "$in_container" != 1 ]]; then
 else
   target="$(uname -m)-unknown-linux-gnu"
   [[ "$(uname -m)" == x86_64 ]] && target=x86_64-unknown-linux-gnu
-  loader="$repo_root/target/vk-loader-valgrind/$target/release/libvulkan.so"
-  test_copy_dir="$repo_root/target/vk-loader-valgrind-tests"
+  loader="$loader_test_root/valgrind/build/$target/release/libvulkan.so"
+  test_copy_dir="$loader_test_root/valgrind/tests"
 fi
 
 require_tools valgrind
@@ -73,10 +121,14 @@ if [[ "$preflight_status" -ne 0 ]]; then
     exit 77
   fi
   echo "Host Valgrind cannot decode the system linker; using $container_image"
-  private_execution_dir="$(mktemp -d "$repo_root/target/vk-loader-valgrind-execution.XXXXXX")"
+  execution_mount=()
+  if (( rust_units == 0 )); then
+    private_execution_dir="$(mktemp -d "$loader_test_root/valgrind/execution.XXXXXX")"
+    execution_mount=(-v "$private_execution_dir:$upstream_build_dir/tests/executing_tests")
+  fi
   exec docker run --rm \
     -v "$repo_root:$repo_root" -w "$repo_root" \
-    -v "$private_execution_dir:$upstream_build_dir/tests/executing_tests" \
+    "${execution_mount[@]}" \
     -e VK_LOADER_VALGRIND_IN_CONTAINER=1 \
     -e VK_LOADER_VALGRIND_LOG_DIR="$log_dir" \
     -e VK_LOADER_VALGRIND_UID="$(id -u)" \
@@ -116,19 +168,46 @@ valgrind_options=(
   --show-leak-kinds=definite
   --errors-for-leak-kinds=definite
   --num-callers=40
+  --keep-debuginfo=yes
   --child-silent-after-fork=yes
 )
 
+if (( rust_units == 1 )); then
+  unit_filter=()
+  [[ -z "${2:-}" ]] || unit_filter=("$2")
+  started="$(date +%s)"
+  status=0
+  valgrind "${valgrind_options[@]}" --log-file="$log_dir/rust-units.log" \
+    --xml=yes --xml-file="$log_dir/rust-units.xml" \
+    "$test_copy_dir/test_rust_units" "${unit_filter[@]}" --test-threads=1 \
+    >"$log_dir/rust-units.output.log" 2>&1 || status=$?
+  finished="$(date +%s)"
+  errors="$(grep -c '<error>' "$log_dir/rust-units.xml" || true)"
+  if ! grep -Eq '^running [1-9][0-9]* tests?$' "$log_dir/rust-units.output.log"; then
+    echo "Rust unit-test selection did not execute any tests" >&2
+    status="$error_exitcode"
+  fi
+  printf 'suite\tshard\tshard_count\texit_status\tmemcheck_errors\tduration_seconds\n' \
+    >"$log_dir/rust-units-status.tsv"
+  printf 'rust_units\t0\t1\t%d\t%d\t%d\n' "$status" "$errors" "$((finished - started))" \
+    >>"$log_dir/rust-units-status.tsv"
+  cat "$log_dir/rust-units.output.log"
+  (( status == 0 && errors == 0 )) || exit "$error_exitcode"
+  echo "Rust unit-test Memcheck passed ($log_dir/rust-units-status.tsv)"
+  exit 0
+fi
+
 case "${1:-}" in
   --full)
-    suites=(test_regression test_fuzzing test_threading)
+    suites=(test_regression test_fuzzing test_threading test_fuzzing_loader_neutral)
     filter=()
     ;;
   --suite)
     case "${2:-}" in
-      test_regression|test_fuzzing|test_threading) suites=("$2") ;;
+      test_fuzzing) suites=(test_fuzzing test_fuzzing_loader_neutral) ;;
+      test_regression|test_threading|test_fuzzing_loader_neutral) suites=("$2") ;;
       *)
-        echo "usage: $0 [--full | --suite {test_regression|test_fuzzing|test_threading} | GTEST_FILTER]" >&2
+        echo "usage: $0 [--full | --suite {test_regression|test_fuzzing|test_threading|test_fuzzing_loader_neutral} | GTEST_FILTER]" >&2
         exit 2
         ;;
     esac
@@ -149,7 +228,7 @@ printf 'suite\tshard\tshard_count\texit_status\tmemcheck_errors\tduration_second
 for suite in "${suites[@]}"; do
   case "$suite" in
     test_regression) suite_jobs="${VK_LOADER_VALGRIND_REGRESSION_JOBS:-8}" ;;
-    test_fuzzing) suite_jobs="${VK_LOADER_VALGRIND_FUZZING_JOBS:-4}" ;;
+    test_fuzzing|test_fuzzing_loader_neutral) suite_jobs="${VK_LOADER_VALGRIND_FUZZING_JOBS:-4}" ;;
     test_threading) suite_jobs="${VK_LOADER_VALGRIND_THREADING_JOBS:-3}" ;;
   esac
   jobs="${VK_LOADER_VALGRIND_JOBS:-$suite_jobs}"

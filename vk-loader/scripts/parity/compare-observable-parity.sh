@@ -3,9 +3,12 @@ set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
 suite="${VK_LOADER_PARITY_SUITE:-test_regression}"
+executable="${VK_LOADER_PARITY_EXECUTABLE:-$suite}"
 filter="${1:-DirectDriverLoading.Individual}"
-output_dir="${VK_LOADER_PARITY_DIFF_DIR:-$repo_root/target/observable-parity}"
+output_dir="${VK_LOADER_PARITY_DIFF_DIR:-$loader_test_root/parity/observable}"
 upstream_loader="${VK_LOADER_PARITY_UPSTREAM_LIBRARY:-$upstream_build_dir/loader/libvulkan.so}"
+
+require_tools perl
 
 case "$suite" in
   test_regression|test_fuzzing|test_threading) ;;
@@ -16,6 +19,7 @@ case "$suite" in
 esac
 
 ensure_upstream_tests "$suite" "$upstream_loader"
+require_files "$upstream_build_dir/tests/$executable"
 rust_loader="$(resolve_rust_loader "${VK_LOADER_PARITY_RUST_LIBRARY:-}" release)"
 
 mkdir -p "$output_dir"
@@ -33,11 +37,11 @@ run_suite() {
   if [[ -n "$profile_file" ]]; then
     LLVM_PROFILE_FILE="$profile_file" \
       VK_LOADER_TEST_LOADER_PATH="$loader" \
-      "$upstream_build_dir/tests/$suite" --gtest_color=no "--gtest_filter=$filter" \
+      "$upstream_build_dir/tests/$executable" --gtest_color=no "--gtest_filter=$filter" \
       >"$output" 2>&1
   else
     VK_LOADER_TEST_LOADER_PATH="$loader" \
-      "$upstream_build_dir/tests/$suite" --gtest_color=no "--gtest_filter=$filter" \
+      "$upstream_build_dir/tests/$executable" --gtest_color=no "--gtest_filter=$filter" \
       >"$output" 2>&1
   fi
 }
@@ -45,12 +49,17 @@ run_suite() {
 normalize() {
   local input="$1"
   local output="$2"
-  sed -E \
+  # Both implementations can print arbitrary manifest bytes. Canonicalize
+  # malformed UTF-8 to the replacement character before comparing rendered
+  # diagnostics; Rust strings already perform this same display conversion.
+  perl -MEncode -0777 -pe \
+    '$_ = encode("UTF-8", decode("UTF-8", $_, Encode::FB_DEFAULT))' "$input" |
+    sed -E \
     -e 's/\r$//' \
     -e 's/0x[[:xdigit:]]{8,}/<pointer>/g' \
     -e 's/[0-9]+ ms/<time>/g' \
     -e 's/\[Vulkan Loader Git - Tag: [^,]*, Branch\/Commit: [^]]*\]/[Vulkan Loader Git - Tag: <branch>, Branch\/Commit: <commit>]/g' \
-    "$input" >"$output"
+      >"$output"
 }
 
 if [[ "${VK_LOADER_PARITY_QUIET:-0}" != 1 ]]; then

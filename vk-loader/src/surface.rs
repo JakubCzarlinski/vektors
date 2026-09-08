@@ -2,7 +2,7 @@
 
 use core::ffi::{CStr, c_void};
 
-use crate::sync::Mutex;
+use crate::sync::{MutexInit, ObjectMutex};
 use vk::{
     PFN_vkCreateSharedSwapchainsKHR, PFN_vkCreateSwapchainKHR,
     PFN_vkGetDeviceGroupSurfacePresentModesKHR, VkAllocationCallbacks, VkBaseInStructure, VkDevice,
@@ -21,7 +21,7 @@ use crate::{
     generated::EmulatedCommand,
     icd::IcdInstance,
     instance::{LoaderInstance, LoaderPhysicalDevice},
-    load_typed, surface_create_info_extension_size,
+    load_typed, platform, surface_create_info_extension_size,
 };
 
 const STACK_SURFACE_FORMATS: usize = 32;
@@ -157,7 +157,7 @@ pub(crate) struct DeferredSurface {
     create_info: OwnedCreateInfo,
     create_native: ErasedSurfaceCreate,
     allocator: Option<VkAllocationCallbacks<'static>>,
-    native_surfaces: Mutex<LoaderArray<VkSurfaceKHR>>,
+    native_surfaces: ObjectMutex<LoaderArray<VkSurfaceKHR>>,
 }
 
 impl DeferredSurface {
@@ -199,7 +199,7 @@ impl DeferredSurface {
                 create_info,
                 create_native: create_native_surface::<T>,
                 allocator,
-                native_surfaces: Mutex::new(native_surfaces),
+                native_surfaces: ObjectMutex::try_new(native_surfaces)?,
             },
             vk::VkSystemAllocationScope::OBJECT,
         )
@@ -426,6 +426,16 @@ pub(crate) unsafe fn create_loader_surface<T: Copy>(
         return VkResult::ERROR_INITIALIZATION_FAILED;
     };
     if !instance.enabled_extensions.contains(extension_id) {
+        platform::write_loader_log(
+            platform::LogFilter::Error,
+            format_args!(
+                "{} extension not enabled. {} not executed!",
+                crate::debug::diagnostics::LossyBytes(
+                    crate::extension_name(extension_id).to_bytes()
+                ),
+                crate::debug::diagnostics::LossyBytes(command_name.to_bytes()),
+            ),
+        );
         return VkResult::ERROR_EXTENSION_NOT_PRESENT;
     }
     // Android and iOS retain upstream's legacy loader-owned WSI ABI and never

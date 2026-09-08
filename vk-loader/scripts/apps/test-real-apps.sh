@@ -10,7 +10,7 @@ require_tools cargo vulkaninfo vkcube timeout
 loader="$(resolve_rust_loader "${VK_LOADER_LIBRARY:-}" release)"
 require_files "$loader"
 
-smoke_dir="$(mktemp -d)"
+smoke_dir="$(test_scratch_dir apps/smoke)"
 ln -s "$loader" "$smoke_dir/libvulkan.so.1"
 cleanup() {
   unlink "$smoke_dir/libvulkan.so.1"

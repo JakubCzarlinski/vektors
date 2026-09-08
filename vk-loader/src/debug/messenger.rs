@@ -14,9 +14,10 @@ use vk::{
 };
 
 use crate::{
-    allocation::{LoaderBox, try_boxed_slice_filled},
+    allocation::{self, LoaderBox, try_boxed_slice_filled},
     emulation::for_each_input_chain,
     instance::LoaderInstance,
+    platform,
 };
 
 /// Converts debug-utils severity/type bits to the legacy debug-report flag,
@@ -94,17 +95,38 @@ impl DebugMessengerState {
     }
 
     fn reserve_messenger(&mut self, instance: &LoaderInstance) -> Result<usize, VkResult> {
-        if let Some(index) = self.messenger_slots.iter().position(|used| !*used) {
-            self.messenger_slots[index] = true;
-            return Ok(index);
-        }
-        let old_len = self.messenger_slots.len();
-        if let Err(result) = self
-            .messenger_slot_allocation
-            .grow(instance.allocator(), mem::size_of::<UsedObjectStatus>())
+        self.reserve_messenger_storage(instance.icds.len(), instance.allocator())
+    }
+
+    fn reserve_messenger_storage(
+        &mut self,
+        icd_count: usize,
+        callbacks: Option<&VkAllocationCallbacks<'static>>,
+    ) -> Result<usize, VkResult> {
+        let index = self
+            .messenger_slots
+            .iter()
+            .position(|used| !*used)
+            .unwrap_or(self.messenger_slots.len());
+        let grow_slots = index == self.messenger_slots.len();
+        let required = if grow_slots {
+            self.messenger_slot_allocation.next_entries()?
+        } else {
+            self.messenger_slots.len()
+        };
+        self.messenger_slots
+            .try_reserve(required - self.messenger_slots.len())
+            .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+        self.messenger_icd_allocations
+            .try_reserve(icd_count.saturating_sub(self.messenger_icd_allocations.len()))
+            .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+        if grow_slots
+            && let Err(result) = self
+                .messenger_slot_allocation
+                .grow(callbacks, mem::size_of::<UsedObjectStatus>())
         {
-            crate::platform::write_loader_log(
-                crate::platform::LogFilter::Error,
+            platform::write_loader_log(
+                platform::LogFilter::Error,
                 format_args!(
                     "loader_resize_generic_list: Failed to allocate space for generic list"
                 ),
@@ -113,21 +135,17 @@ impl DebugMessengerState {
         }
         self.messenger_slots
             .resize(self.messenger_slot_allocation.entries, false);
-        self.messenger_slots[old_len] = true;
-        if self.messenger_icd_allocations.len() < instance.icds.len() {
+        if self.messenger_icd_allocations.len() < icd_count {
             self.messenger_icd_allocations
-                .resize_with(instance.icds.len(), CallbackBuffer::new);
+                .resize_with(icd_count, CallbackBuffer::new);
         }
         for allocation in &mut self.messenger_icd_allocations {
-            if allocation.entries <= old_len
-                && let Err(result) = allocation.grow(
-                    instance.allocator(),
-                    mem::size_of::<VkDebugUtilsMessengerEXT>(),
-                )
+            if allocation.entries <= index
+                && let Err(result) =
+                    allocation.grow(callbacks, mem::size_of::<VkDebugUtilsMessengerEXT>())
             {
-                self.messenger_slots[old_len] = false;
-                crate::platform::write_loader_log(
-                    crate::platform::LogFilter::Error,
+                platform::write_loader_log(
+                    platform::LogFilter::Error,
                     format_args!(
                         "loader_resize_generic_list: Failed to allocate space for generic list"
                     ),
@@ -135,7 +153,8 @@ impl DebugMessengerState {
                 return Err(result);
             }
         }
-        Ok(old_len)
+        self.messenger_slots[index] = true;
+        Ok(index)
     }
 
     fn release_messenger(&mut self, index: usize) {
@@ -174,18 +193,22 @@ impl CallbackBuffer {
         }
     }
 
+    fn next_entries(&self) -> Result<usize, VkResult> {
+        if self.entries == 0 {
+            Ok(32)
+        } else {
+            self.entries
+                .checked_mul(2)
+                .ok_or(VkResult::ERROR_OUT_OF_HOST_MEMORY)
+        }
+    }
+
     fn grow(
         &mut self,
         callbacks: Option<&VkAllocationCallbacks<'static>>,
         entry_size: usize,
     ) -> Result<(), VkResult> {
-        let new_entries = if self.entries == 0 {
-            32
-        } else {
-            self.entries
-                .checked_mul(2)
-                .ok_or(VkResult::ERROR_OUT_OF_HOST_MEMORY)?
-        };
+        let new_entries = self.next_entries()?;
         let size = new_entries
             .checked_mul(entry_size)
             .ok_or(VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
@@ -267,7 +290,7 @@ impl IndexAllocation {
             })
         };
         let Some(callbacks) = callbacks else {
-            return crate::allocation::try_box(0)
+            return allocation::try_box(0)
                 .map(Self::Rust)
                 .map_err(|(result, _index)| result);
         };
@@ -1107,6 +1130,37 @@ mod tests {
         VkDebugReportFlagBitsEXT as Report, VkDebugUtilsMessageSeverityFlagBitsEXT as Severity,
         VkDebugUtilsMessageTypeFlagBitsEXT as Type,
     };
+
+    #[test]
+    fn messenger_storage_growth_recovers_from_every_rust_allocation_failure() {
+        crate::allocation::fault::sweep_operation(|| {
+            let mut state = super::DebugMessengerState::new();
+            let mut outcome = vk::VkResult::SUCCESS;
+            for expected in 0..65 {
+                let index = match state.reserve_messenger_storage(3, None) {
+                    Ok(index) => index,
+                    Err(error) => {
+                        outcome = error;
+                        // The failed attempt must leave the slot free and
+                        // allow retrying the same object without reconstruction.
+                        match state.reserve_messenger_storage(3, None) {
+                            Ok(index) => index,
+                            Err(_) => return vk::VkResult::ERROR_INITIALIZATION_FAILED,
+                        }
+                    }
+                };
+                if index != expected
+                    || state
+                        .messenger_icd_allocations
+                        .iter()
+                        .any(|allocation| allocation.entries <= index)
+                {
+                    return vk::VkResult::ERROR_INITIALIZATION_FAILED;
+                }
+            }
+            outcome
+        });
+    }
 
     #[test]
     fn debug_utils_flags_convert_to_debug_report_flags_like_upstream() {

@@ -7,8 +7,21 @@ VK_LOADER_SCRIPT_COMMON_LOADED=1
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 loader_scripts="$repo_root/vk-loader/scripts"
+loader_test_root="$repo_root/target/test"
+loader_test_build_dir="$loader_test_root/build/rust"
+windows_upstream_build_dir="${VK_LOADER_WINDOWS_UPSTREAM_BUILD_DIR:-$loader_test_root/platform/windows/upstream}"
 upstream_dir="$repo_root/.upstream/vulkan-loader"
-upstream_build_dir="${VK_LOADER_UPSTREAM_BUILD_DIR:-$upstream_dir/build-rust-parity}"
+upstream_build_dir="${VK_LOADER_UPSTREAM_BUILD_DIR:-$loader_test_root/parity/upstream}"
+
+test_scratch_dir() {
+  local category="$1"
+  [[ "$category" =~ ^[a-z0-9][a-z0-9/-]*$ ]] || {
+    echo "invalid test category: $category" >&2
+    return 2
+  }
+  mkdir -p "$loader_test_root/$category"
+  mktemp -d "$loader_test_root/$category/work.XXXXXX"
+}
 
 require_tools() {
   local tool
@@ -132,7 +145,7 @@ run_gtest_shards() {
 
 build_rust_loader() {
   local profile="${1:-release}"
-  local target_dir="${2:-$repo_root/target}"
+  local target_dir="${2:-$loader_test_build_dir}"
   local profile_args=()
   [[ "$profile" == release ]] && profile_args+=(--release)
   CARGO_TARGET_DIR="$target_dir" \
@@ -142,7 +155,7 @@ build_rust_loader() {
 
 rust_loader_library() {
   local profile="${1:-release}"
-  local target_dir="${2:-$repo_root/target}"
+  local target_dir="${2:-$loader_test_build_dir}"
   local directory="$target_dir/$profile"
   case "$(uname -s)" in
     Darwin) printf '%s/libvulkan.dylib\n' "$directory" ;;
@@ -155,12 +168,12 @@ rust_loader_library() {
 resolve_rust_loader() {
   local override="${1:-}"
   local profile="${2:-release}"
-  local target_dir="${3:-$repo_root/target}"
+  local target_dir="${3:-$loader_test_build_dir}"
   if [[ -n "$override" ]]; then
     printf '%s\n' "$override"
     return
   fi
-  build_rust_loader "$profile" "$target_dir" >&2
+  build_rust_loader "$profile" "$target_dir" >&2 || return $?
   rust_loader_library "$profile" "$target_dir"
 }
 

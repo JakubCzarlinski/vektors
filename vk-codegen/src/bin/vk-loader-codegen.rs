@@ -811,6 +811,7 @@ fn generated_loader_part(item: &syn::Item) -> &'static str {
                 name if name.starts_with("convert_") => "debug",
                 name if name.starts_with("dispatch_promoted_") => "promotions",
                 "extension_id"
+                | "extension_name"
                 | "is_known_instance_extension"
                 | "surface_create_info_extension_size"
                 | "wsi_instance_extension_supported" => "extensions",
@@ -1189,6 +1190,9 @@ fn main() {
         struct ExtensionName(&'static CStr);
         static EXTENSION_NAMES: [ExtensionName; #extension_name_count] = [#(#extension_names)*];
         #(#surface_alignment_assertions)*
+        pub(crate) fn extension_name(id: u16) -> &'static CStr {
+            EXTENSION_NAMES[usize::from(id)].0
+        }
         pub(crate) const fn surface_create_info_extension_size(root: VkStructureType, structure_type: VkStructureType) -> Option<usize> {
             match (root, structure_type) { #(#surface_extension_arms)* _ => None }
         }
@@ -2785,7 +2789,7 @@ fn main() {
         pub(crate) use extensions::{
             ExtensionSet, VK_EXT_SURFACE_MAINTENANCE1_EXTENSION_ID,
             VK_KHR_SURFACE_MAINTENANCE1_EXTENSION_ID, extension_id,
-            is_known_instance_extension, surface_create_info_extension_size,
+            extension_name, is_known_instance_extension, surface_create_info_extension_size,
             wsi_instance_extension_supported,
         };
         pub(crate) use proc_addr::{

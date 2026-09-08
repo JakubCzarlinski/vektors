@@ -27,7 +27,7 @@ if ! grep -Fqx "$target" <<< "$installed"; then
   exit 2
 fi
 
-target_dir="${VK_LOADER_APPLE_STATIC_TARGET_DIR:-$repo_root/target/vk-loader-apple-static}"
+target_dir="${VK_LOADER_APPLE_STATIC_TARGET_DIR:-$loader_test_root/platform/apple-static}"
 RUSTFLAGS="${RUSTFLAGS:--Dwarnings}" \
   RUSTC="$toolchain_bin/rustc" \
   RUSTDOC="$toolchain_bin/rustdoc" \

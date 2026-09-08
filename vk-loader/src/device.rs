@@ -1,6 +1,5 @@
 //! Loader-owned dispatchable device state.
 
-use alloc::ffi::CString;
 use core::{
     ffi::{CStr, c_void},
     mem::MaybeUninit,
@@ -8,9 +7,8 @@ use core::{
     ptr::NonNull,
     sync::atomic::{AtomicPtr, Ordering},
 };
-use std::sync::LazyLock;
 
-use crate::sync::Mutex;
+use crate::{allocation, sync::GlobalLazyMutex, unknown};
 use vk::{
     PFN_vkEnumerateDeviceExtensionProperties, PFN_vkGetDeviceProcAddr, PFN_vkVoidFunction,
     VK_KHR_MAINTENANCE_5_EXTENSION_NAME, VkDevice, VkDeviceCreateInfo, VkExtensionProperties,
@@ -35,16 +33,33 @@ struct DeviceRegistry {
     alias_reservations: usize,
 }
 
-static DEVICES: LazyLock<Mutex<DeviceRegistry>> =
-    LazyLock::new(|| Mutex::new(DeviceRegistry::default()));
+static DEVICES: GlobalLazyMutex<DeviceRegistry> = GlobalLazyMutex::new(DeviceRegistry::default);
+
+/// Zero-sized proof retained by a successfully constructed alias reservation.
+struct DeviceRegistryReady;
+
+impl DeviceRegistryReady {
+    fn lock(_ready: &Self) -> impl DerefMut<Target = DeviceRegistry> + use<> {
+        // SAFETY: Only a successful try_lock constructs this marker, and a live
+        // reservation excludes library termination.
+        unsafe { DEVICES.lock_initialized() }
+    }
+}
+
+#[cfg(not(all(target_vendor = "apple", feature = "apple-static-loader")))]
+pub(crate) unsafe fn destroy_device_registry_lock() {
+    // SAFETY: The caller excludes loader entry points and live registry guards.
+    unsafe { DEVICES.destroy() };
+}
 
 struct DeviceAliasReservation {
     active: bool,
+    ready: DeviceRegistryReady,
 }
 
 impl DeviceAliasReservation {
     fn new() -> Result<Self, VkResult> {
-        let mut devices = DEVICES.lock();
+        let mut devices = DEVICES.try_lock()?;
         let additional = devices
             .alias_reservations
             .checked_add(1)
@@ -54,11 +69,14 @@ impl DeviceAliasReservation {
             .try_reserve(additional)
             .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
         devices.alias_reservations = additional;
-        Ok(Self { active: true })
+        Ok(Self {
+            active: true,
+            ready: DeviceRegistryReady,
+        })
     }
 
     fn insert(mut self, key: usize, value: usize) -> Option<usize> {
-        let mut devices = DEVICES.lock();
+        let mut devices = DeviceRegistryReady::lock(&self.ready);
         debug_assert!(devices.alias_reservations != 0);
         devices.alias_reservations -= 1;
         self.active = false;
@@ -69,9 +87,15 @@ impl DeviceAliasReservation {
 impl Drop for DeviceAliasReservation {
     fn drop(&mut self) {
         if self.active {
-            let mut devices = DEVICES.lock();
+            let mut devices = DeviceRegistryReady::lock(&self.ready);
             debug_assert!(devices.alias_reservations != 0);
             devices.alias_reservations -= 1;
+            if devices.owned.is_empty()
+                && devices.aliases.is_empty()
+                && devices.alias_reservations == 0
+            {
+                *devices = DeviceRegistry::default();
+            }
         }
     }
 }
@@ -95,7 +119,7 @@ pub(crate) struct LoaderDevice {
 #[repr(C)]
 struct LoaderDeviceDispatchLayout {
     layer: LayerDeviceDispatchTable,
-    unknown: [AtomicPtr<c_void>; crate::unknown::MAX_UNKNOWN_COMMANDS],
+    unknown: [AtomicPtr<c_void>; unknown::MAX_UNKNOWN_COMMANDS],
 }
 
 #[cfg(any(
@@ -223,17 +247,20 @@ impl LoaderDevice {
         Ok(device)
     }
 
-    pub(crate) fn try_register(device: Box<Self>) -> Result<VkDevice, Box<Self>> {
+    pub(crate) fn try_register(device: Box<Self>) -> Result<VkDevice, (VkResult, Box<Self>)> {
         let handle = device.chain_device;
         let dispatch_key = device.dispatch() as usize;
-        let mut devices = DEVICES.lock();
+        let mut devices = match DEVICES.try_lock() {
+            Ok(devices) => devices,
+            Err(error) => return Err((error, device)),
+        };
         let Some(alias_capacity) = devices.alias_reservations.checked_add(1) else {
-            return Err(device);
+            return Err((VkResult::ERROR_OUT_OF_HOST_MEMORY, device));
         };
         if devices.owned.try_reserve(1).is_err()
             || devices.aliases.try_reserve(alias_capacity).is_err()
         {
-            return Err(device);
+            return Err((VkResult::ERROR_OUT_OF_HOST_MEMORY, device));
         }
         let previous = devices.owned.insert(dispatch_key, device);
         let previous_alias = devices.aliases.insert(dispatch_key, dispatch_key);
@@ -299,7 +326,7 @@ impl LoaderDevice {
     }
 
     pub(crate) unsafe fn from_dispatch_key_mut<'a>(key: usize) -> Option<&'a mut Self> {
-        let mut devices = DEVICES.lock();
+        let mut devices = DEVICES.lock_if_initialized()?;
         let canonical = devices.aliases.get(&key).copied()?;
         let device = devices
             .owned
@@ -350,13 +377,13 @@ impl LoaderDevice {
             debug_assert!(previous.is_none() || previous == Some(own_key));
         }
         // Replace direct-ICD unknown slots with top-of-layer-chain targets.
-        crate::unknown::initialize_device_dispatch(self);
+        unknown::initialize_device_dispatch(self);
         Ok(())
     }
 
     pub(crate) unsafe fn from_handle<'a>(handle: VkDevice) -> Option<&'a Self> {
         let key = unsafe { Self::dispatch_key(handle) }?;
-        let devices = DEVICES.lock();
+        let devices = DEVICES.lock_if_initialized()?;
         let canonical = devices.aliases.get(&key).copied()?;
         let device = devices
             .owned
@@ -370,7 +397,7 @@ impl LoaderDevice {
     }
 
     pub(crate) fn take_dispatch(dispatch: *const LayerDeviceDispatchTable) -> Option<Box<Self>> {
-        let mut devices = DEVICES.lock();
+        let mut devices = DEVICES.lock_if_initialized()?;
         let canonical = devices.aliases.remove(&(dispatch as usize))?;
         let device = devices.owned.remove(&canonical)?;
         devices.aliases.remove(&canonical);
@@ -419,28 +446,48 @@ impl LoaderDevice {
     }
 }
 
-pub(crate) fn initialize_unknown_dispatches(instance: &LoaderInstance, index: usize, name: &CStr) {
-    let devices = DEVICES.lock();
+pub(crate) fn initialize_unknown_dispatches(
+    _guard: &crate::platform::LoaderLockGuard<'_>,
+    instance: &LoaderInstance,
+    name: &CStr,
+    reserve_index: impl FnOnce() -> Option<usize>,
+) -> Option<usize> {
+    let Some(devices) = DEVICES.lock_if_initialized() else {
+        // Unknown names must still be registered before the first device:
+        // later device creation initializes its slots from that name table.
+        return reserve_index();
+    };
     let mut matching = Vec::new();
-    if matching.try_reserve_exact(devices.owned.len()).is_err() {
-        return;
-    }
+    matching.try_reserve_exact(devices.owned.len()).ok()?;
     matching.extend(
         devices
             .owned
             .values()
             .filter(|device| core::ptr::eq(device.instance(), instance))
-            .map(|device| core::ptr::from_ref(device.as_ref())),
+            .map(|device| device.dispatch() as usize),
     );
     drop(devices);
-    for device in matching {
-        // SAFETY: Registry-owned device boxes are stable, and instance
-        // destruction requires all child devices to have been destroyed.
+    // Finish fallible snapshot allocation before interning a command name.
+    // Otherwise a retry can observe the name without initialized device slots.
+    let index = reserve_index()?;
+    for key in matching {
+        // A resolver may re-enter the loader and destroy another device in
+        // this snapshot. Revalidate each key instead of retaining raw pointers.
+        let device = {
+            let devices = DEVICES.lock_if_initialized()?;
+            let Some(device) = devices.owned.get(&key) else {
+                continue;
+            };
+            core::ptr::from_ref(device.as_ref())
+        };
+        // SAFETY: The loader lock excludes concurrent device destruction;
+        // the resolver must keep its own device live for the call.
         let device = unsafe { &*device };
         // SAFETY: The stored resolver and chain handle are live together.
         let function = device.resolve_chain(name);
         device.store_unknown_dispatch(index, function);
     }
+    Some(index)
 }
 
 const fn api_core_level(version: u32) -> u16 {
@@ -448,6 +495,61 @@ const fn api_core_level(version: u32) -> u16 {
     let minor = vk::VK_API_VERSION_MINOR(version);
     debug_assert!(major < 64 && minor < 1024);
     ((major << 10) | minor) as u16
+}
+
+#[cfg(test)]
+#[test]
+fn unknown_dispatch_snapshot_revalidates_reentrantly_removed_devices() {
+    let _test_guard = crate::allocation::fault::SWEEP_LOCK.lock().unwrap();
+    let loader_guard = crate::platform::lock_loader();
+    let instance = LoaderInstance::new(
+        vk::VK_API_VERSION_1_0,
+        ExtensionSet::default(),
+        Vec::new(),
+        crate::layer::ActiveLayers {
+            loaded: Box::default(),
+            reported: Box::default(),
+            requested: Box::default(),
+        },
+        None,
+        core::ptr::null(),
+    )
+    .unwrap();
+    let mut native_dispatch: *const LayerDeviceDispatchTable = core::ptr::null();
+    let handle = VkDevice(core::ptr::from_mut(&mut native_dispatch).cast());
+    // SAFETY: The fake dispatchable is writable and remains live through the
+    // test. Its resolver owns no foreign resources; instance outlives the device.
+    let device = unsafe {
+        LoaderDevice::new(
+            handle,
+            empty_test_resolver,
+            &instance,
+            0,
+            vk::VK_API_VERSION_1_0,
+            false,
+            ExtensionSet::default(),
+        )
+    }
+    .unwrap();
+    let dispatch = device.dispatch();
+    assert!(LoaderDevice::try_register(device).is_ok());
+    assert_eq!(
+        initialize_unknown_dispatches(&loader_guard, &instance, c"vkTestUnknown", || {
+            // Exercise reentrant removal after snapshot construction, before it
+            // is consumed. No snapshot pointer may be dereferenced after this drop.
+            assert!(LoaderDevice::take_dispatch(dispatch).is_some());
+            Some(0)
+        }),
+        Some(0)
+    );
+}
+
+#[cfg(test)]
+unsafe extern "system" fn empty_test_resolver(
+    _device: VkDevice,
+    _name: *const core::ffi::c_char,
+) -> PFN_vkVoidFunction {
+    None
 }
 
 /// Returns whether maintenance5 requests strict device-command version checks.
@@ -505,10 +607,12 @@ pub(crate) unsafe fn validate_and_filter_device_extensions(
     icd: &IcdInstance,
     physical_device: VkPhysicalDevice,
     create_info: &VkDeviceCreateInfo<'_>,
-    layer_extensions: &[CString],
-) -> Result<Box<[*const core::ffi::c_char]>, VkResult> {
+    supported_by_layer: impl Fn(&CStr) -> bool,
+    validated: impl FnOnce(),
+) -> Result<Vec<*const core::ffi::c_char>, VkResult> {
     if create_info.enabledExtensionCount == 0 {
-        return Ok(Box::default());
+        validated();
+        return Ok(Vec::new());
     }
     if create_info.ppEnabledExtensionNames.is_null() {
         return Err(VkResult::ERROR_INITIALIZATION_FAILED);
@@ -531,8 +635,7 @@ pub(crate) unsafe fn validate_and_filter_device_extensions(
         return Err(result);
     }
     let capacity = count as usize;
-    let mut properties =
-        crate::allocation::try_box_uninit_slice::<VkExtensionProperties>(capacity)?;
+    let mut properties = allocation::try_box_uninit_slice::<VkExtensionProperties>(capacity)?;
     let mut returned_count = count;
     // SAFETY: The storage contains `capacity` writable entries.
     let result = unsafe {
@@ -551,18 +654,9 @@ pub(crate) unsafe fn validate_and_filter_device_extensions(
     icd_names
         .try_reserve_exact(create_info.enabledExtensionCount as usize)
         .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
-    for index in 0..create_info.enabledExtensionCount as usize {
-        // SAFETY: The caller provides `enabledExtensionCount` live pointers.
-        let requested = unsafe { create_info.ppEnabledExtensionNames.add(index).read() };
-        if requested.is_null() {
-            return Err(VkResult::ERROR_INITIALIZATION_FAILED);
-        }
-        // SAFETY: Each requested extension is NUL-terminated by contract.
-        let requested = unsafe { CStr::from_ptr(requested) };
+    let support = |requested: &CStr| {
         let requested_bytes = requested.to_bytes();
-        let supported_by_layer = layer_extensions
-            .iter()
-            .any(|extension| extension.as_c_str() == requested);
+        let supported_by_layer = supported_by_layer(requested);
         let supported_by_icd = properties[..initialized].iter().any(|property| {
             // SAFETY: The ICD reported these leading entries as initialized.
             let property = unsafe { property.assume_init_ref() };
@@ -576,13 +670,30 @@ pub(crate) unsafe fn validate_and_filter_device_extensions(
                 .unwrap_or(bytes.len());
             requested_bytes.len() == end && requested_bytes == &bytes[..end]
         });
+        (supported_by_layer, supported_by_icd)
+    };
+    // SAFETY: The non-null array contains `enabledExtensionCount` pointers
+    // readable for this synchronous call, as required by the Vulkan contract.
+    let requested_names = unsafe {
+        core::slice::from_raw_parts(
+            create_info.ppEnabledExtensionNames,
+            create_info.enabledExtensionCount as usize,
+        )
+    };
+    for &requested in requested_names {
+        if requested.is_null() {
+            return Err(VkResult::ERROR_INITIALIZATION_FAILED);
+        }
+        // SAFETY: Each requested extension is NUL-terminated by contract.
+        let requested = unsafe { CStr::from_ptr(requested) };
+        let (supported_by_layer, supported_by_icd) = support(requested);
         if !supported_by_layer && !supported_by_icd {
             instance.log_loader_message_text(
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
                 vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
                 format_args!(
                     "loader_validate_device_extensions: Device extension {} not supported by selected physical device or enabled layers.",
-                    requested.to_string_lossy()
+                    crate::debug::diagnostics::LossyBytes(requested.to_bytes())
                 ),
             );
             instance.log_loader_message(
@@ -592,9 +703,32 @@ pub(crate) unsafe fn validate_and_filter_device_extensions(
             );
             return Err(VkResult::ERROR_EXTENSION_NOT_PRESENT);
         }
+    }
+    validated();
+    for &requested_pointer in requested_names {
+        // SAFETY: The validation pass established a live NUL-terminated string.
+        let requested = unsafe { CStr::from_ptr(requested_pointer) };
+        let (_, supported_by_icd) = support(requested);
+        if !supported_by_icd {
+            instance.log_loader_category_message_text(
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::VERBOSE,
+                vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
+                crate::platform::LogFilter::Driver,
+                format_args!(
+                    "vkCreateDevice extension {} not available for devices associated with ICD {}",
+                    crate::debug::diagnostics::LossyBytes(requested.to_bytes()),
+                    icd.icd
+                        .library_path()
+                        .unwrap_or_else(|| std::path::Path::new(""))
+                        .display()
+                ),
+            );
+        }
         if supported_by_icd {
-            icd_names.push(unsafe { create_info.ppEnabledExtensionNames.add(index).read() });
+            icd_names.push(requested_pointer);
         }
     }
-    Ok(icd_names.into_boxed_slice())
+    // Retain the reserved storage: shrinking to a boxed slice can reallocate
+    // through the infallible allocator after all fallible work has succeeded.
+    Ok(icd_names)
 }

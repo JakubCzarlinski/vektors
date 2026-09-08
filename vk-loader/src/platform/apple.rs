@@ -31,33 +31,49 @@ pub(super) fn resource_directory() -> Option<std::path::PathBuf> {
         return None;
     }
 
-    let result = (0..4).find_map(|attempt| {
-        let capacity = 1024_usize << attempt;
-        let mut bytes = Vec::<u8>::with_capacity(capacity);
-        // SAFETY: `bytes` provides `capacity` writable bytes. Core
-        // Foundation writes a NUL-terminated file-system representation
-        // on success and does not retain the buffer.
-        let success = unsafe {
-            CFURLGetFileSystemRepresentation(url, 1, bytes.as_mut_ptr().cast(), capacity as isize)
-        };
-        if success == 0 {
-            return None;
+    let result = (|| -> Result<_, vk::VkResult> {
+        let mut bytes = Vec::<u8>::new();
+        for attempt in 0..4 {
+            let capacity = 1024_usize << attempt;
+            // Length stays zero until success, so this reserves the full
+            // next extent while retaining storage from earlier attempts.
+            bytes
+                .try_reserve_exact(capacity)
+                .map_err(|_| vk::VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+            // SAFETY: `bytes` provides `capacity` writable bytes. Core
+            // Foundation writes a NUL-terminated file-system representation
+            // on success and does not retain the buffer.
+            let success = unsafe {
+                CFURLGetFileSystemRepresentation(
+                    url,
+                    1,
+                    bytes.as_mut_ptr().cast(),
+                    capacity as isize,
+                )
+            };
+            if success == 0 {
+                continue;
+            }
+            // SAFETY: A successful Core Foundation call initialized a C
+            // string within the supplied capacity.
+            let length = unsafe {
+                core::ffi::CStr::from_ptr(bytes.as_ptr().cast())
+                    .to_bytes()
+                    .len()
+            };
+            // SAFETY: The C string initialized exactly `length` non-NUL bytes.
+            unsafe { bytes.set_len(length) };
+            return Ok(Some(std::path::PathBuf::from(
+                std::ffi::OsString::from_vec(bytes),
+            )));
         }
-        // SAFETY: A successful Core Foundation call initialized a C
-        // string within the supplied capacity.
-        let length = unsafe {
-            core::ffi::CStr::from_ptr(bytes.as_ptr().cast())
-                .to_bytes()
-                .len()
-        };
-        // SAFETY: The C string initialized exactly `length` non-NUL bytes.
-        unsafe { bytes.set_len(length) };
-        Some(std::path::PathBuf::from(std::ffi::OsString::from_vec(
-            bytes,
-        )))
-    });
+        Ok(None)
+    })();
 
     // SAFETY: The Copy function returned an owned Core Foundation object.
     unsafe { CFRelease(url) };
-    result
+    result.unwrap_or_else(|_| {
+        crate::pending::mark_json_allocation_failed();
+        None
+    })
 }

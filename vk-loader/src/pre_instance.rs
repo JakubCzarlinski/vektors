@@ -1,16 +1,19 @@
 //! `vk_layer.h` pre-instance enumeration chains.
 
+use crate::{
+    collections::ScratchArray,
+    discovery::{
+        self, LayerManifest, LoaderSettings, discover_implicit_layers_with_settings,
+        valid_layer_mask,
+    },
+    layer, pending,
+    platform::{self, LoaderLibrary, LogFilter},
+};
 use alloc::vec::Vec;
 use core::{ffi::CStr, mem};
-
 use vk::{
     PFN_vkEnumerateInstanceExtensionProperties, VkExtensionProperties, VkInstance,
     VkLayerProperties, VkResult,
-};
-
-use crate::{
-    discovery::{LayerManifest, discover_implicit_layers, discover_layers, valid_layer_mask},
-    platform::{LoaderLibrary, LogFilter},
 };
 
 const CURRENT_CHAIN_VERSION: u32 = 1;
@@ -18,29 +21,27 @@ const CHAIN_TYPE_EXTENSION_PROPERTIES: u32 = 1;
 const CHAIN_TYPE_LAYER_PROPERTIES: u32 = 2;
 const CHAIN_TYPE_INSTANCE_VERSION: u32 = 3;
 
-fn update_global_loader_settings() {
-    let settings = crate::discovery::loader_settings();
-    if let Some(settings) = settings.as_ref() {
-        let display_path = settings
-            .settings_file_path()
-            .to_string_lossy()
-            .replace("/vulkan/loader_settings.d", "/vulkan//loader_settings.d");
-        crate::platform::write_loader_log(
-            LogFilter::Info,
-            format_args!("Using layer configurations found in loader settings from {display_path}"),
-        );
-    } else {
-        crate::platform::write_loader_log(
+fn update_global_loader_settings() -> Option<LoaderSettings> {
+    let settings = discovery::global_loader_settings();
+    if settings.is_none() && !discovery::loader_settings_file_present() {
+        platform::write_loader_log(
             LogFilter::Info,
             format_args!(
                 "No valid vk_loader_settings.json file found, no loader settings will be active"
             ),
         );
     }
+    settings
 }
 
-fn emit_layer_searches(layers: &crate::discovery::DiscoveredLayers) {
-    crate::layer::emit_global_layer_search_diagnostics(layers.searches(), layers);
+fn emit_layer_searches(layers: &discovery::DiscoveredLayers) {
+    layer::emit_global_layer_search_diagnostics(
+        layers.searches(),
+        layers,
+        layers.configured_manifest_reports(),
+        layers.implicit_only(),
+        true,
+    );
 }
 
 #[repr(C)]
@@ -59,6 +60,7 @@ type EnumerateExtensionProperties = unsafe extern "system" fn(
 ) -> VkResult;
 
 #[repr(C)]
+#[derive(Clone, Copy)]
 struct ExtensionPropertiesChain {
     header: ChainHeader,
     next_function: EnumerateExtensionProperties,
@@ -72,6 +74,7 @@ type EnumerateLayerProperties = unsafe extern "system" fn(
 ) -> VkResult;
 
 #[repr(C)]
+#[derive(Clone, Copy)]
 struct LayerPropertiesChain {
     header: ChainHeader,
     next_function: EnumerateLayerProperties,
@@ -81,26 +84,38 @@ struct LayerPropertiesChain {
 type EnumerateVersion = unsafe extern "system" fn(*const VersionChain, *mut u32) -> VkResult;
 
 #[repr(C)]
+#[derive(Clone, Copy)]
 struct VersionChain {
     header: ChainHeader,
     next_function: EnumerateVersion,
     next_link: *const Self,
 }
 
-struct LoadedFunction<F> {
+struct LoadedFunction<'a, F> {
     _library: LoaderLibrary,
+    library_path: &'a std::path::Path,
     function: F,
 }
 
+impl<F> Drop for LoadedFunction<'_, F> {
+    fn drop(&mut self) {
+        platform::write_loader_log_with_category(
+            LogFilter::Debug,
+            LogFilter::Layer,
+            format_args!("Unloading layer library {}", self.library_path.display()),
+        );
+    }
+}
+
 fn is_enabled_implicit(manifest: &LayerManifest) -> bool {
-    crate::layer::implicit_manifest_is_active(manifest)
+    layer::implicit_manifest_is_active(manifest)
 }
 
 fn load_functions<F: Copy>(
     manifests: &[LayerManifest],
     select: impl Fn(&LayerManifest) -> Option<&CStr>,
-) -> Result<Vec<LoadedFunction<F>>, VkResult> {
-    let valid = valid_layer_mask(manifests);
+) -> Result<Vec<LoadedFunction<'_, F>>, VkResult> {
+    let valid = valid_layer_mask(manifests)?;
     let mut functions = Vec::new();
     for (manifest, valid) in manifests.iter().zip(valid.iter()) {
         if !valid || !is_enabled_implicit(manifest) {
@@ -113,9 +128,18 @@ fn load_functions<F: Copy>(
             continue;
         };
         // SAFETY: The library is retained beside the copied function pointer.
-        let Ok(library) = (unsafe { LoaderLibrary::open(path) }) else {
-            continue;
+        let library = match unsafe { LoaderLibrary::open(path) } {
+            Ok(library) => library,
+            Err(error) if error.is_out_of_memory() => {
+                return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
+            }
+            Err(_) => continue,
         };
+        platform::write_loader_log_with_category(
+            LogFilter::Debug,
+            LogFilter::Layer,
+            format_args!("Loading layer library {}", path.display()),
+        );
         // SAFETY: The manifest names a function with the selected `vk_layer.h` ABI.
         let function = unsafe {
             library
@@ -129,6 +153,7 @@ fn load_functions<F: Copy>(
                 .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
             functions.push(LoadedFunction {
                 _library: library,
+                library_path: path,
                 function,
             });
         }
@@ -202,7 +227,7 @@ fn extension_property(name: &CStr, spec_version: u32) -> VkExtensionProperties {
     property
 }
 
-fn layer_extension_property(extension: &crate::discovery::LayerExtension) -> VkExtensionProperties {
+fn layer_extension_property(extension: &discovery::LayerExtension) -> VkExtensionProperties {
     extension_property(&extension.name, extension.spec_version)
 }
 
@@ -215,7 +240,7 @@ fn append_manifest_extensions(
         .iter()
         .position(|manifest| core::ptr::eq(manifest, root))
         .ok_or(VkResult::ERROR_LAYER_NOT_PRESENT)?;
-    let mut visited = vec![false; manifests.len()];
+    let mut visited = crate::allocation::try_boxed_slice_filled(manifests.len(), false)?;
     let mut pending = Vec::new();
     pending
         .try_reserve_exact(manifests.len())
@@ -235,7 +260,9 @@ fn append_manifest_extensions(
                 .iter()
                 .position(|manifest| manifest.name == *component)
             {
-                pending.push(index);
+                // Duplicate edges can queue more entries than there are manifests.
+                // Keep the existing DFS order while making overflow growth fallible.
+                crate::allocation::try_push(&mut pending, index)?;
             }
         }
     }
@@ -273,9 +300,14 @@ fn append_loader_extensions(extensions: &mut Vec<VkExtensionProperties>) -> Resu
 unsafe fn append_icd_extensions(
     extensions: &mut Vec<VkExtensionProperties>,
 ) -> Result<(), VkResult> {
-    let filter_unknown = !std::env::var_os("VK_LOADER_DISABLE_INST_EXT_FILTER")
-        .is_some_and(|value| decimal_environment_value_is_nonzero(&value.to_string_lossy()));
-    crate::icd::preload_icds();
+    // SAFETY: As in upstream discovery, callers must not mutate the process
+    // environment during loader operations; the callback only parses a string.
+    let filter_unknown = unsafe {
+        platform::inspect_environment_lossy(c"VK_LOADER_DISABLE_INST_EXT_FILTER", |value| {
+            !value.is_some_and(decimal_environment_value_is_nonzero)
+        })
+    }?;
+    crate::icd::preload_icds()?;
     let icds = crate::icd::scan_global_icds()?;
     (|| {
         for icd in &icds {
@@ -345,9 +377,11 @@ pub(crate) unsafe fn enumerate_extension_properties_terminator(
         return VkResult::ERROR_INITIALIZATION_FAILED;
     }
     let manifests = if layer_name.is_null() || unsafe { layer_name.read() } == 0 {
-        discover_implicit_layers()
+        let settings = discovery::silent_global_loader_settings();
+        discover_implicit_layers_with_settings(settings.as_ref())
     } else {
-        discover_layers()
+        let settings = discovery::silent_global_loader_settings();
+        discovery::discover_layers_with_settings(settings.as_ref())
     };
     let global_extensions = layer_name.is_null() || unsafe { layer_name.read() } == 0;
     if !global_extensions {
@@ -359,27 +393,26 @@ pub(crate) unsafe fn enumerate_extension_properties_terminator(
             layer_name,
             &mut *property_count,
             properties,
-            global_extensions.then_some(manifests.searches()),
         )
     }
 }
 
 unsafe fn enumerate_extension_properties_from_manifests(
-    manifests: &[LayerManifest],
+    manifests: &discovery::DiscoveredLayers,
     layer_name: *const core::ffi::c_char,
     property_count: &mut u32,
     properties: *mut VkExtensionProperties,
-    searches_after_icds: Option<&[crate::discovery::LayerSearch]>,
 ) -> VkResult {
-    let valid = valid_layer_mask(manifests);
+    let valid = match valid_layer_mask(manifests) {
+        Ok(valid) => valid,
+        Err(result) => return result,
+    };
     let mut extensions = Vec::new();
     if layer_name.is_null() || unsafe { layer_name.read() } == 0 {
         if let Err(result) = unsafe { append_icd_extensions(&mut extensions) } {
             return result;
         }
-        if let Some(searches) = searches_after_icds {
-            crate::layer::emit_global_layer_search_diagnostics(searches, &[]);
-        }
+        emit_layer_searches(manifests);
         if let Err(result) = append_loader_extensions(&mut extensions) {
             return result;
         }
@@ -436,7 +469,9 @@ unsafe extern "system" fn layer_terminator(
     if property_count.is_null() {
         return VkResult::ERROR_INITIALIZATION_FAILED;
     }
-    unsafe { crate::layer::enumerate_instance_layers(&mut *property_count, properties) }
+    let settings = discovery::silent_global_loader_settings();
+    let discovered = discovery::discover_layers_with_settings(settings.as_ref());
+    unsafe { layer::enumerate_instance_layers(discovered, &mut *property_count, properties) }
 }
 
 unsafe extern "system" fn version_terminator(
@@ -450,6 +485,29 @@ unsafe extern "system" fn version_terminator(
     VkResult::SUCCESS
 }
 
+/// Builds stable links for the synchronous call. Small chains stay on the
+/// stack; Copy excludes resources requiring destruction from scratch storage.
+fn with_chain<T: Copy, F>(
+    tail: &T,
+    functions: &[LoadedFunction<'_, F>],
+    link: impl Fn(&LoadedFunction<'_, F>, *const T) -> T,
+    call: impl FnOnce(&T) -> VkResult,
+) -> VkResult {
+    let Ok(mut links) = ScratchArray::<T, 8>::try_new(functions.len()) else {
+        return VkResult::ERROR_OUT_OF_HOST_MEMORY;
+    };
+    let mut head = core::ptr::from_ref(tail);
+    for (index, function) in functions.iter().enumerate() {
+        // SAFETY: Each slot is within the reserved storage and written once.
+        // The storage stays at this address until the synchronous call ends.
+        let slot = unsafe { links.as_mut_ptr().add(index) };
+        unsafe { slot.write(link(function, head)) };
+        head = slot;
+    }
+    // SAFETY: head is the live tail or the last initialized, stable link.
+    call(unsafe { &*head })
+}
+
 pub(crate) unsafe fn enumerate_extension_properties(
     layer_name: *const core::ffi::c_char,
     property_count: *mut u32,
@@ -458,9 +516,16 @@ pub(crate) unsafe fn enumerate_extension_properties(
     if property_count.is_null() {
         return VkResult::ERROR_INITIALIZATION_FAILED;
     }
-    update_global_loader_settings();
-    let manifests = discover_implicit_layers();
-    emit_layer_searches(&manifests);
+    let nested_instance_create = pending::instance() != VkInstance::NULL;
+    let settings = if nested_instance_create {
+        discovery::silent_global_loader_settings()
+    } else {
+        update_global_loader_settings()
+    };
+    let manifests = discover_implicit_layers_with_settings(settings.as_ref());
+    if !nested_instance_create {
+        emit_layer_searches(&manifests);
+    }
     let functions = match load_functions::<EnumerateExtensionProperties>(&manifests, |manifest| {
         manifest
             .pre_instance_functions
@@ -478,31 +543,42 @@ pub(crate) unsafe fn enumerate_extension_properties(
         next_function: extension_terminator,
         next_link: core::ptr::null(),
     };
-    let mut links = Vec::new();
-    if links.try_reserve_exact(functions.len()).is_err() {
-        return VkResult::ERROR_OUT_OF_HOST_MEMORY;
-    }
-    let mut head = core::ptr::from_ref(&tail);
-    for function in &functions {
-        links.push(ExtensionPropertiesChain {
+    with_chain(
+        &tail,
+        &functions,
+        |function, next_link| ExtensionPropertiesChain {
             header: tail.header,
             next_function: function.function,
-            next_link: head,
-        });
-        // SAFETY: The link was appended immediately above.
-        head = core::ptr::from_ref(unsafe { links.last().unwrap_unchecked() });
-    }
-    let head = unsafe { &*head };
-    unsafe { (head.next_function)(head.next_link, layer_name, property_count, properties) }
+            next_link,
+        },
+        // SAFETY: Negotiated ABI functions and caller-provided output storage
+        // remain valid for the complete synchronous chain invocation.
+        |head| unsafe {
+            (head.next_function)(head.next_link, layer_name, property_count, properties)
+        },
+    )
 }
 
 pub(crate) unsafe fn enumerate_layer_properties(
     property_count: *mut u32,
     properties: *mut VkLayerProperties,
 ) -> VkResult {
-    update_global_loader_settings();
-    let manifests = discover_implicit_layers();
-    emit_layer_searches(&manifests);
+    let nested_instance_create = pending::instance() != VkInstance::NULL;
+    let settings = discovery::silent_global_loader_settings();
+    let settings = if nested_instance_create {
+        settings
+    } else if settings
+        .as_ref()
+        .is_some_and(LoaderSettings::has_unordered_layer_location)
+    {
+        discovery::diagnostic_global_loader_settings()
+    } else {
+        update_global_loader_settings()
+    };
+    let manifests = discover_implicit_layers_with_settings(settings.as_ref());
+    if !nested_instance_create {
+        emit_layer_searches(&manifests);
+    }
     let functions = match load_functions::<EnumerateLayerProperties>(&manifests, |manifest| {
         manifest.pre_instance_functions.layer_properties.as_deref()
     }) {
@@ -517,28 +593,31 @@ pub(crate) unsafe fn enumerate_layer_properties(
         next_function: layer_terminator,
         next_link: core::ptr::null(),
     };
-    let mut links = Vec::new();
-    if links.try_reserve_exact(functions.len()).is_err() {
-        return VkResult::ERROR_OUT_OF_HOST_MEMORY;
-    }
-    let mut head = core::ptr::from_ref(&tail);
-    for function in &functions {
-        links.push(LayerPropertiesChain {
+    with_chain(
+        &tail,
+        &functions,
+        |function, next_link| LayerPropertiesChain {
             header: tail.header,
             next_function: function.function,
-            next_link: head,
-        });
-        // SAFETY: The link was appended immediately above.
-        head = core::ptr::from_ref(unsafe { links.last().unwrap_unchecked() });
-    }
-    let head = unsafe { &*head };
-    unsafe { (head.next_function)(head.next_link, property_count, properties) }
+            next_link,
+        },
+        // SAFETY: Negotiated ABI functions and caller-provided output storage
+        // remain valid for the complete synchronous chain invocation.
+        |head| unsafe { (head.next_function)(head.next_link, property_count, properties) },
+    )
 }
 
 pub(crate) unsafe fn enumerate_version(api_version: &mut u32) -> VkResult {
-    update_global_loader_settings();
-    let manifests = discover_implicit_layers();
-    emit_layer_searches(&manifests);
+    let nested_instance_create = pending::instance() != VkInstance::NULL;
+    let settings = if nested_instance_create {
+        discovery::silent_global_loader_settings()
+    } else {
+        update_global_loader_settings()
+    };
+    let manifests = discover_implicit_layers_with_settings(settings.as_ref());
+    if !nested_instance_create {
+        emit_layer_searches(&manifests);
+    }
     let functions = match load_functions::<EnumerateVersion>(&manifests, |manifest| {
         manifest.pre_instance_functions.version.as_deref()
     }) {
@@ -550,22 +629,18 @@ pub(crate) unsafe fn enumerate_version(api_version: &mut u32) -> VkResult {
         next_function: version_terminator,
         next_link: core::ptr::null(),
     };
-    let mut links = Vec::new();
-    if links.try_reserve_exact(functions.len()).is_err() {
-        return VkResult::ERROR_OUT_OF_HOST_MEMORY;
-    }
-    let mut head = core::ptr::from_ref(&tail);
-    for function in &functions {
-        links.push(VersionChain {
+    with_chain(
+        &tail,
+        &functions,
+        |function, next_link| VersionChain {
             header: tail.header,
             next_function: function.function,
-            next_link: head,
-        });
-        // SAFETY: The link was appended immediately above.
-        head = core::ptr::from_ref(unsafe { links.last().unwrap_unchecked() });
-    }
-    let head = unsafe { &*head };
-    unsafe { (head.next_function)(head.next_link, api_version) }
+            next_link,
+        },
+        // SAFETY: Negotiated ABI functions and caller-provided output storage
+        // remain valid for the complete synchronous chain invocation.
+        |head| unsafe { (head.next_function)(head.next_link, api_version) },
+    )
 }
 
 #[cfg(test)]
@@ -573,6 +648,52 @@ mod tests {
     use core::mem::{offset_of, size_of};
 
     use super::*;
+
+    #[test]
+    fn duplicate_meta_edges_preserve_dfs_order_and_propagate_allocation_failures() {
+        let names = [
+            c"VK_LAYER_root",
+            c"VK_LAYER_b",
+            c"VK_LAYER_c",
+            c"VK_LAYER_d",
+        ];
+        let extension_names = [c"VK_EXT_root", c"VK_EXT_b", c"VK_EXT_c", c"VK_EXT_d"];
+        let mut manifests = names.map(|name| {
+            let mut manifest = crate::discovery::test_manifest(&[]);
+            manifest.name = name.to_owned();
+            manifest
+        });
+        for (manifest, name) in manifests.iter_mut().zip(extension_names) {
+            manifest.instance_extensions = [crate::discovery::LayerExtension {
+                name: name.to_owned(),
+                spec_version: 1,
+                entrypoints: Box::default(),
+            }]
+            .into();
+        }
+        manifests[0].component_layers = [
+            names[1], names[2], names[1], names[1], names[1], names[1], names[1], names[1],
+        ]
+        .map(CStr::to_owned)
+        .into();
+        manifests[1].component_layers = [names[2], names[3]].map(CStr::to_owned).into();
+        crate::allocation::fault::sweep_operation(|| {
+            let mut extensions = Vec::new();
+            match append_manifest_extensions(&mut extensions, &manifests[0], &manifests) {
+                Ok(()) => {
+                    assert_eq!(extensions.len(), extension_names.len());
+                    for (actual, name) in extensions.iter().zip(extension_names) {
+                        assert_eq!(
+                            actual.extensionName,
+                            extension_property(name, 1).extensionName
+                        );
+                    }
+                    VkResult::SUCCESS
+                }
+                Err(error) => error,
+            }
+        });
+    }
 
     #[test]
     fn pre_instance_chain_layout_matches_vk_layer_h() {

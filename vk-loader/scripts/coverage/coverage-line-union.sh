@@ -12,8 +12,16 @@ profile="$3"
 external_report="$4"
 output="$5"
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
-scratch="$(mktemp -d)"
+scratch="$(test_scratch_dir coverage)"
 trap 'find "$scratch" -depth -delete' EXIT
+
+require_tools jq realpath
+llvm-cov export "$loader" -instr-profile="$profile" --summary-only > "$scratch/sources.json"
+jq -r '.data[].files[].filename' "$scratch/sources.json" > "$scratch/sources.txt"
+declare -A recorded_sources=()
+while IFS= read -r recorded; do
+  recorded_sources["$(realpath -m -- "$recorded")"]="$recorded"
+done < "$scratch/sources.txt"
 
 total_lines=0
 covered_lines=0
@@ -22,10 +30,15 @@ covered_lines=0
   printf '%s\n' '-------------------------------------------------------------------------------'
   while IFS= read -r relative; do
     source="$(resolve_coverage_source "$relative")" || continue
+    # Map noncanonical recorded paths (for example src/../json) explicitly;
+    # show otherwise silently omits these files even with their raw spelling.
+    recorded="${recorded_sources["$(realpath -m -- "$source")"]:?missing coverage source}"
     llvm-cov show "$loader" -instr-profile="$profile" \
+      --path-equivalence="${recorded%/*},${source%/*}" \
       --show-line-counts-or-regions --show-expansions=false "$source" \
       > "$scratch/release.txt"
     llvm-cov show "$unit_binary" -instr-profile="$profile" \
+      --path-equivalence="${recorded%/*},${source%/*}" \
       --show-line-counts-or-regions --show-expansions=false "$source" \
       > "$scratch/unit.txt"
     read -r lines covered < <(

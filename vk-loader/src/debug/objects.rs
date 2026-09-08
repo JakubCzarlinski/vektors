@@ -65,10 +65,9 @@ unsafe fn translate_physical_device(device: &LoaderDevice, handle: u64) -> Optio
     (physical.icd_index == device.icd_index()).then_some(physical.native.0 as usize as u64)
 }
 
-unsafe fn translate_surface(device: &LoaderDevice, handle: u64) -> Option<u64> {
+unsafe fn translate_surface(device: &LoaderDevice, handle: u64) -> Result<u64, VkResult> {
     // SAFETY: The debug object type identifies this as a surface owned by the instance.
     unsafe { native_surface(device.instance(), device.icd_index(), VkSurfaceKHR(handle)) }
-        .ok()
         .map(|surface| surface.0)
 }
 
@@ -122,8 +121,8 @@ unsafe fn translate_debug_report_object(
     device: &LoaderDevice,
     object_type: VkDebugReportObjectTypeEXT,
     handle: u64,
-) -> u64 {
-    match object_type {
+) -> Result<u64, VkResult> {
+    Ok(match object_type {
         VkDebugReportObjectTypeEXT::INSTANCE => {
             // SAFETY: The object type supplies the concrete handle kind.
             unsafe { translate_instance(device, handle) }.unwrap_or(handle)
@@ -135,18 +134,18 @@ unsafe fn translate_debug_report_object(
         VkDebugReportObjectTypeEXT::DEVICE => device.icd_device.0 as usize as u64,
         VkDebugReportObjectTypeEXT::SURFACE_KHR => {
             // SAFETY: The object type supplies the concrete handle kind.
-            unsafe { translate_surface(device, handle) }.unwrap_or(handle)
+            unsafe { translate_surface(device, handle) }?
         }
         _ => handle,
-    }
+    })
 }
 
 unsafe fn translate_debug_utils_object(
     device: &LoaderDevice,
     object_type: VkObjectType,
     handle: u64,
-) -> u64 {
-    match object_type {
+) -> Result<u64, VkResult> {
+    Ok(match object_type {
         VkObjectType::INSTANCE => {
             // SAFETY: The object type supplies the concrete handle kind.
             unsafe { translate_instance(device, handle) }.unwrap_or(handle)
@@ -158,10 +157,10 @@ unsafe fn translate_debug_utils_object(
         VkObjectType::DEVICE => device.icd_device.0 as usize as u64,
         VkObjectType::SURFACE_KHR => {
             // SAFETY: The object type supplies the concrete handle kind.
-            unsafe { translate_surface(device, handle) }.unwrap_or(handle)
+            unsafe { translate_surface(device, handle) }?
         }
         _ => handle,
-    }
+    })
 }
 
 /// Sets driver-private debug tag data after translating loader-owned handles.
@@ -182,8 +181,11 @@ pub(crate) unsafe extern "system" fn terminator_vkDebugMarkerSetObjectTagEXT(
     let tag_info = unsafe { &*tag_info };
     let mut native_info = *tag_info;
     // SAFETY: `objectType` identifies the encoded handle kind.
-    native_info.object = unsafe {
+    native_info.object = match unsafe {
         translate_debug_report_object(loader_device, native_info.objectType, native_info.object)
+    } {
+        Ok(handle) => handle,
+        Err(result) => return result,
     };
     // SAFETY: Resolver and native device belong to the same ICD.
     let native: Option<PFN_vkDebugMarkerSetObjectTagEXT> =
@@ -212,8 +214,11 @@ pub(crate) unsafe extern "system" fn terminator_vkDebugMarkerSetObjectNameEXT(
     let name_info = unsafe { &*name_info };
     let mut native_info = *name_info;
     // SAFETY: `objectType` identifies the encoded handle kind.
-    native_info.object = unsafe {
+    native_info.object = match unsafe {
         translate_debug_report_object(loader_device, native_info.objectType, native_info.object)
+    } {
+        Ok(handle) => handle,
+        Err(result) => return result,
     };
     // SAFETY: Resolver and native device belong to the same ICD.
     let native: Option<PFN_vkDebugMarkerSetObjectNameEXT> =
@@ -242,12 +247,15 @@ pub(crate) unsafe extern "system" fn terminator_vkSetDebugUtilsObjectNameEXT(
     let name_info = unsafe { &*name_info };
     let mut native_info = *name_info;
     // SAFETY: `objectType` identifies the encoded handle kind.
-    native_info.objectHandle = unsafe {
+    native_info.objectHandle = match unsafe {
         translate_debug_utils_object(
             loader_device,
             native_info.objectType,
             native_info.objectHandle,
         )
+    } {
+        Ok(handle) => handle,
+        Err(result) => return result,
     };
     // SAFETY: Resolver and native device belong to the same ICD.
     let native: Option<PFN_vkSetDebugUtilsObjectNameEXT> =
@@ -276,12 +284,15 @@ pub(crate) unsafe extern "system" fn terminator_vkSetDebugUtilsObjectTagEXT(
     let tag_info = unsafe { &*tag_info };
     let mut native_info = *tag_info;
     // SAFETY: `objectType` identifies the encoded handle kind.
-    native_info.objectHandle = unsafe {
+    native_info.objectHandle = match unsafe {
         translate_debug_utils_object(
             loader_device,
             native_info.objectType,
             native_info.objectHandle,
         )
+    } {
+        Ok(handle) => handle,
+        Err(result) => return result,
     };
     // SAFETY: Resolver and native device belong to the same ICD.
     let native: Option<PFN_vkSetDebugUtilsObjectTagEXT> =

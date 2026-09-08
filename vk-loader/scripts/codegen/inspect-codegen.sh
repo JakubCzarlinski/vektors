@@ -2,7 +2,7 @@
 set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
-audit_target="$repo_root/target/vk-loader-codegen-audit"
+audit_target="$loader_test_root/codegen/build"
 artifact_dir="$audit_target/release/deps"
 
 # `emit-stack-sizes` is a rustc diagnostic flag. RUSTC_BOOTSTRAP is confined

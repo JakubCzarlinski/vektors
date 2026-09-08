@@ -2,7 +2,7 @@
 set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
-output_dir="${VK_LOADER_TEST_PARITY_DIR:-$repo_root/target/vk-loader-parity}"
+output_dir="${VK_LOADER_TEST_PARITY_DIR:-$loader_test_root/parity/suites}"
 upstream_loader="${VK_LOADER_PARITY_UPSTREAM_LIBRARY:-$upstream_build_dir/loader/libvulkan.so}"
 
 "$loader_scripts/parity/check-dispatch-abi.sh" "$upstream_dir"
@@ -44,8 +44,9 @@ run_pair() {
 }
 
 if [[ "${1:-}" == "--full" ]]; then
+  ensure_upstream_tests test_fuzzing_loader_neutral "$upstream_loader"
   parity_status=0
-  for suite in test_regression test_fuzzing test_threading; do
+  for suite in test_regression test_fuzzing test_threading test_fuzzing_loader_neutral; do
     run_pair "$suite" all || parity_status=1
   done
   (( parity_status == 0 ))

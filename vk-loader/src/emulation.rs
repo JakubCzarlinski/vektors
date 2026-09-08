@@ -1,8 +1,7 @@
 //! Shared adapters for loader-side emulation of newer Vulkan queries.
 
-use core::ffi::c_void;
-
 use crate::collections::ScratchArray;
+use core::ffi::c_void;
 
 unsafe fn emulate_array<T: Copy, U, R, const STACK_CAPACITY: usize>(
     count: &mut u32,

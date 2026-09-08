@@ -3,13 +3,14 @@ set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
 target=x86_64-unknown-linux-gnu
-target_dir="${VK_LOADER_PORTABLE_TARGET_DIR:-$repo_root/target/vk-loader-glibc217}"
+target_dir="${VK_LOADER_PORTABLE_TARGET_DIR:-$loader_test_root/platform/glibc217}"
 linker="$loader_scripts/platform/zig-cc-glibc-2.17.sh"
 
 require_tools readelf sort zig
 
 CARGO_TARGET_DIR="$target_dir" \
   CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER="$linker" \
+  CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS='-C force-unwind-tables=no' \
   cargo build --quiet \
     --manifest-path "$repo_root/Cargo.toml" \
     -p vk-loader \

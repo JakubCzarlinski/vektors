@@ -4,7 +4,7 @@ set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
 toolchain="$(rustup show active-toolchain | awk '{print $1}')"
 toolchain_bin="$(dirname "$(rustup which --toolchain "$toolchain" rustc)")"
-target_dir="${VK_LOADER_CROSS_TARGET_DIR:-$repo_root/target/vk-loader-cross}"
+target_dir="${VK_LOADER_CROSS_TARGET_DIR:-$loader_test_root/platform/cross}"
 
 targets=(
   aarch64-apple-darwin

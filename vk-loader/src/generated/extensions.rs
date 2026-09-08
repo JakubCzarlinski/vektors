@@ -501,6 +501,9 @@ const _: () = assert!(
     core::mem::align_of::<vk::VkDisplaySurfaceStereoCreateInfoNV<'static>>()
         <= crate::allocation::LOADER_ALIGNMENT
 );
+pub(crate) fn extension_name(id: u16) -> &'static CStr {
+    EXTENSION_NAMES[usize::from(id)].0
+}
 pub(crate) const fn surface_create_info_extension_size(
     root: VkStructureType,
     structure_type: VkStructureType,

@@ -7,9 +7,13 @@ use core::{
     ptr::NonNull,
     sync::atomic::{AtomicBool, Ordering as AtomicOrdering},
 };
-use std::sync::LazyLock;
 
-use crate::sync::Mutex;
+use crate::{
+    ScannedIcdRecord,
+    debug::messenger,
+    platform,
+    sync::{GlobalLazyMutex, MutexInit, ObjectMutex},
+};
 use vk::{
     VK_API_VERSION_1_0, VkAllocationCallbacks, VkDebugReportFlagsEXT, VkDebugReportObjectTypeEXT,
     VkDebugUtilsMessageSeverityFlagBitsEXT, VkDebugUtilsMessageTypeFlagBitsEXT,
@@ -21,7 +25,7 @@ use crate::{
     ExtensionSet, LayerInstanceDispatchTable,
     allocation::{try_box, try_box_uninit},
     collections::HashMap,
-    debug_messenger::{DebugCallback, DebugMessengerState},
+    debug::messenger::{DebugCallback, DebugMessengerState},
     discovery::DeviceConfiguration,
     generated::EmulatedCommand,
     icd::IcdInstance,
@@ -40,16 +44,35 @@ struct InstanceRegistry {
     reservations: usize,
 }
 
-static INSTANCES: LazyLock<Mutex<InstanceRegistry>> =
-    LazyLock::new(|| Mutex::new(InstanceRegistry::default()));
+static INSTANCES: GlobalLazyMutex<InstanceRegistry> =
+    GlobalLazyMutex::new(InstanceRegistry::default);
+
+/// Zero-sized proof that the instance registry was initialized successfully.
+/// Only a successful reservation constructs this marker.
+struct InstanceRegistryReady;
+
+impl InstanceRegistryReady {
+    fn lock(_ready: &Self) -> impl core::ops::DerefMut<Target = InstanceRegistry> + use<> {
+        // SAFETY: This marker is constructed only after try_lock succeeds.
+        // Reservation/instance lifetimes exclude library termination.
+        unsafe { INSTANCES.lock_initialized() }
+    }
+}
+
+#[cfg(not(all(target_vendor = "apple", feature = "apple-static-loader")))]
+pub(crate) unsafe fn destroy_instance_registry_lock() {
+    // SAFETY: The caller excludes all loader entry points and live guards.
+    unsafe { INSTANCES.destroy() };
+}
 
 struct InstanceRegistrationReservation {
     active: bool,
+    ready: InstanceRegistryReady,
 }
 
 impl InstanceRegistrationReservation {
     fn new() -> Result<Self, VkResult> {
-        let mut registry = INSTANCES.lock();
+        let mut registry = INSTANCES.try_lock()?;
         let additional = registry
             .reservations
             .checked_add(1)
@@ -59,16 +82,22 @@ impl InstanceRegistrationReservation {
             .try_reserve(additional)
             .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
         registry.reservations = additional;
-        Ok(Self { active: true })
+        Ok(Self {
+            active: true,
+            ready: InstanceRegistryReady,
+        })
     }
 }
 
 impl Drop for InstanceRegistrationReservation {
     fn drop(&mut self) {
         if self.active {
-            let mut registry = INSTANCES.lock();
+            let mut registry = InstanceRegistryReady::lock(&self.ready);
             debug_assert!(registry.reservations != 0);
             registry.reservations -= 1;
+            if registry.owned.is_empty() && registry.reservations == 0 {
+                registry.owned = HashMap::default();
+            }
         }
     }
 }
@@ -84,20 +113,26 @@ pub(crate) struct LoaderInstance {
     pub(crate) enabled_extensions: ExtensionSet,
     pub(crate) icds: Vec<IcdInstance>,
     pub(crate) layers: Box<[LoadedLayer]>,
-    pub(crate) physical_devices: Mutex<PhysicalDeviceState>,
-    pub(crate) unknown_physical_devices: Mutex<UnknownPhysicalDeviceState>,
-    pub(crate) unknown_devices: Mutex<UnknownDeviceState>,
+    pub(crate) physical_devices: ObjectMutex<PhysicalDeviceState>,
+    pub(crate) unknown_physical_devices: ObjectMutex<UnknownPhysicalDeviceState>,
+    pub(crate) unknown_devices: ObjectMutex<UnknownDeviceState>,
     // Less frequently accessed metadata and object registries.
     dispatch_table: Box<MaybeUninit<LayerInstanceDispatchTable>>,
-    pub(crate) pending_icds: Option<Vec<crate::ScannedIcdRecord>>,
+    pub(crate) pending_icds: Option<Vec<ScannedIcdRecord>>,
     pub(crate) active_layer_properties: Box<[ActiveLayerProperty]>,
     pub(crate) enabled_layer_names: Box<[CString]>,
     pub(crate) device_configurations: Option<Box<[DeviceConfiguration]>>,
     allocator: Option<VkAllocationCallbacks<'static>>,
-    pub(crate) surfaces: Mutex<HashMap<usize, SurfaceState>>,
-    pub(crate) debug_messengers: Mutex<DebugMessengerState>,
+    pub(crate) surfaces: ObjectMutex<HashMap<usize, SurfaceState>>,
+    pub(crate) debug_messengers: ObjectMutex<DebugMessengerState>,
     has_debug_callbacks: AtomicBool,
     registration: InstanceRegistrationReservation,
+}
+
+impl Drop for LoaderInstance {
+    fn drop(&mut self) {
+        layer::unload_layers(&mut self.layers);
+    }
 }
 
 #[derive(Default)]
@@ -142,7 +177,7 @@ impl LoaderInstance {
     pub(crate) fn new(
         api_version: u32,
         enabled_extensions: ExtensionSet,
-        scanned_icds: Vec<crate::ScannedIcdRecord>,
+        scanned_icds: Vec<ScannedIcdRecord>,
         active_layers: layer::ActiveLayers,
         device_configurations: Option<Box<[DeviceConfiguration]>>,
         allocator: *const VkAllocationCallbacks<'_>,
@@ -172,17 +207,17 @@ impl LoaderInstance {
             enabled_extensions,
             icds: Vec::new(),
             layers: active_layers.loaded,
-            physical_devices: Mutex::new(PhysicalDeviceState::default()),
-            unknown_physical_devices: Mutex::new(unknown_physical_devices),
-            unknown_devices: Mutex::new(UnknownDeviceState::new()),
+            physical_devices: ObjectMutex::try_new(PhysicalDeviceState::default())?,
+            unknown_physical_devices: ObjectMutex::try_new(unknown_physical_devices)?,
+            unknown_devices: ObjectMutex::try_new(UnknownDeviceState::new())?,
             dispatch_table,
             pending_icds: Some(scanned_icds),
             active_layer_properties: active_layers.reported,
             enabled_layer_names: active_layers.requested,
             device_configurations,
             allocator,
-            surfaces: Mutex::new(HashMap::default()),
-            debug_messengers: Mutex::new(DebugMessengerState::new()),
+            surfaces: ObjectMutex::try_new(HashMap::default())?,
+            debug_messengers: ObjectMutex::try_new(DebugMessengerState::new())?,
             has_debug_callbacks: AtomicBool::new(false),
             registration,
         })
@@ -216,7 +251,7 @@ impl LoaderInstance {
 
     pub(crate) fn register(mut instance: Box<Self>) {
         let key = instance.dispatch() as usize;
-        let mut registry = INSTANCES.lock();
+        let mut registry = InstanceRegistryReady::lock(&instance.registration.ready);
         debug_assert!(instance.registration.active);
         debug_assert!(registry.reservations != 0);
         registry.reservations -= 1;
@@ -306,7 +341,10 @@ impl LoaderInstance {
         // SAFETY: Every live instance dispatchable stores its dispatch table in
         // the first word, including handles wrapped by layers.
         let dispatch = unsafe { handle.cast::<*const LayerInstanceDispatchTable>().read() };
-        let pointer = *INSTANCES.lock().owned.get(&(dispatch as usize))?;
+        let pointer = *INSTANCES
+            .lock_if_initialized()?
+            .owned
+            .get(&(dispatch as usize))?;
         // SAFETY: Registration retains this boxed allocation until destruction.
         let instance = unsafe { &*(pointer as *const Self) };
         (instance.magic == INSTANCE_MAGIC).then_some(instance)
@@ -334,7 +372,7 @@ impl LoaderInstance {
     }
 
     pub(crate) fn take_dispatch(dispatch: *const LayerInstanceDispatchTable) -> Option<Box<Self>> {
-        let mut instances = INSTANCES.lock();
+        let mut instances = INSTANCES.lock_if_initialized()?;
         let pointer = instances.owned.remove(&(dispatch as usize))?;
         if instances.owned.is_empty() && instances.reservations == 0 {
             instances.owned = HashMap::default();
@@ -351,7 +389,7 @@ impl LoaderInstance {
         message_types: VkDebugUtilsMessageTypeFlagsEXT,
         callback_data: &VkDebugUtilsMessengerCallbackDataEXT<'_>,
     ) {
-        let report_flags = crate::debug_messenger::debug_report_flags(severity, message_types);
+        let report_flags = messenger::debug_report_flags(severity, message_types);
         let (object_type, object) = if callback_data.objectCount == 0 {
             (VkDebugReportObjectTypeEXT::UNKNOWN, 0)
         } else {
@@ -432,9 +470,12 @@ impl LoaderInstance {
         message_types: VkDebugUtilsMessageTypeFlagsEXT,
         message: &core::ffi::CStr,
     ) {
-        crate::platform::write_loader_log(
-            crate::platform::LogFilter::from_severity(severity),
-            format_args!("{}", message.to_string_lossy()),
+        platform::write_loader_log(
+            platform::LogFilter::from_severity(severity),
+            format_args!(
+                "{}",
+                crate::debug::diagnostics::LossyBytes(message.to_bytes())
+            ),
         );
         self.submit_loader_message(severity, message_types, message);
     }
@@ -445,13 +486,35 @@ impl LoaderInstance {
         message_types: VkDebugUtilsMessageTypeFlagsEXT,
         message: core::fmt::Arguments<'_>,
     ) {
-        let message = message.to_string();
-        crate::platform::write_loader_log(
-            crate::platform::LogFilter::from_severity(severity),
-            format_args!("{message}"),
+        platform::write_loader_log(platform::LogFilter::from_severity(severity), message);
+        self.submit_loader_message_text(severity, message_types, message);
+    }
+
+    pub(crate) fn log_loader_category_message_text(
+        &self,
+        severity: VkDebugUtilsMessageSeverityFlagBitsEXT,
+        message_types: VkDebugUtilsMessageTypeFlagsEXT,
+        category: platform::LogFilter,
+        message: core::fmt::Arguments<'_>,
+    ) {
+        platform::write_loader_log_with_category(
+            platform::LogFilter::from_severity(severity),
+            category,
+            message,
         );
-        if let Ok(message) = CString::new(message) {
-            self.submit_loader_message(severity, message_types, &message);
+        self.submit_loader_message_text(severity, message_types, message);
+    }
+
+    fn submit_loader_message_text(
+        &self,
+        severity: VkDebugUtilsMessageSeverityFlagBitsEXT,
+        message_types: VkDebugUtilsMessageTypeFlagsEXT,
+        message: core::fmt::Arguments<'_>,
+    ) {
+        if self.has_debug_callbacks.load(AtomicOrdering::Acquire) {
+            crate::debug::diagnostics::with_message(message, |message| {
+                self.submit_loader_message(severity, message_types, message);
+            });
         }
     }
 
@@ -462,9 +525,8 @@ impl LoaderInstance {
 
     #[inline]
     fn wants_loader_message(&self, severity: VkDebugUtilsMessageSeverityFlagBitsEXT) -> bool {
-        crate::platform::loader_debug_filter_enabled(crate::platform::LogFilter::from_severity(
-            severity,
-        )) || self.has_debug_callbacks.load(AtomicOrdering::Acquire)
+        platform::loader_debug_filter_enabled(platform::LogFilter::from_severity(severity))
+            || self.has_debug_callbacks.load(AtomicOrdering::Acquire)
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -478,7 +540,7 @@ impl LoaderInstance {
         layer_prefix: *const core::ffi::c_char,
         message: *const core::ffi::c_char,
     ) {
-        let (severity, message_types) = crate::debug_messenger::debug_utils_flags(flags);
+        let (severity, message_types) = messenger::debug_utils_flags(flags);
         let object_info = VkDebugUtilsObjectNameInfoEXT {
             objectType: crate::convert_debug_report_object_to_core_object(object_type),
             objectHandle: object,
@@ -558,7 +620,8 @@ impl LoaderPhysicalDevice {
         let library = self
             .icd()
             .library_path()
-            .map_or_else(|| "".into(), |path| path.to_string_lossy());
+            .unwrap_or_else(|| std::path::Path::new(""))
+            .display();
         match command.diagnostic_legacy_name() {
             Some(legacy) => self.instance().log_loader_message_text(
                 VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,

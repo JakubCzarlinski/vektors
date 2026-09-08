@@ -1,0 +1,89 @@
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index 5909212..213db4c 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -107,6 +107,17 @@ if (NOT APPLE_STATIC_LOADER)
+ endif()
+ target_include_directories(test_fuzzing PUBLIC ${CMAKE_SOURCE_DIR}/loader ${CMAKE_SOURCE_DIR}/loader/generated)
+ 
++# Public-loader fuzz cases resolve Vulkan entry points through
++# VK_LOADER_TEST_LOADER_PATH. Keep them in a loader-neutral executable so a
++# comparison run does not also map the upstream loader into the process.
++add_executable(
++    test_fuzzing_loader_neutral
++        loader_testing_main.cpp
++        loader_fuzz_tests.cpp
++)
++target_link_libraries(test_fuzzing_loader_neutral PUBLIC testing_dependencies)
++target_compile_definitions(test_fuzzing_loader_neutral PUBLIC VK_NO_PROTOTYPES LOADER_TEST_LOADER_NEUTRAL)
++
+ # Threading tests live in separate executabe just for threading tests as it'll need support
+ # in the test harness to enable in CI, as thread sanitizer doesn't work with address sanitizer enabled.
+ add_executable(
+@@ -141,10 +152,12 @@ endif()
+ if(NOT CMAKE_CROSSCOMPILING)
+     gtest_discover_tests(test_regression PROPERTIES DISCOVERY_TIMEOUT 100)
+     gtest_discover_tests(test_fuzzing PROPERTIES DISCOVERY_TIMEOUT 100)
++    gtest_discover_tests(test_fuzzing_loader_neutral PROPERTIES DISCOVERY_TIMEOUT 100)
+     gtest_discover_tests(test_threading PROPERTIES DISCOVERY_TIMEOUT 100)
+ else()
+     gtest_add_tests(TARGET test_regression)
+     gtest_add_tests(TARGET test_fuzzing)
++    gtest_add_tests(TARGET test_fuzzing_loader_neutral)
+     gtest_add_tests(TARGET test_threading)
+ endif()
+ 
+diff --git a/tests/loader_fuzz_tests.cpp b/tests/loader_fuzz_tests.cpp
+index 6fa5b25..7134b67 100644
+--- a/tests/loader_fuzz_tests.cpp
++++ b/tests/loader_fuzz_tests.cpp
+@@ -30,11 +30,13 @@
+ #include <fstream>
+ #include <vector>
+ 
++#if !defined(LOADER_TEST_LOADER_NEUTRAL)
+ extern "C" {
+ #include "loader.h"
+ #include "loader_json.h"
+ #include "settings.h"
+ }
++#endif
+ 
+ void execute_instance_enumerate_fuzzer(std::filesystem::path const& filename) {
+     FrameworkEnvironment env{};
+@@ -127,6 +129,7 @@ void execute_instance_create_advanced_fuzzer(std::filesystem::path const& filena
+ 
+     execute_instance_create_fuzzer_logic(env);
+ }
++#if !defined(LOADER_TEST_LOADER_NEUTRAL)
+ void execute_json_load_fuzzer(std::string const& filename) {
+     FrameworkEnvironment env{};
+ 
+@@ -159,6 +162,14 @@ void execute_setting_fuzzer(std::filesystem::path const& filename) {
+     get_settings_layers(NULL, &settings_layers, &should_search_for_other_layers);
+     loader_delete_layer_list_and_properties(NULL, &settings_layers);
+ }
++#else
++void execute_json_load_fuzzer(std::string const& filename) {
++    execute_instance_enumerate_fuzzer(filename);
++}
++void execute_setting_fuzzer(std::filesystem::path const& filename) {
++    execute_instance_enumerate_fuzzer(filename);
++}
++#endif
+ 
+ TEST(BadJsonInput, ClusterFuzzTestCase_5599244505186304) {
+     // Doesn't crash with ASAN or UBSAN
+@@ -343,6 +354,7 @@ TEST(BadJsonInput, ClusterFuzzTestCase_4626669072875520) {
+     execute_setting_fuzzer("clusterfuzz-testcase-minimized-settings_fuzzer-4626669072875520");
+ }
+ 
++#if !defined(LOADER_TEST_LOADER_NEUTRAL)
+ // A string that ends in the middle of a multi-byte UTF-8 character must not make vk_string_validate read
+ // past the terminator. Each buffer is sized to its exact contents so ASAN flags any over-read.
+ TEST(StringValidation, TruncatedMultiByteDoesNotReadPastTerminator) {
+@@ -389,3 +401,4 @@ TEST(JsonStringPrint, PrintPreallocatedTerminatesAtRealEnd) {
+     loader_cJSON_Delete(json);
+     std::filesystem::remove(json_path);
+ }
++#endif

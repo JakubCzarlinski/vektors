@@ -3,7 +3,8 @@ set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
 target="${VK_LOADER_WINDOWS_TARGET:-x86_64-pc-windows-gnu}"
-test_dir="$repo_root/.upstream/vulkan-loader/build-windows-rust-parity/tests"
+target_dir="$loader_test_root/platform/windows/rust"
+test_dir="$windows_upstream_build_dir/tests"
 regression="$test_dir/test_regression.exe"
 unicode_icd="$test_dir/framework/icd/lib🌋.dll"
 
@@ -22,16 +23,16 @@ fi
 
 toolchain="$(rustup show active-toolchain | awk '{print $1}')"
 toolchain_bin="$(dirname "$(rustup which --toolchain "$toolchain" rustc)")"
-PATH="$toolchain_bin:$PATH" RUSTC="$toolchain_bin/rustc" "$toolchain_bin/cargo" build \
+PATH="$toolchain_bin:$PATH" RUSTC="$toolchain_bin/rustc" CARGO_TARGET_DIR="$target_dir" "$toolchain_bin/cargo" build \
   --quiet \
   --manifest-path "$repo_root/Cargo.toml" \
   -p vk-loader \
   --target "$target"
 
 shim_dir="$(winepath -w "$test_dir/framework/shim")"
-loader_dll="$(winepath -w "$repo_root/target/$target/debug/vulkan.dll")"
+loader_dll="$(winepath -w "$target_dir/$target/debug/vulkan.dll")"
 wine_path="$shim_dir;Z:\\usr\\x86_64-w64-mingw32\\bin"
-tmp_dir="$(mktemp -d)"
+tmp_dir="$(test_scratch_dir platform/windows)"
 trap 'rm -rf "$tmp_dir"' EXIT
 
 run_case() {
