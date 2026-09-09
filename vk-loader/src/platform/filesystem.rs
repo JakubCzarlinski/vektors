@@ -4,6 +4,32 @@
 mod tests {
     use super::{directory_entry, mark_native_allocation_failure};
     use crate::pending;
+    use std::{ffi::OsStr, os::unix::ffi::OsStrExt as _, path::Path};
+
+    #[test]
+    fn json_paths_preserve_component_and_byte_semantics() {
+        for (bytes, expected) in [
+            (b"a.json".as_slice(), true),
+            (b"a.json//./", true),
+            (b"./a.json/.", true),
+            (b"//a.json", true),
+            (b"\xff.json", true),
+            (b".json", false),
+            (b"a.JSON", false),
+            (b"a.json/../", false),
+            (b"a.json/b", false),
+            (b"/./", false),
+            (b"", false),
+        ] {
+            let path = Path::new(OsStr::from_bytes(bytes));
+            assert_eq!(super::is_json_path(path), expected, "{path:?}");
+            assert_eq!(
+                super::is_json_path(path),
+                path.file_name()
+                    .is_some_and(|name| super::is_json_name(name.as_bytes()))
+            );
+        }
+    }
 
     #[test]
     fn directory_eof_and_errors_are_distinct() {
@@ -182,6 +208,7 @@ pub(crate) fn read_file(path: &Path) -> Option<Box<[u8]>> {
         // SAFETY: `bytes` has writable capacity for exactly `length` bytes.
         let read = unsafe { libc::fread(bytes.as_mut_ptr().cast::<c_void>(), 1, length, file) };
         if read != length {
+            core::hint::cold_path();
             // SAFETY: The stream is still owned and open. EOF is not an error;
             // only consult errno when fread actually set the error indicator.
             if unsafe { libc::ferror(file) } != 0 {
@@ -283,10 +310,13 @@ pub(crate) fn manifest_files(path: &Path) -> Vec<PathBuf> {
 
 #[cfg(unix)]
 pub(crate) fn is_json_path(path: &Path) -> bool {
-    let name = path
-        .file_name()
-        .map_or(&[][..], std::os::unix::ffi::OsStrExt::as_bytes);
-    is_json_name(name)
+    // Unix components discard trailing separators and current-directory
+    // components. A parent component cannot have the required JSON suffix.
+    path.as_os_str()
+        .as_bytes()
+        .rsplit(|byte| *byte == b'/')
+        .find(|component| !component.is_empty() && *component != b".")
+        .is_some_and(is_json_name)
 }
 
 #[cfg(unix)]
@@ -330,8 +360,14 @@ fn read_manifest_directory(path: &Path) -> Option<Vec<PathBuf>> {
                     pending::mark_json_allocation_failed();
                     return None;
                 }
-                entry_path.push(path);
-                entry_path.push(OsStr::from_bytes(name));
+                // A dirent name is one relative component on Unix. Append its
+                // bytes directly instead of reparsing both paths in PathBuf::push.
+                let bytes = entry_path.as_mut_os_string();
+                bytes.push(path.as_os_str());
+                if !path.as_os_str().is_empty() && !path.as_os_str().as_bytes().ends_with(b"/") {
+                    bytes.push(OsStr::from_bytes(b"/"));
+                }
+                bytes.push(OsStr::from_bytes(name));
                 entries.push(entry_path);
             }
         }

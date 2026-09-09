@@ -182,22 +182,40 @@ fn extension_name(property: &VkExtensionProperties) -> &[core::ffi::c_char] {
     &property.extensionName[..end]
 }
 
+#[derive(Default)]
+struct InstanceExtensions {
+    properties: Vec<VkExtensionProperties>,
+    known: crate::ExtensionSet,
+}
+
 fn push_extension(
-    extensions: &mut Vec<VkExtensionProperties>,
+    extensions: &mut InstanceExtensions,
     property: &VkExtensionProperties,
 ) -> Result<(), VkResult> {
-    // `loader_add_to_ext_list` retains the first property for a duplicate name.
+    // Preserve the first property, including its spec version, for every name.
     let name = extension_name(property);
-    if extensions
-        .iter()
-        .any(|existing| extension_name(existing) == name)
-    {
+    // SAFETY: c_char and u8 have identical size/alignment; the slice is bounded.
+    let bytes = unsafe { core::slice::from_raw_parts(name.as_ptr().cast::<u8>(), name.len()) };
+    let id = crate::generated::extension_id_bytes(bytes);
+    let duplicate = match id {
+        Some(id) => extensions.known.contains(id),
+        None => extensions
+            .properties
+            .iter()
+            .any(|existing| extension_name(existing) == name),
+    };
+    if duplicate {
         return Ok(());
     }
     extensions
+        .properties
         .try_reserve(1)
         .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
-    extensions.push(*property);
+    extensions.properties.push(*property);
+    // Do not publish membership until fallible growth has succeeded.
+    if let Some(id) = id {
+        extensions.known.insert(id);
+    }
     Ok(())
 }
 
@@ -222,10 +240,11 @@ fn extension_property(name: &CStr, spec_version: u32) -> VkExtensionProperties {
 }
 
 fn append_manifest_extensions(
-    extensions: &mut Vec<VkExtensionProperties>,
+    extensions: &mut InstanceExtensions,
     root: &LayerManifest,
     manifests: &[LayerManifest],
 ) -> Result<(), VkResult> {
+    crate::discovery::resolve_layer_names(manifests);
     let root_index = manifests
         .iter()
         .position(|manifest| core::ptr::eq(manifest, root))
@@ -249,10 +268,7 @@ fn append_manifest_extensions(
             )?;
         }
         for component in manifest.component_layers().iter().rev() {
-            if let Some(index) = manifests
-                .iter()
-                .position(|manifest| manifest.name == *component)
-            {
+            if let Some(index) = component.index() {
                 // Duplicate edges can queue more entries than there are manifests.
                 // Keep the existing DFS order while making overflow growth fallible.
                 crate::allocation::try_push(&mut pending, index)?;
@@ -262,7 +278,7 @@ fn append_manifest_extensions(
     Ok(())
 }
 
-fn append_loader_extensions(extensions: &mut Vec<VkExtensionProperties>) -> Result<(), VkResult> {
+fn append_loader_extensions(extensions: &mut InstanceExtensions) -> Result<(), VkResult> {
     const LOADER_EXTENSIONS: [(&CStr, u32); 4] = [
         (
             vk::VK_EXT_DEBUG_REPORT_EXTENSION_NAME,
@@ -282,6 +298,7 @@ fn append_loader_extensions(extensions: &mut Vec<VkExtensionProperties>) -> Resu
         ),
     ];
     extensions
+        .properties
         .try_reserve(LOADER_EXTENSIONS.len())
         .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
     for (name, spec_version) in LOADER_EXTENSIONS {
@@ -290,9 +307,7 @@ fn append_loader_extensions(extensions: &mut Vec<VkExtensionProperties>) -> Resu
     Ok(())
 }
 
-unsafe fn append_icd_extensions(
-    extensions: &mut Vec<VkExtensionProperties>,
-) -> Result<(), VkResult> {
+unsafe fn append_icd_extensions(extensions: &mut InstanceExtensions) -> Result<(), VkResult> {
     // SAFETY: As in upstream discovery, callers must not mutate the process
     // environment during loader operations; the callback only parses a string.
     let filter_unknown = unsafe {
@@ -392,7 +407,7 @@ unsafe fn enumerate_extension_properties_from_manifests(
         Ok(valid) => valid,
         Err(result) => return result,
     };
-    let mut extensions = Vec::new();
+    let mut extensions = InstanceExtensions::default();
     if layer_name.is_null() || unsafe { layer_name.read() } == 0 {
         if let Err(result) = unsafe { append_icd_extensions(&mut extensions) } {
             return result;
@@ -429,18 +444,18 @@ unsafe fn enumerate_extension_properties_from_manifests(
             return result;
         }
     }
-    let total = extensions.len().min(u32::MAX as usize) as u32;
+    let total = extensions.properties.len().min(u32::MAX as usize) as u32;
     if properties.is_null() {
         *property_count = total;
         return VkResult::SUCCESS;
     }
     let capacity = *property_count as usize;
-    let written = capacity.min(extensions.len());
+    let written = capacity.min(extensions.properties.len());
     unsafe {
-        core::ptr::copy_nonoverlapping(extensions.as_ptr(), properties, written);
+        core::ptr::copy_nonoverlapping(extensions.properties.as_ptr(), properties, written);
     }
     *property_count = written as u32;
-    if written < extensions.len() {
+    if written < extensions.properties.len() {
         VkResult::INCOMPLETE
     } else {
         VkResult::SUCCESS
@@ -675,7 +690,7 @@ mod tests {
         });
         for (manifest, name) in manifests.iter_mut().zip(extension_names) {
             manifest.instance_extensions = [crate::discovery::LayerExtension {
-                name: name.to_owned(),
+                name: name.to_owned().into(),
                 spec_version: 1,
                 entrypoints: Box::default(),
             }]
@@ -685,17 +700,20 @@ mod tests {
             [
                 names[1], names[2], names[1], names[1], names[1], names[1], names[1], names[1],
             ]
-            .map(CStr::to_owned)
+            .map(|name| crate::discovery::LayerComponent::from(name.to_owned()))
             .into(),
         );
-        manifests[1].source =
-            crate::discovery::LayerSource::Meta([names[2], names[3]].map(CStr::to_owned).into());
+        manifests[1].source = crate::discovery::LayerSource::Meta(
+            [names[2], names[3]]
+                .map(|name| crate::discovery::LayerComponent::from(name.to_owned()))
+                .into(),
+        );
         crate::allocation::fault::sweep_operation(|| {
-            let mut extensions = Vec::new();
+            let mut extensions = InstanceExtensions::default();
             match append_manifest_extensions(&mut extensions, &manifests[0], &manifests) {
                 Ok(()) => {
-                    assert_eq!(extensions.len(), extension_names.len());
-                    for (actual, name) in extensions.iter().zip(extension_names) {
+                    assert_eq!(extensions.properties.len(), extension_names.len());
+                    for (actual, name) in extensions.properties.iter().zip(extension_names) {
                         assert_eq!(
                             actual.extensionName,
                             extension_property(name, 1).extensionName
@@ -728,8 +746,24 @@ mod tests {
     }
 
     #[test]
+    fn failed_extension_growth_does_not_publish_membership() {
+        crate::allocation::fault::sweep_operation(|| {
+            let mut extensions = InstanceExtensions::default();
+            let property = extension_property(c"VK_EXT_debug_utils", 1);
+            let result = push_extension(&mut extensions, &property);
+            if let Err(error) = result {
+                assert!(extensions.properties.is_empty());
+                push_extension(&mut extensions, &property).unwrap();
+                assert_eq!(extensions.properties.len(), 1);
+                return error;
+            }
+            VkResult::SUCCESS
+        });
+    }
+
+    #[test]
     fn duplicate_extension_retains_first_property_like_upstream() {
-        let mut extensions = Vec::new();
+        let mut extensions = InstanceExtensions::default();
         push_extension(
             &mut extensions,
             &extension_property(c"VK_EXT_debug_utils", 1),
@@ -741,7 +775,19 @@ mod tests {
         )
         .unwrap();
 
-        assert_eq!(extensions.len(), 1);
-        assert_eq!(extensions[0].specVersion, 1);
+        assert_eq!(extensions.properties.len(), 1);
+        assert_eq!(extensions.properties[0].specVersion, 1);
+        push_extension(
+            &mut extensions,
+            &extension_property(c"VK_VENDOR_unknown_\xff", 2),
+        )
+        .unwrap();
+        push_extension(
+            &mut extensions,
+            &extension_property(c"VK_VENDOR_unknown_\xff", 3),
+        )
+        .unwrap();
+        assert_eq!(extensions.properties.len(), 2);
+        assert_eq!(extensions.properties[1].specVersion, 2);
     }
 }

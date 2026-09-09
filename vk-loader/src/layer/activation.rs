@@ -3,7 +3,7 @@
 use crate::{allocation, debug::diagnostics, pending};
 
 use super::{
-    ActiveLayerProperty, ActiveLayers, CStr, CString, HashSet, LayerControl, LayerFilterVariable,
+    ActiveLayerProperty, ActiveLayers, CStr, CString, LayerControl, LayerFilterVariable,
     LayerLoadError, LayerManifest, LayerNames, LoadedLayer, LoaderSettings, OsStr, SelectedLayers,
     VkInstanceCreateInfo, VkResult, compatibility_manifest_graph, discover_layers_with_settings,
     emit_create_message, emit_layer_message, emit_layer_search_diagnostics,
@@ -216,9 +216,7 @@ pub(super) fn available_layer_mask(manifests: &[LayerManifest]) -> Result<Box<[b
         .iter()
         .zip(available.iter())
         .find(|(manifest, valid)| {
-            **valid
-                && manifest.name.as_c_str() == c"VK_LAYER_LUNARG_override"
-                && implicit_manifest_is_active(manifest)
+            **valid && manifest.is_override() && implicit_manifest_is_active(manifest)
         })
         .map(|(manifest, _)| manifest.blacklisted_layers.as_ref());
     if let Some(blacklist) = blacklist {
@@ -231,38 +229,51 @@ pub(super) fn available_layer_mask(manifests: &[LayerManifest]) -> Result<Box<[b
     Ok(available)
 }
 
-pub(super) fn meta_reaches(
-    manifests: &[LayerManifest],
-    from: usize,
-    target: usize,
-) -> Result<bool, VkResult> {
-    if from == target {
-        return Ok(true);
-    }
-    let mut visited = allocation::try_boxed_slice_filled(manifests.len(), false)?;
-    let mut pending = Vec::new();
-    pending
-        .try_reserve_exact(manifests.len())
-        .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
-    visited[from] = true;
-    pending.push(from);
-    while let Some(index) = pending.pop() {
-        if index == target {
+/// Reused only within one manifest snapshot; no discovery state is cached.
+#[derive(Default)]
+pub(super) struct MetaTraversal {
+    visited: Vec<bool>,
+    pending: Vec<usize>,
+}
+
+impl MetaTraversal {
+    pub(super) fn reaches(
+        &mut self,
+        manifests: &[LayerManifest],
+        from: usize,
+        target: usize,
+    ) -> Result<bool, VkResult> {
+        if from == target {
             return Ok(true);
         }
-        for name in manifests[index].component_layers() {
-            if let Some(component) = manifests
-                .iter()
-                .position(|candidate| candidate.name == *name)
-                && !visited[component]
-            {
-                // Each vertex is queued once, so the initial reservation bounds growth.
-                visited[component] = true;
-                pending.push(component);
+        self.visited.clear();
+        self.pending.clear();
+        self.visited
+            .try_reserve_exact(manifests.len())
+            .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+        self.pending
+            .try_reserve_exact(manifests.len())
+            .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+        self.visited.resize(manifests.len(), false);
+        self.visited[from] = true;
+        self.pending.push(from);
+        while let Some(index) = self.pending.pop() {
+            if index == target {
+                return Ok(true);
+            }
+            for name in manifests[index].component_layers() {
+                if let Some(component) = name.index()
+                    && !self.visited[component]
+                {
+                    // Each vertex is queued once, bounding growth by the
+                    // reservation even when components contain duplicates.
+                    self.visited[component] = true;
+                    self.pending.push(component);
+                }
             }
         }
+        Ok(false)
     }
-    Ok(false)
 }
 
 #[cold]
@@ -328,7 +339,6 @@ pub(crate) fn select_active_layers(
     let mut selection = LayerSelection {
         selected: Vec::new(),
         reported: Vec::new(),
-        expanding: HashSet::default(),
         activation_messages,
         repeated_activation_messages,
         activation_error_messages: Vec::new(),
@@ -367,18 +377,14 @@ pub(crate) fn select_active_layers(
     } = selection;
     Ok(SelectedLayers {
         manifests: manifests.into_manifests(),
-        selected: allocation::try_into_boxed_slice(selected)?,
+        selected,
         reported: allocation::try_into_boxed_slice(reported)?,
         requested,
         environment_count,
-        activation_messages: allocation::try_into_boxed_slice(activation_messages)?,
-        repeated_activation_messages: allocation::try_into_boxed_slice(
-            repeated_activation_messages,
-        )?,
-        activation_error_messages: allocation::try_into_boxed_slice(activation_error_messages)?,
-        repeated_activation_error_messages: allocation::try_into_boxed_slice(
-            repeated_activation_error_messages,
-        )?,
+        activation_messages,
+        repeated_activation_messages,
+        activation_error_messages,
+        repeated_activation_error_messages,
     })
 }
 
@@ -439,7 +445,7 @@ pub(crate) fn load_selected_layers(
     selected_layers: SelectedLayers,
 ) -> Result<ActiveLayers, VkResult> {
     let SelectedLayers {
-        manifests,
+        mut manifests,
         selected,
         reported,
         requested,
@@ -503,7 +509,7 @@ pub(crate) fn load_selected_layers(
         } else {
             "Meta-layer"
         };
-        match LoadedLayer::load(manifest, index, enabled_by) {
+        match LoadedLayer::load(&mut manifests[index], index, enabled_by) {
             Ok(layer) => {
                 emit_loaded_layer(create_info, &layer)?;
                 allocation::try_push(&mut loaded, layer)?;
@@ -511,7 +517,7 @@ pub(crate) fn load_selected_layers(
             Err(error) => {
                 emit_layer_load_error(
                     create_info,
-                    manifest,
+                    &manifests[index],
                     error,
                     requested_by_application,
                     &mut requested_layer_failed,
@@ -538,15 +544,21 @@ pub(crate) fn load_selected_layers(
     })
 }
 
-pub(super) fn activate_manifest<'a>(
-    manifest: &'a LayerManifest,
-    manifests: &'a [LayerManifest],
+struct ActivationPath<'a> {
+    name_index: usize,
+    parent: Option<&'a ActivationPath<'a>>,
+}
+
+fn activate_manifest(
+    index: usize,
+    manifests: &[LayerManifest],
     selected: &mut Vec<usize>,
     reported: &mut Vec<ActiveLayerProperty>,
-    expanding: &mut HashSet<&'a CStr>,
+    parent: Option<&ActivationPath<'_>>,
     activation_messages: &mut Vec<String>,
     repeated_activation_messages: &mut Vec<String>,
 ) -> Result<bool, VkResult> {
+    let manifest = &manifests[index];
     if reported.iter().any(|layer| {
         layer.name == manifest.name
             && (!manifest.component_layers().is_empty()
@@ -554,20 +566,18 @@ pub(super) fn activate_manifest<'a>(
     }) {
         return Ok(true);
     }
-    expanding
-        .try_reserve(1)
-        .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
-    if !expanding.insert(manifest.name.as_c_str()) {
-        return Ok(false);
-    }
-    let result = if manifest.component_layers().is_empty() {
-        let Some(index) = manifests
-            .iter()
-            .position(|candidate| core::ptr::eq(candidate, manifest))
-        else {
-            expanding.remove(manifest.name.as_c_str());
+    let mut ancestor = parent;
+    while let Some(path) = ancestor {
+        if path.name_index == manifest.name_index() {
             return Ok(false);
-        };
+        }
+        ancestor = path.parent;
+    }
+    let path = ActivationPath {
+        name_index: manifest.name_index(),
+        parent,
+    };
+    let result = if manifest.component_layers().is_empty() {
         selected
             .try_reserve(1)
             .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
@@ -581,13 +591,11 @@ pub(super) fn activate_manifest<'a>(
     } else {
         let mut complete = true;
         for component_name in manifest.component_layers() {
-            let Some(component) = manifests
-                .iter()
-                .find(|candidate| candidate.name == *component_name)
-            else {
+            let Some(component_index) = component_name.index() else {
                 complete = false;
                 continue;
             };
+            let component = &manifests[component_index];
             if forced_disabled(component) && !forced_enabled(component) {
                 let message = diagnostics::try_format(format_args!(
                     "Failed to find layer name \"{}\" component layer \"{}\" to activate (Policy #LLP_LAYER_7)",
@@ -600,11 +608,11 @@ pub(super) fn activate_manifest<'a>(
                 continue;
             }
             if !activate_manifest(
-                component,
+                component_index,
                 manifests,
                 selected,
                 reported,
-                expanding,
+                Some(&path),
                 activation_messages,
                 repeated_activation_messages,
             )? {
@@ -619,7 +627,6 @@ pub(super) fn activate_manifest<'a>(
         }
         complete
     };
-    expanding.remove(manifest.name.as_c_str());
     Ok(result)
 }
 
@@ -850,7 +857,7 @@ fn emit_disabled_layers(create_info: &VkInstanceCreateInfo<'_>, manifests: &[Lay
             && forced_disabled(manifest)
             && !forced_enabled(manifest)
     }) {
-        if manifest.implicit && manifest.name.as_c_str() == c"VK_LAYER_LUNARG_override" {
+        if manifest.implicit && manifest.is_override() {
             emit_layer_message(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
@@ -882,10 +889,8 @@ fn emit_blacklisted_layers(
         .iter()
         .zip(valid.iter())
         .find_map(|(manifest, valid)| {
-            (*valid
-                && manifest.name.as_c_str() == c"VK_LAYER_LUNARG_override"
-                && implicit_manifest_is_active(manifest))
-            .then_some(manifest)
+            (*valid && manifest.is_override() && implicit_manifest_is_active(manifest))
+                .then_some(manifest)
         });
     if let Some(override_layer) = override_layer {
         for blacklisted in &override_layer.blacklisted_layers {
@@ -915,29 +920,24 @@ fn emit_blacklisted_layers(
 }
 
 /// Owns the existing selection buffers while activation phases update them.
-struct LayerSelection<'a> {
+struct LayerSelection {
     selected: Vec<usize>,
     reported: Vec<ActiveLayerProperty>,
-    expanding: HashSet<&'a CStr>,
     activation_messages: Vec<String>,
     repeated_activation_messages: Vec<String>,
     activation_error_messages: Vec<String>,
     repeated_activation_error_messages: Vec<String>,
 }
 
-impl<'a> LayerSelection<'a> {
+impl LayerSelection {
     #[inline]
-    fn activate(
-        &mut self,
-        manifest: &'a LayerManifest,
-        manifests: &'a [LayerManifest],
-    ) -> Result<bool, VkResult> {
+    fn activate(&mut self, index: usize, manifests: &[LayerManifest]) -> Result<bool, VkResult> {
         activate_manifest(
-            manifest,
+            index,
             manifests,
             &mut self.selected,
             &mut self.reported,
-            &mut self.expanding,
+            None,
             &mut self.activation_messages,
             &mut self.repeated_activation_messages,
         )
@@ -945,14 +945,14 @@ impl<'a> LayerSelection<'a> {
 
     fn activate_implicit(
         &mut self,
-        manifests: &'a [LayerManifest],
+        manifests: &[LayerManifest],
         valid: &[bool],
         requested: &[CString],
         environment_count: usize,
         settings_active: bool,
     ) -> Result<(), VkResult> {
         if settings_active {
-            for (manifest, valid) in manifests.iter().zip(valid.iter()) {
+            for (index, (manifest, valid)) in manifests.iter().zip(valid.iter()).enumerate() {
                 if !valid {
                     continue;
                 }
@@ -969,11 +969,11 @@ impl<'a> LayerSelection<'a> {
                     }
                 };
                 if active {
-                    let _ = self.activate(manifest, manifests)?;
+                    let _ = self.activate(index, manifests)?;
                 }
             }
         }
-        for (manifest, valid) in manifests.iter().zip(valid.iter()) {
+        for (index, (manifest, valid)) in manifests.iter().zip(valid.iter()).enumerate() {
             if settings_active
                 || !valid
                 || !implicit_manifest_is_active(manifest)
@@ -983,9 +983,9 @@ impl<'a> LayerSelection<'a> {
             {
                 continue;
             }
-            let _ = self.activate(manifest, manifests)?;
+            let _ = self.activate(index, manifests)?;
         }
-        for (manifest, valid) in manifests.iter().zip(valid.iter()) {
+        for (index, (manifest, valid)) in manifests.iter().zip(valid.iter()).enumerate() {
             if settings_active
                 || !valid
                 || !forced_enabled(manifest)
@@ -997,7 +997,7 @@ impl<'a> LayerSelection<'a> {
             {
                 continue;
             }
-            let _ = self.activate(manifest, manifests)?;
+            let _ = self.activate(index, manifests)?;
         }
         Ok(())
     }
@@ -1005,17 +1005,18 @@ impl<'a> LayerSelection<'a> {
     fn activate_requested(
         &mut self,
         create_info: &VkInstanceCreateInfo<'_>,
-        manifests: &'a [LayerManifest],
+        manifests: &[LayerManifest],
         valid: &[bool],
         requested: &[CString],
         environment_count: usize,
     ) -> Result<(), VkResult> {
         for (requested_index, requested_name) in requested.iter().enumerate() {
-            let Some((manifest, _)) =
+            let Some((index, (manifest, _))) =
                 manifests
                     .iter()
                     .zip(valid.iter())
-                    .find(|(manifest, valid)| {
+                    .enumerate()
+                    .find(|(_, (manifest, valid))| {
                         **valid && manifest.name.as_c_str() == requested_name.as_c_str()
                     })
             else {
@@ -1061,7 +1062,7 @@ impl<'a> LayerSelection<'a> {
                 );
                 return Err(VkResult::ERROR_LAYER_NOT_PRESENT);
             }
-            if !self.activate(manifest, manifests)? {
+            if !self.activate(index, manifests)? {
                 if requested_index < environment_count {
                     continue;
                 }

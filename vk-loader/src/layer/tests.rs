@@ -12,20 +12,31 @@ fn meta_reachability_handles_cycles_duplicates_and_allocation_failures() {
     });
     manifests[0].source = crate::discovery::LayerSource::Meta(
         [names[1], names[1], names[0], names[1]]
-            .map(CStr::to_owned)
+            .map(|name| crate::discovery::LayerComponent::from(name.to_owned()))
             .into(),
     );
-    manifests[1].source =
-        crate::discovery::LayerSource::Meta([names[0]].map(CStr::to_owned).into());
-    for (target, expected) in [(0, true), (1, true), (2, false)] {
-        fault::sweep_operation(|| match meta_reaches(&manifests, 0, target) {
-            Ok(actual) => {
-                assert_eq!(actual, expected);
-                VkResult::SUCCESS
+    manifests[1].source = crate::discovery::LayerSource::Meta(
+        [names[0]]
+            .map(|name| crate::discovery::LayerComponent::from(name.to_owned()))
+            .into(),
+    );
+    discovery::resolve_layer_names(&manifests);
+    fault::sweep_operation(|| {
+        let mut traversal = MetaTraversal::default();
+        for (from, target, expected) in [
+            (0, 0, true),
+            (0, 1, true),
+            (0, 2, false),
+            (1, 0, true),
+            (2, 0, false),
+        ] {
+            match traversal.reaches(&manifests, from, target) {
+                Ok(actual) => assert_eq!(actual, expected),
+                Err(error) => return error,
             }
-            Err(error) => error,
-        });
-    }
+        }
+        VkResult::SUCCESS
+    });
 }
 
 #[test]
@@ -88,7 +99,7 @@ fn duplicate_device_extension_retains_first_property_like_upstream() {
     append_unique_device_extension(
         &mut extensions,
         &device_extension_property(&LayerExtension {
-            name: c"VK_EXT_debug_marker".to_owned(),
+            name: c"VK_EXT_debug_marker".to_owned().into(),
             spec_version: 1,
             entrypoints: Box::default(),
         }),
@@ -97,7 +108,7 @@ fn duplicate_device_extension_retains_first_property_like_upstream() {
     append_unique_device_extension(
         &mut extensions,
         &device_extension_property(&LayerExtension {
-            name: c"VK_EXT_debug_marker".to_owned(),
+            name: c"VK_EXT_debug_marker".to_owned().into(),
             spec_version: 99,
             entrypoints: Box::default(),
         }),

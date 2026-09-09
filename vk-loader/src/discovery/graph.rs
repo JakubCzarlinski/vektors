@@ -6,6 +6,33 @@ use crate::allocation;
 
 use super::LayerManifest;
 
+/// Rebind names after discovery/filtering and before traversing a snapshot.
+/// Same-name manifests share the first index, but remain distinct records.
+pub(crate) fn resolve_layer_names(manifests: &[LayerManifest]) {
+    let has_components = manifests
+        .iter()
+        .any(|manifest| !manifest.component_layers().is_empty());
+    for (index, manifest) in manifests.iter().enumerate() {
+        let first = if has_components {
+            manifests[..index]
+                .iter()
+                .position(|candidate| candidate.name == manifest.name)
+                .unwrap_or(index)
+        } else {
+            index
+        };
+        manifest.name_index.set(first);
+        for component in manifest.component_layers() {
+            component.index.set(
+                manifests
+                    .iter()
+                    .position(|candidate| candidate.name == **component)
+                    .unwrap_or(usize::MAX),
+            );
+        }
+    }
+}
+
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum VisitState {
     Unvisited,
@@ -34,7 +61,8 @@ pub(crate) fn valid_layer_mask(manifests: &[LayerManifest]) -> Result<Box<[bool]
                 .iter()
                 .enumerate()
                 .find(|(candidate_index, candidate)| {
-                    candidate.name == *name && states[*candidate_index] != VisitState::Invalid
+                    Some(candidate.name_index()) == name.index()
+                        && states[*candidate_index] != VisitState::Invalid
                 })
                 .map(|(candidate_index, _)| candidate_index)
                 .is_some_and(|component| {
@@ -47,7 +75,7 @@ pub(crate) fn valid_layer_mask(manifests: &[LayerManifest]) -> Result<Box<[bool]
                             .iter()
                             .enumerate()
                             .rfind(|(candidate_index, candidate)| {
-                                candidate.name == *name
+                                Some(candidate.name_index()) == name.index()
                                     && states[*candidate_index] != VisitState::Invalid
                             })
                             .map_or(component, |(candidate_index, _)| candidate_index)
@@ -59,7 +87,7 @@ pub(crate) fn valid_layer_mask(manifests: &[LayerManifest]) -> Result<Box<[bool]
                             > vk::VK_API_VERSION_MAJOR(meta)
                             || vk::VK_API_VERSION_MINOR(component_version)
                                 >= vk::VK_API_VERSION_MINOR(meta))
-                        && manifests[index].name != *name
+                        && Some(manifests[index].name_index()) != name.index()
                         && visit(recursive_component, manifests, states)
                 })
         });
@@ -71,6 +99,7 @@ pub(crate) fn valid_layer_mask(manifests: &[LayerManifest]) -> Result<Box<[bool]
         valid
     }
 
+    resolve_layer_names(manifests);
     let mut stack = [VisitState::Unvisited; 32];
     let mut heap = if manifests.len() > stack.len() {
         Some(allocation::try_boxed_slice_filled(

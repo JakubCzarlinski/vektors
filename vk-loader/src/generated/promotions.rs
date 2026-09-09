@@ -116,7 +116,7 @@ pub(crate) unsafe fn dispatch_promoted_features2(
     if device
         .instance()
         .enabled_extensions
-        .contains_name(vk::VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)
+        .contains(super::extensions::VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES2_EXTENSION_ID)
         && let Some(command) = device.icd().dispatch.vkGetPhysicalDeviceFeatures2KHR
     {
         return {
@@ -145,7 +145,7 @@ pub(crate) unsafe fn dispatch_promoted_properties2(
     if device
         .instance()
         .enabled_extensions
-        .contains_name(vk::VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)
+        .contains(super::extensions::VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES2_EXTENSION_ID)
         && let Some(command) = device.icd().dispatch.vkGetPhysicalDeviceProperties2KHR
     {
         return {
@@ -175,7 +175,7 @@ pub(crate) unsafe fn dispatch_promoted_format_properties2(
     if device
         .instance()
         .enabled_extensions
-        .contains_name(vk::VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)
+        .contains(super::extensions::VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES2_EXTENSION_ID)
         && let Some(command) = device
             .icd()
             .dispatch
@@ -207,7 +207,7 @@ pub(crate) unsafe fn dispatch_promoted_memory_properties2(
     if device
         .instance()
         .enabled_extensions
-        .contains_name(vk::VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)
+        .contains(super::extensions::VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES2_EXTENSION_ID)
         && let Some(command) = device
             .icd()
             .dispatch
@@ -242,7 +242,7 @@ pub(crate) unsafe fn dispatch_promoted_image_format_properties2(
     if device
         .instance()
         .enabled_extensions
-        .contains_name(vk::VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)
+        .contains(super::extensions::VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES2_EXTENSION_ID)
         && let Some(command) = device
             .icd()
             .dispatch
@@ -285,7 +285,7 @@ pub(crate) unsafe fn dispatch_promoted_external_buffer_properties(
     if device
         .instance()
         .enabled_extensions
-        .contains_name(vk::VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME)
+        .contains(super::extensions::VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_ID)
         && let Some(command) = device
             .icd()
             .dispatch
@@ -329,7 +329,7 @@ pub(crate) unsafe fn dispatch_promoted_external_semaphore_properties(
     if device
         .instance()
         .enabled_extensions
-        .contains_name(vk::VK_KHR_EXTERNAL_SEMAPHORE_CAPABILITIES_EXTENSION_NAME)
+        .contains(super::extensions::VK_KHR_EXTERNAL_SEMAPHORE_CAPABILITIES_EXTENSION_ID)
         && let Some(command) = device
             .icd()
             .dispatch
@@ -369,7 +369,7 @@ pub(crate) unsafe fn dispatch_promoted_external_fence_properties(
     if device
         .instance()
         .enabled_extensions
-        .contains_name(vk::VK_KHR_EXTERNAL_FENCE_CAPABILITIES_EXTENSION_NAME)
+        .contains(super::extensions::VK_KHR_EXTERNAL_FENCE_CAPABILITIES_EXTENSION_ID)
         && let Some(command) = device
             .icd()
             .dispatch
@@ -413,7 +413,7 @@ pub(crate) unsafe fn dispatch_promoted_queue_family_properties2(
     if device
         .instance()
         .enabled_extensions
-        .contains_name(vk::VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)
+        .contains(super::extensions::VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES2_EXTENSION_ID)
         && let Some(command) = device
             .icd()
             .dispatch
@@ -454,7 +454,7 @@ pub(crate) unsafe fn dispatch_promoted_sparse_image_format_properties2(
     if device
         .instance()
         .enabled_extensions
-        .contains_name(vk::VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)
+        .contains(super::extensions::VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES2_EXTENSION_ID)
         && let Some(command) = device
             .icd()
             .dispatch

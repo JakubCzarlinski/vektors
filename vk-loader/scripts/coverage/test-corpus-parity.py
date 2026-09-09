@@ -10,6 +10,12 @@ import resource
 import subprocess
 
 
+OBSERVATION_PREFIXES = (
+    b"RESULT ", b"LAYER_RESULT ", b"LAYER ", b"EXTENSION_RESULT ", b"EXTENSION ",
+    b"PHYSICAL_RESULT ", b"GROUP_RESULT ", b"GROUP ", b"DEVICE_RESULT ",
+)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--runner", type=Path, required=True)
@@ -41,19 +47,18 @@ def main():
         passed = 0
         with log_path.open("rb") as log:
             for line in log:
-                if line.startswith((b"RESULT ", b"LAYER_RESULT ", b"LAYER ",
-                                    b"EXTENSION_RESULT ", b"EXTENSION ")):
+                if line.startswith(OBSERVATION_PREFIXES):
                     records.append(line.decode("ascii"))
                 match = re.match(rb"\[  PASSED  \] (\d+) tests?\.", line)
                 if match:
                     passed = int(match[1])
         scenarios = [line.split()[:3] for line in records if line.startswith("RESULT ")]
-        # Every test must emit one result in each of the four manifest roles.
+        # Every test must emit one result in each manifest role, with and without a valid driver.
         roles = {}
         for _, case, role in scenarios:
             roles.setdefault(case, []).append(role)
         complete = passed > 0 and len(roles) == passed and all(
-            sorted(values) == ["0", "1", "2", "3"] for values in roles.values())
+            sorted(values) == [str(role) for role in range(8)] for values in roles.values())
         failed |= status != 0 or not complete
         summary.append(f"{label}\t{status}\t{passed}\t{len(scenarios)}\t{complete}\n")
         (args.output / f"{label}.results").write_text("".join(records))

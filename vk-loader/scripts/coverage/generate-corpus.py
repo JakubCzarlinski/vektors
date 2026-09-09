@@ -35,6 +35,24 @@ def mutations(data):
     except (ValueError, UnicodeError):
         return
     if isinstance(document, dict):
+        # Keep the surrounding manifest intact so these reach field conversion,
+        # string scanning and print-capacity checks instead of just JSON rejection.
+        strings = tuple("x" * size for size in (7, 8, 9, 15, 16, 17, 253, 254, 255, 256)) + (
+            "x" * 252 + "\n", "x" * 253 + "\n", "x" * 248 + "\x01", "x" * 249 + "\x01",
+            "before\x00after", 'quote"slash\\', "\x01\t\n\x1f",
+        )
+        for field in ("name", "description", "library_path"):
+            pattern = rb'("' + field.encode() + rb'"\s*:\s*)("(?:[^"\\]|\\.)*")'
+            match = re.search(pattern, data)
+            if not match:
+                continue
+            for index, replacement in enumerate(strings):
+                encoded = json.dumps(replacement, ensure_ascii=True).encode()
+                yield f"nested-string-{field}-{index}", data[:match.start(2)] + encoded + data[match.end(2):]
+            # First matching key must win, including mixed case and NUL suffixes.
+            for key in (field.upper(), field + "\x00ignored"):
+                duplicate = b", " + json.dumps(key).encode() + b": null"
+                yield f"duplicate-field-{field}-{key == field.upper()}", data[:match.end()] + duplicate + data[match.end():]
         replacements = (None, False, 0, -1, 4294967295, 4294967296, "", [], {}, "\ud800")
         for key in sorted(document):
             changed = dict(document)

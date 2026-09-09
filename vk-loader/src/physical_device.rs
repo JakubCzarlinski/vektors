@@ -5,11 +5,11 @@ use crate::{
     LoaderPhysicalDeviceTrampoline, MaybeUninit, Ordering, PFN_vkEnumeratePhysicalDevices,
     VkExtensionProperties, VkInstance, VkLayerProperties, VkPhysicalDevice,
     VkPhysicalDeviceGroupProperties, VkPhysicalDeviceGroupPropertiesKHR, VkResult, allocation,
-    c_char, collections,
-    debug::{self, diagnostics},
-    destroy_icd_surfaces, discovery, extension_id, fatal_loader_error, icd, layer, platform,
-    resolve_trampoline_physical_device,
+    collections, debug, destroy_icd_surfaces, discovery, fatal_loader_error, generated, icd, layer,
+    platform, resolve_trampoline_physical_device,
 };
+use core::ffi::c_char;
+use core::ptr;
 
 /// Enumerates physical devices through the active instance layer chain.
 ///
@@ -321,9 +321,9 @@ pub(crate) unsafe fn physical_device_matches_id_filters(
     let Some(get_properties) = dispatch.vkGetPhysicalDeviceProperties else {
         return false;
     };
-    unsafe { get_properties(physical_device, core::ptr::addr_of_mut!((*storage).basic)) };
-    let device_id = unsafe { core::ptr::addr_of!((*storage).basic.deviceID).read() };
-    let vendor_id = unsafe { core::ptr::addr_of!((*storage).basic.vendorID).read() };
+    unsafe { get_properties(physical_device, ptr::addr_of_mut!((*storage).basic)) };
+    let device_id = unsafe { ptr::addr_of!((*storage).basic.deviceID).read() };
+    let vendor_id = unsafe { ptr::addr_of!((*storage).basic.vendorID).read() };
     if (!filters.device.is_empty() && !filters.device.matches(device_id))
         || (!filters.vendor.is_empty() && !filters.vendor.matches(vendor_id))
     {
@@ -334,28 +334,25 @@ pub(crate) unsafe fn physical_device_matches_id_filters(
     }
 
     unsafe {
-        core::ptr::addr_of_mut!((*storage).properties2.sType)
+        ptr::addr_of_mut!((*storage).properties2.sType)
             .write(vk::VkStructureType::PHYSICAL_DEVICE_PROPERTIES_2);
-        core::ptr::addr_of_mut!((*storage).properties2.pNext)
-            .write(core::ptr::addr_of_mut!((*storage).driver).cast());
-        core::ptr::addr_of_mut!((*storage).driver.sType)
+        ptr::addr_of_mut!((*storage).properties2.pNext)
+            .write(ptr::addr_of_mut!((*storage).driver).cast());
+        ptr::addr_of_mut!((*storage).driver.sType)
             .write(vk::VkStructureType::PHYSICAL_DEVICE_DRIVER_PROPERTIES);
-        core::ptr::addr_of_mut!((*storage).driver.pNext).write(core::ptr::null_mut());
+        ptr::addr_of_mut!((*storage).driver.pNext).write(ptr::null_mut());
     }
     if instance.api_version >= vk::VK_API_VERSION_1_1 {
         let Some(get_properties2) = dispatch.vkGetPhysicalDeviceProperties2 else {
             return false;
         };
         unsafe {
-            get_properties2(
-                physical_device,
-                core::ptr::addr_of_mut!((*storage).properties2),
-            );
+            get_properties2(physical_device, ptr::addr_of_mut!((*storage).properties2));
         };
     } else {
-        let extension_enabled =
-            extension_id(vk::VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)
-                .is_some_and(|id| instance.enabled_extensions.contains(id));
+        let extension_enabled = instance
+            .enabled_extensions
+            .contains(generated::VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES2_EXTENSION_ID);
         let Some(get_properties2) = extension_enabled
             .then_some(dispatch.vkGetPhysicalDeviceProperties2KHR)
             .flatten()
@@ -373,11 +370,11 @@ pub(crate) unsafe fn physical_device_matches_id_filters(
         unsafe {
             get_properties2(
                 physical_device,
-                core::ptr::addr_of_mut!((*storage).properties2).cast(),
+                ptr::addr_of_mut!((*storage).properties2).cast(),
             );
         };
     }
-    let driver_id = unsafe { core::ptr::addr_of!((*storage).driver.driverID).read() };
+    let driver_id = unsafe { ptr::addr_of!((*storage).driver.driverID).read() };
     filters.driver.matches(driver_id.0.cast_unsigned())
 }
 
@@ -393,7 +390,7 @@ pub(crate) unsafe fn enumerate_filtered_physical_devices(
     filters: &IdFilters,
 ) -> VkResult {
     let mut available = 0;
-    let result = unsafe { enumerate(instance, &raw mut available, core::ptr::null_mut()) };
+    let result = unsafe { enumerate(instance, &raw mut available, ptr::null_mut()) };
     if result != VkResult::SUCCESS {
         return result;
     }
@@ -455,7 +452,7 @@ pub(crate) unsafe fn enumerate_filtered_physical_device_groups(
     filters: &IdFilters,
 ) -> VkResult {
     let mut available = 0;
-    let result = unsafe { enumerate(instance, &raw mut available, core::ptr::null_mut()) };
+    let result = unsafe { enumerate(instance, &raw mut available, ptr::null_mut()) };
     if result != VkResult::SUCCESS {
         return result;
     }
@@ -534,8 +531,9 @@ pub(crate) fn icd_group_enumerator(
     loader: &LoaderInstance,
     icd: &IcdInstance,
 ) -> Option<IcdGroupEnumerator> {
-    let use_khr = extension_id(vk::VK_KHR_DEVICE_GROUP_CREATION_EXTENSION_NAME)
-        .is_some_and(|id| loader.enabled_extensions.contains(id));
+    let use_khr = loader
+        .enabled_extensions
+        .contains(generated::VK_KHR_DEVICE_GROUP_CREATION_EXTENSION_ID);
     if use_khr {
         icd.dispatch
             .vkEnumeratePhysicalDeviceGroupsKHR
@@ -559,85 +557,174 @@ pub(crate) unsafe fn query_icd_group_count(
     let mut count = 0;
     let result = match enumerate {
         IcdGroupEnumerator::Core(enumerate) => unsafe {
-            enumerate(icd.handle, &raw mut count, core::ptr::null_mut())
+            enumerate(icd.handle, &raw mut count, ptr::null_mut())
         },
         IcdGroupEnumerator::Khr(enumerate) => unsafe {
-            enumerate(icd.handle, &raw mut count, core::ptr::null_mut())
+            enumerate(icd.handle, &raw mut count, ptr::null_mut())
         },
         IcdGroupEnumerator::PhysicalDevices(enumerate) => unsafe {
-            enumerate(icd.handle, &raw mut count, core::ptr::null_mut())
+            enumerate(icd.handle, &raw mut count, ptr::null_mut())
         },
     };
     (result == VkResult::SUCCESS).then_some(count).ok_or(result)
 }
 
-pub(crate) unsafe fn enumerate_icd_groups(
+const _: () = {
+    assert!(
+        core::mem::size_of::<VkPhysicalDeviceGroupProperties<'_>>()
+            == core::mem::size_of::<VkPhysicalDeviceGroupPropertiesKHR<'_>>()
+    );
+    assert!(
+        core::mem::align_of::<VkPhysicalDeviceGroupProperties<'_>>()
+            == core::mem::align_of::<VkPhysicalDeviceGroupPropertiesKHR<'_>>()
+    );
+    assert!(
+        core::mem::offset_of!(VkPhysicalDeviceGroupProperties<'_>, sType)
+            == core::mem::offset_of!(VkPhysicalDeviceGroupPropertiesKHR<'_>, sType)
+    );
+    assert!(
+        core::mem::offset_of!(VkPhysicalDeviceGroupProperties<'_>, pNext)
+            == core::mem::offset_of!(VkPhysicalDeviceGroupPropertiesKHR<'_>, pNext)
+    );
+    assert!(
+        core::mem::offset_of!(VkPhysicalDeviceGroupProperties<'_>, physicalDeviceCount)
+            == core::mem::offset_of!(VkPhysicalDeviceGroupPropertiesKHR<'_>, physicalDeviceCount)
+    );
+    assert!(
+        core::mem::offset_of!(VkPhysicalDeviceGroupProperties<'_>, physicalDevices)
+            == core::mem::offset_of!(VkPhysicalDeviceGroupPropertiesKHR<'_>, physicalDevices)
+    );
+    assert!(
+        core::mem::offset_of!(VkPhysicalDeviceGroupProperties<'_>, subsetAllocation)
+            == core::mem::offset_of!(VkPhysicalDeviceGroupPropertiesKHR<'_>, subsetAllocation)
+    );
+};
+
+type NativeGroup = (usize, VkPhysicalDeviceGroupProperties<'static>);
+
+/// Keeps the common single group on the stack, growing fallibly for more groups.
+#[derive(Default)]
+struct NativeGroups {
+    single: Option<NativeGroup>,
+    heap: Vec<NativeGroup>,
+}
+
+impl NativeGroups {
+    fn try_reserve(&mut self, additional: usize) -> Result<(), VkResult> {
+        if self.heap.capacity() != 0 {
+            return self
+                .heap
+                .try_reserve(additional)
+                .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY);
+        }
+        let required = usize::from(self.single.is_some())
+            .checked_add(additional)
+            .ok_or(VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+        if required > 1 {
+            self.heap
+                .try_reserve_exact(required)
+                .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+            if let Some(single) = self.single.take() {
+                self.heap.push(single);
+            }
+        }
+        Ok(())
+    }
+
+    fn push(&mut self, icd_index: usize, properties: &VkPhysicalDeviceGroupProperties<'static>) {
+        if self.heap.capacity() == 0 {
+            debug_assert!(self.single.is_none());
+            self.single = Some((icd_index, *properties));
+        } else {
+            self.heap.push((icd_index, *properties));
+        }
+    }
+}
+
+impl core::ops::Deref for NativeGroups {
+    type Target = [NativeGroup];
+
+    fn deref(&self) -> &Self::Target {
+        if self.heap.capacity() == 0 {
+            self.single.as_slice()
+        } else {
+            &self.heap
+        }
+    }
+}
+
+impl core::ops::DerefMut for NativeGroups {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        if self.heap.capacity() == 0 {
+            self.single.as_mut_slice()
+        } else {
+            &mut self.heap
+        }
+    }
+}
+
+unsafe fn enumerate_icd_groups(
     icd: &IcdInstance,
     enumerate: IcdGroupEnumerator,
     output: *mut VkPhysicalDeviceGroupProperties<'_>,
     output_capacity: usize,
     output_offset: usize,
-) -> Result<Vec<VkPhysicalDeviceGroupProperties<'static>>, VkResult> {
+    icd_index: usize,
+    native_groups: &mut NativeGroups,
+) -> Result<(), VkResult> {
     let count = unsafe { query_icd_group_count(icd, enumerate) }? as usize;
     match enumerate {
-        IcdGroupEnumerator::Core(enumerate) => {
-            let mut groups = Vec::new();
-            groups
-                .try_reserve_exact(count)
-                .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
-            groups.resize(count, VkPhysicalDeviceGroupProperties::DEFAULT);
+        IcdGroupEnumerator::Core(_) | IcdGroupEnumerator::Khr(_) => {
+            // Vulkan promotion preserves every field and the C layout. Use
+            // one core buffer for either ABI instead of allocating a copy.
+            // One group is common; keep that bounded temporary on the stack.
+            // Larger driver-reported counts retain fallible heap storage.
+            let mut single = [VkPhysicalDeviceGroupProperties::DEFAULT];
+            let mut heap = Vec::new();
+            let groups = if count <= single.len() {
+                &mut single[..count]
+            } else {
+                heap.try_reserve_exact(count)
+                    .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+                heap.resize(count, VkPhysicalDeviceGroupProperties::DEFAULT);
+                heap.as_mut_slice()
+            };
             for (index, group) in groups.iter_mut().enumerate() {
                 if output_offset + index < output_capacity {
                     group.pNext = unsafe { (*output.add(output_offset + index)).pNext };
                 }
             }
             let mut returned = count.min(u32::MAX as usize) as u32;
-            let result = unsafe { enumerate(icd.handle, &raw mut returned, groups.as_mut_ptr()) };
+            // SAFETY: The initialized buffer has count entries. The KHR
+            // structure has identical fields, validity rules and layout.
+            let result = unsafe {
+                match enumerate {
+                    IcdGroupEnumerator::Core(enumerate) => {
+                        enumerate(icd.handle, &raw mut returned, groups.as_mut_ptr())
+                    }
+                    IcdGroupEnumerator::Khr(enumerate) => {
+                        enumerate(icd.handle, &raw mut returned, groups.as_mut_ptr().cast())
+                    }
+                    IcdGroupEnumerator::PhysicalDevices(_) => unreachable!(),
+                }
+            };
             if result != VkResult::SUCCESS && result != VkResult::INCOMPLETE {
                 return Err(result);
             }
-            groups.truncate((returned as usize).min(count));
-            Ok(groups)
-        }
-        IcdGroupEnumerator::Khr(enumerate) => {
-            let mut groups = Vec::new();
-            groups
-                .try_reserve_exact(count)
+            let groups = &groups[..(returned as usize).min(count)];
+            native_groups
+                .try_reserve(groups.len())
                 .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
-            groups.resize(count, VkPhysicalDeviceGroupPropertiesKHR::DEFAULT);
-            for (index, group) in groups.iter_mut().enumerate() {
-                if output_offset + index < output_capacity {
-                    group.pNext = unsafe { (*output.add(output_offset + index)).pNext };
-                }
+            for properties in groups {
+                native_groups.push(icd_index, properties);
             }
-            let mut returned = count.min(u32::MAX as usize) as u32;
-            let result = unsafe { enumerate(icd.handle, &raw mut returned, groups.as_mut_ptr()) };
-            if result != VkResult::SUCCESS && result != VkResult::INCOMPLETE {
-                return Err(result);
-            }
-            let returned = (returned as usize).min(count);
-            let mut promoted = Vec::new();
-            promoted
-                .try_reserve_exact(returned)
-                .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
-            promoted.extend(groups.into_iter().take(returned).map(|group| {
-                VkPhysicalDeviceGroupProperties {
-                    sType: group.sType,
-                    pNext: group.pNext,
-                    physicalDeviceCount: group.physicalDeviceCount,
-                    physicalDevices: group.physicalDevices,
-                    subsetAllocation: group.subsetAllocation,
-                    ..VkPhysicalDeviceGroupProperties::DEFAULT
-                }
-            }));
-            Ok(promoted)
+            Ok(())
         }
         IcdGroupEnumerator::PhysicalDevices(_) => {
             let devices = unsafe { enumerate_icd_physical_devices(icd) }
                 .map_err(PhysicalDeviceEnumerationError::result)?;
-            let mut groups = Vec::new();
-            groups
-                .try_reserve_exact(devices.len)
+            native_groups
+                .try_reserve(devices.len)
                 .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
             for (index, device) in devices.iter().enumerate() {
                 let mut group = VkPhysicalDeviceGroupProperties {
@@ -648,9 +735,9 @@ pub(crate) unsafe fn enumerate_icd_groups(
                 if output_offset + index < output_capacity {
                     group.pNext = unsafe { (*output.add(output_offset + index)).pNext };
                 }
-                groups.push(group);
+                native_groups.push(icd_index, &group);
             }
-            Ok(groups)
+            Ok(())
         }
     }
 }
@@ -732,7 +819,7 @@ pub(crate) unsafe fn windows_sorted_physical_devices(
             // output type, and the native handle belongs to this ICD.
             unsafe { get_properties(device.handle, basic.as_mut_ptr()) };
             // SAFETY: The ICD initialized the output structure before return.
-            let api_version = unsafe { core::ptr::addr_of!((*basic.as_ptr()).apiVersion).read() };
+            let api_version = unsafe { ptr::addr_of!((*basic.as_ptr()).apiVersion).read() };
             let get_properties2 = if instance.api_version >= vk::VK_API_VERSION_1_1
                 && api_version >= vk::VK_API_VERSION_1_1
             {
@@ -756,7 +843,7 @@ pub(crate) unsafe fn windows_sorted_physical_devices(
             };
             let mut layered = vk::VkPhysicalDeviceLayeredDriverPropertiesMSFT::DEFAULT;
             let mut properties = vk::VkPhysicalDeviceProperties2 {
-                pNext: core::ptr::from_mut(&mut layered).cast(),
+                pNext: ptr::from_mut(&mut layered).cast(),
                 ..vk::VkPhysicalDeviceProperties2::DEFAULT
             };
             // SAFETY: Both output structures are initialized, correctly
@@ -778,8 +865,7 @@ pub(crate) unsafe fn windows_sorted_physical_devices(
             let mut count = 0;
             // SAFETY: Count is writable; a null output performs the required
             // loader-driver interface sizing query.
-            let result =
-                unsafe { enumerate(icd.handle, luid, &raw mut count, core::ptr::null_mut()) };
+            let result = unsafe { enumerate(icd.handle, luid, &raw mut count, ptr::null_mut()) };
             if result == VkResult::ERROR_OUT_OF_HOST_MEMORY {
                 return Err(result);
             }
@@ -866,15 +952,14 @@ pub(crate) unsafe fn windows_sorted_physical_devices(
     Ok(devices)
 }
 
-pub(crate) unsafe fn enumerate_physical_device_groups_impl(
+unsafe fn enumerate_physical_device_groups_impl(
     instance: VkInstance,
     group_count: *mut u32,
     group_properties: *mut VkPhysicalDeviceGroupProperties<'_>,
 ) -> VkResult {
-    let Some(instance) = (unsafe {
-        LoaderInstance::from_handle(instance)
-            .or_else(|| LoaderInstance::from_internal_handle(instance))
-    }) else {
+    // SAFETY: Only the core/KHR terminators call this helper. Layers pass
+    // the loader-owned handle returned by the instance terminator down-chain.
+    let Some(instance) = (unsafe { LoaderInstance::from_internal_handle(instance) }) else {
         return VkResult::ERROR_INITIALIZATION_FAILED;
     };
     if group_count.is_null() {
@@ -929,6 +1014,22 @@ fn emit_physical_device_discovery_error(instance: &LoaderInstance, result: VkRes
     }
 }
 
+fn physical_devices_need_refresh(
+    instance: &LoaderInstance,
+    all_devices: &[NativePhysicalDevice],
+) -> bool {
+    let state = instance.physical_devices.lock();
+    state.active.len() != all_devices.len()
+        || all_devices.iter().any(|native| {
+            !state.active.iter().any(|handle| {
+                // SAFETY: Active entries are loader-owned terminator handles.
+                unsafe { LoaderPhysicalDevice::from_handle(*handle) }.is_some_and(|device| {
+                    device.icd_index == native.icd_index && device.native == native.handle
+                })
+            })
+        })
+}
+
 #[cold]
 #[inline(never)]
 pub(crate) unsafe fn enumerate_physical_device_group_properties(
@@ -938,26 +1039,24 @@ pub(crate) unsafe fn enumerate_physical_device_group_properties(
     upper_bound: u32,
 ) -> VkResult {
     let capacity = *group_count as usize;
-    let mut all_devices = match unsafe { discover_all_physical_devices(instance, false) } {
-        Ok(devices) => devices,
-        Err(result) => {
-            emit_physical_device_discovery_error(instance, result);
-            *group_count = 0;
-            return result;
+    // Like upstream, reuse the physical-device snapshot once populated.
+    // Zero groups still trigger discovery, preserving its failure handling.
+    let have_physical_devices =
+        upper_bound != 0 && !instance.physical_devices.lock().active.is_empty();
+    let mut all_devices = if have_physical_devices {
+        Vec::new()
+    } else {
+        match unsafe { discover_all_physical_devices(instance, false) } {
+            Ok(devices) => devices,
+            Err(result) => {
+                emit_physical_device_discovery_error(instance, result);
+                *group_count = 0;
+                return result;
+            }
         }
     };
-    let refresh_physical_devices = {
-        let state = instance.physical_devices.lock();
-        state.active.len() != all_devices.len()
-            || all_devices.iter().any(|native| {
-                !state.active.iter().any(|handle| {
-                    // SAFETY: Active entries are loader-owned terminator handles.
-                    unsafe { LoaderPhysicalDevice::from_handle(*handle) }.is_some_and(|device| {
-                        device.icd_index == native.icd_index && device.native == native.handle
-                    })
-                })
-            })
-    };
+    let refresh_physical_devices =
+        !have_physical_devices && physical_devices_need_refresh(instance, &all_devices);
     let sort_linux = match linux_sort_enabled(instance) {
         Ok(enabled) => enabled,
         Err(result) => {
@@ -1001,15 +1100,12 @@ pub(crate) unsafe fn enumerate_physical_device_group_properties(
             return result;
         }
     };
-    if sort_linux {
-        native_groups = match unsafe { linux_sort_physical_device_groups(instance, native_groups) }
-        {
-            Ok(groups) => groups,
-            Err(result) => {
-                *group_count = 0;
-                return result;
-            }
-        };
+    if sort_linux
+        && let Err(result) =
+            unsafe { linux_sort_physical_device_groups(instance, &mut native_groups) }
+    {
+        *group_count = 0;
+        return result;
     }
     #[cfg(windows)]
     if !windows_sorted_devices.is_empty() {
@@ -1021,7 +1117,7 @@ pub(crate) unsafe fn enumerate_physical_device_group_properties(
             instance,
             &all_devices,
             refresh_physical_devices,
-            native_groups,
+            &mut native_groups,
             visible_devices.as_deref(),
             group_count,
             group_properties,
@@ -1453,10 +1549,10 @@ pub(crate) fn linux_sort_enabled(instance: &LoaderInstance) -> Result<bool, VkRe
     Ok(instance.api_version >= vk::VK_API_VERSION_1_1
         || instance
             .enabled_extensions
-            .contains_name(vk::VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)
+            .contains(generated::VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES2_EXTENSION_ID)
         || instance.active_icds().any(|(_, icd)| {
             icd.enabled_extensions
-                .contains_name(vk::VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)
+                .contains(generated::VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES2_EXTENSION_ID)
         }))
 }
 
@@ -1553,9 +1649,9 @@ pub(crate) unsafe fn icd_supports_device_extension(
     let _ = unsafe {
         enumerate(
             physical_device,
-            core::ptr::null(),
+            ptr::null(),
             &raw mut count,
-            core::ptr::null_mut(),
+            ptr::null_mut(),
         )
     };
     let capacity = count as usize;
@@ -1572,7 +1668,7 @@ pub(crate) unsafe fn icd_supports_device_extension(
     let _ = unsafe {
         enumerate(
             physical_device,
-            core::ptr::null(),
+            ptr::null(),
             &raw mut count,
             properties.as_mut_ptr(),
         )
@@ -1586,27 +1682,34 @@ pub(crate) unsafe fn linux_sorted_device_info(
     instance: &LoaderInstance,
     device: NativePhysicalDevice,
     storage: *mut LinuxSortPropertyStorage,
+    needs_pci_order: bool,
 ) -> Result<LinuxSortedDeviceInfo, VkResult> {
     let icd = &instance.icds[device.icd_index];
     let Some(get_properties) = icd.dispatch.vkGetPhysicalDeviceProperties else {
         return Err(VkResult::ERROR_INITIALIZATION_FAILED);
     };
-    unsafe { get_properties(device.handle, core::ptr::addr_of_mut!((*storage).basic)) };
-    let device_type = unsafe { core::ptr::addr_of!((*storage).basic.deviceType).read() };
-    let device_name = unsafe { core::ptr::addr_of!((*storage).basic.deviceName).read() };
-    let api_version = unsafe { core::ptr::addr_of!((*storage).basic.apiVersion).read() };
-    let vendor_id = unsafe { core::ptr::addr_of!((*storage).basic.vendorID).read() };
-    let device_id = unsafe { core::ptr::addr_of!((*storage).basic.deviceID).read() };
-    let has_pci = unsafe {
-        icd_supports_device_extension(icd, device.handle, vk::VK_EXT_PCI_BUS_INFO_EXTENSION_NAME)
-    }?;
+    unsafe { get_properties(device.handle, ptr::addr_of_mut!((*storage).basic)) };
+    let device_type = unsafe { ptr::addr_of!((*storage).basic.deviceType).read() };
+    let device_name = unsafe { ptr::addr_of!((*storage).basic.deviceName).read() };
+    let api_version = unsafe { ptr::addr_of!((*storage).basic.apiVersion).read() };
+    let vendor_id = unsafe { ptr::addr_of!((*storage).basic.vendorID).read() };
+    let device_id = unsafe { ptr::addr_of!((*storage).basic.deviceID).read() };
+    // PCI addresses only break ordering ties between multiple devices.
+    let has_pci = needs_pci_order
+        && unsafe {
+            icd_supports_device_extension(
+                icd,
+                device.handle,
+                vk::VK_EXT_PCI_BUS_INFO_EXTENSION_NAME,
+            )
+        }?;
     let pci = if has_pci {
         unsafe {
-            core::ptr::addr_of_mut!((*storage).properties2.sType)
+            ptr::addr_of_mut!((*storage).properties2.sType)
                 .write(vk::VkStructureType::PHYSICAL_DEVICE_PROPERTIES_2);
-            core::ptr::addr_of_mut!((*storage).properties2.pNext)
-                .write(core::ptr::addr_of_mut!((*storage).pci).cast());
-            core::ptr::addr_of_mut!((*storage).pci)
+            ptr::addr_of_mut!((*storage).properties2.pNext)
+                .write(ptr::addr_of_mut!((*storage).pci).cast());
+            ptr::addr_of_mut!((*storage).pci)
                 .write(vk::VkPhysicalDevicePCIBusInfoPropertiesEXT::DEFAULT);
         }
         let queried = if instance.api_version >= vk::VK_API_VERSION_1_1
@@ -1615,10 +1718,7 @@ pub(crate) unsafe fn linux_sorted_device_info(
             icd.dispatch
                 .vkGetPhysicalDeviceProperties2
                 .map(|query| unsafe {
-                    query(
-                        device.handle,
-                        core::ptr::addr_of_mut!((*storage).properties2),
-                    );
+                    query(device.handle, ptr::addr_of_mut!((*storage).properties2));
                 })
         } else {
             debug_assert_eq!(
@@ -1634,16 +1734,16 @@ pub(crate) unsafe fn linux_sorted_device_info(
                 .map(|query| unsafe {
                     query(
                         device.handle,
-                        core::ptr::addr_of_mut!((*storage).properties2).cast(),
+                        ptr::addr_of_mut!((*storage).properties2).cast(),
                     );
                 })
         };
         queried.map(|()| unsafe {
             (
-                core::ptr::addr_of!((*storage).pci.pciDomain).read(),
-                core::ptr::addr_of!((*storage).pci.pciBus).read(),
-                core::ptr::addr_of!((*storage).pci.pciDevice).read(),
-                core::ptr::addr_of!((*storage).pci.pciFunction).read(),
+                ptr::addr_of!((*storage).pci.pciDomain).read(),
+                ptr::addr_of!((*storage).pci.pciBus).read(),
+                ptr::addr_of!((*storage).pci.pciDevice).read(),
+                ptr::addr_of!((*storage).pci.pciFunction).read(),
             )
         })
     } else {
@@ -1696,7 +1796,8 @@ pub(crate) unsafe fn linux_sort_physical_devices(
         format_args!("     Original order:"),
     );
     for (original_order, &device) in devices.iter().enumerate() {
-        let mut info = unsafe { linux_sorted_device_info(instance, device, storage) }?;
+        let mut info =
+            unsafe { linux_sorted_device_info(instance, device, storage, devices.len() > 1) }?;
         info.original_order = original_order;
         let name = unsafe { CStr::from_ptr(info.device_name.as_ptr()) };
         let name = debug::diagnostics::LossyBytes(name.to_bytes());
@@ -1743,22 +1844,55 @@ pub(crate) unsafe fn linux_sort_physical_devices(
 
 pub(crate) struct LinuxSortableGroup {
     group_index: usize,
-    devices: Vec<LinuxSortedDeviceInfo>,
+    devices: core::ops::Range<usize>,
     original_order: usize,
 }
 
-#[cold]
-#[inline(never)]
-pub(crate) unsafe fn linux_sort_physical_device_groups(
+unsafe fn linux_sort_physical_device_groups(
     instance: &LoaderInstance,
-    mut groups: Vec<(usize, VkPhysicalDeviceGroupProperties<'static>)>,
-) -> Result<Vec<(usize, VkPhysicalDeviceGroupProperties<'static>)>, VkResult> {
+    groups: &mut NativeGroups,
+) -> Result<(), VkResult> {
     let selected = selected_linux_device()?;
+    if groups.len() <= 1
+        && groups
+            .first()
+            .is_none_or(|(_, group)| group.physicalDeviceCount <= 1)
+        && !instance.wants_loader_category_message(
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+            platform::LogFilter::Driver,
+        )
+    {
+        // Neither device nor group order can change. Property queries are
+        // only needed here to produce diagnostics for an interested recipient.
+        return Ok(());
+    }
+    unsafe { sort_physical_device_groups_with_diagnostics(instance, groups, selected) }
+}
+
+#[cold]
+unsafe fn sort_physical_device_groups_with_diagnostics(
+    instance: &LoaderInstance,
+    groups: &mut NativeGroups,
+    selected: Option<(u32, u32)>,
+) -> Result<(), VkResult> {
     let mut storage = allocation::try_box_uninit::<LinuxSortPropertyStorage>()?;
     let storage = storage.as_mut_ptr();
     let mut sortable = Vec::new();
     sortable
         .try_reserve_exact(groups.len())
+        .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+    let device_count = groups
+        .iter()
+        .try_fold(0_usize, |count, (_, group)| {
+            count.checked_add(
+                (group.physicalDeviceCount as usize).min(vk::VK_MAX_DEVICE_GROUP_SIZE as usize),
+            )
+        })
+        .ok_or(VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+    let needs_pci_order = device_count > 1;
+    let mut device_storage = Vec::new();
+    device_storage
+        .try_reserve_exact(device_count)
         .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
     emit_instance_loader_category_message(
         instance,
@@ -1776,10 +1910,7 @@ pub(crate) unsafe fn linux_sort_physical_device_groups(
         let device_count =
             (properties.physicalDeviceCount as usize).min(vk::VK_MAX_DEVICE_GROUP_SIZE as usize);
         properties.physicalDeviceCount = device_count as u32;
-        let mut devices = Vec::new();
-        devices
-            .try_reserve_exact(device_count)
-            .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+        let device_start = device_storage.len();
         for (device_order, &handle) in properties.physicalDevices[..device_count]
             .iter()
             .enumerate()
@@ -1792,6 +1923,7 @@ pub(crate) unsafe fn linux_sort_physical_device_groups(
                         handle,
                     },
                     storage,
+                    needs_pci_order,
                 )
             }?;
             info.original_order = device_order;
@@ -1803,8 +1935,9 @@ pub(crate) unsafe fn linux_sort_physical_device_groups(
                 platform::LogFilter::Driver,
                 format_args!("               [{device_order}] {name}"),
             );
-            devices.push(info);
+            device_storage.push(info);
         }
+        let devices = &mut device_storage[device_start..];
         if let Some((vendor_id, device_id)) = selected
             && let Some(selected) = devices
                 .iter_mut()
@@ -1812,21 +1945,24 @@ pub(crate) unsafe fn linux_sort_physical_device_groups(
         {
             selected.default_device = true;
         }
-        heap_sort_by(&mut devices, compare_linux_devices);
+        heap_sort_by(devices, compare_linux_devices);
         for (output, sorted) in properties.physicalDevices[..device_count]
             .iter_mut()
-            .zip(&devices)
+            .zip(devices.iter())
         {
             *output = sorted.device.handle;
         }
         sortable.push(LinuxSortableGroup {
             group_index,
-            devices,
+            devices: device_start..device_storage.len(),
             original_order: group_index,
         });
     }
     heap_sort_by(&mut sortable, |left, right| {
-        match (left.devices.first(), right.devices.first()) {
+        match (
+            device_storage[left.devices.clone()].first(),
+            device_storage[right.devices.clone()].first(),
+        ) {
             (Some(left), Some(right)) => compare_linux_devices(left, right),
             (Some(_), None) => core::cmp::Ordering::Less,
             (None, Some(_)) => core::cmp::Ordering::Greater,
@@ -1834,18 +1970,24 @@ pub(crate) unsafe fn linux_sort_physical_device_groups(
         }
         .then_with(|| left.original_order.cmp(&right.original_order))
     });
-    emit_sorted_physical_device_groups(instance, &sortable);
-    let mut sorted = Vec::new();
-    sorted
-        .try_reserve_exact(sortable.len())
-        .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
-    let group_count = sortable.len();
-    for (output, group) in sorted.spare_capacity_mut().iter_mut().zip(sortable) {
-        output.write(groups[group.group_index]);
+    emit_sorted_physical_device_groups(instance, &sortable, &device_storage);
+    reorder_groups(groups, &mut sortable);
+    Ok(())
+}
+
+/// Applies the destination-to-source permutation while consuming its indices.
+fn reorder_groups<T>(groups: &mut [T], order: &mut [LinuxSortableGroup]) {
+    for start in 0..order.len() {
+        let mut current = start;
+        loop {
+            let next = core::mem::replace(&mut order[current].group_index, current);
+            if next == start {
+                break;
+            }
+            groups.swap(current, next);
+            current = next;
+        }
     }
-    // SAFETY: The loop initializes exactly one output for every sortable group.
-    unsafe { sorted.set_len(group_count) };
-    Ok(sorted)
 }
 
 #[inline(never)]
@@ -1954,13 +2096,11 @@ pub(crate) fn emit_instance_loader_message(
 ) {
     let filter = platform::LogFilter::from_severity(severity);
     platform::write_loader_log(filter, message);
-    diagnostics::with_message(message, |message| {
-        instance.submit_loader_message(
-            severity,
-            vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
-            message,
-        );
-    });
+    instance.submit_loader_message_text(
+        severity,
+        vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
+        message,
+    );
 }
 
 #[cold]
@@ -1972,13 +2112,11 @@ pub(crate) fn emit_instance_category_message(
     message: core::fmt::Arguments<'_>,
 ) {
     platform::write_loader_category_log_any(category_filters, category_label, message);
-    diagnostics::with_message(message, |message| {
-        instance.submit_loader_message(
-            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-            vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
-            message,
-        );
-    });
+    instance.submit_loader_message_text(
+        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+        vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
+        message,
+    );
 }
 
 #[cold]
@@ -1994,13 +2132,11 @@ pub(crate) fn emit_instance_loader_category_message(
         category,
         message,
     );
-    diagnostics::with_message(message, |message| {
-        instance.submit_loader_message(
-            severity,
-            vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
-            message,
-        );
-    });
+    instance.submit_loader_message_text(
+        severity,
+        vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
+        message,
+    );
 }
 
 pub(crate) struct IcdPhysicalDevices {
@@ -2043,7 +2179,7 @@ unsafe fn enumerate_icd_physical_devices(
         )?;
     let mut count = 0;
     // SAFETY: Count points to writable local storage.
-    let result = unsafe { enumerate(instance.handle, &raw mut count, core::ptr::null_mut()) };
+    let result = unsafe { enumerate(instance.handle, &raw mut count, ptr::null_mut()) };
     if result != VkResult::SUCCESS {
         return Err(PhysicalDeviceEnumerationError::Driver(result));
     }
@@ -2069,7 +2205,11 @@ unsafe fn enumerate_icd_physical_devices(
 }
 
 #[cold]
-fn emit_sorted_physical_device_groups(instance: &LoaderInstance, sortable: &[LinuxSortableGroup]) {
+fn emit_sorted_physical_device_groups(
+    instance: &LoaderInstance,
+    sortable: &[LinuxSortableGroup],
+    devices: &[LinuxSortedDeviceInfo],
+) {
     emit_instance_loader_category_message(
         instance,
         vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
@@ -2083,7 +2223,7 @@ fn emit_sorted_physical_device_groups(instance: &LoaderInstance, sortable: &[Lin
             platform::LogFilter::Driver,
             format_args!("           Group {group_index}"),
         );
-        for (device_index, device) in group.devices.iter().enumerate() {
+        for (device_index, device) in devices[group.devices.clone()].iter().enumerate() {
             let name = unsafe { CStr::from_ptr(device.device_name.as_ptr()) };
             let name = debug::diagnostics::LossyBytes(name.to_bytes());
             let default = if device.default_device {
@@ -2148,7 +2288,7 @@ unsafe fn emit_configured_physical_device(
     driver_version: u32,
     emit_diagnostics: bool,
 ) {
-    let properties = unsafe { core::ptr::addr_of!((*query_pointer).properties.properties).read() };
+    let properties = unsafe { ptr::addr_of!((*query_pointer).properties.properties).read() };
     let device_name = unsafe { CStr::from_ptr(properties.deviceName.as_ptr()) };
     let device_name = debug::diagnostics::LossyBytes(device_name.to_bytes());
     let emit_detail = |detail: core::fmt::Arguments<'_>| {
@@ -2162,7 +2302,7 @@ unsafe fn emit_configured_physical_device(
     };
     if supports_driver_properties {
         let driver_name = unsafe {
-            CStr::from_ptr(core::ptr::addr_of!((*query_pointer).driver.driverName).cast::<c_char>())
+            CStr::from_ptr(ptr::addr_of!((*query_pointer).driver.driverName).cast::<c_char>())
         };
         let driver_name = debug::diagnostics::LossyBytes(driver_name.to_bytes());
         emit_detail(format_args!(
@@ -2210,37 +2350,28 @@ unsafe fn collect_native_device_groups(
     group_properties: *mut VkPhysicalDeviceGroupProperties<'_>,
     capacity: usize,
     upper_bound: u32,
-) -> Result<Vec<(usize, VkPhysicalDeviceGroupProperties<'static>)>, VkResult> {
-    let mut native_groups = Vec::new();
-    if native_groups
-        .try_reserve_exact(upper_bound as usize)
-        .is_err()
-    {
+) -> Result<NativeGroups, VkResult> {
+    let mut native_groups = NativeGroups::default();
+    if native_groups.try_reserve(upper_bound as usize).is_err() {
         return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
     }
     for (icd_index, icd) in instance.active_icds().rev() {
         let Some(enumerate) = icd_group_enumerator(instance, icd) else {
             continue;
         };
-        let groups = match unsafe {
+        // The ICD count can grow after the upper-bound query; the append
+        // helper reserves additional storage before publishing any new groups.
+        unsafe {
             enumerate_icd_groups(
                 icd,
                 enumerate,
                 group_properties,
                 capacity,
                 native_groups.len(),
-            )
-        } {
-            Ok(groups) => groups,
-            Err(result) => {
-                return Err(result);
-            }
-        };
-        // The ICD's count may have increased since the earlier sizing query.
-        if native_groups.try_reserve(groups.len()).is_err() {
-            return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
+                icd_index,
+                &mut native_groups,
+            )?;
         }
-        native_groups.extend(groups.into_iter().map(|properties| (icd_index, properties)));
     }
     Ok(native_groups)
 }
@@ -2256,28 +2387,26 @@ unsafe fn match_device_configuration(
         return Ok(None);
     };
     unsafe {
-        core::ptr::addr_of_mut!((*query_pointer).properties.sType)
+        ptr::addr_of_mut!((*query_pointer).properties.sType)
             .write(vk::VkStructureType::PHYSICAL_DEVICE_PROPERTIES_2);
-        core::ptr::addr_of_mut!((*query_pointer).properties.pNext)
-            .write(core::ptr::addr_of_mut!((*query_pointer).identifiers).cast());
-        core::ptr::addr_of_mut!((*query_pointer).identifiers.sType)
+        ptr::addr_of_mut!((*query_pointer).properties.pNext)
+            .write(ptr::addr_of_mut!((*query_pointer).identifiers).cast());
+        ptr::addr_of_mut!((*query_pointer).identifiers.sType)
             .write(vk::VkStructureType::PHYSICAL_DEVICE_ID_PROPERTIES);
-        core::ptr::addr_of_mut!((*query_pointer).identifiers.pNext).write(core::ptr::null_mut());
-        core::ptr::addr_of_mut!((*query_pointer).driver)
+        ptr::addr_of_mut!((*query_pointer).identifiers.pNext).write(ptr::null_mut());
+        ptr::addr_of_mut!((*query_pointer).driver)
             .write(vk::VkPhysicalDeviceDriverProperties::DEFAULT);
         get_properties2(
             device.handle,
-            core::ptr::addr_of_mut!((*query_pointer).properties),
+            ptr::addr_of_mut!((*query_pointer).properties),
         );
     }
     let api_version =
-        unsafe { core::ptr::addr_of!((*query_pointer).properties.properties.apiVersion).read() };
+        unsafe { ptr::addr_of!((*query_pointer).properties.properties.apiVersion).read() };
     let driver_version =
-        unsafe { core::ptr::addr_of!((*query_pointer).properties.properties.driverVersion).read() };
-    let device_uuid =
-        unsafe { core::ptr::addr_of!((*query_pointer).identifiers.deviceUUID).read() };
-    let driver_uuid =
-        unsafe { core::ptr::addr_of!((*query_pointer).identifiers.driverUUID).read() };
+        unsafe { ptr::addr_of!((*query_pointer).properties.properties.driverVersion).read() };
+    let device_uuid = unsafe { ptr::addr_of!((*query_pointer).identifiers.deviceUUID).read() };
+    let driver_uuid = unsafe { ptr::addr_of!((*query_pointer).identifiers.driverUUID).read() };
     let supports_driver_properties = api_version >= vk::VK_API_VERSION_1_2
         || unsafe {
             icd_supports_device_extension(
@@ -2288,11 +2417,11 @@ unsafe fn match_device_configuration(
         }?;
     if supports_driver_properties {
         unsafe {
-            core::ptr::addr_of_mut!((*query_pointer).identifiers.pNext)
-                .write(core::ptr::addr_of_mut!((*query_pointer).driver).cast());
+            ptr::addr_of_mut!((*query_pointer).identifiers.pNext)
+                .write(ptr::addr_of_mut!((*query_pointer).driver).cast());
             get_properties2(
                 device.handle,
-                core::ptr::addr_of_mut!((*query_pointer).properties),
+                ptr::addr_of_mut!((*query_pointer).properties),
             );
         }
     }
@@ -2311,7 +2440,7 @@ unsafe fn write_visible_device_groups(
     instance: &LoaderInstance,
     all_devices: &[NativePhysicalDevice],
     refresh_physical_devices: bool,
-    native_groups: Vec<(usize, VkPhysicalDeviceGroupProperties<'static>)>,
+    native_groups: &mut NativeGroups,
     visible_devices: Option<&[NativePhysicalDevice]>,
     group_count: &mut u32,
     group_properties: *mut VkPhysicalDeviceGroupProperties<'_>,
@@ -2354,15 +2483,9 @@ unsafe fn write_visible_device_groups(
         }
     }
 
-    let mut visible_groups = Vec::new();
-    if visible_groups
-        .try_reserve_exact(native_groups.len())
-        .is_err()
-    {
-        return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
-    }
-    'groups: for (group_index, (icd_index, mut properties)) in native_groups.into_iter().enumerate()
-    {
+    let mut visible_count = 0;
+    'groups: for group_index in 0..native_groups.len() {
+        let (icd_index, mut properties) = native_groups[group_index];
         let device_count =
             (properties.physicalDeviceCount as usize).min(vk::VK_MAX_DEVICE_GROUP_SIZE as usize);
         properties.physicalDeviceCount = device_count as u32;
@@ -2389,21 +2512,21 @@ unsafe fn write_visible_device_groups(
             };
             *native = wrapped.handle();
         }
-        visible_groups.push(properties);
+        native_groups[visible_count] = (icd_index, properties);
+        visible_count += 1;
     }
 
-    let written = (*group_count as usize).min(visible_groups.len());
-    for (index, properties) in visible_groups.iter().take(written).enumerate() {
+    let written = (*group_count as usize).min(visible_count);
+    for (index, (_, properties)) in native_groups.iter().take(written).enumerate() {
         unsafe { group_properties.add(index).write(*properties) };
     }
     *group_count = written as u32;
-    if written < visible_groups.len() {
+    if written < visible_count {
         emit_instance_loader_message(
             instance,
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
             format_args!(
-                "terminator_EnumeratePhysicalDeviceGroups : Trimming device count from {} to {written}.",
-                visible_groups.len()
+                "terminator_EnumeratePhysicalDeviceGroups : Trimming device count from {visible_count} to {written}."
             ),
         );
         Ok(VkResult::INCOMPLETE)
@@ -2421,6 +2544,53 @@ mod allocation_tests {
 
     #[cfg(any(unix, windows))]
     use crate::allocation::fault;
+
+    #[test]
+    fn native_group_growth_preserves_entries_on_allocation_failure() {
+        for count in [0, 1, 2, 8] {
+            crate::allocation::fault::sweep_operation(|| {
+                let mut groups = super::NativeGroups::default();
+                for index in 0..count {
+                    if let Err(result) = groups.try_reserve(1) {
+                        assert_eq!(groups.len(), index);
+                        for (expected, (actual, _)) in groups.iter().enumerate() {
+                            assert_eq!(*actual, expected);
+                        }
+                        return result;
+                    }
+                    groups.push(index, &vk::VkPhysicalDeviceGroupProperties::DEFAULT);
+                }
+                assert_eq!(groups.len(), count);
+                for (expected, (actual, _)) in groups.iter().enumerate() {
+                    assert_eq!(*actual, expected);
+                }
+                vk::VkResult::SUCCESS
+            });
+        }
+    }
+
+    #[test]
+    fn group_permutation_preserves_cycles_and_fixed_points() {
+        for indices in [
+            vec![],
+            vec![0],
+            vec![2, 0, 1],
+            vec![1, 0, 3, 2, 4],
+            vec![4, 3, 2, 1, 0],
+        ] {
+            let mut groups: Vec<_> = (0..indices.len()).collect();
+            let mut order: Vec<_> = indices
+                .iter()
+                .map(|&index| super::LinuxSortableGroup {
+                    group_index: index,
+                    devices: 0..0,
+                    original_order: index,
+                })
+                .collect();
+            super::reorder_groups(&mut groups, &mut order);
+            assert_eq!(groups, indices);
+        }
+    }
 
     #[cfg(unix)]
     #[test]

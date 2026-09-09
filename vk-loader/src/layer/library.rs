@@ -2,7 +2,7 @@
 
 use crate::{allocation, platform};
 
-use super::LayerExtension;
+use crate::discovery::LayerSource;
 
 use super::{
     CURRENT_LAYER_INTERFACE_VERSION, LayerLoadError, LayerManifest, LoadedLayer, LoaderLibrary,
@@ -30,7 +30,7 @@ impl LoadedLayer {
     }
 
     pub(super) fn load(
-        manifest: &LayerManifest,
+        manifest: &mut LayerManifest,
         manifest_index: usize,
         enabled_by: &'static str,
     ) -> Result<Self, LayerLoadError> {
@@ -93,47 +93,32 @@ impl LoadedLayer {
             platform::loaded_library_path((get_instance_proc_addr as *const ()).cast::<c_void>())?
                 .map_or_else(|| allocation::try_path(path), Ok)?;
 
+        // Finish fallible work before moving fields: load-error diagnostics
+        // still need the complete manifest if opening or negotiation fails.
+        let name = allocation::try_c_string(&manifest.name)?;
+        let load_path = match &mut manifest.source {
+            LayerSource::Library(path) | LayerSource::OverrideLibrary(path) => {
+                core::mem::take(path)
+            }
+            LayerSource::Meta(_) | LayerSource::OverrideMeta(_) => {
+                return Err(LayerLoadError::Failed);
+            }
+        };
         Ok(Self {
             library: Some(library),
             manifest_index,
-            name: allocation::try_c_string(&manifest.name)?,
-            load_path: allocation::try_path(path)?,
+            name,
+            load_path,
             library_path: loaded_path,
-            manifest_path: allocation::try_path(&manifest.manifest_path)?,
-            enable_environment: manifest
-                .enable_environment
-                .as_ref()
-                .map(|(name, value)| {
-                    Ok::<_, VkResult>((
-                        allocation::try_os_string(name)?,
-                        allocation::try_os_string(value)?,
-                    ))
-                })
-                .transpose()?,
-            disable_environment: manifest
-                .disable_environment
-                .as_ref()
-                .map(|environment| allocation::try_os_string(&environment.0))
-                .transpose()?,
+            manifest_path: core::mem::take(&mut manifest.manifest_path),
+            enable_environment: manifest.enable_environment.take(),
+            disable_environment: manifest.disable_environment.take().map(|(name, _)| name),
             enabled_by,
             implicit: manifest.implicit,
             get_instance_proc_addr,
             get_device_proc_addr,
             get_physical_device_proc_addr,
-            device_extensions: allocation::try_collect_results(
-                manifest.device_extensions.iter().map(|extension| {
-                    Ok(LayerExtension {
-                        name: allocation::try_c_string(&extension.name)?,
-                        spec_version: extension.spec_version,
-                        entrypoints: allocation::try_collect_results(
-                            extension
-                                .entrypoints
-                                .iter()
-                                .map(|name| allocation::try_c_string(name)),
-                        )?,
-                    })
-                }),
-            )?,
+            device_extensions: core::mem::take(&mut manifest.device_extensions),
         })
     }
 

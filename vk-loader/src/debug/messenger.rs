@@ -649,8 +649,9 @@ pub(crate) unsafe extern "system" fn terminator_submit_debug_utils_message(
     if callback_data.is_null() {
         return;
     }
-    // SAFETY: The terminator receives a live loader instance.
-    let Some(instance) = (unsafe { LoaderInstance::from_handle(instance) }) else {
+    // SAFETY: Instance creation returns the loader-owned pending handle to
+    // the bottom of the layer chain; this terminator never receives a wrapper.
+    let Some(instance) = (unsafe { LoaderInstance::from_internal_handle(instance) }) else {
         return;
     };
     // SAFETY: The callback-data pointer was validated above and remains live

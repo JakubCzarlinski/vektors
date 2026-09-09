@@ -1,5 +1,7 @@
 //! Loader-owned dispatchable device state.
 
+mod snapshot;
+
 use core::{
     ffi::{CStr, c_void},
     mem::MaybeUninit,
@@ -26,12 +28,64 @@ use crate::{
     vkGetDeviceProcAddr,
 };
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+struct DeviceAlias(NonNull<LoaderDevice>);
+
+// SAFETY: The registry owns the pointed-to allocations and serializes alias changes.
+// Dereferencing an alias additionally requires a live externally synchronized device.
+unsafe impl Send for DeviceAlias {}
+
+/// Owns a device while raw aliases are published in the registry and snapshot.
+/// Moving a Box after deriving an alias can invalidate that alias; transferring
+/// it into raw ownership first keeps one provenance for the registered lifetime.
+struct RegisteredDevice(NonNull<LoaderDevice>);
+
+impl RegisteredDevice {
+    fn new(device: Box<LoaderDevice>) -> Self {
+        // SAFETY: Box::into_raw transfers a non-null allocation to this owner.
+        Self(unsafe { NonNull::new_unchecked(Box::into_raw(device)) })
+    }
+
+    fn as_ref(&self) -> &LoaderDevice {
+        // SAFETY: This owner retains the initialized allocation until removal.
+        unsafe { self.0.as_ref() }
+    }
+
+    fn into_box(self) -> Box<LoaderDevice> {
+        let owner = core::mem::ManuallyDrop::new(self);
+        // SAFETY: All aliases have been invalidated before exclusive ownership
+        // is restored. Disabling this owner's destructor prevents a second drop.
+        unsafe { Box::from_raw(owner.0.as_ptr()) }
+    }
+}
+
+impl Deref for RegisteredDevice {
+    type Target = LoaderDevice;
+
+    fn deref(&self) -> &Self::Target {
+        self.as_ref()
+    }
+}
+
+impl Drop for RegisteredDevice {
+    fn drop(&mut self) {
+        // SAFETY: This is the sole owner, and registry removal or library
+        // termination excludes further use of the device's published aliases.
+        drop(unsafe { Box::from_raw(self.0.as_ptr()) });
+    }
+}
+
+// SAFETY: LoaderDevice is Send; the registry serializes ownership changes.
+unsafe impl Send for RegisteredDevice {}
+
 #[derive(Default)]
 struct DeviceRegistry {
-    owned: HashMap<usize, Box<LoaderDevice>>,
-    aliases: HashMap<usize, usize>,
+    owned: HashMap<usize, RegisteredDevice>,
+    aliases: HashMap<usize, DeviceAlias>,
     alias_reservations: usize,
 }
+
+static DEVICE_SNAPSHOT: snapshot::Cache = snapshot::Cache::new();
 
 static DEVICES: GlobalLazyMutex<DeviceRegistry> = GlobalLazyMutex::new(DeviceRegistry::default);
 
@@ -75,12 +129,15 @@ impl DeviceAliasReservation {
         })
     }
 
-    fn insert(mut self, key: usize, value: usize) -> Option<usize> {
+    fn insert(mut self, key: usize, canonical: usize) -> Option<DeviceAlias> {
         let mut devices = DeviceRegistryReady::lock(&self.ready);
         debug_assert!(devices.alias_reservations != 0);
         devices.alias_reservations -= 1;
         self.active = false;
-        devices.aliases.insert(key, value)
+        let alias = devices.aliases[&canonical];
+        let previous = devices.aliases.insert(key, alias);
+        DEVICE_SNAPSHOT.publish(canonical, key, alias.0.as_ptr());
+        previous
     }
 }
 
@@ -262,8 +319,11 @@ impl LoaderDevice {
         {
             return Err((VkResult::ERROR_OUT_OF_HOST_MEMORY, device));
         }
+        let device = RegisteredDevice::new(device);
+        let alias = DeviceAlias(device.0);
         let previous = devices.owned.insert(dispatch_key, device);
-        let previous_alias = devices.aliases.insert(dispatch_key, dispatch_key);
+        let previous_alias = devices.aliases.insert(dispatch_key, alias);
+        DEVICE_SNAPSHOT.publish(dispatch_key, 0, alias.0.as_ptr());
         debug_assert!(previous.is_none());
         debug_assert!(previous_alias.is_none());
         drop(previous);
@@ -326,12 +386,8 @@ impl LoaderDevice {
     }
 
     pub(crate) unsafe fn from_dispatch_key_mut<'a>(key: usize) -> Option<&'a mut Self> {
-        let mut devices = DEVICES.lock_if_initialized()?;
-        let canonical = devices.aliases.get(&key).copied()?;
-        let device = devices
-            .owned
-            .get_mut(&canonical)
-            .map(|device| core::ptr::from_mut(device.as_mut()))?;
+        let devices = DEVICES.lock_if_initialized()?;
+        let device = devices.aliases.get(&key)?.0.as_ptr();
         drop(devices);
         // SAFETY: The caller guarantees creation-time exclusive access and the
         // boxed allocation remains stable after releasing the registry lock.
@@ -374,22 +430,44 @@ impl LoaderDevice {
                 unsafe { core::hint::unreachable_unchecked() }
             };
             let previous = alias_reservation.insert(self.chain_dispatch_key, own_key);
-            debug_assert!(previous.is_none() || previous == Some(own_key));
+            debug_assert!(
+                previous.is_none_or(|alias| alias.0.as_ptr() == core::ptr::from_mut(self))
+            );
         }
         // Replace direct-ICD unknown slots with top-of-layer-chain targets.
         unknown::initialize_device_dispatch(self);
         Ok(())
     }
 
+    #[inline(never)]
     pub(crate) unsafe fn from_handle<'a>(handle: VkDevice) -> Option<&'a Self> {
         let key = unsafe { Self::dispatch_key(handle) }?;
+        if let Some(device) = DEVICE_SNAPSHOT.get(key) {
+            // SAFETY: The coherent mapping belongs to the caller's live device;
+            // its destruction cannot race this call under Vulkan's contract.
+            return Some(unsafe { &*device });
+        }
+        // SAFETY: The registry fallback uses the same live-device contract.
+        unsafe { Self::from_registry(key) }
+    }
+
+    // A collision can be frequent with many devices, so this is outlined without
+    // a cold hint. Keeping its guard and hash lookup separate avoids saving
+    // their registers on every successful cache lookup.
+    #[inline(never)]
+    unsafe fn from_registry<'a>(key: usize) -> Option<&'a Self> {
         let devices = DEVICES.lock_if_initialized()?;
-        let canonical = devices.aliases.get(&key).copied()?;
-        let device = devices
-            .owned
-            .get(&canonical)
-            .map(|device| core::ptr::from_ref(device.as_ref()));
-        let device = device?;
+        let device = devices.aliases.get(&key)?.0.as_ptr();
+        if DEVICE_SNAPSHOT.is_empty(key) {
+            // SAFETY: Registry ownership keeps the box live while refreshing
+            // the snapshot after the previously published device was removed.
+            let registered = unsafe { &*device };
+            DEVICE_SNAPSHOT.publish(
+                registered.dispatch() as usize,
+                registered.chain_dispatch_key,
+                device,
+            );
+        }
         drop(devices);
         // SAFETY: A live Vulkan handle cannot be destroyed concurrently under
         // the API's external-synchronization contract; the box is stable.
@@ -398,8 +476,11 @@ impl LoaderDevice {
 
     pub(crate) fn take_dispatch(dispatch: *const LayerDeviceDispatchTable) -> Option<Box<Self>> {
         let mut devices = DEVICES.lock_if_initialized()?;
-        let canonical = devices.aliases.remove(&(dispatch as usize))?;
+        let alias = devices.aliases.remove(&(dispatch as usize))?;
+        // SAFETY: The registry lock keeps the owning box live until removal below.
+        let canonical = unsafe { alias.0.as_ref().dispatch() as usize };
         let device = devices.owned.remove(&canonical)?;
+        DEVICE_SNAPSHOT.remove(alias.0.as_ptr());
         devices.aliases.remove(&canonical);
         if device.chain_dispatch_key != 0 {
             devices.aliases.remove(&device.chain_dispatch_key);
@@ -408,7 +489,7 @@ impl LoaderDevice {
         {
             *devices = DeviceRegistry::default();
         }
-        Some(device)
+        Some(device.into_box())
     }
 
     unsafe fn dispatch_key(handle: VkDevice) -> Option<usize> {
@@ -439,6 +520,18 @@ impl LoaderDevice {
 
     pub(crate) const fn enabled_extensions(&self) -> &ExtensionSet {
         &self.enabled_extensions
+    }
+
+    pub(crate) fn chain_set_debug_utils_object_name(
+        &self,
+    ) -> Option<vk::PFN_vkSetDebugUtilsObjectNameEXT> {
+        self.dispatch_table.vkSetDebugUtilsObjectNameEXT
+    }
+
+    pub(crate) const fn icd_set_debug_utils_object_name(
+        &self,
+    ) -> Option<vk::PFN_vkSetDebugUtilsObjectNameEXT> {
+        self.icd_terminator_dispatch.vkSetDebugUtilsObjectNameEXT
     }
 
     pub(crate) fn icd_destroy_device(&self) -> Option<vk::PFN_vkDestroyDevice> {
@@ -533,6 +626,22 @@ fn unknown_dispatch_snapshot_revalidates_reentrantly_removed_devices() {
     .unwrap();
     let dispatch = device.dispatch();
     assert!(LoaderDevice::try_register(device).is_ok());
+    // Exercise the published alias after ownership moved into the registry,
+    // then after the exclusive creation-time borrow used to finalize the chain.
+    unsafe {
+        assert_eq!(
+            LoaderDevice::from_handle(handle).unwrap().icd_device,
+            handle
+        );
+        LoaderDevice::from_dispatch_key_mut(dispatch as usize)
+            .unwrap()
+            .set_chain(handle, empty_test_resolver)
+            .unwrap();
+        assert_eq!(
+            LoaderDevice::from_handle(handle).unwrap().chain_device,
+            handle
+        );
+    }
     assert_eq!(
         initialize_unknown_dispatches(&loader_guard, &instance, c"vkTestUnknown", || {
             // Exercise reentrant removal after snapshot construction, before it
@@ -542,6 +651,9 @@ fn unknown_dispatch_snapshot_revalidates_reentrantly_removed_devices() {
         }),
         Some(0)
     );
+    // The fake native dispatch word remains readable after removal. Neither
+    // the cache nor registry may return the freed loader record.
+    assert!(unsafe { LoaderDevice::from_handle(handle) }.is_none());
 }
 
 #[cfg(test)]
@@ -607,7 +719,7 @@ pub(crate) unsafe fn validate_and_filter_device_extensions(
     icd: &IcdInstance,
     physical_device: VkPhysicalDevice,
     create_info: &VkDeviceCreateInfo<'_>,
-    supported_by_layer: impl Fn(&CStr) -> bool,
+    supported_by_layer: impl Fn(Option<u16>, &CStr) -> bool,
     validated: impl FnOnce(),
 ) -> Result<Vec<*const core::ffi::c_char>, VkResult> {
     if create_info.enabledExtensionCount == 0 {
@@ -656,7 +768,7 @@ pub(crate) unsafe fn validate_and_filter_device_extensions(
         .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
     let support = |requested: &CStr| {
         let requested_bytes = requested.to_bytes();
-        let supported_by_layer = supported_by_layer(requested);
+        let supported_by_layer = supported_by_layer(crate::extension_id(requested), requested);
         let supported_by_icd = properties[..initialized].iter().any(|property| {
             // SAFETY: The ICD reported these leading entries as initialized.
             let property = unsafe { property.assume_init_ref() };
@@ -691,19 +803,22 @@ pub(crate) unsafe fn validate_and_filter_device_extensions(
             emit_unsupported_device_extension(instance, requested);
             return Err(VkResult::ERROR_EXTENSION_NOT_PRESENT);
         }
+        // Preserve each resolved result in the already-reserved output storage.
+        icd_names.push(if supported_by_icd {
+            requested.as_ptr()
+        } else {
+            core::ptr::null()
+        });
     }
     validated();
-    for &requested_pointer in requested_names {
-        // SAFETY: The validation pass established a live NUL-terminated string.
-        let requested = unsafe { CStr::from_ptr(requested_pointer) };
-        let (_, supported_by_icd) = support(requested);
-        if !supported_by_icd {
+    for (&resolved, &requested_pointer) in icd_names.iter().zip(requested_names) {
+        if resolved.is_null() {
+            // SAFETY: The validation pass established a live NUL-terminated string.
+            let requested = unsafe { CStr::from_ptr(requested_pointer) };
             emit_unavailable_icd_extension(instance, icd, requested);
         }
-        if supported_by_icd {
-            icd_names.push(requested_pointer);
-        }
     }
+    icd_names.retain(|name| !name.is_null());
     // Retain the reserved storage: shrinking to a boxed slice can reallocate
     // through the infallible allocator after all fallible work has succeeded.
     Ok(icd_names)

@@ -1,16 +1,16 @@
 //! JSON values and borrowed accessors used by manifest and settings readers.
 
-use alloc::vec::Vec;
+use alloc::{borrow::Cow, vec::Vec};
 use core::fmt;
 
 #[derive(Debug, PartialEq)]
-pub(crate) enum Value {
+pub(crate) enum Value<'a> {
     Null,
     Bool(bool),
     Number(Number),
-    String(Vec<u8>),
+    String(Cow<'a, [u8]>),
     Array(Vec<Self>),
-    Object(Object),
+    Object(Object<'a>),
 }
 
 #[derive(Debug, PartialEq)]
@@ -21,15 +21,20 @@ pub(crate) enum Number {
 }
 
 #[derive(Debug, PartialEq)]
-pub(crate) struct Object(pub(super) Vec<(Vec<u8>, Value)>);
+pub(crate) struct Object<'a>(pub(super) Vec<(Cow<'a, [u8]>, Value<'a>)>);
 
-impl Object {
-    #[inline(never)]
-    pub(crate) fn get(&self, key: &str) -> Option<&Value> {
+impl<'a> Object<'a> {
+    #[inline]
+    pub(crate) fn get(&self, key: &str) -> Option<&Value<'a>> {
         let key = key.as_bytes();
         if key.contains(&0) {
             return None;
         }
+        self.get_valid_key(key)
+    }
+
+    #[inline(never)]
+    fn get_valid_key(&self, key: &[u8]) -> Option<&Value<'a>> {
         self.0
             .iter()
             .find(|(name, _)| {
@@ -38,12 +43,17 @@ impl Object {
             .map(|(_, value)| value)
     }
 
-    #[inline(never)]
-    pub(crate) fn get_ignore_ascii_case(&self, key: &str) -> Option<&Value> {
+    #[inline]
+    pub(crate) fn get_ignore_ascii_case(&self, key: &str) -> Option<&Value<'a>> {
         let key = key.as_bytes();
         if key.contains(&0) {
             return None;
         }
+        self.get_ignore_ascii_case_valid_key(key)
+    }
+
+    #[inline(never)]
+    fn get_ignore_ascii_case_valid_key(&self, key: &[u8]) -> Option<&Value<'a>> {
         self.0
             .iter()
             .find(|(name, _)| {
@@ -54,16 +64,16 @@ impl Object {
             .map(|(_, value)| value)
     }
 
-    pub(crate) fn iter(&self) -> impl Iterator<Item = (&[u8], &Value)> {
-        self.0.iter().map(|(name, value)| (name.as_slice(), value))
+    pub(crate) fn iter(&self) -> impl Iterator<Item = (&[u8], &Value<'a>)> {
+        self.0.iter().map(|(name, value)| (name.as_ref(), value))
     }
 
-    pub(crate) fn values(&self) -> impl Iterator<Item = &Value> {
+    pub(crate) fn values(&self) -> impl Iterator<Item = &Value<'a>> {
         self.0.iter().map(|(_, value)| value)
     }
 }
 
-impl Value {
+impl<'a> Value<'a> {
     pub(crate) fn get(&self, key: &str) -> Option<&Self> {
         self.as_object()?.get(key)
     }
@@ -81,7 +91,8 @@ impl Value {
     }
     pub(crate) const fn as_bytes(&self) -> Option<&[u8]> {
         match self {
-            Self::String(value) => Some(value.as_slice()),
+            Self::String(Cow::Borrowed(value)) => Some(value),
+            Self::String(Cow::Owned(value)) => Some(value.as_slice()),
             _ => None,
         }
     }
@@ -103,7 +114,7 @@ impl Value {
             _ => None,
         }
     }
-    pub(crate) const fn as_object(&self) -> Option<&Object> {
+    pub(crate) const fn as_object(&self) -> Option<&Object<'a>> {
         match self {
             Self::Object(value) => Some(value),
             _ => None,

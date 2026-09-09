@@ -110,11 +110,20 @@ pub(crate) unsafe fn instance_dispatch<'a>(
     unsafe { dispatch.as_ref() }
 }
 
+#[derive(Clone, Copy)]
+pub(crate) enum MissingPhysicalDeviceCommand {
+    Error,
+    DisplayWarning,
+    AcquireDrmDisplay,
+    GetDrmDisplay,
+}
+
 #[inline]
 pub(crate) unsafe fn resolve_physical_device<T: Copy>(
     physical_device: VkPhysicalDevice,
     resolve: impl FnOnce(&InstanceDispatchTable) -> Option<T>,
     name: &CStr,
+    missing: MissingPhysicalDeviceCommand,
 ) -> Option<(T, VkPhysicalDevice)> {
     // SAFETY: Generated terminators receive the live internal handle installed
     // by this loader in the physical-device layer chain.
@@ -122,7 +131,7 @@ pub(crate) unsafe fn resolve_physical_device<T: Copy>(
     let icd = physical_device.icd();
     let command = resolve(&icd.dispatch);
     let Some(command) = command else {
-        report_missing_physical_device_command(physical_device, name);
+        report_missing_physical_device_command(physical_device, name, missing);
         return None;
     };
     Some((command, physical_device.native))
@@ -133,16 +142,13 @@ pub(crate) unsafe fn resolve_physical_device<T: Copy>(
 pub(crate) fn report_missing_physical_device_command(
     physical_device: &LoaderPhysicalDevice,
     name: &CStr,
+    missing: MissingPhysicalDeviceCommand,
 ) {
     use vk::VkDebugUtilsMessageSeverityFlagBitsEXT as Severity;
 
     let instance = physical_device.instance();
-    match name.to_bytes() {
-        b"vkGetDisplayPlaneCapabilitiesKHR"
-        | b"vkGetDisplayPlaneSupportedDisplaysKHR"
-        | b"vkGetPhysicalDeviceDisplayPropertiesKHR"
-        | b"vkGetDisplayModePropertiesKHR"
-        | b"vkGetPhysicalDeviceDisplayPlanePropertiesKHR" => instance.log_loader_message_text(
+    match missing {
+        MissingPhysicalDeviceCommand::DisplayWarning => instance.log_loader_message_text(
             Severity::WARNING,
             vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
             format_args!(
@@ -150,19 +156,19 @@ pub(crate) fn report_missing_physical_device_command(
                 crate::debug::diagnostics::LossyBytes(name.to_bytes())
             ),
         ),
-        b"vkAcquireDrmDisplayEXT" => instance.log_loader_message_text(
+        MissingPhysicalDeviceCommand::AcquireDrmDisplay => instance.log_loader_message_text(
             Severity::ERROR,
             vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
             format_args!(
                 "ICD associated with VkPhysicalDevice does not support AcquireDrmDisplayEXT"
             ),
         ),
-        b"vkGetDrmDisplayEXT" => instance.log_loader_message_text(
+        MissingPhysicalDeviceCommand::GetDrmDisplay => instance.log_loader_message_text(
             Severity::ERROR,
             vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
             format_args!("ICD associated with VkPhysicalDevice does not support GetDrmDisplayEXT"),
         ),
-        _ => instance.log_loader_message_text(
+        MissingPhysicalDeviceCommand::Error => instance.log_loader_message_text(
             Severity::ERROR,
             vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
             format_args!(
@@ -293,19 +299,4 @@ pub(crate) const fn command_slot_hash(mut hash: u64) -> u64 {
 pub(crate) const fn dispatch_offset(value: usize) -> u16 {
     assert!(value <= 65_535);
     value as u16
-}
-
-#[inline]
-pub(crate) fn command_name_eq(left: &[u8], right: &[u8]) -> bool {
-    if left.len() != right.len() {
-        return false;
-    }
-    let mut index = 0;
-    while index < left.len() {
-        if left[index] != right[index] {
-            return false;
-        }
-        index += 1;
-    }
-    true
 }

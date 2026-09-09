@@ -5,7 +5,7 @@ use super::box_array;
 use super::box_values;
 use super::cjson_string;
 use super::cjson_value_string;
-use super::manifest::{printed_bytes, printed_bytes_fit};
+use super::manifest::printed_bytes_fit;
 use super::own_cow;
 use super::owned_string;
 use super::parse_api_version;
@@ -17,7 +17,7 @@ use alloc::{string::String, vec::Vec};
 use std::path::Path;
 use vk::VK_MAKE_API_VERSION;
 
-fn diagnostic_text(value: &Value) -> Option<alloc::borrow::Cow<'_, str>> {
+fn diagnostic_text<'a>(value: &'a Value<'_>) -> Option<alloc::borrow::Cow<'a, str>> {
     let bytes = value.as_bytes()?;
     if let Ok(text) = core::str::from_utf8(bytes) {
         return Some(alloc::borrow::Cow::Borrowed(text));
@@ -200,9 +200,9 @@ fn diagnose_layer(layer: &Value, implicit: bool, version: u32) -> Option<LayerMa
         ("type", None),
         ("api_version", None),
     ] {
-        let value = layer.get(name).and_then(Value::as_bytes).map(printed_bytes);
+        let value = layer.get(name).and_then(Value::as_bytes);
         let valid = value.is_some_and(|value| {
-            capacity.is_none_or(|capacity| printed_bytes_fit(&value, capacity))
+            capacity.is_none_or(|capacity| printed_bytes_fit(value, capacity))
         });
         if !valid {
             return missing(name);
@@ -231,12 +231,9 @@ fn diagnose_layer(layer: &Value, implicit: bool, version: u32) -> Option<LayerMa
     {
         return missing("implementation_version");
     }
-    let description = layer
-        .get("description")
-        .and_then(Value::as_bytes)
-        .map(printed_bytes);
+    let description = layer.get("description").and_then(Value::as_bytes);
     if description.is_none_or(|description| {
-        !printed_bytes_fit(&description, vk::VK_MAX_DESCRIPTION_SIZE as usize)
+        !printed_bytes_fit(description, vk::VK_MAX_DESCRIPTION_SIZE as usize)
     }) {
         return missing("description");
     }

@@ -29,6 +29,10 @@ repetitions="${VK_LOADER_BENCH_REPETITIONS:-9}"
 bench_cpu="${VK_LOADER_BENCH_CPU:-2}"
 collect_perf="${VK_LOADER_BENCH_PERF:-1}"
 mode_filter="${VK_LOADER_BENCH_MODE_FILTER:-}"
+benchmark_groups=0
+if [[ "${VK_LOADER_BENCH_DEVICE_GROUPS:-0}" == 1 || "$mode_filter" == physical-device-groups-* ]]; then
+  benchmark_groups=1
+fi
 IFS=, read -r -a log_levels <<<"${VK_LOADER_BENCH_LOG_LEVELS:-disabled}"
 
 require_tools clang cmake column mold ninja python3 sha256sum taskset
@@ -93,6 +97,9 @@ modes=(
   'device-gpa-missing|1000000|'
   'physical-device-properties|1000000|'
 )
+if [[ "$benchmark_groups" == 1 ]]; then
+  modes+=('physical-device-groups-core|10000|' 'physical-device-groups-khr|10000|')
+fi
 instance_commands=(
   vkDestroyInstance
   vkEnumeratePhysicalDevices
@@ -200,6 +207,9 @@ allocation_modes=(
   'device-gpa-missing|10000'
   'physical-device-properties|10000'
 )
+if [[ "$benchmark_groups" == 1 ]]; then
+  allocation_modes+=('physical-device-groups-core|10' 'physical-device-groups-khr|10')
+fi
 for layer in "${layers[@]}"; do
   for mode_record in "${allocation_modes[@]}"; do
     IFS='|' read -r mode iterations <<<"$mode_record"
@@ -261,6 +271,9 @@ if [[ "$collect_perf" == 1 ]] && command -v perf >/dev/null && \
     'device-gpa-known|5000000'
     'physical-device-properties|2000000'
   )
+  if [[ "$benchmark_groups" == 1 ]]; then
+    perf_modes+=('physical-device-groups-core|100000' 'physical-device-groups-khr|100000')
+  fi
   perf_groups=(
     'core|7|cycles,instructions,branches,branch-misses'
     'data-cache|5|cache-references,cache-misses,L1-dcache-loads,L1-dcache-load-misses'

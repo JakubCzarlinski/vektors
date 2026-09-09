@@ -276,6 +276,47 @@ const ICD_DEVICE_TERMINATOR_COMMANDS: &[&str] = &[
     "vkGetDeviceGroupSurfacePresentModes2EXT",
 ];
 
+fn name_lookup_table(names: &[&[u8]], table_len: usize) -> (Vec<Option<usize>>, Vec<u8>) {
+    let bucket_count = table_len / 2;
+    let mut buckets = vec![Vec::new(); bucket_count];
+    for (record_index, name) in names.iter().enumerate() {
+        let suffix = name;
+        let bucket = command_hash(suffix) as usize & (bucket_count - 1);
+        buckets[bucket].push(record_index);
+    }
+    let mut bucket_order = (0..bucket_count).collect::<Vec<_>>();
+    bucket_order.sort_unstable_by_key(|bucket| core::cmp::Reverse(buckets[*bucket].len()));
+    let mut slots = vec![None; table_len];
+    let mut displacements = vec![0_u8; bucket_count];
+    let mut candidate_slots = Vec::new();
+    for bucket in bucket_order {
+        if buckets[bucket].is_empty() {
+            break;
+        }
+        let displacement = (0..=u8::MAX)
+            .find(|displacement| {
+                candidate_slots.clear();
+                for record_index in &buckets[bucket] {
+                    let suffix = names[*record_index];
+                    let hash = command_hash(suffix);
+                    let slot = command_slot_hash(hash ^ u64::from(*displacement)) as usize
+                        & (table_len - 1);
+                    if slots[slot].is_some() || candidate_slots.contains(&slot) {
+                        return false;
+                    }
+                    candidate_slots.push(slot);
+                }
+                true
+            })
+            .expect("could not generate collision-free command lookup");
+        for (record_index, slot) in buckets[bucket].iter().zip(&candidate_slots) {
+            slots[*slot] = Some(*record_index);
+        }
+        displacements[bucket] = displacement;
+    }
+    (slots, displacements)
+}
+
 fn command_hash(name: &[u8]) -> u64 {
     if name.len() < 8 {
         return name.iter().fold(0xcbf29ce484222325, |hash, byte| {
@@ -704,7 +745,6 @@ const GENERATED_PARENT_NAMES: &[&str] = &[
     "c_char",
     "c_void",
     "command_hash",
-    "command_name_eq",
     "command_slot_hash",
     "create_loader_surface",
     "device_dispatch",
@@ -811,7 +851,10 @@ fn generated_loader_part(item: &syn::Item) -> &'static str {
                 name if name.starts_with("convert_") => "debug",
                 name if name.starts_with("dispatch_promoted_") => "promotions",
                 "extension_id"
+                | "extension_id_bytes"
+                | "extension_lookup_roundtrips"
                 | "extension_name"
+                | "is_instance_extension"
                 | "is_known_instance_extension"
                 | "surface_create_info_extension_size"
                 | "wsi_instance_extension_supported" => "extensions",
@@ -944,6 +987,15 @@ fn main() {
         })
         .collect::<HashMap<_, _>>();
     let mut compile_time_extension_ids = HashSet::from([
+        "VK_KHR_get_physical_device_properties2".to_owned(),
+        "VK_KHR_device_group_creation".to_owned(),
+        "VK_KHR_external_memory_capabilities".to_owned(),
+        "VK_KHR_external_semaphore_capabilities".to_owned(),
+        "VK_KHR_external_fence_capabilities".to_owned(),
+        "VK_EXT_debug_report".to_owned(),
+        "VK_EXT_debug_utils".to_owned(),
+        "VK_KHR_portability_enumeration".to_owned(),
+        "VK_LUNARG_direct_driver_loading".to_owned(),
         "VK_EXT_surface_maintenance1".to_owned(),
         "VK_KHR_surface_maintenance1".to_owned(),
     ]);
@@ -1097,6 +1149,24 @@ fn main() {
                 }
             }
     });
+    assert!(extension_records.iter().all(|(name, ..)| name.len() >= 8));
+    let extension_slot_count = (extension_records.len() * 2).next_power_of_two();
+    let names = extension_records
+        .iter()
+        .map(|(name, ..)| name.as_bytes())
+        .collect::<Vec<_>>();
+    let (extension_slots, extension_displacements) =
+        name_lookup_table(&names, extension_slot_count);
+    let extension_slot_count = Literal::usize_unsuffixed(extension_slot_count);
+    let extension_bucket_count = Literal::usize_unsuffixed(extension_displacements.len());
+    let extension_displacements = extension_displacements
+        .into_iter()
+        .map(Literal::u8_unsuffixed);
+    let extension_slots = extension_slots.into_iter().map(|id| {
+        Literal::u16_unsuffixed(id.map_or(u16::MAX, |id| {
+            u16::try_from(id).expect("extension ID fits u16")
+        }))
+    });
     let extension_name_count = Literal::usize_unsuffixed(extension_records.len());
     let extension_word_count = Literal::usize_unsuffixed(extension_word_count);
     let instance_extension_words = instance_extension_words
@@ -1190,6 +1260,8 @@ fn main() {
         #[repr(transparent)]
         struct ExtensionName(&'static CStr);
         static EXTENSION_NAMES: [ExtensionName; #extension_name_count] = [#(#extension_names)*];
+        static EXTENSION_DISPLACEMENTS: [u8; #extension_bucket_count] = [#(#extension_displacements),*];
+        static EXTENSION_SLOTS: [u16; #extension_slot_count] = [#(#extension_slots),*];
         #(#surface_alignment_assertions)*
         pub(crate) fn extension_name(id: u16) -> &'static CStr {
             EXTENSION_NAMES[usize::from(id)].0
@@ -1208,7 +1280,7 @@ fn main() {
                 }
                 set
             }
-            fn insert(&mut self, id: u16) {
+            pub(crate) fn insert(&mut self, id: u16) {
                 let index = usize::from(id);
                 debug_assert!(index < EXTENSION_NAMES.len());
                 unsafe { *self.words.get_unchecked_mut(index / 64) |= 1_u64 << (index % 64) };
@@ -1218,21 +1290,46 @@ fn main() {
                 debug_assert!(index < EXTENSION_NAMES.len());
                 (unsafe { *self.words.get_unchecked(index / 64) } & (1_u64 << (index % 64))) != 0
             }
-            pub(crate) fn contains_name(&self, name: &CStr) -> bool { extension_id(name).is_some_and(|id| self.contains(id)) }
         }
         #[cold]
         pub(crate) fn extension_id(name: &CStr) -> Option<u16> {
-            EXTENSION_NAMES
-                .binary_search_by(|candidate| candidate.0.to_bytes().cmp(name.to_bytes()))
-                .ok()
-                .map(|id| {
-                    debug_assert!(id <= usize::from(u16::MAX));
-                    id as u16
-                })
+            extension_id_bytes(name.to_bytes())
+        }
+        #[cold]
+        pub(crate) fn extension_id_bytes(name: &[u8]) -> Option<u16> {
+            // Vulkan extension names are longer than the shared hash's short-input path.
+            if name.len() < 8 { return None; }
+            let hash = crate::dispatch::command_hash(name);
+            let displacement = EXTENSION_DISPLACEMENTS[hash as usize & (EXTENSION_DISPLACEMENTS.len() - 1)];
+            let slot = crate::dispatch::command_slot_hash(hash ^ u64::from(displacement)) as usize
+                & (EXTENSION_SLOTS.len() - 1);
+            let id = EXTENSION_SLOTS[slot];
+            if id == u16::MAX { return None; }
+            (EXTENSION_NAMES[usize::from(id)].0.to_bytes() == name).then_some(id)
+        }
+        #[cfg(test)]
+        #[test]
+        fn extension_lookup_roundtrips() {
+            for (id, entry) in EXTENSION_NAMES.iter().enumerate() {
+                let name = entry.0.to_bytes();
+                assert_eq!(extension_id_bytes(name), Some(id as u16));
+                for len in 0..name.len() {
+                    let prefix = &name[..len];
+                    let expected = EXTENSION_NAMES.iter().position(|entry| entry.0.to_bytes() == prefix);
+                    assert_eq!(extension_id_bytes(prefix), expected.map(|id| id as u16));
+                }
+                assert_eq!(extension_id_bytes(entry.0.to_bytes_with_nul()), None);
+                let mut unknown = name.to_vec();
+                unknown.push(0xff);
+                assert_eq!(extension_id_bytes(&unknown), None);
+            }
         }
         #[cold]
         pub(crate) fn is_known_instance_extension(name: &CStr) -> bool {
             let Some(id) = extension_id(name) else { return false; };
+            is_instance_extension(id)
+        }
+        pub(crate) fn is_instance_extension(id: u16) -> bool {
             let index = usize::from(id);
             (unsafe { *INSTANCE_EXTENSION_WORDS.get_unchecked(index / 64) } & (1_u64 << (index % 64))) != 0
         }
@@ -1672,48 +1769,12 @@ fn main() {
     generated.extend(quote! { #(#device_command_ids)* });
     let table_len = command_records.len().next_power_of_two();
     let bucket_count = table_len / 2;
-    let mut buckets = vec![Vec::new(); bucket_count];
-    for (record_index, record) in command_records.iter().enumerate() {
-        let suffix = record
-            .0
-            .as_bytes()
-            .strip_prefix(b"vk")
-            .expect("Vulkan command name must start with vk");
-        let bucket = command_hash(suffix) as usize & (bucket_count - 1);
-        buckets[bucket].push(record_index);
-    }
-    let mut bucket_order = (0..bucket_count).collect::<Vec<_>>();
-    bucket_order.sort_unstable_by_key(|bucket| core::cmp::Reverse(buckets[*bucket].len()));
-    let mut slots = vec![None; table_len];
-    let mut displacements = vec![0_u8; bucket_count];
-    let mut candidate_slots = Vec::new();
-    let mut max_displacement = 0;
-    for bucket in bucket_order {
-        if buckets[bucket].is_empty() {
-            break;
-        }
-        let displacement = (0..=u8::MAX)
-            .find(|displacement| {
-                candidate_slots.clear();
-                for record_index in &buckets[bucket] {
-                    let suffix = command_records[*record_index].0.as_bytes()[2..].as_ref();
-                    let hash = command_hash(suffix);
-                    let slot = command_slot_hash(hash ^ u64::from(*displacement)) as usize
-                        & (table_len - 1);
-                    if slots[slot].is_some() || candidate_slots.contains(&slot) {
-                        return false;
-                    }
-                    candidate_slots.push(slot);
-                }
-                true
-            })
-            .expect("could not generate collision-free command lookup");
-        for (record_index, slot) in buckets[bucket].iter().zip(&candidate_slots) {
-            slots[*slot] = Some(*record_index);
-        }
-        displacements[bucket] = displacement;
-        max_displacement = max_displacement.max(displacement);
-    }
+    let names = command_records
+        .iter()
+        .map(|record| &record.0.as_bytes()[2..])
+        .collect::<Vec<_>>();
+    let (slots, displacements) = name_lookup_table(&names, table_len);
+    let max_displacement = displacements.iter().copied().max().unwrap_or(0);
     let mut command_names = String::new();
     let mut name_ranges = Vec::with_capacity(command_records.len());
     for (name, ..) in &command_records {
@@ -1885,7 +1946,7 @@ fn main() {
             let end = start + usize::from(record.name_len);
             debug_assert!(end <= COMMAND_NAMES.len());
             let stored_suffix = unsafe { COMMAND_NAMES.get_unchecked(start..end) };
-            command_name_eq(stored_suffix, suffix).then_some(CommandLookup { id: record.id, scope: record.scope })
+            (stored_suffix == suffix).then_some(CommandLookup { id: record.id, scope: record.scope })
         }
         #[inline]
         pub(crate) unsafe fn layer_device_dispatch_proc_addr(table: &LayerDeviceDispatchTable, id: u16) -> PFN_vkVoidFunction {
@@ -1981,10 +2042,7 @@ fn main() {
                         .is_some_and(|provider| provider.starts_with("VK_VERSION_"))
             })
             .unwrap_or_else(|| panic!("missing promoted extension for {}", alias_command.name));
-        let extension_name = extension_name_constants
-            .get(&extension.name)
-            .unwrap_or_else(|| panic!("missing extension-name constant for {}", extension.name));
-        let extension_name = format_ident!("{extension_name}");
+        let extension_id = format_ident!("{}_EXTENSION_ID", extension.name.to_ascii_uppercase());
         let core_version = format_ident!(
             "{}",
             extension
@@ -2091,7 +2149,7 @@ fn main() {
                 {
                     return { #core_call };
                 }
-                if device.instance().enabled_extensions.contains_name(vk::#extension_name)
+                if device.instance().enabled_extensions.contains(super::extensions::#extension_id)
                     && let Some(command) = device.icd().dispatch.#alias_field
                 {
                     return { #alias_call };
@@ -2524,10 +2582,23 @@ fn main() {
         }
         let command_pfn = format_ident!("PFN_{name_text}");
         let command_literal = c_string_literal(name_text);
+        let missing_kind = format_ident!(
+            "{}",
+            match name_text {
+                "vkGetDisplayPlaneCapabilitiesKHR"
+                | "vkGetDisplayPlaneSupportedDisplaysKHR"
+                | "vkGetPhysicalDeviceDisplayPropertiesKHR"
+                | "vkGetDisplayModePropertiesKHR"
+                | "vkGetPhysicalDeviceDisplayPlanePropertiesKHR" => "DisplayWarning",
+                "vkAcquireDrmDisplayEXT" => "AcquireDrmDisplay",
+                "vkGetDrmDisplayEXT" => "GetDrmDisplay",
+                _ => "Error",
+            }
+        );
         let (command_type, resolver) = match first_type {
             "VkPhysicalDevice" => (
                 quote! { Option<(vk::#command_pfn, vk::VkPhysicalDevice)> },
-                quote! { resolve_physical_device(#first, |dispatch| dispatch.#name, #command_literal) },
+                quote! { resolve_physical_device(#first, |dispatch| dispatch.#name, #command_literal, crate::dispatch::MissingPhysicalDeviceCommand::#missing_kind) },
             ),
             "VkDevice" => unreachable!("device commands use direct dispatch above"),
             _ => (
@@ -2799,8 +2870,15 @@ fn main() {
             LayerDeviceDispatchTable, LayerInstanceDispatchTable,
         };
         pub(crate) use extensions::{
-            ExtensionSet, VK_EXT_SURFACE_MAINTENANCE1_EXTENSION_ID,
-            VK_KHR_SURFACE_MAINTENANCE1_EXTENSION_ID, extension_id,
+            ExtensionSet, is_instance_extension,
+            VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES2_EXTENSION_ID,
+            VK_KHR_DEVICE_GROUP_CREATION_EXTENSION_ID,
+            VK_EXT_DEBUG_REPORT_EXTENSION_ID,
+            VK_EXT_DEBUG_UTILS_EXTENSION_ID,
+            VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_ID,
+            VK_LUNARG_DIRECT_DRIVER_LOADING_EXTENSION_ID,
+            VK_EXT_SURFACE_MAINTENANCE1_EXTENSION_ID,
+            VK_KHR_SURFACE_MAINTENANCE1_EXTENSION_ID, extension_id, extension_id_bytes,
             extension_name, is_known_instance_extension, surface_create_info_extension_size,
             wsi_instance_extension_supported,
         };

@@ -41,7 +41,6 @@ impl BuildHasher for RandomState {
 }
 
 pub(crate) type HashMap<K, V> = std::collections::HashMap<K, V, RandomState>;
-pub(crate) type HashSet<T> = std::collections::HashSet<T, RandomState>;
 
 /// Call-scoped uninitialized storage with a bounded stack fast path.
 pub(crate) struct ScratchArray<T, const STACK_CAPACITY: usize> {

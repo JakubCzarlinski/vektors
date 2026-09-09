@@ -317,6 +317,7 @@ pub(crate) unsafe extern "system" fn terminator_vkAcquireDrmDisplayEXT(
             physicalDevice,
             |dispatch| dispatch.vkAcquireDrmDisplayEXT,
             c"vkAcquireDrmDisplayEXT",
+            crate::dispatch::MissingPhysicalDeviceCommand::AcquireDrmDisplay,
         )
     };
     command.map_or_else(
@@ -342,6 +343,7 @@ pub(crate) unsafe extern "system" fn terminator_vkAcquireWinrtDisplayNV(
             physicalDevice,
             |dispatch| dispatch.vkAcquireWinrtDisplayNV,
             c"vkAcquireWinrtDisplayNV",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command.map_or_else(
@@ -379,6 +381,7 @@ pub(crate) unsafe extern "system" fn terminator_vkAcquireXlibDisplayEXT(
             physicalDevice,
             |dispatch| dispatch.vkAcquireXlibDisplayEXT,
             c"vkAcquireXlibDisplayEXT",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command.map_or_else(
@@ -454,6 +457,7 @@ pub(crate) unsafe extern "system" fn terminator_vkCreateDisplayModeKHR(
             physicalDevice,
             |dispatch| dispatch.vkCreateDisplayModeKHR,
             c"vkCreateDisplayModeKHR",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command.map_or_else(
@@ -882,6 +886,7 @@ pub(crate) unsafe extern "system" fn terminator_vkEnumeratePhysicalDeviceQueueFa
             physicalDevice,
             |dispatch| dispatch.vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM,
             c"vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command
@@ -923,6 +928,7 @@ pub(crate) unsafe extern "system" fn terminator_vkEnumeratePhysicalDeviceQueueFa
             physicalDevice,
             |dispatch| dispatch.vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR,
             c"vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command
@@ -962,6 +968,7 @@ pub(crate) unsafe extern "system" fn terminator_vkEnumeratePhysicalDeviceShaderI
             physicalDevice,
             |dispatch| dispatch.vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM,
             c"vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command
@@ -993,6 +1000,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetDisplayModePropertiesKHR(
             physicalDevice,
             |dispatch| dispatch.vkGetDisplayModePropertiesKHR,
             c"vkGetDisplayModePropertiesKHR",
+            crate::dispatch::MissingPhysicalDeviceCommand::DisplayWarning,
         )
     };
     command.map_or_else(
@@ -1031,6 +1039,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetDisplayPlaneCapabilitiesKHR
             physicalDevice,
             |dispatch| dispatch.vkGetDisplayPlaneCapabilitiesKHR,
             c"vkGetDisplayPlaneCapabilitiesKHR",
+            crate::dispatch::MissingPhysicalDeviceCommand::DisplayWarning,
         )
     };
     command.map_or_else(
@@ -1069,6 +1078,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetDisplayPlaneSupportedDispla
             physicalDevice,
             |dispatch| dispatch.vkGetDisplayPlaneSupportedDisplaysKHR,
             c"vkGetDisplayPlaneSupportedDisplaysKHR",
+            crate::dispatch::MissingPhysicalDeviceCommand::DisplayWarning,
         )
     };
     command.map_or_else(
@@ -1104,6 +1114,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetDrmDisplayEXT(
             physicalDevice,
             |dispatch| dispatch.vkGetDrmDisplayEXT,
             c"vkGetDrmDisplayEXT",
+            crate::dispatch::MissingPhysicalDeviceCommand::GetDrmDisplay,
         )
     };
     command.map_or_else(
@@ -1132,6 +1143,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceCalibrateable
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceCalibrateableTimeDomainsEXT,
             c"vkGetPhysicalDeviceCalibrateableTimeDomainsEXT",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command
@@ -1165,6 +1177,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceCalibrateable
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceCalibrateableTimeDomainsKHR,
             c"vkGetPhysicalDeviceCalibrateableTimeDomainsKHR",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command
@@ -1198,6 +1211,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceCooperativeMa
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV,
             c"vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command
@@ -1232,6 +1246,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceCooperativeMa
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceCooperativeMatrixProperties2EXT,
             c"vkGetPhysicalDeviceCooperativeMatrixProperties2EXT",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command
@@ -1270,6 +1285,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceCooperativeMa
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR,
             c"vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command
@@ -1303,6 +1319,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceCooperativeMa
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceCooperativeMatrixPropertiesNV,
             c"vkGetPhysicalDeviceCooperativeMatrixPropertiesNV",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command
@@ -1336,6 +1353,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceCooperativeVe
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceCooperativeVectorPropertiesNV,
             c"vkGetPhysicalDeviceCooperativeVectorPropertiesNV",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command
@@ -1368,6 +1386,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceDescriptorSiz
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceDescriptorSizeEXT,
             c"vkGetPhysicalDeviceDescriptorSizeEXT",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command.map_or_else(
@@ -1399,6 +1418,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceDirectFBPrese
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceDirectFBPresentationSupportEXT,
             c"vkGetPhysicalDeviceDirectFBPresentationSupportEXT",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command.map_or_else(
@@ -1427,6 +1447,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceDisplayPlaneP
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceDisplayPlanePropertiesKHR,
             c"vkGetPhysicalDeviceDisplayPlanePropertiesKHR",
+            crate::dispatch::MissingPhysicalDeviceCommand::DisplayWarning,
         )
     };
     command.map_or_else(
@@ -1462,6 +1483,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceDisplayProper
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceDisplayPropertiesKHR,
             c"vkGetPhysicalDeviceDisplayPropertiesKHR",
+            crate::dispatch::MissingPhysicalDeviceCommand::DisplayWarning,
         )
     };
     command.map_or_else(
@@ -1502,6 +1524,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceExternalImage
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceExternalImageFormatPropertiesNV,
             c"vkGetPhysicalDeviceExternalImageFormatPropertiesNV",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command.map_or_else(
@@ -1541,6 +1564,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceExternalTenso
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceExternalTensorPropertiesARM,
             c"vkGetPhysicalDeviceExternalTensorPropertiesARM",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     let Some((command, physicalDevice)) = command else {
@@ -1570,6 +1594,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceFeatures(
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceFeatures,
             c"vkGetPhysicalDeviceFeatures",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     if let Some((command, physicalDevice)) = command {
@@ -1596,6 +1621,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceFormatPropert
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceFormatProperties,
             c"vkGetPhysicalDeviceFormatProperties",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     if let Some((command, physicalDevice)) = command {
@@ -1622,6 +1648,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceFragmentShadi
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceFragmentShadingRatesKHR,
             c"vkGetPhysicalDeviceFragmentShadingRatesKHR",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command.map_or_else(
@@ -1662,6 +1689,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceImageFormatPr
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceImageFormatProperties,
             c"vkGetPhysicalDeviceImageFormatProperties",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command.map_or_else(
@@ -1699,6 +1727,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceMemoryPropert
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceMemoryProperties,
             c"vkGetPhysicalDeviceMemoryProperties",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     if let Some((command, physicalDevice)) = command {
@@ -1725,6 +1754,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceMultisamplePr
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceMultisamplePropertiesEXT,
             c"vkGetPhysicalDeviceMultisamplePropertiesEXT",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     let Some((command, physicalDevice)) = command else {
@@ -1755,6 +1785,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceOpticalFlowIm
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceOpticalFlowImageFormatsNV,
             c"vkGetPhysicalDeviceOpticalFlowImageFormatsNV",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command.map_or_else(
@@ -1800,6 +1831,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDevicePresentRectan
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDevicePresentRectanglesKHR,
             c"vkGetPhysicalDevicePresentRectanglesKHR",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command.map_or_else(
@@ -1826,6 +1858,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceProperties(
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceProperties,
             c"vkGetPhysicalDeviceProperties",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     if let Some((command, physicalDevice)) = command {
@@ -1853,6 +1886,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceQueueFamilyDa
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM,
             c"vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command
@@ -1894,6 +1928,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceQueueFamilyDa
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM,
             c"vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command
@@ -1940,6 +1975,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceQueueFamilyDa
                 dispatch.vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM
             },
             c"vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     let Some((command, physicalDevice)) = command else {
@@ -1974,6 +2010,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceQueueFamilyDa
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM,
             c"vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command
@@ -2012,6 +2049,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceQueueFamilyPe
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR,
             c"vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     let Some((command, physicalDevice)) = command else {
@@ -2041,6 +2079,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceQueueFamilyPr
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceQueueFamilyProperties,
             c"vkGetPhysicalDeviceQueueFamilyProperties",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     if let Some((command, physicalDevice)) = command {
@@ -2072,6 +2111,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceScreenPresent
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceScreenPresentationSupportQNX,
             c"vkGetPhysicalDeviceScreenPresentationSupportQNX",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command.map_or_else(
@@ -2105,6 +2145,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSparseImageFo
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceSparseImageFormatProperties,
             c"vkGetPhysicalDeviceSparseImageFormatProperties",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     if let Some((command, physicalDevice)) = command {
@@ -2140,6 +2181,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSupportedFram
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV,
             c"vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command
@@ -2180,6 +2222,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceCapabi
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceSurfaceCapabilitiesKHR,
             c"vkGetPhysicalDeviceSurfaceCapabilitiesKHR",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command.map_or_else(
@@ -2218,6 +2261,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfaceFormat
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceSurfaceFormatsKHR,
             c"vkGetPhysicalDeviceSurfaceFormatsKHR",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command.map_or_else(
@@ -2255,6 +2299,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfacePresen
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceSurfacePresentModes2EXT,
             c"vkGetPhysicalDeviceSurfacePresentModes2EXT",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command.map_or_else(
@@ -2300,6 +2345,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceSurfacePresen
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceSurfacePresentModesKHR,
             c"vkGetPhysicalDeviceSurfacePresentModesKHR",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command.map_or_else(
@@ -2331,6 +2377,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceUbmPresentati
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceUbmPresentationSupportSEC,
             c"vkGetPhysicalDeviceUbmPresentationSupportSEC",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command.map_or_else(
@@ -2359,6 +2406,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceVideoCapabili
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceVideoCapabilitiesKHR,
             c"vkGetPhysicalDeviceVideoCapabilitiesKHR",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command.map_or_else(
@@ -2391,6 +2439,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceVideoEncodeQu
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR,
             c"vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command
@@ -2425,6 +2474,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceVideoFormatPr
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceVideoFormatPropertiesKHR,
             c"vkGetPhysicalDeviceVideoFormatPropertiesKHR",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command.map_or_else(
@@ -2474,6 +2524,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceWaylandPresen
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceWaylandPresentationSupportKHR,
             c"vkGetPhysicalDeviceWaylandPresentationSupportKHR",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command.map_or_else(
@@ -2502,6 +2553,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceWin32Presenta
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceWin32PresentationSupportKHR,
             c"vkGetPhysicalDeviceWin32PresentationSupportKHR",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command.map_or_else(
@@ -2543,6 +2595,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceXcbPresentati
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceXcbPresentationSupportKHR,
             c"vkGetPhysicalDeviceXcbPresentationSupportKHR",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command.map_or_else(
@@ -2586,6 +2639,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetPhysicalDeviceXlibPresentat
             physicalDevice,
             |dispatch| dispatch.vkGetPhysicalDeviceXlibPresentationSupportKHR,
             c"vkGetPhysicalDeviceXlibPresentationSupportKHR",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command.map_or_else(
@@ -2626,6 +2680,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetRandROutputDisplayEXT(
             physicalDevice,
             |dispatch| dispatch.vkGetRandROutputDisplayEXT,
             c"vkGetRandROutputDisplayEXT",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command.map_or_else(
@@ -2652,6 +2707,7 @@ pub(crate) unsafe extern "system" fn terminator_vkGetWinrtDisplayNV(
             physicalDevice,
             |dispatch| dispatch.vkGetWinrtDisplayNV,
             c"vkGetWinrtDisplayNV",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command.map_or_else(
@@ -2676,6 +2732,7 @@ pub(crate) unsafe extern "system" fn terminator_vkReleaseDisplayEXT(
             physicalDevice,
             |dispatch| dispatch.vkReleaseDisplayEXT,
             c"vkReleaseDisplayEXT",
+            crate::dispatch::MissingPhysicalDeviceCommand::Error,
         )
     };
     command.map_or_else(

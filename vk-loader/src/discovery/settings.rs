@@ -241,7 +241,8 @@ fn load_loader_settings(global: Option<bool>, force_diagnostics: bool) -> Option
         pending::mark_json_allocation_failed();
         return None;
     };
-    let Ok(shadow_root) = shadow_json_allocations(&display_path, &bytes) else {
+    let callbacks = pending::instance_allocator();
+    let Ok(shadow_root) = shadow_json_allocations(&display_path, &bytes, callbacks) else {
         return None;
     };
     if shadow_root.as_ref().is_some_and(|root| {
@@ -250,7 +251,7 @@ fn load_loader_settings(global: Option<bool>, force_diagnostics: bool) -> Option
             .and_then(|settings| settings.get("stderr_log"))
             .and_then(Value::as_array)
             .is_some_and(|filters| !filters.is_empty())
-    }) && !probe_instance_shrinking_reallocation(256, 6)
+    }) && !probe_instance_shrinking_reallocation(256, 6, callbacks)
     {
         pending::mark_json_allocation_failed();
         return None;
@@ -326,9 +327,9 @@ enum SettingsDocumentError {
     MissingSettings,
 }
 
-fn select_settings_document(
-    root: Option<&Value>,
-) -> Result<(Option<&Value>, bool), SettingsDocumentError> {
+fn select_settings_document<'a>(
+    root: Option<&'a Value<'a>>,
+) -> Result<(Option<&'a Value<'a>>, bool), SettingsDocumentError> {
     let root = root.ok_or(SettingsDocumentError::InvalidJson)?;
     if !root.is_object() {
         return Err(SettingsDocumentError::NotObject);
@@ -465,7 +466,7 @@ fn parse_device_configuration(value: &Value) -> Option<DeviceConfiguration> {
     })
 }
 
-pub(super) fn select_settings(root: &Value) -> (Option<&Value>, bool) {
+pub(super) fn select_settings<'a>(root: &'a Value<'_>) -> (Option<&'a Value<'a>>, bool) {
     if root.get("settings_array").is_none()
         && let Some(settings) = root.get("settings")
     {
@@ -530,12 +531,26 @@ pub(super) fn read_settings_from_root(
         pending::mark_json_allocation_failed();
         return None;
     }
-    path.push(root);
+    // The buffer is empty, so copying the root needs no path-component scan.
+    path.as_mut_os_string().push(root.as_os_str());
     if let Some(nested) = nested {
         path.push(nested);
     }
-    path.push("vulkan/loader_settings.d");
-    path.push("vk_loader_settings.json");
+    if cfg!(target_os = "linux") {
+        // The suffix is fixed and relative. On Linux only '/' is a separator.
+        if path
+            .as_os_str()
+            .as_bytes()
+            .last()
+            .is_some_and(|byte| *byte != b'/')
+        {
+            path.as_mut_os_string().push("/");
+        }
+        path.as_mut_os_string()
+            .push("vulkan/loader_settings.d/vk_loader_settings.json");
+    } else {
+        path.push("vulkan/loader_settings.d/vk_loader_settings.json");
+    }
     read_settings_file(path)
 }
 

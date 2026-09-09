@@ -205,7 +205,10 @@ pub(crate) fn write_loader_category_log_any(
 fn write_loader_log_enabled(label: &str, message: core::fmt::Arguments<'_>) {
     let mut text = LogBuffer::<511>::new();
     let _ = text.write_fmt(message);
-    let mut line = LogBuffer::<1024>::new();
+    // All labels are fixed loader categories, at most two seven-byte names.
+    // Prefix (16), label (17), separator (2), message (511), newline (1).
+    debug_assert!(label.len() <= 17);
+    let mut line = LogBuffer::<547>::new();
     let _ = write!(line, "[Vulkan Loader] {label}: ");
     let padding = 32_usize.saturating_sub(line.len());
     let _ = writeln!(line, "{:padding$}{}", "", text.as_str());

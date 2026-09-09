@@ -370,10 +370,7 @@ pub(super) fn named_layer_device_extensions(
             append_unique_device_extension(&mut extensions, &device_extension_property(extension))?;
         }
         for component in manifest.component_layers().iter().rev() {
-            if let Some(index) = manifests
-                .iter()
-                .position(|manifest| manifest.name == *component)
-            {
+            if let Some(index) = component.index() {
                 pending
                     .try_reserve(1)
                     .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
@@ -464,6 +461,14 @@ pub(super) unsafe fn enumerate_icd_device_extensions(
         *property_count = written;
         return VkResult::SUCCESS;
     }
+    unsafe { count_icd_device_extensions(physical_device, property_count, enumerate) }
+}
+
+unsafe fn count_icd_device_extensions(
+    physical_device: &LoaderPhysicalDevice,
+    property_count: &mut u32,
+    enumerate: vk::PFN_vkEnumerateDeviceExtensionProperties,
+) -> VkResult {
     let mut count = 0;
     let result = unsafe {
         enumerate(
@@ -475,6 +480,15 @@ pub(super) unsafe fn enumerate_icd_device_extensions(
     };
     if result != VkResult::SUCCESS {
         return result;
+    }
+    if !physical_device
+        .instance()
+        .layers
+        .iter()
+        .any(|layer| layer.implicit && !layer.device_extensions.is_empty())
+    {
+        *property_count = count;
+        return VkResult::SUCCESS;
     }
     let capacity = count as usize;
     let mut extensions = Vec::new();
@@ -785,18 +799,17 @@ pub(super) fn extension_property_name(property: &VkExtensionProperties) -> Optio
 pub(crate) unsafe fn available_device_extensions(
     instance: &LoaderInstance,
     physical_device: vk::VkPhysicalDevice,
-) -> Result<Box<[CString]>, VkResult> {
-    let mut names = Vec::new();
+) -> Result<crate::discovery::AvailableDeviceExtensions, VkResult> {
+    let mut names = crate::discovery::AvailableDeviceExtensions::default();
     for extension in instance
         .layers
         .iter()
         .flat_map(|layer| &layer.device_extensions)
     {
-        let name = allocation::try_c_string(&extension.name)?;
-        allocation::try_push(&mut names, name)?;
+        names.insert(&extension.name)?;
     }
     let Some(top) = instance.layers.first() else {
-        return allocation::try_into_boxed_slice(names);
+        return Ok(names);
     };
     // SAFETY: The top layer remains loaded and the name has static storage.
     let enumerate: Option<PFN_vkEnumerateDeviceExtensionProperties> = unsafe {
@@ -806,7 +819,7 @@ pub(crate) unsafe fn available_device_extensions(
         ))
     };
     let Some(enumerate) = enumerate else {
-        return allocation::try_into_boxed_slice(names);
+        return Ok(names);
     };
     let mut count = 0_u32;
     // SAFETY: The physical device and writable count are live for this query.
@@ -842,12 +855,9 @@ pub(crate) unsafe fn available_device_extensions(
         // SAFETY: The enumeration initialized the reported leading entries.
         .filter_map(|property| extension_property_name(unsafe { property.assume_init_ref() }))
     {
-        let name = allocation::try_c_string(name)?;
-        allocation::try_push(&mut names, name)?;
+        names.insert_name(name)?;
     }
-    names.sort_unstable_by(|left, right| left.as_bytes().cmp(right.as_bytes()));
-    names.dedup_by(|left, right| left.as_bytes() == right.as_bytes());
-    allocation::try_into_boxed_slice(names)
+    Ok(names)
 }
 
 pub(super) unsafe extern "system" fn set_device_loader_data(

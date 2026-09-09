@@ -77,6 +77,12 @@ pub(crate) fn discover_layers() -> DiscoveredLayers {
 }
 
 pub(crate) fn discover_layers_with_settings(settings: Option<&LoaderSettings>) -> DiscoveredLayers {
+    let discovered = discover_layers_with_settings_inner(settings);
+    super::resolve_layer_names(&discovered.manifests);
+    discovered
+}
+
+fn discover_layers_with_settings_inner(settings: Option<&LoaderSettings>) -> DiscoveredLayers {
     if let Some(settings) = settings {
         let Some(configurations) = settings.layer_configurations.as_ref() else {
             let (manifests, searches) = discover_layers_from_search_paths_with_diagnostics();
@@ -168,11 +174,18 @@ pub(crate) fn discover_layers_with_settings(settings: Option<&LoaderSettings>) -
 pub(crate) fn discover_implicit_layers_with_settings(
     settings: Option<&LoaderSettings>,
 ) -> DiscoveredLayers {
+    let discovered = discover_implicit_layers_inner(settings);
+    super::resolve_layer_names(&discovered.manifests);
+    discovered
+}
+
+fn discover_implicit_layers_inner(settings: Option<&LoaderSettings>) -> DiscoveredLayers {
     if settings.is_some() {
         // Loader settings replace ordinary implicit/explicit discovery. Every
         // configured layer participates in the pre-instance chain according
         // to its control value, regardless of its manifest type.
-        let mut discovered = discover_layers_with_settings(settings);
+        // The outer wrapper resolves names after this metadata-only filtering.
+        let mut discovered = discover_layers_with_settings_inner(settings);
         discovered.implicit_only = true;
         let retain_explicit_search = discovered.iter().any(|manifest| {
             manifest.implicit
@@ -203,10 +216,9 @@ pub(crate) fn discover_implicit_layers_with_settings(
         };
     }
     select_override_layer(&mut manifests);
-    let active_override = manifests.iter().find(|manifest| {
-        manifest.name.as_c_str() == c"VK_LAYER_LUNARG_override"
-            && layer::implicit_manifest_is_active(manifest)
-    });
+    let active_override = manifests
+        .iter()
+        .find(|manifest| manifest.is_override() && layer::implicit_manifest_is_active(manifest));
     let has_implicit_meta_layer = manifests.iter().any(|manifest| {
         !manifest.component_layers().is_empty()
             && (layer::implicit_manifest_is_active(manifest)
@@ -257,6 +269,7 @@ pub(crate) fn discover_implicit_layers_with_settings(
 }
 
 pub(super) fn retain_implicit_layers_and_components(manifests: &mut Vec<LayerManifest>) {
+    super::resolve_layer_names(manifests);
     let Ok(mut keep) = allocation::try_boxed_slice_filled(manifests.len(), false) else {
         pending::mark_json_allocation_failed();
         return;
@@ -264,10 +277,7 @@ pub(super) fn retain_implicit_layers_and_components(manifests: &mut Vec<LayerMan
     for (index, manifest) in manifests.iter().enumerate() {
         keep[index] |= manifest.implicit;
         for component in manifest.component_layers() {
-            if let Some(component_index) = manifests
-                .iter()
-                .position(|candidate| candidate.name == *component)
-            {
+            if let Some(component_index) = component.index() {
                 keep[component_index] = true;
             }
         }
@@ -300,7 +310,7 @@ fn discover_layers_from_search_paths_with_diagnostics() -> (Box<[LayerManifest]>
     let override_roots = layers
         .iter()
         .find(|layer| {
-            layer.name.as_c_str() == c"VK_LAYER_LUNARG_override"
+            layer.is_override()
                 && layer::implicit_manifest_is_active(layer)
                 && layer
                     .override_paths
@@ -333,20 +343,22 @@ fn discover_layers_in_roots_with_files(
     roots: &[PathBuf],
     implicit: bool,
 ) -> (Vec<LayerManifest>, Box<[PathBuf]>, Box<[PathBuf]>) {
+    // Callback guards restore the outer set after synchronous reentrant calls.
+    let callbacks = pending::instance_allocator();
     let mut layers = Vec::new();
     let mut files = Vec::new();
     let mut diagnostic_files = Vec::new();
     for root in roots {
         for path in platform::manifest_files(root) {
             let (parsed, needs_diagnostics, reparse_for_diagnostics) =
-                parse_layer_manifest_inner(&path, implicit, true);
+                parse_layer_manifest_inner(&path, implicit, callbacks);
             extend_values(&mut layers, parsed);
             if needs_diagnostics {
-                if pending::instance_allocator().is_some() && !pending::json_allocation_failed() {
+                if callbacks.is_some() && !pending::json_allocation_failed() {
                     layer::emit_global_layer_manifest_diagnostic(&path, implicit, true, None);
                 }
                 if (reparse_for_diagnostics
-                    || pending::instance_allocator().is_none()
+                    || callbacks.is_none()
                     || pending::json_allocation_failed())
                     && let Some(copy) = owned_path(&path)
                 {
@@ -377,16 +389,15 @@ pub(super) fn select_override_layer_for_executable(
         return;
     };
     let matching = layers.iter().position(|layer| {
-        layer.name.as_c_str() == c"VK_LAYER_LUNARG_override"
-            && layer.app_keys().iter().any(|key| key == executable)
+        layer.is_override() && layer.app_keys().iter().any(|key| key == executable)
     });
-    let global = layers.iter().position(|layer| {
-        layer.name.as_c_str() == c"VK_LAYER_LUNARG_override" && layer.app_keys().is_empty()
-    });
+    let global = layers
+        .iter()
+        .position(|layer| layer.is_override() && layer.app_keys().is_empty());
     let selected = matching.or(global);
     let mut index = 0;
     layers.retain(|layer| {
-        let keep = layer.name.as_c_str() != c"VK_LAYER_LUNARG_override" || Some(index) == selected;
+        let keep = !layer.is_override() || Some(index) == selected;
         index += 1;
         keep
     });

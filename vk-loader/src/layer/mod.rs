@@ -7,11 +7,11 @@ mod library;
 #[cfg(test)]
 mod tests;
 
+use activation::{
+    MetaTraversal, available_layer_mask, forced_disabled, forced_enabled, naturally_enabled,
+};
 #[cfg(test)]
 use activation::{append_windows_layer_names, requested_layer_names};
-use activation::{
-    available_layer_mask, forced_disabled, forced_enabled, meta_reaches, naturally_enabled,
-};
 pub(crate) use activation::{
     emit_selected_layer_activation_diagnostics, implicit_manifest_is_active, load_selected_layers,
     select_active_layers,
@@ -49,7 +49,7 @@ use vk::{
 
 use crate::{
     allocation,
-    collections::{HashSet, ScratchArray},
+    collections::ScratchArray,
     discovery::{
         LayerControl, LayerExtension, LayerManifest, LayerSearch, LoaderSettings, discover_layers,
         discover_layers_with_settings, valid_layer_mask,
@@ -220,14 +220,14 @@ pub(crate) fn unload_layers(layers: &mut [LoadedLayer]) {
 
 pub(crate) struct SelectedLayers {
     manifests: Box<[LayerManifest]>,
-    selected: Box<[usize]>,
+    selected: Vec<usize>,
     reported: Box<[ActiveLayerProperty]>,
     requested: Box<[CString]>,
     environment_count: usize,
-    activation_messages: Box<[String]>,
-    repeated_activation_messages: Box<[String]>,
-    activation_error_messages: Box<[String]>,
-    repeated_activation_error_messages: Box<[String]>,
+    activation_messages: Vec<String>,
+    repeated_activation_messages: Vec<String>,
+    activation_error_messages: Vec<String>,
+    repeated_activation_error_messages: Vec<String>,
 }
 
 impl SelectedLayers {

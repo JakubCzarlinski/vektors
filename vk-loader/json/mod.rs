@@ -2,7 +2,8 @@
 
 mod value;
 
-use alloc::vec::Vec;
+use alloc::{borrow::Cow, vec::Vec};
+use core::mem::MaybeUninit;
 
 use value::Object;
 pub(crate) use value::{Number, Value};
@@ -15,7 +16,7 @@ pub(crate) enum Error {
 
 const NESTING_LIMIT: usize = 1_000;
 
-pub(crate) fn parse(bytes: &[u8]) -> Result<Value, Error> {
+pub(crate) fn parse(bytes: &[u8]) -> Result<Value<'_>, Error> {
     let mut parser = Parser {
         bytes,
         index: if bytes.starts_with(&[0xef, 0xbb, 0xbf]) {
@@ -35,6 +36,31 @@ pub(crate) fn parse(bytes: &[u8]) -> Result<Value, Error> {
     }
 }
 
+/// Finds a quote or escape without branching on every byte of long strings.
+#[inline(never)]
+fn string_delimiter(bytes: &[u8]) -> Option<usize> {
+    let mut offset = 0;
+    while bytes.len() - offset >= 8 {
+        // SAFETY: At least eight bytes remain in the input slice.
+        let word =
+            u64::from_le(unsafe { bytes.as_ptr().add(offset).cast::<u64>().read_unaligned() });
+        let zero_bytes =
+            |word: u64| word.wrapping_sub(0x0101_0101_0101_0101) & !word & 0x8080_8080_8080_8080;
+        let delimiters =
+            zero_bytes(word ^ 0x2222_2222_2222_2222) | zero_bytes(word ^ 0x5c5c_5c5c_5c5c_5c5c);
+        if delimiters != 0 {
+            // Borrow can mark bytes after a zero, but never before the first
+            // zero. Little-endian order makes the lowest bit the first match.
+            return Some(offset + delimiters.trailing_zeros() as usize / 8);
+        }
+        offset += 8;
+    }
+    bytes[offset..]
+        .iter()
+        .position(|byte| matches!(byte, b'"' | b'\\'))
+        .map(|index| offset + index)
+}
+
 struct Parser<'a> {
     bytes: &'a [u8],
     index: usize,
@@ -42,7 +68,7 @@ struct Parser<'a> {
     allocation_failed: bool,
 }
 
-impl Parser<'_> {
+impl<'a> Parser<'a> {
     fn reserve<T>(&mut self, values: &mut Vec<T>, additional: usize) -> Option<()> {
         if values.try_reserve(additional).is_err() {
             self.allocation_failed = true;
@@ -57,7 +83,7 @@ impl Parser<'_> {
         }
     }
 
-    fn value(&mut self) -> Option<Value> {
+    fn value(&mut self) -> Option<Value<'a>> {
         match self.bytes.get(self.index).copied()? {
             b'n' if self.take_literal(b"null") => Some(Value::Null),
             b'f' if self.take_literal(b"false") => Some(Value::Bool(false)),
@@ -82,9 +108,29 @@ impl Parser<'_> {
         true
     }
 
-    fn string(&mut self) -> Option<Vec<u8>> {
+    fn string(&mut self) -> Option<Cow<'a, [u8]>> {
         self.index += 1;
+        let start = self.index;
+        let remaining = &self.bytes[start..];
+        let delimiter = string_delimiter(remaining)?;
+        // SAFETY: string_delimiter returns the position of an existing quote
+        // or backslash in this exact slice, so the position is strictly in bounds.
+        let (bytes, tail) = unsafe { remaining.split_at_unchecked(delimiter) };
+        self.index = start + delimiter;
+        // SAFETY: The delimiter position is strictly below remaining.len().
+        if unsafe { *tail.get_unchecked(0) } == b'"' {
+            self.index += 1;
+            // Unescaped strings remain valid while the input document is live.
+            return Some(Cow::Borrowed(bytes));
+        }
+        self.escaped_string(bytes).map(Cow::Owned)
+    }
+
+    #[cold]
+    fn escaped_string(&mut self, prefix: &[u8]) -> Option<Vec<u8>> {
         let mut output = Vec::new();
+        self.reserve(&mut output, prefix.len())?;
+        output.extend_from_slice(prefix);
         while let Some(byte) = self.bytes.get(self.index).copied() {
             self.index += 1;
             match byte {
@@ -97,10 +143,7 @@ impl Parser<'_> {
                 _ => {
                     let start = self.index - 1;
                     let remaining = &self.bytes[self.index..];
-                    self.index += remaining
-                        .iter()
-                        .position(|byte| matches!(byte, b'"' | b'\\'))
-                        .unwrap_or(remaining.len());
+                    self.index += string_delimiter(remaining).unwrap_or(remaining.len());
                     let bytes = &self.bytes[start..self.index];
                     self.reserve(&mut output, bytes.len())?;
                     output.extend_from_slice(bytes);
@@ -170,21 +213,21 @@ impl Parser<'_> {
         Some(value)
     }
 
-    fn number(&mut self) -> Option<Value> {
+    fn number(&mut self) -> Option<Value<'a>> {
         let start = self.index;
+        let remaining = self.bytes.get(start..)?;
+        // Initialize only the copied prefix and its terminator, as strtod
+        // never needs the unused suffix of this bounded stack buffer.
+        let mut input = [MaybeUninit::<u8>::uninit(); 64];
         let mut length = 0;
-        while length < 63
-            && self
-                .bytes
-                .get(start.saturating_add(length))
-                .is_some_and(|byte| matches!(byte, b'0'..=b'9' | b'+' | b'-' | b'e' | b'E' | b'.'))
-        {
+        for (&byte, slot) in remaining.iter().zip(&mut input[..63]) {
+            if !matches!(byte, b'0'..=b'9' | b'+' | b'-' | b'e' | b'E' | b'.') {
+                break;
+            }
+            slot.write(byte);
             length += 1;
         }
-        // The numeric token is bounded above, so its C representation needs
-        // no heap allocation. The final byte remains NUL even at the limit.
-        let mut input = [0_u8; 64];
-        input[..length].copy_from_slice(self.bytes.get(start..start.saturating_add(length))?);
+        input[length].write(0);
         let input = input.as_ptr().cast::<core::ffi::c_char>();
         let mut end = core::ptr::null_mut();
         // SAFETY: `input` is a live NUL-terminated byte string and `end` is a
@@ -196,8 +239,10 @@ impl Parser<'_> {
         // SAFETY: `strtod` returns either the input pointer or a pointer within
         // the same NUL-terminated allocation; equality was rejected above.
         let consumed = unsafe { end.offset_from(input) } as usize;
-        self.index = self.index.saturating_add(consumed);
-        let token = core::str::from_utf8(&self.bytes[start..self.index]).ok()?;
+        self.index = start + consumed;
+        // SAFETY: The scanner copied only ASCII bytes. strtod's consumed prefix
+        // ends within that initialized, NUL-terminated token.
+        let token = unsafe { core::str::from_utf8_unchecked(&remaining[..consumed]) };
         let number = match token.parse::<u64>() {
             Ok(value) => Number::Unsigned(value),
             Err(_) => match token.parse::<i64>() {
@@ -209,7 +254,7 @@ impl Parser<'_> {
         Some(Value::Number(number))
     }
 
-    fn array(&mut self) -> Option<Value> {
+    fn array(&mut self) -> Option<Value<'a>> {
         self.enter()?;
         self.index += 1;
         self.skip_whitespace();
@@ -238,7 +283,7 @@ impl Parser<'_> {
         }
     }
 
-    fn object(&mut self) -> Option<Value> {
+    fn object(&mut self) -> Option<Value<'a>> {
         self.enter()?;
         self.index += 1;
         self.skip_whitespace();
@@ -259,9 +304,12 @@ impl Parser<'_> {
             }
             self.index += 1;
             self.skip_whitespace();
-            let value = self.value()?;
+            let value = self.value();
+            // Check validity without moving the payload across the fallible
+            // reserve; extracting it here introduces extra stack copies.
+            value.as_ref()?;
             self.reserve(&mut values.0, 1)?;
-            values.0.push((key, value));
+            values.0.push((key, value?));
             self.skip_whitespace();
             match self.bytes.get(self.index) {
                 Some(b',') => {
@@ -294,6 +342,34 @@ impl Parser<'_> {
 #[cfg(test)]
 mod tests {
     use super::{Number, Parser, Value, parse};
+
+    #[test]
+    fn string_delimiters_preserve_first_match_at_word_boundaries() {
+        for byte in 0..=u8::MAX {
+            for alignment in 0..8 {
+                for position in 0..32 {
+                    for delimiter in *b"\"\\" {
+                        let mut bytes = [byte; 64];
+                        bytes[alignment + position] = delimiter;
+                        let expected = if matches!(byte, b'"' | b'\\') {
+                            0
+                        } else {
+                            position
+                        };
+                        for tail in [0, 8] {
+                            let input = &bytes[alignment..alignment + position + 1 + tail];
+                            assert_eq!(super::string_delimiter(input), Some(expected));
+                        }
+                    }
+                }
+            }
+            for len in 0..32 {
+                let bytes = [byte; 32];
+                let expected = (len != 0 && matches!(byte, b'"' | b'\\')).then_some(0);
+                assert_eq!(super::string_delimiter(&bytes[..len]), expected);
+            }
+        }
+    }
 
     #[test]
     fn object_lookup_preserves_nul_termination_and_first_match() {
@@ -379,6 +455,32 @@ mod tests {
             Some("ab\ncd\\ef")
         );
     }
+    #[test]
+    fn numeric_prefixes_preserve_limits_and_integer_precision() {
+        for (bytes, expected) in [
+            (
+                b"18446744073709551615".as_slice(),
+                Number::Unsigned(u64::MAX),
+            ),
+            (b"-9223372036854775808".as_slice(), Number::Signed(i64::MIN)),
+            (b"1e+".as_slice(), Number::Unsigned(1)),
+            (b"12\xff".as_slice(), Number::Unsigned(12)),
+        ] {
+            assert_eq!(parse(bytes), Ok(Value::Number(expected)));
+        }
+        let mut bytes = [b'0'; 64];
+        bytes[63] = b'9';
+        let mut parser = Parser {
+            bytes: &bytes,
+            index: 0,
+            depth: 0,
+            allocation_failed: false,
+        };
+        assert_eq!(parser.value(), Some(Value::Number(Number::Unsigned(0))));
+        assert_eq!(parser.index, 63);
+        assert_eq!(parse(b"1e999"), Ok(Value::Null));
+    }
+
     #[test]
     fn object_keys_use_c_string_boundaries() {
         let value =
