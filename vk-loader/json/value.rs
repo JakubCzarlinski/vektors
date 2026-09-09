@@ -23,25 +23,34 @@ pub(crate) enum Number {
 #[derive(Debug, PartialEq)]
 pub(crate) struct Object(pub(super) Vec<(Vec<u8>, Value)>);
 
-fn c_string_bytes(bytes: &[u8]) -> &[u8] {
-    &bytes[..bytes
-        .iter()
-        .position(|byte| *byte == 0)
-        .unwrap_or(bytes.len())]
-}
-
 impl Object {
+    #[inline(never)]
     pub(crate) fn get(&self, key: &str) -> Option<&Value> {
+        let key = key.as_bytes();
+        if key.contains(&0) {
+            return None;
+        }
         self.0
             .iter()
-            .find(|(name, _)| c_string_bytes(name) == key.as_bytes())
+            .find(|(name, _)| {
+                name.starts_with(key) && name.get(key.len()).is_none_or(|byte| *byte == 0)
+            })
             .map(|(_, value)| value)
     }
 
+    #[inline(never)]
     pub(crate) fn get_ignore_ascii_case(&self, key: &str) -> Option<&Value> {
+        let key = key.as_bytes();
+        if key.contains(&0) {
+            return None;
+        }
         self.0
             .iter()
-            .find(|(name, _)| c_string_bytes(name).eq_ignore_ascii_case(key.as_bytes()))
+            .find(|(name, _)| {
+                name.get(..key.len())
+                    .is_some_and(|prefix| prefix.eq_ignore_ascii_case(key))
+                    && name.get(key.len()).is_none_or(|byte| *byte == 0)
+            })
             .map(|(_, value)| value)
     }
 

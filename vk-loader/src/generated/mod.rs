@@ -11,7 +11,7 @@ mod trampolines;
 #[cfg(test)]
 pub(crate) use commands::{COMMAND_COUNT, COMMAND_MAX_DISPLACEMENT, COMMAND_NAMES, COMMAND_TABLE};
 pub(crate) use commands::{
-    command_core_level, command_has_device_extension_provider,
+    GET_INSTANCE_PROC_ADDR_COMMAND_ID, command_core_level, command_has_device_extension_provider,
     command_has_enabled_device_extension, command_has_enabled_instance_extension, command_lookup,
     command_must_use_loader_trampoline,
 };

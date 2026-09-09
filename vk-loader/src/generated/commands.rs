@@ -11540,6 +11540,7 @@ pub(super) static DEVICE_DISPATCH_MASKS: &[DeviceDispatchMask] = &[
         offset: VK_CMD_DRAW_MESH_TASKS_INDIRECT_COUNT_EXT_DEVICE_DISPATCH_OFFSET,
     },
 ];
+pub(crate) const GET_INSTANCE_PROC_ADDR_COMMAND_ID: u16 = 612;
 pub(super) const VK_GET_DEVICE_PROC_ADDR_COMMAND_ID: u16 = 569;
 pub(super) const VK_DESTROY_DEVICE_COMMAND_ID: u16 = 459;
 pub(super) const VK_GET_DEVICE_QUEUE_COMMAND_ID: u16 = 570;

@@ -93,12 +93,12 @@ pub unsafe extern "system" fn vkCreateDevice(
         emit_instance_loader_message(
             instance,
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-            "loader_create_logical_device: Failed to alloc struct loader_device",
+            format_args!("loader_create_logical_device: Failed to alloc struct loader_device"),
         );
         emit_instance_loader_message(
             instance,
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-            "vkCreateDevice:  Failed to create device chain.",
+            format_args!("vkCreateDevice:  Failed to create device chain."),
         );
     }
     result
@@ -117,7 +117,7 @@ pub(crate) unsafe fn emit_device_layer_callstack(instance: &LoaderInstance) {
             instance,
             &[platform::LogFilter::Layer, platform::LogFilter::Driver],
             "DRIVER",
-            message,
+            format_args!("{message}"),
         );
     }
     let first_device_layer = pending::device_layer_start().min(instance.layers.len());
@@ -173,13 +173,18 @@ pub(crate) unsafe fn emit_device_layer_callstack(instance: &LoaderInstance) {
             "LAYER",
             format_args!("           Library:  {}", layer.library_path.display()),
         );
-        emit_instance_category_message(instance, &[platform::LogFilter::Layer], "LAYER", "     ||");
+        emit_instance_category_message(
+            instance,
+            &[platform::LogFilter::Layer],
+            "LAYER",
+            format_args!("     ||"),
+        );
     }
     emit_instance_category_message(
         instance,
         &[platform::LogFilter::Layer, platform::LogFilter::Driver],
         "DRIVER",
-        "   <Device>",
+        format_args!("   <Device>"),
     );
 }
 

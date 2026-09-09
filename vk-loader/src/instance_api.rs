@@ -231,7 +231,9 @@ pub(crate) unsafe fn validate_instance_extensions(
             emit_driver_create_message(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-                "loader_validate_instance_extensions: Instance ppEnabledExtensionNames is NULL but enabledExtensionCount is greater than zero",
+                format_args!(
+                    "loader_validate_instance_extensions: Instance ppEnabledExtensionNames is NULL but enabledExtensionCount is greater than zero"
+                ),
             );
         };
         return Err(VkResult::ERROR_EXTENSION_NOT_PRESENT);
@@ -308,11 +310,11 @@ pub(crate) fn loader_instance_extension_supported(name: &CStr) -> bool {
 pub(crate) unsafe fn emit_driver_create_message(
     create_info: &VkInstanceCreateInfo<'_>,
     severity: vk::VkDebugUtilsMessageSeverityFlagBitsEXT,
-    message: impl core::fmt::Display,
+    message: core::fmt::Arguments<'_>,
 ) {
     let filter = platform::LogFilter::from_severity(severity);
-    platform::write_loader_log(filter, format_args!("{message}"));
-    diagnostics::with_message(format_args!("{message}"), |message| {
+    platform::write_loader_log(filter, message);
+    diagnostics::with_message(message, |message| {
         // SAFETY: The caller retains the complete instance-create pNext chain.
         unsafe { debug::messenger::submit_instance_create_message(create_info, severity, message) };
     });
@@ -323,44 +325,38 @@ pub(crate) unsafe fn emit_driver_create_message(
 pub(crate) unsafe fn emit_driver_category_create_message(
     create_info: &VkInstanceCreateInfo<'_>,
     severity: vk::VkDebugUtilsMessageSeverityFlagBitsEXT,
-    message: impl core::fmt::Display,
+    message: core::fmt::Arguments<'_>,
 ) {
     let filter = platform::LogFilter::from_severity(severity);
-    platform::write_loader_log_with_category(
-        filter,
-        platform::LogFilter::Driver,
-        format_args!("{message}"),
-    );
-    diagnostics::with_message(format_args!("{message}"), |message| {
+    platform::write_loader_log_with_category(filter, platform::LogFilter::Driver, message);
+    diagnostics::with_message(message, |message| {
         // SAFETY: The caller retains the complete instance-create pNext chain.
         unsafe { debug::messenger::submit_instance_create_message(create_info, severity, message) };
     });
 }
 
 #[cold]
+#[inline(never)]
 pub(crate) unsafe fn emit_layer_category_create_message(
     create_info: &VkInstanceCreateInfo<'_>,
     severity: vk::VkDebugUtilsMessageSeverityFlagBitsEXT,
-    message: impl core::fmt::Display,
+    message: core::fmt::Arguments<'_>,
 ) {
     let filter = platform::LogFilter::from_severity(severity);
-    platform::write_loader_log_with_category(
-        filter,
-        platform::LogFilter::Layer,
-        format_args!("{message}"),
-    );
-    diagnostics::with_message(format_args!("{message}"), |message| {
+    platform::write_loader_log_with_category(filter, platform::LogFilter::Layer, message);
+    diagnostics::with_message(message, |message| {
         unsafe { debug::messenger::submit_instance_create_message(create_info, severity, message) };
     });
 }
 
 #[cold]
+#[inline(never)]
 pub(crate) unsafe fn emit_driver_only_create_message(
     create_info: &VkInstanceCreateInfo<'_>,
-    message: impl core::fmt::Display,
+    message: core::fmt::Arguments<'_>,
 ) {
-    platform::write_loader_category_log(platform::LogFilter::Driver, format_args!("{message}"));
-    diagnostics::with_message(format_args!("{message}"), |message| {
+    platform::write_loader_category_log(platform::LogFilter::Driver, message);
+    diagnostics::with_message(message, |message| {
         // Category-only upstream messages are informational debug-utils messages.
         unsafe {
             debug::messenger::submit_instance_create_message(
@@ -422,6 +418,38 @@ pub(crate) fn fatal_direct_driver_scan_error(result: VkResult) -> Option<VkResul
 }
 
 #[cold]
+unsafe fn emit_empty_direct_driver_list(
+    create_info: &VkInstanceCreateInfo<'_>,
+    missing_drivers: bool,
+) {
+    let message = if missing_drivers {
+        "loader_scan_for_direct_drivers: The VkDirectDriverLoadingListLUNARG structure in the pNext chain of VkInstanceCreateInfo has a NULL pDrivers member."
+    } else {
+        "loader_scan_for_direct_drivers: The VkDirectDriverLoadingListLUNARG structure in the pNext chain of VkInstanceCreateInfo has a non-null pDrivers member but a driverCount member with a value of zero."
+    };
+    unsafe {
+        emit_driver_category_create_message(
+            create_info,
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+            format_args!("{message}"),
+        );
+    }
+}
+
+#[cold]
+unsafe fn emit_exclusive_direct_driver(create_info: &VkInstanceCreateInfo<'_>) {
+    unsafe {
+        emit_driver_category_create_message(
+            create_info,
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+            format_args!(
+                "loader_scan_for_direct_drivers: The VK_LUNARG_direct_driver_loading extension is active and specified VK_DIRECT_DRIVER_LOADING_MODE_EXCLUSIVE_LUNARG, skipping system and environment variable driver search mechanisms."
+            ),
+        );
+    };
+}
+
+#[cold]
 #[inline(never)]
 pub(crate) unsafe fn scan_direct_drivers(
     create_info: &VkInstanceCreateInfo<'_>,
@@ -434,7 +462,9 @@ pub(crate) unsafe fn scan_direct_drivers(
                 emit_driver_category_create_message(
                     create_info,
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                    "loader_scan_for_direct_drivers: The VK_LUNARG_direct_driver_loading extension was enabled but the pNext chain of VkInstanceCreateInfo did not contain the VkDirectDriverLoadingListLUNARG structure.",
+                    format_args!(
+                        "loader_scan_for_direct_drivers: The VK_LUNARG_direct_driver_loading extension was enabled but the pNext chain of VkInstanceCreateInfo did not contain the VkDirectDriverLoadingListLUNARG structure."
+                    ),
                 );
             };
         }
@@ -445,7 +475,9 @@ pub(crate) unsafe fn scan_direct_drivers(
             emit_driver_category_create_message(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                "loader_scan_for_direct_drivers: The pNext chain of VkInstanceCreateInfo contained the VkDirectDriverLoadingListLUNARG structure, but the VK_LUNARG_direct_driver_loading extension was not enabled.",
+                format_args!(
+                    "loader_scan_for_direct_drivers: The pNext chain of VkInstanceCreateInfo contained the VkDirectDriverLoadingListLUNARG structure, but the VK_LUNARG_direct_driver_loading extension was not enabled."
+                ),
             );
         };
         return Ok((false, Vec::new()));
@@ -453,32 +485,10 @@ pub(crate) unsafe fn scan_direct_drivers(
 
     let exclusive = list.mode == VkDirectDriverLoadingModeLUNARG::EXCLUSIVE;
     if exclusive {
-        unsafe {
-            emit_driver_category_create_message(
-                create_info,
-                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                "loader_scan_for_direct_drivers: The VK_LUNARG_direct_driver_loading extension is active and specified VK_DIRECT_DRIVER_LOADING_MODE_EXCLUSIVE_LUNARG, skipping system and environment variable driver search mechanisms.",
-            );
-        };
+        unsafe { emit_exclusive_direct_driver(create_info) };
     }
-    if list.pDrivers.is_null() {
-        unsafe {
-            emit_driver_category_create_message(
-                create_info,
-                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                "loader_scan_for_direct_drivers: The VkDirectDriverLoadingListLUNARG structure in the pNext chain of VkInstanceCreateInfo has a NULL pDrivers member.",
-            );
-        };
-        return Ok((exclusive, Vec::new()));
-    }
-    if list.driverCount == 0 {
-        unsafe {
-            emit_driver_category_create_message(
-                create_info,
-                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                "loader_scan_for_direct_drivers: The VkDirectDriverLoadingListLUNARG structure in the pNext chain of VkInstanceCreateInfo has a non-null pDrivers member but a driverCount member with a value of zero.",
-            );
-        };
+    if list.pDrivers.is_null() || list.driverCount == 0 {
+        unsafe { emit_empty_direct_driver_list(create_info, list.pDrivers.is_null()) };
         return Ok((exclusive, Vec::new()));
     }
 
@@ -538,7 +548,12 @@ pub(crate) unsafe fn scan_direct_drivers(
 #[cold]
 #[inline(never)]
 pub(crate) unsafe fn emit_driver_search_roots(create_info: &VkInstanceCreateInfo<'_>) {
-    unsafe { emit_driver_only_create_message(create_info, "Searching for driver manifest files") };
+    unsafe {
+        emit_driver_only_create_message(
+            create_info,
+            format_args!("Searching for driver manifest files"),
+        );
+    };
 }
 
 #[cold]
@@ -548,16 +563,23 @@ pub(crate) unsafe fn emit_driver_scan_preamble(
     scan: &discovery::DriverScan,
 ) {
     unsafe { emit_driver_search_roots(create_info) };
-    unsafe { emit_driver_only_create_message(create_info, "   In following locations:") };
+    unsafe {
+        emit_driver_only_create_message(create_info, format_args!("   In following locations:"));
+    };
     for root in &scan.search_roots {
         unsafe {
             emit_driver_only_create_message(create_info, format_args!("      {}", root.display()));
         };
     }
     if scan.reported_files.is_empty() {
-        unsafe { emit_driver_only_create_message(create_info, "   Found no files") };
+        unsafe { emit_driver_only_create_message(create_info, format_args!("   Found no files")) };
     } else {
-        unsafe { emit_driver_only_create_message(create_info, "   Found the following files:") };
+        unsafe {
+            emit_driver_only_create_message(
+                create_info,
+                format_args!("   Found the following files:"),
+            );
+        };
         for path in &scan.reported_files {
             let display_path = if !scan.environment_override
                 && scan.manifest_errors.iter().any(|(failed_path, error)| {
@@ -594,7 +616,9 @@ pub(crate) unsafe fn emit_driver_scan_preamble(
                 emit_driver_create_message(
                     create_info,
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                    "Found no registry files in HKEY_LOCAL_MACHINE\\SOFTWARE\\Khronos\\Vulkan\\Drivers",
+                    format_args!(
+                        "Found no registry files in HKEY_LOCAL_MACHINE\\SOFTWARE\\Khronos\\Vulkan\\Drivers"
+                    ),
                 )
             };
         }
@@ -736,7 +760,9 @@ pub(crate) unsafe fn emit_driver_manifest_diagnostics(
                 emit_driver_create_message(
                     create_info,
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                    "loader_parse_icd_manifest: Driver library architecture doesn't match the current running architecture, skipping this driver",
+                    format_args!(
+                        "loader_parse_icd_manifest: Driver library architecture doesn't match the current running architecture, skipping this driver"
+                    ),
                 );
             };
         }
@@ -924,7 +950,7 @@ pub(crate) unsafe fn scan_icds(
                 emit_driver_category_create_message(
                     create_info,
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-                    message,
+                    format_args!("{message}"),
                 );
             };
         }
@@ -932,7 +958,7 @@ pub(crate) unsafe fn scan_icds(
             emit_driver_category_create_message(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-                "vkCreateInstance: Found no drivers!",
+                format_args!("vkCreateInstance: Found no drivers!"),
             );
         };
         Err(VkResult::ERROR_INCOMPATIBLE_DRIVER)
@@ -962,7 +988,7 @@ pub(crate) unsafe fn load_scanned_icd(
                 emit_driver_create_message(
                     create_info,
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                    message,
+                    format_args!("{message}"),
                 );
             };
             if wrong_bit_type {
@@ -1089,7 +1115,7 @@ pub(crate) unsafe fn create_icd_instances(
             emit_driver_category_create_message(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-                "terminator_CreateInstance: Found no drivers!",
+                format_args!("terminator_CreateInstance: Found no drivers!"),
             );
         };
         Err(VkResult::ERROR_INCOMPATIBLE_DRIVER)
@@ -1419,7 +1445,9 @@ unsafe fn emit_instance_configuration(
             emit_driver_create_message(
                 create_info_ref,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                "No valid vk_loader_settings.json file found, no loader settings will be active",
+                format_args!(
+                    "No valid vk_loader_settings.json file found, no loader settings will be active"
+                ),
             );
         };
     }
@@ -1449,7 +1477,9 @@ unsafe fn emit_instance_configuration(
             emit_driver_create_message(
                 create_info_ref,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                "Portability enumeration bit was set, enumerating portability drivers.",
+                format_args!(
+                    "Portability enumeration bit was set, enumerating portability drivers."
+                ),
             );
         };
     }
