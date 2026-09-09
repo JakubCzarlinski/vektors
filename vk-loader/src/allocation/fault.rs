@@ -337,25 +337,7 @@ fn exercise_allocation_failure(
         }
         _ => false,
     };
-    let state = STATE.replace(State {
-        armed: false,
-        remaining: 0,
-        failed: false,
-        live_bytes: 0,
-    });
-    assert!(
-        recovered,
-        "{scenario}, allocation {index}: failure was not reported as OOM"
-    );
-    assert_eq!(
-        reported_failure, state.failed,
-        "{scenario}, allocation {index}: injected failure was swallowed"
-    );
-    assert_eq!(
-        state.live_bytes, 0,
-        "{scenario}, allocation {index}: allocation leaked during rollback"
-    );
-    state.failed
+    finish_scenario(scenario, index, recovered, reported_failure)
 }
 
 #[test]
@@ -418,4 +400,26 @@ fn sweep_rust_allocation_failures() {
     }
     std::fs::remove_dir(fixture).unwrap();
     drop(guard);
+}
+
+fn finish_scenario(scenario: &str, index: usize, recovered: bool, reported_failure: bool) -> bool {
+    let state = STATE.replace(State {
+        armed: false,
+        remaining: 0,
+        failed: false,
+        live_bytes: 0,
+    });
+    assert!(
+        recovered,
+        "{scenario}, allocation {index}: failure was not reported as OOM"
+    );
+    assert_eq!(
+        reported_failure, state.failed,
+        "{scenario}, allocation {index}: injected failure was swallowed"
+    );
+    assert_eq!(
+        state.live_bytes, 0,
+        "{scenario}, allocation {index}: allocation leaked during rollback"
+    );
+    state.failed
 }

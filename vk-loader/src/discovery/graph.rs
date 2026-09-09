@@ -29,7 +29,7 @@ pub(crate) fn valid_layer_mask(manifests: &[LayerManifest]) -> Result<Box<[bool]
             return false;
         }
         states[index] = VisitState::Visiting;
-        let valid = manifests[index].component_layers.iter().all(|name| {
+        let valid = manifests[index].component_layers().iter().all(|name| {
             manifests
                 .iter()
                 .enumerate()
@@ -42,7 +42,7 @@ pub(crate) fn valid_layer_mask(manifests: &[LayerManifest]) -> Result<Box<[bool]
                     let component_version = manifests[component].api_version;
                     // Upstream finds the first property for version checking,
                     // then resolves the last matching record for meta recursion.
-                    let recursive_component = if manifests[component].has_component_layers {
+                    let recursive_component = if manifests[component].is_meta_layer() {
                         manifests
                             .iter()
                             .enumerate()

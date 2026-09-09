@@ -983,40 +983,15 @@ pub(crate) unsafe fn enumerate_physical_device_group_properties(
         None
     };
 
-    let mut native_groups = Vec::new();
-    if native_groups
-        .try_reserve_exact(upper_bound as usize)
-        .is_err()
-    {
-        *group_count = 0;
-        return VkResult::ERROR_OUT_OF_HOST_MEMORY;
-    }
-    for (icd_index, icd) in instance.active_icds().rev() {
-        let Some(enumerate) = icd_group_enumerator(instance, icd) else {
-            continue;
-        };
-        let groups = match unsafe {
-            enumerate_icd_groups(
-                icd,
-                enumerate,
-                group_properties,
-                capacity,
-                native_groups.len(),
-            )
-        } {
-            Ok(groups) => groups,
-            Err(result) => {
-                *group_count = 0;
-                return result;
-            }
-        };
-        // The ICD's count may have increased since the earlier sizing query.
-        if native_groups.try_reserve(groups.len()).is_err() {
+    let mut native_groups = match unsafe {
+        collect_native_device_groups(instance, group_properties, capacity, upper_bound)
+    } {
+        Ok(groups) => groups,
+        Err(result) => {
             *group_count = 0;
-            return VkResult::ERROR_OUT_OF_HOST_MEMORY;
+            return result;
         }
-        native_groups.extend(groups.into_iter().map(|properties| (icd_index, properties)));
-    }
+    };
     if sort_linux {
         native_groups = match unsafe { linux_sort_physical_device_groups(instance, native_groups) }
         {
@@ -1032,105 +1007,23 @@ pub(crate) unsafe fn enumerate_physical_device_group_properties(
         windows_sort_physical_device_groups(&mut native_groups, &windows_sorted_devices);
     }
 
-    let mut state = instance.physical_devices.lock();
-    if state.owned.try_reserve(all_devices.len()).is_err() {
-        *group_count = 0;
-        return VkResult::ERROR_OUT_OF_HOST_MEMORY;
-    }
-    for device in &all_devices {
-        let key = (device.icd_index, device.handle.0 as usize);
-        if let collections::HashMapEntry::Vacant(entry) = state.owned.entry(key) {
-            let physical_device = match allocation::try_box(LoaderPhysicalDevice::new(
-                device.icd_index,
-                &instance.icds[device.icd_index],
-                instance,
-                instance.api_version,
-                device.handle,
-            )) {
-                Ok(device) => device,
-                Err((result, _device)) => {
-                    *group_count = 0;
-                    return result;
-                }
-            };
-            entry.insert(physical_device);
-        }
-    }
-    if refresh_physical_devices {
-        state.active.clear();
-        if state.active.try_reserve_exact(all_devices.len()).is_err() {
-            *group_count = 0;
-            return VkResult::ERROR_OUT_OF_HOST_MEMORY;
-        }
-        for device in &all_devices {
-            let key = (device.icd_index, device.handle.0 as usize);
-            let handle = if let Some(device) = state.owned.get(&key) {
-                device.handle()
-            } else {
-                *group_count = 0;
-                return VkResult::ERROR_INITIALIZATION_FAILED;
-            };
-            state.active.push(handle);
-        }
-    }
-
-    let mut visible_groups = Vec::new();
-    if visible_groups
-        .try_reserve_exact(native_groups.len())
-        .is_err()
-    {
-        *group_count = 0;
-        return VkResult::ERROR_OUT_OF_HOST_MEMORY;
-    }
-    'groups: for (group_index, (icd_index, mut properties)) in native_groups.into_iter().enumerate()
-    {
-        let device_count =
-            (properties.physicalDeviceCount as usize).min(vk::VK_MAX_DEVICE_GROUP_SIZE as usize);
-        properties.physicalDeviceCount = device_count as u32;
-        for native in &mut properties.physicalDevices[..device_count] {
-            if let Some(visible) = visible_devices.as_deref()
-                && !visible
-                    .iter()
-                    .any(|device| device.icd_index == icd_index && device.handle == *native)
-            {
-                if !group_properties.is_null() {
-                    emit_instance_loader_message(
-                        instance,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                        format_args!(
-                            "terminator_EnumeratePhysicalDeviceGroups: Physical device group {group_index} contains a VkPhysicalDevice which the settings file device configurations exclude, so the group was not reported."
-                        ),
-                    );
-                }
-                continue 'groups;
-            }
-            let key = (icd_index, native.0 as usize);
-            let Some(wrapped) = state.owned.get(&key) else {
-                *group_count = 0;
-                return VkResult::ERROR_INITIALIZATION_FAILED;
-            };
-            *native = wrapped.handle();
-        }
-        visible_groups.push(properties);
-    }
-
-    let written = capacity.min(visible_groups.len());
-    for (index, properties) in visible_groups.iter().take(written).enumerate() {
-        unsafe { group_properties.add(index).write(*properties) };
-    }
-    *group_count = written as u32;
-    if written < visible_groups.len() {
-        emit_instance_loader_message(
+    let result = unsafe {
+        write_visible_device_groups(
             instance,
-            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-            format_args!(
-                "terminator_EnumeratePhysicalDeviceGroups : Trimming device count from {} to {written}.",
-                visible_groups.len()
-            ),
-        );
-        VkResult::INCOMPLETE
-    } else {
-        VkResult::SUCCESS
+            &all_devices,
+            refresh_physical_devices,
+            native_groups,
+            visible_devices.as_deref(),
+            group_count,
+            group_properties,
+        )
+    };
+    match result {
+        Ok(result) => result,
+        Err(error) => {
+            *group_count = 0;
+            error
+        }
     }
 }
 
@@ -1932,38 +1825,7 @@ pub(crate) unsafe fn linux_sort_physical_device_groups(
         }
         .then_with(|| left.original_order.cmp(&right.original_order))
     });
-    emit_instance_loader_category_message(
-        instance,
-        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-        platform::LogFilter::Driver,
-        "linux_sort_physical_device_groups:  Sorted order:",
-    );
-    for (group_index, group) in sortable.iter().enumerate() {
-        emit_instance_loader_category_message(
-            instance,
-            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-            platform::LogFilter::Driver,
-            format_args!("           Group {group_index}"),
-        );
-        for (device_index, device) in group.devices.iter().enumerate() {
-            let name = unsafe { CStr::from_ptr(device.device_name.as_ptr()) };
-            let name = debug::diagnostics::LossyBytes(name.to_bytes());
-            let default = if device.default_device {
-                "[default]"
-            } else {
-                ""
-            };
-            emit_instance_loader_category_message(
-                instance,
-                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                platform::LogFilter::Driver,
-                format_args!(
-                    "               [{device_index}] {name} {:p} {default}",
-                    device.device.handle.0
-                ),
-            );
-        }
-    }
+    emit_sorted_physical_device_groups(instance, &sortable);
     let mut sorted = Vec::new();
     sorted
         .try_reserve_exact(sortable.len())
@@ -2032,89 +1894,19 @@ pub(crate) unsafe fn discover_active_physical_devices_with_diagnostics(
             if matched[device_index] {
                 continue;
             }
-            let icd = &instance.icds[device.icd_index];
-            let Some(get_properties2) = icd.dispatch.vkGetPhysicalDeviceProperties2 else {
-                continue;
-            };
-            unsafe {
-                core::ptr::addr_of_mut!((*query_pointer).properties.sType)
-                    .write(vk::VkStructureType::PHYSICAL_DEVICE_PROPERTIES_2);
-                core::ptr::addr_of_mut!((*query_pointer).properties.pNext)
-                    .write(core::ptr::addr_of_mut!((*query_pointer).identifiers).cast());
-                core::ptr::addr_of_mut!((*query_pointer).identifiers.sType)
-                    .write(vk::VkStructureType::PHYSICAL_DEVICE_ID_PROPERTIES);
-                core::ptr::addr_of_mut!((*query_pointer).identifiers.pNext)
-                    .write(core::ptr::null_mut());
-                core::ptr::addr_of_mut!((*query_pointer).driver)
-                    .write(vk::VkPhysicalDeviceDriverProperties::DEFAULT);
-                get_properties2(
-                    device.handle,
-                    core::ptr::addr_of_mut!((*query_pointer).properties),
-                );
-            }
-            let api_version = unsafe {
-                core::ptr::addr_of!((*query_pointer).properties.properties.apiVersion).read()
-            };
-            let driver_version = unsafe {
-                core::ptr::addr_of!((*query_pointer).properties.properties.driverVersion).read()
-            };
-            let device_uuid =
-                unsafe { core::ptr::addr_of!((*query_pointer).identifiers.deviceUUID).read() };
-            let driver_uuid =
-                unsafe { core::ptr::addr_of!((*query_pointer).identifiers.driverUUID).read() };
-            let supports_driver_properties = api_version >= vk::VK_API_VERSION_1_2
-                || unsafe {
-                    icd_supports_device_extension(
-                        icd,
-                        device.handle,
-                        vk::VK_KHR_DRIVER_PROPERTIES_EXTENSION_NAME,
-                    )
-                }?;
-            if supports_driver_properties {
+            if let Some((driver_version, supports_driver_properties)) = unsafe {
+                match_device_configuration(instance, device, query_pointer, configuration)
+            }? {
                 unsafe {
-                    core::ptr::addr_of_mut!((*query_pointer).identifiers.pNext)
-                        .write(core::ptr::addr_of_mut!((*query_pointer).driver).cast());
-                    get_properties2(
-                        device.handle,
-                        core::ptr::addr_of_mut!((*query_pointer).properties),
+                    emit_configured_physical_device(
+                        instance,
+                        query_pointer,
+                        ordered.len(),
+                        supports_driver_properties,
+                        driver_version,
+                        emit_diagnostics,
                     );
-                }
-            }
-            if api_version >= vk::VK_API_VERSION_1_1
-                && driver_version == configuration.driver_version
-                && device_uuid == configuration.device_uuid
-                && driver_uuid == configuration.driver_uuid
-            {
-                let properties =
-                    unsafe { core::ptr::addr_of!((*query_pointer).properties.properties).read() };
-                let device_name = unsafe { CStr::from_ptr(properties.deviceName.as_ptr()) };
-                let device_name = debug::diagnostics::LossyBytes(device_name.to_bytes());
-                let index = ordered.len();
-                let emit_detail = |detail: core::fmt::Arguments<'_>| {
-                    if emit_diagnostics {
-                        emit_instance_loader_message(
-                            instance,
-                            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::VERBOSE,
-                            detail,
-                        );
-                    }
                 };
-                if supports_driver_properties {
-                    let driver_name = unsafe {
-                        CStr::from_ptr(
-                            core::ptr::addr_of!((*query_pointer).driver.driverName)
-                                .cast::<c_char>(),
-                        )
-                    };
-                    let driver_name = debug::diagnostics::LossyBytes(driver_name.to_bytes());
-                    emit_detail(format_args!(
-                        "pPhysicalDevices array index {index} is set to \"{device_name}\" ({driver_name}, version {driver_version}) "
-                    ));
-                } else {
-                    emit_detail(format_args!(
-                        "pPhysicalDevices array index {index} is set to \"{device_name}\" (driver version {driver_version}) "
-                    ));
-                }
                 ordered.push(*device);
                 matched[device_index] = true;
                 configuration_found = true;
@@ -2122,57 +1914,10 @@ pub(crate) unsafe fn discover_active_physical_devices_with_diagnostics(
             }
         }
         if !configuration_found && emit_diagnostics {
-            let device_uuid = discovery::format_uuid(&configuration.device_uuid);
-            let driver_uuid = discovery::format_uuid(&configuration.driver_uuid);
-            let emit_identity = |identity: core::fmt::Arguments<'_>| {
-                emit_instance_loader_message(
-                    instance,
-                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                    format_args!(
-                        "loader_apply_settings_device_configurations: settings file contained device_configuration which does not appear in the enumerated VkPhysicalDevices. Missing VkPhysicalDevice with {identity}"
-                    ),
-                );
-            };
-            match (
-                configuration.device_name.as_deref(),
-                configuration.driver_name.as_deref(),
-            ) {
-                (Some(device_name), Some(driver_name)) => emit_identity(format_args!(
-                    "deviceName: \"{device_name}\", deviceUUID: {device_uuid}, driverName: {driver_name}, driverUUID: {driver_uuid}, driverVersion: {}",
-                    configuration.driver_version
-                )),
-                (Some(device_name), None) => emit_identity(format_args!(
-                    "deviceName: \"{device_name}\", deviceUUID: {device_uuid}, driverUUID: {driver_uuid}, driverVersion: {}",
-                    configuration.driver_version
-                )),
-                (None, _) => emit_identity(format_args!(
-                    "deviceUUID: {device_uuid}, driverUUID: {driver_uuid}, driverVersion: {}",
-                    configuration.driver_version
-                )),
-            }
+            emit_missing_device_configuration(instance, configuration);
         }
     }
-    for (device, matched) in devices.iter().zip(&matched) {
-        if *matched {
-            continue;
-        }
-        let icd = &instance.icds[device.icd_index];
-        let mut properties = vk::VkPhysicalDeviceProperties::DEFAULT;
-        if let Some(get_properties) = icd.dispatch.vkGetPhysicalDeviceProperties {
-            unsafe { get_properties(device.handle, &raw mut properties) };
-        }
-        let device_name = unsafe { CStr::from_ptr(properties.deviceName.as_ptr()) };
-        let device_name = debug::diagnostics::LossyBytes(device_name.to_bytes());
-        if emit_diagnostics {
-            emit_instance_loader_message(
-                instance,
-                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                format_args!(
-                    "VkPhysicalDevice \"{device_name}\" did not appear in the settings file device configurations list, so was not added to the pPhysicalDevices array"
-                ),
-            );
-        }
-    }
+    unsafe { emit_excluded_physical_devices(instance, &devices, &matched, emit_diagnostics) };
     if ordered.is_empty() {
         if emit_diagnostics {
             emit_instance_loader_message(
@@ -2309,6 +2054,350 @@ unsafe fn enumerate_icd_physical_devices(
         storage,
         len: (returned_count as usize).min(count),
     })
+}
+
+#[cold]
+fn emit_sorted_physical_device_groups(instance: &LoaderInstance, sortable: &[LinuxSortableGroup]) {
+    emit_instance_loader_category_message(
+        instance,
+        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+        platform::LogFilter::Driver,
+        "linux_sort_physical_device_groups:  Sorted order:",
+    );
+    for (group_index, group) in sortable.iter().enumerate() {
+        emit_instance_loader_category_message(
+            instance,
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+            platform::LogFilter::Driver,
+            format_args!("           Group {group_index}"),
+        );
+        for (device_index, device) in group.devices.iter().enumerate() {
+            let name = unsafe { CStr::from_ptr(device.device_name.as_ptr()) };
+            let name = debug::diagnostics::LossyBytes(name.to_bytes());
+            let default = if device.default_device {
+                "[default]"
+            } else {
+                ""
+            };
+            emit_instance_loader_category_message(
+                instance,
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+                platform::LogFilter::Driver,
+                format_args!(
+                    "               [{device_index}] {name} {:p} {default}",
+                    device.device.handle.0
+                ),
+            );
+        }
+    }
+}
+
+#[cold]
+fn emit_missing_device_configuration(
+    instance: &LoaderInstance,
+    configuration: &discovery::DeviceConfiguration,
+) {
+    let device_uuid = discovery::format_uuid(&configuration.device_uuid);
+    let driver_uuid = discovery::format_uuid(&configuration.driver_uuid);
+    let emit_identity = |identity: core::fmt::Arguments<'_>| {
+        emit_instance_loader_message(
+            instance,
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+            format_args!(
+                "loader_apply_settings_device_configurations: settings file contained device_configuration which does not appear in the enumerated VkPhysicalDevices. Missing VkPhysicalDevice with {identity}"
+            ),
+        );
+    };
+    match (
+        configuration.device_name.as_deref(),
+        configuration.driver_name.as_deref(),
+    ) {
+        (Some(device_name), Some(driver_name)) => emit_identity(format_args!(
+            "deviceName: \"{device_name}\", deviceUUID: {device_uuid}, driverName: {driver_name}, driverUUID: {driver_uuid}, driverVersion: {}",
+            configuration.driver_version
+        )),
+        (Some(device_name), None) => emit_identity(format_args!(
+            "deviceName: \"{device_name}\", deviceUUID: {device_uuid}, driverUUID: {driver_uuid}, driverVersion: {}",
+            configuration.driver_version
+        )),
+        (None, _) => emit_identity(format_args!(
+            "deviceUUID: {device_uuid}, driverUUID: {driver_uuid}, driverVersion: {}",
+            configuration.driver_version
+        )),
+    }
+}
+
+#[cold]
+unsafe fn emit_configured_physical_device(
+    instance: &LoaderInstance,
+    query_pointer: *const DeviceConfigurationProperties,
+    index: usize,
+    supports_driver_properties: bool,
+    driver_version: u32,
+    emit_diagnostics: bool,
+) {
+    let properties = unsafe { core::ptr::addr_of!((*query_pointer).properties.properties).read() };
+    let device_name = unsafe { CStr::from_ptr(properties.deviceName.as_ptr()) };
+    let device_name = debug::diagnostics::LossyBytes(device_name.to_bytes());
+    let emit_detail = |detail: core::fmt::Arguments<'_>| {
+        if emit_diagnostics {
+            emit_instance_loader_message(
+                instance,
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::VERBOSE,
+                detail,
+            );
+        }
+    };
+    if supports_driver_properties {
+        let driver_name = unsafe {
+            CStr::from_ptr(core::ptr::addr_of!((*query_pointer).driver.driverName).cast::<c_char>())
+        };
+        let driver_name = debug::diagnostics::LossyBytes(driver_name.to_bytes());
+        emit_detail(format_args!(
+            "pPhysicalDevices array index {index} is set to \"{device_name}\" ({driver_name}, version {driver_version}) "
+        ));
+    } else {
+        emit_detail(format_args!(
+            "pPhysicalDevices array index {index} is set to \"{device_name}\" (driver version {driver_version}) "
+        ));
+    }
+}
+
+#[cold]
+unsafe fn emit_excluded_physical_devices(
+    instance: &LoaderInstance,
+    devices: &[NativePhysicalDevice],
+    matched: &[bool],
+    emit_diagnostics: bool,
+) {
+    for (device, matched) in devices.iter().zip(matched) {
+        if *matched {
+            continue;
+        }
+        let icd = &instance.icds[device.icd_index];
+        let mut properties = vk::VkPhysicalDeviceProperties::DEFAULT;
+        if let Some(get_properties) = icd.dispatch.vkGetPhysicalDeviceProperties {
+            unsafe { get_properties(device.handle, &raw mut properties) };
+        }
+        let device_name = unsafe { CStr::from_ptr(properties.deviceName.as_ptr()) };
+        let device_name = debug::diagnostics::LossyBytes(device_name.to_bytes());
+        if emit_diagnostics {
+            emit_instance_loader_message(
+                instance,
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+                format_args!(
+                    "VkPhysicalDevice \"{device_name}\" did not appear in the settings file device configurations list, so was not added to the pPhysicalDevices array"
+                ),
+            );
+        }
+    }
+}
+
+unsafe fn collect_native_device_groups(
+    instance: &LoaderInstance,
+    group_properties: *mut VkPhysicalDeviceGroupProperties<'_>,
+    capacity: usize,
+    upper_bound: u32,
+) -> Result<Vec<(usize, VkPhysicalDeviceGroupProperties<'static>)>, VkResult> {
+    let mut native_groups = Vec::new();
+    if native_groups
+        .try_reserve_exact(upper_bound as usize)
+        .is_err()
+    {
+        return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
+    }
+    for (icd_index, icd) in instance.active_icds().rev() {
+        let Some(enumerate) = icd_group_enumerator(instance, icd) else {
+            continue;
+        };
+        let groups = match unsafe {
+            enumerate_icd_groups(
+                icd,
+                enumerate,
+                group_properties,
+                capacity,
+                native_groups.len(),
+            )
+        } {
+            Ok(groups) => groups,
+            Err(result) => {
+                return Err(result);
+            }
+        };
+        // The ICD's count may have increased since the earlier sizing query.
+        if native_groups.try_reserve(groups.len()).is_err() {
+            return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
+        }
+        native_groups.extend(groups.into_iter().map(|properties| (icd_index, properties)));
+    }
+    Ok(native_groups)
+}
+
+unsafe fn match_device_configuration(
+    instance: &LoaderInstance,
+    device: &NativePhysicalDevice,
+    query_pointer: *mut DeviceConfigurationProperties,
+    configuration: &discovery::DeviceConfiguration,
+) -> Result<Option<(u32, bool)>, VkResult> {
+    let icd = &instance.icds[device.icd_index];
+    let Some(get_properties2) = icd.dispatch.vkGetPhysicalDeviceProperties2 else {
+        return Ok(None);
+    };
+    unsafe {
+        core::ptr::addr_of_mut!((*query_pointer).properties.sType)
+            .write(vk::VkStructureType::PHYSICAL_DEVICE_PROPERTIES_2);
+        core::ptr::addr_of_mut!((*query_pointer).properties.pNext)
+            .write(core::ptr::addr_of_mut!((*query_pointer).identifiers).cast());
+        core::ptr::addr_of_mut!((*query_pointer).identifiers.sType)
+            .write(vk::VkStructureType::PHYSICAL_DEVICE_ID_PROPERTIES);
+        core::ptr::addr_of_mut!((*query_pointer).identifiers.pNext).write(core::ptr::null_mut());
+        core::ptr::addr_of_mut!((*query_pointer).driver)
+            .write(vk::VkPhysicalDeviceDriverProperties::DEFAULT);
+        get_properties2(
+            device.handle,
+            core::ptr::addr_of_mut!((*query_pointer).properties),
+        );
+    }
+    let api_version =
+        unsafe { core::ptr::addr_of!((*query_pointer).properties.properties.apiVersion).read() };
+    let driver_version =
+        unsafe { core::ptr::addr_of!((*query_pointer).properties.properties.driverVersion).read() };
+    let device_uuid =
+        unsafe { core::ptr::addr_of!((*query_pointer).identifiers.deviceUUID).read() };
+    let driver_uuid =
+        unsafe { core::ptr::addr_of!((*query_pointer).identifiers.driverUUID).read() };
+    let supports_driver_properties = api_version >= vk::VK_API_VERSION_1_2
+        || unsafe {
+            icd_supports_device_extension(
+                icd,
+                device.handle,
+                vk::VK_KHR_DRIVER_PROPERTIES_EXTENSION_NAME,
+            )
+        }?;
+    if supports_driver_properties {
+        unsafe {
+            core::ptr::addr_of_mut!((*query_pointer).identifiers.pNext)
+                .write(core::ptr::addr_of_mut!((*query_pointer).driver).cast());
+            get_properties2(
+                device.handle,
+                core::ptr::addr_of_mut!((*query_pointer).properties),
+            );
+        }
+    }
+    if api_version >= vk::VK_API_VERSION_1_1
+        && driver_version == configuration.driver_version
+        && device_uuid == configuration.device_uuid
+        && driver_uuid == configuration.driver_uuid
+    {
+        Ok(Some((driver_version, supports_driver_properties)))
+    } else {
+        Ok(None)
+    }
+}
+
+unsafe fn write_visible_device_groups(
+    instance: &LoaderInstance,
+    all_devices: &[NativePhysicalDevice],
+    refresh_physical_devices: bool,
+    native_groups: Vec<(usize, VkPhysicalDeviceGroupProperties<'static>)>,
+    visible_devices: Option<&[NativePhysicalDevice]>,
+    group_count: &mut u32,
+    group_properties: *mut VkPhysicalDeviceGroupProperties<'_>,
+) -> Result<VkResult, VkResult> {
+    let mut state = instance.physical_devices.lock();
+    if state.owned.try_reserve(all_devices.len()).is_err() {
+        return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
+    }
+    for device in all_devices {
+        let key = (device.icd_index, device.handle.0 as usize);
+        if let collections::HashMapEntry::Vacant(entry) = state.owned.entry(key) {
+            let physical_device = match allocation::try_box(LoaderPhysicalDevice::new(
+                device.icd_index,
+                &instance.icds[device.icd_index],
+                instance,
+                instance.api_version,
+                device.handle,
+            )) {
+                Ok(device) => device,
+                Err((result, _device)) => {
+                    return Err(result);
+                }
+            };
+            entry.insert(physical_device);
+        }
+    }
+    if refresh_physical_devices {
+        state.active.clear();
+        if state.active.try_reserve_exact(all_devices.len()).is_err() {
+            return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
+        }
+        for device in all_devices {
+            let key = (device.icd_index, device.handle.0 as usize);
+            let handle = if let Some(device) = state.owned.get(&key) {
+                device.handle()
+            } else {
+                return Err(VkResult::ERROR_INITIALIZATION_FAILED);
+            };
+            state.active.push(handle);
+        }
+    }
+
+    let mut visible_groups = Vec::new();
+    if visible_groups
+        .try_reserve_exact(native_groups.len())
+        .is_err()
+    {
+        return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
+    }
+    'groups: for (group_index, (icd_index, mut properties)) in native_groups.into_iter().enumerate()
+    {
+        let device_count =
+            (properties.physicalDeviceCount as usize).min(vk::VK_MAX_DEVICE_GROUP_SIZE as usize);
+        properties.physicalDeviceCount = device_count as u32;
+        for native in &mut properties.physicalDevices[..device_count] {
+            if let Some(visible) = visible_devices
+                && !visible
+                    .iter()
+                    .any(|device| device.icd_index == icd_index && device.handle == *native)
+            {
+                if !group_properties.is_null() {
+                    emit_instance_loader_message(
+                        instance,
+                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+                        format_args!(
+                            "terminator_EnumeratePhysicalDeviceGroups: Physical device group {group_index} contains a VkPhysicalDevice which the settings file device configurations exclude, so the group was not reported."
+                        ),
+                    );
+                }
+                continue 'groups;
+            }
+            let key = (icd_index, native.0 as usize);
+            let Some(wrapped) = state.owned.get(&key) else {
+                return Err(VkResult::ERROR_INITIALIZATION_FAILED);
+            };
+            *native = wrapped.handle();
+        }
+        visible_groups.push(properties);
+    }
+
+    let written = (*group_count as usize).min(visible_groups.len());
+    for (index, properties) in visible_groups.iter().take(written).enumerate() {
+        unsafe { group_properties.add(index).write(*properties) };
+    }
+    *group_count = written as u32;
+    if written < visible_groups.len() {
+        emit_instance_loader_message(
+            instance,
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+            format_args!(
+                "terminator_EnumeratePhysicalDeviceGroups : Trimming device count from {} to {written}.",
+                visible_groups.len()
+            ),
+        );
+        Ok(VkResult::INCOMPLETE)
+    } else {
+        Ok(VkResult::SUCCESS)
+    }
 }
 
 #[cfg(test)]

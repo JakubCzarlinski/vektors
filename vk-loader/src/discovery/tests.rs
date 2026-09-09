@@ -378,6 +378,42 @@ fn device_layer_manifest_is_rejected_like_upstream() {
 }
 
 #[test]
+fn layer_source_and_app_keys_presence_survive_parsing() {
+    for (source, meta) in [
+        (r#""library_path": "layer.so""#, false),
+        (r#""component_layers": []"#, true),
+    ] {
+        for (field, present) in [
+            ("", false),
+            (", \"app_keys\": []", true),
+            (", \"app_keys\": null", true),
+        ] {
+            let json = format!(
+                r#"{{
+            "name": "VK_LAYER_test", "type": "INSTANCE", {source},
+            "api_version": "1.0.0", "implementation_version": "1", "description": "test"{field}
+        }}"#
+            );
+            let value = crate::json::parse(json.as_bytes()).unwrap();
+            let layer = parse_raw_layer(
+                Path::new("layer.json"),
+                RawLayer::from_value(&value).unwrap(),
+                0,
+                false,
+                false,
+                vk::VK_API_VERSION_1_0,
+            )
+            .unwrap();
+            assert_eq!(layer.is_meta_layer(), meta);
+            assert_eq!(layer.library_path().is_none(), meta);
+            assert!(layer.component_layers().is_empty());
+            assert_eq!(layer.app_keys.is_some(), present);
+            assert!(layer.app_keys().is_empty());
+        }
+    }
+}
+
+#[test]
 fn component_layers_presence_conflicts_with_library_path() {
     let json = r#"{
         "name": "VK_LAYER_not_a_meta_layer",
@@ -437,7 +473,7 @@ pub(crate) fn override_manifest(app_keys: &[&str]) -> LayerManifest {
         source_index: 0,
         name: c"VK_LAYER_LUNARG_override".to_owned(),
         manifest_path: PathBuf::from("override.json"),
-        library_path: None,
+        source: super::LayerSource::Meta(Box::default()),
         manifest_version: vk::VK_API_VERSION_1_0,
         api_version: vk::VK_API_VERSION_1_0,
         architecture_supported: true,
@@ -447,12 +483,9 @@ pub(crate) fn override_manifest(app_keys: &[&str]) -> LayerManifest {
         device_extensions: Box::default(),
         enable_environment: None,
         disable_environment: None,
-        component_layers: Box::default(),
-        has_component_layers: true,
         blacklisted_layers: Box::default(),
         override_paths: Box::default(),
-        app_keys: app_keys.iter().map(PathBuf::from).collect(),
-        has_app_keys: true,
+        app_keys: Some(app_keys.iter().map(PathBuf::from).collect()),
         functions: LayerFunctions::default(),
         pre_instance_functions: PreInstanceFunctions::default(),
         has_pre_instance_functions: false,
@@ -479,7 +512,7 @@ fn executable_path_selects_matching_override_before_global() {
     ];
     select_override_layer_for_executable(&mut layers, Some(Path::new("/pkg/bin/application")));
     assert_eq!(layers.len(), 1);
-    assert_eq!(layers[0].app_keys[0], Path::new("/pkg/bin/application"));
+    assert_eq!(layers[0].app_keys()[0], Path::new("/pkg/bin/application"));
 }
 
 #[test]
@@ -512,7 +545,8 @@ fn settings_selection_stops_at_a_non_object_after_the_global_entry() {
 fn implicit_discovery_retains_only_meta_layer_components() {
     let mut meta = override_manifest(&[]);
     meta.name = c"VK_LAYER_implicit_meta".to_owned();
-    meta.component_layers = [c"VK_LAYER_explicit_component".to_owned()].into();
+    meta.source =
+        crate::discovery::LayerSource::Meta([c"VK_LAYER_explicit_component".to_owned()].into());
 
     let mut component = override_manifest(&[]);
     component.name = c"VK_LAYER_explicit_component".to_owned();
@@ -534,16 +568,16 @@ fn implicit_discovery_retains_only_meta_layer_components() {
 fn rejected_meta_layer_does_not_hide_later_component_in_same_manifest() {
     let mut invalid = override_manifest(&[]);
     invalid.name = c"VK_LAYER_component".to_owned();
-    invalid.component_layers = [c"VK_LAYER_component".to_owned()].into();
+    invalid.source = crate::discovery::LayerSource::Meta([c"VK_LAYER_component".to_owned()].into());
 
     let mut dependent = override_manifest(&[]);
     dependent.name = c"VK_LAYER_dependent".to_owned();
-    dependent.component_layers = [c"VK_LAYER_component".to_owned()].into();
+    dependent.source =
+        crate::discovery::LayerSource::Meta([c"VK_LAYER_component".to_owned()].into());
 
     let mut component = override_manifest(&[]);
     component.name = c"VK_LAYER_component".to_owned();
-    component.has_component_layers = false;
-    component.library_path = Some(PathBuf::from("component.so"));
+    component.source = crate::discovery::LayerSource::Library(PathBuf::from("component.so"));
 
     let mut manifests = vec![invalid, dependent, component];
     deduplicate_manifests_by_name(&mut manifests);
@@ -558,11 +592,12 @@ fn rejected_meta_layer_does_not_hide_later_component_in_same_manifest() {
 fn meta_recursion_uses_last_same_name_record_like_upstream() {
     let mut dependent = override_manifest(&[]);
     dependent.name = c"VK_LAYER_dependent".to_owned();
-    dependent.component_layers = [c"VK_LAYER_component".to_owned()].into();
+    dependent.source =
+        crate::discovery::LayerSource::Meta([c"VK_LAYER_component".to_owned()].into());
 
     let mut first = override_manifest(&[]);
     first.name = c"VK_LAYER_component".to_owned();
-    first.component_layers = [c"VK_LAYER_component".to_owned()].into();
+    first.source = crate::discovery::LayerSource::Meta([c"VK_LAYER_component".to_owned()].into());
 
     let mut last = override_manifest(&[]);
     last.name = c"VK_LAYER_component".to_owned();

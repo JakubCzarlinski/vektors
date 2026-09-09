@@ -228,46 +228,11 @@ pub(crate) unsafe extern "system" fn create_device_terminator(
         return VkResult::ERROR_INITIALIZATION_FAILED;
     };
     let icd_instance = physical_device.icd();
-    let pending_extensions = pending::device_extensions();
-    let layer_extensions = pending_extensions.map(|(extensions, extension_count)| {
-        // SAFETY: The public trampoline owns this boxed slice for the entire
-        // synchronous device-creation chain.
-        unsafe { core::slice::from_raw_parts(extensions, extension_count) }
-    });
-    // SAFETY: The terminator has recovered the ICD's native physical device.
-    let icd_extension_names = match unsafe {
-        validate_and_filter_device_extensions(
-            physical_device.instance(),
-            icd_instance,
-            physical_device.native,
-            create_info,
-            |requested| match layer_extensions {
-                Some(extensions) => extensions.iter().any(|name| name.as_c_str() == requested),
-                None => physical_device.instance().layers.iter().any(|layer| {
-                    layer
-                        .device_extensions
-                        .iter()
-                        .any(|extension| extension.name.as_c_str() == requested)
-                }),
-            },
-            || {
-                if layer::has_mismatched_device_layers(
-                    &physical_device.instance().enabled_layer_names,
-                    create_info,
-                ) {
-                    physical_device.instance().log_loader_message(
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                        vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
-                        c"loader_create_device_chain: Using deprecated and ignored 'ppEnabledLayerNames' member of 'VkDeviceCreateInfo' when creating a Vulkan device.",
-                    );
-                }
-                emit_device_layer_callstack(physical_device.instance());
-            },
-        )
-    } {
-        Ok(names) => names,
-        Err(result) => return result,
-    };
+    let icd_extension_names =
+        match unsafe { validated_icd_device_extensions(physical_device, create_info) } {
+            Ok(names) => names,
+            Err(result) => return result,
+        };
     unsafe { emit_device_driver(physical_device.instance(), physical_device) };
     // SAFETY: The physical device and native instance belong to this ICD.
     let Some(create_device): Option<PFN_vkCreateDevice> = (unsafe {
@@ -317,17 +282,7 @@ pub(crate) unsafe extern "system" fn create_device_terminator(
             .resolve(icd_instance.handle, c"vkGetDeviceProcAddr")
     };
     let Some(get_device_proc_addr) = get_device_proc_addr else {
-        // A conforming ICD supplies GDPA. Clean up a device returned by a broken ICD.
-        // SAFETY: The native device was created immediately above by this ICD.
-        let destroy: Option<PFN_vkDestroyDevice> = unsafe {
-            icd_instance
-                .icd
-                .resolve(icd_instance.handle, c"vkDestroyDevice")
-        };
-        if let Some(destroy) = destroy {
-            // SAFETY: Native handle and allocator match the create call.
-            unsafe { destroy(native, allocator) };
-        }
+        unsafe { destroy_unregistered_device(icd_instance, native, allocator) };
         return VkResult::ERROR_INITIALIZATION_FAILED;
     };
 
@@ -355,16 +310,7 @@ pub(crate) unsafe extern "system" fn create_device_terminator(
     } {
         Ok(device) => device,
         Err(result) => {
-            // SAFETY: The native device was created above with this allocator.
-            let destroy: Option<PFN_vkDestroyDevice> = unsafe {
-                icd_instance
-                    .icd
-                    .resolve(icd_instance.handle, c"vkDestroyDevice")
-            };
-            if let Some(destroy) = destroy {
-                // SAFETY: The native device and allocator match the successful create call.
-                unsafe { destroy(native, allocator) };
-            }
+            unsafe { destroy_unregistered_device(icd_instance, native, allocator) };
             return result;
         }
     };
@@ -575,21 +521,98 @@ pub(crate) unsafe extern "system" fn terminator_enumerate_physical_devices(
         physical_device_count.write(written as u32);
     }
     if written < devices.active.len() {
-        diagnostics::with_message(
-            format_args!(
-                "terminator_EnumeratePhysicalDevices : Trimming device count from {} to {written}.",
-                devices.active.len()
-            ),
-            |message| {
-                instance.log_loader_message(
-                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                    vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
-                    message,
-                );
-            },
-        );
+        emit_trimmed_physical_devices(instance, devices.active.len(), written);
         VkResult::INCOMPLETE
     } else {
         VkResult::SUCCESS
+    }
+}
+
+#[cold]
+unsafe fn destroy_unregistered_device(
+    icd_instance: &crate::IcdInstance,
+    native: VkDevice,
+    allocator: *const VkAllocationCallbacks<'_>,
+) {
+    // A conforming ICD supplies GDPA. Clean up a device returned by a broken ICD.
+    // SAFETY: The native device was created immediately above by this ICD.
+    let destroy: Option<PFN_vkDestroyDevice> = unsafe {
+        icd_instance
+            .icd
+            .resolve(icd_instance.handle, c"vkDestroyDevice")
+    };
+    if let Some(destroy) = destroy {
+        // SAFETY: Native handle and allocator match the create call.
+        unsafe { destroy(native, allocator) };
+    }
+}
+
+#[cold]
+unsafe fn emit_validated_device_layers(
+    physical_device: &LoaderPhysicalDevice,
+    create_info: &VkDeviceCreateInfo<'_>,
+) {
+    if unsafe {
+        layer::has_mismatched_device_layers(
+            &physical_device.instance().enabled_layer_names,
+            create_info,
+        )
+    } {
+        physical_device.instance().log_loader_message(
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+            vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
+            c"loader_create_device_chain: Using deprecated and ignored 'ppEnabledLayerNames' member of 'VkDeviceCreateInfo' when creating a Vulkan device.",
+        );
+    }
+    unsafe { emit_device_layer_callstack(physical_device.instance()) };
+}
+
+#[cold]
+fn emit_trimmed_physical_devices(instance: &LoaderInstance, total: usize, written: usize) {
+    diagnostics::with_message(
+        format_args!(
+            "terminator_EnumeratePhysicalDevices : Trimming device count from {total} to {written}."
+        ),
+        |message| {
+            instance.log_loader_message(
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+                vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
+                message,
+            );
+        },
+    );
+}
+
+#[cold]
+unsafe fn validated_icd_device_extensions(
+    physical_device: &LoaderPhysicalDevice,
+    create_info: &VkDeviceCreateInfo<'_>,
+) -> Result<Vec<*const c_char>, VkResult> {
+    let pending_extensions = pending::device_extensions();
+    let layer_extensions = pending_extensions.map(|(extensions, extension_count)| {
+        // SAFETY: The public trampoline owns this boxed slice for the entire
+        // synchronous device-creation chain.
+        unsafe { core::slice::from_raw_parts(extensions, extension_count) }
+    });
+    // SAFETY: The terminator has recovered the ICD's native physical device.
+    unsafe {
+        validate_and_filter_device_extensions(
+            physical_device.instance(),
+            physical_device.icd(),
+            physical_device.native,
+            create_info,
+            |requested| match layer_extensions {
+                Some(extensions) => extensions.iter().any(|name| name.as_c_str() == requested),
+                None => physical_device.instance().layers.iter().any(|layer| {
+                    layer
+                        .device_extensions
+                        .iter()
+                        .any(|extension| extension.name.as_c_str() == requested)
+                }),
+            },
+            || {
+                emit_validated_device_layers(physical_device, create_info);
+            },
+        )
     }
 }

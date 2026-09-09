@@ -134,7 +134,7 @@ pub(crate) fn discover_layers_with_settings(settings: Option<&LoaderSettings>) -
             for layer in configured {
                 let duplicate = layers.iter().any(|existing: &LayerManifest| {
                     existing.name == layer.name
-                        && (!existing.component_layers.is_empty()
+                        && (!existing.component_layers().is_empty()
                             || existing.manifest_path == layer.manifest_path)
                 });
                 if !duplicate {
@@ -176,7 +176,7 @@ pub(crate) fn discover_implicit_layers_with_settings(
         discovered.implicit_only = true;
         let retain_explicit_search = discovered.iter().any(|manifest| {
             manifest.implicit
-                && !manifest.component_layers.is_empty()
+                && !manifest.component_layers().is_empty()
                 && (manifest.settings_control == Some(LayerControl::On)
                     || layer::implicit_manifest_is_active(manifest))
         });
@@ -208,7 +208,7 @@ pub(crate) fn discover_implicit_layers_with_settings(
             && layer::implicit_manifest_is_active(manifest)
     });
     let has_implicit_meta_layer = manifests.iter().any(|manifest| {
-        !manifest.component_layers.is_empty()
+        !manifest.component_layers().is_empty()
             && (layer::implicit_manifest_is_active(manifest)
                 || !implicit_diagnostic_files.is_empty())
     });
@@ -263,7 +263,7 @@ pub(super) fn retain_implicit_layers_and_components(manifests: &mut Vec<LayerMan
     };
     for (index, manifest) in manifests.iter().enumerate() {
         keep[index] |= manifest.implicit;
-        for component in &manifest.component_layers {
+        for component in manifest.component_layers() {
             if let Some(component_index) = manifests
                 .iter()
                 .position(|candidate| candidate.name == *component)
@@ -378,10 +378,10 @@ pub(super) fn select_override_layer_for_executable(
     };
     let matching = layers.iter().position(|layer| {
         layer.name.as_c_str() == c"VK_LAYER_LUNARG_override"
-            && layer.app_keys.iter().any(|key| key == executable)
+            && layer.app_keys().iter().any(|key| key == executable)
     });
     let global = layers.iter().position(|layer| {
-        layer.name.as_c_str() == c"VK_LAYER_LUNARG_override" && layer.app_keys.is_empty()
+        layer.name.as_c_str() == c"VK_LAYER_LUNARG_override" && layer.app_keys().is_empty()
     });
     let selected = matching.or(global);
     let mut index = 0;

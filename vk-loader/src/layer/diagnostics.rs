@@ -98,16 +98,16 @@ pub(super) fn record_duplicate_layer(
     summaries: &mut Vec<(CString, Box<[CString]>)>,
     messages: &mut Vec<String>,
 ) -> Result<(), VkResult> {
-    if duplicate.has_component_layers
+    if duplicate.is_meta_layer()
         && duplicate
-            .component_layers
+            .component_layers()
             .iter()
             .all(|component| manifests.iter().any(|manifest| manifest.name == *component))
     {
         let name = allocation::try_c_string(&duplicate.name)?;
         let components = allocation::try_collect_results(
             duplicate
-                .component_layers
+                .component_layers()
                 .iter()
                 .map(|name| allocation::try_c_string(name)),
         )?;
@@ -131,316 +131,20 @@ pub(super) fn emit_layer_search_diagnostics(
     let mut duplicate_messages = Vec::new();
     let mut duplicate_meta_summaries = Vec::new();
     for search in searches {
-        let kind = if search.implicit {
-            "implicit"
-        } else {
-            "explicit"
-        };
-        emit_layer_only_message(
-            create_info,
-            format_args!("Searching for {kind} layer manifest files"),
-        );
-        emit_layer_only_message(create_info, "   In following locations:");
-        for root in &search.roots {
-            emit_layer_only_message(create_info, format_args!("      {}", root.display()));
-        }
-        if search.files.is_empty() {
-            emit_layer_only_message(create_info, "   Found no files");
-        } else {
-            emit_layer_only_message(create_info, "   Found the following files:");
-            for file in &search.files {
-                emit_layer_only_message(create_info, format_args!("      {}", file.display()));
-            }
-        }
+        emit_layer_search_locations(MetaDiagnosticSink::Create(create_info), search);
         for file in &search.files {
-            let mut found = false;
-            let needs_compatibility_diagnostics =
-                search.diagnostic_files.iter().any(|path| path == file);
-            let diagnostics = if needs_compatibility_diagnostics {
-                discovery::layer_manifest_diagnostics(file, search.implicit)
-            } else {
-                Box::default()
-            };
-            let compatibility_manifests = needs_compatibility_diagnostics
-                .then(|| discovery::reparse_layer_manifest(file, search.implicit));
-            let diagnostic_manifests = compatibility_manifests.as_deref().unwrap_or(manifests);
-            let mut diagnostic_indices = diagnostics
-                .iter()
-                .map(|(source_index, _)| *source_index)
-                .peekable();
-            for manifest in diagnostic_manifests
-                .iter()
-                .filter(|manifest| manifest.manifest_path == *file)
+            if emit_create_search_file(
+                create_info,
+                search,
+                file,
+                manifests,
+                &mut duplicate_meta_summaries,
+                &mut duplicate_messages,
+            )
+            .is_err()
             {
-                while diagnostic_indices
-                    .peek()
-                    .is_some_and(|source_index| *source_index < manifest.source_index)
-                {
-                    let source_index = *diagnostic_indices.peek().unwrap();
-                    emit_layer_manifest_diagnostic(
-                        create_info,
-                        file,
-                        search.implicit,
-                        !found,
-                        Some(source_index),
-                    );
-                    found = true;
-                    while diagnostic_indices.next_if_eq(&source_index).is_some() {}
-                }
-                while diagnostic_indices
-                    .next_if_eq(&manifest.source_index)
-                    .is_some()
-                {}
-                let emit_found = !found;
-                let manifest_major = vk::VK_API_VERSION_MAJOR(manifest.manifest_version);
-                let manifest_minor = vk::VK_API_VERSION_MINOR(manifest.manifest_version);
-                let manifest_patch = vk::VK_API_VERSION_PATCH(manifest.manifest_version);
-                let known_manifest_version = manifest_major == 1
-                    && ((manifest_minor == 0 && manifest_patch < 2)
-                        || (manifest_minor == 1 && manifest_patch < 3)
-                        || (manifest_minor == 2 && manifest_patch < 2));
-                if emit_found {
-                    if !known_manifest_version
-                        && let Some(version) =
-                            discovery::layer_manifest_version_text(&manifest.manifest_path)
-                    {
-                        emit_create_message(
-                            create_info,
-                            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                            format_args!(
-                                "Found manifest file {} (file version {version})",
-                                manifest.manifest_path.display(),
-                            ),
-                        );
-                    } else {
-                        emit_create_message(
-                            create_info,
-                            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                            format_args!(
-                                "Found manifest file {} (file version {manifest_major}.{manifest_minor}.{manifest_patch})",
-                                manifest.manifest_path.display(),
-                            ),
-                        );
-                    }
-                    found = true;
-                }
-                if emit_found && !known_manifest_version {
-                    emit_layer_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                        format_args!(
-                            "loader_add_layer_properties: {} has unknown layer manifest file version {manifest_major}.{manifest_minor}.{manifest_patch}.  May cause errors.",
-                            manifest.manifest_path.display(),
-                        ),
-                    );
-                }
-                if !manifest.name.to_bytes().starts_with(b"VK_LAYER_") {
-                    emit_create_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                        format_args!(
-                            "Layer name {} does not conform to naming standard (Policy #LLP_LAYER_3)",
-                            crate::debug::diagnostics::LossyBytes(manifest.name.to_bytes())
-                        ),
-                    );
-                }
-                if !manifest.implicit && manifest.has_pre_instance_functions {
-                    emit_create_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                        format_args!(
-                            "Found pre_instance_functions section in explicit layer from \"{}\". This section is only valid in implicit layers. The section will be ignored",
-                            manifest.manifest_path.display()
-                        ),
-                    );
-                }
-                let variant = vk::VK_API_VERSION_VARIANT(manifest.api_version);
-                if variant != 0 {
-                    emit_layer_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                        format_args!(
-                            "Layer \"{}\" has an 'api_version' field which contains a non-zero variant value of {variant}.  Skipping Layer.",
-                            crate::debug::diagnostics::LossyBytes(manifest.name.to_bytes()),
-                        ),
-                    );
-                }
-                if !manifest.architecture_supported {
-                    emit_create_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                        format_args!(
-                            "The library architecture in layer {} doesn't match the current running architecture, skipping this layer",
-                            manifest.manifest_path.display(),
-                        ),
-                    );
-                }
-                if manifest.has_component_layers
-                    && manifest.manifest_version < vk::VK_MAKE_API_VERSION(0, 1, 1, 0)
-                {
-                    emit_create_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                        format_args!(
-                            "Layer \"{}\" contains meta-layer-specific component_layers, but using older JSON file version.",
-                            crate::debug::diagnostics::LossyBytes(manifest.name.to_bytes())
-                        ),
-                    );
-                }
-                if manifest.has_component_layers {
-                    emit_layer_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                        format_args!(
-                            "Encountered meta-layer \"{}\"",
-                            crate::debug::diagnostics::LossyBytes(manifest.name.to_bytes())
-                        ),
-                    );
-                }
-                if manifest.name.as_c_str() != c"VK_LAYER_LUNARG_override" && manifest.has_app_keys
-                {
-                    emit_layer_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                        format_args!(
-                            "Layer {} contains app_keys, but any app_keys can only be provided by the override meta layer. These will be ignored.",
-                            crate::debug::diagnostics::LossyBytes(manifest.name.to_bytes())
-                        ),
-                    );
-                }
-                if !manifest.override_paths.is_empty()
-                    && manifest.manifest_version < vk::VK_MAKE_API_VERSION(0, 1, 1, 0)
-                {
-                    emit_create_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                        format_args!(
-                            "Layer \"{}\" contains meta-layer-specific override paths, but using older JSON file version.",
-                            crate::debug::diagnostics::LossyBytes(manifest.name.to_bytes())
-                        ),
-                    );
-                }
-            }
-            while let Some(source_index) = diagnostic_indices.next() {
-                emit_layer_manifest_diagnostic(
-                    create_info,
-                    file,
-                    search.implicit,
-                    !found,
-                    Some(source_index),
-                );
-                found = true;
-                while diagnostic_indices.next_if_eq(&source_index).is_some() {}
-            }
-            if needs_compatibility_diagnostics && let Some(executable) = platform::executable_path()
-            {
-                for _ in 0..discovery::unused_override_layer_count(file, &executable) {
-                    emit_layer_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                        format_args!(
-                            "--Override layer found but not used because app '{}' is not in 'app_keys' list!",
-                            executable.display()
-                        ),
-                    );
-                }
-            }
-            if found {
-                continue;
-            }
-            let duplicates = discovery::reparse_layer_manifest(file, search.implicit);
-            if duplicates.is_empty() {
-                emit_layer_manifest_diagnostic(create_info, file, search.implicit, true, None);
-            }
-            for duplicate in &duplicates {
-                emit_create_message(
-                    create_info,
-                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                    format_args!(
-                        "Found manifest file {} (file version {}.{}.{})",
-                        duplicate.manifest_path.display(),
-                        vk::VK_API_VERSION_MAJOR(duplicate.manifest_version),
-                        vk::VK_API_VERSION_MINOR(duplicate.manifest_version),
-                        vk::VK_API_VERSION_PATCH(duplicate.manifest_version),
-                    ),
-                );
-                if duplicate.has_component_layers {
-                    if duplicate.manifest_version < vk::VK_MAKE_API_VERSION(0, 1, 1, 0) {
-                        emit_create_message(
-                            create_info,
-                            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                            format_args!(
-                                "Layer \"{}\" contains meta-layer-specific component_layers, but using older JSON file version.",
-                                crate::debug::diagnostics::LossyBytes(duplicate.name.to_bytes())
-                            ),
-                        );
-                    }
-                    emit_layer_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                        format_args!(
-                            "Encountered meta-layer \"{}\"",
-                            crate::debug::diagnostics::LossyBytes(duplicate.name.to_bytes())
-                        ),
-                    );
-                }
-                if duplicate.name.as_c_str() != c"VK_LAYER_LUNARG_override"
-                    && duplicate.has_app_keys
-                {
-                    emit_layer_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                        format_args!(
-                            "Layer {} contains app_keys, but any app_keys can only be provided by the override meta layer. These will be ignored.",
-                            crate::debug::diagnostics::LossyBytes(duplicate.name.to_bytes())
-                        ),
-                    );
-                }
-                if !duplicate.override_paths.is_empty()
-                    && duplicate.manifest_version < vk::VK_MAKE_API_VERSION(0, 1, 1, 0)
-                {
-                    emit_create_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                        format_args!(
-                            "Layer \"{}\" contains meta-layer-specific override paths, but using older JSON file version.",
-                            crate::debug::diagnostics::LossyBytes(duplicate.name.to_bytes())
-                        ),
-                    );
-                }
-                if duplicate.name.as_c_str() == c"VK_LAYER_LUNARG_override"
-                    && !duplicate.app_keys.is_empty()
-                    && !manifests.iter().any(|manifest| {
-                        manifest.name == duplicate.name
-                            && manifest.manifest_path == duplicate.manifest_path
-                    })
-                    && let Some(executable) = platform::executable_path()
-                {
-                    emit_layer_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                        format_args!(
-                            "--Override layer found but not used because app '{}' is not in 'app_keys' list!",
-                            executable.display()
-                        ),
-                    );
-                }
-                if let Some(original) = manifests.iter().find(|original| {
-                    (original.settings_control.is_none() || !duplicate.component_layers.is_empty())
-                        && original.name == duplicate.name
-                        && original.manifest_path != duplicate.manifest_path
-                }) && record_duplicate_layer(
-                    duplicate,
-                    original,
-                    manifests,
-                    &mut duplicate_meta_summaries,
-                    &mut duplicate_messages,
-                )
-                .is_err()
-                {
-                    pending::mark_json_allocation_failed();
-                    return;
-                }
+                pending::mark_json_allocation_failed();
+                return;
             }
         }
         if search.implicit
@@ -507,301 +211,17 @@ pub(super) fn emit_layer_manifest_diagnostic(
     emit_found: bool,
     source_index: Option<usize>,
 ) {
-    for (diagnostic_index, (_, diagnostic)) in discovery::layer_manifest_diagnostics(path, implicit)
-        .into_iter()
-        .filter(|(index, _)| source_index.is_none_or(|source_index| *index == source_index))
-        .enumerate()
-    {
-        match diagnostic {
-            LayerManifestDiagnostic::FailedOpen => emit_create_message(
-                create_info,
-                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-                format_args!(
-                    "loader_get_json: Failed to open JSON file {}",
-                    path.display()
-                ),
-            ),
-            LayerManifestDiagnostic::InvalidJson => emit_create_message(
-                create_info,
-                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-                format_args!("loader_get_json: Invalid JSON file {}.", path.display()),
-            ),
-            LayerManifestDiagnostic::MissingFileFormatVersion => {
-                emit_layer_message(
-                    create_info,
-                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                    format_args!(
-                        "loader_add_layer_properties: Manifest {} missing required field file_format_version",
-                        path.display()
-                    ),
-                );
-            }
-            LayerManifestDiagnostic::MissingLayers {
-                version,
-                parsed_version,
-            } => {
-                if emit_found && diagnostic_index == 0 {
-                    emit_create_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                        format_args!(
-                            "Found manifest file {} (file version {version})",
-                            path.display()
-                        ),
-                    );
-                }
-                emit_layer_message(
-                    create_info,
-                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                    format_args!(
-                        "loader_add_layer_properties: {} has unknown layer manifest file version {}.{}.{}.  May cause errors.",
-                        path.display(),
-                        vk::VK_API_VERSION_MAJOR(parsed_version),
-                        vk::VK_API_VERSION_MINOR(parsed_version),
-                        vk::VK_API_VERSION_PATCH(parsed_version),
-                    ),
-                );
-            }
-            LayerManifestDiagnostic::UnknownManifestVersion {
-                version,
-                parsed_version,
-            } => {
-                if emit_found {
-                    emit_create_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                        format_args!(
-                            "Found manifest file {} (file version {version})",
-                            path.display()
-                        ),
-                    );
-                    emit_layer_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                        format_args!(
-                            "loader_add_layer_properties: {} has unknown layer manifest file version {}.{}.{}.  May cause errors.",
-                            path.display(),
-                            vk::VK_API_VERSION_MAJOR(parsed_version),
-                            vk::VK_API_VERSION_MINOR(parsed_version),
-                            vk::VK_API_VERSION_PATCH(parsed_version),
-                        ),
-                    );
-                }
-            }
-            LayerManifestDiagnostic::UnsupportedLayersArray {
-                found_version,
-                version,
-            } => {
-                if emit_found && diagnostic_index == 0 {
-                    emit_create_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                        format_args!(
-                            "Found manifest file {} (file version {found_version})",
-                            path.display()
-                        ),
-                    );
-                }
-                emit_layer_message(
-                    create_info,
-                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                    format_args!(
-                        "loader_add_layer_properties: 'layers' tag not supported until file version 1.0.1, but {} is reporting version {version}",
-                        path.display()
-                    ),
-                );
-            }
-            LayerManifestDiagnostic::NonConformingName {
-                manifest_version,
-                name,
-            } => {
-                if emit_found && diagnostic_index == 0 {
-                    emit_create_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                        format_args!(
-                            "Found manifest file {} (file version {}.{}.{})",
-                            path.display(),
-                            vk::VK_API_VERSION_MAJOR(manifest_version),
-                            vk::VK_API_VERSION_MINOR(manifest_version),
-                            vk::VK_API_VERSION_PATCH(manifest_version),
-                        ),
-                    );
-                }
-                emit_create_message(
-                    create_info,
-                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                    format_args!(
-                        "Layer name {name} does not conform to naming standard (Policy #LLP_LAYER_3)"
-                    ),
-                );
-            }
-            LayerManifestDiagnostic::MissingRequiredValue {
-                manifest_version,
-                name,
-            } => {
-                if emit_found && diagnostic_index == 0 {
-                    let version = ManifestVersion {
-                        text: discovery::layer_manifest_version_text(path),
-                        version: manifest_version,
-                    };
-                    emit_create_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                        format_args!(
-                            "Found manifest file {} (file version {version})",
-                            path.display(),
-                        ),
-                    );
-                }
-                emit_create_message(
-                    create_info,
-                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                    format_args!(
-                        "Layer located at {} didn't find required layer value \"{name}\" in manifest JSON file, skipping this layer",
-                        path.display()
-                    ),
-                );
-            }
-            LayerManifestDiagnostic::MissingDisableEnvironment {
-                manifest_version,
-                name,
-                meta_layer,
-            } => {
-                if emit_found && diagnostic_index == 0 {
-                    emit_create_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                        format_args!(
-                            "Found manifest file {} (file version {}.{}.{})",
-                            path.display(),
-                            vk::VK_API_VERSION_MAJOR(manifest_version),
-                            vk::VK_API_VERSION_MINOR(manifest_version),
-                            vk::VK_API_VERSION_PATCH(manifest_version),
-                        ),
-                    );
-                }
-                if meta_layer {
-                    emit_layer_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                        format_args!("Encountered meta-layer \"{name}\""),
-                    );
-                }
-                emit_create_message(
-                    create_info,
-                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                    format_args!(
-                        "Layer \"{name}\" doesn't contain required layer object disable_environment in the manifest JSON file, skipping this layer"
-                    ),
-                );
-            }
-            LayerManifestDiagnostic::InvalidDisableEnvironment {
-                manifest_version,
-                name,
-            } => {
-                if emit_found && diagnostic_index == 0 {
-                    emit_create_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                        format_args!(
-                            "Found manifest file {} (file version {}.{}.{})",
-                            path.display(),
-                            vk::VK_API_VERSION_MAJOR(manifest_version),
-                            vk::VK_API_VERSION_MINOR(manifest_version),
-                            vk::VK_API_VERSION_PATCH(manifest_version),
-                        ),
-                    );
-                }
-                emit_create_message(
-                    create_info,
-                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                    format_args!(
-                        "Layer \"{name}\" doesn't contain required child value in object disable_environment in the manifest JSON file, skipping this layer (Policy #LLP_LAYER_9)"
-                    ),
-                );
-            }
-            LayerManifestDiagnostic::InvalidLibraryAndComponents {
-                manifest_version,
-                name,
-                both_defined,
-            } => {
-                if emit_found && diagnostic_index == 0 {
-                    emit_create_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                        format_args!(
-                            "Found manifest file {} (file version {}.{}.{})",
-                            path.display(),
-                            vk::VK_API_VERSION_MAJOR(manifest_version),
-                            vk::VK_API_VERSION_MINOR(manifest_version),
-                            vk::VK_API_VERSION_PATCH(manifest_version),
-                        ),
-                    );
-                }
-                if !both_defined && manifest_version < vk::VK_MAKE_API_VERSION(0, 1, 1, 0) {
-                    emit_create_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                        format_args!(
-                            "Layer \"{name}\" contains meta-layer-specific component_layers, but using older JSON file version."
-                        ),
-                    );
-                }
-                let reason = if both_defined {
-                    "contains meta-layer-specific component_layers, but also defining layer library path.  Both are not compatible, so skipping this layer"
-                } else {
-                    "is missing both library_path and component_layers fields.  One or the other MUST be defined.  Skipping this layer"
-                };
-                emit_create_message(
-                    create_info,
-                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                    format_args!("Layer \"{name}\" {reason}"),
-                );
-            }
-        }
-    }
+    emit_manifest_diagnostics(
+        MetaDiagnosticSink::Create(create_info),
+        path,
+        implicit,
+        emit_found,
+        source_index,
+    );
 }
 
 pub(super) fn emit_global_discovered_manifest(manifest: &LayerManifest, emit_found: bool) {
-    let manifest_major = vk::VK_API_VERSION_MAJOR(manifest.manifest_version);
-    let manifest_minor = vk::VK_API_VERSION_MINOR(manifest.manifest_version);
-    let manifest_patch = vk::VK_API_VERSION_PATCH(manifest.manifest_version);
-    let known_manifest_version = manifest_major == 1
-        && ((manifest_minor == 0 && manifest_patch < 2)
-            || (manifest_minor == 1 && manifest_patch < 3)
-            || (manifest_minor == 2 && manifest_patch < 2));
-    if emit_found {
-        if !known_manifest_version
-            && let Some(version) = discovery::layer_manifest_version_text(&manifest.manifest_path)
-        {
-            platform::write_loader_log(
-                LogFilter::Info,
-                format_args!(
-                    "Found manifest file {} (file version {version})",
-                    manifest.manifest_path.display(),
-                ),
-            );
-        } else {
-            platform::write_loader_log(
-                LogFilter::Info,
-                format_args!(
-                    "Found manifest file {} (file version {manifest_major}.{manifest_minor}.{manifest_patch})",
-                    manifest.manifest_path.display(),
-                ),
-            );
-        }
-    }
-    if emit_found && !known_manifest_version {
-        platform::write_loader_log_with_category(
-            LogFilter::Info,
-            LogFilter::Layer,
-            format_args!(
-                "loader_add_layer_properties: {} has unknown layer manifest file version {manifest_major}.{manifest_minor}.{manifest_patch}.  May cause errors.",
-                manifest.manifest_path.display(),
-            ),
-        );
-    }
+    emit_discovered_manifest_version(MetaDiagnosticSink::Global, manifest, emit_found);
     if !manifest.name.to_bytes().starts_with(b"VK_LAYER_") {
         platform::write_loader_log(
             LogFilter::Warning,
@@ -820,9 +240,7 @@ pub(super) fn emit_global_discovered_manifest(manifest: &LayerManifest, emit_fou
             ),
         );
     }
-    if manifest.has_component_layers
-        && manifest.manifest_version < vk::VK_MAKE_API_VERSION(0, 1, 1, 0)
-    {
+    if manifest.is_meta_layer() && manifest.manifest_version < vk::VK_MAKE_API_VERSION(0, 1, 1, 0) {
         platform::write_loader_log(
             LogFilter::Warning,
             format_args!(
@@ -831,7 +249,7 @@ pub(super) fn emit_global_discovered_manifest(manifest: &LayerManifest, emit_fou
             ),
         );
     }
-    if manifest.has_component_layers {
+    if manifest.is_meta_layer() {
         platform::write_loader_log_with_category(
             LogFilter::Info,
             LogFilter::Layer,
@@ -841,7 +259,7 @@ pub(super) fn emit_global_discovered_manifest(manifest: &LayerManifest, emit_fou
             ),
         );
     }
-    if manifest.name.as_c_str() != c"VK_LAYER_LUNARG_override" && manifest.has_app_keys {
+    if manifest.name.as_c_str() != c"VK_LAYER_LUNARG_override" && manifest.app_keys.is_some() {
         platform::write_loader_log_with_category(
             LogFilter::Warning,
             LogFilter::Layer,
@@ -883,174 +301,21 @@ pub(crate) fn emit_global_layer_search_diagnostics(
     };
     let mut duplicate_messages = Vec::new();
     let mut duplicate_meta_summaries = Vec::new();
-    for (path, version) in configured_manifest_reports {
-        platform::write_loader_log(
-            LogFilter::Info,
-            format_args!(
-                "Found manifest file {} (file version {}.{}.{})",
-                path.display(),
-                vk::VK_API_VERSION_MAJOR(*version),
-                vk::VK_API_VERSION_MINOR(*version),
-                vk::VK_API_VERSION_PATCH(*version),
-            ),
-        );
-        for manifest in manifests.iter().filter(|manifest| {
-            manifest.manifest_path == *path
-                && !manifest.implicit
-                && manifest.has_pre_instance_functions
-        }) {
-            platform::write_loader_log(
-                LogFilter::Warning,
-                format_args!(
-                    "Found pre_instance_functions section in explicit layer from \"{}\". This section is only valid in implicit layers. The section will be ignored",
-                    manifest.manifest_path.display()
-                ),
-            );
-        }
-    }
+    emit_configured_manifest_reports(configured_manifest_reports, manifests);
     for search in searches {
-        let kind = if search.implicit {
-            "implicit"
-        } else {
-            "explicit"
-        };
-        platform::write_loader_category_log(
-            LogFilter::Layer,
-            format_args!("Searching for {kind} layer manifest files"),
-        );
-        platform::write_loader_category_log(
-            LogFilter::Layer,
-            format_args!("   In following locations:"),
-        );
-        for root in &search.roots {
-            platform::write_loader_category_log(
-                LogFilter::Layer,
-                format_args!("      {}", root.display()),
-            );
-        }
-        if search.files.is_empty() {
-            platform::write_loader_category_log(
-                LogFilter::Layer,
-                format_args!("   Found no files"),
-            );
-        } else {
-            platform::write_loader_category_log(
-                LogFilter::Layer,
-                format_args!("   Found the following files:"),
-            );
-            for file in &search.files {
-                platform::write_loader_category_log(
-                    LogFilter::Layer,
-                    format_args!("      {}", file.display()),
-                );
-            }
-        }
+        emit_layer_search_locations(MetaDiagnosticSink::Global, search);
         for file in &search.files {
-            let mut found = false;
-            let needs_compatibility_diagnostics =
-                search.diagnostic_files.iter().any(|path| path == file);
-            let diagnostics = if needs_compatibility_diagnostics {
-                discovery::layer_manifest_diagnostics(file, search.implicit)
-            } else {
-                Box::default()
-            };
-            let compatibility_manifests = needs_compatibility_diagnostics
-                .then(|| discovery::reparse_layer_manifest(file, search.implicit));
-            let diagnostic_manifests = compatibility_manifests.as_deref().unwrap_or(manifests);
-            let mut diagnostic_indices = diagnostics
-                .iter()
-                .map(|(source_index, _)| *source_index)
-                .peekable();
-            for manifest in diagnostic_manifests
-                .iter()
-                .filter(|manifest| manifest.manifest_path == *file)
+            if emit_global_search_file(
+                search,
+                file,
+                manifests,
+                &mut duplicate_meta_summaries,
+                &mut duplicate_messages,
+            )
+            .is_err()
             {
-                while diagnostic_indices
-                    .peek()
-                    .is_some_and(|source_index| *source_index < manifest.source_index)
-                {
-                    let source_index = *diagnostic_indices.peek().unwrap();
-                    emit_global_layer_manifest_diagnostic(
-                        file,
-                        search.implicit,
-                        !found,
-                        Some(source_index),
-                    );
-                    found = true;
-                    while diagnostic_indices.next_if_eq(&source_index).is_some() {}
-                }
-                while diagnostic_indices
-                    .next_if_eq(&manifest.source_index)
-                    .is_some()
-                {}
-                emit_global_discovered_manifest(manifest, !found);
-                found = true;
-            }
-            while let Some(source_index) = diagnostic_indices.next() {
-                emit_global_layer_manifest_diagnostic(
-                    file,
-                    search.implicit,
-                    !found,
-                    Some(source_index),
-                );
-                found = true;
-                while diagnostic_indices.next_if_eq(&source_index).is_some() {}
-            }
-            if needs_compatibility_diagnostics && let Some(executable) = platform::executable_path()
-            {
-                for _ in 0..discovery::unused_override_layer_count(file, &executable) {
-                    platform::write_loader_log_with_category(
-                        LogFilter::Info,
-                        LogFilter::Layer,
-                        format_args!(
-                            "--Override layer found but not used because app '{}' is not in 'app_keys' list!",
-                            executable.display()
-                        ),
-                    );
-                }
-            }
-            if found {
-                continue;
-            }
-            let duplicates = discovery::reparse_layer_manifest(file, search.implicit);
-            if duplicates.is_empty() {
-                emit_global_layer_manifest_diagnostic(file, search.implicit, true, None);
-            }
-            for duplicate in &duplicates {
-                emit_global_discovered_manifest(duplicate, true);
-                if duplicate.name.as_c_str() == c"VK_LAYER_LUNARG_override"
-                    && !duplicate.app_keys.is_empty()
-                    && !manifests.iter().any(|manifest| {
-                        manifest.name == duplicate.name
-                            && manifest.manifest_path == duplicate.manifest_path
-                    })
-                    && let Some(executable) = platform::executable_path()
-                {
-                    platform::write_loader_log_with_category(
-                        LogFilter::Info,
-                        LogFilter::Layer,
-                        format_args!(
-                            "--Override layer found but not used because app '{}' is not in 'app_keys' list!",
-                            executable.display()
-                        ),
-                    );
-                }
-                if let Some(original) = manifests.iter().find(|original| {
-                    (original.settings_control.is_none() || !duplicate.component_layers.is_empty())
-                        && original.name == duplicate.name
-                        && original.manifest_path != duplicate.manifest_path
-                }) && record_duplicate_layer(
-                    duplicate,
-                    original,
-                    manifests,
-                    &mut duplicate_meta_summaries,
-                    &mut duplicate_messages,
-                )
-                .is_err()
-                {
-                    pending::mark_json_allocation_failed();
-                    return;
-                }
+                pending::mark_json_allocation_failed();
+                return;
             }
         }
         if search.implicit
@@ -1110,99 +375,13 @@ pub(crate) fn emit_global_layer_search_diagnostics(
         pending::mark_json_allocation_failed();
         return;
     }
-    if !implicit_only
-        && let Some(override_layer) = manifests.iter().find(|manifest| {
-            manifest.name.as_c_str() == c"VK_LAYER_LUNARG_override" && naturally_enabled(manifest)
-        })
-    {
-        for blacklisted in &override_layer.blacklisted_layers {
-            platform::write_loader_log(
-                LogFilter::Debug,
-                format_args!(
-                    "loader_remove_layers_in_blacklist: Override layer is active and layer {} is in the blacklist inside of it. Removing that layer from current layer list.",
-                    crate::debug::diagnostics::LossyBytes(blacklisted.to_bytes())
-                ),
-            );
-        }
-    }
-    for manifest in manifests.iter().filter(|manifest| {
-        manifest.settings_control.is_none()
-            && forced_disabled(manifest)
-            && !forced_enabled(manifest)
-            && !(implicit_only && manifest.name.as_c_str() == c"VK_LAYER_LUNARG_override")
-    }) {
-        if manifest.implicit && manifest.name.as_c_str() == c"VK_LAYER_LUNARG_override" {
-            platform::write_loader_log_with_category(
-                LogFilter::Warning,
-                LogFilter::Layer,
-                format_args!(
-                    "Implicit layer \"{}\" forced disabled because name matches filter of env var 'VK_LOADER_LAYERS_DISABLE'.",
-                    crate::debug::diagnostics::LossyBytes(manifest.name.to_bytes())
-                ),
-            );
-        }
-        platform::write_loader_log_with_category(
-            LogFilter::Warning,
-            LogFilter::Layer,
-            format_args!(
-                "{} \"{}\" forced disabled because name matches filter of env var 'VK_LOADER_LAYERS_DISABLE'.",
-                if implicit_only {
-                    "Implicit layer"
-                } else {
-                    "Layer"
-                },
-                crate::debug::diagnostics::LossyBytes(manifest.name.to_bytes())
-            ),
-        );
-    }
-    let mut pruned_layers = Vec::new();
-    let implicit_meta_layer_active = manifests.iter().any(|manifest| {
-        manifest.implicit
-            && !manifest.component_layers.is_empty()
-            && implicit_manifest_is_active(manifest)
-    });
-    let self_referencing_meta_layer = manifests.iter().any(|manifest| {
-        manifest
-            .component_layers
-            .iter()
-            .any(|component| component == &manifest.name)
-    });
-    if emit_implicit_meta_pruning
-        && implicit_only
-        && (implicit_meta_layer_active || self_referencing_meta_layer)
-    {
-        for search in searches.iter().filter(|search| !search.implicit) {
-            for file in &search.files {
-                for layer in &discovery::reparse_layer_manifest(file, search.implicit) {
-                    if !layer.component_layers.is_empty()
-                        || (!self_referencing_meta_layer
-                            && manifests.iter().any(|meta| {
-                                meta.component_layers
-                                    .iter()
-                                    .any(|component| component == &layer.name)
-                            }))
-                    {
-                        continue;
-                    }
-                    let name = allocation::try_c_string(&layer.name)
-                        .and_then(|name| allocation::try_push(&mut pruned_layers, name));
-                    if name.is_err() {
-                        pending::mark_json_allocation_failed();
-                        return;
-                    }
-                }
-            }
-        }
-    }
-    for layer in pruned_layers {
-        platform::write_loader_log(
-            LogFilter::Debug,
-            format_args!(
-                "loader_remove_layers_not_in_implicit_meta_layers : Implicit meta-layers are active, and layer {} is not list inside of any.  So removing layer from current layer list.",
-                crate::debug::diagnostics::LossyBytes(layer.to_bytes()),
-            ),
-        );
-    }
+    emit_disabled_global_layers(manifests, implicit_only);
+    emit_pruned_implicit_layers(
+        searches,
+        manifests,
+        implicit_only,
+        emit_implicit_meta_pruning,
+    );
 }
 
 pub(crate) fn emit_global_layer_manifest_diagnostic(
@@ -1211,254 +390,13 @@ pub(crate) fn emit_global_layer_manifest_diagnostic(
     emit_found: bool,
     source_index: Option<usize>,
 ) {
-    for (diagnostic_index, (_, diagnostic)) in discovery::layer_manifest_diagnostics(path, implicit)
-        .into_iter()
-        .filter(|(index, _)| source_index.is_none_or(|source_index| *index == source_index))
-        .enumerate()
-    {
-        match diagnostic {
-            LayerManifestDiagnostic::FailedOpen => {
-                platform::write_loader_log(
-                    LogFilter::Error,
-                    format_args!(
-                        "loader_get_json: Failed to open JSON file {}",
-                        path.display()
-                    ),
-                );
-            }
-            LayerManifestDiagnostic::InvalidJson => {
-                platform::write_loader_log(
-                    LogFilter::Error,
-                    format_args!("loader_get_json: Invalid JSON file {}.", path.display()),
-                );
-            }
-            LayerManifestDiagnostic::MissingFileFormatVersion => {
-                platform::write_loader_log_with_category(
-                    LogFilter::Warning,
-                    LogFilter::Layer,
-                    format_args!(
-                        "loader_add_layer_properties: Manifest {} missing required field file_format_version",
-                        path.display()
-                    ),
-                );
-            }
-            LayerManifestDiagnostic::MissingLayers {
-                version,
-                parsed_version,
-            } => {
-                if emit_found && diagnostic_index == 0 {
-                    platform::write_loader_log(
-                        LogFilter::Info,
-                        format_args!(
-                            "Found manifest file {} (file version {version})",
-                            path.display()
-                        ),
-                    );
-                }
-                platform::write_loader_log_with_category(
-                    LogFilter::Info,
-                    LogFilter::Layer,
-                    format_args!(
-                        "loader_add_layer_properties: {} has unknown layer manifest file version {}.{}.{}.  May cause errors.",
-                        path.display(),
-                        vk::VK_API_VERSION_MAJOR(parsed_version),
-                        vk::VK_API_VERSION_MINOR(parsed_version),
-                        vk::VK_API_VERSION_PATCH(parsed_version),
-                    ),
-                );
-            }
-            LayerManifestDiagnostic::UnknownManifestVersion {
-                version,
-                parsed_version,
-            } => {
-                if emit_found {
-                    platform::write_loader_log(
-                        LogFilter::Info,
-                        format_args!(
-                            "Found manifest file {} (file version {version})",
-                            path.display()
-                        ),
-                    );
-                    platform::write_loader_log_with_category(
-                        LogFilter::Info,
-                        LogFilter::Layer,
-                        format_args!(
-                            "loader_add_layer_properties: {} has unknown layer manifest file version {}.{}.{}.  May cause errors.",
-                            path.display(),
-                            vk::VK_API_VERSION_MAJOR(parsed_version),
-                            vk::VK_API_VERSION_MINOR(parsed_version),
-                            vk::VK_API_VERSION_PATCH(parsed_version),
-                        ),
-                    );
-                }
-            }
-            LayerManifestDiagnostic::UnsupportedLayersArray {
-                found_version,
-                version,
-            } => {
-                if emit_found && diagnostic_index == 0 {
-                    platform::write_loader_log(
-                        LogFilter::Info,
-                        format_args!(
-                            "Found manifest file {} (file version {found_version})",
-                            path.display()
-                        ),
-                    );
-                }
-                platform::write_loader_log_with_category(
-                    LogFilter::Warning,
-                    LogFilter::Layer,
-                    format_args!(
-                        "loader_add_layer_properties: 'layers' tag not supported until file version 1.0.1, but {} is reporting version {version}",
-                        path.display()
-                    ),
-                );
-            }
-            LayerManifestDiagnostic::NonConformingName {
-                manifest_version,
-                name,
-            } => {
-                if emit_found && diagnostic_index == 0 {
-                    platform::write_loader_log(
-                        LogFilter::Info,
-                        format_args!(
-                            "Found manifest file {} (file version {}.{}.{})",
-                            path.display(),
-                            vk::VK_API_VERSION_MAJOR(manifest_version),
-                            vk::VK_API_VERSION_MINOR(manifest_version),
-                            vk::VK_API_VERSION_PATCH(manifest_version),
-                        ),
-                    );
-                }
-                platform::write_loader_log(
-                    LogFilter::Warning,
-                    format_args!(
-                        "Layer name {name} does not conform to naming standard (Policy #LLP_LAYER_3)"
-                    ),
-                );
-            }
-            LayerManifestDiagnostic::MissingRequiredValue {
-                manifest_version,
-                name,
-            } => {
-                if emit_found && diagnostic_index == 0 {
-                    let version = ManifestVersion {
-                        text: discovery::layer_manifest_version_text(path),
-                        version: manifest_version,
-                    };
-                    platform::write_loader_log(
-                        LogFilter::Info,
-                        format_args!(
-                            "Found manifest file {} (file version {version})",
-                            path.display(),
-                        ),
-                    );
-                }
-                platform::write_loader_log(
-                    LogFilter::Warning,
-                    format_args!(
-                        "Layer located at {} didn't find required layer value \"{name}\" in manifest JSON file, skipping this layer",
-                        path.display()
-                    ),
-                );
-            }
-            LayerManifestDiagnostic::MissingDisableEnvironment {
-                manifest_version,
-                name,
-                meta_layer,
-            } => {
-                if emit_found && diagnostic_index == 0 {
-                    platform::write_loader_log(
-                        LogFilter::Info,
-                        format_args!(
-                            "Found manifest file {} (file version {}.{}.{})",
-                            path.display(),
-                            vk::VK_API_VERSION_MAJOR(manifest_version),
-                            vk::VK_API_VERSION_MINOR(manifest_version),
-                            vk::VK_API_VERSION_PATCH(manifest_version),
-                        ),
-                    );
-                }
-                if meta_layer {
-                    platform::write_loader_log_with_category(
-                        LogFilter::Info,
-                        LogFilter::Layer,
-                        format_args!("Encountered meta-layer \"{name}\""),
-                    );
-                }
-                platform::write_loader_log(
-                    LogFilter::Warning,
-                    format_args!(
-                        "Layer \"{name}\" doesn't contain required layer object disable_environment in the manifest JSON file, skipping this layer"
-                    ),
-                );
-            }
-            LayerManifestDiagnostic::InvalidLibraryAndComponents {
-                manifest_version,
-                name,
-                both_defined,
-            } => {
-                if emit_found && diagnostic_index == 0 {
-                    platform::write_loader_log(
-                        LogFilter::Info,
-                        format_args!(
-                            "Found manifest file {} (file version {}.{}.{})",
-                            path.display(),
-                            vk::VK_API_VERSION_MAJOR(manifest_version),
-                            vk::VK_API_VERSION_MINOR(manifest_version),
-                            vk::VK_API_VERSION_PATCH(manifest_version),
-                        ),
-                    );
-                }
-                if !both_defined && manifest_version < vk::VK_MAKE_API_VERSION(0, 1, 1, 0) {
-                    platform::write_loader_log(
-                        LogFilter::Warning,
-                        format_args!(
-                            "Layer \"{name}\" contains meta-layer-specific component_layers, but using older JSON file version."
-                        ),
-                    );
-                }
-                if both_defined {
-                    platform::write_loader_log(
-                        LogFilter::Warning,
-                        format_args!(
-                            "Layer \"{name}\" contains meta-layer-specific component_layers, but also defining layer library path.  Both are not compatible, so skipping this layer"
-                        ),
-                    );
-                } else {
-                    platform::write_loader_log(
-                        LogFilter::Warning,
-                        format_args!(
-                            "Layer \"{name}\" is missing both library_path and component_layers fields.  One or the other MUST be defined.  Skipping this layer"
-                        ),
-                    );
-                }
-            }
-            LayerManifestDiagnostic::InvalidDisableEnvironment {
-                manifest_version,
-                name,
-            } => {
-                if emit_found && diagnostic_index == 0 {
-                    platform::write_loader_log(
-                        LogFilter::Info,
-                        format_args!(
-                            "Found manifest file {} (file version {}.{}.{})",
-                            path.display(),
-                            vk::VK_API_VERSION_MAJOR(manifest_version),
-                            vk::VK_API_VERSION_MINOR(manifest_version),
-                            vk::VK_API_VERSION_PATCH(manifest_version),
-                        ),
-                    );
-                }
-                platform::write_loader_log(
-                    LogFilter::Warning,
-                    format_args!(
-                        "Layer \"{name}\" doesn't contain required child value in object disable_environment in the manifest JSON file, skipping this layer (Policy #LLP_LAYER_9)"
-                    ),
-                );
-            }
-        }
-    }
+    emit_manifest_diagnostics(
+        MetaDiagnosticSink::Global,
+        path,
+        implicit,
+        emit_found,
+        source_index,
+    );
 }
 
 pub(crate) fn emit_instance_layer_callstack(
@@ -1591,7 +529,7 @@ pub(super) fn emit_override_layer_diagnostics(
     sink: MetaDiagnosticSink<'_>,
     override_layer: &LayerManifest,
 ) {
-    if override_layer.app_keys.is_empty() {
+    if override_layer.app_keys().is_empty() {
         sink.layer_message(
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
             "Using the global override layer",
@@ -1654,7 +592,7 @@ pub(super) fn verify_meta_layer_for_diagnostics(
 ) -> bool {
     let meta = &manifests[index];
     checked[index] = true;
-    for (component_index, component_name) in meta.component_layers.iter().enumerate() {
+    for (component_index, component_name) in meta.component_layers().iter().enumerate() {
         let Some(component_index_in_manifests) = manifests
             .iter()
             .enumerate()
@@ -1698,7 +636,7 @@ pub(super) fn verify_meta_layer_for_diagnostics(
             );
             return false;
         }
-        if !component.component_layers.is_empty() {
+        if !component.component_layers().is_empty() {
             let recursive_index = manifests
                 .iter()
                 .enumerate()
@@ -1743,50 +681,7 @@ pub(super) fn verify_meta_layer_for_diagnostics(
             }
         }
     }
-    sink.layer_message(
-        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-        format_args!(
-            "Meta-layer \"{}\" all {} component layers appear to be valid.",
-            crate::debug::diagnostics::LossyBytes(meta.name.to_bytes()),
-            meta.component_layers.len()
-        ),
-    );
-    for (component_index, component) in meta.component_layers.iter().enumerate() {
-        sink.layer_only(format_args!(
-            "  [{component_index}] {}",
-            crate::debug::diagnostics::LossyBytes(component.to_bytes())
-        ));
-    }
-    for component_name in &meta.component_layers {
-        let Some(component) = manifests
-            .iter()
-            .find(|component| component.name == *component_name)
-        else {
-            continue;
-        };
-        for extension in &component.instance_extensions {
-            sink.message(
-                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::VERBOSE,
-                format_args!(
-                    "Meta-layer {} component layer {} adding instance extension {}",
-                    crate::debug::diagnostics::LossyBytes(meta.name.to_bytes()),
-                    crate::debug::diagnostics::LossyBytes(component.name.to_bytes()),
-                    crate::debug::diagnostics::LossyBytes(extension.name.to_bytes())
-                ),
-            );
-        }
-        for extension in &component.device_extensions {
-            sink.message(
-                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::VERBOSE,
-                format_args!(
-                    "Meta-layer {} component layer {} adding device extension {}",
-                    crate::debug::diagnostics::LossyBytes(meta.name.to_bytes()),
-                    crate::debug::diagnostics::LossyBytes(component.name.to_bytes()),
-                    crate::debug::diagnostics::LossyBytes(extension.name.to_bytes())
-                ),
-            );
-        }
-    }
+    emit_valid_meta_layer(sink, manifests, meta);
     true
 }
 
@@ -1794,15 +689,12 @@ pub(super) fn emit_recursive_meta_layer_diagnostics(
     sink: MetaDiagnosticSink<'_>,
     manifests: &[LayerManifest],
 ) -> Result<(), VkResult> {
-    if !manifests
-        .iter()
-        .any(|manifest| manifest.has_component_layers)
-    {
+    if !manifests.iter().any(LayerManifest::is_meta_layer) {
         return Ok(());
     }
     let mut state = MetaDiagnosticState::new(manifests.len())?;
     for index in 0..manifests.len() {
-        if !manifests[index].has_component_layers {
+        if !manifests[index].is_meta_layer() {
             continue;
         }
         state.checked.fill(false);
@@ -1850,23 +742,21 @@ pub(super) fn emit_meta_layer_diagnostics(
     activation_messages: &mut Vec<String>,
     repeated_activation_messages: &mut Vec<String>,
 ) -> Result<(), VkResult> {
+    let sink = MetaDiagnosticSink::Create(create_info);
     if manifests
         .iter()
-        .filter(|manifest| manifest.has_component_layers)
+        .filter(|manifest| manifest.is_meta_layer())
         .all(|manifest| manifest.settings_control.is_none())
     {
-        return emit_recursive_meta_layer_diagnostics(
-            MetaDiagnosticSink::Create(create_info),
-            manifests,
-        );
+        return emit_recursive_meta_layer_diagnostics(sink, manifests);
     }
     let valid = valid_layer_mask(manifests)?;
     for (meta_index, meta) in manifests.iter().enumerate() {
-        if !meta.has_component_layers {
+        if !meta.is_meta_layer() {
             continue;
         }
         let mut configured_recursive = false;
-        for (component_index, component_name) in meta.component_layers.iter().enumerate() {
+        for (component_index, component_name) in meta.component_layers().iter().enumerate() {
             let Some(component_manifest_index) = manifests
                 .iter()
                 .position(|candidate| candidate.name == *component_name)
@@ -1912,38 +802,15 @@ pub(super) fn emit_meta_layer_diagnostics(
                 );
                 break;
             }
-            if !component.component_layers.is_empty() {
+            if !component.component_layers().is_empty() {
                 if meta_reaches(manifests, component_manifest_index, meta_index)? {
-                    if meta.settings_control.is_some() {
-                        configured_recursive = true;
-                        let message = diagnostics::try_format(format_args!(
-                            "loader_add_meta_layer: Meta-layer {} recursively references itself through its component layers. Skipping the recursive reference.",
-                            crate::debug::diagnostics::LossyBytes(meta.name.to_bytes())
-                        ))?;
-                        allocation::try_push(
-                            &mut *activation_messages,
-                            allocation::try_string(&message)?,
-                        )?;
-                        allocation::try_push(&mut *repeated_activation_messages, message)?;
-                        break;
-                    }
-                    emit_create_message(
+                    configured_recursive = emit_recursive_meta_reference(
                         create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                        format_args!(
-                            "verify_meta_layer_component_layers: Recursive dependency between Meta-layer {} and  Meta-layer {}.  Skipping this layer.",
-                            crate::debug::diagnostics::LossyBytes(meta.name.to_bytes()),
-                            crate::debug::diagnostics::LossyBytes(component.name.to_bytes())
-                        ),
-                    );
-                    emit_create_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                        format_args!(
-                            "loader_add_meta_layer: Meta-layer {} recursively references itself through its component layers. Skipping the meta-layer.",
-                            crate::debug::diagnostics::LossyBytes(meta.name.to_bytes())
-                        ),
-                    );
+                        meta,
+                        component,
+                        activation_messages,
+                        repeated_activation_messages,
+                    )?;
                     break;
                 }
                 emit_create_message(
@@ -1956,78 +823,12 @@ pub(super) fn emit_meta_layer_diagnostics(
                     ),
                 );
                 if valid[component_manifest_index] {
-                    emit_layer_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                        format_args!(
-                            "Meta-layer \"{}\" all {} component layers appear to be valid.",
-                            crate::debug::diagnostics::LossyBytes(component.name.to_bytes()),
-                            component.component_layers.len()
-                        ),
-                    );
-                    for (index, nested) in component.component_layers.iter().enumerate() {
-                        emit_layer_only_message(
-                            create_info,
-                            format_args!(
-                                "  [{index}] {}",
-                                crate::debug::diagnostics::LossyBytes(nested.to_bytes())
-                            ),
-                        );
-                    }
+                    emit_meta_components(sink, component);
                 }
             }
         }
         if valid[meta_index] {
-            emit_layer_message(
-                create_info,
-                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                format_args!(
-                    "Meta-layer \"{}\" all {} component layers appear to be valid.",
-                    crate::debug::diagnostics::LossyBytes(meta.name.to_bytes()),
-                    meta.component_layers.len()
-                ),
-            );
-            for (index, component) in meta.component_layers.iter().enumerate() {
-                emit_layer_only_message(
-                    create_info,
-                    format_args!(
-                        "  [{index}] {}",
-                        crate::debug::diagnostics::LossyBytes(component.to_bytes())
-                    ),
-                );
-            }
-            for component_name in &meta.component_layers {
-                let Some(component) = manifests
-                    .iter()
-                    .find(|component| component.name == *component_name)
-                else {
-                    continue;
-                };
-                for extension in &component.instance_extensions {
-                    emit_create_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::VERBOSE,
-                        format_args!(
-                            "Meta-layer {} component layer {} adding instance extension {}",
-                            crate::debug::diagnostics::LossyBytes(meta.name.to_bytes()),
-                            crate::debug::diagnostics::LossyBytes(component.name.to_bytes()),
-                            crate::debug::diagnostics::LossyBytes(extension.name.to_bytes())
-                        ),
-                    );
-                }
-                for extension in &component.device_extensions {
-                    emit_create_message(
-                        create_info,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::VERBOSE,
-                        format_args!(
-                            "Meta-layer {} component layer {} adding device extension {}",
-                            crate::debug::diagnostics::LossyBytes(meta.name.to_bytes()),
-                            crate::debug::diagnostics::LossyBytes(component.name.to_bytes()),
-                            crate::debug::diagnostics::LossyBytes(extension.name.to_bytes())
-                        ),
-                    );
-                }
-            }
+            emit_valid_meta_layer(sink, manifests, meta);
         } else if !configured_recursive {
             emit_create_message(
                 create_info,
@@ -2040,6 +841,899 @@ pub(super) fn emit_meta_layer_diagnostics(
         }
     }
     Ok(())
+}
+
+#[cold]
+fn emit_manifest_diagnostics(
+    sink: MetaDiagnosticSink<'_>,
+    path: &Path,
+    implicit: bool,
+    emit_found: bool,
+    source_index: Option<usize>,
+) {
+    for (diagnostic_index, (_, diagnostic)) in discovery::layer_manifest_diagnostics(path, implicit)
+        .into_iter()
+        .filter(|(index, _)| source_index.is_none_or(|source_index| *index == source_index))
+        .enumerate()
+    {
+        emit_manifest_found(sink, path, &diagnostic, emit_found, diagnostic_index);
+        match diagnostic {
+            LayerManifestDiagnostic::FailedOpen => sink.message(
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
+                format_args!(
+                    "loader_get_json: Failed to open JSON file {}",
+                    path.display()
+                ),
+            ),
+            LayerManifestDiagnostic::InvalidJson => sink.message(
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
+                format_args!("loader_get_json: Invalid JSON file {}.", path.display()),
+            ),
+            LayerManifestDiagnostic::MissingFileFormatVersion => {
+                sink.layer_message(
+                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+                    format_args!(
+                        "loader_add_layer_properties: Manifest {} missing required field file_format_version",
+                        path.display()
+                    ),
+                );
+            }
+            LayerManifestDiagnostic::MissingLayers { parsed_version, .. } => {
+                sink.layer_message(
+                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+                    format_args!(
+                        "loader_add_layer_properties: {} has unknown layer manifest file version {}.{}.{}.  May cause errors.",
+                        path.display(),
+                        vk::VK_API_VERSION_MAJOR(parsed_version),
+                        vk::VK_API_VERSION_MINOR(parsed_version),
+                        vk::VK_API_VERSION_PATCH(parsed_version),
+                    ),
+                );
+            }
+            LayerManifestDiagnostic::UnknownManifestVersion { parsed_version, .. } => {
+                if emit_found {
+                    sink.layer_message(
+                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+                        format_args!(
+                            "loader_add_layer_properties: {} has unknown layer manifest file version {}.{}.{}.  May cause errors.",
+                            path.display(),
+                            vk::VK_API_VERSION_MAJOR(parsed_version),
+                            vk::VK_API_VERSION_MINOR(parsed_version),
+                            vk::VK_API_VERSION_PATCH(parsed_version),
+                        ),
+                    );
+                }
+            }
+            LayerManifestDiagnostic::UnsupportedLayersArray { version, .. } => {
+                sink.layer_message(
+                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+                    format_args!(
+                        "loader_add_layer_properties: 'layers' tag not supported until file version 1.0.1, but {} is reporting version {version}",
+                        path.display()
+                    ),
+                );
+            }
+            diagnostic => emit_layer_field_diagnostic(sink, path, diagnostic),
+        }
+    }
+}
+
+#[cold]
+fn emit_manifest_found(
+    sink: MetaDiagnosticSink<'_>,
+    path: &Path,
+    diagnostic: &LayerManifestDiagnostic,
+    emit_found: bool,
+    index: usize,
+) {
+    if !emit_found {
+        return;
+    }
+    match diagnostic {
+        LayerManifestDiagnostic::UnknownManifestVersion { version, .. } => {
+            emit_found_manifest_version(sink, path, version);
+        }
+        _ if index != 0 => {}
+        LayerManifestDiagnostic::MissingLayers { version, .. } => {
+            emit_found_manifest_version(sink, path, version);
+        }
+        LayerManifestDiagnostic::UnsupportedLayersArray { found_version, .. } => {
+            emit_found_manifest_version(sink, path, found_version);
+        }
+        LayerManifestDiagnostic::MissingRequiredValue {
+            manifest_version, ..
+        } => {
+            emit_found_manifest_version(
+                sink,
+                path,
+                &ManifestVersion {
+                    text: discovery::layer_manifest_version_text(path),
+                    version: *manifest_version,
+                },
+            );
+        }
+        LayerManifestDiagnostic::NonConformingName {
+            manifest_version, ..
+        }
+        | LayerManifestDiagnostic::MissingDisableEnvironment {
+            manifest_version, ..
+        }
+        | LayerManifestDiagnostic::InvalidDisableEnvironment {
+            manifest_version, ..
+        }
+        | LayerManifestDiagnostic::InvalidLibraryAndComponents {
+            manifest_version, ..
+        } => {
+            emit_found_manifest_version(
+                sink,
+                path,
+                &ManifestVersion {
+                    text: None,
+                    version: *manifest_version,
+                },
+            );
+        }
+        _ => {}
+    }
+}
+
+#[cold]
+fn emit_found_manifest_version(
+    sink: MetaDiagnosticSink<'_>,
+    path: &Path,
+    version: impl core::fmt::Display,
+) {
+    sink.message(
+        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+        format_args!(
+            "Found manifest file {} (file version {version})",
+            path.display()
+        ),
+    );
+}
+
+#[cold]
+fn emit_valid_meta_layer(
+    sink: MetaDiagnosticSink<'_>,
+    manifests: &[LayerManifest],
+    meta: &LayerManifest,
+) {
+    emit_meta_components(sink, meta);
+    for component_name in meta.component_layers() {
+        let Some(component) = manifests
+            .iter()
+            .find(|component| component.name == *component_name)
+        else {
+            continue;
+        };
+        for extension in &component.instance_extensions {
+            sink.message(
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::VERBOSE,
+                format_args!(
+                    "Meta-layer {} component layer {} adding instance extension {}",
+                    crate::debug::diagnostics::LossyBytes(meta.name.to_bytes()),
+                    crate::debug::diagnostics::LossyBytes(component.name.to_bytes()),
+                    crate::debug::diagnostics::LossyBytes(extension.name.to_bytes())
+                ),
+            );
+        }
+        for extension in &component.device_extensions {
+            sink.message(
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::VERBOSE,
+                format_args!(
+                    "Meta-layer {} component layer {} adding device extension {}",
+                    crate::debug::diagnostics::LossyBytes(meta.name.to_bytes()),
+                    crate::debug::diagnostics::LossyBytes(component.name.to_bytes()),
+                    crate::debug::diagnostics::LossyBytes(extension.name.to_bytes())
+                ),
+            );
+        }
+    }
+}
+
+#[cold]
+fn emit_create_discovered_manifest(
+    create_info: &VkInstanceCreateInfo<'_>,
+    manifest: &LayerManifest,
+    emit_found: bool,
+) {
+    emit_discovered_manifest_version(
+        MetaDiagnosticSink::Create(create_info),
+        manifest,
+        emit_found,
+    );
+    if !manifest.name.to_bytes().starts_with(b"VK_LAYER_") {
+        emit_create_message(
+            create_info,
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+            format_args!(
+                "Layer name {} does not conform to naming standard (Policy #LLP_LAYER_3)",
+                crate::debug::diagnostics::LossyBytes(manifest.name.to_bytes())
+            ),
+        );
+    }
+    if !manifest.implicit && manifest.has_pre_instance_functions {
+        emit_create_message(
+            create_info,
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+            format_args!(
+                "Found pre_instance_functions section in explicit layer from \"{}\". This section is only valid in implicit layers. The section will be ignored",
+                manifest.manifest_path.display()
+            ),
+        );
+    }
+    let variant = vk::VK_API_VERSION_VARIANT(manifest.api_version);
+    if variant != 0 {
+        emit_layer_message(
+            create_info,
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+            format_args!(
+                "Layer \"{}\" has an 'api_version' field which contains a non-zero variant value of {variant}.  Skipping Layer.",
+                crate::debug::diagnostics::LossyBytes(manifest.name.to_bytes()),
+            ),
+        );
+    }
+    if !manifest.architecture_supported {
+        emit_create_message(
+            create_info,
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+            format_args!(
+                "The library architecture in layer {} doesn't match the current running architecture, skipping this layer",
+                manifest.manifest_path.display(),
+            ),
+        );
+    }
+    if manifest.is_meta_layer() && manifest.manifest_version < vk::VK_MAKE_API_VERSION(0, 1, 1, 0) {
+        emit_create_message(
+            create_info,
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+            format_args!(
+                "Layer \"{}\" contains meta-layer-specific component_layers, but using older JSON file version.",
+                crate::debug::diagnostics::LossyBytes(manifest.name.to_bytes())
+            ),
+        );
+    }
+    if manifest.is_meta_layer() {
+        emit_layer_message(
+            create_info,
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+            format_args!(
+                "Encountered meta-layer \"{}\"",
+                crate::debug::diagnostics::LossyBytes(manifest.name.to_bytes())
+            ),
+        );
+    }
+    if manifest.name.as_c_str() != c"VK_LAYER_LUNARG_override" && manifest.app_keys.is_some() {
+        emit_layer_message(
+            create_info,
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+            format_args!(
+                "Layer {} contains app_keys, but any app_keys can only be provided by the override meta layer. These will be ignored.",
+                crate::debug::diagnostics::LossyBytes(manifest.name.to_bytes())
+            ),
+        );
+    }
+    if !manifest.override_paths.is_empty()
+        && manifest.manifest_version < vk::VK_MAKE_API_VERSION(0, 1, 1, 0)
+    {
+        emit_create_message(
+            create_info,
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+            format_args!(
+                "Layer \"{}\" contains meta-layer-specific override paths, but using older JSON file version.",
+                crate::debug::diagnostics::LossyBytes(manifest.name.to_bytes())
+            ),
+        );
+    }
+}
+
+#[cold]
+fn emit_duplicate_manifest(create_info: &VkInstanceCreateInfo<'_>, duplicate: &LayerManifest) {
+    emit_create_message(
+        create_info,
+        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+        format_args!(
+            "Found manifest file {} (file version {}.{}.{})",
+            duplicate.manifest_path.display(),
+            vk::VK_API_VERSION_MAJOR(duplicate.manifest_version),
+            vk::VK_API_VERSION_MINOR(duplicate.manifest_version),
+            vk::VK_API_VERSION_PATCH(duplicate.manifest_version),
+        ),
+    );
+    if duplicate.is_meta_layer() {
+        if duplicate.manifest_version < vk::VK_MAKE_API_VERSION(0, 1, 1, 0) {
+            emit_create_message(
+                create_info,
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+                format_args!(
+                    "Layer \"{}\" contains meta-layer-specific component_layers, but using older JSON file version.",
+                    crate::debug::diagnostics::LossyBytes(duplicate.name.to_bytes())
+                ),
+            );
+        }
+        emit_layer_message(
+            create_info,
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+            format_args!(
+                "Encountered meta-layer \"{}\"",
+                crate::debug::diagnostics::LossyBytes(duplicate.name.to_bytes())
+            ),
+        );
+    }
+    if duplicate.name.as_c_str() != c"VK_LAYER_LUNARG_override" && duplicate.app_keys.is_some() {
+        emit_layer_message(
+            create_info,
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+            format_args!(
+                "Layer {} contains app_keys, but any app_keys can only be provided by the override meta layer. These will be ignored.",
+                crate::debug::diagnostics::LossyBytes(duplicate.name.to_bytes())
+            ),
+        );
+    }
+    if !duplicate.override_paths.is_empty()
+        && duplicate.manifest_version < vk::VK_MAKE_API_VERSION(0, 1, 1, 0)
+    {
+        emit_create_message(
+            create_info,
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+            format_args!(
+                "Layer \"{}\" contains meta-layer-specific override paths, but using older JSON file version.",
+                crate::debug::diagnostics::LossyBytes(duplicate.name.to_bytes())
+            ),
+        );
+    }
+}
+
+#[cold]
+fn emit_layer_field_diagnostic(
+    sink: MetaDiagnosticSink<'_>,
+    path: &Path,
+    diagnostic: LayerManifestDiagnostic,
+) {
+    match diagnostic {
+        LayerManifestDiagnostic::NonConformingName { name, .. } => {
+            sink.message(
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+                format_args!(
+                    "Layer name {name} does not conform to naming standard (Policy #LLP_LAYER_3)"
+                ),
+            );
+        }
+        LayerManifestDiagnostic::MissingRequiredValue { name, .. } => {
+            sink.message(
+                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+                    format_args!(
+                        "Layer located at {} didn't find required layer value \"{name}\" in manifest JSON file, skipping this layer",
+                        path.display()
+                    ),
+                );
+        }
+        LayerManifestDiagnostic::MissingDisableEnvironment {
+            name, meta_layer, ..
+        } => {
+            if meta_layer {
+                sink.layer_message(
+                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+                    format_args!("Encountered meta-layer \"{name}\""),
+                );
+            }
+            sink.message(
+                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+                    format_args!(
+                        "Layer \"{name}\" doesn't contain required layer object disable_environment in the manifest JSON file, skipping this layer"
+                    ),
+                );
+        }
+        LayerManifestDiagnostic::InvalidDisableEnvironment { name, .. } => {
+            sink.message(
+                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+                    format_args!(
+                        "Layer \"{name}\" doesn't contain required child value in object disable_environment in the manifest JSON file, skipping this layer (Policy #LLP_LAYER_9)"
+                    ),
+                );
+        }
+        LayerManifestDiagnostic::InvalidLibraryAndComponents {
+            manifest_version,
+            name,
+            both_defined,
+        } => {
+            if !both_defined && manifest_version < vk::VK_MAKE_API_VERSION(0, 1, 1, 0) {
+                sink.message(
+                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+                        format_args!(
+                            "Layer \"{name}\" contains meta-layer-specific component_layers, but using older JSON file version."
+                        ),
+                    );
+            }
+            let reason = if both_defined {
+                "contains meta-layer-specific component_layers, but also defining layer library path.  Both are not compatible, so skipping this layer"
+            } else {
+                "is missing both library_path and component_layers fields.  One or the other MUST be defined.  Skipping this layer"
+            };
+            sink.message(
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+                format_args!("Layer \"{name}\" {reason}"),
+            );
+        }
+        _ => unreachable!("document diagnostics are handled before layer fields"),
+    }
+}
+
+#[cold]
+fn emit_create_search_file(
+    create_info: &VkInstanceCreateInfo<'_>,
+    search: &LayerSearch,
+    file: &Path,
+    manifests: &[LayerManifest],
+    duplicate_meta_summaries: &mut Vec<(CString, Box<[CString]>)>,
+    duplicate_messages: &mut Vec<String>,
+) -> Result<(), VkResult> {
+    let mut found = false;
+    let needs_compatibility_diagnostics = search.diagnostic_files.iter().any(|path| path == file);
+    let diagnostics = if needs_compatibility_diagnostics {
+        discovery::layer_manifest_diagnostics(file, search.implicit)
+    } else {
+        Box::default()
+    };
+    let compatibility_manifests = needs_compatibility_diagnostics
+        .then(|| discovery::reparse_layer_manifest(file, search.implicit));
+    let diagnostic_manifests = compatibility_manifests.as_deref().unwrap_or(manifests);
+    let mut diagnostic_indices = diagnostics
+        .iter()
+        .map(|(source_index, _)| *source_index)
+        .peekable();
+    for manifest in diagnostic_manifests
+        .iter()
+        .filter(|manifest| manifest.manifest_path == *file)
+    {
+        while diagnostic_indices
+            .peek()
+            .is_some_and(|source_index| *source_index < manifest.source_index)
+        {
+            let source_index = *diagnostic_indices.peek().unwrap();
+            emit_layer_manifest_diagnostic(
+                create_info,
+                file,
+                search.implicit,
+                !found,
+                Some(source_index),
+            );
+            found = true;
+            while diagnostic_indices.next_if_eq(&source_index).is_some() {}
+        }
+        while diagnostic_indices
+            .next_if_eq(&manifest.source_index)
+            .is_some()
+        {}
+        let emit_found = !found;
+        emit_create_discovered_manifest(create_info, manifest, emit_found);
+        found = true;
+    }
+    while let Some(source_index) = diagnostic_indices.next() {
+        emit_layer_manifest_diagnostic(
+            create_info,
+            file,
+            search.implicit,
+            !found,
+            Some(source_index),
+        );
+        found = true;
+        while diagnostic_indices.next_if_eq(&source_index).is_some() {}
+    }
+    if needs_compatibility_diagnostics {
+        emit_unused_override_layers(MetaDiagnosticSink::Create(create_info), file);
+    }
+    if found {
+        return Ok(());
+    }
+    let duplicates = discovery::reparse_layer_manifest(file, search.implicit);
+    if duplicates.is_empty() {
+        emit_layer_manifest_diagnostic(create_info, file, search.implicit, true, None);
+    }
+    for duplicate in &duplicates {
+        emit_duplicate_manifest(create_info, duplicate);
+        if duplicate.name.as_c_str() == c"VK_LAYER_LUNARG_override"
+            && !duplicate.app_keys().is_empty()
+            && !manifests.iter().any(|manifest| {
+                manifest.name == duplicate.name && manifest.manifest_path == duplicate.manifest_path
+            })
+            && let Some(executable) = platform::executable_path()
+        {
+            emit_layer_message(
+                create_info,
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+                format_args!(
+                    "--Override layer found but not used because app '{}' is not in 'app_keys' list!",
+                    executable.display()
+                ),
+            );
+        }
+        if let Some(original) = manifests.iter().find(|original| {
+            (original.settings_control.is_none() || !duplicate.component_layers().is_empty())
+                && original.name == duplicate.name
+                && original.manifest_path != duplicate.manifest_path
+        }) && record_duplicate_layer(
+            duplicate,
+            original,
+            manifests,
+            duplicate_meta_summaries,
+            duplicate_messages,
+        )
+        .is_err()
+        {
+            return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
+        }
+    }
+    Ok(())
+}
+
+#[cold]
+fn emit_global_search_file(
+    search: &LayerSearch,
+    file: &Path,
+    manifests: &[LayerManifest],
+    duplicate_meta_summaries: &mut Vec<(CString, Box<[CString]>)>,
+    duplicate_messages: &mut Vec<String>,
+) -> Result<(), VkResult> {
+    let mut found = false;
+    let needs_compatibility_diagnostics = search.diagnostic_files.iter().any(|path| path == file);
+    let diagnostics = if needs_compatibility_diagnostics {
+        discovery::layer_manifest_diagnostics(file, search.implicit)
+    } else {
+        Box::default()
+    };
+    let compatibility_manifests = needs_compatibility_diagnostics
+        .then(|| discovery::reparse_layer_manifest(file, search.implicit));
+    let diagnostic_manifests = compatibility_manifests.as_deref().unwrap_or(manifests);
+    let mut diagnostic_indices = diagnostics
+        .iter()
+        .map(|(source_index, _)| *source_index)
+        .peekable();
+    for manifest in diagnostic_manifests
+        .iter()
+        .filter(|manifest| manifest.manifest_path == *file)
+    {
+        while diagnostic_indices
+            .peek()
+            .is_some_and(|source_index| *source_index < manifest.source_index)
+        {
+            let source_index = *diagnostic_indices.peek().unwrap();
+            emit_global_layer_manifest_diagnostic(
+                file,
+                search.implicit,
+                !found,
+                Some(source_index),
+            );
+            found = true;
+            while diagnostic_indices.next_if_eq(&source_index).is_some() {}
+        }
+        while diagnostic_indices
+            .next_if_eq(&manifest.source_index)
+            .is_some()
+        {}
+        emit_global_discovered_manifest(manifest, !found);
+        found = true;
+    }
+    while let Some(source_index) = diagnostic_indices.next() {
+        emit_global_layer_manifest_diagnostic(file, search.implicit, !found, Some(source_index));
+        found = true;
+        while diagnostic_indices.next_if_eq(&source_index).is_some() {}
+    }
+    if needs_compatibility_diagnostics {
+        emit_unused_override_layers(MetaDiagnosticSink::Global, file);
+    }
+    if found {
+        return Ok(());
+    }
+    let duplicates = discovery::reparse_layer_manifest(file, search.implicit);
+    if duplicates.is_empty() {
+        emit_global_layer_manifest_diagnostic(file, search.implicit, true, None);
+    }
+    for duplicate in &duplicates {
+        emit_global_discovered_manifest(duplicate, true);
+        if duplicate.name.as_c_str() == c"VK_LAYER_LUNARG_override"
+            && !duplicate.app_keys().is_empty()
+            && !manifests.iter().any(|manifest| {
+                manifest.name == duplicate.name && manifest.manifest_path == duplicate.manifest_path
+            })
+            && let Some(executable) = platform::executable_path()
+        {
+            platform::write_loader_log_with_category(
+                LogFilter::Info,
+                LogFilter::Layer,
+                format_args!(
+                    "--Override layer found but not used because app '{}' is not in 'app_keys' list!",
+                    executable.display()
+                ),
+            );
+        }
+        if let Some(original) = manifests.iter().find(|original| {
+            (original.settings_control.is_none() || !duplicate.component_layers().is_empty())
+                && original.name == duplicate.name
+                && original.manifest_path != duplicate.manifest_path
+        }) && record_duplicate_layer(
+            duplicate,
+            original,
+            manifests,
+            duplicate_meta_summaries,
+            duplicate_messages,
+        )
+        .is_err()
+        {
+            return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
+        }
+    }
+    Ok(())
+}
+
+#[cold]
+fn emit_discovered_manifest_version(
+    sink: MetaDiagnosticSink<'_>,
+    manifest: &LayerManifest,
+    emit_found: bool,
+) {
+    let manifest_major = vk::VK_API_VERSION_MAJOR(manifest.manifest_version);
+    let manifest_minor = vk::VK_API_VERSION_MINOR(manifest.manifest_version);
+    let manifest_patch = vk::VK_API_VERSION_PATCH(manifest.manifest_version);
+    let known_manifest_version = manifest_major == 1
+        && ((manifest_minor == 0 && manifest_patch < 2)
+            || (manifest_minor == 1 && manifest_patch < 3)
+            || (manifest_minor == 2 && manifest_patch < 2));
+    if emit_found {
+        if !known_manifest_version
+            && let Some(version) = discovery::layer_manifest_version_text(&manifest.manifest_path)
+        {
+            sink.message(
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+                format_args!(
+                    "Found manifest file {} (file version {version})",
+                    manifest.manifest_path.display(),
+                ),
+            );
+        } else {
+            sink.message(
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+                format_args!(
+                    "Found manifest file {} (file version {manifest_major}.{manifest_minor}.{manifest_patch})",
+                    manifest.manifest_path.display(),
+                ),
+            );
+        }
+    }
+    if emit_found && !known_manifest_version {
+        sink.layer_message(
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+            format_args!(
+                "loader_add_layer_properties: {} has unknown layer manifest file version {manifest_major}.{manifest_minor}.{manifest_patch}.  May cause errors.",
+                manifest.manifest_path.display(),
+            ),
+        );
+    }
+}
+
+#[cold]
+fn emit_unused_override_layers(sink: MetaDiagnosticSink<'_>, file: &Path) {
+    if let Some(executable) = platform::executable_path() {
+        for _ in 0..discovery::unused_override_layer_count(file, &executable) {
+            sink.layer_message(vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+                format_args!("--Override layer found but not used because app '{}' is not in 'app_keys' list!", executable.display()));
+        }
+    }
+}
+
+#[cold]
+fn emit_pruned_implicit_layers(
+    searches: &[LayerSearch],
+    manifests: &[LayerManifest],
+    implicit_only: bool,
+    emit_implicit_meta_pruning: bool,
+) {
+    let mut pruned_layers = Vec::new();
+    let implicit_meta_layer_active = manifests.iter().any(|manifest| {
+        manifest.implicit
+            && !manifest.component_layers().is_empty()
+            && implicit_manifest_is_active(manifest)
+    });
+    let self_referencing_meta_layer = manifests.iter().any(|manifest| {
+        manifest
+            .component_layers()
+            .iter()
+            .any(|component| component == &manifest.name)
+    });
+    if emit_implicit_meta_pruning
+        && implicit_only
+        && (implicit_meta_layer_active || self_referencing_meta_layer)
+    {
+        for search in searches.iter().filter(|search| !search.implicit) {
+            for file in &search.files {
+                for layer in &discovery::reparse_layer_manifest(file, search.implicit) {
+                    if !layer.component_layers().is_empty()
+                        || (!self_referencing_meta_layer
+                            && manifests.iter().any(|meta| {
+                                meta.component_layers()
+                                    .iter()
+                                    .any(|component| component == &layer.name)
+                            }))
+                    {
+                        continue;
+                    }
+                    let name = allocation::try_c_string(&layer.name)
+                        .and_then(|name| allocation::try_push(&mut pruned_layers, name));
+                    if name.is_err() {
+                        pending::mark_json_allocation_failed();
+                        return;
+                    }
+                }
+            }
+        }
+    }
+    for layer in pruned_layers {
+        platform::write_loader_log(
+            LogFilter::Debug,
+            format_args!(
+                "loader_remove_layers_not_in_implicit_meta_layers : Implicit meta-layers are active, and layer {} is not list inside of any.  So removing layer from current layer list.",
+                crate::debug::diagnostics::LossyBytes(layer.to_bytes()),
+            ),
+        );
+    }
+}
+
+#[cold]
+fn emit_disabled_global_layers(manifests: &[LayerManifest], implicit_only: bool) {
+    if !implicit_only
+        && let Some(override_layer) = manifests.iter().find(|manifest| {
+            manifest.name.as_c_str() == c"VK_LAYER_LUNARG_override" && naturally_enabled(manifest)
+        })
+    {
+        for blacklisted in &override_layer.blacklisted_layers {
+            platform::write_loader_log(
+                LogFilter::Debug,
+                format_args!(
+                    "loader_remove_layers_in_blacklist: Override layer is active and layer {} is in the blacklist inside of it. Removing that layer from current layer list.",
+                    crate::debug::diagnostics::LossyBytes(blacklisted.to_bytes())
+                ),
+            );
+        }
+    }
+    for manifest in manifests.iter().filter(|manifest| {
+        manifest.settings_control.is_none()
+            && forced_disabled(manifest)
+            && !forced_enabled(manifest)
+            && !(implicit_only && manifest.name.as_c_str() == c"VK_LAYER_LUNARG_override")
+    }) {
+        if manifest.implicit && manifest.name.as_c_str() == c"VK_LAYER_LUNARG_override" {
+            platform::write_loader_log_with_category(
+                LogFilter::Warning,
+                LogFilter::Layer,
+                format_args!(
+                    "Implicit layer \"{}\" forced disabled because name matches filter of env var 'VK_LOADER_LAYERS_DISABLE'.",
+                    crate::debug::diagnostics::LossyBytes(manifest.name.to_bytes())
+                ),
+            );
+        }
+        platform::write_loader_log_with_category(
+            LogFilter::Warning,
+            LogFilter::Layer,
+            format_args!(
+                "{} \"{}\" forced disabled because name matches filter of env var 'VK_LOADER_LAYERS_DISABLE'.",
+                if implicit_only {
+                    "Implicit layer"
+                } else {
+                    "Layer"
+                },
+                crate::debug::diagnostics::LossyBytes(manifest.name.to_bytes())
+            ),
+        );
+    }
+}
+
+#[cold]
+fn emit_configured_manifest_reports(
+    configured_manifest_reports: &[(std::path::PathBuf, u32)],
+    manifests: &[LayerManifest],
+) {
+    for (path, version) in configured_manifest_reports {
+        platform::write_loader_log(
+            LogFilter::Info,
+            format_args!(
+                "Found manifest file {} (file version {}.{}.{})",
+                path.display(),
+                vk::VK_API_VERSION_MAJOR(*version),
+                vk::VK_API_VERSION_MINOR(*version),
+                vk::VK_API_VERSION_PATCH(*version),
+            ),
+        );
+        for manifest in manifests.iter().filter(|manifest| {
+            manifest.manifest_path == *path
+                && !manifest.implicit
+                && manifest.has_pre_instance_functions
+        }) {
+            platform::write_loader_log(
+                LogFilter::Warning,
+                format_args!(
+                    "Found pre_instance_functions section in explicit layer from \"{}\". This section is only valid in implicit layers. The section will be ignored",
+                    manifest.manifest_path.display()
+                ),
+            );
+        }
+    }
+}
+
+#[cold]
+fn emit_layer_search_locations(sink: MetaDiagnosticSink<'_>, search: &LayerSearch) {
+    let kind = if search.implicit {
+        "implicit"
+    } else {
+        "explicit"
+    };
+    sink.layer_only(format_args!("Searching for {kind} layer manifest files"));
+    sink.layer_only(format_args!("   In following locations:"));
+    for root in &search.roots {
+        sink.layer_only(format_args!("      {}", root.display()));
+    }
+    if search.files.is_empty() {
+        sink.layer_only(format_args!("   Found no files"));
+    } else {
+        sink.layer_only(format_args!("   Found the following files:"));
+        for file in &search.files {
+            sink.layer_only(format_args!("      {}", file.display()));
+        }
+    }
+}
+
+#[cold]
+fn emit_recursive_meta_reference(
+    create_info: &VkInstanceCreateInfo<'_>,
+    meta: &LayerManifest,
+    component: &LayerManifest,
+    activation_messages: &mut Vec<String>,
+    repeated_activation_messages: &mut Vec<String>,
+) -> Result<bool, VkResult> {
+    if meta.settings_control.is_some() {
+        let message = diagnostics::try_format(format_args!(
+            "loader_add_meta_layer: Meta-layer {} recursively references itself through its component layers. Skipping the recursive reference.",
+            crate::debug::diagnostics::LossyBytes(meta.name.to_bytes())
+        ))?;
+        allocation::try_push(&mut *activation_messages, allocation::try_string(&message)?)?;
+        allocation::try_push(&mut *repeated_activation_messages, message)?;
+        return Ok(true);
+    }
+    emit_create_message(
+        create_info,
+        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+        format_args!(
+            "verify_meta_layer_component_layers: Recursive dependency between Meta-layer {} and  Meta-layer {}.  Skipping this layer.",
+            crate::debug::diagnostics::LossyBytes(meta.name.to_bytes()),
+            crate::debug::diagnostics::LossyBytes(component.name.to_bytes())
+        ),
+    );
+    emit_create_message(
+        create_info,
+        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+        format_args!(
+            "loader_add_meta_layer: Meta-layer {} recursively references itself through its component layers. Skipping the meta-layer.",
+            crate::debug::diagnostics::LossyBytes(meta.name.to_bytes())
+        ),
+    );
+    Ok(false)
+}
+
+#[cold]
+fn emit_meta_components(sink: MetaDiagnosticSink<'_>, meta: &LayerManifest) {
+    sink.layer_message(
+        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+        format_args!(
+            "Meta-layer \"{}\" all {} component layers appear to be valid.",
+            crate::debug::diagnostics::LossyBytes(meta.name.to_bytes()),
+            meta.component_layers().len()
+        ),
+    );
+    for (component_index, component) in meta.component_layers().iter().enumerate() {
+        sink.layer_only(format_args!(
+            "  [{component_index}] {}",
+            crate::debug::diagnostics::LossyBytes(component.to_bytes())
+        ));
+    }
 }
 
 #[cfg(test)]

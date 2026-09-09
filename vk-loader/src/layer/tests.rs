@@ -10,10 +10,13 @@ fn meta_reachability_handles_cycles_duplicates_and_allocation_failures() {
         manifest.name = name.to_owned();
         manifest
     });
-    manifests[0].component_layers = [names[1], names[1], names[0], names[1]]
-        .map(CStr::to_owned)
-        .into();
-    manifests[1].component_layers = [names[0]].map(CStr::to_owned).into();
+    manifests[0].source = crate::discovery::LayerSource::Meta(
+        [names[1], names[1], names[0], names[1]]
+            .map(CStr::to_owned)
+            .into(),
+    );
+    manifests[1].source =
+        crate::discovery::LayerSource::Meta([names[0]].map(CStr::to_owned).into());
     for (target, expected) in [(0, true), (1, true), (2, false)] {
         fault::sweep_operation(|| match meta_reaches(&manifests, 0, target) {
             Ok(actual) => {

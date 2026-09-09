@@ -43,21 +43,7 @@ pub(crate) fn preload_icds() -> Result<(), VkResult> {
     if preloaded.is_some() {
         return Ok(());
     }
-    let scan = discovery::scan_drivers();
-    emit_global_scan_diagnostics(&scan);
-    let mut loaded = Vec::new();
-    if crate::pending::json_allocation_failed() {
-        return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
-    }
-    loaded
-        .try_reserve_exact(scan.manifests.len())
-        .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
-    for manifest in &scan.manifests {
-        if let Some(icd) = load_global_icd(manifest)? {
-            loaded.push(icd);
-        }
-    }
-    *preloaded = Some(loaded);
+    *preloaded = Some(scan_global_icds()?);
     Ok(())
 }
 
@@ -261,62 +247,8 @@ impl ScannedIcd {
                     Err(error) => ScannedIcdLoadError::MutexInitialization(error),
                 }
             })?;
-        // SAFETY: Symbol type is defined by the loader-driver interface.
-        let direct_gipa = unsafe {
-            library
-                .get::<PFN_vkGetInstanceProcAddr>(b"vk_icdGetInstanceProcAddr\0")
-                .ok()
-                .map(|symbol| *symbol)
-        };
-        // SAFETY: Symbol type is defined by the loader-driver interface.
-        let mut negotiate = unsafe {
-            library
-                .get::<NegotiateInterface>(b"vk_icdNegotiateLoaderICDInterfaceVersion\0")
-                .ok()
-                .map(|symbol| *symbol)
-        };
-        if negotiate.is_none()
-            && let Some(gipa) = direct_gipa
-        {
-            // SAFETY: Null-instance ICD queries are required by the interface.
-            negotiate = unsafe {
-                load_typed(gipa(
-                    VkInstance::NULL,
-                    c"vk_icdNegotiateLoaderICDInterfaceVersion".as_ptr(),
-                ))
-            };
-        }
-
-        let mut interface_version = u32::from(direct_gipa.is_some());
-        if let Some(negotiate) = negotiate {
-            interface_version = CURRENT_INTERFACE_VERSION;
-            // SAFETY: `interface_version` is writable and negotiation owns no pointer.
-            if unsafe { negotiate(&raw mut interface_version) } != VkResult::SUCCESS {
-                return Err(ScannedIcdLoadError::InvalidInterface);
-            }
-            // Interface version 2 and newer require the ICD-prefixed GIPA.
-            // Falling back to Vulkan's public GIPA here would incorrectly
-            // accept a driver that violates the loader/driver ABI contract.
-            if interface_version != 0 && direct_gipa.is_none() {
-                return Err(ScannedIcdLoadError::MissingPrefixedGetInstanceProcAddr(
-                    interface_version,
-                ));
-            }
-        }
-
-        let (get_instance_proc_addr, uses_deprecated_interface) = if let Some(gipa) = direct_gipa {
-            (gipa, false)
-        } else {
-            // SAFETY: Version-zero ICDs export the Vulkan-named entry point.
-            unsafe {
-                library
-                    .get::<PFN_vkGetInstanceProcAddr>(b"vkGetInstanceProcAddr\0")
-                    .ok()
-                    .map(|symbol| *symbol)
-            }
-            .ok_or(ScannedIcdLoadError::InvalidInterface)
-            .map(|gipa| (gipa, true))?
-        };
+        let (interface_version, get_instance_proc_addr, uses_deprecated_interface) =
+            negotiate_icd_interface(&library)?;
         let mut get_physical_device_proc_addr = if interface_version >= 7 {
             // SAFETY: Interface 7 exposes the ICD GPDPA through ICD GIPA.
             unsafe {
@@ -374,44 +306,8 @@ impl ScannedIcd {
         }
         .ok_or(ScannedIcdLoadError::InvalidInterface)?;
 
-        let (api_version, version_status) = if manifest.api_version >= vk::VK_API_VERSION_1_1 {
-            // SAFETY: Null-instance ICD queries are required by the interface.
-            let enumerate_version: Option<PFN_vkEnumerateInstanceVersion> = unsafe {
-                load_typed(get_instance_proc_addr(
-                    VkInstance::NULL,
-                    c"vkEnumerateInstanceVersion".as_ptr(),
-                ))
-            };
-            let mut version = VK_API_VERSION_1_0;
-            match enumerate_version {
-                Some(enumerate_version) => {
-                    // SAFETY: `version` points to writable local storage.
-                    let result = unsafe { enumerate_version(&raw mut version) };
-                    if result == VkResult::SUCCESS {
-                        let status = if version >= vk::VK_API_VERSION_1_1 {
-                            ManifestApiVersionStatus::Consistent
-                        } else {
-                            ManifestApiVersionStatus::EnumerateInstanceVersionReturned(version)
-                        };
-                        (version, status)
-                    } else {
-                        (
-                            VK_API_VERSION_1_0,
-                            ManifestApiVersionStatus::EnumerateInstanceVersionReturned(
-                                VK_API_VERSION_1_0,
-                            ),
-                        )
-                    }
-                }
-                None => (
-                    VK_API_VERSION_1_0,
-                    ManifestApiVersionStatus::EnumerateInstanceVersionMissing,
-                ),
-            }
-        } else {
-            (VK_API_VERSION_1_0, ManifestApiVersionStatus::Consistent)
-        };
-
+        let (api_version, version_status) =
+            unsafe { query_manifest_api_version(get_instance_proc_addr, manifest) };
         Ok((
             Self {
                 get_instance_proc_addr,
@@ -555,4 +451,115 @@ impl IcdInstance {
     pub(crate) fn begin_retire(&self) -> bool {
         self.active.swap(false, Ordering::AcqRel)
     }
+}
+
+#[cold]
+unsafe fn query_manifest_api_version(
+    get_instance_proc_addr: PFN_vkGetInstanceProcAddr,
+    manifest: &DriverManifest,
+) -> (u32, ManifestApiVersionStatus) {
+    if manifest.api_version >= vk::VK_API_VERSION_1_1 {
+        // SAFETY: Null-instance ICD queries are required by the interface.
+        let enumerate_version: Option<PFN_vkEnumerateInstanceVersion> = unsafe {
+            load_typed(get_instance_proc_addr(
+                VkInstance::NULL,
+                c"vkEnumerateInstanceVersion".as_ptr(),
+            ))
+        };
+        let mut version = VK_API_VERSION_1_0;
+        match enumerate_version {
+            Some(enumerate_version) => {
+                // SAFETY: `version` points to writable local storage.
+                let result = unsafe { enumerate_version(&raw mut version) };
+                if result == VkResult::SUCCESS {
+                    let status = if version >= vk::VK_API_VERSION_1_1 {
+                        ManifestApiVersionStatus::Consistent
+                    } else {
+                        ManifestApiVersionStatus::EnumerateInstanceVersionReturned(version)
+                    };
+                    (version, status)
+                } else {
+                    (
+                        VK_API_VERSION_1_0,
+                        ManifestApiVersionStatus::EnumerateInstanceVersionReturned(
+                            VK_API_VERSION_1_0,
+                        ),
+                    )
+                }
+            }
+            None => (
+                VK_API_VERSION_1_0,
+                ManifestApiVersionStatus::EnumerateInstanceVersionMissing,
+            ),
+        }
+    } else {
+        (VK_API_VERSION_1_0, ManifestApiVersionStatus::Consistent)
+    }
+}
+
+#[cold]
+fn negotiate_icd_interface(
+    library: &LoaderLibrary,
+) -> Result<(u32, PFN_vkGetInstanceProcAddr, bool), ScannedIcdLoadError> {
+    // SAFETY: Symbol type is defined by the loader-driver interface.
+    let direct_gipa = unsafe {
+        library
+            .get::<PFN_vkGetInstanceProcAddr>(b"vk_icdGetInstanceProcAddr\0")
+            .ok()
+            .map(|symbol| *symbol)
+    };
+    // SAFETY: Symbol type is defined by the loader-driver interface.
+    let mut negotiate = unsafe {
+        library
+            .get::<NegotiateInterface>(b"vk_icdNegotiateLoaderICDInterfaceVersion\0")
+            .ok()
+            .map(|symbol| *symbol)
+    };
+    if negotiate.is_none()
+        && let Some(gipa) = direct_gipa
+    {
+        // SAFETY: Null-instance ICD queries are required by the interface.
+        negotiate = unsafe {
+            load_typed(gipa(
+                VkInstance::NULL,
+                c"vk_icdNegotiateLoaderICDInterfaceVersion".as_ptr(),
+            ))
+        };
+    }
+
+    let mut interface_version = u32::from(direct_gipa.is_some());
+    if let Some(negotiate) = negotiate {
+        interface_version = CURRENT_INTERFACE_VERSION;
+        // SAFETY: `interface_version` is writable and negotiation owns no pointer.
+        if unsafe { negotiate(&raw mut interface_version) } != VkResult::SUCCESS {
+            return Err(ScannedIcdLoadError::InvalidInterface);
+        }
+        // Interface version 2 and newer require the ICD-prefixed GIPA.
+        // Falling back to Vulkan's public GIPA here would incorrectly
+        // accept a driver that violates the loader/driver ABI contract.
+        if interface_version != 0 && direct_gipa.is_none() {
+            return Err(ScannedIcdLoadError::MissingPrefixedGetInstanceProcAddr(
+                interface_version,
+            ));
+        }
+    }
+
+    let (get_instance_proc_addr, uses_deprecated_interface) = if let Some(gipa) = direct_gipa {
+        (gipa, false)
+    } else {
+        // SAFETY: Version-zero ICDs export the Vulkan-named entry point.
+        unsafe {
+            library
+                .get::<PFN_vkGetInstanceProcAddr>(b"vkGetInstanceProcAddr\0")
+                .ok()
+                .map(|symbol| *symbol)
+        }
+        .ok_or(ScannedIcdLoadError::InvalidInterface)
+        .map(|gipa| (gipa, true))?
+    };
+    Ok((
+        interface_version,
+        get_instance_proc_addr,
+        uses_deprecated_interface,
+    ))
 }

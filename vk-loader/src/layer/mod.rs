@@ -41,11 +41,7 @@ use core::{
     ffi::{CStr, c_char, c_void},
     ptr,
 };
-use std::{
-    ffi::OsStr,
-    path::Path,
-};
-
+use std::{ffi::OsStr, path::Path};
 use vk::{
     PFN_vkEnumerateDeviceExtensionProperties, PFN_vkGetDeviceProcAddr, PFN_vkGetInstanceProcAddr,
     PFN_vkVoidFunction, VkExtensionProperties, VkInstanceCreateInfo, VkResult, VkStructureType,

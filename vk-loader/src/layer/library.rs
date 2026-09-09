@@ -34,10 +34,7 @@ impl LoadedLayer {
         manifest_index: usize,
         enabled_by: &'static str,
     ) -> Result<Self, LayerLoadError> {
-        let path = manifest
-            .library_path
-            .as_ref()
-            .ok_or(LayerLoadError::Failed)?;
+        let path = manifest.library_path().ok_or(LayerLoadError::Failed)?;
         // SAFETY: The library is retained for the lifetime of every copied symbol.
         let library = unsafe { LoaderLibrary::open(path) }.map_err(|error| {
             let wrong_bit_type = error.is_wrong_bit_type();
@@ -49,37 +46,8 @@ impl LoadedLayer {
                 Err(error) => LayerLoadError::from(error),
             }
         })?;
-        let negotiate_name = manifest
-            .functions
-            .negotiate
-            .as_deref()
-            .unwrap_or(c"vkNegotiateLoaderLayerInterfaceVersion");
-        // SAFETY: The manifest or layer ABI defines the symbol's signature.
-        let negotiate = unsafe {
-            library
-                .get::<NegotiateLoaderLayerInterfaceVersion>(negotiate_name.to_bytes_with_nul())
-                .ok()
-                .map(|symbol| *symbol)
-        };
-
-        let mut negotiated = NegotiateLayerInterface {
-            s_type: NEGOTIATE_INTERFACE_STRUCT,
-            p_next: ptr::null_mut(),
-            loader_layer_interface_version: CURRENT_LAYER_INTERFACE_VERSION,
-            get_instance_proc_addr: None,
-            get_device_proc_addr: None,
-            get_physical_device_proc_addr: None,
-        };
-        if let Some(negotiate) = negotiate {
-            // SAFETY: `negotiated` has the C layout required by `vk_layer.h`.
-            if unsafe { negotiate(&raw mut negotiated) } != VkResult::SUCCESS
-                || negotiated.loader_layer_interface_version == 0
-            {
-                return Err(LayerLoadError::Failed);
-            }
-        }
-
-        let negotiated_functions = negotiate.is_some()
+        let (has_negotiate, negotiated) = negotiate_layer_interface(&library, manifest)?;
+        let negotiated_functions = has_negotiate
             && negotiated.loader_layer_interface_version >= CURRENT_LAYER_INTERFACE_VERSION;
 
         let get_instance_proc_addr = negotiated_functions
@@ -186,4 +154,41 @@ impl Drop for LoadedLayer {
     fn drop(&mut self) {
         self.unload();
     }
+}
+
+#[cold]
+fn negotiate_layer_interface(
+    library: &LoaderLibrary,
+    manifest: &LayerManifest,
+) -> Result<(bool, NegotiateLayerInterface), LayerLoadError> {
+    let negotiate_name = manifest
+        .functions
+        .negotiate
+        .as_deref()
+        .unwrap_or(c"vkNegotiateLoaderLayerInterfaceVersion");
+    // SAFETY: The manifest or layer ABI defines the symbol's signature.
+    let negotiate = unsafe {
+        library
+            .get::<NegotiateLoaderLayerInterfaceVersion>(negotiate_name.to_bytes_with_nul())
+            .ok()
+            .map(|symbol| *symbol)
+    };
+
+    let mut negotiated = NegotiateLayerInterface {
+        s_type: NEGOTIATE_INTERFACE_STRUCT,
+        p_next: ptr::null_mut(),
+        loader_layer_interface_version: CURRENT_LAYER_INTERFACE_VERSION,
+        get_instance_proc_addr: None,
+        get_device_proc_addr: None,
+        get_physical_device_proc_addr: None,
+    };
+    if let Some(negotiate) = negotiate {
+        // SAFETY: `negotiated` has the C layout required by `vk_layer.h`.
+        if unsafe { negotiate(&raw mut negotiated) } != VkResult::SUCCESS
+            || negotiated.loader_layer_interface_version == 0
+        {
+            return Err(LayerLoadError::Failed);
+        }
+    }
+    Ok((negotiate.is_some(), negotiated))
 }
