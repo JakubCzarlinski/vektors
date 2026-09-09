@@ -23,7 +23,7 @@ use vk::{
 
 use crate::{
     ExtensionSet, LayerInstanceDispatchTable,
-    allocation::{try_box, try_box_uninit},
+    allocation::try_box_uninit,
     collections::HashMap,
     debug::messenger::{DebugCallback, DebugMessengerState},
     discovery::DeviceConfiguration,
@@ -178,7 +178,7 @@ impl LoaderInstance {
         api_version: u32,
         enabled_extensions: ExtensionSet,
         scanned_icds: Vec<ScannedIcdRecord>,
-        active_layers: layer::ActiveLayers,
+        mut active_layers: layer::ActiveLayers,
         device_configurations: Option<Box<[DeviceConfiguration]>>,
         allocator: *const VkAllocationCallbacks<'_>,
     ) -> Result<Box<Self>, VkResult> {
@@ -199,29 +199,44 @@ impl LoaderInstance {
         };
         let unknown_physical_devices = UnknownPhysicalDeviceState::try_new()?;
         let registration = InstanceRegistrationReservation::new()?;
-        let mut instance = try_box(Self {
-            dispatch,
-            magic: INSTANCE_MAGIC,
-            chain_instance: VkInstance::NULL,
-            api_version: api_version.max(VK_API_VERSION_1_0),
-            enabled_extensions,
-            icds: Vec::new(),
-            layers: active_layers.loaded,
-            physical_devices: ObjectMutex::try_new(PhysicalDeviceState::default())?,
-            unknown_physical_devices: ObjectMutex::try_new(unknown_physical_devices)?,
-            unknown_devices: ObjectMutex::try_new(UnknownDeviceState::new())?,
-            dispatch_table,
-            pending_icds: Some(scanned_icds),
-            active_layer_properties: active_layers.reported,
-            enabled_layer_names: active_layers.requested,
-            device_configurations,
-            allocator,
-            surfaces: ObjectMutex::try_new(HashMap::default())?,
-            debug_messengers: ObjectMutex::try_new(DebugMessengerState::new())?,
-            has_debug_callbacks: AtomicBool::new(false),
-            registration,
-        })
-        .map_err(|(result, _instance)| result)?;
+        let physical_devices = ObjectMutex::try_new(PhysicalDeviceState::default())?;
+        let unknown_physical_devices = ObjectMutex::try_new(unknown_physical_devices)?;
+        let unknown_devices = ObjectMutex::try_new(UnknownDeviceState::new())?;
+        let surfaces = ObjectMutex::try_new(HashMap::default())?;
+        let debug_messengers = ObjectMutex::try_new(DebugMessengerState::new())?;
+        let storage = match try_box_uninit::<Self>() {
+            Ok(storage) => storage,
+            Err(result) => {
+                // Preserve LoaderInstance::drop's layer unload order on OOM.
+                layer::unload_layers(&mut active_layers.loaded);
+                return Err(result);
+            }
+        };
+        let mut instance = Box::write(
+            storage,
+            Self {
+                dispatch,
+                magic: INSTANCE_MAGIC,
+                chain_instance: VkInstance::NULL,
+                api_version: api_version.max(VK_API_VERSION_1_0),
+                enabled_extensions,
+                icds: Vec::new(),
+                layers: active_layers.loaded,
+                physical_devices,
+                unknown_physical_devices,
+                unknown_devices,
+                dispatch_table,
+                pending_icds: Some(scanned_icds),
+                active_layer_properties: active_layers.reported,
+                enabled_layer_names: active_layers.requested,
+                device_configurations,
+                allocator,
+                surfaces,
+                debug_messengers,
+                has_debug_callbacks: AtomicBool::new(false),
+                registration,
+            },
+        );
         let handle = instance.handle();
         instance.chain_instance = handle;
         if has_layers {
@@ -507,17 +522,53 @@ impl LoaderInstance {
         self.submit_loader_message_text(severity, message_types, message);
     }
 
-    fn submit_loader_message_text(
+    pub(crate) fn submit_loader_message_text(
         &self,
         severity: VkDebugUtilsMessageSeverityFlagBitsEXT,
         message_types: VkDebugUtilsMessageTypeFlagsEXT,
         message: core::fmt::Arguments<'_>,
     ) {
-        if self.has_debug_callbacks.load(AtomicOrdering::Acquire) {
+        if self.has_matching_debug_callback(severity, message_types) {
             crate::debug::diagnostics::with_message(message, |message| {
                 self.submit_loader_message(severity, message_types, message);
             });
         }
+    }
+
+    pub(crate) fn wants_loader_category_message(
+        &self,
+        severity: VkDebugUtilsMessageSeverityFlagBitsEXT,
+        category: platform::LogFilter,
+    ) -> bool {
+        if platform::loader_debug_filter_enabled(platform::LogFilter::from_severity(severity))
+            || platform::loader_debug_filter_enabled(category)
+        {
+            return true;
+        }
+        self.has_matching_debug_callback(severity, vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL)
+    }
+
+    fn has_matching_debug_callback(
+        &self,
+        severity: VkDebugUtilsMessageSeverityFlagBitsEXT,
+        types: VkDebugUtilsMessageTypeFlagsEXT,
+    ) -> bool {
+        if !self.has_debug_callbacks.load(AtomicOrdering::Acquire) {
+            return false;
+        }
+        let report_flags = messenger::debug_report_flags(severity, types);
+        self.debug_messengers
+            .lock()
+            .callbacks
+            .iter()
+            .any(|entry| match entry {
+                DebugCallback::Messenger(callback) => {
+                    callback.callback.is_some() && callback.accepts(severity, types)
+                }
+                DebugCallback::Report(callback) => {
+                    callback.callback.is_some() && callback.accepts(report_flags)
+                }
+            })
     }
 
     pub(crate) fn set_has_debug_callbacks(&self, has_callbacks: bool) {

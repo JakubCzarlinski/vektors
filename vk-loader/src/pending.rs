@@ -5,7 +5,8 @@
 //! load and unload the Vulkan loader can exhaust the process TLS table. Create
 //! chains are cold paths; keying a small process map by the native thread ID
 //! preserves nesting semantics without imposing work on dispatch trampolines.
-use alloc::{ffi::CString, rc::Rc};
+use crate::discovery::AvailableDeviceExtensions;
+use alloc::rc::Rc;
 use core::marker::PhantomData;
 
 use crate::collections::HashMap;
@@ -18,7 +19,7 @@ struct ThreadState {
     instance_allocators: Vec<usize>,
     json_allocation_failed: bool,
     device_sentinels: Vec<usize>,
-    device_extensions: Vec<(usize, usize)>,
+    device_extensions: Vec<usize>,
     created_devices: Vec<usize>,
     device_layer_starts: Vec<usize>,
 }
@@ -173,9 +174,9 @@ pub(crate) fn device_sentinel() -> Option<usize> {
 }
 
 pub(crate) fn push_device_extensions(
-    extensions: &[CString],
-) -> Result<(usize, usize), vk::VkResult> {
-    let value = (extensions.as_ptr() as usize, extensions.len());
+    extensions: &AvailableDeviceExtensions,
+) -> Result<usize, vk::VkResult> {
+    let value = core::ptr::from_ref(extensions) as usize;
     let key = platform::current_thread_key();
     let mut threads = THREADS.try_lock()?;
     if !threads.contains_key(&key) {
@@ -234,14 +235,14 @@ impl DeviceLayerStartReservation {
     }
 }
 
-pub(crate) fn pop_device_extensions() -> Option<(usize, usize)> {
+pub(crate) fn pop_device_extensions() -> Option<usize> {
     with_thread_state_mut(|state| state.device_extensions.pop()).flatten()
 }
 
-pub(crate) fn device_extensions() -> Option<(*const CString, usize)> {
+pub(crate) fn device_extensions() -> Option<*const AvailableDeviceExtensions> {
     with_thread_state(|state| state.device_extensions.last().copied())
         .flatten()
-        .map(|(pointer, length)| (pointer as *const CString, length))
+        .map(|pointer| pointer as *const AvailableDeviceExtensions)
 }
 
 pub(crate) fn device_layer_start() -> usize {

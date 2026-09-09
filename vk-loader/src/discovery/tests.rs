@@ -17,7 +17,7 @@ fn manifest_c_strings_preserve_non_utf8_bytes_and_rollback_on_oom() {
             let Some(value) = parse_json_value(source) else {
                 return vk::VkResult::SUCCESS;
             };
-            let raw = RawLayer::from_value(&value).unwrap();
+            let raw = &RawLayer::from_value(&value).unwrap();
             let layer = parse_raw_layer(
                 Path::new("layer.json"),
                 raw,
@@ -34,7 +34,7 @@ fn manifest_c_strings_preserve_non_utf8_bytes_and_rollback_on_oom() {
                     layer.functions.get_instance_proc_addr.unwrap().as_bytes(),
                     b"gipa_\xff"
                 );
-                assert_eq!(layer.device_extensions[0].name.as_bytes(), b"VK_test_\xfe");
+                assert_eq!(layer.device_extensions[0].name.to_bytes(), b"VK_test_\xfe");
                 assert_eq!(
                     layer.device_extensions[0].entrypoints[0].as_bytes(),
                     b"vkTest_\xfd"
@@ -226,7 +226,7 @@ fn nested_manifest_construction_propagates_every_allocation_failure() {
             let parsed = parse_json_value(bytes).and_then(|root| {
                 parse_raw_layer(
                     Path::new("/manifest/layer.json"),
-                    RawLayer::from_value(&root)?,
+                    &RawLayer::from_value(&root)?,
                     0,
                     true,
                     true,
@@ -314,7 +314,7 @@ fn borrowed_layer_parser_rejects_missing_api_version() {
         "description": "invalid"
     }"#;
     let value = crate::json::parse(json.as_bytes()).unwrap();
-    let raw = RawLayer::from_value(&value).unwrap();
+    let raw = &RawLayer::from_value(&value).unwrap();
     assert!(
         parse_raw_layer(
             Path::new("layer.json"),
@@ -339,7 +339,7 @@ fn layer_keys_are_case_insensitive_like_upstream_cjson() {
         "DESCRIPTION": "valid"
     }"#;
     let value = crate::json::parse(json.as_bytes()).unwrap();
-    let raw = RawLayer::from_value(&value).unwrap();
+    let raw = &RawLayer::from_value(&value).unwrap();
     let layer = parse_raw_layer(
         Path::new("layer.json"),
         raw,
@@ -363,7 +363,7 @@ fn device_layer_manifest_is_rejected_like_upstream() {
         "description": "deprecated"
     }"#;
     let value = crate::json::parse(json.as_bytes()).unwrap();
-    let raw = RawLayer::from_value(&value).unwrap();
+    let raw = &RawLayer::from_value(&value).unwrap();
     assert!(
         parse_raw_layer(
             Path::new("layer.json"),
@@ -397,7 +397,7 @@ fn layer_source_and_app_keys_presence_survive_parsing() {
             let value = crate::json::parse(json.as_bytes()).unwrap();
             let layer = parse_raw_layer(
                 Path::new("layer.json"),
-                RawLayer::from_value(&value).unwrap(),
+                &RawLayer::from_value(&value).unwrap(),
                 0,
                 false,
                 false,
@@ -425,7 +425,7 @@ fn component_layers_presence_conflicts_with_library_path() {
         "description": "invalid"
     }"#;
     let value = crate::json::parse(json.as_bytes()).unwrap();
-    let raw = RawLayer::from_value(&value).unwrap();
+    let raw = &RawLayer::from_value(&value).unwrap();
     assert!(
         parse_raw_layer(
             Path::new("layer.json"),
@@ -453,7 +453,7 @@ fn wrong_typed_optional_objects_do_not_reject_explicit_layer() {
         "instance_extensions": false
     }"#;
     let value = crate::json::parse(json.as_bytes()).unwrap();
-    let raw = RawLayer::from_value(&value).unwrap();
+    let raw = &RawLayer::from_value(&value).unwrap();
     let layer = parse_raw_layer(
         Path::new("layer.json"),
         raw,
@@ -471,9 +471,10 @@ fn wrong_typed_optional_objects_do_not_reject_explicit_layer() {
 pub(crate) fn override_manifest(app_keys: &[&str]) -> LayerManifest {
     LayerManifest {
         source_index: 0,
+        name_index: Cell::new(0),
         name: c"VK_LAYER_LUNARG_override".to_owned(),
         manifest_path: PathBuf::from("override.json"),
-        source: super::LayerSource::Meta(Box::default()),
+        source: super::LayerSource::OverrideMeta(Box::default()),
         manifest_version: vk::VK_API_VERSION_1_0,
         api_version: vk::VK_API_VERSION_1_0,
         architecture_supported: true,
@@ -545,8 +546,9 @@ fn settings_selection_stops_at_a_non_object_after_the_global_entry() {
 fn implicit_discovery_retains_only_meta_layer_components() {
     let mut meta = override_manifest(&[]);
     meta.name = c"VK_LAYER_implicit_meta".to_owned();
-    meta.source =
-        crate::discovery::LayerSource::Meta([c"VK_LAYER_explicit_component".to_owned()].into());
+    meta.source = crate::discovery::LayerSource::Meta(
+        [c"VK_LAYER_explicit_component".to_owned().into()].into(),
+    );
 
     let mut component = override_manifest(&[]);
     component.name = c"VK_LAYER_explicit_component".to_owned();
@@ -568,12 +570,13 @@ fn implicit_discovery_retains_only_meta_layer_components() {
 fn rejected_meta_layer_does_not_hide_later_component_in_same_manifest() {
     let mut invalid = override_manifest(&[]);
     invalid.name = c"VK_LAYER_component".to_owned();
-    invalid.source = crate::discovery::LayerSource::Meta([c"VK_LAYER_component".to_owned()].into());
+    invalid.source =
+        crate::discovery::LayerSource::Meta([c"VK_LAYER_component".to_owned().into()].into());
 
     let mut dependent = override_manifest(&[]);
     dependent.name = c"VK_LAYER_dependent".to_owned();
     dependent.source =
-        crate::discovery::LayerSource::Meta([c"VK_LAYER_component".to_owned()].into());
+        crate::discovery::LayerSource::Meta([c"VK_LAYER_component".to_owned().into()].into());
 
     let mut component = override_manifest(&[]);
     component.name = c"VK_LAYER_component".to_owned();
@@ -593,11 +596,12 @@ fn meta_recursion_uses_last_same_name_record_like_upstream() {
     let mut dependent = override_manifest(&[]);
     dependent.name = c"VK_LAYER_dependent".to_owned();
     dependent.source =
-        crate::discovery::LayerSource::Meta([c"VK_LAYER_component".to_owned()].into());
+        crate::discovery::LayerSource::Meta([c"VK_LAYER_component".to_owned().into()].into());
 
     let mut first = override_manifest(&[]);
     first.name = c"VK_LAYER_component".to_owned();
-    first.source = crate::discovery::LayerSource::Meta([c"VK_LAYER_component".to_owned()].into());
+    first.source =
+        crate::discovery::LayerSource::Meta([c"VK_LAYER_component".to_owned().into()].into());
 
     let mut last = override_manifest(&[]);
     last.name = c"VK_LAYER_component".to_owned();
@@ -629,4 +633,28 @@ fn layer_graph_storage_is_fallible() {
             attempts - 1
         );
     }
+}
+
+#[test]
+fn resolved_components_rebind_after_reordering_and_preserve_same_name_identity() {
+    let mut manifests = [
+        override_manifest(&[]),
+        override_manifest(&[]),
+        override_manifest(&[]),
+    ];
+    manifests[0].name = c"meta".to_owned();
+    manifests[0].source =
+        LayerSource::Meta([c"component".to_owned().into(), c"missing".to_owned().into()].into());
+    for manifest in &mut manifests[1..] {
+        manifest.name = c"component".to_owned();
+        manifest.source = LayerSource::Library(PathBuf::from("component.so"));
+    }
+    resolve_layer_names(&manifests);
+    assert_eq!(manifests[0].component_layers()[0].index(), Some(1));
+    assert_eq!(manifests[0].component_layers()[1].index(), None);
+    assert_eq!(manifests[1].name_index(), manifests[2].name_index());
+    manifests.swap(0, 2);
+    resolve_layer_names(&manifests);
+    assert_eq!(manifests[2].component_layers()[0].index(), Some(0));
+    assert_eq!(manifests[0].name_index(), manifests[1].name_index());
 }

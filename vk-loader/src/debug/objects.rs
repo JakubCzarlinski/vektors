@@ -4,10 +4,9 @@ use core::ffi::c_void;
 
 use vk::{
     PFN_vkDebugMarkerSetObjectNameEXT, PFN_vkDebugMarkerSetObjectTagEXT,
-    PFN_vkSetDebugUtilsObjectNameEXT, PFN_vkSetDebugUtilsObjectTagEXT,
-    VkDebugMarkerObjectNameInfoEXT, VkDebugMarkerObjectTagInfoEXT, VkDebugReportObjectTypeEXT,
-    VkDebugUtilsObjectNameInfoEXT, VkDebugUtilsObjectTagInfoEXT, VkDevice, VkInstance,
-    VkObjectType, VkPhysicalDevice, VkResult, VkSurfaceKHR,
+    PFN_vkSetDebugUtilsObjectTagEXT, VkDebugMarkerObjectNameInfoEXT, VkDebugMarkerObjectTagInfoEXT,
+    VkDebugReportObjectTypeEXT, VkDebugUtilsObjectNameInfoEXT, VkDebugUtilsObjectTagInfoEXT,
+    VkDevice, VkInstance, VkObjectType, VkPhysicalDevice, VkResult, VkSurfaceKHR,
 };
 
 use crate::{
@@ -39,6 +38,21 @@ unsafe fn checked_device(
         command_has_enabled_instance_extension(command.id, &device.instance().enabled_extensions)
             || command_has_enabled_device_extension(command.id, device.enabled_extensions());
     if !enabled {
+        abort_invalid_dispatch();
+    }
+    device
+}
+
+unsafe fn checked_debug_utils_device(device: VkDevice) -> &'static LoaderDevice {
+    // SAFETY: A valid call supplies a live loader device.
+    let Some(device) = (unsafe { LoaderDevice::from_handle(device) }) else {
+        abort_invalid_dispatch();
+    };
+    if !device
+        .instance()
+        .enabled_extensions
+        .contains(crate::generated::VK_EXT_DEBUG_UTILS_EXTENSION_ID)
+    {
         abort_invalid_dispatch();
     }
     device
@@ -239,7 +253,15 @@ pub(crate) unsafe extern "system" fn terminator_vkSetDebugUtilsObjectNameEXT(
     name_info: *const VkDebugUtilsObjectNameInfoEXT<'_>,
 ) -> VkResult {
     // SAFETY: Validation and the intentional fatal path mirror the loader trampoline.
-    let loader_device = unsafe { checked_device(device, c"vkSetDebugUtilsObjectNameEXT") };
+    let loader_device = unsafe { checked_debug_utils_device(device) };
+    // SAFETY: The resolved device and name-info retain the entry point's contract.
+    unsafe { set_debug_utils_object_name(loader_device, name_info) }
+}
+
+unsafe fn set_debug_utils_object_name(
+    loader_device: &LoaderDevice,
+    name_info: *const VkDebugUtilsObjectNameInfoEXT<'_>,
+) -> VkResult {
     if name_info.is_null() {
         abort_invalid_dispatch();
     }
@@ -257,9 +279,7 @@ pub(crate) unsafe extern "system" fn terminator_vkSetDebugUtilsObjectNameEXT(
         Ok(handle) => handle,
         Err(result) => return result,
     };
-    // SAFETY: Resolver and native device belong to the same ICD.
-    let native: Option<PFN_vkSetDebugUtilsObjectNameEXT> =
-        unsafe { load_typed(loader_device.resolve(c"vkSetDebugUtilsObjectNameEXT")) };
+    let native = loader_device.icd_set_debug_utils_object_name();
     native.map_or(VkResult::SUCCESS, |native| {
         // SAFETY: The translated structure remains live for the native call.
         unsafe { native(loader_device.icd_device, &raw const native_info) }
@@ -276,7 +296,7 @@ pub(crate) unsafe extern "system" fn terminator_vkSetDebugUtilsObjectTagEXT(
     tag_info: *const VkDebugUtilsObjectTagInfoEXT<'_>,
 ) -> VkResult {
     // SAFETY: Validation and the intentional fatal path mirror the loader trampoline.
-    let loader_device = unsafe { checked_device(device, c"vkSetDebugUtilsObjectTagEXT") };
+    let loader_device = unsafe { checked_debug_utils_device(device) };
     if tag_info.is_null() {
         abort_invalid_dispatch();
     }
@@ -381,14 +401,12 @@ pub(crate) unsafe extern "system" fn vkSetDebugUtilsObjectNameEXT(
     name_info: *const VkDebugUtilsObjectNameInfoEXT<'_>,
 ) -> VkResult {
     // SAFETY: Validation and fatal behavior match the loader trampoline.
-    let loader_device = unsafe { checked_device(device, c"vkSetDebugUtilsObjectNameEXT") };
+    let loader_device = unsafe { checked_debug_utils_device(device) };
     if loader_device.instance().layers.is_empty() {
         // SAFETY: Forwarded from this function's contract.
-        return unsafe { terminator_vkSetDebugUtilsObjectNameEXT(device, name_info) };
+        return unsafe { set_debug_utils_object_name(loader_device, name_info) };
     }
-    // SAFETY: The active layer chain created this device.
-    let layer: Option<PFN_vkSetDebugUtilsObjectNameEXT> =
-        unsafe { load_typed(loader_device.resolve_chain(c"vkSetDebugUtilsObjectNameEXT")) };
+    let layer = loader_device.chain_set_debug_utils_object_name();
     layer.map_or(VkResult::SUCCESS, |layer| {
         if name_info.is_null() {
             return unsafe { layer(loader_device.chain_device, name_info) };
@@ -415,7 +433,7 @@ pub(crate) unsafe extern "system" fn vkSetDebugUtilsObjectTagEXT(
     tag_info: *const VkDebugUtilsObjectTagInfoEXT<'_>,
 ) -> VkResult {
     // SAFETY: Validation and fatal behavior match the loader trampoline.
-    let loader_device = unsafe { checked_device(device, c"vkSetDebugUtilsObjectTagEXT") };
+    let loader_device = unsafe { checked_debug_utils_device(device) };
     if loader_device.instance().layers.is_empty() {
         // SAFETY: Forwarded from this function's contract.
         return unsafe { terminator_vkSetDebugUtilsObjectTagEXT(device, tag_info) };

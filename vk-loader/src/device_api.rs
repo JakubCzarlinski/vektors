@@ -594,10 +594,10 @@ unsafe fn validated_icd_device_extensions(
     create_info: &VkDeviceCreateInfo<'_>,
 ) -> Result<Vec<*const c_char>, VkResult> {
     let pending_extensions = pending::device_extensions();
-    let layer_extensions = pending_extensions.map(|(extensions, extension_count)| {
-        // SAFETY: The public trampoline owns this boxed slice for the entire
+    let layer_extensions = pending_extensions.map(|extensions| {
+        // SAFETY: The public trampoline retains this set for the entire
         // synchronous device-creation chain.
-        unsafe { core::slice::from_raw_parts(extensions, extension_count) }
+        unsafe { &*extensions }
     });
     // SAFETY: The terminator has recovered the ICD's native physical device.
     unsafe {
@@ -606,13 +606,13 @@ unsafe fn validated_icd_device_extensions(
             physical_device.icd(),
             physical_device.native,
             create_info,
-            |requested| match layer_extensions {
-                Some(extensions) => extensions.iter().any(|name| name.as_c_str() == requested),
+            |id, requested| match layer_extensions {
+                Some(extensions) => extensions.contains(id, requested),
                 None => physical_device.instance().layers.iter().any(|layer| {
                     layer
                         .device_extensions
                         .iter()
-                        .any(|extension| extension.name.as_c_str() == requested)
+                        .any(|extension| extension.name.matches(id, requested))
                 }),
             },
             || {

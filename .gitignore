@@ -40,3 +40,4 @@ registry/
 vgcore.*
 *.dot
 .ropeproject
+__pycache__/

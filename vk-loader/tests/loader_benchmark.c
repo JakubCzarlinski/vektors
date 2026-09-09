@@ -332,6 +332,51 @@ static void benchmark_physical_device_properties(uint64_t iterations) {
            stats.bytes, stats.frees);
 }
 
+static void benchmark_physical_device_groups(uint64_t iterations, int khr) {
+    VkInstanceCreateInfo create_info = instance_create_info();
+    const char *extension = VK_KHR_DEVICE_GROUP_CREATION_EXTENSION_NAME;
+    if (khr) {
+        create_info.enabledExtensionCount = 1;
+        create_info.ppEnabledExtensionNames = &extension;
+    }
+    VkInstance instance = VK_NULL_HANDLE;
+    require_success(vkCreateInstance(&create_info, NULL, &instance), "vkCreateInstance");
+    PFN_vkEnumeratePhysicalDeviceGroups enumerate = (PFN_vkEnumeratePhysicalDeviceGroups)
+        vkGetInstanceProcAddr(instance, khr ? "vkEnumeratePhysicalDeviceGroupsKHR"
+                                            : "vkEnumeratePhysicalDeviceGroups");
+    if (enumerate == NULL) {
+        fputs("physical device group enumeration unavailable\n", stderr);
+        exit(2);
+    }
+    uint32_t capacity = 0;
+    require_success(enumerate(instance, &capacity, NULL), "enumerate groups(count)");
+    VkPhysicalDeviceGroupProperties *groups = calloc(capacity, sizeof(*groups));
+    if (capacity != 0 && groups == NULL) {
+        fputs("out of host memory\n", stderr);
+        exit(2);
+    }
+    for (uint32_t index = 0; index < capacity; ++index) {
+        groups[index].sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GROUP_PROPERTIES;
+    }
+    uint32_t count = capacity;
+    require_success(enumerate(instance, &count, groups), "enumerate groups(warmup)");
+    reset_allocation_stats();
+    const uint64_t start = now_ns();
+    for (uint64_t index = 0; index < iterations; ++index) {
+        count = capacity;
+        require_success(enumerate(instance, &count, groups), "enumerate groups(data)");
+        sink ^= count;
+    }
+    const uint64_t elapsed = now_ns() - start;
+    const struct allocation_stats stats = read_allocation_stats();
+    free(groups);
+    vkDestroyInstance(instance, NULL);
+    printf("physical-device-groups-%s,%" PRIu64 ",%" PRIu64 ",%.3f,%" PRIuPTR ",%" PRIu64
+           ",%" PRIu64 ",%" PRIu64 "\n", khr ? "khr" : "core",
+           iterations, elapsed, (double)elapsed / (double)iterations, sink, stats.allocations,
+           stats.bytes, stats.frees);
+}
+
 int main(int argc, char **argv) {
     if (argc != 3 && argc != 4) {
         fprintf(stderr, "usage: %s MODE ITERATIONS [COMMAND]\n", argv[0]);
@@ -363,6 +408,10 @@ int main(int argc, char **argv) {
         benchmark_device_gpa(iterations, 0, command);
     } else if (strcmp(argv[1], "device-gpa-missing") == 0) {
         benchmark_device_gpa(iterations, 1, command);
+    } else if (strcmp(argv[1], "physical-device-groups-core") == 0) {
+        benchmark_physical_device_groups(iterations, 0);
+    } else if (strcmp(argv[1], "physical-device-groups-khr") == 0) {
+        benchmark_physical_device_groups(iterations, 1);
     } else if (strcmp(argv[1], "physical-device-properties") == 0) {
         benchmark_physical_device_properties(iterations);
     } else {

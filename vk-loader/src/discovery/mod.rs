@@ -2,6 +2,7 @@
 
 mod diagnostics;
 mod drivers;
+mod extension;
 mod graph;
 mod layers;
 mod manifest;
@@ -20,7 +21,8 @@ pub(crate) use diagnostics::layer_manifest_version_text;
 pub(crate) use diagnostics::unused_override_layer_count;
 pub(crate) use drivers::scan_drivers;
 pub(crate) use drivers::scan_drivers_with_settings;
-pub(crate) use graph::valid_layer_mask;
+pub(crate) use extension::{AvailableDeviceExtensions, ExtensionName};
+pub(crate) use graph::{resolve_layer_names, valid_layer_mask};
 pub(crate) use layers::discover_implicit_layers_with_settings;
 pub(crate) use layers::discover_layers;
 pub(crate) use layers::discover_layers_with_settings;
@@ -70,7 +72,7 @@ pub(crate) use settings::{destroy_global_settings_lock, release_global_loader_se
 #[cfg(windows)]
 use crate::platform;
 use alloc::{ffi::CString, string::String, vec::Vec};
-use core::ops::Deref;
+use core::{cell::Cell, ops::Deref};
 use std::{
     ffi::OsString,
     path::{Path, PathBuf},
@@ -88,7 +90,7 @@ pub(crate) struct DriverManifest {
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct LayerExtension {
-    pub(crate) name: CString,
+    pub(crate) name: ExtensionName,
     pub(crate) spec_version: u32,
     pub(crate) entrypoints: Box<[CString]>,
 }
@@ -96,6 +98,7 @@ pub(crate) struct LayerExtension {
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct LayerManifest {
     pub(crate) source_index: usize,
+    pub(super) name_index: Cell<usize>,
     pub(crate) name: CString,
     pub(crate) manifest_path: PathBuf,
     pub(crate) source: LayerSource,
@@ -118,31 +121,96 @@ pub(crate) struct LayerManifest {
     pub(crate) settings_control: Option<LayerControl>,
 }
 
+/// A component name is resolved once for each immutable manifest snapshot.
+#[derive(Debug)]
+pub(crate) struct LayerComponent {
+    name: CString,
+    index: Cell<usize>,
+}
+
+impl PartialEq for LayerComponent {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
+}
+impl Eq for LayerComponent {}
+
+impl From<CString> for LayerComponent {
+    fn from(name: CString) -> Self {
+        Self {
+            name,
+            index: Cell::new(usize::MAX),
+        }
+    }
+}
+
+impl Deref for LayerComponent {
+    type Target = CString;
+    fn deref(&self) -> &CString {
+        &self.name
+    }
+}
+
+impl PartialEq<LayerComponent> for CString {
+    fn eq(&self, other: &LayerComponent) -> bool {
+        self == &other.name
+    }
+}
+
+impl PartialEq<CString> for LayerComponent {
+    fn eq(&self, other: &CString) -> bool {
+        &self.name == other
+    }
+}
+
+impl LayerComponent {
+    pub(crate) fn index(&self) -> Option<usize> {
+        let index = self.index.get();
+        (index != usize::MAX).then_some(index)
+    }
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum LayerSource {
     Library(PathBuf),
-    Meta(Box<[CString]>),
+    Meta(Box<[LayerComponent]>),
+    OverrideLibrary(PathBuf),
+    OverrideMeta(Box<[LayerComponent]>),
 }
 
 impl LayerManifest {
+    pub(crate) fn name_index(&self) -> usize {
+        self.name_index.get()
+    }
+
+    pub(crate) const fn is_override(&self) -> bool {
+        matches!(
+            self.source,
+            LayerSource::OverrideLibrary(_) | LayerSource::OverrideMeta(_)
+        )
+    }
+
     #[inline]
     pub(crate) const fn is_meta_layer(&self) -> bool {
-        matches!(self.source, LayerSource::Meta(_))
+        matches!(
+            self.source,
+            LayerSource::Meta(_) | LayerSource::OverrideMeta(_)
+        )
     }
 
     #[inline]
     pub(crate) fn library_path(&self) -> Option<&Path> {
         match &self.source {
-            LayerSource::Library(path) => Some(path),
-            LayerSource::Meta(_) => None,
+            LayerSource::Library(path) | LayerSource::OverrideLibrary(path) => Some(path),
+            LayerSource::Meta(_) | LayerSource::OverrideMeta(_) => None,
         }
     }
 
     #[inline]
-    pub(crate) fn component_layers(&self) -> &[CString] {
+    pub(crate) fn component_layers(&self) -> &[LayerComponent] {
         match &self.source {
-            LayerSource::Library(_) => &[],
-            LayerSource::Meta(components) => components,
+            LayerSource::Library(_) | LayerSource::OverrideLibrary(_) => &[],
+            LayerSource::Meta(components) | LayerSource::OverrideMeta(components) => components,
         }
     }
 

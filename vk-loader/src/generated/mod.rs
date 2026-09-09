@@ -23,9 +23,12 @@ pub(crate) use dispatch_tables::{
     LayerInstanceDispatchTable,
 };
 pub(crate) use extensions::{
-    ExtensionSet, VK_EXT_SURFACE_MAINTENANCE1_EXTENSION_ID,
-    VK_KHR_SURFACE_MAINTENANCE1_EXTENSION_ID, extension_id, extension_name,
-    is_known_instance_extension, surface_create_info_extension_size,
+    ExtensionSet, VK_EXT_DEBUG_REPORT_EXTENSION_ID, VK_EXT_DEBUG_UTILS_EXTENSION_ID,
+    VK_EXT_SURFACE_MAINTENANCE1_EXTENSION_ID, VK_KHR_DEVICE_GROUP_CREATION_EXTENSION_ID,
+    VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES2_EXTENSION_ID,
+    VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_ID, VK_KHR_SURFACE_MAINTENANCE1_EXTENSION_ID,
+    VK_LUNARG_DIRECT_DRIVER_LOADING_EXTENSION_ID, extension_id, extension_id_bytes, extension_name,
+    is_instance_extension, is_known_instance_extension, surface_create_info_extension_size,
     wsi_instance_extension_supported,
 };
 pub(crate) use proc_addr::{

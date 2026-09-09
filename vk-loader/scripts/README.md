@@ -32,3 +32,12 @@ XML and output logs. This is separate from `--full`, which runs upstream suites.
 
 `maintenance/clean-artifacts.sh --deep` removes the canonical test tree and
 historical build caches; do not run it while tests or profilers are active.
+
+`diagnostics/benchmark-loaders.sh` uses nine timing samples by default, with
+counter sample counts varying by event group. Set `VK_LOADER_BENCH_DEVICE_GROUPS=1`
+to include core/KHR physical-device group enumeration, or select either mode
+with `VK_LOADER_BENCH_MODE_FILTER`.
+These opt-in modes use 10,000 timing iterations and 100,000 counter iterations
+to amortize instance/driver startup; allocation samples use 10 iterations.
+Existing repetition overrides remain available. Use `VK_LOADER_BENCH_NO_BUILD=1`
+with explicit library paths to benchmark existing production builds.

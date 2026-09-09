@@ -11,8 +11,8 @@ use crate::{
 };
 
 use super::{
-    CString, LayerManifest, LayerSearch, LoadedLayer, Path, VkInstanceCreateInfo, VkResult,
-    forced_disabled, forced_enabled, implicit_manifest_is_active, meta_reaches, naturally_enabled,
+    CString, LayerManifest, LayerSearch, LoadedLayer, MetaTraversal, Path, VkInstanceCreateInfo,
+    VkResult, forced_disabled, forced_enabled, implicit_manifest_is_active, naturally_enabled,
     valid_layer_mask,
 };
 
@@ -166,7 +166,7 @@ fn emit_search_diagnostics(
         }
         if search.implicit
             && let Some(override_layer) = manifests.iter().find(|manifest| {
-                manifest.name.as_c_str() == c"VK_LAYER_LUNARG_override"
+                manifest.is_override()
                     && naturally_enabled(manifest)
                     && manifest
                         .disable_environment
@@ -252,7 +252,7 @@ pub(super) fn emit_global_discovered_manifest(manifest: &LayerManifest, emit_fou
             ),
         );
     }
-    if manifest.name.as_c_str() != c"VK_LAYER_LUNARG_override" && manifest.app_keys.is_some() {
+    if !manifest.is_override() && manifest.app_keys.is_some() {
         platform::write_loader_log_with_category(
             LogFilter::Warning,
             LogFilter::Layer,
@@ -428,7 +428,9 @@ impl MetaDiagnosticSink<'_> {
         message: core::fmt::Arguments<'_>,
     ) {
         match self {
-            Self::Global => platform::write_loader_log(LogFilter::from_severity(severity), message),
+            Self::Global => {
+                platform::write_loader_log(LogFilter::from_severity(severity), message);
+            }
             Self::Create(create_info) => emit_create_message(create_info, severity, message),
         }
     }
@@ -530,10 +532,10 @@ pub(super) fn verify_meta_layer_for_diagnostics(
     let meta = &manifests[index];
     checked[index] = true;
     for (component_index, component_name) in meta.component_layers().iter().enumerate() {
-        let Some(component_index_in_manifests) = manifests
-            .iter()
-            .enumerate()
-            .position(|(index, candidate)| available[index] && candidate.name == *component_name)
+        let Some(component_index_in_manifests) =
+            manifests.iter().enumerate().position(|(index, candidate)| {
+                available[index] && Some(candidate.name_index()) == component_name.index()
+            })
         else {
             sink.message(
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
@@ -562,7 +564,7 @@ pub(super) fn verify_meta_layer_for_diagnostics(
             );
             return false;
         }
-        if meta.name == *component_name {
+        if Some(meta.name_index()) == component_name.index() {
             sink.message(
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
                 format_args!(
@@ -578,7 +580,9 @@ pub(super) fn verify_meta_layer_for_diagnostics(
                 .iter()
                 .enumerate()
                 .rev()
-                .find(|(index, candidate)| available[*index] && candidate.name == component.name)
+                .find(|(index, candidate)| {
+                    available[*index] && candidate.name_index() == component.name_index()
+                })
                 .map_or(component_index_in_manifests, |(index, _)| index);
             if checked[recursive_index] {
                 sink.message(
@@ -629,6 +633,7 @@ pub(super) fn emit_recursive_meta_layer_diagnostics(
     if !manifests.iter().any(LayerManifest::is_meta_layer) {
         return Ok(());
     }
+    crate::discovery::resolve_layer_names(manifests);
     let mut state = MetaDiagnosticState::new(manifests.len())?;
     for index in 0..manifests.len() {
         if !manifests[index].is_meta_layer() {
@@ -688,16 +693,14 @@ pub(super) fn emit_meta_layer_diagnostics(
         return emit_recursive_meta_layer_diagnostics(sink, manifests);
     }
     let valid = valid_layer_mask(manifests)?;
+    let mut traversal = MetaTraversal::default();
     for (meta_index, meta) in manifests.iter().enumerate() {
         if !meta.is_meta_layer() {
             continue;
         }
         let mut configured_recursive = false;
         for (component_index, component_name) in meta.component_layers().iter().enumerate() {
-            let Some(component_manifest_index) = manifests
-                .iter()
-                .position(|candidate| candidate.name == *component_name)
-            else {
+            let Some(component_manifest_index) = component_name.index() else {
                 emit_create_message(
                     create_info,
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
@@ -740,7 +743,7 @@ pub(super) fn emit_meta_layer_diagnostics(
                 break;
             }
             if !component.component_layers().is_empty() {
-                if meta_reaches(manifests, component_manifest_index, meta_index)? {
+                if traversal.reaches(manifests, component_manifest_index, meta_index)? {
                     configured_recursive = emit_recursive_meta_reference(
                         create_info,
                         meta,
@@ -937,10 +940,7 @@ fn emit_valid_meta_layer(
 ) {
     emit_meta_components(sink, meta);
     for component_name in meta.component_layers() {
-        let Some(component) = manifests
-            .iter()
-            .find(|component| component.name == *component_name)
-        else {
+        let Some(component) = component_name.index().map(|index| &manifests[index]) else {
             continue;
         };
         for extension in &component.instance_extensions {
@@ -1040,7 +1040,7 @@ fn emit_create_discovered_manifest(
             ),
         );
     }
-    if manifest.name.as_c_str() != c"VK_LAYER_LUNARG_override" && manifest.app_keys.is_some() {
+    if !manifest.is_override() && manifest.app_keys.is_some() {
         emit_layer_message(
             create_info,
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
@@ -1097,7 +1097,7 @@ fn emit_duplicate_manifest(create_info: &VkInstanceCreateInfo<'_>, duplicate: &L
             ),
         );
     }
-    if duplicate.name.as_c_str() != c"VK_LAYER_LUNARG_override" && duplicate.app_keys.is_some() {
+    if !duplicate.is_override() && duplicate.app_keys.is_some() {
         emit_layer_message(
             create_info,
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
@@ -1266,7 +1266,7 @@ fn emit_search_file(
                 emit_duplicate_manifest(create_info, duplicate);
             }
         }
-        if duplicate.name.as_c_str() == c"VK_LAYER_LUNARG_override"
+        if duplicate.is_override()
             && !duplicate.app_keys().is_empty()
             && !manifests.iter().any(|manifest| {
                 manifest.name == duplicate.name && manifest.manifest_path == duplicate.manifest_path
@@ -1415,9 +1415,9 @@ fn emit_pruned_implicit_layers(
 #[cold]
 fn emit_disabled_global_layers(manifests: &[LayerManifest], implicit_only: bool) {
     if !implicit_only
-        && let Some(override_layer) = manifests.iter().find(|manifest| {
-            manifest.name.as_c_str() == c"VK_LAYER_LUNARG_override" && naturally_enabled(manifest)
-        })
+        && let Some(override_layer) = manifests
+            .iter()
+            .find(|manifest| manifest.is_override() && naturally_enabled(manifest))
     {
         for blacklisted in &override_layer.blacklisted_layers {
             platform::write_loader_log(
@@ -1433,9 +1433,9 @@ fn emit_disabled_global_layers(manifests: &[LayerManifest], implicit_only: bool)
         manifest.settings_control.is_none()
             && forced_disabled(manifest)
             && !forced_enabled(manifest)
-            && !(implicit_only && manifest.name.as_c_str() == c"VK_LAYER_LUNARG_override")
+            && !(implicit_only && manifest.is_override())
     }) {
-        if manifest.implicit && manifest.name.as_c_str() == c"VK_LAYER_LUNARG_override" {
+        if manifest.implicit && manifest.is_override() {
             platform::write_loader_log_with_category(
                 LogFilter::Warning,
                 LogFilter::Layer,

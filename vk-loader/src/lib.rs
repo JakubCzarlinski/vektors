@@ -98,10 +98,9 @@ pub(crate) use device_api::{
 pub use device_api::{vkCreateDevice, vkDestroyDevice, vkGetDeviceProcAddr};
 pub(crate) use dispatch::{
     CommandLookup, CommandProviderRange, CommandRecord, CommandScope, DEVICE_DISPATCH_MAGIC,
-    command_hash, command_name_eq, command_slot_hash, device_dispatch, dispatch_offset,
-    erase_function, fatal_loader_error, invalid_device_dispatch, load_typed,
-    resolve_physical_device, resolve_trampoline_physical_device, set_device_dispatchable,
-    translate_device_group_chain,
+    command_hash, command_slot_hash, device_dispatch, dispatch_offset, erase_function,
+    fatal_loader_error, invalid_device_dispatch, load_typed, resolve_physical_device,
+    resolve_trampoline_physical_device, set_device_dispatchable, translate_device_group_chain,
 };
 pub use entry::{
     vk_string_validate, vkEnumerateInstanceExtensionProperties, vkEnumerateInstanceLayerProperties,

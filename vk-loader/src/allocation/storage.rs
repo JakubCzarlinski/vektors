@@ -1,7 +1,7 @@
 //! Loader-owned allocations honoring Vulkan allocation callbacks.
 
 use alloc::{
-    alloc::{Layout, alloc, dealloc},
+    alloc::{Layout, alloc, dealloc, realloc},
     boxed::Box,
     ffi::CString,
     string::String,
@@ -10,7 +10,7 @@ use alloc::{
 use core::{
     ffi::CStr,
     marker::PhantomData,
-    mem::MaybeUninit,
+    mem::{ManuallyDrop, MaybeUninit},
     ops::{Deref, DerefMut},
     ptr::NonNull,
 };
@@ -33,31 +33,62 @@ pub(crate) fn try_c_string_bytes(bytes: &[u8]) -> Result<CString, CStringError> 
     if bytes.contains(&0) {
         return Err(CStringError::InteriorNul);
     }
+    // SAFETY: Interior NULs were rejected above.
+    unsafe { try_c_string_bytes_unchecked(bytes) }.map_err(|_| CStringError::OutOfMemory)
+}
+
+/// Copies bytes whose lack of interior NULs is already established.
+///
+/// # Safety
+///
+/// `bytes` must not contain a NUL byte.
+pub(crate) unsafe fn try_c_string_bytes_unchecked(bytes: &[u8]) -> Result<CString, VkResult> {
     let length = bytes
         .len()
         .checked_add(1)
-        .ok_or(CStringError::OutOfMemory)?;
-    let mut storage =
-        try_boxed_slice_filled(length, 0_u8).map_err(|_| CStringError::OutOfMemory)?;
+        .ok_or(VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+    let mut storage = try_boxed_slice_filled(length, 0_u8)?;
     storage[..bytes.len()].copy_from_slice(bytes);
-    // SAFETY: Interior NULs were rejected and the final byte remains NUL.
+    // SAFETY: The caller guarantees no interior NULs; the final byte remains NUL.
     // The byte slice and CStr have identical allocation layouts.
     let string = unsafe { Box::from_raw(Box::into_raw(storage) as *mut CStr) };
     Ok(CString::from(string))
 }
 
-/// Transfers exact-capacity storage directly; otherwise moves elements into
-/// fallibly allocated exact storage instead of an infallible shrinking realloc.
+/// Finalizes storage with a fallible shrinking realloc rather than a second
+/// allocation and element copy. A failed shrink leaves the original Vec live.
 pub(crate) fn try_into_boxed_slice<T>(values: Vec<T>) -> Result<Box<[T]>, VkResult> {
-    if values.len() == values.capacity() || core::mem::size_of::<T>() == 0 {
+    let len = values.len();
+    if len == values.capacity() || core::mem::size_of::<T>() == 0 {
         return Ok(values.into_boxed_slice());
     }
-    let mut storage = try_box_uninit_slice(values.len())?;
-    for (slot, value) in storage.iter_mut().zip(values) {
-        slot.write(value);
+    if len == 0 {
+        return Ok(Box::default());
     }
-    // SAFETY: Every element was initialized by moving one input element.
-    Ok(unsafe { storage.assume_init() })
+    let layout =
+        Layout::array::<T>(values.capacity()).map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+    // Disable destruction before realloc can invalidate the Vec's allocation.
+    let mut values = ManuallyDrop::new(values);
+    // SAFETY: A non-ZST Vec owns a global-allocator block with this layout.
+    // len is nonzero and below capacity, so its byte size cannot overflow.
+    // realloc preserves the initialized prefix and retains ownership on failure.
+    let pointer = unsafe {
+        realloc(
+            values.as_mut_ptr().cast(),
+            layout,
+            len * core::mem::size_of::<T>(),
+        )
+    }
+    .cast::<T>();
+    let Some(pointer) = NonNull::new(pointer) else {
+        // SAFETY: A failed realloc leaves the original allocation unchanged.
+        // This is the only path that drops the original Vec.
+        unsafe { ManuallyDrop::drop(&mut values) };
+        return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
+    };
+    // SAFETY: The successful realloc owns exactly len initialized elements,
+    // with T's original alignment. The old Vec is never used again.
+    Ok(unsafe { Box::from_raw(core::ptr::slice_from_raw_parts_mut(pointer.as_ptr(), len)) })
 }
 
 pub(crate) fn try_collect<T>(values: impl IntoIterator<Item = T>) -> Result<Box<[T]>, VkResult> {
@@ -430,6 +461,39 @@ mod tests {
         allocations: AtomicUsize,
         frees: AtomicUsize,
         alignment: AtomicUsize,
+    }
+
+    #[test]
+    fn shrinking_preserves_values_and_drops_them_once_on_success_or_oom() {
+        struct CountDrop<'a>(&'a AtomicUsize);
+        impl Drop for CountDrop<'_> {
+            fn drop(&mut self) {
+                self.0.fetch_add(1, Ordering::Relaxed);
+            }
+        }
+        crate::allocation::fault::sweep_operation(|| {
+            let drops = AtomicUsize::new(0);
+            let mut values = Vec::new();
+            if values.try_reserve_exact(7).is_err() {
+                return VkResult::ERROR_OUT_OF_HOST_MEMORY;
+            }
+            for index in 0..3 {
+                values.push((index, CountDrop(&drops)));
+            }
+            let result = match try_into_boxed_slice(values) {
+                Ok(values) => {
+                    assert_eq!(values.len(), 3);
+                    for (index, (value, _)) in values.iter().enumerate() {
+                        assert_eq!(*value, index);
+                    }
+                    drop(values);
+                    VkResult::SUCCESS
+                }
+                Err(error) => error,
+            };
+            assert_eq!(drops.load(Ordering::Relaxed), 3);
+            result
+        });
     }
 
     unsafe extern "system" fn allocate(

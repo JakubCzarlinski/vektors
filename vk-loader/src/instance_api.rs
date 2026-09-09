@@ -1,7 +1,5 @@
 //! instance implementation.
 
-use std::path::Path;
-
 use crate::{
     CStr, DirectIcdError, ExtensionSet, IcdInstance, InstanceDispatchTable,
     LINUX_SORT_PLATFORM_ENABLED, LoaderInstance, ManifestApiVersionStatus, PFN_vkDestroyInstance,
@@ -11,9 +9,10 @@ use crate::{
     VkResult, VkStructureType,
     debug::{self, diagnostics},
     decimal_prefix_nonzero, destroy_all_surfaces, discovery, emulation, fatal_loader_error, icd,
-    instance, is_known_instance_extension, layer, linux_sort_requires_properties_extension,
-    load_typed, pending, platform, unknown, wsi_instance_extension_supported,
+    instance, layer, linux_sort_requires_properties_extension, load_typed, pending, platform,
+    unknown, wsi_instance_extension_supported,
 };
+use std::path::Path;
 
 /// Creates a Vulkan instance across the discovered ICDs.
 ///
@@ -259,7 +258,8 @@ pub(crate) unsafe fn validate_instance_extensions(
             return Err(VkResult::ERROR_EXTENSION_NOT_PRESENT);
         }
         let name = unsafe { CStr::from_ptr(name) };
-        if filter_unknown && !is_known_instance_extension(name) {
+        let id = crate::extension_id(name);
+        if filter_unknown && !id.is_some_and(crate::generated::is_instance_extension) {
             // SAFETY: The caller retains the complete instance-create chain.
             unsafe {
                 emit_driver_create_message(
@@ -273,7 +273,7 @@ pub(crate) unsafe fn validate_instance_extensions(
             };
             return Err(VkResult::ERROR_EXTENSION_NOT_PRESENT);
         }
-        let loader_available = loader_instance_extension_supported(name);
+        let loader_available = id.is_some_and(loader_instance_extension_supported);
         let globally_available = wsi_instance_extension_supported(name)
             && available.iter().any(|property| {
                 // SAFETY: Loader-constructed extension properties are NUL-terminated.
@@ -298,11 +298,14 @@ pub(crate) unsafe fn validate_instance_extensions(
     Ok(())
 }
 
-pub(crate) fn loader_instance_extension_supported(name: &CStr) -> bool {
-    name.to_bytes() == vk::VK_EXT_DEBUG_REPORT_EXTENSION_NAME.to_bytes()
-        || name.to_bytes() == vk::VK_EXT_DEBUG_UTILS_EXTENSION_NAME.to_bytes()
-        || name.to_bytes() == vk::VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME.to_bytes()
-        || name.to_bytes() == vk::VK_LUNARG_DIRECT_DRIVER_LOADING_EXTENSION_NAME.to_bytes()
+const fn loader_instance_extension_supported(id: u16) -> bool {
+    matches!(
+        id,
+        crate::generated::VK_EXT_DEBUG_REPORT_EXTENSION_ID
+            | crate::generated::VK_EXT_DEBUG_UTILS_EXTENSION_ID
+            | crate::generated::VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_ID
+            | crate::generated::VK_LUNARG_DIRECT_DRIVER_LOADING_EXTENSION_ID
+    )
 }
 
 #[cold]

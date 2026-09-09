@@ -9,6 +9,9 @@ from pathlib import Path
 
 
 def reject_outliers(values: list[float]) -> tuple[list[float], int]:
+    # Short runs do not provide enough evidence to discard individual samples.
+    if len(values) < 5:
+        return values, 0
     median = statistics.median(values)
     deviations = [abs(value - median) for value in values]
     mad = statistics.median(deviations)

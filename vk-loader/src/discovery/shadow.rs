@@ -19,7 +19,7 @@ fn cjson_allocation_count(value: &Value) -> usize {
     }
 }
 
-pub(super) fn parse_json_value(bytes: &[u8]) -> Option<Value> {
+pub(super) fn parse_json_value(bytes: &[u8]) -> Option<Value<'_>> {
     match json::parse(bytes) {
         Ok(value) => Some(value),
         Err(json::Error::Invalid) => None,
@@ -202,8 +202,9 @@ unsafe fn probe_callback_allocation(
 pub(super) fn probe_instance_shrinking_reallocation(
     initial_size: usize,
     final_size: usize,
+    callbacks: Option<*const vk::VkAllocationCallbacks<'static>>,
 ) -> bool {
-    let Some(callbacks) = pending::instance_allocator() else {
+    let Some(callbacks) = callbacks else {
         return true;
     };
     // SAFETY: The instance-create entry point retains this callback structure
@@ -245,24 +246,27 @@ pub(super) fn probe_instance_shrinking_reallocation(
     !resized.is_null()
 }
 
-pub(super) fn shadow_json_allocations(
+pub(super) fn shadow_json_allocations<'a>(
     display_path: impl core::fmt::Display,
-    bytes: &[u8],
-) -> Result<Option<Value>, ()> {
-    if pending::instance_allocator().is_none() {
+    bytes: &'a [u8],
+    callbacks: Option<*const vk::VkAllocationCallbacks<'static>>,
+) -> Result<Option<Value<'a>>, ()> {
+    let Some(callbacks) = callbacks else {
         return Ok(None);
-    }
-    shadow_json_with_callbacks(format_args!("{display_path}"), bytes)
+    };
+    shadow_json_with_callbacks(format_args!("{display_path}"), bytes, callbacks)
 }
 
 // Keep callback-allocation emulation out of ordinary manifest/settings reads.
 #[cold]
 #[inline(never)]
-fn shadow_json_with_callbacks(
+fn shadow_json_with_callbacks<'a>(
     display_path: core::fmt::Arguments<'_>,
-    bytes: &[u8],
-) -> Result<Option<Value>, ()> {
-    if !probe_instance_allocation(bytes.len().saturating_add(1)) {
+    bytes: &'a [u8],
+    callbacks: *const vk::VkAllocationCallbacks<'static>,
+) -> Result<Option<Value<'a>>, ()> {
+    // SAFETY: Discovery retains the callback set for this synchronous operation.
+    if !unsafe { probe_callback_allocation(callbacks, bytes.len().saturating_add(1)) } {
         platform::write_loader_log(
             platform::LogFilter::Error,
             format_args!(
@@ -278,7 +282,8 @@ fn shadow_json_with_callbacks(
         |value| 1usize.saturating_add(cjson_allocation_count(value)),
     );
     for _ in 0..parse_allocations {
-        if !probe_instance_allocation(core::mem::size_of::<usize>() * 8) {
+        // SAFETY: The same callback set remains live across synchronous reentry.
+        if !unsafe { probe_callback_allocation(callbacks, core::mem::size_of::<usize>() * 8) } {
             platform::write_loader_log(
                 platform::LogFilter::Error,
                 format_args!(
@@ -298,9 +303,13 @@ pub(super) enum LayerAllocationShadow {
     ReparseForDiagnostics,
 }
 
-pub(super) fn shadow_layer_json_allocations(path: &Path, bytes: &[u8]) -> LayerAllocationShadow {
+pub(super) fn shadow_layer_json_allocations(
+    path: &Path,
+    bytes: &[u8],
+    callbacks: *const vk::VkAllocationCallbacks<'static>,
+) -> LayerAllocationShadow {
     let display_path = path.display();
-    let value = match shadow_json_allocations(&display_path, bytes) {
+    let value = match shadow_json_with_callbacks(format_args!("{display_path}"), bytes, callbacks) {
         Ok(Some(value)) => value,
         Ok(None) => return LayerAllocationShadow::Continue,
         Err(()) => return LayerAllocationShadow::Abort,
@@ -316,7 +325,8 @@ pub(super) fn shadow_layer_json_allocations(path: &Path, bytes: &[u8]) -> LayerA
     };
     // Upstream duplicates the manifest filename after locating a layer object.
     // Failure here is silent but aborts this discovery pass.
-    if !probe_instance_allocation(1) {
+    // SAFETY: Discovery retains the supplied callback set until this parse completes.
+    if !unsafe { probe_callback_allocation(callbacks, 1) } {
         pending::mark_json_allocation_failed();
         return LayerAllocationShadow::Abort;
     }
@@ -324,7 +334,11 @@ pub(super) fn shadow_layer_json_allocations(path: &Path, bytes: &[u8]) -> LayerA
         return LayerAllocationShadow::Continue;
     };
     if let Some(library_path) = layer.get("library_path").and_then(Value::as_str)
-        && !probe_instance_shrinking_reallocation(256, library_path.len().saturating_add(3))
+        && !probe_instance_shrinking_reallocation(
+            256,
+            library_path.len().saturating_add(3),
+            Some(callbacks),
+        )
     {
         let nonconforming_name = !name.as_bytes().starts_with(b"VK_LAYER_");
         if nonconforming_name {

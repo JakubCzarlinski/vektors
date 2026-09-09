@@ -12,7 +12,6 @@ use crate::CommandProviderRange;
 use crate::CommandRecord;
 use crate::CommandScope;
 use crate::command_hash;
-use crate::command_name_eq;
 use crate::command_slot_hash;
 use crate::dispatch_offset;
 const _: () = assert!(core::mem::size_of::<LayerDeviceDispatchTable>() <= 65_535);
@@ -20229,7 +20228,7 @@ pub(crate) fn command_lookup(name: &CStr) -> Option<CommandLookup> {
     let end = start + usize::from(record.name_len);
     debug_assert!(end <= COMMAND_NAMES.len());
     let stored_suffix = unsafe { COMMAND_NAMES.get_unchecked(start..end) };
-    command_name_eq(stored_suffix, suffix).then_some(CommandLookup {
+    (stored_suffix == suffix).then_some(CommandLookup {
         id: record.id,
         scope: record.scope,
     })
