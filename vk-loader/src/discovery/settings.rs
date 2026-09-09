@@ -286,281 +286,19 @@ fn load_loader_settings(global: Option<bool>, force_diagnostics: bool) -> Option
     platform::set_loader_settings_log_filter(
         settings_logging_active.then_some(settings_log_filters),
     );
-    let filter_enabled = |filter: platform::LogFilter| {
-        if settings_logging_active {
-            settings_log_filters & filter.bit() != 0
-        } else {
-            platform::loader_debug_filter_enabled(filter)
-        }
-    };
-    let stderr_logging_active = settings_logging_active
-        || platform::LogFilter::ALL
-            .into_iter()
-            .any(platform::loader_debug_filter_enabled);
-    let layer_configurations: Option<Box<[SettingsLayerConfiguration]>> = match settings
-        .get("layers")
-    {
-        Some(layers) => collect_optional_values(layers.as_array()?.iter().map(|layer| {
-            let control_value = printed_bytes(layer.get("control")?.as_bytes()?);
-            let control = LayerControl::parse(core::str::from_utf8(&control_value).unwrap_or(""));
-            if control == LayerControl::UnorderedLayerLocation {
-                return Some(SettingsLayerConfiguration {
-                    name: owned_c_string(b"")?,
-                    path: PathBuf::new(),
-                    control,
-                    treat_as_implicit_manifest: false,
-                });
-            }
-            let name = printed_bytes(layer.get("name")?.as_bytes()?);
-            let path = printed_bytes(layer.get("path")?.as_bytes()?);
-            Some(SettingsLayerConfiguration {
-                name: owned_c_string(&name)?,
-                path: owned_byte_path(&path)?,
-                control,
-                treat_as_implicit_manifest: layer
-                    .get("treat_as_implicit_manifest")
-                    .and_then(Value::as_bool)
-                    .unwrap_or(false),
-            })
-        })),
-        None => None,
-    };
-    let additional_drivers = settings
-        .get("additional_drivers")
-        .and_then(Value::as_array)
-        .and_then(|drivers| {
-            collect_optional_values(drivers.iter().map(|driver| {
-                driver
-                    .as_object()?
-                    .get("path")?
-                    .as_bytes()
-                    .map(printed_bytes)
-                    .and_then(|path| owned_byte_path(&path))
-            }))
-        })
-        .unwrap_or_default();
-    let device_configurations: Option<Box<[DeviceConfiguration]>> =
-        settings.get("device_configurations").map(|configurations| {
-            collect_values(
-                configurations
-                    .as_array()
-                    .into_iter()
-                    .flatten()
-                    .filter_map(parse_device_configuration),
-            )
-            .unwrap_or_default()
-        });
-    if pending::json_allocation_failed() {
-        return None;
-    }
-    let settings_active = layer_configurations.is_some()
+    let mut parsed_settings = parse_loader_settings(settings)?;
+    let settings_active = parsed_settings.layer_configurations.is_some()
         || settings_logging_active
-        || !additional_drivers.is_empty()
-        || device_configurations.is_some();
+        || !parsed_settings.additional_drivers.is_empty()
+        || parsed_settings.device_configurations.is_some();
     if emit_diagnostics {
-        if !settings_active {
-            platform::write_loader_log(
-                platform::LogFilter::Info,
-                format_args!(
-                    "vk_loader_settings.json file found at \"{display_path}\" but did not contain any valid settings."
-                ),
-            );
-        } else if stderr_logging_active {
-            if filter_enabled(platform::LogFilter::Info) {
-                platform::write_stderr_fmt(format_args!(
-                    "[Vulkan Loader] INFO:           Using layer configurations found in loader settings from {display_path}\n"
-                ));
-            }
-            if settings_logging_active && filter_enabled(platform::LogFilter::Debug) {
-                let enabled = EnabledLogFilters(
-                    platform::LogFilter::ALL
-                        .into_iter()
-                        .filter(|filter| filter_enabled(*filter))
-                        .fold(0, |mask, filter| mask | filter.bit()),
-                );
-                platform::write_stderr_fmt(format_args!(
-                    "[Vulkan Loader] DEBUG:          Loader Settings Filters for Logging to Standard Error: {enabled}\n"
-                ));
-            }
-            if filter_enabled(platform::LogFilter::Debug)
-                && let Some(configurations) = &layer_configurations
-            {
-                platform::write_stderr_fmt(format_args!(
-                    "[Vulkan Loader] DEBUG:          Layer Configurations count = {}\n",
-                    configurations.len()
-                ));
-                for (index, configuration) in configurations.iter().enumerate() {
-                    platform::write_stderr_fmt(format_args!(
-                        "[Vulkan Loader] DEBUG:          ---- Layer Configuration [{index}] ----\n"
-                    ));
-                    if configuration.control != LayerControl::UnorderedLayerLocation {
-                        platform::write_loader_log(
-                            platform::LogFilter::Debug,
-                            format_args!("Name: {}", LossyBytes(configuration.name.to_bytes())),
-                        );
-                        platform::write_loader_log(
-                            platform::LogFilter::Debug,
-                            format_args!("Path: {}", configuration.path.display()),
-                        );
-                        platform::write_stderr_fmt(format_args!(
-                            "[Vulkan Loader] DEBUG:          Layer Type: {}\n",
-                            if configuration.treat_as_implicit_manifest {
-                                "Implicit"
-                            } else {
-                                "Explicit"
-                            }
-                        ));
-                    }
-                    platform::write_stderr_fmt(format_args!(
-                        "[Vulkan Loader] DEBUG:          Control: {}\n",
-                        configuration.control.as_str()
-                    ));
-                }
-            }
-            if filter_enabled(platform::LogFilter::Debug) && !additional_drivers.is_empty() {
-                platform::write_stderr("[Vulkan Loader] DEBUG:          ----\n");
-                platform::write_stderr_fmt(format_args!(
-                    "[Vulkan Loader] DEBUG:          Use Additional Drivers Exclusively = {}\n",
-                    if settings
-                        .get("additional_drivers_use_exclusively")
-                        .and_then(Value::as_bool)
-                        .unwrap_or(false)
-                    {
-                        "true"
-                    } else {
-                        "false"
-                    }
-                ));
-                platform::write_stderr_fmt(format_args!(
-                    "[Vulkan Loader] DEBUG:          Additional Driver Configurations count = {}\n",
-                    additional_drivers.len()
-                ));
-                for (index, path) in additional_drivers.iter().enumerate() {
-                    platform::write_stderr_fmt(format_args!(
-                        "[Vulkan Loader] DEBUG:          ---- Driver Configuration [{index}] ----\n"
-                    ));
-                    platform::write_stderr_fmt(format_args!(
-                        "[Vulkan Loader] DEBUG:          Path: {}\n",
-                        path.display()
-                    ));
-                }
-            }
-            if filter_enabled(platform::LogFilter::Debug)
-                && let Some(configurations) = &device_configurations
-            {
-                platform::write_stderr("[Vulkan Loader] DEBUG:          ----\n");
-                platform::write_stderr_fmt(format_args!(
-                    "[Vulkan Loader] DEBUG:          Device Configurations count = {}\n",
-                    configurations.len()
-                ));
-                for (index, configuration) in configurations.iter().enumerate() {
-                    platform::write_stderr_fmt(format_args!(
-                        "[Vulkan Loader] DEBUG:          ---- Device Configuration [{index}] ----\n"
-                    ));
-                    platform::write_stderr_fmt(format_args!(
-                        "[Vulkan Loader] DEBUG:          deviceUUID: {}\n",
-                        format_uuid(&configuration.device_uuid)
-                    ));
-                    platform::write_stderr_fmt(format_args!(
-                        "[Vulkan Loader] DEBUG:          driverUUID: {}\n",
-                        format_uuid(&configuration.driver_uuid)
-                    ));
-                    platform::write_stderr_fmt(format_args!(
-                        "[Vulkan Loader] DEBUG:          driverVersion: {}\n",
-                        configuration.driver_version
-                    ));
-                    if let Some(name) = &configuration.device_name {
-                        platform::write_stderr_fmt(format_args!(
-                            "[Vulkan Loader] DEBUG:          deviceName: {name}\n"
-                        ));
-                    }
-                    if let Some(name) = &configuration.driver_name {
-                        platform::write_stderr_fmt(format_args!(
-                            "[Vulkan Loader] DEBUG:          driverName: {name}\n"
-                        ));
-                    }
-                }
-            }
-            if filter_enabled(platform::LogFilter::Debug) {
-                platform::write_stderr(
-                    "[Vulkan Loader] DEBUG:          ---------------------------------\n",
-                );
-            }
-            if let Some(configurations) = &layer_configurations {
-                for configuration in configurations {
-                    if global.is_none()
-                        && platform::is_json_path(&configuration.path)
-                        && !matches!(
-                            configuration.control,
-                            LayerControl::Off | LayerControl::UnorderedLayerLocation
-                        )
-                        && [
-                            platform::LogFilter::Info,
-                            platform::LogFilter::Warning,
-                            platform::LogFilter::Layer,
-                        ]
-                        .into_iter()
-                        .any(filter_enabled)
-                    {
-                        for manifest in parse_layer_manifest(
-                            &configuration.path,
-                            configuration.treat_as_implicit_manifest,
-                        ) {
-                            if filter_enabled(platform::LogFilter::Info) {
-                                platform::write_stderr_fmt(format_args!(
-                                    "[Vulkan Loader] INFO:           Found manifest file {} (file version {}.{}.{})\n",
-                                    manifest.manifest_path.display(),
-                                    vk::VK_API_VERSION_MAJOR(manifest.manifest_version),
-                                    vk::VK_API_VERSION_MINOR(manifest.manifest_version),
-                                    vk::VK_API_VERSION_PATCH(manifest.manifest_version),
-                                ));
-                            }
-                            if filter_enabled(platform::LogFilter::Warning)
-                                && !manifest.name.to_bytes().starts_with(b"VK_LAYER_")
-                            {
-                                platform::write_stderr_fmt(format_args!(
-                                    "[Vulkan Loader] WARNING:        Layer name {} does not conform to naming standard (Policy #LLP_LAYER_3)\n",
-                                    LossyBytes(manifest.name.to_bytes())
-                                ));
-                            }
-                            if manifest.has_component_layers
-                                && filter_enabled(platform::LogFilter::Layer)
-                            {
-                                platform::write_stderr_fmt(format_args!(
-                                    "[Vulkan Loader] INFO | LAYER:   Encountered meta-layer \"{}\"\n",
-                                    LossyBytes(manifest.name.to_bytes())
-                                ));
-                            }
-                            if !configuration.treat_as_implicit_manifest
-                                && manifest.has_pre_instance_functions
-                                && filter_enabled(platform::LogFilter::Warning)
-                            {
-                                platform::write_stderr_fmt(format_args!(
-                                    "[Vulkan Loader] WARNING:        Found pre_instance_functions section in explicit layer from \"{}\". This section is only valid in implicit layers. The section will be ignored\n",
-                                    manifest.manifest_path.display()
-                                ));
-                            }
-                        }
-                    }
-                    if filter_enabled(platform::LogFilter::Error)
-                        && !matches!(
-                            configuration.control,
-                            LayerControl::Off | LayerControl::UnorderedLayerLocation
-                        )
-                        && configuration
-                            .path
-                            .extension()
-                            .is_some_and(|extension| extension == "json")
-                        && !platform::file_exists(&configuration.path)
-                    {
-                        platform::write_stderr_fmt(format_args!(
-                            "[Vulkan Loader] ERROR:          loader_get_json: Failed to open JSON file {}\n",
-                            configuration.path.display()
-                        ));
-                    }
-                }
-            }
-        }
+        emit_parsed_settings(
+            &parsed_settings,
+            &display_path,
+            settings_log_filters,
+            settings_active,
+            global,
+        );
     }
     if !settings_active {
         return None;
@@ -577,16 +315,8 @@ fn load_loader_settings(global: Option<bool>, force_diagnostics: bool) -> Option
         return None;
     }
     drop(display_path);
-    Some(LoaderSettings {
-        settings_file_path: file_path,
-        layer_configurations,
-        additional_drivers,
-        additional_drivers_use_exclusively: settings
-            .get("additional_drivers_use_exclusively")
-            .and_then(Value::as_bool)
-            .unwrap_or(false),
-        device_configurations,
-    })
+    parsed_settings.settings_file_path = file_path;
+    Some(parsed_settings)
 }
 
 enum SettingsDocumentError {
@@ -929,4 +659,319 @@ pub(super) fn find_loader_settings_file() -> Option<(PathBuf, Box<[u8]>)> {
 #[cfg(not(any(unix, windows)))]
 pub(super) fn find_loader_settings_file() -> Option<(PathBuf, Box<[u8]>)> {
     None
+}
+
+#[cold]
+fn emit_parsed_settings(
+    parsed_settings: &LoaderSettings,
+    display_path: &impl core::fmt::Display,
+    settings_log_filters: u8,
+    settings_active: bool,
+    global: Option<bool>,
+) {
+    let settings_logging_active = settings_log_filters != 0;
+    let filter_enabled = |filter: platform::LogFilter| {
+        if settings_logging_active {
+            settings_log_filters & filter.bit() != 0
+        } else {
+            platform::loader_debug_filter_enabled(filter)
+        }
+    };
+    let stderr_logging_active = settings_logging_active
+        || platform::LogFilter::ALL
+            .into_iter()
+            .any(platform::loader_debug_filter_enabled);
+    if !settings_active {
+        platform::write_loader_log(
+            platform::LogFilter::Info,
+            format_args!(
+                "vk_loader_settings.json file found at \"{display_path}\" but did not contain any valid settings."
+            ),
+        );
+    } else if stderr_logging_active {
+        if filter_enabled(platform::LogFilter::Info) {
+            platform::write_stderr_fmt(format_args!(
+                "[Vulkan Loader] INFO:           Using layer configurations found in loader settings from {display_path}\n"
+            ));
+        }
+        if settings_logging_active && filter_enabled(platform::LogFilter::Debug) {
+            let enabled = EnabledLogFilters(
+                platform::LogFilter::ALL
+                    .into_iter()
+                    .filter(|filter| filter_enabled(*filter))
+                    .fold(0, |mask, filter| mask | filter.bit()),
+            );
+            platform::write_stderr_fmt(format_args!(
+                "[Vulkan Loader] DEBUG:          Loader Settings Filters for Logging to Standard Error: {enabled}\n"
+            ));
+        }
+        if filter_enabled(platform::LogFilter::Debug)
+            && let Some(configurations) = &parsed_settings.layer_configurations
+        {
+            emit_layer_configurations(configurations);
+        }
+        if filter_enabled(platform::LogFilter::Debug)
+            && !parsed_settings.additional_drivers.is_empty()
+        {
+            emit_additional_drivers(parsed_settings);
+        }
+        if filter_enabled(platform::LogFilter::Debug)
+            && let Some(configurations) = &parsed_settings.device_configurations
+        {
+            emit_device_configurations(configurations);
+        }
+        if filter_enabled(platform::LogFilter::Debug) {
+            platform::write_stderr(
+                "[Vulkan Loader] DEBUG:          ---------------------------------\n",
+            );
+        }
+        if let Some(configurations) = &parsed_settings.layer_configurations {
+            emit_configured_manifest_diagnostics(configurations, global, filter_enabled);
+        }
+    }
+}
+
+#[cold]
+fn emit_layer_configurations(configurations: &[SettingsLayerConfiguration]) {
+    platform::write_stderr_fmt(format_args!(
+        "[Vulkan Loader] DEBUG:          Layer Configurations count = {}\n",
+        configurations.len()
+    ));
+    for (index, configuration) in configurations.iter().enumerate() {
+        platform::write_stderr_fmt(format_args!(
+            "[Vulkan Loader] DEBUG:          ---- Layer Configuration [{index}] ----\n"
+        ));
+        if configuration.control != LayerControl::UnorderedLayerLocation {
+            platform::write_loader_log(
+                platform::LogFilter::Debug,
+                format_args!("Name: {}", LossyBytes(configuration.name.to_bytes())),
+            );
+            platform::write_loader_log(
+                platform::LogFilter::Debug,
+                format_args!("Path: {}", configuration.path.display()),
+            );
+            platform::write_stderr_fmt(format_args!(
+                "[Vulkan Loader] DEBUG:          Layer Type: {}\n",
+                if configuration.treat_as_implicit_manifest {
+                    "Implicit"
+                } else {
+                    "Explicit"
+                }
+            ));
+        }
+        platform::write_stderr_fmt(format_args!(
+            "[Vulkan Loader] DEBUG:          Control: {}\n",
+            configuration.control.as_str()
+        ));
+    }
+}
+
+#[cold]
+fn emit_additional_drivers(parsed_settings: &LoaderSettings) {
+    platform::write_stderr("[Vulkan Loader] DEBUG:          ----\n");
+    platform::write_stderr_fmt(format_args!(
+        "[Vulkan Loader] DEBUG:          Use Additional Drivers Exclusively = {}\n",
+        if parsed_settings.additional_drivers_use_exclusively {
+            "true"
+        } else {
+            "false"
+        }
+    ));
+    platform::write_stderr_fmt(format_args!(
+        "[Vulkan Loader] DEBUG:          Additional Driver Configurations count = {}\n",
+        parsed_settings.additional_drivers.len()
+    ));
+    for (index, path) in parsed_settings.additional_drivers.iter().enumerate() {
+        platform::write_stderr_fmt(format_args!(
+            "[Vulkan Loader] DEBUG:          ---- Driver Configuration [{index}] ----\n"
+        ));
+        platform::write_stderr_fmt(format_args!(
+            "[Vulkan Loader] DEBUG:          Path: {}\n",
+            path.display()
+        ));
+    }
+}
+
+#[cold]
+fn emit_device_configurations(configurations: &[DeviceConfiguration]) {
+    platform::write_stderr("[Vulkan Loader] DEBUG:          ----\n");
+    platform::write_stderr_fmt(format_args!(
+        "[Vulkan Loader] DEBUG:          Device Configurations count = {}\n",
+        configurations.len()
+    ));
+    for (index, configuration) in configurations.iter().enumerate() {
+        platform::write_stderr_fmt(format_args!(
+            "[Vulkan Loader] DEBUG:          ---- Device Configuration [{index}] ----\n"
+        ));
+        platform::write_stderr_fmt(format_args!(
+            "[Vulkan Loader] DEBUG:          deviceUUID: {}\n",
+            format_uuid(&configuration.device_uuid)
+        ));
+        platform::write_stderr_fmt(format_args!(
+            "[Vulkan Loader] DEBUG:          driverUUID: {}\n",
+            format_uuid(&configuration.driver_uuid)
+        ));
+        platform::write_stderr_fmt(format_args!(
+            "[Vulkan Loader] DEBUG:          driverVersion: {}\n",
+            configuration.driver_version
+        ));
+        if let Some(name) = &configuration.device_name {
+            platform::write_stderr_fmt(format_args!(
+                "[Vulkan Loader] DEBUG:          deviceName: {name}\n"
+            ));
+        }
+        if let Some(name) = &configuration.driver_name {
+            platform::write_stderr_fmt(format_args!(
+                "[Vulkan Loader] DEBUG:          driverName: {name}\n"
+            ));
+        }
+    }
+}
+
+#[cold]
+fn emit_configured_manifest_diagnostics(
+    configurations: &[SettingsLayerConfiguration],
+    global: Option<bool>,
+    filter_enabled: impl Fn(LogFilter) -> bool + Copy,
+) {
+    for configuration in configurations {
+        if global.is_none()
+            && platform::is_json_path(&configuration.path)
+            && !matches!(
+                configuration.control,
+                LayerControl::Off | LayerControl::UnorderedLayerLocation
+            )
+            && [
+                platform::LogFilter::Info,
+                platform::LogFilter::Warning,
+                platform::LogFilter::Layer,
+            ]
+            .into_iter()
+            .any(filter_enabled)
+        {
+            for manifest in parse_layer_manifest(
+                &configuration.path,
+                configuration.treat_as_implicit_manifest,
+            ) {
+                if filter_enabled(platform::LogFilter::Info) {
+                    platform::write_stderr_fmt(format_args!(
+                        "[Vulkan Loader] INFO:           Found manifest file {} (file version {}.{}.{})\n",
+                        manifest.manifest_path.display(),
+                        vk::VK_API_VERSION_MAJOR(manifest.manifest_version),
+                        vk::VK_API_VERSION_MINOR(manifest.manifest_version),
+                        vk::VK_API_VERSION_PATCH(manifest.manifest_version),
+                    ));
+                }
+                if filter_enabled(platform::LogFilter::Warning)
+                    && !manifest.name.to_bytes().starts_with(b"VK_LAYER_")
+                {
+                    platform::write_stderr_fmt(format_args!(
+                        "[Vulkan Loader] WARNING:        Layer name {} does not conform to naming standard (Policy #LLP_LAYER_3)\n",
+                        LossyBytes(manifest.name.to_bytes())
+                    ));
+                }
+                if manifest.is_meta_layer() && filter_enabled(platform::LogFilter::Layer) {
+                    platform::write_stderr_fmt(format_args!(
+                        "[Vulkan Loader] INFO | LAYER:   Encountered meta-layer \"{}\"\n",
+                        LossyBytes(manifest.name.to_bytes())
+                    ));
+                }
+                if !configuration.treat_as_implicit_manifest
+                    && manifest.has_pre_instance_functions
+                    && filter_enabled(platform::LogFilter::Warning)
+                {
+                    platform::write_stderr_fmt(format_args!(
+                        "[Vulkan Loader] WARNING:        Found pre_instance_functions section in explicit layer from \"{}\". This section is only valid in implicit layers. The section will be ignored\n",
+                        manifest.manifest_path.display()
+                    ));
+                }
+            }
+        }
+        if filter_enabled(platform::LogFilter::Error)
+            && !matches!(
+                configuration.control,
+                LayerControl::Off | LayerControl::UnorderedLayerLocation
+            )
+            && configuration
+                .path
+                .extension()
+                .is_some_and(|extension| extension == "json")
+            && !platform::file_exists(&configuration.path)
+        {
+            platform::write_stderr_fmt(format_args!(
+                "[Vulkan Loader] ERROR:          loader_get_json: Failed to open JSON file {}\n",
+                configuration.path.display()
+            ));
+        }
+    }
+}
+
+fn parse_loader_settings(settings: &Value) -> Option<LoaderSettings> {
+    let layer_configurations: Option<Box<[SettingsLayerConfiguration]>> = match settings
+        .get("layers")
+    {
+        Some(layers) => collect_optional_values(layers.as_array()?.iter().map(|layer| {
+            let control_value = printed_bytes(layer.get("control")?.as_bytes()?);
+            let control = LayerControl::parse(core::str::from_utf8(&control_value).unwrap_or(""));
+            if control == LayerControl::UnorderedLayerLocation {
+                return Some(SettingsLayerConfiguration {
+                    name: owned_c_string(b"")?,
+                    path: PathBuf::new(),
+                    control,
+                    treat_as_implicit_manifest: false,
+                });
+            }
+            let name = printed_bytes(layer.get("name")?.as_bytes()?);
+            let path = printed_bytes(layer.get("path")?.as_bytes()?);
+            Some(SettingsLayerConfiguration {
+                name: owned_c_string(&name)?,
+                path: owned_byte_path(&path)?,
+                control,
+                treat_as_implicit_manifest: layer
+                    .get("treat_as_implicit_manifest")
+                    .and_then(Value::as_bool)
+                    .unwrap_or(false),
+            })
+        })),
+        None => None,
+    };
+    let additional_drivers = settings
+        .get("additional_drivers")
+        .and_then(Value::as_array)
+        .and_then(|drivers| {
+            collect_optional_values(drivers.iter().map(|driver| {
+                driver
+                    .as_object()?
+                    .get("path")?
+                    .as_bytes()
+                    .map(printed_bytes)
+                    .and_then(|path| owned_byte_path(&path))
+            }))
+        })
+        .unwrap_or_default();
+    let device_configurations: Option<Box<[DeviceConfiguration]>> =
+        settings.get("device_configurations").map(|configurations| {
+            collect_values(
+                configurations
+                    .as_array()
+                    .into_iter()
+                    .flatten()
+                    .filter_map(parse_device_configuration),
+            )
+            .unwrap_or_default()
+        });
+    if pending::json_allocation_failed() {
+        return None;
+    }
+    let parsed_settings = LoaderSettings {
+        settings_file_path: PathBuf::new(),
+        layer_configurations,
+        additional_drivers,
+        additional_drivers_use_exclusively: settings
+            .get("additional_drivers_use_exclusively")
+            .and_then(Value::as_bool)
+            .unwrap_or(false),
+        device_configurations,
+    };
+    Some(parsed_settings)
 }

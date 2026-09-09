@@ -71,7 +71,10 @@ pub(crate) use settings::{destroy_global_settings_lock, release_global_loader_se
 use crate::platform;
 use alloc::{ffi::CString, string::String, vec::Vec};
 use core::ops::Deref;
-use std::{ffi::OsString, path::PathBuf};
+use std::{
+    ffi::OsString,
+    path::{Path, PathBuf},
+};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct DriverManifest {
@@ -95,7 +98,7 @@ pub(crate) struct LayerManifest {
     pub(crate) source_index: usize,
     pub(crate) name: CString,
     pub(crate) manifest_path: PathBuf,
-    pub(crate) library_path: Option<PathBuf>,
+    pub(crate) source: LayerSource,
     pub(crate) manifest_version: u32,
     pub(crate) api_version: u32,
     pub(crate) architecture_supported: bool,
@@ -105,17 +108,48 @@ pub(crate) struct LayerManifest {
     pub(crate) device_extensions: Box<[LayerExtension]>,
     pub(crate) enable_environment: Option<(OsString, OsString)>,
     pub(crate) disable_environment: Option<(OsString, OsString)>,
-    pub(crate) component_layers: Box<[CString]>,
-    pub(crate) has_component_layers: bool,
     pub(crate) blacklisted_layers: Box<[CString]>,
     pub(crate) override_paths: Box<[PathBuf]>,
-    pub(crate) app_keys: Box<[PathBuf]>,
-    pub(crate) has_app_keys: bool,
+    pub(crate) app_keys: Option<Box<[PathBuf]>>,
     pub(crate) functions: LayerFunctions,
     pub(crate) pre_instance_functions: PreInstanceFunctions,
     pub(crate) has_pre_instance_functions: bool,
     pub(crate) implicit: bool,
     pub(crate) settings_control: Option<LayerControl>,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) enum LayerSource {
+    Library(PathBuf),
+    Meta(Box<[CString]>),
+}
+
+impl LayerManifest {
+    #[inline]
+    pub(crate) const fn is_meta_layer(&self) -> bool {
+        matches!(self.source, LayerSource::Meta(_))
+    }
+
+    #[inline]
+    pub(crate) fn library_path(&self) -> Option<&Path> {
+        match &self.source {
+            LayerSource::Library(path) => Some(path),
+            LayerSource::Meta(_) => None,
+        }
+    }
+
+    #[inline]
+    pub(crate) fn component_layers(&self) -> &[CString] {
+        match &self.source {
+            LayerSource::Library(_) => &[],
+            LayerSource::Meta(components) => components,
+        }
+    }
+
+    #[inline]
+    pub(crate) fn app_keys(&self) -> &[PathBuf] {
+        self.app_keys.as_deref().unwrap_or_default()
+    }
 }
 
 pub(crate) struct DiscoveredLayers {

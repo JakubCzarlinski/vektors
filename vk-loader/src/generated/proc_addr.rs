@@ -2864,58 +2864,36 @@ pub(crate) fn exported_proc_addr(id: u16) -> PFN_vkVoidFunction {
 }
 #[inline(never)]
 pub(crate) fn instance_terminator_proc_addr(id: u16) -> PFN_vkVoidFunction {
-    match id {
+    let address = match id {
         #[cfg(target_os = "android")]
-        360 => Some(erase_function(
-            terminator_vkCreateAndroidSurfaceKHR as *const (),
-        )),
+        360 => terminator_vkCreateAndroidSurfaceKHR as *const (),
         #[cfg(feature = "wsi-directfb")]
-        380 => Some(erase_function(
-            terminator_vkCreateDirectFBSurfaceEXT as *const (),
-        )),
-        382 => Some(erase_function(
-            terminator_vkCreateDisplayPlaneSurfaceKHR as *const (),
-        )),
-        390 => Some(erase_function(
-            terminator_vkCreateHeadlessSurfaceEXT as *const (),
-        )),
+        380 => terminator_vkCreateDirectFBSurfaceEXT as *const (),
+        382 => terminator_vkCreateDisplayPlaneSurfaceKHR as *const (),
+        390 => terminator_vkCreateHeadlessSurfaceEXT as *const (),
         #[cfg(target_os = "ios")]
-        391 => Some(erase_function(
-            terminator_vkCreateIOSSurfaceMVK as *const (),
-        )),
+        391 => terminator_vkCreateIOSSurfaceMVK as *const (),
         #[cfg(target_os = "fuchsia")]
-        393 => Some(erase_function(
-            terminator_vkCreateImagePipeSurfaceFUCHSIA as *const (),
-        )),
+        393 => terminator_vkCreateImagePipeSurfaceFUCHSIA as *const (),
         #[cfg(target_os = "macos")]
-        399 => Some(erase_function(
-            terminator_vkCreateMacOSSurfaceMVK as *const (),
-        )),
+        399 => terminator_vkCreateMacOSSurfaceMVK as *const (),
         #[cfg(any(
             target_os = "macos",
             target_os = "ios",
             target_os = "tvos",
             target_os = "visionos"
         ))]
-        400 => Some(erase_function(
-            terminator_vkCreateMetalSurfaceEXT as *const (),
-        )),
+        400 => terminator_vkCreateMetalSurfaceEXT as *const (),
         #[cfg(any(target_os = "nto", target_os = "qnx"))]
-        417 => Some(erase_function(
-            terminator_vkCreateScreenSurfaceQNX as *const (),
-        )),
+        417 => terminator_vkCreateScreenSurfaceQNX as *const (),
         #[cfg(feature = "platform-ggp")]
-        423 => Some(erase_function(
-            terminator_vkCreateStreamDescriptorSurfaceGGP as *const (),
-        )),
+        423 => terminator_vkCreateStreamDescriptorSurfaceGGP as *const (),
         #[cfg(target_env = "ohos")]
-        424 => Some(erase_function(terminator_vkCreateSurfaceOHOS as *const ())),
+        424 => terminator_vkCreateSurfaceOHOS as *const (),
         #[cfg(feature = "platform-ubm")]
-        428 => Some(erase_function(
-            terminator_vkCreateUbmSurfaceSEC as *const (),
-        )),
+        428 => terminator_vkCreateUbmSurfaceSEC as *const (),
         #[cfg(feature = "platform-vi")]
-        430 => Some(erase_function(terminator_vkCreateViSurfaceNN as *const ())),
+        430 => terminator_vkCreateViSurfaceNN as *const (),
         #[cfg(all(
             feature = "wsi-wayland",
             any(
@@ -2928,13 +2906,9 @@ pub(crate) fn instance_terminator_proc_addr(id: u16) -> PFN_vkVoidFunction {
                 target_os = "cygwin"
             )
         ))]
-        433 => Some(erase_function(
-            terminator_vkCreateWaylandSurfaceKHR as *const (),
-        )),
+        433 => terminator_vkCreateWaylandSurfaceKHR as *const (),
         #[cfg(target_os = "windows")]
-        434 => Some(erase_function(
-            terminator_vkCreateWin32SurfaceKHR as *const (),
-        )),
+        434 => terminator_vkCreateWin32SurfaceKHR as *const (),
         #[cfg(all(
             feature = "wsi-xcb",
             any(
@@ -2947,9 +2921,7 @@ pub(crate) fn instance_terminator_proc_addr(id: u16) -> PFN_vkVoidFunction {
                 target_os = "cygwin"
             )
         ))]
-        435 => Some(erase_function(
-            terminator_vkCreateXcbSurfaceKHR as *const (),
-        )),
+        435 => terminator_vkCreateXcbSurfaceKHR as *const (),
         #[cfg(all(
             feature = "wsi-xlib",
             any(
@@ -2962,12 +2934,11 @@ pub(crate) fn instance_terminator_proc_addr(id: u16) -> PFN_vkVoidFunction {
                 target_os = "cygwin"
             )
         ))]
-        436 => Some(erase_function(
-            terminator_vkCreateXlibSurfaceKHR as *const (),
-        )),
-        488 => Some(erase_function(terminator_vkDestroySurfaceKHR as *const ())),
-        _ => None,
-    }
+        436 => terminator_vkCreateXlibSurfaceKHR as *const (),
+        488 => terminator_vkDestroySurfaceKHR as *const (),
+        _ => return None,
+    };
+    Some(erase_function(address))
 }
 #[inline(never)]
 #[allow(clippy::too_many_lines)]

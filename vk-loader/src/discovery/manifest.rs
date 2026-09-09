@@ -1,19 +1,5 @@
 //! Driver and layer manifest parsing.
 
-use alloc::{borrow::Cow, ffi::CString, string::String};
-use core::fmt::Write as _;
-#[cfg(unix)]
-use std::{ffi::OsStr, os::unix::ffi::OsStrExt as _};
-use std::{
-    ffi::OsString,
-    path::{Path, PathBuf},
-};
-
-use crate::{debug::diagnostics, json::Value, pending};
-use vk::VK_MAKE_API_VERSION;
-
-use crate::platform;
-
 use super::DriverManifest;
 use super::DriverManifestError;
 use super::LayerAllocationShadow;
@@ -26,6 +12,17 @@ use super::owned_c_string;
 use super::owned_path;
 use super::parse_json_value;
 use super::shadow_layer_json_allocations;
+use crate::platform;
+use crate::{debug::diagnostics, json::Value, pending};
+use alloc::{borrow::Cow, ffi::CString, string::String};
+use core::fmt::Write as _;
+#[cfg(unix)]
+use std::{ffi::OsStr, os::unix::ffi::OsStrExt as _};
+use std::{
+    ffi::OsString,
+    path::{Path, PathBuf},
+};
+use vk::VK_MAKE_API_VERSION;
 
 pub(super) fn strtoul_prefix(bytes: &[u8]) -> libc::c_ulong {
     let mut index = bytes
@@ -508,7 +505,6 @@ pub(super) fn parse_raw_layer(
 ) -> Option<LayerManifest> {
     let layer = &mut layer;
     let has_component_layers = layer.component_layers.is_some();
-    let has_app_keys = layer.app_keys.is_some();
     let component_layers = raw_c_string_array(layer.component_layers.take());
     let name =
         borrowed_c_string_limited(layer.name.take(), vk::VK_MAX_EXTENSION_NAME_SIZE as usize)?;
@@ -528,11 +524,11 @@ pub(super) fn parse_raw_layer(
         .take()
         .and_then(owned_byte_path)
         .and_then(|library| resolve_library_path(path, library));
-    if (library_path.is_none() && !has_component_layers)
-        || (library_path.is_some() && has_component_layers)
-    {
-        return None;
-    }
+    let source = match (library_path, has_component_layers) {
+        (Some(path), false) => super::LayerSource::Library(path),
+        (None, true) => super::LayerSource::Meta(component_layers),
+        _ => return None,
+    };
     let functions = layer
         .functions
         .take()
@@ -569,7 +565,7 @@ pub(super) fn parse_raw_layer(
         source_index,
         name,
         manifest_path: owned_path(path)?,
-        library_path,
+        source,
         manifest_version,
         api_version,
         architecture_supported,
@@ -584,16 +580,16 @@ pub(super) fn parse_raw_layer(
             .then(|| raw_environment(layer.enable_environment.take()))
             .flatten(),
         disable_environment,
-        component_layers,
-        has_component_layers,
         blacklisted_layers: if is_override {
             raw_c_string_array(layer.blacklisted_layers.take())
         } else {
             Box::default()
         },
         override_paths: raw_path_array(layer.override_paths.take()),
-        app_keys: raw_path_array(layer.app_keys.take()),
-        has_app_keys,
+        app_keys: layer
+            .app_keys
+            .take()
+            .map(|value| raw_path_array(Some(value))),
         functions,
         pre_instance_functions,
         has_pre_instance_functions,

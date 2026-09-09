@@ -62,75 +62,15 @@ pub unsafe extern "system" fn vkCreateInstance(
     if pending::take_json_allocation_failed() {
         return VkResult::ERROR_OUT_OF_HOST_MEMORY;
     }
-    if let Some(settings) = &settings {
-        let display_path = match diagnostics::settings_path(settings.settings_file_path()) {
-            Ok(path) => path,
-            Err(error) => return error,
-        };
-        diagnostics::with_message(
-            format_args!("Using layer configurations found in loader settings from {display_path}"),
-            |message| {
-                // SAFETY: The caller retains the complete instance-create pNext chain.
-                unsafe {
-                    debug::messenger::submit_instance_create_message(
-                        create_info_ref,
-                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                        message,
-                    );
-                };
-            },
-        );
-    } else if !discovery::loader_settings_file_present() {
-        unsafe {
-            emit_driver_create_message(
-                create_info_ref,
-                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                "No valid vk_loader_settings.json file found, no loader settings will be active",
-            );
-        };
-    }
-    if let Some(requested) = invalid_api_version {
-        unsafe {
-            emit_driver_create_message(
-                create_info_ref,
-                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-                format_args!(
-                    "VkInstanceCreateInfo::pApplicationInfo::apiVersion has value of {requested} which is not permitted. If apiVersion is not 0, then it must be greater than or equal to the value of VK_API_VERSION_1_0 [VUID-VkApplicationInfo-apiVersion]"
-                ),
-            );
-        };
-    }
-    let portability_flag = create_info_ref
-        .flags
-        .intersects(vk::VkInstanceCreateFlagBits::ENUMERATE_PORTABILITY_BIT_KHR);
-    let portability_extension = unsafe {
-        instance_extension_enabled(
+    if let Err(error) = unsafe {
+        emit_instance_configuration(
             create_info_ref,
-            vk::VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
+            settings.as_ref(),
+            invalid_api_version,
+            api_version,
         )
-    };
-    if portability_flag && portability_extension {
-        // SAFETY: The caller's complete create-info chain remains live.
-        unsafe {
-            emit_driver_create_message(
-                create_info_ref,
-                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                "Portability enumeration bit was set, enumerating portability drivers.",
-            );
-        };
-    }
-    let variant = vk::VK_API_VERSION_VARIANT(api_version);
-    if variant != 0 {
-        // SAFETY: The caller's complete create-info chain remains live.
-        unsafe {
-            emit_driver_create_message(
-                create_info_ref,
-                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                format_args!(
-                    "vkCreateInstance: The API Variant specified in pCreateInfo->pApplicationInfo.apiVersion is {variant} instead of the expected value of 0."
-                ),
-            );
-        };
+    } {
+        return error;
     }
     let selected_layers = match layer::select_active_layers(create_info_ref, settings.as_ref()) {
         Ok(layers) => layers,
@@ -171,7 +111,7 @@ pub unsafe extern "system" fn vkCreateInstance(
     };
     let device_configurations =
         settings.and_then(discovery::LoaderSettings::into_device_configurations);
-    let mut loader_instance = match LoaderInstance::new(
+    let loader_instance = match LoaderInstance::new(
         api_version,
         enabled_extensions,
         scanned_icds,
@@ -182,34 +122,7 @@ pub unsafe extern "system" fn vkCreateInstance(
         Ok(instance) => instance,
         Err(result) => return result,
     };
-    if loader_instance.layers.is_empty() {
-        let previous = pending::replace_instance(loader_instance.handle());
-        // SAFETY: The public entrypoint validated the output and create-info
-        // pointers, and the pending handle identifies this unregistered box.
-        unsafe { instance.write(loader_instance.handle()) };
-        let result = unsafe { layer::create_instance_terminator(create_info, allocator, instance) };
-        pending::replace_instance(previous);
-        if result != VkResult::SUCCESS {
-            unsafe { instance.write(VkInstance::NULL) };
-            return result;
-        }
-        LoaderInstance::register(loader_instance);
-        return VkResult::SUCCESS;
-    }
-    // SAFETY: The loaded layer interfaces and caller-owned create structures
-    // remain live for the duration of the synchronous chain call.
-    let result = unsafe {
-        layer::create_instance_chain(&mut loader_instance, create_info_ref, allocator, instance)
-    };
-    if result != VkResult::SUCCESS {
-        // The layer ABI receives a preinitialized loader object, but a failed
-        // create must not leak that internal handle back to the application.
-        unsafe { instance.write(VkInstance::NULL) };
-        destroy_icd_instances(&loader_instance.icds, allocator);
-        return result;
-    }
-    LoaderInstance::register(loader_instance);
-    VkResult::SUCCESS
+    unsafe { finish_instance_creation(loader_instance, create_info_ref, allocator, instance) }
 }
 
 #[cold]
@@ -615,32 +528,7 @@ pub(crate) unsafe fn scan_direct_drivers(
                 // direct drivers.
             }
             Err(error) => {
-                let emit = |message: core::fmt::Arguments<'_>| {
-                    // SAFETY: The caller retains the instance-create chain throughout this scan.
-                    unsafe {
-                        emit_driver_category_create_message(
-                            create_info,
-                            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-                            message,
-                        );
-                    }
-                };
-                match error {
-                    DirectIcdError::MissingNegotiate => emit(format_args!(
-                        "loader_add_direct_driver: Could not get 'vk_icdNegotiateLoaderICDInterfaceVersion' from VkDirectDriverLoadingInfoLUNARG structure at index {index}, skipping."
-                    )),
-                    DirectIcdError::IncompatibleInterface(version) => emit(format_args!(
-                        "loader_add_direct_driver: VkDirectDriverLoadingInfoLUNARG structure at index {index} supports interface version {version}, which is incompatible with the Loader Driver Interface version that supports the VK_LUNARG_direct_driver_loading extension, skipping."
-                    )),
-                    DirectIcdError::MissingCreateInstance => emit(format_args!(
-                        "loader_add_direct_driver: Could not get 'vkCreateInstance' from VkDirectDriverLoadingInfoLUNARG structure at index {index}, skipping."
-                    )),
-                    DirectIcdError::MissingEnumerateExtensions => emit(format_args!(
-                        "loader_add_direct_driver: Could not get 'vkEnumerateInstanceExtensionProperties' from VkDirectDriverLoadingInfoLUNARG structure at index {index}, skipping."
-                    )),
-                    DirectIcdError::EnumerateVersion(_)
-                    | DirectIcdError::MutexInitialization(_) => {}
-                }
+                unsafe { emit_direct_driver_error(create_info, index, &error) };
             }
         }
     }
@@ -1328,36 +1216,14 @@ pub(crate) unsafe fn create_scanned_icd_instance(
                 CStr::from_ptr(property.extensionName.as_ptr()) == CStr::from_ptr(name)
             })
     };
-    let mut icd_extension_names = Vec::new();
-    if create_info.enabledExtensionCount != 0 {
-        let capacity = (create_info.enabledExtensionCount as usize)
-            .checked_add(1)
-            .ok_or(VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
-        icd_extension_names
-            .try_reserve_exact(capacity)
-            .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
-        for index in 0..create_info.enabledExtensionCount as usize {
-            let name = unsafe { create_info.ppEnabledExtensionNames.add(index).read() };
-            if supports(name) {
-                icd_extension_names.push(name);
-            }
-        }
-    }
-    let needs_sort_properties_extension = LINUX_SORT_PLATFORM_ENABLED
-        && linux_sort_requires_properties_extension(requested_api_version, icd.api_version);
-    let properties2_name = vk::VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME;
-    let properties2_already_enabled = icd_extension_names
-        .iter()
-        .any(|&name| !name.is_null() && unsafe { CStr::from_ptr(name) == properties2_name });
-    if needs_sort_properties_extension
-        && !properties2_already_enabled
-        && supports(properties2_name.as_ptr())
-    {
-        icd_extension_names
-            .try_reserve(1)
-            .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
-        icd_extension_names.push(properties2_name.as_ptr());
-    }
+    let icd_extension_names = unsafe {
+        filtered_icd_instance_extensions(
+            create_info,
+            requested_api_version,
+            icd.api_version,
+            supports,
+        )
+    }?;
     if !icd_extension_names.is_empty() {
         icd_create_info.enabledExtensionCount = icd_extension_names.len() as u32;
         icd_create_info.ppEnabledExtensionNames = icd_extension_names.as_ptr();
@@ -1403,41 +1269,15 @@ pub(crate) unsafe fn create_scanned_icd_instance(
             // SAFETY: `load_into` initialized the complete dispatch field.
             let dispatch_ref = unsafe { &*dispatch };
             if !dispatch_ref.has_required_core_1_0() {
-                if dispatch_ref.vkGetPhysicalDeviceFeatures.is_none()
-                    && let Some(path) = icd.library_path()
-                {
-                    unsafe {
-                        emit_driver_create_message(
-                            create_info,
-                            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                            format_args!(
-                                "Unable to load vkGetPhysicalDeviceFeatures from ICD {}",
-                                path.display()
-                            ),
-                        );
-                    };
-                }
-                if let Some(path) = icd.library_path() {
-                    unsafe {
-                        emit_driver_create_message(
-                            create_info,
-                            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                            format_args!(
-                                "terminator_CreateInstance: Failed to find required entrypoints in ICD {}. Skipping this driver.",
-                                path.display()
-                            ),
-                        );
-                    };
-                }
-                let destroy: Option<PFN_vkDestroyInstance> = unsafe {
-                    load_typed((icd.get_instance_proc_addr)(
+                unsafe {
+                    discard_incomplete_icd_instance(
+                        create_info,
+                        &icd,
+                        dispatch_ref,
                         handle,
-                        c"vkDestroyInstance".as_ptr(),
-                    ))
+                        allocator,
+                    );
                 };
-                if let Some(destroy) = destroy {
-                    unsafe { destroy(handle, allocator) };
-                }
                 return Ok(false);
             }
             unsafe {
@@ -1550,4 +1390,236 @@ pub(crate) unsafe extern "system" fn destroy_instance_terminator(
     debug::messenger::destroy_all(instance, allocator);
     destroy_all_surfaces(instance);
     destroy_icd_instances(&instance.icds, allocator);
+}
+
+#[cold]
+unsafe fn emit_instance_configuration(
+    create_info_ref: &VkInstanceCreateInfo<'_>,
+    settings: Option<&discovery::LoaderSettings>,
+    invalid_api_version: Option<u32>,
+    api_version: u32,
+) -> Result<(), VkResult> {
+    if let Some(settings) = &settings {
+        let display_path = diagnostics::settings_path(settings.settings_file_path())?;
+        diagnostics::with_message(
+            format_args!("Using layer configurations found in loader settings from {display_path}"),
+            |message| {
+                // SAFETY: The caller retains the complete instance-create pNext chain.
+                unsafe {
+                    debug::messenger::submit_instance_create_message(
+                        create_info_ref,
+                        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+                        message,
+                    );
+                };
+            },
+        );
+    } else if !discovery::loader_settings_file_present() {
+        unsafe {
+            emit_driver_create_message(
+                create_info_ref,
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+                "No valid vk_loader_settings.json file found, no loader settings will be active",
+            );
+        };
+    }
+    if let Some(requested) = invalid_api_version {
+        unsafe {
+            emit_driver_create_message(
+                create_info_ref,
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
+                format_args!(
+                    "VkInstanceCreateInfo::pApplicationInfo::apiVersion has value of {requested} which is not permitted. If apiVersion is not 0, then it must be greater than or equal to the value of VK_API_VERSION_1_0 [VUID-VkApplicationInfo-apiVersion]"
+                ),
+            );
+        };
+    }
+    let portability_flag = create_info_ref
+        .flags
+        .intersects(vk::VkInstanceCreateFlagBits::ENUMERATE_PORTABILITY_BIT_KHR);
+    let portability_extension = unsafe {
+        instance_extension_enabled(
+            create_info_ref,
+            vk::VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
+        )
+    };
+    if portability_flag && portability_extension {
+        // SAFETY: The caller's complete create-info chain remains live.
+        unsafe {
+            emit_driver_create_message(
+                create_info_ref,
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+                "Portability enumeration bit was set, enumerating portability drivers.",
+            );
+        };
+    }
+    let variant = vk::VK_API_VERSION_VARIANT(api_version);
+    if variant != 0 {
+        // SAFETY: The caller's complete create-info chain remains live.
+        unsafe {
+            emit_driver_create_message(
+                create_info_ref,
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+                format_args!(
+                    "vkCreateInstance: The API Variant specified in pCreateInfo->pApplicationInfo.apiVersion is {variant} instead of the expected value of 0."
+                ),
+            );
+        };
+    }
+    Ok(())
+}
+
+#[cold]
+unsafe fn emit_direct_driver_error(
+    create_info: &VkInstanceCreateInfo<'_>,
+    index: usize,
+    error: &DirectIcdError,
+) {
+    let emit = |message: core::fmt::Arguments<'_>| {
+        // SAFETY: The caller retains the instance-create chain throughout this scan.
+        unsafe {
+            emit_driver_category_create_message(
+                create_info,
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
+                message,
+            );
+        }
+    };
+    match error {
+        DirectIcdError::MissingNegotiate => emit(format_args!(
+            "loader_add_direct_driver: Could not get 'vk_icdNegotiateLoaderICDInterfaceVersion' from VkDirectDriverLoadingInfoLUNARG structure at index {index}, skipping."
+        )),
+        DirectIcdError::IncompatibleInterface(version) => emit(format_args!(
+            "loader_add_direct_driver: VkDirectDriverLoadingInfoLUNARG structure at index {index} supports interface version {version}, which is incompatible with the Loader Driver Interface version that supports the VK_LUNARG_direct_driver_loading extension, skipping."
+        )),
+        DirectIcdError::MissingCreateInstance => emit(format_args!(
+            "loader_add_direct_driver: Could not get 'vkCreateInstance' from VkDirectDriverLoadingInfoLUNARG structure at index {index}, skipping."
+        )),
+        DirectIcdError::MissingEnumerateExtensions => emit(format_args!(
+            "loader_add_direct_driver: Could not get 'vkEnumerateInstanceExtensionProperties' from VkDirectDriverLoadingInfoLUNARG structure at index {index}, skipping."
+        )),
+        DirectIcdError::EnumerateVersion(_) | DirectIcdError::MutexInitialization(_) => {}
+    }
+}
+
+#[cold]
+unsafe fn discard_incomplete_icd_instance(
+    create_info: &VkInstanceCreateInfo<'_>,
+    icd: &ScannedIcd,
+    dispatch_ref: &InstanceDispatchTable,
+    handle: VkInstance,
+    allocator: *const VkAllocationCallbacks<'_>,
+) {
+    if dispatch_ref.vkGetPhysicalDeviceFeatures.is_none()
+        && let Some(path) = icd.library_path()
+    {
+        unsafe {
+            emit_driver_create_message(
+                create_info,
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+                format_args!(
+                    "Unable to load vkGetPhysicalDeviceFeatures from ICD {}",
+                    path.display()
+                ),
+            );
+        };
+    }
+    if let Some(path) = icd.library_path() {
+        unsafe {
+            emit_driver_create_message(
+                create_info,
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+                format_args!(
+                    "terminator_CreateInstance: Failed to find required entrypoints in ICD {}. Skipping this driver.",
+                    path.display()
+                ),
+            );
+        };
+    }
+    let destroy: Option<PFN_vkDestroyInstance> = unsafe {
+        load_typed((icd.get_instance_proc_addr)(
+            handle,
+            c"vkDestroyInstance".as_ptr(),
+        ))
+    };
+    if let Some(destroy) = destroy {
+        unsafe { destroy(handle, allocator) };
+    }
+}
+
+unsafe fn finish_instance_creation(
+    mut loader_instance: alloc::boxed::Box<LoaderInstance>,
+    create_info_ref: &VkInstanceCreateInfo<'_>,
+    allocator: *const VkAllocationCallbacks<'_>,
+    instance: *mut VkInstance,
+) -> VkResult {
+    if loader_instance.layers.is_empty() {
+        let previous = pending::replace_instance(loader_instance.handle());
+        // SAFETY: The public entrypoint validated the output and create-info
+        // pointers, and the pending handle identifies this unregistered box.
+        unsafe { instance.write(loader_instance.handle()) };
+        let result =
+            unsafe { layer::create_instance_terminator(create_info_ref, allocator, instance) };
+        pending::replace_instance(previous);
+        if result != VkResult::SUCCESS {
+            unsafe { instance.write(VkInstance::NULL) };
+            return result;
+        }
+        LoaderInstance::register(loader_instance);
+        return VkResult::SUCCESS;
+    }
+    // SAFETY: The loaded layer interfaces and caller-owned create structures
+    // remain live for the duration of the synchronous chain call.
+    let result = unsafe {
+        layer::create_instance_chain(&mut loader_instance, create_info_ref, allocator, instance)
+    };
+    if result != VkResult::SUCCESS {
+        // The layer ABI receives a preinitialized loader object, but a failed
+        // create must not leak that internal handle back to the application.
+        unsafe { instance.write(VkInstance::NULL) };
+        destroy_icd_instances(&loader_instance.icds, allocator);
+        return result;
+    }
+    LoaderInstance::register(loader_instance);
+    VkResult::SUCCESS
+}
+
+#[cold]
+unsafe fn filtered_icd_instance_extensions(
+    create_info: &VkInstanceCreateInfo<'_>,
+    requested_api_version: u32,
+    driver_api_version: u32,
+    supports: impl Fn(*const core::ffi::c_char) -> bool,
+) -> Result<Vec<*const core::ffi::c_char>, VkResult> {
+    let mut icd_extension_names = Vec::new();
+    if create_info.enabledExtensionCount != 0 {
+        let capacity = (create_info.enabledExtensionCount as usize)
+            .checked_add(1)
+            .ok_or(VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+        icd_extension_names
+            .try_reserve_exact(capacity)
+            .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+        for index in 0..create_info.enabledExtensionCount as usize {
+            let name = unsafe { create_info.ppEnabledExtensionNames.add(index).read() };
+            if supports(name) {
+                icd_extension_names.push(name);
+            }
+        }
+    }
+    let needs_sort_properties_extension = LINUX_SORT_PLATFORM_ENABLED
+        && linux_sort_requires_properties_extension(requested_api_version, driver_api_version);
+    let properties2_name = vk::VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME;
+    let properties2_already_enabled = icd_extension_names
+        .iter()
+        .any(|&name| !name.is_null() && unsafe { CStr::from_ptr(name) == properties2_name });
+    if needs_sort_properties_extension
+        && !properties2_already_enabled
+        && supports(properties2_name.as_ptr())
+    {
+        icd_extension_names
+            .try_reserve(1)
+            .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+        icd_extension_names.push(properties2_name.as_ptr());
+    }
+    Ok(icd_extension_names)
 }

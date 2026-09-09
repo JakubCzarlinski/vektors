@@ -2621,7 +2621,7 @@ fn main() {
             let cfg = platform_cfg(*protect);
             let id = Literal::usize_unsuffixed(*id);
             let terminator = format_ident!("terminator_{name}");
-            quote! { #cfg #id => Some(erase_function(#terminator as *const ())), }
+            quote! { #cfg #id => #terminator as *const (), }
         })
         .collect::<Vec<_>>();
     for name in HANDWRITTEN_INSTANCE_TERMINATORS {
@@ -2631,8 +2631,7 @@ fn main() {
             .unwrap_or_else(|| panic!("handwritten instance terminator metadata for {name}"));
         let id = Literal::usize_unsuffixed(id);
         let terminator = format_ident!("terminator_{name}");
-        instance_terminator_arms
-            .push(quote! { #id => Some(erase_function(#terminator as *const ())), });
+        instance_terminator_arms.push(quote! { #id => #terminator as *const (), });
     }
     let physical_device_terminator_arms =
         physical_device_terminators
@@ -2661,7 +2660,8 @@ fn main() {
         }
         #[inline(never)]
         pub(crate) fn instance_terminator_proc_addr(id: u16) -> PFN_vkVoidFunction {
-            match id { #(#instance_terminator_arms)* _ => None }
+            let address = match id { #(#instance_terminator_arms)* _ => return None };
+            Some(erase_function(address))
         }
         #[inline(never)]
         #[allow(clippy::too_many_lines)] // Exhaustive generated command-ID match.

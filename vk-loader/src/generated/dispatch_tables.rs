@@ -3,7 +3,6 @@
 use super::commands::DEVICE_DISPATCH_MASKS;
 use crate::CStr;
 use crate::DEVICE_DISPATCH_MAGIC;
-use crate::layer;
 use crate::load_typed;
 #[derive(Clone, Default)]
 pub(crate) struct InstanceDispatchTable {
@@ -1028,7 +1027,7 @@ impl InstanceDispatchTable {
 }
 #[repr(C)]
 pub(crate) struct LayerInstanceDispatchTable {
-    pub(crate) vk_layerGetPhysicalDeviceProcAddr: layer::GetPhysicalDeviceProcAddr,
+    pub(crate) vk_layerGetPhysicalDeviceProcAddr: crate::layer::GetPhysicalDeviceProcAddr,
     pub(crate) vkCreateInstance: Option<vk::PFN_vkCreateInstance>,
     pub(crate) vkDestroyInstance: Option<vk::PFN_vkDestroyInstance>,
     pub(crate) vkEnumeratePhysicalDevices: Option<vk::PFN_vkEnumeratePhysicalDevices>,
@@ -1351,7 +1350,7 @@ impl LayerInstanceDispatchTable {
     pub(crate) unsafe fn load_into(
         table_ptr: *mut Self,
         gipa: vk::PFN_vkGetInstanceProcAddr,
-        gpdpa: layer::GetPhysicalDeviceProcAddr,
+        gpdpa: crate::layer::GetPhysicalDeviceProcAddr,
         instance: vk::VkInstance,
     ) {
         unsafe {

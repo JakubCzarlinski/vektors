@@ -688,19 +688,7 @@ pub(crate) unsafe fn validate_and_filter_device_extensions(
         let requested = unsafe { CStr::from_ptr(requested) };
         let (supported_by_layer, supported_by_icd) = support(requested);
         if !supported_by_layer && !supported_by_icd {
-            instance.log_loader_message_text(
-                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-                vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
-                format_args!(
-                    "loader_validate_device_extensions: Device extension {} not supported by selected physical device or enabled layers.",
-                    crate::debug::diagnostics::LossyBytes(requested.to_bytes())
-                ),
-            );
-            instance.log_loader_message(
-                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-                vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
-                c"vkCreateDevice: Failed to validate extensions in list",
-            );
+            emit_unsupported_device_extension(instance, requested);
             return Err(VkResult::ERROR_EXTENSION_NOT_PRESENT);
         }
     }
@@ -710,19 +698,7 @@ pub(crate) unsafe fn validate_and_filter_device_extensions(
         let requested = unsafe { CStr::from_ptr(requested_pointer) };
         let (_, supported_by_icd) = support(requested);
         if !supported_by_icd {
-            instance.log_loader_category_message_text(
-                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::VERBOSE,
-                vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
-                crate::platform::LogFilter::Driver,
-                format_args!(
-                    "vkCreateDevice extension {} not available for devices associated with ICD {}",
-                    crate::debug::diagnostics::LossyBytes(requested.to_bytes()),
-                    icd.icd
-                        .library_path()
-                        .unwrap_or_else(|| std::path::Path::new(""))
-                        .display()
-                ),
-            );
+            emit_unavailable_icd_extension(instance, icd, requested);
         }
         if supported_by_icd {
             icd_names.push(requested_pointer);
@@ -731,4 +707,38 @@ pub(crate) unsafe fn validate_and_filter_device_extensions(
     // Retain the reserved storage: shrinking to a boxed slice can reallocate
     // through the infallible allocator after all fallible work has succeeded.
     Ok(icd_names)
+}
+
+#[cold]
+fn emit_unsupported_device_extension(instance: &LoaderInstance, requested: &CStr) {
+    instance.log_loader_message_text(
+        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
+        vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
+        format_args!(
+            "loader_validate_device_extensions: Device extension {} not supported by selected physical device or enabled layers.",
+            crate::debug::diagnostics::LossyBytes(requested.to_bytes())
+        ),
+    );
+    instance.log_loader_message(
+        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
+        vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
+        c"vkCreateDevice: Failed to validate extensions in list",
+    );
+}
+
+#[cold]
+fn emit_unavailable_icd_extension(instance: &LoaderInstance, icd: &IcdInstance, requested: &CStr) {
+    instance.log_loader_category_message_text(
+        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::VERBOSE,
+        vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
+        crate::platform::LogFilter::Driver,
+        format_args!(
+            "vkCreateDevice extension {} not available for devices associated with ICD {}",
+            crate::debug::diagnostics::LossyBytes(requested.to_bytes()),
+            icd.icd
+                .library_path()
+                .unwrap_or_else(|| std::path::Path::new(""))
+                .display()
+        ),
+    );
 }

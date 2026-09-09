@@ -401,7 +401,7 @@ pub(super) fn named_layer_device_extensions(
         for extension in &manifest.device_extensions {
             append_unique_device_extension(&mut extensions, &device_extension_property(extension))?;
         }
-        for component in manifest.component_layers.iter().rev() {
+        for component in manifest.component_layers().iter().rev() {
             if let Some(index) = manifests
                 .iter()
                 .position(|manifest| manifest.name == *component)
@@ -988,39 +988,12 @@ pub(super) unsafe fn create_device_chain_from(
         Ok(reservation) => reservation,
         Err(result) => return result,
     };
-    let (top_instance_proc_addr, top_device_proc_addr) = layers.first().map_or(
-        (
-            terminator_get_instance_proc_addr as PFN_vkGetInstanceProcAddr,
-            terminator_get_device_proc_addr as PFN_vkGetDeviceProcAddr,
-        ),
-        |layer| (layer.get_instance_proc_addr, layer.get_device_proc_addr),
-    );
-    // SAFETY: The negotiated layer/terminator GIPA returns Vulkan ABI function pointers.
-    let create: Option<vk::PFN_vkCreateDevice> = unsafe {
-        crate::load_typed(top_instance_proc_addr(
-            instance.chain_handle(),
-            c"vkCreateDevice".as_ptr(),
-        ))
-    };
-    let Some(create) = create else {
-        let created = pending::pop_created_device();
-        debug_assert!(created.is_none());
-        let popped = pending::pop_device_sentinel();
-        debug_assert_eq!(popped, Some(sentinel_address));
-        return VkResult::ERROR_LAYER_NOT_PRESENT;
-    };
-    for layer in layers.iter().rev() {
-        instance.log_loader_category_message_text(
-            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-            vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
-            LogFilter::Layer,
-            format_args!(
-                "Inserted device layer \"{}\" ({})",
-                crate::debug::diagnostics::LossyBytes(layer.name.to_bytes()),
-                layer.library_path.display()
-            ),
-        );
-    }
+    let (create, top_device_proc_addr) =
+        match unsafe { device_chain_head(layers, instance, sentinel_address) } {
+            Ok(head) => head,
+            Err(error) => return error,
+        };
+    emit_inserted_device_layers(instance, layers);
     pending::DeviceLayerStartReservation::push(layer_start, first);
     // SAFETY: Every chain node and caller-owned structure remains live for the call.
     let result = unsafe {
@@ -1037,39 +1010,17 @@ pub(super) unsafe fn create_device_chain_from(
     let popped = pending::pop_device_sentinel();
     debug_assert_eq!(popped, Some(sentinel_address));
     if result == VkResult::SUCCESS {
-        // SAFETY: The terminator created this loader device and no aliasing call exists yet.
-        let Some(device) =
-            (unsafe { created_dispatch.and_then(|key| LoaderDevice::from_dispatch_key_mut(key)) })
-        else {
-            return VkResult::ERROR_INITIALIZATION_FAILED;
-        };
-        // SAFETY: Device creation has not returned to the application and the
-        // top layer returned this live chain handle.
-        if let Err(result) = unsafe { device.set_chain(created_device, top_device_proc_addr) } {
-            // The top-level chain succeeded, but loader bookkeeping could not
-            // retain its alias. Destroy the completed chain before releasing
-            // the direct loader record.
-            let destroy: Option<vk::PFN_vkDestroyDevice> = unsafe {
-                crate::load_typed(top_device_proc_addr(
-                    created_device,
-                    c"vkDestroyDevice".as_ptr(),
-                ))
-            };
-            if let Some(destroy) = destroy {
-                // SAFETY: This is the live top-level device returned above and
-                // the allocator matches its successful creation call.
-                unsafe { destroy(created_device, allocator) };
-            }
-            if let Some(dispatch) = created_dispatch {
-                drop(LoaderDevice::take_dispatch(
-                    dispatch as *const LayerDeviceDispatchTable,
-                ));
-            }
-            return result;
+        if let Err(error) = unsafe {
+            finish_created_device(
+                created_dispatch,
+                created_device,
+                top_device_proc_addr,
+                allocator,
+                output,
+            )
+        } {
+            return error;
         }
-        // The public output is committed only after the full create chain and
-        // dispatch initialization complete successfully, matching upstream.
-        unsafe { output.write(created_device) };
     } else if let Some(dispatch) = created_dispatch {
         // A lower layer or the terminator may have created a device before an
         // upper layer failed. Upstream owns and tears down that partial chain;
@@ -1108,4 +1059,109 @@ pub(crate) unsafe fn validate_pending_device_output(output: &mut vk::VkDevice) {
             "terminator_CreateDevice: Device pointer ({pointer}) has invalid MAGIC value 0x{magic:08x}. The expected value is 0x10ADED040410ADED. Device value possibly corrupted by active layer (Policy #LLP_LAYER_22).  ",
         ));
     }
+}
+
+#[cold]
+unsafe fn discard_completed_device_chain(
+    top_device_proc_addr: PFN_vkGetDeviceProcAddr,
+    created_device: vk::VkDevice,
+    allocator: *const vk::VkAllocationCallbacks<'_>,
+    created_dispatch: Option<usize>,
+) {
+    // The top-level chain succeeded, but loader bookkeeping could not
+    // retain its alias. Destroy the completed chain before releasing
+    // the direct loader record.
+    let destroy: Option<vk::PFN_vkDestroyDevice> = unsafe {
+        crate::load_typed(top_device_proc_addr(
+            created_device,
+            c"vkDestroyDevice".as_ptr(),
+        ))
+    };
+    if let Some(destroy) = destroy {
+        // SAFETY: This is the live top-level device returned above and
+        // the allocator matches its successful creation call.
+        unsafe { destroy(created_device, allocator) };
+    }
+    if let Some(dispatch) = created_dispatch {
+        drop(LoaderDevice::take_dispatch(
+            dispatch as *const LayerDeviceDispatchTable,
+        ));
+    }
+}
+
+#[cold]
+fn emit_inserted_device_layers(instance: &LoaderInstance, layers: &[super::LoadedLayer]) {
+    for layer in layers.iter().rev() {
+        instance.log_loader_category_message_text(
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
+            vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
+            LogFilter::Layer,
+            format_args!(
+                "Inserted device layer \"{}\" ({})",
+                crate::debug::diagnostics::LossyBytes(layer.name.to_bytes()),
+                layer.library_path.display()
+            ),
+        );
+    }
+}
+
+unsafe fn finish_created_device(
+    created_dispatch: Option<usize>,
+    created_device: vk::VkDevice,
+    top_device_proc_addr: PFN_vkGetDeviceProcAddr,
+    allocator: *const vk::VkAllocationCallbacks<'_>,
+    output: *mut vk::VkDevice,
+) -> Result<(), VkResult> {
+    // SAFETY: The terminator created this loader device and no aliasing call exists yet.
+    let Some(device) =
+        (unsafe { created_dispatch.and_then(|key| LoaderDevice::from_dispatch_key_mut(key)) })
+    else {
+        return Err(VkResult::ERROR_INITIALIZATION_FAILED);
+    };
+    // SAFETY: Device creation has not returned to the application and the
+    // top layer returned this live chain handle.
+    if let Err(result) = unsafe { device.set_chain(created_device, top_device_proc_addr) } {
+        unsafe {
+            discard_completed_device_chain(
+                top_device_proc_addr,
+                created_device,
+                allocator,
+                created_dispatch,
+            );
+        };
+        return Err(result);
+    }
+    // The public output is committed only after the full create chain and
+    // dispatch initialization complete successfully, matching upstream.
+    unsafe { output.write(created_device) };
+    Ok(())
+}
+
+unsafe fn device_chain_head(
+    layers: &[super::LoadedLayer],
+    instance: &LoaderInstance,
+    sentinel_address: usize,
+) -> Result<(vk::PFN_vkCreateDevice, PFN_vkGetDeviceProcAddr), VkResult> {
+    let (top_instance_proc_addr, top_device_proc_addr) = layers.first().map_or(
+        (
+            terminator_get_instance_proc_addr as PFN_vkGetInstanceProcAddr,
+            terminator_get_device_proc_addr as PFN_vkGetDeviceProcAddr,
+        ),
+        |layer| (layer.get_instance_proc_addr, layer.get_device_proc_addr),
+    );
+    // SAFETY: The negotiated layer/terminator GIPA returns Vulkan ABI function pointers.
+    let create: Option<vk::PFN_vkCreateDevice> = unsafe {
+        crate::load_typed(top_instance_proc_addr(
+            instance.chain_handle(),
+            c"vkCreateDevice".as_ptr(),
+        ))
+    };
+    let Some(create) = create else {
+        let created = pending::pop_created_device();
+        debug_assert!(created.is_none());
+        let popped = pending::pop_device_sentinel();
+        debug_assert_eq!(popped, Some(sentinel_address));
+        return Err(VkResult::ERROR_LAYER_NOT_PRESENT);
+    };
+    Ok((create, top_device_proc_addr))
 }

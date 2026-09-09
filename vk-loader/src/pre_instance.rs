@@ -118,7 +118,7 @@ fn load_functions<F: Copy>(
         let Some(name) = select(manifest) else {
             continue;
         };
-        let Some(path) = manifest.library_path.as_ref() else {
+        let Some(path) = manifest.library_path() else {
             continue;
         };
         // SAFETY: The library is retained beside the copied function pointer.
@@ -221,10 +221,6 @@ fn extension_property(name: &CStr, spec_version: u32) -> VkExtensionProperties {
     property
 }
 
-fn layer_extension_property(extension: &discovery::LayerExtension) -> VkExtensionProperties {
-    extension_property(&extension.name, extension.spec_version)
-}
-
 fn append_manifest_extensions(
     extensions: &mut Vec<VkExtensionProperties>,
     root: &LayerManifest,
@@ -247,9 +243,12 @@ fn append_manifest_extensions(
         visited[index] = true;
         let manifest = &manifests[index];
         for extension in &manifest.instance_extensions {
-            push_extension(extensions, &layer_extension_property(extension))?;
+            push_extension(
+                extensions,
+                &extension_property(&extension.name, extension.spec_version),
+            )?;
         }
-        for component in manifest.component_layers.iter().rev() {
+        for component in manifest.component_layers().iter().rev() {
             if let Some(index) = manifests
                 .iter()
                 .position(|manifest| manifest.name == *component)
@@ -348,18 +347,10 @@ fn decimal_environment_value_is_nonzero(value: &str) -> bool {
         Some(b'-' | b'+') => &value[1..],
         _ => value,
     };
-    let mut found = false;
-    let mut parsed = 0_u64;
-    for digit in digits.bytes() {
-        if !digit.is_ascii_digit() {
-            break;
-        }
-        found = true;
-        parsed = parsed
-            .saturating_mul(10)
-            .saturating_add(u64::from(digit - b'0'));
-    }
-    found && parsed != 0
+    digits
+        .bytes()
+        .take_while(u8::is_ascii_digit)
+        .any(|digit| digit != b'0')
 }
 
 pub(crate) unsafe fn enumerate_extension_properties_terminator(
@@ -417,9 +408,10 @@ unsafe fn enumerate_extension_properties_from_manifests(
             .filter(|manifest| is_enabled_implicit(manifest))
         {
             for extension in &manifest.instance_extensions {
-                if let Err(result) =
-                    push_extension(&mut extensions, &layer_extension_property(extension))
-                {
+                if let Err(result) = push_extension(
+                    &mut extensions,
+                    &extension_property(&extension.name, extension.spec_version),
+                ) {
                     return result;
                 }
             }
@@ -644,6 +636,30 @@ mod tests {
     use super::*;
 
     #[test]
+    fn decimal_environment_flag_uses_nonzero_decimal_prefix() {
+        for value in ["", " ", "+", "-", "0", "-000", "0x1", "word1", "00 1"] {
+            assert!(
+                !super::decimal_environment_value_is_nonzero(value),
+                "{value:?}"
+            );
+        }
+        for value in [
+            "1",
+            "-1",
+            "+001",
+            "  10tail",
+            "\u{2003}1",
+            "18446744073709551616",
+            "-18446744073709551616",
+        ] {
+            assert!(
+                super::decimal_environment_value_is_nonzero(value),
+                "{value:?}"
+            );
+        }
+    }
+
+    #[test]
     fn duplicate_meta_edges_preserve_dfs_order_and_propagate_allocation_failures() {
         let names = [
             c"VK_LAYER_root",
@@ -665,12 +681,15 @@ mod tests {
             }]
             .into();
         }
-        manifests[0].component_layers = [
-            names[1], names[2], names[1], names[1], names[1], names[1], names[1], names[1],
-        ]
-        .map(CStr::to_owned)
-        .into();
-        manifests[1].component_layers = [names[2], names[3]].map(CStr::to_owned).into();
+        manifests[0].source = crate::discovery::LayerSource::Meta(
+            [
+                names[1], names[2], names[1], names[1], names[1], names[1], names[1], names[1],
+            ]
+            .map(CStr::to_owned)
+            .into(),
+        );
+        manifests[1].source =
+            crate::discovery::LayerSource::Meta([names[2], names[3]].map(CStr::to_owned).into());
         crate::allocation::fault::sweep_operation(|| {
             let mut extensions = Vec::new();
             match append_manifest_extensions(&mut extensions, &manifests[0], &manifests) {
