@@ -993,7 +993,7 @@ fn main() {
     let global_arms = globals.iter().map(|name| {
         let bytes = Literal::byte_string(name.as_bytes());
         let name = format_ident!("{name}");
-        quote! { #bytes => Some(erase_function(#name as *const ())), }
+        quote! { #bytes => #name as *const (), }
     });
     let emulated_variants = EMULATED_COMMANDS
         .iter()
@@ -1048,10 +1048,11 @@ fn main() {
         }
 
         pub(crate) fn global_proc_addr(name: &CStr) -> PFN_vkVoidFunction {
-            match name.to_bytes() {
+            let address = match name.to_bytes() {
                 #(#global_arms)*
-                _ => None,
-            }
+                _ => return None,
+            };
+            Some(erase_function(address))
         }
     };
     let debug_object_pairs = debug_object_type_pairs(&registry);
@@ -1647,6 +1648,14 @@ fn main() {
             device_extensions,
         ));
     }
+    let get_instance_proc_addr_id = command_records
+        .iter()
+        .position(|record| record.0 == "vkGetInstanceProcAddr")
+        .expect("instance proc address command must exist");
+    let get_instance_proc_addr_id = Literal::usize_unsuffixed(get_instance_proc_addr_id);
+    generated.extend(quote! {
+        pub(crate) const GET_INSTANCE_PROC_ADDR_COMMAND_ID: u16 = #get_instance_proc_addr_id;
+    });
     let device_command_ids = layer_device_commands
         .iter()
         .map(|command| {
@@ -2613,7 +2622,7 @@ fn main() {
         let cfg = platform_cfg(protect);
         let id = Literal::usize_unsuffixed(id);
         let name = format_ident!("{name}");
-        quote! { #cfg #id => Some(erase_function(#name as *const ())), }
+        quote! { #cfg #id => #name as *const (), }
     });
     let mut instance_terminator_arms = instance_terminators
         .iter()
@@ -2640,7 +2649,7 @@ fn main() {
                 let cfg = platform_cfg(*protect);
                 let id = Literal::usize_unsuffixed(*id);
                 let terminator = format_ident!("terminator_{name}");
-                quote! { #cfg #id => Some(erase_function(#terminator as *const ())), }
+                quote! { #cfg #id => #terminator as *const (), }
             });
     let icd_device_terminator_arms = icd_terminator_commands.iter().map(|command| {
         let id = command_records
@@ -2650,13 +2659,14 @@ fn main() {
         let cfg = platform_cfg(command_platform_protect(&registry, command));
         let id = Literal::usize_unsuffixed(id);
         let name = format_ident!("{}", command.name);
-        quote! { #cfg #id => table.#name.map(erase_function), }
+        quote! { #cfg #id => table.#name? as *const (), }
     });
     generated.extend(quote! {
         #[inline(never)]
         #[allow(clippy::too_many_lines)] // Exhaustive generated command-ID match.
         pub(crate) fn exported_proc_addr(id: u16) -> PFN_vkVoidFunction {
-            match id { #(#exported_arms)* _ => None }
+            let address = match id { #(#exported_arms)* _ => return None };
+            Some(erase_function(address))
         }
         #[inline(never)]
         pub(crate) fn instance_terminator_proc_addr(id: u16) -> PFN_vkVoidFunction {
@@ -2666,11 +2676,13 @@ fn main() {
         #[inline(never)]
         #[allow(clippy::too_many_lines)] // Exhaustive generated command-ID match.
         pub(crate) fn physical_device_terminator_proc_addr(id: u16) -> PFN_vkVoidFunction {
-            match id { #(#physical_device_terminator_arms)* _ => None }
+            let address = match id { #(#physical_device_terminator_arms)* _ => return None };
+            Some(erase_function(address))
         }
         #[inline(never)]
         pub(crate) fn icd_device_terminator_proc_addr(table: &IcdDeviceTerminatorDispatchTable, id: u16) -> PFN_vkVoidFunction {
-            match id { #(#icd_device_terminator_arms)* _ => None }
+            let address = match id { #(#icd_device_terminator_arms)* _ => return None };
+            Some(erase_function(address))
         }
     });
 
@@ -2774,7 +2786,7 @@ fn main() {
         #(mod #modules;)*
 
         pub(crate) use commands::{
-            command_core_level, command_has_device_extension_provider,
+            GET_INSTANCE_PROC_ADDR_COMMAND_ID, command_core_level, command_has_device_extension_provider,
             command_has_enabled_device_extension, command_has_enabled_instance_extension,
             command_lookup, command_must_use_loader_trampoline,
         };

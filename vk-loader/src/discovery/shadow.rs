@@ -163,6 +163,16 @@ pub(crate) fn probe_instance_allocation(size: usize) -> bool {
     let Some(callbacks) = pending::instance_allocator() else {
         return true;
     };
+    // SAFETY: The create entrypoint retains this callback set until its guard drops.
+    unsafe { probe_callback_allocation(callbacks, size) }
+}
+
+#[cold]
+#[inline(never)]
+unsafe fn probe_callback_allocation(
+    callbacks: *const vk::VkAllocationCallbacks<'_>,
+    size: usize,
+) -> bool {
     // SAFETY: The instance-create entry point retains the application callback
     // structure for the complete synchronous discovery operation.
     let callbacks = unsafe { &*callbacks };
@@ -242,6 +252,16 @@ pub(super) fn shadow_json_allocations(
     if pending::instance_allocator().is_none() {
         return Ok(None);
     }
+    shadow_json_with_callbacks(format_args!("{display_path}"), bytes)
+}
+
+// Keep callback-allocation emulation out of ordinary manifest/settings reads.
+#[cold]
+#[inline(never)]
+fn shadow_json_with_callbacks(
+    display_path: core::fmt::Arguments<'_>,
+    bytes: &[u8],
+) -> Result<Option<Value>, ()> {
     if !probe_instance_allocation(bytes.len().saturating_add(1)) {
         platform::write_loader_log(
             platform::LogFilter::Error,

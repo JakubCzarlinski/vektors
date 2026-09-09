@@ -64,6 +64,7 @@ pub(super) fn loader_debug_filter_matches(filters: &str, filter_kind: LogFilter)
     })
 }
 
+#[inline(never)]
 pub(crate) fn loader_debug_filter_enabled(filter_kind: LogFilter) -> bool {
     let settings_filter = SETTINGS_LOG_FILTER.load(core::sync::atomic::Ordering::Relaxed);
     if settings_filter != NO_SETTINGS_LOG_FILTER {
@@ -147,6 +148,7 @@ pub(crate) fn reset_loader_settings_log_filter() -> SettingsLogFilterReset {
     SettingsLogFilterReset
 }
 
+#[inline(never)]
 pub(crate) fn write_loader_log(filter_kind: LogFilter, message: core::fmt::Arguments<'_>) {
     if !loader_debug_filter_enabled(filter_kind) {
         return;
@@ -154,6 +156,7 @@ pub(crate) fn write_loader_log(filter_kind: LogFilter, message: core::fmt::Argum
     write_loader_log_enabled(filter_kind.label(), message);
 }
 
+#[inline(never)]
 pub(crate) fn write_loader_log_with_category(
     severity_filter: LogFilter,
     category_filter: LogFilter,
@@ -174,6 +177,7 @@ pub(crate) fn write_loader_log_with_category(
     write_loader_log_enabled(label.as_str(), message);
 }
 
+#[inline(never)]
 pub(crate) fn write_loader_category_log(
     category_filter: LogFilter,
     message: core::fmt::Arguments<'_>,
@@ -183,6 +187,7 @@ pub(crate) fn write_loader_category_log(
     }
 }
 
+#[inline(never)]
 pub(crate) fn write_loader_category_log_any(
     category_filters: &[LogFilter],
     category_label: &str,

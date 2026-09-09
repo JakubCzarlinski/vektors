@@ -416,6 +416,8 @@ fn forced_destroy_allocator(
 /// # Safety
 ///
 /// The complete instance-create `pNext` chain must be live and well formed.
+#[cold]
+#[inline(never)]
 pub(crate) unsafe fn submit_instance_create_message(
     create_info: &VkInstanceCreateInfo<'_>,
     severity: VkDebugUtilsMessageSeverityFlagBitsEXT,

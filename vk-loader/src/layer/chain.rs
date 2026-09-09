@@ -188,66 +188,46 @@ pub(crate) unsafe extern "system" fn terminator_get_instance_proc_addr(
     }
     // SAFETY: The layer ABI requires a live, NUL-terminated command name.
     let name = unsafe { CStr::from_ptr(name) };
-    match name.to_bytes() {
-        b"vkCreateInstance" => Some(erase_function(
-            create_instance_terminator as vk::PFN_vkCreateInstance,
-        )),
-        b"vkGetInstanceProcAddr" => Some(erase_function(
-            terminator_get_instance_proc_addr as PFN_vkGetInstanceProcAddr,
-        )),
-        b"vk_layerGetPhysicalDeviceProcAddr" => Some(erase_function(
-            terminator_get_physical_device_proc_addr as GetPhysicalDeviceProcAddr,
-        )),
-        b"vkCreateDevice" => Some(erase_function(
-            crate::create_device_terminator as vk::PFN_vkCreateDevice,
-        )),
-        b"vkDestroyInstance" => Some(erase_function(
-            crate::destroy_instance_terminator as vk::PFN_vkDestroyInstance,
-        )),
-        b"vkEnumeratePhysicalDevices" => Some(erase_function(
-            crate::terminator_enumerate_physical_devices as vk::PFN_vkEnumeratePhysicalDevices,
-        )),
-        b"vkEnumeratePhysicalDeviceGroups" => Some(erase_function(
-            crate::terminator_enumerate_physical_device_groups
-                as vk::PFN_vkEnumeratePhysicalDeviceGroups,
-        )),
-        b"vkEnumeratePhysicalDeviceGroupsKHR" => Some(erase_function(
-            crate::terminator_enumerate_physical_device_groups_khr
-                as vk::PFN_vkEnumeratePhysicalDeviceGroupsKHR,
-        )),
-        b"vkEnumerateDeviceLayerProperties" => Some(erase_function(
-            terminator_enumerate_device_layer_properties
-                as vk::PFN_vkEnumerateDeviceLayerProperties,
-        )),
-        b"vkEnumerateDeviceExtensionProperties" => Some(erase_function(
-            terminator_enumerate_device_extension_properties
-                as vk::PFN_vkEnumerateDeviceExtensionProperties,
-        )),
-        b"vkCreateDebugUtilsMessengerEXT" => Some(erase_function(
-            crate::debug::messenger::terminator_create_debug_utils_messenger
-                as vk::PFN_vkCreateDebugUtilsMessengerEXT,
-        )),
-        b"vkCreateDebugReportCallbackEXT" => Some(erase_function(
-            crate::debug::messenger::terminator_create_debug_report_callback
-                as vk::PFN_vkCreateDebugReportCallbackEXT,
-        )),
-        b"vkDestroyDebugUtilsMessengerEXT" => Some(erase_function(
-            crate::debug::messenger::terminator_destroy_debug_utils_messenger
-                as vk::PFN_vkDestroyDebugUtilsMessengerEXT,
-        )),
-        b"vkDestroyDebugReportCallbackEXT" => Some(erase_function(
-            crate::debug::messenger::terminator_destroy_debug_report_callback
-                as vk::PFN_vkDestroyDebugReportCallbackEXT,
-        )),
-        b"vkSubmitDebugUtilsMessageEXT" => Some(erase_function(
-            crate::debug::messenger::terminator_submit_debug_utils_message
-                as vk::PFN_vkSubmitDebugUtilsMessageEXT,
-        )),
-        b"vkDebugReportMessageEXT" => Some(erase_function(
-            crate::debug::messenger::terminator_debug_report_message
-                as vk::PFN_vkDebugReportMessageEXT,
-        )),
-        _ if instance == vk::VkInstance::NULL => crate::global_proc_addr(name),
+    let address = match name.to_bytes() {
+        b"vkCreateInstance" => create_instance_terminator as *const (),
+        b"vkGetInstanceProcAddr" => terminator_get_instance_proc_addr as *const (),
+        b"vk_layerGetPhysicalDeviceProcAddr" => {
+            terminator_get_physical_device_proc_addr as *const ()
+        }
+        b"vkCreateDevice" => crate::create_device_terminator as *const (),
+        b"vkDestroyInstance" => crate::destroy_instance_terminator as *const (),
+        b"vkEnumeratePhysicalDevices" => crate::terminator_enumerate_physical_devices as *const (),
+        b"vkEnumeratePhysicalDeviceGroups" => {
+            crate::terminator_enumerate_physical_device_groups as *const ()
+        }
+        b"vkEnumeratePhysicalDeviceGroupsKHR" => {
+            crate::terminator_enumerate_physical_device_groups_khr as *const ()
+        }
+        b"vkEnumerateDeviceLayerProperties" => {
+            terminator_enumerate_device_layer_properties as *const ()
+        }
+        b"vkEnumerateDeviceExtensionProperties" => {
+            terminator_enumerate_device_extension_properties as *const ()
+        }
+        b"vkCreateDebugUtilsMessengerEXT" => {
+            crate::debug::messenger::terminator_create_debug_utils_messenger as *const ()
+        }
+        b"vkCreateDebugReportCallbackEXT" => {
+            crate::debug::messenger::terminator_create_debug_report_callback as *const ()
+        }
+        b"vkDestroyDebugUtilsMessengerEXT" => {
+            crate::debug::messenger::terminator_destroy_debug_utils_messenger as *const ()
+        }
+        b"vkDestroyDebugReportCallbackEXT" => {
+            crate::debug::messenger::terminator_destroy_debug_report_callback as *const ()
+        }
+        b"vkSubmitDebugUtilsMessageEXT" => {
+            crate::debug::messenger::terminator_submit_debug_utils_message as *const ()
+        }
+        b"vkDebugReportMessageEXT" => {
+            crate::debug::messenger::terminator_debug_report_message as *const ()
+        }
+        _ if instance == vk::VkInstance::NULL => return crate::global_proc_addr(name),
         _ => {
             if let Some(lookup) = crate::command_lookup(name) {
                 return crate::instance_terminator_proc_addr(lookup.id)
@@ -268,9 +248,10 @@ pub(crate) unsafe extern "system" fn terminator_get_instance_proc_addr(
             if address.is_none() {
                 unknown::log_unrecognized_instance_command(name);
             }
-            address
+            return address;
         }
-    }
+    };
+    Some(erase_function(address))
 }
 
 pub(crate) unsafe extern "system" fn terminator_get_device_proc_addr(
@@ -282,50 +263,37 @@ pub(crate) unsafe extern "system" fn terminator_get_device_proc_addr(
     }
     // SAFETY: The layer ABI requires a live, NUL-terminated command name.
     let name = unsafe { CStr::from_ptr(name) };
-    if name == c"vkGetDeviceProcAddr" {
-        return Some(erase_function(
-            terminator_get_device_proc_addr as PFN_vkGetDeviceProcAddr,
-        ));
-    }
-    match name.to_bytes() {
-        b"vkDestroyDevice" => Some(erase_function(
-            crate::destroy_device_terminator as vk::PFN_vkDestroyDevice,
-        )),
-        b"vkCreateSwapchainKHR" => Some(erase_function(
-            crate::surface::terminator_create_swapchain as vk::PFN_vkCreateSwapchainKHR,
-        )),
-        b"vkCreateSharedSwapchainsKHR" => Some(erase_function(
-            crate::surface::terminator_create_shared_swapchains
-                as vk::PFN_vkCreateSharedSwapchainsKHR,
-        )),
-        b"vkGetDeviceGroupSurfacePresentModesKHR" => Some(erase_function(
-            crate::surface::terminator_get_device_group_surface_present_modes
-                as vk::PFN_vkGetDeviceGroupSurfacePresentModesKHR,
-        )),
-        b"vkDebugMarkerSetObjectNameEXT" => Some(erase_function(
-            crate::debug::terminator_vkDebugMarkerSetObjectNameEXT
-                as vk::PFN_vkDebugMarkerSetObjectNameEXT,
-        )),
-        b"vkDebugMarkerSetObjectTagEXT" => Some(erase_function(
-            crate::debug::terminator_vkDebugMarkerSetObjectTagEXT
-                as vk::PFN_vkDebugMarkerSetObjectTagEXT,
-        )),
-        b"vkSetDebugUtilsObjectNameEXT" => Some(erase_function(
-            crate::debug::terminator_vkSetDebugUtilsObjectNameEXT
-                as vk::PFN_vkSetDebugUtilsObjectNameEXT,
-        )),
-        b"vkSetDebugUtilsObjectTagEXT" => Some(erase_function(
-            crate::debug::terminator_vkSetDebugUtilsObjectTagEXT
-                as vk::PFN_vkSetDebugUtilsObjectTagEXT,
-        )),
+    let address = match name.to_bytes() {
+        b"vkGetDeviceProcAddr" => terminator_get_device_proc_addr as *const (),
+        b"vkDestroyDevice" => crate::destroy_device_terminator as *const (),
+        b"vkCreateSwapchainKHR" => crate::surface::terminator_create_swapchain as *const (),
+        b"vkCreateSharedSwapchainsKHR" => {
+            crate::surface::terminator_create_shared_swapchains as *const ()
+        }
+        b"vkGetDeviceGroupSurfacePresentModesKHR" => {
+            crate::surface::terminator_get_device_group_surface_present_modes as *const ()
+        }
+        b"vkDebugMarkerSetObjectNameEXT" => {
+            crate::debug::terminator_vkDebugMarkerSetObjectNameEXT as *const ()
+        }
+        b"vkDebugMarkerSetObjectTagEXT" => {
+            crate::debug::terminator_vkDebugMarkerSetObjectTagEXT as *const ()
+        }
+        b"vkSetDebugUtilsObjectNameEXT" => {
+            crate::debug::terminator_vkSetDebugUtilsObjectNameEXT as *const ()
+        }
+        b"vkSetDebugUtilsObjectTagEXT" => {
+            crate::debug::terminator_vkSetDebugUtilsObjectTagEXT as *const ()
+        }
         _ => {
             // SAFETY: The device was returned by the lower chain and registered
             // before control returned to the requesting layer.
             let device = unsafe { LoaderDevice::from_handle(device) }?;
             // SAFETY: The stored ICD resolver and device originate together.
-            device.resolve(name)
+            return device.resolve(name);
         }
-    }
+    };
+    Some(erase_function(address))
 }
 
 pub(super) unsafe extern "system" fn terminator_enumerate_device_layer_properties(

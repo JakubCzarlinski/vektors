@@ -442,6 +442,8 @@ impl LoaderInstance {
         }
     }
 
+    #[cold]
+    #[inline(never)]
     pub(crate) fn submit_loader_message(
         &self,
         severity: VkDebugUtilsMessageSeverityFlagBitsEXT,

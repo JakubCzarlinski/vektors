@@ -296,6 +296,46 @@ mod tests {
     use super::{Number, Parser, Value, parse};
 
     #[test]
+    fn object_lookup_preserves_nul_termination_and_first_match() {
+        let value =
+            parse(br#"{"name\u0000suffix":1,"name":2,"names":3,"\u0000hidden":4,"other":5}"#)
+                .unwrap();
+        for key in [
+            "name",
+            "NAME",
+            "names",
+            "",
+            "other",
+            "missing",
+            "na",
+            "name\0suffix",
+            "\0",
+        ] {
+            let object = value.as_object().unwrap();
+            let expected = object
+                .0
+                .iter()
+                .find(|(name, _)| name.split(|byte| *byte == 0).next().unwrap() == key.as_bytes())
+                .map(|(_, value)| value);
+            let expected_insensitive = object
+                .0
+                .iter()
+                .find(|(name, _)| {
+                    name.split(|byte| *byte == 0)
+                        .next()
+                        .unwrap()
+                        .eq_ignore_ascii_case(key.as_bytes())
+                })
+                .map(|(_, value)| value);
+            assert_eq!(value.get(key), expected, "{key:?}");
+            assert_eq!(value.field(key), expected_insensitive, "{key:?}");
+        }
+        assert_eq!(value.get("name").and_then(Value::as_u64), Some(1));
+        assert_eq!(value.field("NAME").and_then(Value::as_u64), Some(1));
+        assert_eq!(value.get("").and_then(Value::as_u64), Some(4));
+    }
+
+    #[test]
     fn preserves_first_duplicate_keys_and_exact_unsigned_integers() {
         let value =
             parse(br#"{"name":"first","name":"last","count":18446744073709551615}"#).unwrap();

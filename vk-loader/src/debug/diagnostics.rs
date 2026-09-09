@@ -28,8 +28,10 @@ impl<const N: usize> LogBuffer<N> {
         self.len
     }
 
-    pub(crate) fn as_str(&self) -> &str {
-        core::str::from_utf8(&self.bytes[..self.len]).unwrap_or("")
+    pub(crate) const fn as_str(&self) -> &str {
+        // SAFETY: write_str only appends &str prefixes ending at UTF-8 character
+        // boundaries. The private buffer cannot contain invalid UTF-8.
+        unsafe { core::str::from_utf8_unchecked(self.bytes.split_at(self.len).0) }
     }
 }
 
@@ -138,9 +140,9 @@ pub(crate) fn with_text(message: fmt::Arguments<'_>, submit: impl FnOnce(&str)) 
     } else {
         &buffer.heap
     };
-    if let Ok(message) = core::str::from_utf8(bytes) {
-        submit(message);
-    }
+    // SAFETY: fmt::Write supplies valid UTF-8 fragments, and MessageBuffer
+    // copies each fragment in full. Formatting failure returns above.
+    submit(unsafe { core::str::from_utf8_unchecked(bytes) });
 }
 impl fmt::Write for MessageBuffer {
     fn write_str(&mut self, value: &str) -> fmt::Result {
@@ -172,18 +174,25 @@ pub(crate) fn with_message(message: fmt::Arguments<'_>, submit: impl FnOnce(&CSt
         len: 0,
         heap: Vec::new(),
     };
-    if buffer.write_fmt(message).is_err() {
-        return;
-    }
-    let bytes = if buffer.heap.is_empty() {
-        &buffer.stack[..=buffer.len]
-    } else {
-        // Every growth reserved the terminator along with the message bytes.
-        buffer.heap.push(0);
-        &buffer.heap
-    };
-    if let Ok(message) = CStr::from_bytes_with_nul(bytes) {
+    if let Some(message) = buffer.format_message(message) {
         submit(message);
+    }
+}
+
+impl MessageBuffer {
+    // Formatting and NUL validation are independent of the callback type.
+    // Keep one body instead of copying them into every closure instantiation.
+    #[inline(never)]
+    fn format_message(&mut self, message: fmt::Arguments<'_>) -> Option<&CStr> {
+        self.write_fmt(message).ok()?;
+        let bytes = if self.heap.is_empty() {
+            &self.stack[..=self.len]
+        } else {
+            // Every growth reserved the terminator along with the message bytes.
+            self.heap.push(0);
+            &self.heap
+        };
+        CStr::from_bytes_with_nul(bytes).ok()
     }
 }
 

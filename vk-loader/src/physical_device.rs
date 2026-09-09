@@ -897,7 +897,9 @@ pub(crate) unsafe fn enumerate_physical_device_groups_impl(
             emit_instance_loader_message(
                 instance,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-                "setup_loader_term_phys_devs:  Failed to detect any valid GPUs in the current config",
+                format_args!(
+                    "setup_loader_term_phys_devs:  Failed to detect any valid GPUs in the current config"
+                ),
             );
             VkResult::ERROR_INITIALIZATION_FAILED
         } else {
@@ -915,6 +917,19 @@ pub(crate) unsafe fn enumerate_physical_device_groups_impl(
 }
 
 #[cold]
+fn emit_physical_device_discovery_error(instance: &LoaderInstance, result: VkResult) {
+    if result == VkResult::ERROR_INITIALIZATION_FAILED {
+        emit_instance_loader_message(
+            instance,
+            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
+            format_args!(
+                "setup_loader_term_phys_devs:  Failed to detect any valid GPUs in the current config"
+            ),
+        );
+    }
+}
+
+#[cold]
 #[inline(never)]
 pub(crate) unsafe fn enumerate_physical_device_group_properties(
     instance: &LoaderInstance,
@@ -926,13 +941,7 @@ pub(crate) unsafe fn enumerate_physical_device_group_properties(
     let mut all_devices = match unsafe { discover_all_physical_devices(instance, false) } {
         Ok(devices) => devices,
         Err(result) => {
-            if result == VkResult::ERROR_INITIALIZATION_FAILED {
-                emit_instance_loader_message(
-                    instance,
-                    vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-                    "setup_loader_term_phys_devs:  Failed to detect any valid GPUs in the current config",
-                );
-            }
+            emit_physical_device_discovery_error(instance, result);
             *group_count = 0;
             return result;
         }
@@ -1678,13 +1687,13 @@ pub(crate) unsafe fn linux_sort_physical_devices(
         instance,
         vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
         platform::LogFilter::Driver,
-        "linux_read_sorted_physical_devices:",
+        format_args!("linux_read_sorted_physical_devices:"),
     );
     emit_instance_loader_category_message(
         instance,
         vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
         platform::LogFilter::Driver,
-        "     Original order:",
+        format_args!("     Original order:"),
     );
     for (original_order, &device) in devices.iter().enumerate() {
         let mut info = unsafe { linux_sorted_device_info(instance, device, storage) }?;
@@ -1711,7 +1720,7 @@ pub(crate) unsafe fn linux_sort_physical_devices(
         instance,
         vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
         platform::LogFilter::Driver,
-        "     Sorted order:",
+        format_args!("     Sorted order:"),
     );
     for (index, (output, sorted)) in devices.iter_mut().zip(sorted).enumerate() {
         let name = unsafe { CStr::from_ptr(sorted.device_name.as_ptr()) };
@@ -1755,7 +1764,7 @@ pub(crate) unsafe fn linux_sort_physical_device_groups(
         instance,
         vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
         platform::LogFilter::Driver,
-        "linux_sort_physical_device_groups:  Original order:",
+        format_args!("linux_sort_physical_device_groups:  Original order:"),
     );
     for (group_index, (icd_index, properties)) in groups.iter_mut().enumerate() {
         emit_instance_loader_category_message(
@@ -1877,7 +1886,9 @@ pub(crate) unsafe fn discover_active_physical_devices_with_diagnostics(
         emit_instance_loader_message(
             instance,
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-            "Selecting and ordering VkPhysicalDevices to match the loader settings device configurations list",
+            format_args!(
+                "Selecting and ordering VkPhysicalDevices to match the loader settings device configurations list"
+            ),
         );
     }
 
@@ -1923,7 +1934,9 @@ pub(crate) unsafe fn discover_active_physical_devices_with_diagnostics(
             emit_instance_loader_message(
                 instance,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-                "loader_apply_settings_device_configurations: None of the settings file device configurations had deviceUUID's that corresponded to enumerated VkPhysicalDevices. Returning VK_ERROR_INITIALIZATION_FAILED",
+                format_args!(
+                    "loader_apply_settings_device_configurations: None of the settings file device configurations had deviceUUID's that corresponded to enumerated VkPhysicalDevices. Returning VK_ERROR_INITIALIZATION_FAILED"
+                ),
             );
         }
         Err(VkResult::ERROR_INITIALIZATION_FAILED)
@@ -1933,14 +1946,15 @@ pub(crate) unsafe fn discover_active_physical_devices_with_diagnostics(
 }
 
 #[cold]
+#[inline(never)]
 pub(crate) fn emit_instance_loader_message(
     instance: &LoaderInstance,
     severity: vk::VkDebugUtilsMessageSeverityFlagBitsEXT,
-    message: impl core::fmt::Display,
+    message: core::fmt::Arguments<'_>,
 ) {
     let filter = platform::LogFilter::from_severity(severity);
-    platform::write_loader_log(filter, format_args!("{message}"));
-    diagnostics::with_message(format_args!("{message}"), |message| {
+    platform::write_loader_log(filter, message);
+    diagnostics::with_message(message, |message| {
         instance.submit_loader_message(
             severity,
             vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
@@ -1950,18 +1964,15 @@ pub(crate) fn emit_instance_loader_message(
 }
 
 #[cold]
+#[inline(never)]
 pub(crate) fn emit_instance_category_message(
     instance: &LoaderInstance,
     category_filters: &[platform::LogFilter],
     category_label: &str,
-    message: impl core::fmt::Display,
+    message: core::fmt::Arguments<'_>,
 ) {
-    platform::write_loader_category_log_any(
-        category_filters,
-        category_label,
-        format_args!("{message}"),
-    );
-    diagnostics::with_message(format_args!("{message}"), |message| {
+    platform::write_loader_category_log_any(category_filters, category_label, message);
+    diagnostics::with_message(message, |message| {
         instance.submit_loader_message(
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
             vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
@@ -1971,18 +1982,19 @@ pub(crate) fn emit_instance_category_message(
 }
 
 #[cold]
+#[inline(never)]
 pub(crate) fn emit_instance_loader_category_message(
     instance: &LoaderInstance,
     severity: vk::VkDebugUtilsMessageSeverityFlagBitsEXT,
     category: platform::LogFilter,
-    message: impl core::fmt::Display,
+    message: core::fmt::Arguments<'_>,
 ) {
     platform::write_loader_log_with_category(
         platform::LogFilter::from_severity(severity),
         category,
-        format_args!("{message}"),
+        message,
     );
-    diagnostics::with_message(format_args!("{message}"), |message| {
+    diagnostics::with_message(message, |message| {
         instance.submit_loader_message(
             severity,
             vk::VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
@@ -2062,7 +2074,7 @@ fn emit_sorted_physical_device_groups(instance: &LoaderInstance, sortable: &[Lin
         instance,
         vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
         platform::LogFilter::Driver,
-        "linux_sort_physical_device_groups:  Sorted order:",
+        format_args!("linux_sort_physical_device_groups:  Sorted order:"),
     );
     for (group_index, group) in sortable.iter().enumerate() {
         emit_instance_loader_category_message(

@@ -1249,20 +1249,17 @@ use crate::vkSetDebugUtilsObjectNameEXT;
 use crate::vkSetDebugUtilsObjectTagEXT;
 use crate::vkSubmitDebugUtilsMessageEXT;
 pub(crate) fn global_proc_addr(name: &CStr) -> PFN_vkVoidFunction {
-    match name.to_bytes() {
-        b"vkCreateInstance" => Some(erase_function(vkCreateInstance as *const ())),
-        b"vkEnumerateInstanceExtensionProperties" => Some(erase_function(
-            vkEnumerateInstanceExtensionProperties as *const (),
-        )),
-        b"vkEnumerateInstanceLayerProperties" => Some(erase_function(
-            vkEnumerateInstanceLayerProperties as *const (),
-        )),
-        b"vkEnumerateInstanceVersion" => {
-            Some(erase_function(vkEnumerateInstanceVersion as *const ()))
+    let address = match name.to_bytes() {
+        b"vkCreateInstance" => vkCreateInstance as *const (),
+        b"vkEnumerateInstanceExtensionProperties" => {
+            vkEnumerateInstanceExtensionProperties as *const ()
         }
-        b"vkGetInstanceProcAddr" => Some(erase_function(vkGetInstanceProcAddr as *const ())),
-        _ => None,
-    }
+        b"vkEnumerateInstanceLayerProperties" => vkEnumerateInstanceLayerProperties as *const (),
+        b"vkEnumerateInstanceVersion" => vkEnumerateInstanceVersion as *const (),
+        b"vkGetInstanceProcAddr" => vkGetInstanceProcAddr as *const (),
+        _ => return None,
+    };
+    Some(erase_function(address))
 }
 #[inline]
 pub(crate) unsafe fn layer_device_dispatch_proc_addr(
@@ -1286,20 +1283,16 @@ pub(crate) unsafe fn layer_device_dispatch_proc_addr(
 #[inline(never)]
 #[allow(clippy::too_many_lines)]
 pub(crate) fn exported_proc_addr(id: u16) -> PFN_vkVoidFunction {
-    match id {
-        0 => Some(erase_function(vkAcquireDrmDisplayEXT as *const ())),
+    let address = match id {
+        0 => vkAcquireDrmDisplayEXT as *const (),
         #[cfg(target_os = "windows")]
-        1 => Some(erase_function(
-            vkAcquireFullScreenExclusiveModeEXT as *const (),
-        )),
-        2 => Some(erase_function(vkAcquireNextImage2KHR as *const ())),
-        3 => Some(erase_function(vkAcquireNextImageKHR as *const ())),
-        4 => Some(erase_function(
-            vkAcquirePerformanceConfigurationINTEL as *const (),
-        )),
-        5 => Some(erase_function(vkAcquireProfilingLockKHR as *const ())),
+        1 => vkAcquireFullScreenExclusiveModeEXT as *const (),
+        2 => vkAcquireNextImage2KHR as *const (),
+        3 => vkAcquireNextImageKHR as *const (),
+        4 => vkAcquirePerformanceConfigurationINTEL as *const (),
+        5 => vkAcquireProfilingLockKHR as *const (),
         #[cfg(target_os = "windows")]
-        6 => Some(erase_function(vkAcquireWinrtDisplayNV as *const ())),
+        6 => vkAcquireWinrtDisplayNV as *const (),
         #[cfg(all(
             feature = "wsi-xlib-xrandr",
             any(
@@ -1312,644 +1305,456 @@ pub(crate) fn exported_proc_addr(id: u16) -> PFN_vkVoidFunction {
                 target_os = "cygwin"
             )
         ))]
-        7 => Some(erase_function(vkAcquireXlibDisplayEXT as *const ())),
-        8 => Some(erase_function(vkAllocateCommandBuffers as *const ())),
-        9 => Some(erase_function(vkAllocateDescriptorSets as *const ())),
-        10 => Some(erase_function(vkAllocateMemory as *const ())),
-        11 => Some(erase_function(vkAntiLagUpdateAMD as *const ())),
-        12 => Some(erase_function(vkBeginCommandBuffer as *const ())),
-        13 => Some(erase_function(
-            vkBindAccelerationStructureMemoryNV as *const (),
-        )),
-        14 => Some(erase_function(vkBindBufferMemory as *const ())),
-        15 => Some(erase_function(vkBindBufferMemory2 as *const ())),
-        16 => Some(erase_function(vkBindBufferMemory2KHR as *const ())),
-        17 => Some(erase_function(
-            vkBindDataGraphPipelineSessionMemoryARM as *const (),
-        )),
-        18 => Some(erase_function(vkBindImageMemory as *const ())),
-        19 => Some(erase_function(vkBindImageMemory2 as *const ())),
-        20 => Some(erase_function(vkBindImageMemory2KHR as *const ())),
-        21 => Some(erase_function(vkBindOpticalFlowSessionImageNV as *const ())),
-        22 => Some(erase_function(vkBindTensorMemoryARM as *const ())),
-        23 => Some(erase_function(vkBindVideoSessionMemoryKHR as *const ())),
-        24 => Some(erase_function(
-            vkBuildAccelerationStructuresKHR as *const (),
-        )),
-        25 => Some(erase_function(vkBuildMicromapsEXT as *const ())),
-        26 => Some(erase_function(
-            vkClearShaderInstrumentationMetricsARM as *const (),
-        )),
-        27 => Some(erase_function(
-            vkCmdBeginConditionalRendering2EXT as *const (),
-        )),
-        28 => Some(erase_function(
-            vkCmdBeginConditionalRenderingEXT as *const (),
-        )),
-        29 => Some(erase_function(vkCmdBeginCustomResolveEXT as *const ())),
-        30 => Some(erase_function(vkCmdBeginDebugUtilsLabelEXT as *const ())),
-        31 => Some(erase_function(vkCmdBeginGpaSampleAMD as *const ())),
-        32 => Some(erase_function(vkCmdBeginGpaSessionAMD as *const ())),
-        33 => Some(erase_function(vkCmdBeginPerTileExecutionQCOM as *const ())),
-        34 => Some(erase_function(vkCmdBeginQuery as *const ())),
-        35 => Some(erase_function(vkCmdBeginQueryIndexedEXT as *const ())),
-        36 => Some(erase_function(vkCmdBeginRenderPass as *const ())),
-        37 => Some(erase_function(vkCmdBeginRenderPass2 as *const ())),
-        38 => Some(erase_function(vkCmdBeginRenderPass2KHR as *const ())),
-        39 => Some(erase_function(vkCmdBeginRendering as *const ())),
-        40 => Some(erase_function(vkCmdBeginRenderingKHR as *const ())),
-        41 => Some(erase_function(
-            vkCmdBeginShaderInstrumentationARM as *const (),
-        )),
-        42 => Some(erase_function(vkCmdBeginTransformFeedback2EXT as *const ())),
-        43 => Some(erase_function(vkCmdBeginTransformFeedbackEXT as *const ())),
-        44 => Some(erase_function(vkCmdBeginVideoCodingKHR as *const ())),
-        45 => Some(erase_function(
-            vkCmdBindDescriptorBufferEmbeddedSamplers2EXT as *const (),
-        )),
-        46 => Some(erase_function(
-            vkCmdBindDescriptorBufferEmbeddedSamplersEXT as *const (),
-        )),
-        47 => Some(erase_function(vkCmdBindDescriptorBuffersEXT as *const ())),
-        48 => Some(erase_function(vkCmdBindDescriptorSets as *const ())),
-        49 => Some(erase_function(vkCmdBindDescriptorSets2 as *const ())),
-        50 => Some(erase_function(vkCmdBindDescriptorSets2KHR as *const ())),
-        51 => Some(erase_function(vkCmdBindIndexBuffer as *const ())),
-        52 => Some(erase_function(vkCmdBindIndexBuffer2 as *const ())),
-        53 => Some(erase_function(vkCmdBindIndexBuffer2KHR as *const ())),
-        54 => Some(erase_function(vkCmdBindIndexBuffer3KHR as *const ())),
-        55 => Some(erase_function(vkCmdBindInvocationMaskHUAWEI as *const ())),
-        56 => Some(erase_function(vkCmdBindPipeline as *const ())),
-        57 => Some(erase_function(vkCmdBindPipelineShaderGroupNV as *const ())),
-        58 => Some(erase_function(vkCmdBindResourceHeapEXT as *const ())),
-        59 => Some(erase_function(vkCmdBindSamplerHeapEXT as *const ())),
-        60 => Some(erase_function(vkCmdBindShadersEXT as *const ())),
-        61 => Some(erase_function(vkCmdBindShadingRateImageNV as *const ())),
-        62 => Some(erase_function(vkCmdBindTileMemoryQCOM as *const ())),
-        63 => Some(erase_function(
-            vkCmdBindTransformFeedbackBuffers2EXT as *const (),
-        )),
-        64 => Some(erase_function(
-            vkCmdBindTransformFeedbackBuffersEXT as *const (),
-        )),
-        65 => Some(erase_function(vkCmdBindVertexBuffers as *const ())),
-        66 => Some(erase_function(vkCmdBindVertexBuffers2 as *const ())),
-        67 => Some(erase_function(vkCmdBindVertexBuffers2EXT as *const ())),
-        68 => Some(erase_function(vkCmdBindVertexBuffers3KHR as *const ())),
-        69 => Some(erase_function(vkCmdBlitImage as *const ())),
-        70 => Some(erase_function(vkCmdBlitImage2 as *const ())),
-        71 => Some(erase_function(vkCmdBlitImage2KHR as *const ())),
-        72 => Some(erase_function(
-            vkCmdBuildAccelerationStructureNV as *const (),
-        )),
-        73 => Some(erase_function(
-            vkCmdBuildAccelerationStructuresIndirectKHR as *const (),
-        )),
-        74 => Some(erase_function(
-            vkCmdBuildAccelerationStructuresKHR as *const (),
-        )),
-        75 => Some(erase_function(
-            vkCmdBuildClusterAccelerationStructureIndirectNV as *const (),
-        )),
-        76 => Some(erase_function(vkCmdBuildMicromapsEXT as *const ())),
-        77 => Some(erase_function(
-            vkCmdBuildPartitionedAccelerationStructuresNV as *const (),
-        )),
-        78 => Some(erase_function(vkCmdClearAttachments as *const ())),
-        79 => Some(erase_function(vkCmdClearColorImage as *const ())),
-        80 => Some(erase_function(vkCmdClearDepthStencilImage as *const ())),
-        81 => Some(erase_function(vkCmdControlVideoCodingKHR as *const ())),
-        82 => Some(erase_function(
-            vkCmdConvertCooperativeVectorMatrixNV as *const (),
-        )),
-        83 => Some(erase_function(
-            vkCmdCopyAccelerationStructureKHR as *const (),
-        )),
-        84 => Some(erase_function(
-            vkCmdCopyAccelerationStructureNV as *const (),
-        )),
-        85 => Some(erase_function(
-            vkCmdCopyAccelerationStructureToMemoryKHR as *const (),
-        )),
-        86 => Some(erase_function(vkCmdCopyBuffer as *const ())),
-        87 => Some(erase_function(vkCmdCopyBuffer2 as *const ())),
-        88 => Some(erase_function(vkCmdCopyBuffer2KHR as *const ())),
-        89 => Some(erase_function(vkCmdCopyBufferToImage as *const ())),
-        90 => Some(erase_function(vkCmdCopyBufferToImage2 as *const ())),
-        91 => Some(erase_function(vkCmdCopyBufferToImage2KHR as *const ())),
-        92 => Some(erase_function(vkCmdCopyGpaSessionResultsAMD as *const ())),
-        93 => Some(erase_function(vkCmdCopyImage as *const ())),
-        94 => Some(erase_function(vkCmdCopyImage2 as *const ())),
-        95 => Some(erase_function(vkCmdCopyImage2KHR as *const ())),
-        96 => Some(erase_function(vkCmdCopyImageToBuffer as *const ())),
-        97 => Some(erase_function(vkCmdCopyImageToBuffer2 as *const ())),
-        98 => Some(erase_function(vkCmdCopyImageToBuffer2KHR as *const ())),
-        99 => Some(erase_function(vkCmdCopyImageToMemoryKHR as *const ())),
-        100 => Some(erase_function(vkCmdCopyMemoryIndirectKHR as *const ())),
-        101 => Some(erase_function(vkCmdCopyMemoryIndirectNV as *const ())),
-        102 => Some(erase_function(vkCmdCopyMemoryKHR as *const ())),
-        103 => Some(erase_function(
-            vkCmdCopyMemoryToAccelerationStructureKHR as *const (),
-        )),
-        104 => Some(erase_function(
-            vkCmdCopyMemoryToImageIndirectKHR as *const (),
-        )),
-        105 => Some(erase_function(
-            vkCmdCopyMemoryToImageIndirectNV as *const (),
-        )),
-        106 => Some(erase_function(vkCmdCopyMemoryToImageKHR as *const ())),
-        107 => Some(erase_function(vkCmdCopyMemoryToMicromapEXT as *const ())),
-        108 => Some(erase_function(vkCmdCopyMicromapEXT as *const ())),
-        109 => Some(erase_function(vkCmdCopyMicromapToMemoryEXT as *const ())),
-        110 => Some(erase_function(vkCmdCopyQueryPoolResults as *const ())),
-        111 => Some(erase_function(
-            vkCmdCopyQueryPoolResultsToMemoryKHR as *const (),
-        )),
-        112 => Some(erase_function(vkCmdCopyTensorARM as *const ())),
-        113 => Some(erase_function(vkCmdCuLaunchKernelNVX as *const ())),
+        7 => vkAcquireXlibDisplayEXT as *const (),
+        8 => vkAllocateCommandBuffers as *const (),
+        9 => vkAllocateDescriptorSets as *const (),
+        10 => vkAllocateMemory as *const (),
+        11 => vkAntiLagUpdateAMD as *const (),
+        12 => vkBeginCommandBuffer as *const (),
+        13 => vkBindAccelerationStructureMemoryNV as *const (),
+        14 => vkBindBufferMemory as *const (),
+        15 => vkBindBufferMemory2 as *const (),
+        16 => vkBindBufferMemory2KHR as *const (),
+        17 => vkBindDataGraphPipelineSessionMemoryARM as *const (),
+        18 => vkBindImageMemory as *const (),
+        19 => vkBindImageMemory2 as *const (),
+        20 => vkBindImageMemory2KHR as *const (),
+        21 => vkBindOpticalFlowSessionImageNV as *const (),
+        22 => vkBindTensorMemoryARM as *const (),
+        23 => vkBindVideoSessionMemoryKHR as *const (),
+        24 => vkBuildAccelerationStructuresKHR as *const (),
+        25 => vkBuildMicromapsEXT as *const (),
+        26 => vkClearShaderInstrumentationMetricsARM as *const (),
+        27 => vkCmdBeginConditionalRendering2EXT as *const (),
+        28 => vkCmdBeginConditionalRenderingEXT as *const (),
+        29 => vkCmdBeginCustomResolveEXT as *const (),
+        30 => vkCmdBeginDebugUtilsLabelEXT as *const (),
+        31 => vkCmdBeginGpaSampleAMD as *const (),
+        32 => vkCmdBeginGpaSessionAMD as *const (),
+        33 => vkCmdBeginPerTileExecutionQCOM as *const (),
+        34 => vkCmdBeginQuery as *const (),
+        35 => vkCmdBeginQueryIndexedEXT as *const (),
+        36 => vkCmdBeginRenderPass as *const (),
+        37 => vkCmdBeginRenderPass2 as *const (),
+        38 => vkCmdBeginRenderPass2KHR as *const (),
+        39 => vkCmdBeginRendering as *const (),
+        40 => vkCmdBeginRenderingKHR as *const (),
+        41 => vkCmdBeginShaderInstrumentationARM as *const (),
+        42 => vkCmdBeginTransformFeedback2EXT as *const (),
+        43 => vkCmdBeginTransformFeedbackEXT as *const (),
+        44 => vkCmdBeginVideoCodingKHR as *const (),
+        45 => vkCmdBindDescriptorBufferEmbeddedSamplers2EXT as *const (),
+        46 => vkCmdBindDescriptorBufferEmbeddedSamplersEXT as *const (),
+        47 => vkCmdBindDescriptorBuffersEXT as *const (),
+        48 => vkCmdBindDescriptorSets as *const (),
+        49 => vkCmdBindDescriptorSets2 as *const (),
+        50 => vkCmdBindDescriptorSets2KHR as *const (),
+        51 => vkCmdBindIndexBuffer as *const (),
+        52 => vkCmdBindIndexBuffer2 as *const (),
+        53 => vkCmdBindIndexBuffer2KHR as *const (),
+        54 => vkCmdBindIndexBuffer3KHR as *const (),
+        55 => vkCmdBindInvocationMaskHUAWEI as *const (),
+        56 => vkCmdBindPipeline as *const (),
+        57 => vkCmdBindPipelineShaderGroupNV as *const (),
+        58 => vkCmdBindResourceHeapEXT as *const (),
+        59 => vkCmdBindSamplerHeapEXT as *const (),
+        60 => vkCmdBindShadersEXT as *const (),
+        61 => vkCmdBindShadingRateImageNV as *const (),
+        62 => vkCmdBindTileMemoryQCOM as *const (),
+        63 => vkCmdBindTransformFeedbackBuffers2EXT as *const (),
+        64 => vkCmdBindTransformFeedbackBuffersEXT as *const (),
+        65 => vkCmdBindVertexBuffers as *const (),
+        66 => vkCmdBindVertexBuffers2 as *const (),
+        67 => vkCmdBindVertexBuffers2EXT as *const (),
+        68 => vkCmdBindVertexBuffers3KHR as *const (),
+        69 => vkCmdBlitImage as *const (),
+        70 => vkCmdBlitImage2 as *const (),
+        71 => vkCmdBlitImage2KHR as *const (),
+        72 => vkCmdBuildAccelerationStructureNV as *const (),
+        73 => vkCmdBuildAccelerationStructuresIndirectKHR as *const (),
+        74 => vkCmdBuildAccelerationStructuresKHR as *const (),
+        75 => vkCmdBuildClusterAccelerationStructureIndirectNV as *const (),
+        76 => vkCmdBuildMicromapsEXT as *const (),
+        77 => vkCmdBuildPartitionedAccelerationStructuresNV as *const (),
+        78 => vkCmdClearAttachments as *const (),
+        79 => vkCmdClearColorImage as *const (),
+        80 => vkCmdClearDepthStencilImage as *const (),
+        81 => vkCmdControlVideoCodingKHR as *const (),
+        82 => vkCmdConvertCooperativeVectorMatrixNV as *const (),
+        83 => vkCmdCopyAccelerationStructureKHR as *const (),
+        84 => vkCmdCopyAccelerationStructureNV as *const (),
+        85 => vkCmdCopyAccelerationStructureToMemoryKHR as *const (),
+        86 => vkCmdCopyBuffer as *const (),
+        87 => vkCmdCopyBuffer2 as *const (),
+        88 => vkCmdCopyBuffer2KHR as *const (),
+        89 => vkCmdCopyBufferToImage as *const (),
+        90 => vkCmdCopyBufferToImage2 as *const (),
+        91 => vkCmdCopyBufferToImage2KHR as *const (),
+        92 => vkCmdCopyGpaSessionResultsAMD as *const (),
+        93 => vkCmdCopyImage as *const (),
+        94 => vkCmdCopyImage2 as *const (),
+        95 => vkCmdCopyImage2KHR as *const (),
+        96 => vkCmdCopyImageToBuffer as *const (),
+        97 => vkCmdCopyImageToBuffer2 as *const (),
+        98 => vkCmdCopyImageToBuffer2KHR as *const (),
+        99 => vkCmdCopyImageToMemoryKHR as *const (),
+        100 => vkCmdCopyMemoryIndirectKHR as *const (),
+        101 => vkCmdCopyMemoryIndirectNV as *const (),
+        102 => vkCmdCopyMemoryKHR as *const (),
+        103 => vkCmdCopyMemoryToAccelerationStructureKHR as *const (),
+        104 => vkCmdCopyMemoryToImageIndirectKHR as *const (),
+        105 => vkCmdCopyMemoryToImageIndirectNV as *const (),
+        106 => vkCmdCopyMemoryToImageKHR as *const (),
+        107 => vkCmdCopyMemoryToMicromapEXT as *const (),
+        108 => vkCmdCopyMicromapEXT as *const (),
+        109 => vkCmdCopyMicromapToMemoryEXT as *const (),
+        110 => vkCmdCopyQueryPoolResults as *const (),
+        111 => vkCmdCopyQueryPoolResultsToMemoryKHR as *const (),
+        112 => vkCmdCopyTensorARM as *const (),
+        113 => vkCmdCuLaunchKernelNVX as *const (),
         #[cfg(feature = "beta-extensions")]
-        114 => Some(erase_function(vkCmdCudaLaunchKernelNV as *const ())),
-        115 => Some(erase_function(vkCmdDebugMarkerBeginEXT as *const ())),
-        116 => Some(erase_function(vkCmdDebugMarkerEndEXT as *const ())),
-        117 => Some(erase_function(vkCmdDebugMarkerInsertEXT as *const ())),
-        118 => Some(erase_function(vkCmdDecodeVideoKHR as *const ())),
-        119 => Some(erase_function(vkCmdDecompressMemoryEXT as *const ())),
-        120 => Some(erase_function(
-            vkCmdDecompressMemoryIndirectCountEXT as *const (),
-        )),
-        121 => Some(erase_function(
-            vkCmdDecompressMemoryIndirectCountNV as *const (),
-        )),
-        122 => Some(erase_function(vkCmdDecompressMemoryNV as *const ())),
-        123 => Some(erase_function(vkCmdDispatch as *const ())),
-        124 => Some(erase_function(vkCmdDispatchBase as *const ())),
-        125 => Some(erase_function(vkCmdDispatchBaseKHR as *const ())),
-        126 => Some(erase_function(vkCmdDispatchDataGraphARM as *const ())),
+        114 => vkCmdCudaLaunchKernelNV as *const (),
+        115 => vkCmdDebugMarkerBeginEXT as *const (),
+        116 => vkCmdDebugMarkerEndEXT as *const (),
+        117 => vkCmdDebugMarkerInsertEXT as *const (),
+        118 => vkCmdDecodeVideoKHR as *const (),
+        119 => vkCmdDecompressMemoryEXT as *const (),
+        120 => vkCmdDecompressMemoryIndirectCountEXT as *const (),
+        121 => vkCmdDecompressMemoryIndirectCountNV as *const (),
+        122 => vkCmdDecompressMemoryNV as *const (),
+        123 => vkCmdDispatch as *const (),
+        124 => vkCmdDispatchBase as *const (),
+        125 => vkCmdDispatchBaseKHR as *const (),
+        126 => vkCmdDispatchDataGraphARM as *const (),
         #[cfg(feature = "beta-extensions")]
-        127 => Some(erase_function(vkCmdDispatchGraphAMDX as *const ())),
+        127 => vkCmdDispatchGraphAMDX as *const (),
         #[cfg(feature = "beta-extensions")]
-        128 => Some(erase_function(vkCmdDispatchGraphIndirectAMDX as *const ())),
+        128 => vkCmdDispatchGraphIndirectAMDX as *const (),
         #[cfg(feature = "beta-extensions")]
-        129 => Some(erase_function(
-            vkCmdDispatchGraphIndirectCountAMDX as *const (),
-        )),
-        130 => Some(erase_function(vkCmdDispatchIndirect as *const ())),
-        131 => Some(erase_function(vkCmdDispatchIndirect2KHR as *const ())),
-        132 => Some(erase_function(vkCmdDispatchTileQCOM as *const ())),
-        133 => Some(erase_function(vkCmdDraw as *const ())),
-        134 => Some(erase_function(vkCmdDrawClusterHUAWEI as *const ())),
-        135 => Some(erase_function(vkCmdDrawClusterIndirectHUAWEI as *const ())),
-        136 => Some(erase_function(vkCmdDrawIndexed as *const ())),
-        137 => Some(erase_function(vkCmdDrawIndexedIndirect as *const ())),
-        138 => Some(erase_function(vkCmdDrawIndexedIndirect2KHR as *const ())),
-        139 => Some(erase_function(vkCmdDrawIndexedIndirectCount as *const ())),
-        140 => Some(erase_function(
-            vkCmdDrawIndexedIndirectCount2KHR as *const (),
-        )),
-        141 => Some(erase_function(
-            vkCmdDrawIndexedIndirectCountAMD as *const (),
-        )),
-        142 => Some(erase_function(
-            vkCmdDrawIndexedIndirectCountKHR as *const (),
-        )),
-        143 => Some(erase_function(vkCmdDrawIndirect as *const ())),
-        144 => Some(erase_function(vkCmdDrawIndirect2KHR as *const ())),
-        145 => Some(erase_function(vkCmdDrawIndirectByteCount2EXT as *const ())),
-        146 => Some(erase_function(vkCmdDrawIndirectByteCountEXT as *const ())),
-        147 => Some(erase_function(vkCmdDrawIndirectCount as *const ())),
-        148 => Some(erase_function(vkCmdDrawIndirectCount2KHR as *const ())),
-        149 => Some(erase_function(vkCmdDrawIndirectCountAMD as *const ())),
-        150 => Some(erase_function(vkCmdDrawIndirectCountKHR as *const ())),
-        151 => Some(erase_function(vkCmdDrawMeshTasksEXT as *const ())),
-        152 => Some(erase_function(vkCmdDrawMeshTasksIndirect2EXT as *const ())),
-        153 => Some(erase_function(
-            vkCmdDrawMeshTasksIndirectCount2EXT as *const (),
-        )),
-        154 => Some(erase_function(
-            vkCmdDrawMeshTasksIndirectCountEXT as *const (),
-        )),
-        155 => Some(erase_function(
-            vkCmdDrawMeshTasksIndirectCountNV as *const (),
-        )),
-        156 => Some(erase_function(vkCmdDrawMeshTasksIndirectEXT as *const ())),
-        157 => Some(erase_function(vkCmdDrawMeshTasksIndirectNV as *const ())),
-        158 => Some(erase_function(vkCmdDrawMeshTasksNV as *const ())),
-        159 => Some(erase_function(vkCmdDrawMultiEXT as *const ())),
-        160 => Some(erase_function(vkCmdDrawMultiIndexedEXT as *const ())),
-        161 => Some(erase_function(vkCmdEncodeVideoKHR as *const ())),
-        162 => Some(erase_function(vkCmdEndConditionalRenderingEXT as *const ())),
-        163 => Some(erase_function(vkCmdEndDebugUtilsLabelEXT as *const ())),
-        164 => Some(erase_function(vkCmdEndGpaSampleAMD as *const ())),
-        165 => Some(erase_function(vkCmdEndGpaSessionAMD as *const ())),
-        166 => Some(erase_function(vkCmdEndPerTileExecutionQCOM as *const ())),
-        167 => Some(erase_function(vkCmdEndQuery as *const ())),
-        168 => Some(erase_function(vkCmdEndQueryIndexedEXT as *const ())),
-        169 => Some(erase_function(vkCmdEndRenderPass as *const ())),
-        170 => Some(erase_function(vkCmdEndRenderPass2 as *const ())),
-        171 => Some(erase_function(vkCmdEndRenderPass2KHR as *const ())),
-        172 => Some(erase_function(vkCmdEndRendering as *const ())),
-        173 => Some(erase_function(vkCmdEndRendering2EXT as *const ())),
-        174 => Some(erase_function(vkCmdEndRendering2KHR as *const ())),
-        175 => Some(erase_function(vkCmdEndRenderingKHR as *const ())),
-        176 => Some(erase_function(
-            vkCmdEndShaderInstrumentationARM as *const (),
-        )),
-        177 => Some(erase_function(vkCmdEndTransformFeedback2EXT as *const ())),
-        178 => Some(erase_function(vkCmdEndTransformFeedbackEXT as *const ())),
-        179 => Some(erase_function(vkCmdEndVideoCodingKHR as *const ())),
-        180 => Some(erase_function(vkCmdExecuteCommands as *const ())),
-        181 => Some(erase_function(
-            vkCmdExecuteGeneratedCommandsEXT as *const (),
-        )),
-        182 => Some(erase_function(vkCmdExecuteGeneratedCommandsNV as *const ())),
-        183 => Some(erase_function(vkCmdFillBuffer as *const ())),
-        184 => Some(erase_function(vkCmdFillMemoryKHR as *const ())),
+        129 => vkCmdDispatchGraphIndirectCountAMDX as *const (),
+        130 => vkCmdDispatchIndirect as *const (),
+        131 => vkCmdDispatchIndirect2KHR as *const (),
+        132 => vkCmdDispatchTileQCOM as *const (),
+        133 => vkCmdDraw as *const (),
+        134 => vkCmdDrawClusterHUAWEI as *const (),
+        135 => vkCmdDrawClusterIndirectHUAWEI as *const (),
+        136 => vkCmdDrawIndexed as *const (),
+        137 => vkCmdDrawIndexedIndirect as *const (),
+        138 => vkCmdDrawIndexedIndirect2KHR as *const (),
+        139 => vkCmdDrawIndexedIndirectCount as *const (),
+        140 => vkCmdDrawIndexedIndirectCount2KHR as *const (),
+        141 => vkCmdDrawIndexedIndirectCountAMD as *const (),
+        142 => vkCmdDrawIndexedIndirectCountKHR as *const (),
+        143 => vkCmdDrawIndirect as *const (),
+        144 => vkCmdDrawIndirect2KHR as *const (),
+        145 => vkCmdDrawIndirectByteCount2EXT as *const (),
+        146 => vkCmdDrawIndirectByteCountEXT as *const (),
+        147 => vkCmdDrawIndirectCount as *const (),
+        148 => vkCmdDrawIndirectCount2KHR as *const (),
+        149 => vkCmdDrawIndirectCountAMD as *const (),
+        150 => vkCmdDrawIndirectCountKHR as *const (),
+        151 => vkCmdDrawMeshTasksEXT as *const (),
+        152 => vkCmdDrawMeshTasksIndirect2EXT as *const (),
+        153 => vkCmdDrawMeshTasksIndirectCount2EXT as *const (),
+        154 => vkCmdDrawMeshTasksIndirectCountEXT as *const (),
+        155 => vkCmdDrawMeshTasksIndirectCountNV as *const (),
+        156 => vkCmdDrawMeshTasksIndirectEXT as *const (),
+        157 => vkCmdDrawMeshTasksIndirectNV as *const (),
+        158 => vkCmdDrawMeshTasksNV as *const (),
+        159 => vkCmdDrawMultiEXT as *const (),
+        160 => vkCmdDrawMultiIndexedEXT as *const (),
+        161 => vkCmdEncodeVideoKHR as *const (),
+        162 => vkCmdEndConditionalRenderingEXT as *const (),
+        163 => vkCmdEndDebugUtilsLabelEXT as *const (),
+        164 => vkCmdEndGpaSampleAMD as *const (),
+        165 => vkCmdEndGpaSessionAMD as *const (),
+        166 => vkCmdEndPerTileExecutionQCOM as *const (),
+        167 => vkCmdEndQuery as *const (),
+        168 => vkCmdEndQueryIndexedEXT as *const (),
+        169 => vkCmdEndRenderPass as *const (),
+        170 => vkCmdEndRenderPass2 as *const (),
+        171 => vkCmdEndRenderPass2KHR as *const (),
+        172 => vkCmdEndRendering as *const (),
+        173 => vkCmdEndRendering2EXT as *const (),
+        174 => vkCmdEndRendering2KHR as *const (),
+        175 => vkCmdEndRenderingKHR as *const (),
+        176 => vkCmdEndShaderInstrumentationARM as *const (),
+        177 => vkCmdEndTransformFeedback2EXT as *const (),
+        178 => vkCmdEndTransformFeedbackEXT as *const (),
+        179 => vkCmdEndVideoCodingKHR as *const (),
+        180 => vkCmdExecuteCommands as *const (),
+        181 => vkCmdExecuteGeneratedCommandsEXT as *const (),
+        182 => vkCmdExecuteGeneratedCommandsNV as *const (),
+        183 => vkCmdFillBuffer as *const (),
+        184 => vkCmdFillMemoryKHR as *const (),
         #[cfg(feature = "beta-extensions")]
-        185 => Some(erase_function(
-            vkCmdInitializeGraphScratchMemoryAMDX as *const (),
-        )),
-        186 => Some(erase_function(vkCmdInsertDebugUtilsLabelEXT as *const ())),
-        187 => Some(erase_function(vkCmdNextSubpass as *const ())),
-        188 => Some(erase_function(vkCmdNextSubpass2 as *const ())),
-        189 => Some(erase_function(vkCmdNextSubpass2KHR as *const ())),
-        190 => Some(erase_function(vkCmdOpticalFlowExecuteNV as *const ())),
-        191 => Some(erase_function(vkCmdPipelineBarrier as *const ())),
-        192 => Some(erase_function(vkCmdPipelineBarrier2 as *const ())),
-        193 => Some(erase_function(vkCmdPipelineBarrier2KHR as *const ())),
-        194 => Some(erase_function(
-            vkCmdPreprocessGeneratedCommandsEXT as *const (),
-        )),
-        195 => Some(erase_function(
-            vkCmdPreprocessGeneratedCommandsNV as *const (),
-        )),
-        196 => Some(erase_function(vkCmdPushConstants as *const ())),
-        197 => Some(erase_function(vkCmdPushConstants2 as *const ())),
-        198 => Some(erase_function(vkCmdPushConstants2KHR as *const ())),
-        199 => Some(erase_function(vkCmdPushDataEXT as *const ())),
-        200 => Some(erase_function(vkCmdPushDescriptorSet as *const ())),
-        201 => Some(erase_function(vkCmdPushDescriptorSet2 as *const ())),
-        202 => Some(erase_function(vkCmdPushDescriptorSet2KHR as *const ())),
-        203 => Some(erase_function(vkCmdPushDescriptorSetKHR as *const ())),
-        204 => Some(erase_function(
-            vkCmdPushDescriptorSetWithTemplate as *const (),
-        )),
-        205 => Some(erase_function(
-            vkCmdPushDescriptorSetWithTemplate2 as *const (),
-        )),
-        206 => Some(erase_function(
-            vkCmdPushDescriptorSetWithTemplate2KHR as *const (),
-        )),
-        207 => Some(erase_function(
-            vkCmdPushDescriptorSetWithTemplateKHR as *const (),
-        )),
-        208 => Some(erase_function(vkCmdResetEvent as *const ())),
-        209 => Some(erase_function(vkCmdResetEvent2 as *const ())),
-        210 => Some(erase_function(vkCmdResetEvent2KHR as *const ())),
-        211 => Some(erase_function(vkCmdResetQueryPool as *const ())),
-        212 => Some(erase_function(vkCmdResolveImage as *const ())),
-        213 => Some(erase_function(vkCmdResolveImage2 as *const ())),
-        214 => Some(erase_function(vkCmdResolveImage2KHR as *const ())),
-        215 => Some(erase_function(
-            vkCmdSetAlphaToCoverageEnableEXT as *const (),
-        )),
-        216 => Some(erase_function(vkCmdSetAlphaToOneEnableEXT as *const ())),
-        217 => Some(erase_function(
-            vkCmdSetAttachmentFeedbackLoopEnableEXT as *const (),
-        )),
-        218 => Some(erase_function(vkCmdSetBlendConstants as *const ())),
-        219 => Some(erase_function(vkCmdSetCheckpointNV as *const ())),
-        220 => Some(erase_function(vkCmdSetCoarseSampleOrderNV as *const ())),
-        221 => Some(erase_function(vkCmdSetColorBlendAdvancedEXT as *const ())),
-        222 => Some(erase_function(vkCmdSetColorBlendEnableEXT as *const ())),
-        223 => Some(erase_function(vkCmdSetColorBlendEquationEXT as *const ())),
-        224 => Some(erase_function(vkCmdSetColorWriteEnableEXT as *const ())),
-        225 => Some(erase_function(vkCmdSetColorWriteMaskEXT as *const ())),
-        226 => Some(erase_function(
-            vkCmdSetComputeOccupancyPriorityNV as *const (),
-        )),
-        227 => Some(erase_function(
-            vkCmdSetConservativeRasterizationModeEXT as *const (),
-        )),
-        228 => Some(erase_function(
-            vkCmdSetCoverageModulationModeNV as *const (),
-        )),
-        229 => Some(erase_function(
-            vkCmdSetCoverageModulationTableEnableNV as *const (),
-        )),
-        230 => Some(erase_function(
-            vkCmdSetCoverageModulationTableNV as *const (),
-        )),
-        231 => Some(erase_function(vkCmdSetCoverageReductionModeNV as *const ())),
-        232 => Some(erase_function(vkCmdSetCoverageToColorEnableNV as *const ())),
-        233 => Some(erase_function(
-            vkCmdSetCoverageToColorLocationNV as *const (),
-        )),
-        234 => Some(erase_function(vkCmdSetCullMode as *const ())),
-        235 => Some(erase_function(vkCmdSetCullModeEXT as *const ())),
-        236 => Some(erase_function(vkCmdSetDepthBias as *const ())),
-        237 => Some(erase_function(vkCmdSetDepthBias2EXT as *const ())),
-        238 => Some(erase_function(vkCmdSetDepthBiasEnable as *const ())),
-        239 => Some(erase_function(vkCmdSetDepthBiasEnableEXT as *const ())),
-        240 => Some(erase_function(vkCmdSetDepthBounds as *const ())),
-        241 => Some(erase_function(vkCmdSetDepthBoundsTestEnable as *const ())),
-        242 => Some(erase_function(
-            vkCmdSetDepthBoundsTestEnableEXT as *const (),
-        )),
-        243 => Some(erase_function(vkCmdSetDepthClampEnableEXT as *const ())),
-        244 => Some(erase_function(vkCmdSetDepthClampRangeEXT as *const ())),
-        245 => Some(erase_function(vkCmdSetDepthClipEnableEXT as *const ())),
-        246 => Some(erase_function(
-            vkCmdSetDepthClipNegativeOneToOneEXT as *const (),
-        )),
-        247 => Some(erase_function(vkCmdSetDepthCompareOp as *const ())),
-        248 => Some(erase_function(vkCmdSetDepthCompareOpEXT as *const ())),
-        249 => Some(erase_function(vkCmdSetDepthTestEnable as *const ())),
-        250 => Some(erase_function(vkCmdSetDepthTestEnableEXT as *const ())),
-        251 => Some(erase_function(vkCmdSetDepthWriteEnable as *const ())),
-        252 => Some(erase_function(vkCmdSetDepthWriteEnableEXT as *const ())),
-        253 => Some(erase_function(
-            vkCmdSetDescriptorBufferOffsets2EXT as *const (),
-        )),
-        254 => Some(erase_function(
-            vkCmdSetDescriptorBufferOffsetsEXT as *const (),
-        )),
-        255 => Some(erase_function(vkCmdSetDeviceMask as *const ())),
-        256 => Some(erase_function(vkCmdSetDeviceMaskKHR as *const ())),
-        257 => Some(erase_function(vkCmdSetDiscardRectangleEXT as *const ())),
-        258 => Some(erase_function(
-            vkCmdSetDiscardRectangleEnableEXT as *const (),
-        )),
-        259 => Some(erase_function(vkCmdSetDiscardRectangleModeEXT as *const ())),
-        260 => Some(erase_function(vkCmdSetDispatchParametersARM as *const ())),
-        261 => Some(erase_function(vkCmdSetEvent as *const ())),
-        262 => Some(erase_function(vkCmdSetEvent2 as *const ())),
-        263 => Some(erase_function(vkCmdSetEvent2KHR as *const ())),
-        264 => Some(erase_function(
-            vkCmdSetExclusiveScissorEnableNV as *const (),
-        )),
-        265 => Some(erase_function(vkCmdSetExclusiveScissorNV as *const ())),
-        266 => Some(erase_function(
-            vkCmdSetExtraPrimitiveOverestimationSizeEXT as *const (),
-        )),
-        267 => Some(erase_function(
-            vkCmdSetFragmentShadingRateEnumNV as *const (),
-        )),
-        268 => Some(erase_function(vkCmdSetFragmentShadingRateKHR as *const ())),
-        269 => Some(erase_function(vkCmdSetFrontFace as *const ())),
-        270 => Some(erase_function(vkCmdSetFrontFaceEXT as *const ())),
-        271 => Some(erase_function(
-            vkCmdSetLineRasterizationModeEXT as *const (),
-        )),
-        272 => Some(erase_function(vkCmdSetLineStipple as *const ())),
-        273 => Some(erase_function(vkCmdSetLineStippleEXT as *const ())),
-        274 => Some(erase_function(vkCmdSetLineStippleEnableEXT as *const ())),
-        275 => Some(erase_function(vkCmdSetLineStippleKHR as *const ())),
-        276 => Some(erase_function(vkCmdSetLineWidth as *const ())),
-        277 => Some(erase_function(vkCmdSetLogicOpEXT as *const ())),
-        278 => Some(erase_function(vkCmdSetLogicOpEnableEXT as *const ())),
-        279 => Some(erase_function(vkCmdSetPatchControlPointsEXT as *const ())),
-        280 => Some(erase_function(vkCmdSetPerformanceMarkerINTEL as *const ())),
-        281 => Some(erase_function(
-            vkCmdSetPerformanceOverrideINTEL as *const (),
-        )),
-        282 => Some(erase_function(
-            vkCmdSetPerformanceStreamMarkerINTEL as *const (),
-        )),
-        283 => Some(erase_function(vkCmdSetPolygonModeEXT as *const ())),
-        284 => Some(erase_function(vkCmdSetPrimitiveRestartEnable as *const ())),
-        285 => Some(erase_function(
-            vkCmdSetPrimitiveRestartEnableEXT as *const (),
-        )),
-        286 => Some(erase_function(
-            vkCmdSetPrimitiveRestartIndexEXT as *const (),
-        )),
-        287 => Some(erase_function(vkCmdSetPrimitiveTopology as *const ())),
-        288 => Some(erase_function(vkCmdSetPrimitiveTopologyEXT as *const ())),
-        289 => Some(erase_function(vkCmdSetProvokingVertexModeEXT as *const ())),
-        290 => Some(erase_function(vkCmdSetRasterizationSamplesEXT as *const ())),
-        291 => Some(erase_function(vkCmdSetRasterizationStreamEXT as *const ())),
-        292 => Some(erase_function(vkCmdSetRasterizerDiscardEnable as *const ())),
-        293 => Some(erase_function(
-            vkCmdSetRasterizerDiscardEnableEXT as *const (),
-        )),
-        294 => Some(erase_function(
-            vkCmdSetRayTracingPipelineStackSizeKHR as *const (),
-        )),
-        295 => Some(erase_function(
-            vkCmdSetRenderingAttachmentLocations as *const (),
-        )),
-        296 => Some(erase_function(
-            vkCmdSetRenderingAttachmentLocationsKHR as *const (),
-        )),
-        297 => Some(erase_function(
-            vkCmdSetRenderingInputAttachmentIndices as *const (),
-        )),
-        298 => Some(erase_function(
-            vkCmdSetRenderingInputAttachmentIndicesKHR as *const (),
-        )),
-        299 => Some(erase_function(
-            vkCmdSetRepresentativeFragmentTestEnableNV as *const (),
-        )),
-        300 => Some(erase_function(vkCmdSetSampleLocationsEXT as *const ())),
-        301 => Some(erase_function(
-            vkCmdSetSampleLocationsEnableEXT as *const (),
-        )),
-        302 => Some(erase_function(vkCmdSetSampleMaskEXT as *const ())),
-        303 => Some(erase_function(vkCmdSetScissor as *const ())),
-        304 => Some(erase_function(vkCmdSetScissorWithCount as *const ())),
-        305 => Some(erase_function(vkCmdSetScissorWithCountEXT as *const ())),
-        306 => Some(erase_function(
-            vkCmdSetShadingRateImageEnableNV as *const (),
-        )),
-        307 => Some(erase_function(vkCmdSetStencilCompareMask as *const ())),
-        308 => Some(erase_function(vkCmdSetStencilOp as *const ())),
-        309 => Some(erase_function(vkCmdSetStencilOpEXT as *const ())),
-        310 => Some(erase_function(vkCmdSetStencilReference as *const ())),
-        311 => Some(erase_function(vkCmdSetStencilTestEnable as *const ())),
-        312 => Some(erase_function(vkCmdSetStencilTestEnableEXT as *const ())),
-        313 => Some(erase_function(vkCmdSetStencilWriteMask as *const ())),
-        314 => Some(erase_function(
-            vkCmdSetTessellationDomainOriginEXT as *const (),
-        )),
-        315 => Some(erase_function(vkCmdSetVertexInputEXT as *const ())),
-        316 => Some(erase_function(vkCmdSetViewport as *const ())),
-        317 => Some(erase_function(
-            vkCmdSetViewportShadingRatePaletteNV as *const (),
-        )),
-        318 => Some(erase_function(vkCmdSetViewportSwizzleNV as *const ())),
-        319 => Some(erase_function(
-            vkCmdSetViewportWScalingEnableNV as *const (),
-        )),
-        320 => Some(erase_function(vkCmdSetViewportWScalingNV as *const ())),
-        321 => Some(erase_function(vkCmdSetViewportWithCount as *const ())),
-        322 => Some(erase_function(vkCmdSetViewportWithCountEXT as *const ())),
-        323 => Some(erase_function(vkCmdSubpassShadingHUAWEI as *const ())),
-        324 => Some(erase_function(vkCmdTraceRaysIndirect2KHR as *const ())),
-        325 => Some(erase_function(vkCmdTraceRaysIndirectKHR as *const ())),
-        326 => Some(erase_function(vkCmdTraceRaysKHR as *const ())),
-        327 => Some(erase_function(vkCmdTraceRaysNV as *const ())),
-        328 => Some(erase_function(vkCmdUpdateBuffer as *const ())),
-        329 => Some(erase_function(vkCmdUpdateMemoryKHR as *const ())),
-        330 => Some(erase_function(
-            vkCmdUpdatePipelineIndirectBufferNV as *const (),
-        )),
-        331 => Some(erase_function(vkCmdWaitEvents as *const ())),
-        332 => Some(erase_function(vkCmdWaitEvents2 as *const ())),
-        333 => Some(erase_function(vkCmdWaitEvents2KHR as *const ())),
-        334 => Some(erase_function(
-            vkCmdWriteAccelerationStructuresPropertiesKHR as *const (),
-        )),
-        335 => Some(erase_function(
-            vkCmdWriteAccelerationStructuresPropertiesNV as *const (),
-        )),
-        336 => Some(erase_function(vkCmdWriteBufferMarker2AMD as *const ())),
-        337 => Some(erase_function(vkCmdWriteBufferMarkerAMD as *const ())),
-        338 => Some(erase_function(vkCmdWriteMarkerToMemoryAMD as *const ())),
-        339 => Some(erase_function(
-            vkCmdWriteMicromapsPropertiesEXT as *const (),
-        )),
-        340 => Some(erase_function(vkCmdWriteTimestamp as *const ())),
-        341 => Some(erase_function(vkCmdWriteTimestamp2 as *const ())),
-        342 => Some(erase_function(vkCmdWriteTimestamp2KHR as *const ())),
-        343 => Some(erase_function(vkCompileDeferredNV as *const ())),
-        344 => Some(erase_function(
-            vkConvertCooperativeVectorMatrixNV as *const (),
-        )),
-        345 => Some(erase_function(vkCopyAccelerationStructureKHR as *const ())),
-        346 => Some(erase_function(
-            vkCopyAccelerationStructureToMemoryKHR as *const (),
-        )),
-        347 => Some(erase_function(vkCopyImageToImage as *const ())),
-        348 => Some(erase_function(vkCopyImageToImageEXT as *const ())),
-        349 => Some(erase_function(vkCopyImageToMemory as *const ())),
-        350 => Some(erase_function(vkCopyImageToMemoryEXT as *const ())),
-        351 => Some(erase_function(
-            vkCopyMemoryToAccelerationStructureKHR as *const (),
-        )),
-        352 => Some(erase_function(vkCopyMemoryToImage as *const ())),
-        353 => Some(erase_function(vkCopyMemoryToImageEXT as *const ())),
-        354 => Some(erase_function(vkCopyMemoryToMicromapEXT as *const ())),
-        355 => Some(erase_function(vkCopyMicromapEXT as *const ())),
-        356 => Some(erase_function(vkCopyMicromapToMemoryEXT as *const ())),
-        357 => Some(erase_function(
-            vkCreateAccelerationStructure2KHR as *const (),
-        )),
-        358 => Some(erase_function(
-            vkCreateAccelerationStructureKHR as *const (),
-        )),
-        359 => Some(erase_function(vkCreateAccelerationStructureNV as *const ())),
+        185 => vkCmdInitializeGraphScratchMemoryAMDX as *const (),
+        186 => vkCmdInsertDebugUtilsLabelEXT as *const (),
+        187 => vkCmdNextSubpass as *const (),
+        188 => vkCmdNextSubpass2 as *const (),
+        189 => vkCmdNextSubpass2KHR as *const (),
+        190 => vkCmdOpticalFlowExecuteNV as *const (),
+        191 => vkCmdPipelineBarrier as *const (),
+        192 => vkCmdPipelineBarrier2 as *const (),
+        193 => vkCmdPipelineBarrier2KHR as *const (),
+        194 => vkCmdPreprocessGeneratedCommandsEXT as *const (),
+        195 => vkCmdPreprocessGeneratedCommandsNV as *const (),
+        196 => vkCmdPushConstants as *const (),
+        197 => vkCmdPushConstants2 as *const (),
+        198 => vkCmdPushConstants2KHR as *const (),
+        199 => vkCmdPushDataEXT as *const (),
+        200 => vkCmdPushDescriptorSet as *const (),
+        201 => vkCmdPushDescriptorSet2 as *const (),
+        202 => vkCmdPushDescriptorSet2KHR as *const (),
+        203 => vkCmdPushDescriptorSetKHR as *const (),
+        204 => vkCmdPushDescriptorSetWithTemplate as *const (),
+        205 => vkCmdPushDescriptorSetWithTemplate2 as *const (),
+        206 => vkCmdPushDescriptorSetWithTemplate2KHR as *const (),
+        207 => vkCmdPushDescriptorSetWithTemplateKHR as *const (),
+        208 => vkCmdResetEvent as *const (),
+        209 => vkCmdResetEvent2 as *const (),
+        210 => vkCmdResetEvent2KHR as *const (),
+        211 => vkCmdResetQueryPool as *const (),
+        212 => vkCmdResolveImage as *const (),
+        213 => vkCmdResolveImage2 as *const (),
+        214 => vkCmdResolveImage2KHR as *const (),
+        215 => vkCmdSetAlphaToCoverageEnableEXT as *const (),
+        216 => vkCmdSetAlphaToOneEnableEXT as *const (),
+        217 => vkCmdSetAttachmentFeedbackLoopEnableEXT as *const (),
+        218 => vkCmdSetBlendConstants as *const (),
+        219 => vkCmdSetCheckpointNV as *const (),
+        220 => vkCmdSetCoarseSampleOrderNV as *const (),
+        221 => vkCmdSetColorBlendAdvancedEXT as *const (),
+        222 => vkCmdSetColorBlendEnableEXT as *const (),
+        223 => vkCmdSetColorBlendEquationEXT as *const (),
+        224 => vkCmdSetColorWriteEnableEXT as *const (),
+        225 => vkCmdSetColorWriteMaskEXT as *const (),
+        226 => vkCmdSetComputeOccupancyPriorityNV as *const (),
+        227 => vkCmdSetConservativeRasterizationModeEXT as *const (),
+        228 => vkCmdSetCoverageModulationModeNV as *const (),
+        229 => vkCmdSetCoverageModulationTableEnableNV as *const (),
+        230 => vkCmdSetCoverageModulationTableNV as *const (),
+        231 => vkCmdSetCoverageReductionModeNV as *const (),
+        232 => vkCmdSetCoverageToColorEnableNV as *const (),
+        233 => vkCmdSetCoverageToColorLocationNV as *const (),
+        234 => vkCmdSetCullMode as *const (),
+        235 => vkCmdSetCullModeEXT as *const (),
+        236 => vkCmdSetDepthBias as *const (),
+        237 => vkCmdSetDepthBias2EXT as *const (),
+        238 => vkCmdSetDepthBiasEnable as *const (),
+        239 => vkCmdSetDepthBiasEnableEXT as *const (),
+        240 => vkCmdSetDepthBounds as *const (),
+        241 => vkCmdSetDepthBoundsTestEnable as *const (),
+        242 => vkCmdSetDepthBoundsTestEnableEXT as *const (),
+        243 => vkCmdSetDepthClampEnableEXT as *const (),
+        244 => vkCmdSetDepthClampRangeEXT as *const (),
+        245 => vkCmdSetDepthClipEnableEXT as *const (),
+        246 => vkCmdSetDepthClipNegativeOneToOneEXT as *const (),
+        247 => vkCmdSetDepthCompareOp as *const (),
+        248 => vkCmdSetDepthCompareOpEXT as *const (),
+        249 => vkCmdSetDepthTestEnable as *const (),
+        250 => vkCmdSetDepthTestEnableEXT as *const (),
+        251 => vkCmdSetDepthWriteEnable as *const (),
+        252 => vkCmdSetDepthWriteEnableEXT as *const (),
+        253 => vkCmdSetDescriptorBufferOffsets2EXT as *const (),
+        254 => vkCmdSetDescriptorBufferOffsetsEXT as *const (),
+        255 => vkCmdSetDeviceMask as *const (),
+        256 => vkCmdSetDeviceMaskKHR as *const (),
+        257 => vkCmdSetDiscardRectangleEXT as *const (),
+        258 => vkCmdSetDiscardRectangleEnableEXT as *const (),
+        259 => vkCmdSetDiscardRectangleModeEXT as *const (),
+        260 => vkCmdSetDispatchParametersARM as *const (),
+        261 => vkCmdSetEvent as *const (),
+        262 => vkCmdSetEvent2 as *const (),
+        263 => vkCmdSetEvent2KHR as *const (),
+        264 => vkCmdSetExclusiveScissorEnableNV as *const (),
+        265 => vkCmdSetExclusiveScissorNV as *const (),
+        266 => vkCmdSetExtraPrimitiveOverestimationSizeEXT as *const (),
+        267 => vkCmdSetFragmentShadingRateEnumNV as *const (),
+        268 => vkCmdSetFragmentShadingRateKHR as *const (),
+        269 => vkCmdSetFrontFace as *const (),
+        270 => vkCmdSetFrontFaceEXT as *const (),
+        271 => vkCmdSetLineRasterizationModeEXT as *const (),
+        272 => vkCmdSetLineStipple as *const (),
+        273 => vkCmdSetLineStippleEXT as *const (),
+        274 => vkCmdSetLineStippleEnableEXT as *const (),
+        275 => vkCmdSetLineStippleKHR as *const (),
+        276 => vkCmdSetLineWidth as *const (),
+        277 => vkCmdSetLogicOpEXT as *const (),
+        278 => vkCmdSetLogicOpEnableEXT as *const (),
+        279 => vkCmdSetPatchControlPointsEXT as *const (),
+        280 => vkCmdSetPerformanceMarkerINTEL as *const (),
+        281 => vkCmdSetPerformanceOverrideINTEL as *const (),
+        282 => vkCmdSetPerformanceStreamMarkerINTEL as *const (),
+        283 => vkCmdSetPolygonModeEXT as *const (),
+        284 => vkCmdSetPrimitiveRestartEnable as *const (),
+        285 => vkCmdSetPrimitiveRestartEnableEXT as *const (),
+        286 => vkCmdSetPrimitiveRestartIndexEXT as *const (),
+        287 => vkCmdSetPrimitiveTopology as *const (),
+        288 => vkCmdSetPrimitiveTopologyEXT as *const (),
+        289 => vkCmdSetProvokingVertexModeEXT as *const (),
+        290 => vkCmdSetRasterizationSamplesEXT as *const (),
+        291 => vkCmdSetRasterizationStreamEXT as *const (),
+        292 => vkCmdSetRasterizerDiscardEnable as *const (),
+        293 => vkCmdSetRasterizerDiscardEnableEXT as *const (),
+        294 => vkCmdSetRayTracingPipelineStackSizeKHR as *const (),
+        295 => vkCmdSetRenderingAttachmentLocations as *const (),
+        296 => vkCmdSetRenderingAttachmentLocationsKHR as *const (),
+        297 => vkCmdSetRenderingInputAttachmentIndices as *const (),
+        298 => vkCmdSetRenderingInputAttachmentIndicesKHR as *const (),
+        299 => vkCmdSetRepresentativeFragmentTestEnableNV as *const (),
+        300 => vkCmdSetSampleLocationsEXT as *const (),
+        301 => vkCmdSetSampleLocationsEnableEXT as *const (),
+        302 => vkCmdSetSampleMaskEXT as *const (),
+        303 => vkCmdSetScissor as *const (),
+        304 => vkCmdSetScissorWithCount as *const (),
+        305 => vkCmdSetScissorWithCountEXT as *const (),
+        306 => vkCmdSetShadingRateImageEnableNV as *const (),
+        307 => vkCmdSetStencilCompareMask as *const (),
+        308 => vkCmdSetStencilOp as *const (),
+        309 => vkCmdSetStencilOpEXT as *const (),
+        310 => vkCmdSetStencilReference as *const (),
+        311 => vkCmdSetStencilTestEnable as *const (),
+        312 => vkCmdSetStencilTestEnableEXT as *const (),
+        313 => vkCmdSetStencilWriteMask as *const (),
+        314 => vkCmdSetTessellationDomainOriginEXT as *const (),
+        315 => vkCmdSetVertexInputEXT as *const (),
+        316 => vkCmdSetViewport as *const (),
+        317 => vkCmdSetViewportShadingRatePaletteNV as *const (),
+        318 => vkCmdSetViewportSwizzleNV as *const (),
+        319 => vkCmdSetViewportWScalingEnableNV as *const (),
+        320 => vkCmdSetViewportWScalingNV as *const (),
+        321 => vkCmdSetViewportWithCount as *const (),
+        322 => vkCmdSetViewportWithCountEXT as *const (),
+        323 => vkCmdSubpassShadingHUAWEI as *const (),
+        324 => vkCmdTraceRaysIndirect2KHR as *const (),
+        325 => vkCmdTraceRaysIndirectKHR as *const (),
+        326 => vkCmdTraceRaysKHR as *const (),
+        327 => vkCmdTraceRaysNV as *const (),
+        328 => vkCmdUpdateBuffer as *const (),
+        329 => vkCmdUpdateMemoryKHR as *const (),
+        330 => vkCmdUpdatePipelineIndirectBufferNV as *const (),
+        331 => vkCmdWaitEvents as *const (),
+        332 => vkCmdWaitEvents2 as *const (),
+        333 => vkCmdWaitEvents2KHR as *const (),
+        334 => vkCmdWriteAccelerationStructuresPropertiesKHR as *const (),
+        335 => vkCmdWriteAccelerationStructuresPropertiesNV as *const (),
+        336 => vkCmdWriteBufferMarker2AMD as *const (),
+        337 => vkCmdWriteBufferMarkerAMD as *const (),
+        338 => vkCmdWriteMarkerToMemoryAMD as *const (),
+        339 => vkCmdWriteMicromapsPropertiesEXT as *const (),
+        340 => vkCmdWriteTimestamp as *const (),
+        341 => vkCmdWriteTimestamp2 as *const (),
+        342 => vkCmdWriteTimestamp2KHR as *const (),
+        343 => vkCompileDeferredNV as *const (),
+        344 => vkConvertCooperativeVectorMatrixNV as *const (),
+        345 => vkCopyAccelerationStructureKHR as *const (),
+        346 => vkCopyAccelerationStructureToMemoryKHR as *const (),
+        347 => vkCopyImageToImage as *const (),
+        348 => vkCopyImageToImageEXT as *const (),
+        349 => vkCopyImageToMemory as *const (),
+        350 => vkCopyImageToMemoryEXT as *const (),
+        351 => vkCopyMemoryToAccelerationStructureKHR as *const (),
+        352 => vkCopyMemoryToImage as *const (),
+        353 => vkCopyMemoryToImageEXT as *const (),
+        354 => vkCopyMemoryToMicromapEXT as *const (),
+        355 => vkCopyMicromapEXT as *const (),
+        356 => vkCopyMicromapToMemoryEXT as *const (),
+        357 => vkCreateAccelerationStructure2KHR as *const (),
+        358 => vkCreateAccelerationStructureKHR as *const (),
+        359 => vkCreateAccelerationStructureNV as *const (),
         #[cfg(target_os = "android")]
-        360 => Some(erase_function(vkCreateAndroidSurfaceKHR as *const ())),
-        361 => Some(erase_function(vkCreateBuffer as *const ())),
+        360 => vkCreateAndroidSurfaceKHR as *const (),
+        361 => vkCreateBuffer as *const (),
         #[cfg(target_os = "fuchsia")]
-        362 => Some(erase_function(vkCreateBufferCollectionFUCHSIA as *const ())),
-        363 => Some(erase_function(vkCreateBufferView as *const ())),
-        364 => Some(erase_function(vkCreateCommandPool as *const ())),
-        365 => Some(erase_function(vkCreateComputePipelines as *const ())),
-        366 => Some(erase_function(vkCreateCuFunctionNVX as *const ())),
-        367 => Some(erase_function(vkCreateCuModuleNVX as *const ())),
+        362 => vkCreateBufferCollectionFUCHSIA as *const (),
+        363 => vkCreateBufferView as *const (),
+        364 => vkCreateCommandPool as *const (),
+        365 => vkCreateComputePipelines as *const (),
+        366 => vkCreateCuFunctionNVX as *const (),
+        367 => vkCreateCuModuleNVX as *const (),
         #[cfg(feature = "beta-extensions")]
-        368 => Some(erase_function(vkCreateCudaFunctionNV as *const ())),
+        368 => vkCreateCudaFunctionNV as *const (),
         #[cfg(feature = "beta-extensions")]
-        369 => Some(erase_function(vkCreateCudaModuleNV as *const ())),
-        370 => Some(erase_function(
-            vkCreateDataGraphPipelineSessionARM as *const (),
-        )),
-        371 => Some(erase_function(vkCreateDataGraphPipelinesARM as *const ())),
-        372 => Some(erase_function(vkCreateDebugReportCallbackEXT as *const ())),
-        373 => Some(erase_function(vkCreateDebugUtilsMessengerEXT as *const ())),
-        374 => Some(erase_function(vkCreateDeferredOperationKHR as *const ())),
-        375 => Some(erase_function(vkCreateDescriptorPool as *const ())),
-        376 => Some(erase_function(vkCreateDescriptorSetLayout as *const ())),
-        377 => Some(erase_function(
-            vkCreateDescriptorUpdateTemplate as *const (),
-        )),
-        378 => Some(erase_function(
-            vkCreateDescriptorUpdateTemplateKHR as *const (),
-        )),
-        379 => Some(erase_function(vkCreateDevice as *const ())),
+        369 => vkCreateCudaModuleNV as *const (),
+        370 => vkCreateDataGraphPipelineSessionARM as *const (),
+        371 => vkCreateDataGraphPipelinesARM as *const (),
+        372 => vkCreateDebugReportCallbackEXT as *const (),
+        373 => vkCreateDebugUtilsMessengerEXT as *const (),
+        374 => vkCreateDeferredOperationKHR as *const (),
+        375 => vkCreateDescriptorPool as *const (),
+        376 => vkCreateDescriptorSetLayout as *const (),
+        377 => vkCreateDescriptorUpdateTemplate as *const (),
+        378 => vkCreateDescriptorUpdateTemplateKHR as *const (),
+        379 => vkCreateDevice as *const (),
         #[cfg(feature = "wsi-directfb")]
-        380 => Some(erase_function(vkCreateDirectFBSurfaceEXT as *const ())),
-        381 => Some(erase_function(vkCreateDisplayModeKHR as *const ())),
-        382 => Some(erase_function(vkCreateDisplayPlaneSurfaceKHR as *const ())),
-        383 => Some(erase_function(vkCreateEvent as *const ())),
+        380 => vkCreateDirectFBSurfaceEXT as *const (),
+        381 => vkCreateDisplayModeKHR as *const (),
+        382 => vkCreateDisplayPlaneSurfaceKHR as *const (),
+        383 => vkCreateEvent as *const (),
         #[cfg(feature = "beta-extensions")]
-        384 => Some(erase_function(
-            vkCreateExecutionGraphPipelinesAMDX as *const (),
-        )),
-        385 => Some(erase_function(vkCreateExternalComputeQueueNV as *const ())),
-        386 => Some(erase_function(vkCreateFence as *const ())),
-        387 => Some(erase_function(vkCreateFramebuffer as *const ())),
-        388 => Some(erase_function(vkCreateGpaSessionAMD as *const ())),
-        389 => Some(erase_function(vkCreateGraphicsPipelines as *const ())),
-        390 => Some(erase_function(vkCreateHeadlessSurfaceEXT as *const ())),
+        384 => vkCreateExecutionGraphPipelinesAMDX as *const (),
+        385 => vkCreateExternalComputeQueueNV as *const (),
+        386 => vkCreateFence as *const (),
+        387 => vkCreateFramebuffer as *const (),
+        388 => vkCreateGpaSessionAMD as *const (),
+        389 => vkCreateGraphicsPipelines as *const (),
+        390 => vkCreateHeadlessSurfaceEXT as *const (),
         #[cfg(target_os = "ios")]
-        391 => Some(erase_function(vkCreateIOSSurfaceMVK as *const ())),
-        392 => Some(erase_function(vkCreateImage as *const ())),
+        391 => vkCreateIOSSurfaceMVK as *const (),
+        392 => vkCreateImage as *const (),
         #[cfg(target_os = "fuchsia")]
-        393 => Some(erase_function(vkCreateImagePipeSurfaceFUCHSIA as *const ())),
-        394 => Some(erase_function(vkCreateImageView as *const ())),
-        395 => Some(erase_function(
-            vkCreateIndirectCommandsLayoutEXT as *const (),
-        )),
-        396 => Some(erase_function(
-            vkCreateIndirectCommandsLayoutNV as *const (),
-        )),
-        397 => Some(erase_function(vkCreateIndirectExecutionSetEXT as *const ())),
+        393 => vkCreateImagePipeSurfaceFUCHSIA as *const (),
+        394 => vkCreateImageView as *const (),
+        395 => vkCreateIndirectCommandsLayoutEXT as *const (),
+        396 => vkCreateIndirectCommandsLayoutNV as *const (),
+        397 => vkCreateIndirectExecutionSetEXT as *const (),
         #[cfg(target_os = "macos")]
-        399 => Some(erase_function(vkCreateMacOSSurfaceMVK as *const ())),
+        399 => vkCreateMacOSSurfaceMVK as *const (),
         #[cfg(any(
             target_os = "macos",
             target_os = "ios",
             target_os = "tvos",
             target_os = "visionos"
         ))]
-        400 => Some(erase_function(vkCreateMetalSurfaceEXT as *const ())),
-        401 => Some(erase_function(vkCreateMicromapEXT as *const ())),
-        402 => Some(erase_function(vkCreateOpticalFlowSessionNV as *const ())),
-        403 => Some(erase_function(vkCreatePipelineBinariesKHR as *const ())),
-        404 => Some(erase_function(vkCreatePipelineCache as *const ())),
-        405 => Some(erase_function(vkCreatePipelineLayout as *const ())),
-        406 => Some(erase_function(vkCreatePrivateDataSlot as *const ())),
-        407 => Some(erase_function(vkCreatePrivateDataSlotEXT as *const ())),
-        408 => Some(erase_function(vkCreateQueryPool as *const ())),
-        409 => Some(erase_function(vkCreateRayTracingPipelinesKHR as *const ())),
-        410 => Some(erase_function(vkCreateRayTracingPipelinesNV as *const ())),
-        411 => Some(erase_function(vkCreateRenderPass as *const ())),
-        412 => Some(erase_function(vkCreateRenderPass2 as *const ())),
-        413 => Some(erase_function(vkCreateRenderPass2KHR as *const ())),
-        414 => Some(erase_function(vkCreateSampler as *const ())),
-        415 => Some(erase_function(vkCreateSamplerYcbcrConversion as *const ())),
-        416 => Some(erase_function(
-            vkCreateSamplerYcbcrConversionKHR as *const (),
-        )),
+        400 => vkCreateMetalSurfaceEXT as *const (),
+        401 => vkCreateMicromapEXT as *const (),
+        402 => vkCreateOpticalFlowSessionNV as *const (),
+        403 => vkCreatePipelineBinariesKHR as *const (),
+        404 => vkCreatePipelineCache as *const (),
+        405 => vkCreatePipelineLayout as *const (),
+        406 => vkCreatePrivateDataSlot as *const (),
+        407 => vkCreatePrivateDataSlotEXT as *const (),
+        408 => vkCreateQueryPool as *const (),
+        409 => vkCreateRayTracingPipelinesKHR as *const (),
+        410 => vkCreateRayTracingPipelinesNV as *const (),
+        411 => vkCreateRenderPass as *const (),
+        412 => vkCreateRenderPass2 as *const (),
+        413 => vkCreateRenderPass2KHR as *const (),
+        414 => vkCreateSampler as *const (),
+        415 => vkCreateSamplerYcbcrConversion as *const (),
+        416 => vkCreateSamplerYcbcrConversionKHR as *const (),
         #[cfg(any(target_os = "nto", target_os = "qnx"))]
-        417 => Some(erase_function(vkCreateScreenSurfaceQNX as *const ())),
-        418 => Some(erase_function(vkCreateSemaphore as *const ())),
-        419 => Some(erase_function(
-            vkCreateShaderInstrumentationARM as *const (),
-        )),
-        420 => Some(erase_function(vkCreateShaderModule as *const ())),
-        421 => Some(erase_function(vkCreateShadersEXT as *const ())),
-        422 => Some(erase_function(vkCreateSharedSwapchainsKHR as *const ())),
+        417 => vkCreateScreenSurfaceQNX as *const (),
+        418 => vkCreateSemaphore as *const (),
+        419 => vkCreateShaderInstrumentationARM as *const (),
+        420 => vkCreateShaderModule as *const (),
+        421 => vkCreateShadersEXT as *const (),
+        422 => vkCreateSharedSwapchainsKHR as *const (),
         #[cfg(feature = "platform-ggp")]
-        423 => Some(erase_function(
-            vkCreateStreamDescriptorSurfaceGGP as *const (),
-        )),
+        423 => vkCreateStreamDescriptorSurfaceGGP as *const (),
         #[cfg(target_env = "ohos")]
-        424 => Some(erase_function(vkCreateSurfaceOHOS as *const ())),
-        425 => Some(erase_function(vkCreateSwapchainKHR as *const ())),
-        426 => Some(erase_function(vkCreateTensorARM as *const ())),
-        427 => Some(erase_function(vkCreateTensorViewARM as *const ())),
+        424 => vkCreateSurfaceOHOS as *const (),
+        425 => vkCreateSwapchainKHR as *const (),
+        426 => vkCreateTensorARM as *const (),
+        427 => vkCreateTensorViewARM as *const (),
         #[cfg(feature = "platform-ubm")]
-        428 => Some(erase_function(vkCreateUbmSurfaceSEC as *const ())),
-        429 => Some(erase_function(vkCreateValidationCacheEXT as *const ())),
+        428 => vkCreateUbmSurfaceSEC as *const (),
+        429 => vkCreateValidationCacheEXT as *const (),
         #[cfg(feature = "platform-vi")]
-        430 => Some(erase_function(vkCreateViSurfaceNN as *const ())),
-        431 => Some(erase_function(vkCreateVideoSessionKHR as *const ())),
-        432 => Some(erase_function(
-            vkCreateVideoSessionParametersKHR as *const (),
-        )),
+        430 => vkCreateViSurfaceNN as *const (),
+        431 => vkCreateVideoSessionKHR as *const (),
+        432 => vkCreateVideoSessionParametersKHR as *const (),
         #[cfg(all(
             feature = "wsi-wayland",
             any(
@@ -1962,9 +1767,9 @@ pub(crate) fn exported_proc_addr(id: u16) -> PFN_vkVoidFunction {
                 target_os = "cygwin"
             )
         ))]
-        433 => Some(erase_function(vkCreateWaylandSurfaceKHR as *const ())),
+        433 => vkCreateWaylandSurfaceKHR as *const (),
         #[cfg(target_os = "windows")]
-        434 => Some(erase_function(vkCreateWin32SurfaceKHR as *const ())),
+        434 => vkCreateWin32SurfaceKHR as *const (),
         #[cfg(all(
             feature = "wsi-xcb",
             any(
@@ -1977,7 +1782,7 @@ pub(crate) fn exported_proc_addr(id: u16) -> PFN_vkVoidFunction {
                 target_os = "cygwin"
             )
         ))]
-        435 => Some(erase_function(vkCreateXcbSurfaceKHR as *const ())),
+        435 => vkCreateXcbSurfaceKHR as *const (),
         #[cfg(all(
             feature = "wsi-xlib",
             any(
@@ -1990,595 +1795,307 @@ pub(crate) fn exported_proc_addr(id: u16) -> PFN_vkVoidFunction {
                 target_os = "cygwin"
             )
         ))]
-        436 => Some(erase_function(vkCreateXlibSurfaceKHR as *const ())),
-        437 => Some(erase_function(vkDebugMarkerSetObjectNameEXT as *const ())),
-        438 => Some(erase_function(vkDebugMarkerSetObjectTagEXT as *const ())),
-        439 => Some(erase_function(vkDebugReportMessageEXT as *const ())),
-        440 => Some(erase_function(vkDeferredOperationJoinKHR as *const ())),
-        441 => Some(erase_function(
-            vkDestroyAccelerationStructureKHR as *const (),
-        )),
-        442 => Some(erase_function(
-            vkDestroyAccelerationStructureNV as *const (),
-        )),
-        443 => Some(erase_function(vkDestroyBuffer as *const ())),
+        436 => vkCreateXlibSurfaceKHR as *const (),
+        437 => vkDebugMarkerSetObjectNameEXT as *const (),
+        438 => vkDebugMarkerSetObjectTagEXT as *const (),
+        439 => vkDebugReportMessageEXT as *const (),
+        440 => vkDeferredOperationJoinKHR as *const (),
+        441 => vkDestroyAccelerationStructureKHR as *const (),
+        442 => vkDestroyAccelerationStructureNV as *const (),
+        443 => vkDestroyBuffer as *const (),
         #[cfg(target_os = "fuchsia")]
-        444 => Some(erase_function(
-            vkDestroyBufferCollectionFUCHSIA as *const (),
-        )),
-        445 => Some(erase_function(vkDestroyBufferView as *const ())),
-        446 => Some(erase_function(vkDestroyCommandPool as *const ())),
-        447 => Some(erase_function(vkDestroyCuFunctionNVX as *const ())),
-        448 => Some(erase_function(vkDestroyCuModuleNVX as *const ())),
+        444 => vkDestroyBufferCollectionFUCHSIA as *const (),
+        445 => vkDestroyBufferView as *const (),
+        446 => vkDestroyCommandPool as *const (),
+        447 => vkDestroyCuFunctionNVX as *const (),
+        448 => vkDestroyCuModuleNVX as *const (),
         #[cfg(feature = "beta-extensions")]
-        449 => Some(erase_function(vkDestroyCudaFunctionNV as *const ())),
+        449 => vkDestroyCudaFunctionNV as *const (),
         #[cfg(feature = "beta-extensions")]
-        450 => Some(erase_function(vkDestroyCudaModuleNV as *const ())),
-        451 => Some(erase_function(
-            vkDestroyDataGraphPipelineSessionARM as *const (),
-        )),
-        452 => Some(erase_function(vkDestroyDebugReportCallbackEXT as *const ())),
-        453 => Some(erase_function(vkDestroyDebugUtilsMessengerEXT as *const ())),
-        454 => Some(erase_function(vkDestroyDeferredOperationKHR as *const ())),
-        455 => Some(erase_function(vkDestroyDescriptorPool as *const ())),
-        456 => Some(erase_function(vkDestroyDescriptorSetLayout as *const ())),
-        457 => Some(erase_function(
-            vkDestroyDescriptorUpdateTemplate as *const (),
-        )),
-        458 => Some(erase_function(
-            vkDestroyDescriptorUpdateTemplateKHR as *const (),
-        )),
-        459 => Some(erase_function(vkDestroyDevice as *const ())),
-        460 => Some(erase_function(vkDestroyEvent as *const ())),
-        461 => Some(erase_function(vkDestroyExternalComputeQueueNV as *const ())),
-        462 => Some(erase_function(vkDestroyFence as *const ())),
-        463 => Some(erase_function(vkDestroyFramebuffer as *const ())),
-        464 => Some(erase_function(vkDestroyGpaSessionAMD as *const ())),
-        465 => Some(erase_function(vkDestroyImage as *const ())),
-        466 => Some(erase_function(vkDestroyImageView as *const ())),
-        467 => Some(erase_function(
-            vkDestroyIndirectCommandsLayoutEXT as *const (),
-        )),
-        468 => Some(erase_function(
-            vkDestroyIndirectCommandsLayoutNV as *const (),
-        )),
-        469 => Some(erase_function(
-            vkDestroyIndirectExecutionSetEXT as *const (),
-        )),
-        470 => Some(erase_function(vkDestroyInstance as *const ())),
-        471 => Some(erase_function(vkDestroyMicromapEXT as *const ())),
-        472 => Some(erase_function(vkDestroyOpticalFlowSessionNV as *const ())),
-        473 => Some(erase_function(vkDestroyPipeline as *const ())),
-        474 => Some(erase_function(vkDestroyPipelineBinaryKHR as *const ())),
-        475 => Some(erase_function(vkDestroyPipelineCache as *const ())),
-        476 => Some(erase_function(vkDestroyPipelineLayout as *const ())),
-        477 => Some(erase_function(vkDestroyPrivateDataSlot as *const ())),
-        478 => Some(erase_function(vkDestroyPrivateDataSlotEXT as *const ())),
-        479 => Some(erase_function(vkDestroyQueryPool as *const ())),
-        480 => Some(erase_function(vkDestroyRenderPass as *const ())),
-        481 => Some(erase_function(vkDestroySampler as *const ())),
-        482 => Some(erase_function(vkDestroySamplerYcbcrConversion as *const ())),
-        483 => Some(erase_function(
-            vkDestroySamplerYcbcrConversionKHR as *const (),
-        )),
-        484 => Some(erase_function(vkDestroySemaphore as *const ())),
-        485 => Some(erase_function(vkDestroyShaderEXT as *const ())),
-        486 => Some(erase_function(
-            vkDestroyShaderInstrumentationARM as *const (),
-        )),
-        487 => Some(erase_function(vkDestroyShaderModule as *const ())),
-        488 => Some(erase_function(vkDestroySurfaceKHR as *const ())),
-        489 => Some(erase_function(vkDestroySwapchainKHR as *const ())),
-        490 => Some(erase_function(vkDestroyTensorARM as *const ())),
-        491 => Some(erase_function(vkDestroyTensorViewARM as *const ())),
-        492 => Some(erase_function(vkDestroyValidationCacheEXT as *const ())),
-        493 => Some(erase_function(vkDestroyVideoSessionKHR as *const ())),
-        494 => Some(erase_function(
-            vkDestroyVideoSessionParametersKHR as *const (),
-        )),
-        495 => Some(erase_function(vkDeviceWaitIdle as *const ())),
-        496 => Some(erase_function(vkDisplayPowerControlEXT as *const ())),
-        497 => Some(erase_function(vkEndCommandBuffer as *const ())),
-        498 => Some(erase_function(
-            vkEnumerateDeviceExtensionProperties as *const (),
-        )),
-        499 => Some(erase_function(
-            vkEnumerateDeviceLayerProperties as *const (),
-        )),
-        503 => Some(erase_function(vkEnumeratePhysicalDeviceGroups as *const ())),
-        504 => Some(erase_function(
-            vkEnumeratePhysicalDeviceGroupsKHR as *const (),
-        )),
-        505 => Some(erase_function(
-            vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM as *const (),
-        )),
-        506 => Some(erase_function(
-            vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR as *const (),
-        )),
-        507 => Some(erase_function(
-            vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM as *const (),
-        )),
-        508 => Some(erase_function(vkEnumeratePhysicalDevices as *const ())),
+        450 => vkDestroyCudaModuleNV as *const (),
+        451 => vkDestroyDataGraphPipelineSessionARM as *const (),
+        452 => vkDestroyDebugReportCallbackEXT as *const (),
+        453 => vkDestroyDebugUtilsMessengerEXT as *const (),
+        454 => vkDestroyDeferredOperationKHR as *const (),
+        455 => vkDestroyDescriptorPool as *const (),
+        456 => vkDestroyDescriptorSetLayout as *const (),
+        457 => vkDestroyDescriptorUpdateTemplate as *const (),
+        458 => vkDestroyDescriptorUpdateTemplateKHR as *const (),
+        459 => vkDestroyDevice as *const (),
+        460 => vkDestroyEvent as *const (),
+        461 => vkDestroyExternalComputeQueueNV as *const (),
+        462 => vkDestroyFence as *const (),
+        463 => vkDestroyFramebuffer as *const (),
+        464 => vkDestroyGpaSessionAMD as *const (),
+        465 => vkDestroyImage as *const (),
+        466 => vkDestroyImageView as *const (),
+        467 => vkDestroyIndirectCommandsLayoutEXT as *const (),
+        468 => vkDestroyIndirectCommandsLayoutNV as *const (),
+        469 => vkDestroyIndirectExecutionSetEXT as *const (),
+        470 => vkDestroyInstance as *const (),
+        471 => vkDestroyMicromapEXT as *const (),
+        472 => vkDestroyOpticalFlowSessionNV as *const (),
+        473 => vkDestroyPipeline as *const (),
+        474 => vkDestroyPipelineBinaryKHR as *const (),
+        475 => vkDestroyPipelineCache as *const (),
+        476 => vkDestroyPipelineLayout as *const (),
+        477 => vkDestroyPrivateDataSlot as *const (),
+        478 => vkDestroyPrivateDataSlotEXT as *const (),
+        479 => vkDestroyQueryPool as *const (),
+        480 => vkDestroyRenderPass as *const (),
+        481 => vkDestroySampler as *const (),
+        482 => vkDestroySamplerYcbcrConversion as *const (),
+        483 => vkDestroySamplerYcbcrConversionKHR as *const (),
+        484 => vkDestroySemaphore as *const (),
+        485 => vkDestroyShaderEXT as *const (),
+        486 => vkDestroyShaderInstrumentationARM as *const (),
+        487 => vkDestroyShaderModule as *const (),
+        488 => vkDestroySurfaceKHR as *const (),
+        489 => vkDestroySwapchainKHR as *const (),
+        490 => vkDestroyTensorARM as *const (),
+        491 => vkDestroyTensorViewARM as *const (),
+        492 => vkDestroyValidationCacheEXT as *const (),
+        493 => vkDestroyVideoSessionKHR as *const (),
+        494 => vkDestroyVideoSessionParametersKHR as *const (),
+        495 => vkDeviceWaitIdle as *const (),
+        496 => vkDisplayPowerControlEXT as *const (),
+        497 => vkEndCommandBuffer as *const (),
+        498 => vkEnumerateDeviceExtensionProperties as *const (),
+        499 => vkEnumerateDeviceLayerProperties as *const (),
+        503 => vkEnumeratePhysicalDeviceGroups as *const (),
+        504 => vkEnumeratePhysicalDeviceGroupsKHR as *const (),
+        505 => vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM as *const (),
+        506 => vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR as *const (),
+        507 => vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM as *const (),
+        508 => vkEnumeratePhysicalDevices as *const (),
         #[cfg(any(
             target_os = "macos",
             target_os = "ios",
             target_os = "tvos",
             target_os = "visionos"
         ))]
-        509 => Some(erase_function(vkExportMetalObjectsEXT as *const ())),
-        510 => Some(erase_function(vkFlushMappedMemoryRanges as *const ())),
-        511 => Some(erase_function(vkFreeCommandBuffers as *const ())),
-        512 => Some(erase_function(vkFreeDescriptorSets as *const ())),
-        513 => Some(erase_function(vkFreeMemory as *const ())),
-        514 => Some(erase_function(
-            vkGetAccelerationStructureBuildSizesKHR as *const (),
-        )),
-        515 => Some(erase_function(
-            vkGetAccelerationStructureDeviceAddressKHR as *const (),
-        )),
-        516 => Some(erase_function(
-            vkGetAccelerationStructureHandleNV as *const (),
-        )),
-        517 => Some(erase_function(
-            vkGetAccelerationStructureMemoryRequirementsNV as *const (),
-        )),
-        518 => Some(erase_function(
-            vkGetAccelerationStructureOpaqueCaptureDescriptorDataEXT as *const (),
-        )),
+        509 => vkExportMetalObjectsEXT as *const (),
+        510 => vkFlushMappedMemoryRanges as *const (),
+        511 => vkFreeCommandBuffers as *const (),
+        512 => vkFreeDescriptorSets as *const (),
+        513 => vkFreeMemory as *const (),
+        514 => vkGetAccelerationStructureBuildSizesKHR as *const (),
+        515 => vkGetAccelerationStructureDeviceAddressKHR as *const (),
+        516 => vkGetAccelerationStructureHandleNV as *const (),
+        517 => vkGetAccelerationStructureMemoryRequirementsNV as *const (),
+        518 => vkGetAccelerationStructureOpaqueCaptureDescriptorDataEXT as *const (),
         #[cfg(target_os = "android")]
-        519 => Some(erase_function(
-            vkGetAndroidHardwareBufferPropertiesANDROID as *const (),
-        )),
+        519 => vkGetAndroidHardwareBufferPropertiesANDROID as *const (),
         #[cfg(target_os = "fuchsia")]
-        520 => Some(erase_function(
-            vkGetBufferCollectionPropertiesFUCHSIA as *const (),
-        )),
-        521 => Some(erase_function(vkGetBufferDeviceAddress as *const ())),
-        522 => Some(erase_function(vkGetBufferDeviceAddressEXT as *const ())),
-        523 => Some(erase_function(vkGetBufferDeviceAddressKHR as *const ())),
-        524 => Some(erase_function(vkGetBufferMemoryRequirements as *const ())),
-        525 => Some(erase_function(vkGetBufferMemoryRequirements2 as *const ())),
-        526 => Some(erase_function(
-            vkGetBufferMemoryRequirements2KHR as *const (),
-        )),
-        527 => Some(erase_function(vkGetBufferOpaqueCaptureAddress as *const ())),
-        528 => Some(erase_function(
-            vkGetBufferOpaqueCaptureAddressKHR as *const (),
-        )),
-        529 => Some(erase_function(
-            vkGetBufferOpaqueCaptureDescriptorDataEXT as *const (),
-        )),
-        530 => Some(erase_function(vkGetCalibratedTimestampsEXT as *const ())),
-        531 => Some(erase_function(vkGetCalibratedTimestampsKHR as *const ())),
-        532 => Some(erase_function(
-            vkGetClusterAccelerationStructureBuildSizesNV as *const (),
-        )),
+        520 => vkGetBufferCollectionPropertiesFUCHSIA as *const (),
+        521 => vkGetBufferDeviceAddress as *const (),
+        522 => vkGetBufferDeviceAddressEXT as *const (),
+        523 => vkGetBufferDeviceAddressKHR as *const (),
+        524 => vkGetBufferMemoryRequirements as *const (),
+        525 => vkGetBufferMemoryRequirements2 as *const (),
+        526 => vkGetBufferMemoryRequirements2KHR as *const (),
+        527 => vkGetBufferOpaqueCaptureAddress as *const (),
+        528 => vkGetBufferOpaqueCaptureAddressKHR as *const (),
+        529 => vkGetBufferOpaqueCaptureDescriptorDataEXT as *const (),
+        530 => vkGetCalibratedTimestampsEXT as *const (),
+        531 => vkGetCalibratedTimestampsKHR as *const (),
+        532 => vkGetClusterAccelerationStructureBuildSizesNV as *const (),
         #[cfg(feature = "beta-extensions")]
-        533 => Some(erase_function(vkGetCudaModuleCacheNV as *const ())),
-        534 => Some(erase_function(
-            vkGetDataGraphPipelineAvailablePropertiesARM as *const (),
-        )),
-        535 => Some(erase_function(
-            vkGetDataGraphPipelinePropertiesARM as *const (),
-        )),
-        536 => Some(erase_function(
-            vkGetDataGraphPipelineSessionBindPointRequirementsARM as *const (),
-        )),
-        537 => Some(erase_function(
-            vkGetDataGraphPipelineSessionMemoryRequirementsARM as *const (),
-        )),
-        538 => Some(erase_function(
-            vkGetDeferredOperationMaxConcurrencyKHR as *const (),
-        )),
-        539 => Some(erase_function(vkGetDeferredOperationResultKHR as *const ())),
-        540 => Some(erase_function(vkGetDescriptorEXT as *const ())),
-        541 => Some(erase_function(
-            vkGetDescriptorSetHostMappingVALVE as *const (),
-        )),
-        542 => Some(erase_function(
-            vkGetDescriptorSetLayoutBindingOffsetEXT as *const (),
-        )),
-        543 => Some(erase_function(
-            vkGetDescriptorSetLayoutHostMappingInfoVALVE as *const (),
-        )),
-        544 => Some(erase_function(vkGetDescriptorSetLayoutSizeEXT as *const ())),
-        545 => Some(erase_function(vkGetDescriptorSetLayoutSupport as *const ())),
-        546 => Some(erase_function(
-            vkGetDescriptorSetLayoutSupportKHR as *const (),
-        )),
-        547 => Some(erase_function(
-            vkGetDeviceAccelerationStructureCompatibilityKHR as *const (),
-        )),
-        548 => Some(erase_function(
-            vkGetDeviceBufferMemoryRequirements as *const (),
-        )),
-        549 => Some(erase_function(
-            vkGetDeviceBufferMemoryRequirementsKHR as *const (),
-        )),
-        550 => Some(erase_function(
-            vkGetDeviceCombinedImageSamplerIndexNVX as *const (),
-        )),
-        551 => Some(erase_function(vkGetDeviceFaultDebugInfoKHR as *const ())),
-        552 => Some(erase_function(vkGetDeviceFaultInfoEXT as *const ())),
-        553 => Some(erase_function(vkGetDeviceFaultReportsKHR as *const ())),
-        554 => Some(erase_function(
-            vkGetDeviceGroupPeerMemoryFeatures as *const (),
-        )),
-        555 => Some(erase_function(
-            vkGetDeviceGroupPeerMemoryFeaturesKHR as *const (),
-        )),
-        556 => Some(erase_function(
-            vkGetDeviceGroupPresentCapabilitiesKHR as *const (),
-        )),
+        533 => vkGetCudaModuleCacheNV as *const (),
+        534 => vkGetDataGraphPipelineAvailablePropertiesARM as *const (),
+        535 => vkGetDataGraphPipelinePropertiesARM as *const (),
+        536 => vkGetDataGraphPipelineSessionBindPointRequirementsARM as *const (),
+        537 => vkGetDataGraphPipelineSessionMemoryRequirementsARM as *const (),
+        538 => vkGetDeferredOperationMaxConcurrencyKHR as *const (),
+        539 => vkGetDeferredOperationResultKHR as *const (),
+        540 => vkGetDescriptorEXT as *const (),
+        541 => vkGetDescriptorSetHostMappingVALVE as *const (),
+        542 => vkGetDescriptorSetLayoutBindingOffsetEXT as *const (),
+        543 => vkGetDescriptorSetLayoutHostMappingInfoVALVE as *const (),
+        544 => vkGetDescriptorSetLayoutSizeEXT as *const (),
+        545 => vkGetDescriptorSetLayoutSupport as *const (),
+        546 => vkGetDescriptorSetLayoutSupportKHR as *const (),
+        547 => vkGetDeviceAccelerationStructureCompatibilityKHR as *const (),
+        548 => vkGetDeviceBufferMemoryRequirements as *const (),
+        549 => vkGetDeviceBufferMemoryRequirementsKHR as *const (),
+        550 => vkGetDeviceCombinedImageSamplerIndexNVX as *const (),
+        551 => vkGetDeviceFaultDebugInfoKHR as *const (),
+        552 => vkGetDeviceFaultInfoEXT as *const (),
+        553 => vkGetDeviceFaultReportsKHR as *const (),
+        554 => vkGetDeviceGroupPeerMemoryFeatures as *const (),
+        555 => vkGetDeviceGroupPeerMemoryFeaturesKHR as *const (),
+        556 => vkGetDeviceGroupPresentCapabilitiesKHR as *const (),
         #[cfg(target_os = "windows")]
-        557 => Some(erase_function(
-            vkGetDeviceGroupSurfacePresentModes2EXT as *const (),
-        )),
-        558 => Some(erase_function(
-            vkGetDeviceGroupSurfacePresentModesKHR as *const (),
-        )),
-        559 => Some(erase_function(
-            vkGetDeviceImageMemoryRequirements as *const (),
-        )),
-        560 => Some(erase_function(
-            vkGetDeviceImageMemoryRequirementsKHR as *const (),
-        )),
-        561 => Some(erase_function(
-            vkGetDeviceImageSparseMemoryRequirements as *const (),
-        )),
-        562 => Some(erase_function(
-            vkGetDeviceImageSparseMemoryRequirementsKHR as *const (),
-        )),
-        563 => Some(erase_function(
-            vkGetDeviceImageSubresourceLayout as *const (),
-        )),
-        564 => Some(erase_function(
-            vkGetDeviceImageSubresourceLayoutKHR as *const (),
-        )),
-        565 => Some(erase_function(vkGetDeviceMemoryCommitment as *const ())),
-        566 => Some(erase_function(
-            vkGetDeviceMemoryOpaqueCaptureAddress as *const (),
-        )),
-        567 => Some(erase_function(
-            vkGetDeviceMemoryOpaqueCaptureAddressKHR as *const (),
-        )),
-        568 => Some(erase_function(
-            vkGetDeviceMicromapCompatibilityEXT as *const (),
-        )),
-        569 => Some(erase_function(vkGetDeviceProcAddr as *const ())),
-        570 => Some(erase_function(vkGetDeviceQueue as *const ())),
-        571 => Some(erase_function(vkGetDeviceQueue2 as *const ())),
-        572 => Some(erase_function(
-            vkGetDeviceSubpassShadingMaxWorkgroupSizeHUAWEI as *const (),
-        )),
-        573 => Some(erase_function(
-            vkGetDeviceTensorMemoryRequirementsARM as *const (),
-        )),
-        574 => Some(erase_function(vkGetDisplayModeProperties2KHR as *const ())),
-        575 => Some(erase_function(vkGetDisplayModePropertiesKHR as *const ())),
-        576 => Some(erase_function(
-            vkGetDisplayPlaneCapabilities2KHR as *const (),
-        )),
-        577 => Some(erase_function(
-            vkGetDisplayPlaneCapabilitiesKHR as *const (),
-        )),
-        578 => Some(erase_function(
-            vkGetDisplayPlaneSupportedDisplaysKHR as *const (),
-        )),
-        579 => Some(erase_function(vkGetDrmDisplayEXT as *const ())),
-        580 => Some(erase_function(
-            vkGetDynamicRenderingTilePropertiesQCOM as *const (),
-        )),
-        581 => Some(erase_function(
-            vkGetEncodedVideoSessionParametersKHR as *const (),
-        )),
-        582 => Some(erase_function(vkGetEventStatus as *const ())),
+        557 => vkGetDeviceGroupSurfacePresentModes2EXT as *const (),
+        558 => vkGetDeviceGroupSurfacePresentModesKHR as *const (),
+        559 => vkGetDeviceImageMemoryRequirements as *const (),
+        560 => vkGetDeviceImageMemoryRequirementsKHR as *const (),
+        561 => vkGetDeviceImageSparseMemoryRequirements as *const (),
+        562 => vkGetDeviceImageSparseMemoryRequirementsKHR as *const (),
+        563 => vkGetDeviceImageSubresourceLayout as *const (),
+        564 => vkGetDeviceImageSubresourceLayoutKHR as *const (),
+        565 => vkGetDeviceMemoryCommitment as *const (),
+        566 => vkGetDeviceMemoryOpaqueCaptureAddress as *const (),
+        567 => vkGetDeviceMemoryOpaqueCaptureAddressKHR as *const (),
+        568 => vkGetDeviceMicromapCompatibilityEXT as *const (),
+        569 => vkGetDeviceProcAddr as *const (),
+        570 => vkGetDeviceQueue as *const (),
+        571 => vkGetDeviceQueue2 as *const (),
+        572 => vkGetDeviceSubpassShadingMaxWorkgroupSizeHUAWEI as *const (),
+        573 => vkGetDeviceTensorMemoryRequirementsARM as *const (),
+        574 => vkGetDisplayModeProperties2KHR as *const (),
+        575 => vkGetDisplayModePropertiesKHR as *const (),
+        576 => vkGetDisplayPlaneCapabilities2KHR as *const (),
+        577 => vkGetDisplayPlaneCapabilitiesKHR as *const (),
+        578 => vkGetDisplayPlaneSupportedDisplaysKHR as *const (),
+        579 => vkGetDrmDisplayEXT as *const (),
+        580 => vkGetDynamicRenderingTilePropertiesQCOM as *const (),
+        581 => vkGetEncodedVideoSessionParametersKHR as *const (),
+        582 => vkGetEventStatus as *const (),
         #[cfg(feature = "beta-extensions")]
-        583 => Some(erase_function(
-            vkGetExecutionGraphPipelineNodeIndexAMDX as *const (),
-        )),
+        583 => vkGetExecutionGraphPipelineNodeIndexAMDX as *const (),
         #[cfg(feature = "beta-extensions")]
-        584 => Some(erase_function(
-            vkGetExecutionGraphPipelineScratchSizeAMDX as *const (),
-        )),
-        585 => Some(erase_function(vkGetExternalComputeQueueDataNV as *const ())),
-        586 => Some(erase_function(vkGetFenceFdKHR as *const ())),
-        587 => Some(erase_function(vkGetFenceStatus as *const ())),
+        584 => vkGetExecutionGraphPipelineScratchSizeAMDX as *const (),
+        585 => vkGetExternalComputeQueueDataNV as *const (),
+        586 => vkGetFenceFdKHR as *const (),
+        587 => vkGetFenceStatus as *const (),
         #[cfg(target_os = "windows")]
-        588 => Some(erase_function(vkGetFenceWin32HandleKHR as *const ())),
-        589 => Some(erase_function(
-            vkGetFramebufferTilePropertiesQCOM as *const (),
-        )),
-        590 => Some(erase_function(
-            vkGetGeneratedCommandsMemoryRequirementsEXT as *const (),
-        )),
-        591 => Some(erase_function(
-            vkGetGeneratedCommandsMemoryRequirementsNV as *const (),
-        )),
-        592 => Some(erase_function(vkGetGpaDeviceClockInfoAMD as *const ())),
-        593 => Some(erase_function(vkGetGpaSessionResultsAMD as *const ())),
-        594 => Some(erase_function(vkGetGpaSessionStatusAMD as *const ())),
-        595 => Some(erase_function(
-            vkGetImageDrmFormatModifierPropertiesEXT as *const (),
-        )),
-        596 => Some(erase_function(vkGetImageMemoryRequirements as *const ())),
-        597 => Some(erase_function(vkGetImageMemoryRequirements2 as *const ())),
-        598 => Some(erase_function(
-            vkGetImageMemoryRequirements2KHR as *const (),
-        )),
-        599 => Some(erase_function(vkGetImageOpaqueCaptureDataEXT as *const ())),
-        600 => Some(erase_function(
-            vkGetImageOpaqueCaptureDescriptorDataEXT as *const (),
-        )),
-        601 => Some(erase_function(
-            vkGetImageSparseMemoryRequirements as *const (),
-        )),
-        602 => Some(erase_function(
-            vkGetImageSparseMemoryRequirements2 as *const (),
-        )),
-        603 => Some(erase_function(
-            vkGetImageSparseMemoryRequirements2KHR as *const (),
-        )),
-        604 => Some(erase_function(vkGetImageSubresourceLayout as *const ())),
-        605 => Some(erase_function(vkGetImageSubresourceLayout2 as *const ())),
-        606 => Some(erase_function(vkGetImageSubresourceLayout2EXT as *const ())),
-        607 => Some(erase_function(vkGetImageSubresourceLayout2KHR as *const ())),
-        608 => Some(erase_function(vkGetImageViewAddressNVX as *const ())),
-        609 => Some(erase_function(vkGetImageViewHandle64NVX as *const ())),
-        610 => Some(erase_function(vkGetImageViewHandleNVX as *const ())),
-        611 => Some(erase_function(
-            vkGetImageViewOpaqueCaptureDescriptorDataEXT as *const (),
-        )),
-        613 => Some(erase_function(vkGetLatencyTimingsLegacyNV as *const ())),
-        614 => Some(erase_function(vkGetLatencyTimingsNV as *const ())),
+        588 => vkGetFenceWin32HandleKHR as *const (),
+        589 => vkGetFramebufferTilePropertiesQCOM as *const (),
+        590 => vkGetGeneratedCommandsMemoryRequirementsEXT as *const (),
+        591 => vkGetGeneratedCommandsMemoryRequirementsNV as *const (),
+        592 => vkGetGpaDeviceClockInfoAMD as *const (),
+        593 => vkGetGpaSessionResultsAMD as *const (),
+        594 => vkGetGpaSessionStatusAMD as *const (),
+        595 => vkGetImageDrmFormatModifierPropertiesEXT as *const (),
+        596 => vkGetImageMemoryRequirements as *const (),
+        597 => vkGetImageMemoryRequirements2 as *const (),
+        598 => vkGetImageMemoryRequirements2KHR as *const (),
+        599 => vkGetImageOpaqueCaptureDataEXT as *const (),
+        600 => vkGetImageOpaqueCaptureDescriptorDataEXT as *const (),
+        601 => vkGetImageSparseMemoryRequirements as *const (),
+        602 => vkGetImageSparseMemoryRequirements2 as *const (),
+        603 => vkGetImageSparseMemoryRequirements2KHR as *const (),
+        604 => vkGetImageSubresourceLayout as *const (),
+        605 => vkGetImageSubresourceLayout2 as *const (),
+        606 => vkGetImageSubresourceLayout2EXT as *const (),
+        607 => vkGetImageSubresourceLayout2KHR as *const (),
+        608 => vkGetImageViewAddressNVX as *const (),
+        609 => vkGetImageViewHandle64NVX as *const (),
+        610 => vkGetImageViewHandleNVX as *const (),
+        611 => vkGetImageViewOpaqueCaptureDescriptorDataEXT as *const (),
+        613 => vkGetLatencyTimingsLegacyNV as *const (),
+        614 => vkGetLatencyTimingsNV as *const (),
         #[cfg(target_os = "android")]
-        615 => Some(erase_function(
-            vkGetMemoryAndroidHardwareBufferANDROID as *const (),
-        )),
-        616 => Some(erase_function(vkGetMemoryFdKHR as *const ())),
-        617 => Some(erase_function(vkGetMemoryFdPropertiesKHR as *const ())),
-        618 => Some(erase_function(
-            vkGetMemoryHostPointerPropertiesEXT as *const (),
-        )),
+        615 => vkGetMemoryAndroidHardwareBufferANDROID as *const (),
+        616 => vkGetMemoryFdKHR as *const (),
+        617 => vkGetMemoryFdPropertiesKHR as *const (),
+        618 => vkGetMemoryHostPointerPropertiesEXT as *const (),
         #[cfg(any(
             target_os = "macos",
             target_os = "ios",
             target_os = "tvos",
             target_os = "visionos"
         ))]
-        619 => Some(erase_function(vkGetMemoryMetalHandleEXT as *const ())),
+        619 => vkGetMemoryMetalHandleEXT as *const (),
         #[cfg(any(
             target_os = "macos",
             target_os = "ios",
             target_os = "tvos",
             target_os = "visionos"
         ))]
-        620 => Some(erase_function(
-            vkGetMemoryMetalHandlePropertiesEXT as *const (),
-        )),
+        620 => vkGetMemoryMetalHandlePropertiesEXT as *const (),
         #[cfg(target_env = "ohos")]
-        621 => Some(erase_function(vkGetMemoryNativeBufferOHOS as *const ())),
-        622 => Some(erase_function(vkGetMemoryRemoteAddressNV as *const ())),
+        621 => vkGetMemoryNativeBufferOHOS as *const (),
+        622 => vkGetMemoryRemoteAddressNV as *const (),
         #[cfg(target_os = "windows")]
-        623 => Some(erase_function(vkGetMemoryWin32HandleKHR as *const ())),
+        623 => vkGetMemoryWin32HandleKHR as *const (),
         #[cfg(target_os = "windows")]
-        624 => Some(erase_function(vkGetMemoryWin32HandleNV as *const ())),
+        624 => vkGetMemoryWin32HandleNV as *const (),
         #[cfg(target_os = "windows")]
-        625 => Some(erase_function(
-            vkGetMemoryWin32HandlePropertiesKHR as *const (),
-        )),
+        625 => vkGetMemoryWin32HandlePropertiesKHR as *const (),
         #[cfg(target_os = "fuchsia")]
-        626 => Some(erase_function(vkGetMemoryZirconHandleFUCHSIA as *const ())),
+        626 => vkGetMemoryZirconHandleFUCHSIA as *const (),
         #[cfg(target_os = "fuchsia")]
-        627 => Some(erase_function(
-            vkGetMemoryZirconHandlePropertiesFUCHSIA as *const (),
-        )),
-        628 => Some(erase_function(vkGetMicromapBuildSizesEXT as *const ())),
+        627 => vkGetMemoryZirconHandlePropertiesFUCHSIA as *const (),
+        628 => vkGetMicromapBuildSizesEXT as *const (),
         #[cfg(target_env = "ohos")]
-        629 => Some(erase_function(vkGetNativeBufferPropertiesOHOS as *const ())),
-        630 => Some(erase_function(
-            vkGetPartitionedAccelerationStructuresBuildSizesNV as *const (),
-        )),
-        631 => Some(erase_function(vkGetPastPresentationTimingEXT as *const ())),
-        632 => Some(erase_function(
-            vkGetPastPresentationTimingGOOGLE as *const (),
-        )),
-        633 => Some(erase_function(vkGetPerformanceParameterINTEL as *const ())),
-        634 => Some(erase_function(
-            vkGetPhysicalDeviceCalibrateableTimeDomainsEXT as *const (),
-        )),
-        635 => Some(erase_function(
-            vkGetPhysicalDeviceCalibrateableTimeDomainsKHR as *const (),
-        )),
-        636 => Some(erase_function(
-            vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV as *const (),
-        )),
-        637 => Some(erase_function(
-            vkGetPhysicalDeviceCooperativeMatrixProperties2EXT as *const (),
-        )),
-        638 => Some(erase_function(
-            vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR as *const (),
-        )),
-        639 => Some(erase_function(
-            vkGetPhysicalDeviceCooperativeMatrixPropertiesNV as *const (),
-        )),
-        640 => Some(erase_function(
-            vkGetPhysicalDeviceCooperativeVectorPropertiesNV as *const (),
-        )),
-        641 => Some(erase_function(
-            vkGetPhysicalDeviceDescriptorSizeEXT as *const (),
-        )),
+        629 => vkGetNativeBufferPropertiesOHOS as *const (),
+        630 => vkGetPartitionedAccelerationStructuresBuildSizesNV as *const (),
+        631 => vkGetPastPresentationTimingEXT as *const (),
+        632 => vkGetPastPresentationTimingGOOGLE as *const (),
+        633 => vkGetPerformanceParameterINTEL as *const (),
+        634 => vkGetPhysicalDeviceCalibrateableTimeDomainsEXT as *const (),
+        635 => vkGetPhysicalDeviceCalibrateableTimeDomainsKHR as *const (),
+        636 => vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV as *const (),
+        637 => vkGetPhysicalDeviceCooperativeMatrixProperties2EXT as *const (),
+        638 => vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR as *const (),
+        639 => vkGetPhysicalDeviceCooperativeMatrixPropertiesNV as *const (),
+        640 => vkGetPhysicalDeviceCooperativeVectorPropertiesNV as *const (),
+        641 => vkGetPhysicalDeviceDescriptorSizeEXT as *const (),
         #[cfg(feature = "wsi-directfb")]
-        642 => Some(erase_function(
-            vkGetPhysicalDeviceDirectFBPresentationSupportEXT as *const (),
-        )),
-        643 => Some(erase_function(
-            vkGetPhysicalDeviceDisplayPlaneProperties2KHR as *const (),
-        )),
-        644 => Some(erase_function(
-            vkGetPhysicalDeviceDisplayPlanePropertiesKHR as *const (),
-        )),
-        645 => Some(erase_function(
-            vkGetPhysicalDeviceDisplayProperties2KHR as *const (),
-        )),
-        646 => Some(erase_function(
-            vkGetPhysicalDeviceDisplayPropertiesKHR as *const (),
-        )),
-        647 => Some(erase_function(
-            vkGetPhysicalDeviceExternalBufferProperties as *const (),
-        )),
-        648 => Some(erase_function(
-            vkGetPhysicalDeviceExternalBufferPropertiesKHR as *const (),
-        )),
-        649 => Some(erase_function(
-            vkGetPhysicalDeviceExternalFenceProperties as *const (),
-        )),
-        650 => Some(erase_function(
-            vkGetPhysicalDeviceExternalFencePropertiesKHR as *const (),
-        )),
-        651 => Some(erase_function(
-            vkGetPhysicalDeviceExternalImageFormatPropertiesNV as *const (),
-        )),
-        652 => Some(erase_function(
-            vkGetPhysicalDeviceExternalSemaphoreProperties as *const (),
-        )),
-        653 => Some(erase_function(
-            vkGetPhysicalDeviceExternalSemaphorePropertiesKHR as *const (),
-        )),
-        654 => Some(erase_function(
-            vkGetPhysicalDeviceExternalTensorPropertiesARM as *const (),
-        )),
-        655 => Some(erase_function(vkGetPhysicalDeviceFeatures as *const ())),
-        656 => Some(erase_function(vkGetPhysicalDeviceFeatures2 as *const ())),
-        657 => Some(erase_function(vkGetPhysicalDeviceFeatures2KHR as *const ())),
-        658 => Some(erase_function(
-            vkGetPhysicalDeviceFormatProperties as *const (),
-        )),
-        659 => Some(erase_function(
-            vkGetPhysicalDeviceFormatProperties2 as *const (),
-        )),
-        660 => Some(erase_function(
-            vkGetPhysicalDeviceFormatProperties2KHR as *const (),
-        )),
-        661 => Some(erase_function(
-            vkGetPhysicalDeviceFragmentShadingRatesKHR as *const (),
-        )),
-        662 => Some(erase_function(
-            vkGetPhysicalDeviceImageFormatProperties as *const (),
-        )),
-        663 => Some(erase_function(
-            vkGetPhysicalDeviceImageFormatProperties2 as *const (),
-        )),
-        664 => Some(erase_function(
-            vkGetPhysicalDeviceImageFormatProperties2KHR as *const (),
-        )),
-        665 => Some(erase_function(
-            vkGetPhysicalDeviceMemoryProperties as *const (),
-        )),
-        666 => Some(erase_function(
-            vkGetPhysicalDeviceMemoryProperties2 as *const (),
-        )),
-        667 => Some(erase_function(
-            vkGetPhysicalDeviceMemoryProperties2KHR as *const (),
-        )),
-        668 => Some(erase_function(
-            vkGetPhysicalDeviceMultisamplePropertiesEXT as *const (),
-        )),
-        669 => Some(erase_function(
-            vkGetPhysicalDeviceOpticalFlowImageFormatsNV as *const (),
-        )),
-        670 => Some(erase_function(
-            vkGetPhysicalDevicePresentRectanglesKHR as *const (),
-        )),
-        671 => Some(erase_function(vkGetPhysicalDeviceProperties as *const ())),
-        672 => Some(erase_function(vkGetPhysicalDeviceProperties2 as *const ())),
-        673 => Some(erase_function(
-            vkGetPhysicalDeviceProperties2KHR as *const (),
-        )),
-        674 => Some(erase_function(
-            vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM as *const (),
-        )),
-        675 => Some(erase_function(
-            vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM as *const (),
-        )),
-        676 => Some(erase_function(
-            vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM as *const (),
-        )),
-        677 => Some(erase_function(
-            vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM as *const (),
-        )),
-        678 => Some(erase_function(
-            vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR as *const (),
-        )),
-        679 => Some(erase_function(
-            vkGetPhysicalDeviceQueueFamilyProperties as *const (),
-        )),
-        680 => Some(erase_function(
-            vkGetPhysicalDeviceQueueFamilyProperties2 as *const (),
-        )),
-        681 => Some(erase_function(
-            vkGetPhysicalDeviceQueueFamilyProperties2KHR as *const (),
-        )),
+        642 => vkGetPhysicalDeviceDirectFBPresentationSupportEXT as *const (),
+        643 => vkGetPhysicalDeviceDisplayPlaneProperties2KHR as *const (),
+        644 => vkGetPhysicalDeviceDisplayPlanePropertiesKHR as *const (),
+        645 => vkGetPhysicalDeviceDisplayProperties2KHR as *const (),
+        646 => vkGetPhysicalDeviceDisplayPropertiesKHR as *const (),
+        647 => vkGetPhysicalDeviceExternalBufferProperties as *const (),
+        648 => vkGetPhysicalDeviceExternalBufferPropertiesKHR as *const (),
+        649 => vkGetPhysicalDeviceExternalFenceProperties as *const (),
+        650 => vkGetPhysicalDeviceExternalFencePropertiesKHR as *const (),
+        651 => vkGetPhysicalDeviceExternalImageFormatPropertiesNV as *const (),
+        652 => vkGetPhysicalDeviceExternalSemaphoreProperties as *const (),
+        653 => vkGetPhysicalDeviceExternalSemaphorePropertiesKHR as *const (),
+        654 => vkGetPhysicalDeviceExternalTensorPropertiesARM as *const (),
+        655 => vkGetPhysicalDeviceFeatures as *const (),
+        656 => vkGetPhysicalDeviceFeatures2 as *const (),
+        657 => vkGetPhysicalDeviceFeatures2KHR as *const (),
+        658 => vkGetPhysicalDeviceFormatProperties as *const (),
+        659 => vkGetPhysicalDeviceFormatProperties2 as *const (),
+        660 => vkGetPhysicalDeviceFormatProperties2KHR as *const (),
+        661 => vkGetPhysicalDeviceFragmentShadingRatesKHR as *const (),
+        662 => vkGetPhysicalDeviceImageFormatProperties as *const (),
+        663 => vkGetPhysicalDeviceImageFormatProperties2 as *const (),
+        664 => vkGetPhysicalDeviceImageFormatProperties2KHR as *const (),
+        665 => vkGetPhysicalDeviceMemoryProperties as *const (),
+        666 => vkGetPhysicalDeviceMemoryProperties2 as *const (),
+        667 => vkGetPhysicalDeviceMemoryProperties2KHR as *const (),
+        668 => vkGetPhysicalDeviceMultisamplePropertiesEXT as *const (),
+        669 => vkGetPhysicalDeviceOpticalFlowImageFormatsNV as *const (),
+        670 => vkGetPhysicalDevicePresentRectanglesKHR as *const (),
+        671 => vkGetPhysicalDeviceProperties as *const (),
+        672 => vkGetPhysicalDeviceProperties2 as *const (),
+        673 => vkGetPhysicalDeviceProperties2KHR as *const (),
+        674 => vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM as *const (),
+        675 => vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM as *const (),
+        676 => vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM as *const (),
+        677 => vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM as *const (),
+        678 => vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR as *const (),
+        679 => vkGetPhysicalDeviceQueueFamilyProperties as *const (),
+        680 => vkGetPhysicalDeviceQueueFamilyProperties2 as *const (),
+        681 => vkGetPhysicalDeviceQueueFamilyProperties2KHR as *const (),
         #[cfg(any(target_os = "nto", target_os = "qnx"))]
-        682 => Some(erase_function(
-            vkGetPhysicalDeviceScreenPresentationSupportQNX as *const (),
-        )),
-        683 => Some(erase_function(
-            vkGetPhysicalDeviceSparseImageFormatProperties as *const (),
-        )),
-        684 => Some(erase_function(
-            vkGetPhysicalDeviceSparseImageFormatProperties2 as *const (),
-        )),
-        685 => Some(erase_function(
-            vkGetPhysicalDeviceSparseImageFormatProperties2KHR as *const (),
-        )),
-        686 => Some(erase_function(
-            vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV as *const (),
-        )),
-        687 => Some(erase_function(
-            vkGetPhysicalDeviceSurfaceCapabilities2EXT as *const (),
-        )),
-        688 => Some(erase_function(
-            vkGetPhysicalDeviceSurfaceCapabilities2KHR as *const (),
-        )),
-        689 => Some(erase_function(
-            vkGetPhysicalDeviceSurfaceCapabilitiesKHR as *const (),
-        )),
-        690 => Some(erase_function(
-            vkGetPhysicalDeviceSurfaceFormats2KHR as *const (),
-        )),
-        691 => Some(erase_function(
-            vkGetPhysicalDeviceSurfaceFormatsKHR as *const (),
-        )),
+        682 => vkGetPhysicalDeviceScreenPresentationSupportQNX as *const (),
+        683 => vkGetPhysicalDeviceSparseImageFormatProperties as *const (),
+        684 => vkGetPhysicalDeviceSparseImageFormatProperties2 as *const (),
+        685 => vkGetPhysicalDeviceSparseImageFormatProperties2KHR as *const (),
+        686 => vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV as *const (),
+        687 => vkGetPhysicalDeviceSurfaceCapabilities2EXT as *const (),
+        688 => vkGetPhysicalDeviceSurfaceCapabilities2KHR as *const (),
+        689 => vkGetPhysicalDeviceSurfaceCapabilitiesKHR as *const (),
+        690 => vkGetPhysicalDeviceSurfaceFormats2KHR as *const (),
+        691 => vkGetPhysicalDeviceSurfaceFormatsKHR as *const (),
         #[cfg(target_os = "windows")]
-        692 => Some(erase_function(
-            vkGetPhysicalDeviceSurfacePresentModes2EXT as *const (),
-        )),
-        693 => Some(erase_function(
-            vkGetPhysicalDeviceSurfacePresentModesKHR as *const (),
-        )),
-        694 => Some(erase_function(
-            vkGetPhysicalDeviceSurfaceSupportKHR as *const (),
-        )),
-        695 => Some(erase_function(
-            vkGetPhysicalDeviceToolProperties as *const (),
-        )),
-        696 => Some(erase_function(
-            vkGetPhysicalDeviceToolPropertiesEXT as *const (),
-        )),
+        692 => vkGetPhysicalDeviceSurfacePresentModes2EXT as *const (),
+        693 => vkGetPhysicalDeviceSurfacePresentModesKHR as *const (),
+        694 => vkGetPhysicalDeviceSurfaceSupportKHR as *const (),
+        695 => vkGetPhysicalDeviceToolProperties as *const (),
+        696 => vkGetPhysicalDeviceToolPropertiesEXT as *const (),
         #[cfg(feature = "platform-ubm")]
-        697 => Some(erase_function(
-            vkGetPhysicalDeviceUbmPresentationSupportSEC as *const (),
-        )),
-        698 => Some(erase_function(
-            vkGetPhysicalDeviceVideoCapabilitiesKHR as *const (),
-        )),
-        699 => Some(erase_function(
-            vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR as *const (),
-        )),
-        700 => Some(erase_function(
-            vkGetPhysicalDeviceVideoFormatPropertiesKHR as *const (),
-        )),
+        697 => vkGetPhysicalDeviceUbmPresentationSupportSEC as *const (),
+        698 => vkGetPhysicalDeviceVideoCapabilitiesKHR as *const (),
+        699 => vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR as *const (),
+        700 => vkGetPhysicalDeviceVideoFormatPropertiesKHR as *const (),
         #[cfg(all(
             feature = "wsi-wayland",
             any(
@@ -2591,13 +2108,9 @@ pub(crate) fn exported_proc_addr(id: u16) -> PFN_vkVoidFunction {
                 target_os = "cygwin"
             )
         ))]
-        701 => Some(erase_function(
-            vkGetPhysicalDeviceWaylandPresentationSupportKHR as *const (),
-        )),
+        701 => vkGetPhysicalDeviceWaylandPresentationSupportKHR as *const (),
         #[cfg(target_os = "windows")]
-        702 => Some(erase_function(
-            vkGetPhysicalDeviceWin32PresentationSupportKHR as *const (),
-        )),
+        702 => vkGetPhysicalDeviceWin32PresentationSupportKHR as *const (),
         #[cfg(all(
             feature = "wsi-xcb",
             any(
@@ -2610,9 +2123,7 @@ pub(crate) fn exported_proc_addr(id: u16) -> PFN_vkVoidFunction {
                 target_os = "cygwin"
             )
         ))]
-        703 => Some(erase_function(
-            vkGetPhysicalDeviceXcbPresentationSupportKHR as *const (),
-        )),
+        703 => vkGetPhysicalDeviceXcbPresentationSupportKHR as *const (),
         #[cfg(all(
             feature = "wsi-xlib",
             any(
@@ -2625,33 +2136,21 @@ pub(crate) fn exported_proc_addr(id: u16) -> PFN_vkVoidFunction {
                 target_os = "cygwin"
             )
         ))]
-        704 => Some(erase_function(
-            vkGetPhysicalDeviceXlibPresentationSupportKHR as *const (),
-        )),
-        705 => Some(erase_function(vkGetPipelineBinaryDataKHR as *const ())),
-        706 => Some(erase_function(vkGetPipelineCacheData as *const ())),
-        707 => Some(erase_function(
-            vkGetPipelineExecutableInternalRepresentationsKHR as *const (),
-        )),
-        708 => Some(erase_function(
-            vkGetPipelineExecutablePropertiesKHR as *const (),
-        )),
-        709 => Some(erase_function(
-            vkGetPipelineExecutableStatisticsKHR as *const (),
-        )),
-        710 => Some(erase_function(
-            vkGetPipelineIndirectDeviceAddressNV as *const (),
-        )),
-        711 => Some(erase_function(
-            vkGetPipelineIndirectMemoryRequirementsNV as *const (),
-        )),
-        712 => Some(erase_function(vkGetPipelineKeyKHR as *const ())),
-        713 => Some(erase_function(vkGetPipelinePropertiesEXT as *const ())),
-        714 => Some(erase_function(vkGetPrivateData as *const ())),
-        715 => Some(erase_function(vkGetPrivateDataEXT as *const ())),
-        716 => Some(erase_function(vkGetQueryPoolResults as *const ())),
-        717 => Some(erase_function(vkGetQueueCheckpointData2NV as *const ())),
-        718 => Some(erase_function(vkGetQueueCheckpointDataNV as *const ())),
+        704 => vkGetPhysicalDeviceXlibPresentationSupportKHR as *const (),
+        705 => vkGetPipelineBinaryDataKHR as *const (),
+        706 => vkGetPipelineCacheData as *const (),
+        707 => vkGetPipelineExecutableInternalRepresentationsKHR as *const (),
+        708 => vkGetPipelineExecutablePropertiesKHR as *const (),
+        709 => vkGetPipelineExecutableStatisticsKHR as *const (),
+        710 => vkGetPipelineIndirectDeviceAddressNV as *const (),
+        711 => vkGetPipelineIndirectMemoryRequirementsNV as *const (),
+        712 => vkGetPipelineKeyKHR as *const (),
+        713 => vkGetPipelinePropertiesEXT as *const (),
+        714 => vkGetPrivateData as *const (),
+        715 => vkGetPrivateDataEXT as *const (),
+        716 => vkGetQueryPoolResults as *const (),
+        717 => vkGetQueueCheckpointData2NV as *const (),
+        718 => vkGetQueueCheckpointDataNV as *const (),
         #[cfg(all(
             feature = "wsi-xlib-xrandr",
             any(
@@ -2664,203 +2163,142 @@ pub(crate) fn exported_proc_addr(id: u16) -> PFN_vkVoidFunction {
                 target_os = "cygwin"
             )
         ))]
-        719 => Some(erase_function(vkGetRandROutputDisplayEXT as *const ())),
-        720 => Some(erase_function(
-            vkGetRayTracingCaptureReplayShaderGroupHandlesKHR as *const (),
-        )),
-        721 => Some(erase_function(
-            vkGetRayTracingShaderGroupHandlesKHR as *const (),
-        )),
-        722 => Some(erase_function(
-            vkGetRayTracingShaderGroupHandlesNV as *const (),
-        )),
-        723 => Some(erase_function(
-            vkGetRayTracingShaderGroupStackSizeKHR as *const (),
-        )),
-        724 => Some(erase_function(vkGetRefreshCycleDurationGOOGLE as *const ())),
-        725 => Some(erase_function(vkGetRenderAreaGranularity as *const ())),
-        726 => Some(erase_function(vkGetRenderingAreaGranularity as *const ())),
-        727 => Some(erase_function(
-            vkGetRenderingAreaGranularityKHR as *const (),
-        )),
-        728 => Some(erase_function(
-            vkGetSamplerOpaqueCaptureDescriptorDataEXT as *const (),
-        )),
+        719 => vkGetRandROutputDisplayEXT as *const (),
+        720 => vkGetRayTracingCaptureReplayShaderGroupHandlesKHR as *const (),
+        721 => vkGetRayTracingShaderGroupHandlesKHR as *const (),
+        722 => vkGetRayTracingShaderGroupHandlesNV as *const (),
+        723 => vkGetRayTracingShaderGroupStackSizeKHR as *const (),
+        724 => vkGetRefreshCycleDurationGOOGLE as *const (),
+        725 => vkGetRenderAreaGranularity as *const (),
+        726 => vkGetRenderingAreaGranularity as *const (),
+        727 => vkGetRenderingAreaGranularityKHR as *const (),
+        728 => vkGetSamplerOpaqueCaptureDescriptorDataEXT as *const (),
         #[cfg(any(target_os = "nto", target_os = "qnx"))]
-        729 => Some(erase_function(vkGetScreenBufferPropertiesQNX as *const ())),
-        730 => Some(erase_function(vkGetSemaphoreCounterValue as *const ())),
-        731 => Some(erase_function(vkGetSemaphoreCounterValueKHR as *const ())),
-        732 => Some(erase_function(vkGetSemaphoreFdKHR as *const ())),
+        729 => vkGetScreenBufferPropertiesQNX as *const (),
+        730 => vkGetSemaphoreCounterValue as *const (),
+        731 => vkGetSemaphoreCounterValueKHR as *const (),
+        732 => vkGetSemaphoreFdKHR as *const (),
         #[cfg(target_os = "windows")]
-        733 => Some(erase_function(vkGetSemaphoreWin32HandleKHR as *const ())),
+        733 => vkGetSemaphoreWin32HandleKHR as *const (),
         #[cfg(target_os = "fuchsia")]
-        734 => Some(erase_function(
-            vkGetSemaphoreZirconHandleFUCHSIA as *const (),
-        )),
-        735 => Some(erase_function(vkGetShaderBinaryDataEXT as *const ())),
-        736 => Some(erase_function(vkGetShaderInfoAMD as *const ())),
-        737 => Some(erase_function(
-            vkGetShaderInstrumentationValuesARM as *const (),
-        )),
-        738 => Some(erase_function(
-            vkGetShaderModuleCreateInfoIdentifierEXT as *const (),
-        )),
-        739 => Some(erase_function(vkGetShaderModuleIdentifierEXT as *const ())),
-        740 => Some(erase_function(vkGetSleepStatusLegacyNV as *const ())),
-        741 => Some(erase_function(vkGetSwapchainCounterEXT as *const ())),
-        742 => Some(erase_function(vkGetSwapchainImagesKHR as *const ())),
-        743 => Some(erase_function(vkGetSwapchainStatusKHR as *const ())),
-        744 => Some(erase_function(
-            vkGetSwapchainTimeDomainPropertiesEXT as *const (),
-        )),
-        745 => Some(erase_function(
-            vkGetSwapchainTimingPropertiesEXT as *const (),
-        )),
-        746 => Some(erase_function(
-            vkGetTensorMemoryRequirementsARM as *const (),
-        )),
-        747 => Some(erase_function(vkGetTensorOpaqueCaptureDataARM as *const ())),
-        748 => Some(erase_function(
-            vkGetTensorOpaqueCaptureDescriptorDataARM as *const (),
-        )),
-        749 => Some(erase_function(
-            vkGetTensorViewOpaqueCaptureDescriptorDataARM as *const (),
-        )),
-        750 => Some(erase_function(vkGetValidationCacheDataEXT as *const ())),
-        751 => Some(erase_function(
-            vkGetVideoSessionMemoryRequirementsKHR as *const (),
-        )),
+        734 => vkGetSemaphoreZirconHandleFUCHSIA as *const (),
+        735 => vkGetShaderBinaryDataEXT as *const (),
+        736 => vkGetShaderInfoAMD as *const (),
+        737 => vkGetShaderInstrumentationValuesARM as *const (),
+        738 => vkGetShaderModuleCreateInfoIdentifierEXT as *const (),
+        739 => vkGetShaderModuleIdentifierEXT as *const (),
+        740 => vkGetSleepStatusLegacyNV as *const (),
+        741 => vkGetSwapchainCounterEXT as *const (),
+        742 => vkGetSwapchainImagesKHR as *const (),
+        743 => vkGetSwapchainStatusKHR as *const (),
+        744 => vkGetSwapchainTimeDomainPropertiesEXT as *const (),
+        745 => vkGetSwapchainTimingPropertiesEXT as *const (),
+        746 => vkGetTensorMemoryRequirementsARM as *const (),
+        747 => vkGetTensorOpaqueCaptureDataARM as *const (),
+        748 => vkGetTensorOpaqueCaptureDescriptorDataARM as *const (),
+        749 => vkGetTensorViewOpaqueCaptureDescriptorDataARM as *const (),
+        750 => vkGetValidationCacheDataEXT as *const (),
+        751 => vkGetVideoSessionMemoryRequirementsKHR as *const (),
         #[cfg(target_os = "windows")]
-        752 => Some(erase_function(vkGetWinrtDisplayNV as *const ())),
-        753 => Some(erase_function(vkImportFenceFdKHR as *const ())),
+        752 => vkGetWinrtDisplayNV as *const (),
+        753 => vkImportFenceFdKHR as *const (),
         #[cfg(target_os = "windows")]
-        754 => Some(erase_function(vkImportFenceWin32HandleKHR as *const ())),
-        755 => Some(erase_function(vkImportSemaphoreFdKHR as *const ())),
+        754 => vkImportFenceWin32HandleKHR as *const (),
+        755 => vkImportSemaphoreFdKHR as *const (),
         #[cfg(target_os = "windows")]
-        756 => Some(erase_function(vkImportSemaphoreWin32HandleKHR as *const ())),
+        756 => vkImportSemaphoreWin32HandleKHR as *const (),
         #[cfg(target_os = "fuchsia")]
-        757 => Some(erase_function(
-            vkImportSemaphoreZirconHandleFUCHSIA as *const (),
-        )),
-        758 => Some(erase_function(vkInitializePerformanceApiINTEL as *const ())),
-        759 => Some(erase_function(vkInvalidateMappedMemoryRanges as *const ())),
-        760 => Some(erase_function(vkLatencySleepLegacyNV as *const ())),
-        761 => Some(erase_function(vkLatencySleepNV as *const ())),
-        762 => Some(erase_function(vkMapMemory as *const ())),
-        763 => Some(erase_function(vkMapMemory2 as *const ())),
-        764 => Some(erase_function(vkMapMemory2KHR as *const ())),
-        765 => Some(erase_function(vkMergePipelineCaches as *const ())),
-        766 => Some(erase_function(vkMergeValidationCachesEXT as *const ())),
-        767 => Some(erase_function(vkQueueBeginDebugUtilsLabelEXT as *const ())),
-        768 => Some(erase_function(vkQueueBindSparse as *const ())),
-        769 => Some(erase_function(vkQueueEndDebugUtilsLabelEXT as *const ())),
-        770 => Some(erase_function(vkQueueInsertDebugUtilsLabelEXT as *const ())),
-        771 => Some(erase_function(vkQueueNotifyOutOfBandLegacyNV as *const ())),
-        772 => Some(erase_function(vkQueueNotifyOutOfBandNV as *const ())),
-        773 => Some(erase_function(vkQueuePresentKHR as *const ())),
-        774 => Some(erase_function(vkQueueSetPerfHintQCOM as *const ())),
-        775 => Some(erase_function(
-            vkQueueSetPerformanceConfigurationINTEL as *const (),
-        )),
-        776 => Some(erase_function(vkQueueSubmit as *const ())),
-        777 => Some(erase_function(vkQueueSubmit2 as *const ())),
-        778 => Some(erase_function(vkQueueSubmit2KHR as *const ())),
-        779 => Some(erase_function(vkQueueWaitIdle as *const ())),
-        780 => Some(erase_function(vkRegisterCustomBorderColorEXT as *const ())),
-        781 => Some(erase_function(vkRegisterDeviceEventEXT as *const ())),
-        782 => Some(erase_function(vkRegisterDisplayEventEXT as *const ())),
-        783 => Some(erase_function(
-            vkReleaseCapturedPipelineDataKHR as *const (),
-        )),
-        784 => Some(erase_function(vkReleaseDisplayEXT as *const ())),
+        757 => vkImportSemaphoreZirconHandleFUCHSIA as *const (),
+        758 => vkInitializePerformanceApiINTEL as *const (),
+        759 => vkInvalidateMappedMemoryRanges as *const (),
+        760 => vkLatencySleepLegacyNV as *const (),
+        761 => vkLatencySleepNV as *const (),
+        762 => vkMapMemory as *const (),
+        763 => vkMapMemory2 as *const (),
+        764 => vkMapMemory2KHR as *const (),
+        765 => vkMergePipelineCaches as *const (),
+        766 => vkMergeValidationCachesEXT as *const (),
+        767 => vkQueueBeginDebugUtilsLabelEXT as *const (),
+        768 => vkQueueBindSparse as *const (),
+        769 => vkQueueEndDebugUtilsLabelEXT as *const (),
+        770 => vkQueueInsertDebugUtilsLabelEXT as *const (),
+        771 => vkQueueNotifyOutOfBandLegacyNV as *const (),
+        772 => vkQueueNotifyOutOfBandNV as *const (),
+        773 => vkQueuePresentKHR as *const (),
+        774 => vkQueueSetPerfHintQCOM as *const (),
+        775 => vkQueueSetPerformanceConfigurationINTEL as *const (),
+        776 => vkQueueSubmit as *const (),
+        777 => vkQueueSubmit2 as *const (),
+        778 => vkQueueSubmit2KHR as *const (),
+        779 => vkQueueWaitIdle as *const (),
+        780 => vkRegisterCustomBorderColorEXT as *const (),
+        781 => vkRegisterDeviceEventEXT as *const (),
+        782 => vkRegisterDisplayEventEXT as *const (),
+        783 => vkReleaseCapturedPipelineDataKHR as *const (),
+        784 => vkReleaseDisplayEXT as *const (),
         #[cfg(target_os = "windows")]
-        785 => Some(erase_function(
-            vkReleaseFullScreenExclusiveModeEXT as *const (),
-        )),
-        786 => Some(erase_function(
-            vkReleasePerformanceConfigurationINTEL as *const (),
-        )),
-        787 => Some(erase_function(vkReleaseProfilingLockKHR as *const ())),
-        788 => Some(erase_function(vkReleaseSwapchainImagesEXT as *const ())),
-        789 => Some(erase_function(vkReleaseSwapchainImagesKHR as *const ())),
-        790 => Some(erase_function(vkResetCommandBuffer as *const ())),
-        791 => Some(erase_function(vkResetCommandPool as *const ())),
-        792 => Some(erase_function(vkResetDescriptorPool as *const ())),
-        793 => Some(erase_function(vkResetEvent as *const ())),
-        794 => Some(erase_function(vkResetFences as *const ())),
-        795 => Some(erase_function(vkResetGpaSessionAMD as *const ())),
-        796 => Some(erase_function(vkResetQueryPool as *const ())),
-        797 => Some(erase_function(vkResetQueryPoolEXT as *const ())),
+        785 => vkReleaseFullScreenExclusiveModeEXT as *const (),
+        786 => vkReleasePerformanceConfigurationINTEL as *const (),
+        787 => vkReleaseProfilingLockKHR as *const (),
+        788 => vkReleaseSwapchainImagesEXT as *const (),
+        789 => vkReleaseSwapchainImagesKHR as *const (),
+        790 => vkResetCommandBuffer as *const (),
+        791 => vkResetCommandPool as *const (),
+        792 => vkResetDescriptorPool as *const (),
+        793 => vkResetEvent as *const (),
+        794 => vkResetFences as *const (),
+        795 => vkResetGpaSessionAMD as *const (),
+        796 => vkResetQueryPool as *const (),
+        797 => vkResetQueryPoolEXT as *const (),
         #[cfg(target_os = "fuchsia")]
-        798 => Some(erase_function(
-            vkSetBufferCollectionBufferConstraintsFUCHSIA as *const (),
-        )),
+        798 => vkSetBufferCollectionBufferConstraintsFUCHSIA as *const (),
         #[cfg(target_os = "fuchsia")]
-        799 => Some(erase_function(
-            vkSetBufferCollectionImageConstraintsFUCHSIA as *const (),
-        )),
-        800 => Some(erase_function(vkSetDebugUtilsObjectNameEXT as *const ())),
-        801 => Some(erase_function(vkSetDebugUtilsObjectTagEXT as *const ())),
-        802 => Some(erase_function(vkSetDeviceMemoryPriorityEXT as *const ())),
-        803 => Some(erase_function(vkSetEvent as *const ())),
-        804 => Some(erase_function(vkSetGpaDeviceClockModeAMD as *const ())),
-        805 => Some(erase_function(vkSetHdrMetadataEXT as *const ())),
-        806 => Some(erase_function(vkSetLatencyMarkerLegacyNV as *const ())),
-        807 => Some(erase_function(vkSetLatencyMarkerNV as *const ())),
-        808 => Some(erase_function(vkSetLatencySleepModeLegacyNV as *const ())),
-        809 => Some(erase_function(vkSetLatencySleepModeNV as *const ())),
-        810 => Some(erase_function(vkSetLocalDimmingAMD as *const ())),
-        811 => Some(erase_function(vkSetPrivateData as *const ())),
-        812 => Some(erase_function(vkSetPrivateDataEXT as *const ())),
-        813 => Some(erase_function(
-            vkSetSwapchainPresentTimingQueueSizeEXT as *const (),
-        )),
-        814 => Some(erase_function(vkShutdownLatencyDeviceLegacyNV as *const ())),
-        815 => Some(erase_function(vkSignalSemaphore as *const ())),
-        816 => Some(erase_function(vkSignalSemaphoreKHR as *const ())),
-        817 => Some(erase_function(vkSubmitDebugUtilsMessageEXT as *const ())),
-        818 => Some(erase_function(vkTransitionImageLayout as *const ())),
-        819 => Some(erase_function(vkTransitionImageLayoutEXT as *const ())),
-        820 => Some(erase_function(vkTrimCommandPool as *const ())),
-        821 => Some(erase_function(vkTrimCommandPoolKHR as *const ())),
-        822 => Some(erase_function(
-            vkUninitializePerformanceApiINTEL as *const (),
-        )),
-        823 => Some(erase_function(vkUnmapMemory as *const ())),
-        824 => Some(erase_function(vkUnmapMemory2 as *const ())),
-        825 => Some(erase_function(vkUnmapMemory2KHR as *const ())),
-        826 => Some(erase_function(
-            vkUnregisterCustomBorderColorEXT as *const (),
-        )),
-        827 => Some(erase_function(
-            vkUpdateDescriptorSetWithTemplate as *const (),
-        )),
-        828 => Some(erase_function(
-            vkUpdateDescriptorSetWithTemplateKHR as *const (),
-        )),
-        829 => Some(erase_function(vkUpdateDescriptorSets as *const ())),
-        830 => Some(erase_function(
-            vkUpdateIndirectExecutionSetPipelineEXT as *const (),
-        )),
-        831 => Some(erase_function(
-            vkUpdateIndirectExecutionSetShaderEXT as *const (),
-        )),
-        832 => Some(erase_function(
-            vkUpdateVideoSessionParametersKHR as *const (),
-        )),
-        833 => Some(erase_function(vkWaitForFences as *const ())),
-        834 => Some(erase_function(vkWaitForPresent2KHR as *const ())),
-        835 => Some(erase_function(vkWaitForPresentKHR as *const ())),
-        836 => Some(erase_function(vkWaitSemaphores as *const ())),
-        837 => Some(erase_function(vkWaitSemaphoresKHR as *const ())),
-        838 => Some(erase_function(
-            vkWriteAccelerationStructuresPropertiesKHR as *const (),
-        )),
-        839 => Some(erase_function(vkWriteMicromapsPropertiesEXT as *const ())),
-        840 => Some(erase_function(vkWriteResourceDescriptorsEXT as *const ())),
-        841 => Some(erase_function(vkWriteSamplerDescriptorsEXT as *const ())),
-        _ => None,
-    }
+        799 => vkSetBufferCollectionImageConstraintsFUCHSIA as *const (),
+        800 => vkSetDebugUtilsObjectNameEXT as *const (),
+        801 => vkSetDebugUtilsObjectTagEXT as *const (),
+        802 => vkSetDeviceMemoryPriorityEXT as *const (),
+        803 => vkSetEvent as *const (),
+        804 => vkSetGpaDeviceClockModeAMD as *const (),
+        805 => vkSetHdrMetadataEXT as *const (),
+        806 => vkSetLatencyMarkerLegacyNV as *const (),
+        807 => vkSetLatencyMarkerNV as *const (),
+        808 => vkSetLatencySleepModeLegacyNV as *const (),
+        809 => vkSetLatencySleepModeNV as *const (),
+        810 => vkSetLocalDimmingAMD as *const (),
+        811 => vkSetPrivateData as *const (),
+        812 => vkSetPrivateDataEXT as *const (),
+        813 => vkSetSwapchainPresentTimingQueueSizeEXT as *const (),
+        814 => vkShutdownLatencyDeviceLegacyNV as *const (),
+        815 => vkSignalSemaphore as *const (),
+        816 => vkSignalSemaphoreKHR as *const (),
+        817 => vkSubmitDebugUtilsMessageEXT as *const (),
+        818 => vkTransitionImageLayout as *const (),
+        819 => vkTransitionImageLayoutEXT as *const (),
+        820 => vkTrimCommandPool as *const (),
+        821 => vkTrimCommandPoolKHR as *const (),
+        822 => vkUninitializePerformanceApiINTEL as *const (),
+        823 => vkUnmapMemory as *const (),
+        824 => vkUnmapMemory2 as *const (),
+        825 => vkUnmapMemory2KHR as *const (),
+        826 => vkUnregisterCustomBorderColorEXT as *const (),
+        827 => vkUpdateDescriptorSetWithTemplate as *const (),
+        828 => vkUpdateDescriptorSetWithTemplateKHR as *const (),
+        829 => vkUpdateDescriptorSets as *const (),
+        830 => vkUpdateIndirectExecutionSetPipelineEXT as *const (),
+        831 => vkUpdateIndirectExecutionSetShaderEXT as *const (),
+        832 => vkUpdateVideoSessionParametersKHR as *const (),
+        833 => vkWaitForFences as *const (),
+        834 => vkWaitForPresent2KHR as *const (),
+        835 => vkWaitForPresentKHR as *const (),
+        836 => vkWaitSemaphores as *const (),
+        837 => vkWaitSemaphoresKHR as *const (),
+        838 => vkWriteAccelerationStructuresPropertiesKHR as *const (),
+        839 => vkWriteMicromapsPropertiesEXT as *const (),
+        840 => vkWriteResourceDescriptorsEXT as *const (),
+        841 => vkWriteSamplerDescriptorsEXT as *const (),
+        _ => return None,
+    };
+    Some(erase_function(address))
 }
 #[inline(never)]
 pub(crate) fn instance_terminator_proc_addr(id: u16) -> PFN_vkVoidFunction {
@@ -2943,14 +2381,10 @@ pub(crate) fn instance_terminator_proc_addr(id: u16) -> PFN_vkVoidFunction {
 #[inline(never)]
 #[allow(clippy::too_many_lines)]
 pub(crate) fn physical_device_terminator_proc_addr(id: u16) -> PFN_vkVoidFunction {
-    match id {
-        0 => Some(erase_function(
-            terminator_vkAcquireDrmDisplayEXT as *const (),
-        )),
+    let address = match id {
+        0 => terminator_vkAcquireDrmDisplayEXT as *const (),
         #[cfg(target_os = "windows")]
-        6 => Some(erase_function(
-            terminator_vkAcquireWinrtDisplayNV as *const (),
-        )),
+        6 => terminator_vkAcquireWinrtDisplayNV as *const (),
         #[cfg(all(
             feature = "wsi-xlib-xrandr",
             any(
@@ -2963,248 +2397,108 @@ pub(crate) fn physical_device_terminator_proc_addr(id: u16) -> PFN_vkVoidFunctio
                 target_os = "cygwin"
             )
         ))]
-        7 => Some(erase_function(
-            terminator_vkAcquireXlibDisplayEXT as *const (),
-        )),
-        381 => Some(erase_function(
-            terminator_vkCreateDisplayModeKHR as *const (),
-        )),
-        505 => Some(erase_function(
+        7 => terminator_vkAcquireXlibDisplayEXT as *const (),
+        381 => terminator_vkCreateDisplayModeKHR as *const (),
+        505 => {
             terminator_vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM
-                as *const (),
-        )),
-        506 => Some(erase_function(
-            terminator_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR as *const (),
-        )),
-        507 => Some(erase_function(
-            terminator_vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM as *const (),
-        )),
-        574 => Some(erase_function(
-            terminator_vkGetDisplayModeProperties2KHR as *const (),
-        )),
-        575 => Some(erase_function(
-            terminator_vkGetDisplayModePropertiesKHR as *const (),
-        )),
-        576 => Some(erase_function(
-            terminator_vkGetDisplayPlaneCapabilities2KHR as *const (),
-        )),
-        577 => Some(erase_function(
-            terminator_vkGetDisplayPlaneCapabilitiesKHR as *const (),
-        )),
-        578 => Some(erase_function(
-            terminator_vkGetDisplayPlaneSupportedDisplaysKHR as *const (),
-        )),
-        579 => Some(erase_function(terminator_vkGetDrmDisplayEXT as *const ())),
-        634 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT as *const (),
-        )),
-        635 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR as *const (),
-        )),
-        636 => Some(erase_function(
+                as *const ()
+        }
+        506 => {
+            terminator_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR as *const ()
+        }
+        507 => terminator_vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM as *const (),
+        574 => terminator_vkGetDisplayModeProperties2KHR as *const (),
+        575 => terminator_vkGetDisplayModePropertiesKHR as *const (),
+        576 => terminator_vkGetDisplayPlaneCapabilities2KHR as *const (),
+        577 => terminator_vkGetDisplayPlaneCapabilitiesKHR as *const (),
+        578 => terminator_vkGetDisplayPlaneSupportedDisplaysKHR as *const (),
+        579 => terminator_vkGetDrmDisplayEXT as *const (),
+        634 => terminator_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT as *const (),
+        635 => terminator_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR as *const (),
+        636 => {
             terminator_vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV
-                as *const (),
-        )),
-        637 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT as *const (),
-        )),
-        638 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR as *const (),
-        )),
-        639 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV as *const (),
-        )),
-        640 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceCooperativeVectorPropertiesNV as *const (),
-        )),
-        641 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceDescriptorSizeEXT as *const (),
-        )),
+                as *const ()
+        }
+        637 => terminator_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT as *const (),
+        638 => terminator_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR as *const (),
+        639 => terminator_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV as *const (),
+        640 => terminator_vkGetPhysicalDeviceCooperativeVectorPropertiesNV as *const (),
+        641 => terminator_vkGetPhysicalDeviceDescriptorSizeEXT as *const (),
         #[cfg(feature = "wsi-directfb")]
-        642 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceDirectFBPresentationSupportEXT as *const (),
-        )),
-        643 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceDisplayPlaneProperties2KHR as *const (),
-        )),
-        644 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceDisplayPlanePropertiesKHR as *const (),
-        )),
-        645 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceDisplayProperties2KHR as *const (),
-        )),
-        646 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceDisplayPropertiesKHR as *const (),
-        )),
-        647 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceExternalBufferProperties as *const (),
-        )),
-        648 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceExternalBufferPropertiesKHR as *const (),
-        )),
-        649 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceExternalFenceProperties as *const (),
-        )),
-        650 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceExternalFencePropertiesKHR as *const (),
-        )),
-        651 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceExternalImageFormatPropertiesNV as *const (),
-        )),
-        652 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceExternalSemaphoreProperties as *const (),
-        )),
-        653 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR as *const (),
-        )),
-        654 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceExternalTensorPropertiesARM as *const (),
-        )),
-        655 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceFeatures as *const (),
-        )),
-        656 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceFeatures2 as *const (),
-        )),
-        657 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceFeatures2KHR as *const (),
-        )),
-        658 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceFormatProperties as *const (),
-        )),
-        659 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceFormatProperties2 as *const (),
-        )),
-        660 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceFormatProperties2KHR as *const (),
-        )),
-        661 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceFragmentShadingRatesKHR as *const (),
-        )),
-        662 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceImageFormatProperties as *const (),
-        )),
-        663 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceImageFormatProperties2 as *const (),
-        )),
-        664 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceImageFormatProperties2KHR as *const (),
-        )),
-        665 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceMemoryProperties as *const (),
-        )),
-        666 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceMemoryProperties2 as *const (),
-        )),
-        667 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceMemoryProperties2KHR as *const (),
-        )),
-        668 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceMultisamplePropertiesEXT as *const (),
-        )),
-        669 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceOpticalFlowImageFormatsNV as *const (),
-        )),
-        670 => Some(erase_function(
-            terminator_vkGetPhysicalDevicePresentRectanglesKHR as *const (),
-        )),
-        671 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceProperties as *const (),
-        )),
-        672 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceProperties2 as *const (),
-        )),
-        673 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceProperties2KHR as *const (),
-        )),
-        674 => Some(erase_function(
+        642 => terminator_vkGetPhysicalDeviceDirectFBPresentationSupportEXT as *const (),
+        643 => terminator_vkGetPhysicalDeviceDisplayPlaneProperties2KHR as *const (),
+        644 => terminator_vkGetPhysicalDeviceDisplayPlanePropertiesKHR as *const (),
+        645 => terminator_vkGetPhysicalDeviceDisplayProperties2KHR as *const (),
+        646 => terminator_vkGetPhysicalDeviceDisplayPropertiesKHR as *const (),
+        647 => terminator_vkGetPhysicalDeviceExternalBufferProperties as *const (),
+        648 => terminator_vkGetPhysicalDeviceExternalBufferPropertiesKHR as *const (),
+        649 => terminator_vkGetPhysicalDeviceExternalFenceProperties as *const (),
+        650 => terminator_vkGetPhysicalDeviceExternalFencePropertiesKHR as *const (),
+        651 => terminator_vkGetPhysicalDeviceExternalImageFormatPropertiesNV as *const (),
+        652 => terminator_vkGetPhysicalDeviceExternalSemaphoreProperties as *const (),
+        653 => terminator_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR as *const (),
+        654 => terminator_vkGetPhysicalDeviceExternalTensorPropertiesARM as *const (),
+        655 => terminator_vkGetPhysicalDeviceFeatures as *const (),
+        656 => terminator_vkGetPhysicalDeviceFeatures2 as *const (),
+        657 => terminator_vkGetPhysicalDeviceFeatures2KHR as *const (),
+        658 => terminator_vkGetPhysicalDeviceFormatProperties as *const (),
+        659 => terminator_vkGetPhysicalDeviceFormatProperties2 as *const (),
+        660 => terminator_vkGetPhysicalDeviceFormatProperties2KHR as *const (),
+        661 => terminator_vkGetPhysicalDeviceFragmentShadingRatesKHR as *const (),
+        662 => terminator_vkGetPhysicalDeviceImageFormatProperties as *const (),
+        663 => terminator_vkGetPhysicalDeviceImageFormatProperties2 as *const (),
+        664 => terminator_vkGetPhysicalDeviceImageFormatProperties2KHR as *const (),
+        665 => terminator_vkGetPhysicalDeviceMemoryProperties as *const (),
+        666 => terminator_vkGetPhysicalDeviceMemoryProperties2 as *const (),
+        667 => terminator_vkGetPhysicalDeviceMemoryProperties2KHR as *const (),
+        668 => terminator_vkGetPhysicalDeviceMultisamplePropertiesEXT as *const (),
+        669 => terminator_vkGetPhysicalDeviceOpticalFlowImageFormatsNV as *const (),
+        670 => terminator_vkGetPhysicalDevicePresentRectanglesKHR as *const (),
+        671 => terminator_vkGetPhysicalDeviceProperties as *const (),
+        672 => terminator_vkGetPhysicalDeviceProperties2 as *const (),
+        673 => terminator_vkGetPhysicalDeviceProperties2KHR as *const (),
+        674 => {
             terminator_vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM
-                as *const (),
-        )),
-        675 => Some(erase_function(
+                as *const ()
+        }
+        675 => {
             terminator_vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM
-                as *const (),
-        )),
-        676 => Some(erase_function(
+                as *const ()
+        }
+        676 => {
             terminator_vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM
-                as *const (),
-        )),
-        677 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM as *const (),
-        )),
-        678 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR as *const (),
-        )),
-        679 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceQueueFamilyProperties as *const (),
-        )),
-        680 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceQueueFamilyProperties2 as *const (),
-        )),
-        681 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceQueueFamilyProperties2KHR as *const (),
-        )),
+                as *const ()
+        }
+        677 => terminator_vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM as *const (),
+        678 => terminator_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR as *const (),
+        679 => terminator_vkGetPhysicalDeviceQueueFamilyProperties as *const (),
+        680 => terminator_vkGetPhysicalDeviceQueueFamilyProperties2 as *const (),
+        681 => terminator_vkGetPhysicalDeviceQueueFamilyProperties2KHR as *const (),
         #[cfg(any(target_os = "nto", target_os = "qnx"))]
-        682 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceScreenPresentationSupportQNX as *const (),
-        )),
-        683 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceSparseImageFormatProperties as *const (),
-        )),
-        684 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceSparseImageFormatProperties2 as *const (),
-        )),
-        685 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceSparseImageFormatProperties2KHR as *const (),
-        )),
-        686 => Some(erase_function(
+        682 => terminator_vkGetPhysicalDeviceScreenPresentationSupportQNX as *const (),
+        683 => terminator_vkGetPhysicalDeviceSparseImageFormatProperties as *const (),
+        684 => terminator_vkGetPhysicalDeviceSparseImageFormatProperties2 as *const (),
+        685 => terminator_vkGetPhysicalDeviceSparseImageFormatProperties2KHR as *const (),
+        686 => {
             terminator_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV
-                as *const (),
-        )),
-        687 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceSurfaceCapabilities2EXT as *const (),
-        )),
-        688 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceSurfaceCapabilities2KHR as *const (),
-        )),
-        689 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceSurfaceCapabilitiesKHR as *const (),
-        )),
-        690 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceSurfaceFormats2KHR as *const (),
-        )),
-        691 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceSurfaceFormatsKHR as *const (),
-        )),
+                as *const ()
+        }
+        687 => terminator_vkGetPhysicalDeviceSurfaceCapabilities2EXT as *const (),
+        688 => terminator_vkGetPhysicalDeviceSurfaceCapabilities2KHR as *const (),
+        689 => terminator_vkGetPhysicalDeviceSurfaceCapabilitiesKHR as *const (),
+        690 => terminator_vkGetPhysicalDeviceSurfaceFormats2KHR as *const (),
+        691 => terminator_vkGetPhysicalDeviceSurfaceFormatsKHR as *const (),
         #[cfg(target_os = "windows")]
-        692 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceSurfacePresentModes2EXT as *const (),
-        )),
-        693 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceSurfacePresentModesKHR as *const (),
-        )),
-        694 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceSurfaceSupportKHR as *const (),
-        )),
-        695 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceToolProperties as *const (),
-        )),
-        696 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceToolPropertiesEXT as *const (),
-        )),
+        692 => terminator_vkGetPhysicalDeviceSurfacePresentModes2EXT as *const (),
+        693 => terminator_vkGetPhysicalDeviceSurfacePresentModesKHR as *const (),
+        694 => terminator_vkGetPhysicalDeviceSurfaceSupportKHR as *const (),
+        695 => terminator_vkGetPhysicalDeviceToolProperties as *const (),
+        696 => terminator_vkGetPhysicalDeviceToolPropertiesEXT as *const (),
         #[cfg(feature = "platform-ubm")]
-        697 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceUbmPresentationSupportSEC as *const (),
-        )),
-        698 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceVideoCapabilitiesKHR as *const (),
-        )),
-        699 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR as *const (),
-        )),
-        700 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceVideoFormatPropertiesKHR as *const (),
-        )),
+        697 => terminator_vkGetPhysicalDeviceUbmPresentationSupportSEC as *const (),
+        698 => terminator_vkGetPhysicalDeviceVideoCapabilitiesKHR as *const (),
+        699 => terminator_vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR as *const (),
+        700 => terminator_vkGetPhysicalDeviceVideoFormatPropertiesKHR as *const (),
         #[cfg(all(
             feature = "wsi-wayland",
             any(
@@ -3217,13 +2511,9 @@ pub(crate) fn physical_device_terminator_proc_addr(id: u16) -> PFN_vkVoidFunctio
                 target_os = "cygwin"
             )
         ))]
-        701 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceWaylandPresentationSupportKHR as *const (),
-        )),
+        701 => terminator_vkGetPhysicalDeviceWaylandPresentationSupportKHR as *const (),
         #[cfg(target_os = "windows")]
-        702 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceWin32PresentationSupportKHR as *const (),
-        )),
+        702 => terminator_vkGetPhysicalDeviceWin32PresentationSupportKHR as *const (),
         #[cfg(all(
             feature = "wsi-xcb",
             any(
@@ -3236,9 +2526,7 @@ pub(crate) fn physical_device_terminator_proc_addr(id: u16) -> PFN_vkVoidFunctio
                 target_os = "cygwin"
             )
         ))]
-        703 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceXcbPresentationSupportKHR as *const (),
-        )),
+        703 => terminator_vkGetPhysicalDeviceXcbPresentationSupportKHR as *const (),
         #[cfg(all(
             feature = "wsi-xlib",
             any(
@@ -3251,9 +2539,7 @@ pub(crate) fn physical_device_terminator_proc_addr(id: u16) -> PFN_vkVoidFunctio
                 target_os = "cygwin"
             )
         ))]
-        704 => Some(erase_function(
-            terminator_vkGetPhysicalDeviceXlibPresentationSupportKHR as *const (),
-        )),
+        704 => terminator_vkGetPhysicalDeviceXlibPresentationSupportKHR as *const (),
         #[cfg(all(
             feature = "wsi-xlib-xrandr",
             any(
@@ -3266,41 +2552,37 @@ pub(crate) fn physical_device_terminator_proc_addr(id: u16) -> PFN_vkVoidFunctio
                 target_os = "cygwin"
             )
         ))]
-        719 => Some(erase_function(
-            terminator_vkGetRandROutputDisplayEXT as *const (),
-        )),
+        719 => terminator_vkGetRandROutputDisplayEXT as *const (),
         #[cfg(target_os = "windows")]
-        752 => Some(erase_function(terminator_vkGetWinrtDisplayNV as *const ())),
-        784 => Some(erase_function(terminator_vkReleaseDisplayEXT as *const ())),
-        _ => None,
-    }
+        752 => terminator_vkGetWinrtDisplayNV as *const (),
+        784 => terminator_vkReleaseDisplayEXT as *const (),
+        _ => return None,
+    };
+    Some(erase_function(address))
 }
 #[inline(never)]
 pub(crate) fn icd_device_terminator_proc_addr(
     table: &IcdDeviceTerminatorDispatchTable,
     id: u16,
 ) -> PFN_vkVoidFunction {
-    match id {
-        459 => table.vkDestroyDevice.map(erase_function),
-        425 => table.vkCreateSwapchainKHR.map(erase_function),
-        558 => table
-            .vkGetDeviceGroupSurfacePresentModesKHR
-            .map(erase_function),
-        422 => table.vkCreateSharedSwapchainsKHR.map(erase_function),
-        438 => table.vkDebugMarkerSetObjectTagEXT.map(erase_function),
-        437 => table.vkDebugMarkerSetObjectNameEXT.map(erase_function),
-        800 => table.vkSetDebugUtilsObjectNameEXT.map(erase_function),
-        801 => table.vkSetDebugUtilsObjectTagEXT.map(erase_function),
-        767 => table.vkQueueBeginDebugUtilsLabelEXT.map(erase_function),
-        769 => table.vkQueueEndDebugUtilsLabelEXT.map(erase_function),
-        770 => table.vkQueueInsertDebugUtilsLabelEXT.map(erase_function),
-        30 => table.vkCmdBeginDebugUtilsLabelEXT.map(erase_function),
-        163 => table.vkCmdEndDebugUtilsLabelEXT.map(erase_function),
-        186 => table.vkCmdInsertDebugUtilsLabelEXT.map(erase_function),
+    let address = match id {
+        459 => table.vkDestroyDevice? as *const (),
+        425 => table.vkCreateSwapchainKHR? as *const (),
+        558 => table.vkGetDeviceGroupSurfacePresentModesKHR? as *const (),
+        422 => table.vkCreateSharedSwapchainsKHR? as *const (),
+        438 => table.vkDebugMarkerSetObjectTagEXT? as *const (),
+        437 => table.vkDebugMarkerSetObjectNameEXT? as *const (),
+        800 => table.vkSetDebugUtilsObjectNameEXT? as *const (),
+        801 => table.vkSetDebugUtilsObjectTagEXT? as *const (),
+        767 => table.vkQueueBeginDebugUtilsLabelEXT? as *const (),
+        769 => table.vkQueueEndDebugUtilsLabelEXT? as *const (),
+        770 => table.vkQueueInsertDebugUtilsLabelEXT? as *const (),
+        30 => table.vkCmdBeginDebugUtilsLabelEXT? as *const (),
+        163 => table.vkCmdEndDebugUtilsLabelEXT? as *const (),
+        186 => table.vkCmdInsertDebugUtilsLabelEXT? as *const (),
         #[cfg(target_os = "windows")]
-        557 => table
-            .vkGetDeviceGroupSurfacePresentModes2EXT
-            .map(erase_function),
-        _ => None,
-    }
+        557 => table.vkGetDeviceGroupSurfacePresentModes2EXT? as *const (),
+        _ => return None,
+    };
+    Some(erase_function(address))
 }

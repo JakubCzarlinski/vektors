@@ -16,24 +16,28 @@ use super::{
     valid_layer_mask,
 };
 
+#[cold]
+#[inline(never)]
 pub(super) fn emit_create_message(
     create_info: &VkInstanceCreateInfo<'_>,
     severity: vk::VkDebugUtilsMessageSeverityFlagBitsEXT,
-    message: impl core::fmt::Display,
+    message: core::fmt::Arguments<'_>,
 ) {
     let filter = LogFilter::from_severity(severity);
     let mut text = diagnostics::LogBuffer::<511>::new();
-    let _ = write!(text, "{message}");
+    let _ = text.write_fmt(message);
     let message = text.as_str();
     platform::write_loader_log(filter, format_args!("{message}"));
     submit_create_message(create_info, severity, message);
 }
 
+#[cold]
+#[inline(never)]
 pub(super) fn emit_layer_only_message(
     create_info: &VkInstanceCreateInfo<'_>,
-    message: impl core::fmt::Display,
+    message: core::fmt::Arguments<'_>,
 ) {
-    diagnostics::with_text(format_args!("{message}"), |message| {
+    diagnostics::with_text(message, |message| {
         platform::write_loader_category_log(LogFilter::Layer, format_args!("{message}"));
         // Category-only loader messages map to informational debug-utils messages.
         submit_create_message(
@@ -44,19 +48,23 @@ pub(super) fn emit_layer_only_message(
     });
 }
 
+#[cold]
+#[inline(never)]
 pub(super) fn emit_layer_message(
     create_info: &VkInstanceCreateInfo<'_>,
     severity: vk::VkDebugUtilsMessageSeverityFlagBitsEXT,
-    message: impl core::fmt::Display,
+    message: core::fmt::Arguments<'_>,
 ) {
     let mut text = diagnostics::LogBuffer::<511>::new();
-    let _ = write!(text, "{message}");
+    let _ = text.write_fmt(message);
     let message = text.as_str();
     let filter = LogFilter::from_severity(severity);
     platform::write_loader_log_with_category(filter, LogFilter::Layer, format_args!("{message}"));
     submit_create_message(create_info, severity, message);
 }
 
+#[cold]
+#[inline(never)]
 pub(super) fn submit_create_message(
     create_info: &VkInstanceCreateInfo<'_>,
     severity: vk::VkDebugUtilsMessageSeverityFlagBitsEXT,
@@ -128,24 +136,33 @@ pub(super) fn emit_layer_search_diagnostics(
     searches: &[LayerSearch],
     manifests: &[LayerManifest],
 ) {
+    if emit_search_diagnostics(MetaDiagnosticSink::Create(create_info), searches, manifests)
+        .is_err()
+    {
+        pending::mark_json_allocation_failed();
+    }
+}
+
+#[cold]
+#[inline(never)]
+fn emit_search_diagnostics(
+    sink: MetaDiagnosticSink<'_>,
+    searches: &[LayerSearch],
+    manifests: &[LayerManifest],
+) -> Result<(), VkResult> {
     let mut duplicate_messages = Vec::new();
     let mut duplicate_meta_summaries = Vec::new();
     for search in searches {
-        emit_layer_search_locations(MetaDiagnosticSink::Create(create_info), search);
+        emit_layer_search_locations(sink, search);
         for file in &search.files {
-            if emit_create_search_file(
-                create_info,
+            emit_search_file(
+                sink,
                 search,
                 file,
                 manifests,
                 &mut duplicate_meta_summaries,
                 &mut duplicate_messages,
-            )
-            .is_err()
-            {
-                pending::mark_json_allocation_failed();
-                return;
-            }
+            )?;
         }
         if search.implicit
             && let Some(override_layer) = manifests.iter().find(|manifest| {
@@ -159,13 +176,9 @@ pub(super) fn emit_layer_search_diagnostics(
                         })
             })
         {
-            emit_override_layer_diagnostics(
-                MetaDiagnosticSink::Create(create_info),
-                override_layer,
-            );
+            emit_override_layer_diagnostics(sink, override_layer);
             if forced_disabled(override_layer) && !forced_enabled(override_layer) {
-                emit_layer_message(
-                    create_info,
+                sink.layer_message(
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
                     format_args!(
                         "Implicit layer \"{}\" forced disabled because name matches filter of env var 'VK_LOADER_LAYERS_DISABLE'.",
@@ -176,8 +189,7 @@ pub(super) fn emit_layer_search_diagnostics(
         }
     }
     for (name, components) in duplicate_meta_summaries {
-        emit_layer_message(
-            create_info,
+        sink.layer_message(
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
             format_args!(
                 "Meta-layer \"{}\" all {} component layers appear to be valid.",
@@ -186,38 +198,19 @@ pub(super) fn emit_layer_search_diagnostics(
             ),
         );
         for (index, component) in components.iter().enumerate() {
-            emit_layer_only_message(
-                create_info,
-                format_args!(
-                    "  [{index}] {}",
-                    crate::debug::diagnostics::LossyBytes(component.to_bytes())
-                ),
-            );
+            sink.layer_only(format_args!(
+                "  [{index}] {}",
+                crate::debug::diagnostics::LossyBytes(component.to_bytes())
+            ));
         }
     }
     for message in duplicate_messages {
-        emit_create_message(
-            create_info,
+        sink.message(
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-            message,
+            format_args!("{message}"),
         );
     }
-}
-
-pub(super) fn emit_layer_manifest_diagnostic(
-    create_info: &VkInstanceCreateInfo<'_>,
-    path: &Path,
-    implicit: bool,
-    emit_found: bool,
-    source_index: Option<usize>,
-) {
-    emit_manifest_diagnostics(
-        MetaDiagnosticSink::Create(create_info),
-        path,
-        implicit,
-        emit_found,
-        source_index,
-    );
+    Ok(())
 }
 
 pub(super) fn emit_global_discovered_manifest(manifest: &LayerManifest, emit_found: bool) {
@@ -299,72 +292,10 @@ pub(crate) fn emit_global_layer_search_diagnostics(
         pending::mark_json_allocation_failed();
         return;
     };
-    let mut duplicate_messages = Vec::new();
-    let mut duplicate_meta_summaries = Vec::new();
     emit_configured_manifest_reports(configured_manifest_reports, manifests);
-    for search in searches {
-        emit_layer_search_locations(MetaDiagnosticSink::Global, search);
-        for file in &search.files {
-            if emit_global_search_file(
-                search,
-                file,
-                manifests,
-                &mut duplicate_meta_summaries,
-                &mut duplicate_messages,
-            )
-            .is_err()
-            {
-                pending::mark_json_allocation_failed();
-                return;
-            }
-        }
-        if search.implicit
-            && let Some(override_layer) = manifests.iter().find(|manifest| {
-                manifest.name.as_c_str() == c"VK_LAYER_LUNARG_override"
-                    && naturally_enabled(manifest)
-                    && manifest
-                        .disable_environment
-                        .as_ref()
-                        .is_none_or(|environment| {
-                            !super::activation::environment_is_set(&environment.0)
-                        })
-            })
-        {
-            emit_override_layer_diagnostics(MetaDiagnosticSink::Global, override_layer);
-            if forced_disabled(override_layer) && !forced_enabled(override_layer) {
-                platform::write_loader_log_with_category(
-                    LogFilter::Warning,
-                    LogFilter::Layer,
-                    format_args!(
-                        "Implicit layer \"{}\" forced disabled because name matches filter of env var 'VK_LOADER_LAYERS_DISABLE'.",
-                        crate::debug::diagnostics::LossyBytes(override_layer.name.to_bytes())
-                    ),
-                );
-            }
-        }
-    }
-    for (name, components) in duplicate_meta_summaries {
-        platform::write_loader_log_with_category(
-            LogFilter::Info,
-            LogFilter::Layer,
-            format_args!(
-                "Meta-layer \"{}\" all {} component layers appear to be valid.",
-                crate::debug::diagnostics::LossyBytes(name.to_bytes()),
-                components.len()
-            ),
-        );
-        for (index, component) in components.iter().enumerate() {
-            platform::write_loader_category_log(
-                LogFilter::Layer,
-                format_args!(
-                    "  [{index}] {}",
-                    crate::debug::diagnostics::LossyBytes(component.to_bytes())
-                ),
-            );
-        }
-    }
-    for message in duplicate_messages {
-        platform::write_loader_log(LogFilter::Warning, format_args!("{message}"));
+    if emit_search_diagnostics(MetaDiagnosticSink::Global, searches, manifests).is_err() {
+        pending::mark_json_allocation_failed();
+        return;
     }
     if emit_recursive_meta_layer_diagnostics(
         MetaDiagnosticSink::Global,
@@ -403,11 +334,14 @@ pub(crate) fn emit_instance_layer_callstack(
     create_info: &VkInstanceCreateInfo<'_>,
     layers: &[LoadedLayer],
 ) {
-    emit_layer_only_message(create_info, "vkCreateInstance layer callstack setup to:");
-    emit_layer_only_message(create_info, "   <Application>");
-    emit_layer_only_message(create_info, "     ||");
-    emit_layer_only_message(create_info, "   <Loader>");
-    emit_layer_only_message(create_info, "     ||");
+    emit_layer_only_message(
+        create_info,
+        format_args!("vkCreateInstance layer callstack setup to:"),
+    );
+    emit_layer_only_message(create_info, format_args!("   <Application>"));
+    emit_layer_only_message(create_info, format_args!("     ||"));
+    emit_layer_only_message(create_info, format_args!("   <Loader>"));
+    emit_layer_only_message(create_info, format_args!("     ||"));
     for layer in layers {
         emit_layer_only_message(
             create_info,
@@ -460,9 +394,9 @@ pub(crate) fn emit_instance_layer_callstack(
             create_info,
             format_args!("           Library:  {}", layer.library_path.display()),
         );
-        emit_layer_only_message(create_info, "     ||");
+        emit_layer_only_message(create_info, format_args!("     ||"));
     }
-    emit_layer_only_message(create_info, "   <Drivers>");
+    emit_layer_only_message(create_info, format_args!("   <Drivers>"));
 }
 
 #[derive(Clone, Copy)]
@@ -486,39 +420,42 @@ impl MetaDiagnosticState {
 }
 
 impl MetaDiagnosticSink<'_> {
+    #[cold]
+    #[inline(never)]
     fn message(
         self,
         severity: vk::VkDebugUtilsMessageSeverityFlagBitsEXT,
-        message: impl core::fmt::Display,
+        message: core::fmt::Arguments<'_>,
     ) {
         match self {
-            Self::Global => platform::write_loader_log(
-                LogFilter::from_severity(severity),
-                format_args!("{message}"),
-            ),
+            Self::Global => platform::write_loader_log(LogFilter::from_severity(severity), message),
             Self::Create(create_info) => emit_create_message(create_info, severity, message),
         }
     }
 
+    #[cold]
+    #[inline(never)]
     fn layer_message(
         self,
         severity: vk::VkDebugUtilsMessageSeverityFlagBitsEXT,
-        message: impl core::fmt::Display,
+        message: core::fmt::Arguments<'_>,
     ) {
         match self {
             Self::Global => platform::write_loader_log_with_category(
                 LogFilter::from_severity(severity),
                 LogFilter::Layer,
-                format_args!("{message}"),
+                message,
             ),
             Self::Create(create_info) => emit_layer_message(create_info, severity, message),
         }
     }
 
-    fn layer_only(self, message: impl core::fmt::Display) {
+    #[cold]
+    #[inline(never)]
+    fn layer_only(self, message: core::fmt::Arguments<'_>) {
         match self {
             Self::Global => {
-                platform::write_loader_category_log(LogFilter::Layer, format_args!("{message}"));
+                platform::write_loader_category_log(LogFilter::Layer, message);
             }
             Self::Create(create_info) => emit_layer_only_message(create_info, message),
         }
@@ -532,7 +469,7 @@ pub(super) fn emit_override_layer_diagnostics(
     if override_layer.app_keys().is_empty() {
         sink.layer_message(
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-            "Using the global override layer",
+            format_args!("Using the global override layer"),
         );
     } else if let Some(executable) = platform::executable_path() {
         sink.layer_message(
@@ -578,7 +515,7 @@ pub(super) fn emit_override_layer_diagnostics(
     {
         sink.layer_message(
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-            path.display(),
+            format_args!("{}", path.display()),
         );
     }
 }
@@ -1260,8 +1197,8 @@ fn emit_layer_field_diagnostic(
 }
 
 #[cold]
-fn emit_create_search_file(
-    create_info: &VkInstanceCreateInfo<'_>,
+fn emit_search_file(
+    sink: MetaDiagnosticSink<'_>,
     search: &LayerSearch,
     file: &Path,
     manifests: &[LayerManifest],
@@ -1291,13 +1228,7 @@ fn emit_create_search_file(
             .is_some_and(|source_index| *source_index < manifest.source_index)
         {
             let source_index = *diagnostic_indices.peek().unwrap();
-            emit_layer_manifest_diagnostic(
-                create_info,
-                file,
-                search.implicit,
-                !found,
-                Some(source_index),
-            );
+            emit_manifest_diagnostics(sink, file, search.implicit, !found, Some(source_index));
             found = true;
             while diagnostic_indices.next_if_eq(&source_index).is_some() {}
         }
@@ -1305,33 +1236,36 @@ fn emit_create_search_file(
             .next_if_eq(&manifest.source_index)
             .is_some()
         {}
-        let emit_found = !found;
-        emit_create_discovered_manifest(create_info, manifest, emit_found);
+        match sink {
+            MetaDiagnosticSink::Global => emit_global_discovered_manifest(manifest, !found),
+            MetaDiagnosticSink::Create(create_info) => {
+                emit_create_discovered_manifest(create_info, manifest, !found);
+            }
+        }
         found = true;
     }
     while let Some(source_index) = diagnostic_indices.next() {
-        emit_layer_manifest_diagnostic(
-            create_info,
-            file,
-            search.implicit,
-            !found,
-            Some(source_index),
-        );
+        emit_manifest_diagnostics(sink, file, search.implicit, !found, Some(source_index));
         found = true;
         while diagnostic_indices.next_if_eq(&source_index).is_some() {}
     }
     if needs_compatibility_diagnostics {
-        emit_unused_override_layers(MetaDiagnosticSink::Create(create_info), file);
+        emit_unused_override_layers(sink, file);
     }
     if found {
         return Ok(());
     }
     let duplicates = discovery::reparse_layer_manifest(file, search.implicit);
     if duplicates.is_empty() {
-        emit_layer_manifest_diagnostic(create_info, file, search.implicit, true, None);
+        emit_manifest_diagnostics(sink, file, search.implicit, true, None);
     }
     for duplicate in &duplicates {
-        emit_duplicate_manifest(create_info, duplicate);
+        match sink {
+            MetaDiagnosticSink::Global => emit_global_discovered_manifest(duplicate, true),
+            MetaDiagnosticSink::Create(create_info) => {
+                emit_duplicate_manifest(create_info, duplicate);
+            }
+        }
         if duplicate.name.as_c_str() == c"VK_LAYER_LUNARG_override"
             && !duplicate.app_keys().is_empty()
             && !manifests.iter().any(|manifest| {
@@ -1339,108 +1273,8 @@ fn emit_create_search_file(
             })
             && let Some(executable) = platform::executable_path()
         {
-            emit_layer_message(
-                create_info,
+            sink.layer_message(
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                format_args!(
-                    "--Override layer found but not used because app '{}' is not in 'app_keys' list!",
-                    executable.display()
-                ),
-            );
-        }
-        if let Some(original) = manifests.iter().find(|original| {
-            (original.settings_control.is_none() || !duplicate.component_layers().is_empty())
-                && original.name == duplicate.name
-                && original.manifest_path != duplicate.manifest_path
-        }) && record_duplicate_layer(
-            duplicate,
-            original,
-            manifests,
-            duplicate_meta_summaries,
-            duplicate_messages,
-        )
-        .is_err()
-        {
-            return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
-        }
-    }
-    Ok(())
-}
-
-#[cold]
-fn emit_global_search_file(
-    search: &LayerSearch,
-    file: &Path,
-    manifests: &[LayerManifest],
-    duplicate_meta_summaries: &mut Vec<(CString, Box<[CString]>)>,
-    duplicate_messages: &mut Vec<String>,
-) -> Result<(), VkResult> {
-    let mut found = false;
-    let needs_compatibility_diagnostics = search.diagnostic_files.iter().any(|path| path == file);
-    let diagnostics = if needs_compatibility_diagnostics {
-        discovery::layer_manifest_diagnostics(file, search.implicit)
-    } else {
-        Box::default()
-    };
-    let compatibility_manifests = needs_compatibility_diagnostics
-        .then(|| discovery::reparse_layer_manifest(file, search.implicit));
-    let diagnostic_manifests = compatibility_manifests.as_deref().unwrap_or(manifests);
-    let mut diagnostic_indices = diagnostics
-        .iter()
-        .map(|(source_index, _)| *source_index)
-        .peekable();
-    for manifest in diagnostic_manifests
-        .iter()
-        .filter(|manifest| manifest.manifest_path == *file)
-    {
-        while diagnostic_indices
-            .peek()
-            .is_some_and(|source_index| *source_index < manifest.source_index)
-        {
-            let source_index = *diagnostic_indices.peek().unwrap();
-            emit_global_layer_manifest_diagnostic(
-                file,
-                search.implicit,
-                !found,
-                Some(source_index),
-            );
-            found = true;
-            while diagnostic_indices.next_if_eq(&source_index).is_some() {}
-        }
-        while diagnostic_indices
-            .next_if_eq(&manifest.source_index)
-            .is_some()
-        {}
-        emit_global_discovered_manifest(manifest, !found);
-        found = true;
-    }
-    while let Some(source_index) = diagnostic_indices.next() {
-        emit_global_layer_manifest_diagnostic(file, search.implicit, !found, Some(source_index));
-        found = true;
-        while diagnostic_indices.next_if_eq(&source_index).is_some() {}
-    }
-    if needs_compatibility_diagnostics {
-        emit_unused_override_layers(MetaDiagnosticSink::Global, file);
-    }
-    if found {
-        return Ok(());
-    }
-    let duplicates = discovery::reparse_layer_manifest(file, search.implicit);
-    if duplicates.is_empty() {
-        emit_global_layer_manifest_diagnostic(file, search.implicit, true, None);
-    }
-    for duplicate in &duplicates {
-        emit_global_discovered_manifest(duplicate, true);
-        if duplicate.name.as_c_str() == c"VK_LAYER_LUNARG_override"
-            && !duplicate.app_keys().is_empty()
-            && !manifests.iter().any(|manifest| {
-                manifest.name == duplicate.name && manifest.manifest_path == duplicate.manifest_path
-            })
-            && let Some(executable) = platform::executable_path()
-        {
-            platform::write_loader_log_with_category(
-                LogFilter::Info,
-                LogFilter::Layer,
                 format_args!(
                     "--Override layer found but not used because app '{}' is not in 'app_keys' list!",
                     executable.display()

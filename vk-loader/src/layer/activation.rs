@@ -266,6 +266,18 @@ pub(super) fn meta_reaches(
 }
 
 #[cold]
+fn invalid_layer_names(create_info: &VkInstanceCreateInfo<'_>) -> VkResult {
+    emit_create_message(
+        create_info,
+        vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
+        format_args!(
+            "loader_validate_layers: ppEnabledLayerNames is NULL but enabledLayerCount is greater than zero"
+        ),
+    );
+    VkResult::ERROR_LAYER_NOT_PRESENT
+}
+
+#[cold]
 #[inline(never)]
 pub(crate) fn select_active_layers(
     create_info: &VkInstanceCreateInfo<'_>,
@@ -283,12 +295,7 @@ pub(crate) fn select_active_layers(
         return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
     }
     if create_info.enabledLayerCount != 0 && create_info.ppEnabledLayerNames.is_null() {
-        emit_create_message(
-            create_info,
-            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-            "loader_validate_layers: ppEnabledLayerNames is NULL but enabledLayerCount is greater than zero",
-        );
-        return Err(VkResult::ERROR_LAYER_NOT_PRESENT);
+        return Err(invalid_layer_names(create_info));
     }
     // SAFETY: Layer discovery follows upstream's exclusion of concurrent
     // environment mutation, including from allocation callbacks.
@@ -399,28 +406,28 @@ pub(super) fn emit_layer_activation_messages(
         emit_layer_message(
             create_info,
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-            message,
+            format_args!("{message}"),
         );
     }
     for message in error_messages {
         emit_layer_message(
             create_info,
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-            message,
+            format_args!("{message}"),
         );
     }
     for message in repeated_messages {
         emit_layer_message(
             create_info,
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-            message,
+            format_args!("{message}"),
         );
     }
     for message in repeated_error_messages {
         emit_layer_message(
             create_info,
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-            message,
+            format_args!("{message}"),
         );
     }
 }
@@ -517,7 +524,7 @@ pub(crate) fn load_selected_layers(
         emit_layer_message(
             create_info,
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-            message,
+            format_args!("{message}"),
         );
     }
     if requested_layer_failed {
@@ -690,7 +697,7 @@ fn emit_layer_load_error(
             } else {
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR
             },
-            message,
+            format_args!("{message}"),
         );
     }
     let severity = if explicitly_requested {
@@ -707,7 +714,7 @@ fn emit_layer_load_error(
         *requested_layer_failed = true;
         allocation::try_push(requested_failure_messages, message)?;
     } else {
-        emit_layer_message(create_info, severity, message);
+        emit_layer_message(create_info, severity, format_args!("{message}"));
     }
     Ok(())
 }

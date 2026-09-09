@@ -180,14 +180,16 @@ pub unsafe extern "system" fn vkGetInstanceProcAddr(
             return unknown::physical_device_proc_addr(loader, name, true)
                 .or_else(|| unknown::device_proc_addr(loader, name, true));
         };
-        if name == c"vkGetInstanceProcAddr" {
-            Some(erase_function(
-                vkGetInstanceProcAddr as vk::PFN_vkGetInstanceProcAddr,
-            ))
-        } else if lookup.scope == CommandScope::Global {
-            (loader.api_version < VK_API_VERSION_1_3)
-                .then(|| global_proc_addr(name))
-                .flatten()
+        if lookup.scope == CommandScope::Global {
+            if lookup.id == crate::generated::GET_INSTANCE_PROC_ADDR_COMMAND_ID {
+                Some(erase_function(
+                    vkGetInstanceProcAddr as vk::PFN_vkGetInstanceProcAddr,
+                ))
+            } else {
+                (loader.api_version < VK_API_VERSION_1_3)
+                    .then(|| global_proc_addr(name))
+                    .flatten()
+            }
         } else {
             let available = command_core_level(lookup.id) != 0
                 || command_has_device_extension_provider(lookup.id)
