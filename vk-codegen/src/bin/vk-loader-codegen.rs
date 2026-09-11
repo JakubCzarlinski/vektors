@@ -741,6 +741,7 @@ const GENERATED_PARENT_NAMES: &[&str] = &[
     "LoaderInstance",
     "LoaderPhysicalDevice",
     "PFN_vkVoidFunction",
+    "SurfaceCreateDescriptor",
     "VkStructureType",
     "c_char",
     "c_void",
@@ -850,6 +851,9 @@ fn generated_loader_part(item: &syn::Item) -> &'static str {
                 name if name.contains("proc_addr") => "proc_addr",
                 name if name.starts_with("convert_") => "debug",
                 name if name.starts_with("dispatch_promoted_") => "promotions",
+                name if name.starts_with("load_") && name.contains("dispatch_fields") => {
+                    "dispatch_tables"
+                }
                 "extension_id"
                 | "extension_id_bytes"
                 | "extension_lookup_roundtrips"
@@ -888,6 +892,7 @@ fn generated_loader_part(item: &syn::Item) -> &'static str {
             let name = item.ident.to_string();
             match name.as_str() {
                 name if name.contains("EXTENSION") => "extensions",
+                "ICD_INSTANCE_DISPATCH_LOADS" | "ICD_DEVICE_DISPATCH_LOADS" => "dispatch_tables",
                 _ => "commands",
             }
         }
@@ -895,6 +900,9 @@ fn generated_loader_part(item: &syn::Item) -> &'static str {
             let name = item.ident.to_string();
             if name == "_" && quote! { #item }.to_string().contains("LOADER_ALIGNMENT") {
                 return "extensions";
+            }
+            if name == "_" && quote! { #item }.to_string().contains("DispatchTable") {
+                return "dispatch_tables";
             }
             match name.as_str() {
                 name if name.contains("EXTENSION_ID") => "extensions",
@@ -1042,11 +1050,6 @@ fn main() {
     globals.sort_unstable();
     globals.dedup();
 
-    let global_arms = globals.iter().map(|name| {
-        let bytes = Literal::byte_string(name.as_bytes());
-        let name = format_ident!("{name}");
-        quote! { #bytes => #name as *const (), }
-    });
     let emulated_variants = EMULATED_COMMANDS
         .iter()
         .map(|command| emulated_command_variant(command.name))
@@ -1097,14 +1100,6 @@ fn main() {
                     #(#emulated_legacy_arms)*
                 }
             }
-        }
-
-        pub(crate) fn global_proc_addr(name: &CStr) -> PFN_vkVoidFunction {
-            let address = match name.to_bytes() {
-                #(#global_arms)*
-                _ => return None,
-            };
-            Some(erase_function(address))
         }
     };
     let debug_object_pairs = debug_object_type_pairs(&registry);
@@ -1379,20 +1374,25 @@ fn main() {
             ),
             Scope::Global => unreachable!(),
         };
-        let load_into_fields = scoped.iter().map(|name| {
+        let load_entries = scoped.iter().map(|name| {
             let literal = c_string_literal(name);
             let name = format_ident!("{name}");
             quote! {
-                unsafe { core::ptr::addr_of_mut!((*table).#name).write(load_typed(#loader_name(handle, #literal.as_ptr()))); }
+                LayerInstanceDispatchLoad {
+                    offset: dispatch_offset(core::mem::offset_of!(InstanceDispatchTable, #name)),
+                    name: #literal,
+                },
             }
         });
         generated.extend(quote! {
+            #[repr(C)]
             #[derive(Clone, Default)]
             pub(crate) struct #table_name { #(#fields)* }
+            const _: () = assert!(core::mem::size_of::<#table_name>() <= 65_535);
+            static ICD_INSTANCE_DISPATCH_LOADS: &[LayerInstanceDispatchLoad] = &[#(#load_entries)*];
             impl #table_name {
-                #[allow(clippy::too_many_lines)] // One generated field write per registry command.
                 pub(crate) unsafe fn load_into(table: *mut Self, #loader_name: #loader_type, handle: #handle_type) {
-                    #(#load_into_fields)*
+                    unsafe { load_instance_dispatch_fields(table.cast(), #loader_name, handle, ICD_INSTANCE_DISPATCH_LOADS); }
                 }
             }
         });
@@ -1500,20 +1500,20 @@ fn main() {
         let pfn = format_ident!("PFN_{}", command.name);
         quote! { #cfg pub(crate) #name: Option<vk::#pfn>, }
     });
-    let layer_instance_loads = layer_instance_commands.iter().map(|command| {
-        let cfg = platform_cfg(command_platform_protect(&registry, command));
-        let name = format_ident!("{}", command.name);
-        if command.name == "vkGetInstanceProcAddr" {
-            quote! {
-                #cfg unsafe { core::ptr::addr_of_mut!((*table_ptr).#name).write(Some(gipa)); }
-            }
-        } else {
+    let layer_instance_load_entries = layer_instance_commands
+        .iter()
+        .filter(|command| command.name != "vkGetInstanceProcAddr")
+        .map(|command| {
+            let cfg = platform_cfg(command_platform_protect(&registry, command));
+            let name = format_ident!("{}", command.name);
             let literal = c_string_literal(&command.name);
             quote! {
-                #cfg unsafe { core::ptr::addr_of_mut!((*table_ptr).#name).write(load_typed(gipa(instance, #literal.as_ptr()))); }
+                #cfg LayerInstanceDispatchLoad {
+                    offset: dispatch_offset(core::mem::offset_of!(LayerInstanceDispatchTable, #name)),
+                    name: #literal,
+                },
             }
-        }
-    });
+        });
     let layer_device_commands = ordered_commands
         .iter()
         .copied()
@@ -1547,20 +1547,20 @@ fn main() {
             }
         }
     });
-    let layer_device_loads = layer_device_commands.iter().map(|command| {
-        let cfg = platform_cfg(command_platform_protect(&registry, command));
-        let name = format_ident!("{}", command.name);
-        if command.name == "vkGetDeviceProcAddr" {
-            quote! {
-                #cfg unsafe { core::ptr::addr_of_mut!((*table_ptr).#name).write(Some(gdpa)); }
-            }
-        } else {
+    let layer_device_load_entries = layer_device_commands
+        .iter()
+        .filter(|command| command.name != "vkGetDeviceProcAddr")
+        .map(|command| {
+            let cfg = platform_cfg(command_platform_protect(&registry, command));
+            let offset = format_ident!(
+                "{}_DEVICE_DISPATCH_OFFSET",
+                screaming_snake_case(&command.name)
+            );
             let literal = c_string_literal(&command.name);
             quote! {
-                #cfg unsafe { core::ptr::addr_of_mut!((*table_ptr).#name).write(load_typed(gdpa(device, #literal.as_ptr()))); }
+                #cfg DeviceDispatchLoad { offset: #offset, name: #literal },
             }
-        }
-    });
+        });
     let layer_device_mask_entries = layer_device_commands.iter().map(|command| {
         let cfg = platform_cfg(command_platform_protect(&registry, command));
         let id = format_ident!("{}_COMMAND_ID", screaming_snake_case(&command.name));
@@ -1592,13 +1592,35 @@ fn main() {
             pub(crate) vk_layerGetPhysicalDeviceProcAddr: crate::layer::GetPhysicalDeviceProcAddr,
             #(#layer_instance_fields)*
         }
-        impl LayerInstanceDispatchTable {
-            #[allow(clippy::too_many_lines)] // One generated field write per registry command.
-            pub(crate) unsafe fn load_into(table_ptr: *mut Self, gipa: vk::PFN_vkGetInstanceProcAddr, gpdpa: crate::layer::GetPhysicalDeviceProcAddr, instance: vk::VkInstance) {
-                unsafe { core::ptr::addr_of_mut!((*table_ptr).vk_layerGetPhysicalDeviceProcAddr).write(gpdpa); }
-                #(#layer_instance_loads)*
+        #[inline(never)]
+        unsafe fn load_instance_dispatch_fields(
+            table: *mut u8,
+            gipa: vk::PFN_vkGetInstanceProcAddr,
+            instance: vk::VkInstance,
+            loads: &[LayerInstanceDispatchLoad],
+        ) {
+            for load in loads {
+                let function = unsafe { gipa(instance, load.name.as_ptr()) };
+                unsafe {
+                    table
+                        .add(usize::from(load.offset))
+                        .cast::<vk::PFN_vkVoidFunction>()
+                        .write(function);
+                }
             }
         }
+        impl LayerInstanceDispatchTable {
+            pub(crate) unsafe fn load_into(table_ptr: *mut Self, gipa: vk::PFN_vkGetInstanceProcAddr, gpdpa: crate::layer::GetPhysicalDeviceProcAddr, instance: vk::VkInstance) {
+                unsafe { core::ptr::addr_of_mut!((*table_ptr).vk_layerGetPhysicalDeviceProcAddr).write(gpdpa); }
+                unsafe { core::ptr::addr_of_mut!((*table_ptr).vkGetInstanceProcAddr).write(Some(gipa)); }
+                unsafe { load_instance_dispatch_fields(table_ptr.cast(), gipa, instance, LAYER_INSTANCE_DISPATCH_LOADS); }
+            }
+        }
+        struct LayerInstanceDispatchLoad {
+            pub(crate) offset: u16,
+            pub(crate) name: &'static CStr,
+        }
+        static LAYER_INSTANCE_DISPATCH_LOADS: &[LayerInstanceDispatchLoad] = &[#(#layer_instance_load_entries)*];
         #[repr(C)]
         pub(crate) struct LayerDeviceDispatchTable {
             pub(crate) magic: u64,
@@ -1614,11 +1636,33 @@ fn main() {
             pub(super) offset: u16,
         }
         static DEVICE_DISPATCH_MASKS: &[DeviceDispatchMask] = &[#(#layer_device_mask_entries)*];
+        struct DeviceDispatchLoad {
+            pub(crate) offset: u16,
+            pub(crate) name: &'static CStr,
+        }
+        static DEVICE_DISPATCH_LOADS: &[DeviceDispatchLoad] = &[#(#layer_device_load_entries)*];
+        #[inline(never)]
+        unsafe fn load_device_dispatch_fields(
+            table: *mut u8,
+            gdpa: vk::PFN_vkGetDeviceProcAddr,
+            device: vk::VkDevice,
+            loads: &[DeviceDispatchLoad],
+        ) {
+            for load in loads {
+                let function = unsafe { gdpa(device, load.name.as_ptr()) };
+                unsafe {
+                    table
+                        .add(usize::from(load.offset))
+                        .cast::<vk::PFN_vkVoidFunction>()
+                        .write(function);
+                }
+            }
+        }
         impl LayerDeviceDispatchTable {
-            #[allow(clippy::too_many_lines)] // One generated field write per registry command.
             pub(crate) unsafe fn load_into(table_ptr: *mut Self, gdpa: vk::PFN_vkGetDeviceProcAddr, device: vk::VkDevice) {
                 unsafe { core::ptr::addr_of_mut!((*table_ptr).magic).write(DEVICE_DISPATCH_MAGIC); }
-                #(#layer_device_loads)*
+                unsafe { core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceProcAddr).write(Some(gdpa)); }
+                unsafe { load_device_dispatch_fields(table_ptr.cast(), gdpa, device, DEVICE_DISPATCH_LOADS); }
             }
             pub(crate) fn mask_unavailable(&mut self, mut available: impl FnMut(u16) -> bool) {
                 let table = core::ptr::from_mut(self).cast::<u8>();
@@ -1660,21 +1704,79 @@ fn main() {
         let pfn = format_ident!("PFN_{}", command.name);
         quote! { #cfg pub(crate) #name: Option<vk::#pfn>, }
     });
+    let icd_terminator_layout_assertions = icd_terminator_commands.iter().map(|command| {
+        let cfg = platform_cfg(command_platform_protect(&registry, command));
+        let pfn = format_ident!("PFN_{}", command.name);
+        quote! {
+            #cfg const _: () = assert!(
+                core::mem::size_of::<Option<vk::#pfn>>()
+                    == core::mem::size_of::<vk::PFN_vkVoidFunction>()
+            );
+            #cfg const _: () = assert!(
+                core::mem::align_of::<Option<vk::#pfn>>()
+                    == core::mem::align_of::<vk::PFN_vkVoidFunction>()
+            );
+        }
+    });
     let icd_terminator_loads = icd_terminator_commands.iter().map(|command| {
         let cfg = platform_cfg(command_platform_protect(&registry, command));
         let name = format_ident!("{}", command.name);
+        let id = format_ident!("{}_COMMAND_ID", screaming_snake_case(&command.name));
         let literal = c_string_literal(&command.name);
         quote! {
-            #cfg #name: if available(#literal) {
-                unsafe { load_typed(gdpa(device, #literal.as_ptr())) }
-            } else { None },
+            #cfg IcdDeviceDispatchLoad {
+                offset: dispatch_offset(core::mem::offset_of!(IcdDeviceTerminatorDispatchTable, #name)),
+                command_id: #id,
+                name: #literal,
+            },
         }
     });
     generated.extend(quote! {
+        #[repr(C)]
         pub(crate) struct IcdDeviceTerminatorDispatchTable { #(#icd_terminator_fields)* }
+        const _: () = assert!(core::mem::size_of::<IcdDeviceTerminatorDispatchTable>() <= 65_535);
+        #(#icd_terminator_layout_assertions)*
+        struct IcdDeviceDispatchLoad {
+            pub(crate) offset: u16,
+            pub(crate) command_id: u16,
+            pub(crate) name: &'static CStr,
+        }
+        static ICD_DEVICE_DISPATCH_LOADS: &[IcdDeviceDispatchLoad] = &[#(#icd_terminator_loads)*];
+        #[inline(never)]
+        unsafe fn load_icd_device_dispatch_fields(
+            table: *mut u8,
+            gdpa: vk::PFN_vkGetDeviceProcAddr,
+            device: vk::VkDevice,
+            loads: &[IcdDeviceDispatchLoad],
+            available: &mut impl FnMut(u16) -> bool,
+        ) {
+            for load in loads {
+                let function = if available(load.command_id) {
+                    unsafe { gdpa(device, load.name.as_ptr()) }
+                } else {
+                    None
+                };
+                unsafe {
+                    table
+                        .add(usize::from(load.offset))
+                        .cast::<vk::PFN_vkVoidFunction>()
+                        .write(function);
+                }
+            }
+        }
         impl IcdDeviceTerminatorDispatchTable {
-            pub(crate) unsafe fn load(gdpa: vk::PFN_vkGetDeviceProcAddr, device: vk::VkDevice, mut available: impl FnMut(&CStr) -> bool) -> Self {
-                Self { #(#icd_terminator_loads)* }
+            pub(crate) unsafe fn load(gdpa: vk::PFN_vkGetDeviceProcAddr, device: vk::VkDevice, mut available: impl FnMut(u16) -> bool) -> Self {
+                let mut table = core::mem::MaybeUninit::<Self>::uninit();
+                unsafe {
+                    load_icd_device_dispatch_fields(
+                        table.as_mut_ptr().cast(),
+                        gdpa,
+                        device,
+                        ICD_DEVICE_DISPATCH_LOADS,
+                        &mut available,
+                    );
+                    table.assume_init()
+                }
             }
         }
     });
@@ -1932,8 +2034,16 @@ fn main() {
         #[cfg(test)]
         pub(crate) const COMMAND_MAX_DISPLACEMENT: u8 = #max_displacement;
         #[inline(never)]
-        pub(crate) fn command_lookup(name: &CStr) -> Option<CommandLookup> {
-            let suffix = name.to_bytes().strip_prefix(b"vk")?;
+        pub(crate) fn command_lookup(name: &[u8]) -> Option<CommandLookup> {
+            // `vkCmdDraw` is the registry's only command shorter than the
+            // shared hash's ten-byte full-name input contract.
+            if name.len() < 10 {
+                return (name == b"vkCmdDraw").then_some(CommandLookup {
+                    id: VK_CMD_DRAW_COMMAND_ID,
+                    scope: CommandScope::Device,
+                });
+            }
+            let suffix = name.strip_prefix(b"vk")?;
             let hash = command_hash(suffix);
             let bucket_mask = (COMMAND_DISPLACEMENTS.len() - 1) as u64;
             let bucket = (hash & bucket_mask) as usize;
@@ -2363,6 +2473,7 @@ fn main() {
             let root_type =
                 rust_structure_type_constant(structure_type_constant(&registry, create_info_type));
             let root_type = format_ident!("{root_type}");
+            let create_info_type = format_ident!("{create_info_type}");
             let terminator_name = format_ident!("terminator_{name_text}");
             let command_literal = c_string_literal(name_text);
             let instance = &args[0];
@@ -2397,7 +2508,23 @@ fn main() {
                 ///
                 /// The instance must identify a live loader terminator and all pointers must satisfy Vulkan's contracts.
                 pub(crate) unsafe extern "system" fn #terminator_name(#(#params),*) -> vk::VkResult {
-                    unsafe { create_loader_surface(#instance, #create_info, VkStructureType::#root_type, #allocator, #surface, #command_literal, #extension_id_constant) }
+                    const {
+                        assert!(core::mem::align_of::<vk::#create_info_type<'static>>() <= crate::allocation::LOADER_ALIGNMENT);
+                    }
+                    unsafe {
+                        create_loader_surface(
+                            #instance,
+                            #create_info.cast(),
+                            #allocator,
+                            #surface,
+                            &SurfaceCreateDescriptor {
+                                root_size: core::mem::size_of::<vk::#create_info_type<'static>>(),
+                                expected_structure_type: VkStructureType::#root_type,
+                                command_name: #command_literal,
+                                extension_id: #extension_id_constant,
+                            },
+                        )
+                    }
                 }
             });
             let id = command_records
@@ -2732,7 +2859,60 @@ fn main() {
         let name = format_ident!("{}", command.name);
         quote! { #cfg #id => table.#name? as *const (), }
     });
+    let command_id = |name: &str| {
+        Literal::usize_unsuffixed(
+            command_records
+                .iter()
+                .position(|record| record.0 == name)
+                .unwrap_or_else(|| panic!("layer-special command metadata for {name}")),
+        )
+    };
+    let global_arms = globals.iter().map(|name| {
+        let id = command_id(name);
+        let function = format_ident!("{name}");
+        quote! { #id => #function as *const (), }
+    });
+    let layer_instance_special_arms = [
+        ("vkCreateInstance", quote! { crate::layer::create_instance_terminator as *const () }),
+        ("vkGetInstanceProcAddr", quote! { crate::layer::terminator_get_instance_proc_addr as *const () }),
+        ("vkCreateDevice", quote! { crate::create_device_terminator as *const () }),
+        ("vkDestroyInstance", quote! { crate::destroy_instance_terminator as *const () }),
+        ("vkEnumeratePhysicalDevices", quote! { crate::terminator_enumerate_physical_devices as *const () }),
+        ("vkEnumeratePhysicalDeviceGroups", quote! { crate::terminator_enumerate_physical_device_groups as *const () }),
+        ("vkEnumeratePhysicalDeviceGroupsKHR", quote! { crate::terminator_enumerate_physical_device_groups_khr as *const () }),
+        ("vkEnumerateDeviceLayerProperties", quote! { crate::layer::terminator_enumerate_device_layer_properties as *const () }),
+        ("vkEnumerateDeviceExtensionProperties", quote! { crate::layer::terminator_enumerate_device_extension_properties as *const () }),
+        ("vkCreateDebugUtilsMessengerEXT", quote! { crate::debug::messenger::terminator_create_debug_utils_messenger as *const () }),
+        ("vkCreateDebugReportCallbackEXT", quote! { crate::debug::messenger::terminator_create_debug_report_callback as *const () }),
+        ("vkDestroyDebugUtilsMessengerEXT", quote! { crate::debug::messenger::terminator_destroy_debug_utils_messenger as *const () }),
+        ("vkDestroyDebugReportCallbackEXT", quote! { crate::debug::messenger::terminator_destroy_debug_report_callback as *const () }),
+        ("vkSubmitDebugUtilsMessageEXT", quote! { crate::debug::messenger::terminator_submit_debug_utils_message as *const () }),
+        ("vkDebugReportMessageEXT", quote! { crate::debug::messenger::terminator_debug_report_message as *const () }),
+    ]
+    .map(|(name, address)| {
+        let id = command_id(name);
+        quote! { #id => #address, }
+    });
+    let layer_device_special_arms = [
+        ("vkGetDeviceProcAddr", quote! { crate::layer::terminator_get_device_proc_addr as *const () }),
+        ("vkDestroyDevice", quote! { crate::destroy_device_terminator as *const () }),
+        ("vkCreateSwapchainKHR", quote! { crate::surface::terminator_create_swapchain as *const () }),
+        ("vkCreateSharedSwapchainsKHR", quote! { crate::surface::terminator_create_shared_swapchains as *const () }),
+        ("vkGetDeviceGroupSurfacePresentModesKHR", quote! { crate::surface::terminator_get_device_group_surface_present_modes as *const () }),
+        ("vkDebugMarkerSetObjectNameEXT", quote! { crate::debug::terminator_vkDebugMarkerSetObjectNameEXT as *const () }),
+        ("vkDebugMarkerSetObjectTagEXT", quote! { crate::debug::terminator_vkDebugMarkerSetObjectTagEXT as *const () }),
+        ("vkSetDebugUtilsObjectNameEXT", quote! { crate::debug::terminator_vkSetDebugUtilsObjectNameEXT as *const () }),
+        ("vkSetDebugUtilsObjectTagEXT", quote! { crate::debug::terminator_vkSetDebugUtilsObjectTagEXT as *const () }),
+    ]
+    .map(|(name, address)| {
+        let id = command_id(name);
+        quote! { #id => #address, }
+    });
     generated.extend(quote! {
+        pub(crate) fn global_proc_addr(id: u16) -> PFN_vkVoidFunction {
+            let address = match id { #(#global_arms)* _ => return None };
+            Some(erase_function(address))
+        }
         #[inline(never)]
         #[allow(clippy::too_many_lines)] // Exhaustive generated command-ID match.
         pub(crate) fn exported_proc_addr(id: u16) -> PFN_vkVoidFunction {
@@ -2753,6 +2933,14 @@ fn main() {
         #[inline(never)]
         pub(crate) fn icd_device_terminator_proc_addr(table: &IcdDeviceTerminatorDispatchTable, id: u16) -> PFN_vkVoidFunction {
             let address = match id { #(#icd_device_terminator_arms)* _ => return None };
+            Some(erase_function(address))
+        }
+        pub(crate) fn layer_instance_special_proc_addr(id: u16) -> PFN_vkVoidFunction {
+            let address = match id { #(#layer_instance_special_arms)* _ => return None };
+            Some(erase_function(address))
+        }
+        pub(crate) fn layer_device_special_proc_addr(id: u16) -> PFN_vkVoidFunction {
+            let address = match id { #(#layer_device_special_arms)* _ => return None };
             Some(erase_function(address))
         }
     });
@@ -2807,6 +2995,7 @@ fn main() {
         let mut used = used.0;
         if name == "commands" {
             used.insert("LayerDeviceDispatchTable".to_owned());
+            used.insert("LayerInstanceDispatchTable".to_owned());
         }
         let local = items
             .iter()
@@ -2885,6 +3074,7 @@ fn main() {
         pub(crate) use proc_addr::{
             exported_proc_addr, global_proc_addr, icd_device_terminator_proc_addr,
             instance_terminator_proc_addr, layer_device_dispatch_proc_addr,
+            layer_device_special_proc_addr, layer_instance_special_proc_addr,
             physical_device_terminator_proc_addr,
         };
         pub(crate) use promotions::{

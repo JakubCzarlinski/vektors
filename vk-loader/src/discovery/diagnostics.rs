@@ -1,24 +1,22 @@
 //! Manifest validation diagnostics.
 
-use super::LayerManifestDiagnostic;
-use super::box_array;
-use super::box_values;
 use super::cjson_string;
 use super::cjson_value_string;
 use super::manifest::printed_bytes_fit;
-use super::own_cow;
-use super::owned_string;
+use super::manifest::{RawLayer, parse_api_version_bytes};
 use super::parse_api_version;
 use super::parse_json_value;
-use super::push_value;
-use crate::json::Value;
+use super::{LayerManifestDiagnostic, LayerRequiredValue};
+use crate::json::{Array, Value};
 use crate::platform;
-use alloc::{string::String, vec::Vec};
 use std::path::Path;
 use vk::VK_MAKE_API_VERSION;
 
-fn diagnostic_text<'a>(value: &'a Value<'_>) -> Option<alloc::borrow::Cow<'a, str>> {
-    let bytes = value.as_bytes()?;
+fn diagnostic_text(value: Value<'_>) -> Option<alloc::borrow::Cow<'_, str>> {
+    diagnostic_bytes(value.as_bytes()?)
+}
+
+fn diagnostic_bytes(bytes: &[u8]) -> Option<alloc::borrow::Cow<'_, str>> {
     if let Ok(text) = core::str::from_utf8(bytes) {
         return Some(alloc::borrow::Cow::Borrowed(text));
     }
@@ -33,241 +31,214 @@ fn diagnostic_text<'a>(value: &'a Value<'_>) -> Option<alloc::borrow::Cow<'a, st
     }
 }
 
-pub(crate) fn layer_manifest_diagnostics(
+pub(crate) fn visit_layer_manifest_diagnostics(
     path: &Path,
     implicit: bool,
-) -> Box<[(usize, LayerManifestDiagnostic)]> {
+    executable: Option<&Path>,
+    emit: &mut dyn FnMut(usize, &LayerManifestDiagnostic<'_>),
+) -> usize {
     let Some(bytes) = platform::read_file(path) else {
-        return box_array([(0, LayerManifestDiagnostic::FailedOpen)]);
+        emit(0, &LayerManifestDiagnostic::FailedOpen);
+        return 0;
     };
-    let Some(root) = parse_json_value(&bytes) else {
-        return box_array([(0, LayerManifestDiagnostic::InvalidJson)]);
+    let Some(document) = parse_json_value(&bytes) else {
+        emit(0, &LayerManifestDiagnostic::InvalidJson);
+        return 0;
     };
+    let root = document.root();
     if !root.is_object() {
-        return Box::default();
+        return 0;
     }
     let Some(version_text) = root.get("file_format_version").and_then(diagnostic_text) else {
-        return box_array([(0, LayerManifestDiagnostic::MissingFileFormatVersion)]);
+        emit(0, &LayerManifestDiagnostic::MissingFileFormatVersion);
+        return 0;
     };
     let version_text = cjson_value_string(&version_text);
     let Some(version) = parse_api_version(Some(&version_text)) else {
-        return box_array([(0, LayerManifestDiagnostic::MissingFileFormatVersion)]);
+        emit(0, &LayerManifestDiagnostic::MissingFileFormatVersion);
+        return 0;
     };
-    let layers = match root.get("layers").and_then(Value::as_array) {
-        Some(layers) => layers.as_slice(),
-        None => root.get("layer").map_or(&[][..], core::slice::from_ref),
-    };
-    if layers.is_empty() {
-        return box_array([(
+    let layers = root.get("layers").and_then(Value::as_array);
+    let layer = layers.is_none().then(|| root.get("layer")).flatten();
+    if layers.is_none_or(Array::is_empty) && layer.is_none() {
+        emit(
             0,
-            LayerManifestDiagnostic::MissingLayers {
-                version: own_cow(version_text),
+            &LayerManifestDiagnostic::MissingLayers {
+                version: alloc::borrow::Cow::Borrowed(&version_text),
                 parsed_version: version,
             },
-        )]);
+        );
+        return 0;
     }
-    let mut diagnostics = Vec::new();
-    let major = vk::VK_API_VERSION_MAJOR(version);
-    let minor = vk::VK_API_VERSION_MINOR(version);
-    let patch = vk::VK_API_VERSION_PATCH(version);
-    let known_version = major == 1
-        && ((minor == 0 && patch < 2) || (minor == 1 && patch < 3) || (minor == 2 && patch < 2));
-    if !known_version {
-        push_value(
-            &mut diagnostics,
-            (
-                0,
-                LayerManifestDiagnostic::UnknownManifestVersion {
-                    version: owned_string(&version_text),
-                    parsed_version: version,
-                },
-            ),
+    if !super::manifest::manifest_version_is_known(version) {
+        emit(
+            0,
+            &LayerManifestDiagnostic::UnknownManifestVersion {
+                version: alloc::borrow::Cow::Borrowed(&version_text),
+                parsed_version: version,
+            },
         );
     }
     if root.get("layers").is_some() && version < VK_MAKE_API_VERSION(0, 1, 0, 1) {
         // `loader_parse_version_string` tokenizes its mutable input in place,
         // so the later compatibility warning observes only its first token.
-        let warning_version = version_text
-            .split(['.', '"', '\n', '\r'])
-            .find(|component| !component.is_empty())
-            .unwrap_or_default();
-        push_value(
-            &mut diagnostics,
-            (
-                0,
-                LayerManifestDiagnostic::UnsupportedLayersArray {
-                    found_version: owned_string(&version_text),
-                    version: owned_string(warning_version),
-                },
-            ),
+        let bytes = version_text.as_bytes();
+        let mut start = 0;
+        while start < bytes.len() && matches!(bytes[start], b'.' | b'"' | b'\n' | b'\r') {
+            start += 1;
+        }
+        let mut end = start;
+        while end < bytes.len() && !matches!(bytes[end], b'.' | b'"' | b'\n' | b'\r') {
+            end += 1;
+        }
+        // Delimiters are ASCII, so these indices remain UTF-8 boundaries.
+        let warning_version = &version_text[start..end];
+        emit(
+            0,
+            &LayerManifestDiagnostic::UnsupportedLayersArray {
+                found_version: alloc::borrow::Cow::Borrowed(&version_text),
+                version: alloc::borrow::Cow::Borrowed(warning_version),
+            },
         );
     }
-    for (source_index, layer) in layers.iter().enumerate() {
-        let Some(diagnostic) = diagnose_layer(layer, implicit, version) else {
+    let mut unused_overrides = 0;
+    let layers = layers.into_iter().flat_map(Array::iter).chain(layer);
+    for (source_index, layer) in layers.enumerate() {
+        if executable.is_some_and(|executable| unused_override_layer(layer, executable)) {
+            unused_overrides += 1;
+        }
+        let raw = RawLayer::from_value(layer);
+        let Some(diagnostic) = diagnose_raw_layer(raw.as_ref(), implicit, version, &version_text)
+        else {
             continue;
         };
-        if let Some(name) = layer.get("name").and_then(Value::as_str).map(cjson_string)
+        if let Some(name) = raw
+            .as_ref()
+            .and_then(RawLayer::name)
+            .and_then(|name| core::str::from_utf8(name).ok())
+            .map(cjson_string)
             && !name.as_bytes().starts_with(b"VK_LAYER_")
         {
-            push_value(
-                &mut diagnostics,
-                (
-                    source_index,
-                    LayerManifestDiagnostic::NonConformingName {
-                        manifest_version: version,
-                        name: own_cow(name),
-                    },
-                ),
+            emit(
+                source_index,
+                &LayerManifestDiagnostic::NonConformingName {
+                    manifest_version: version,
+                    name,
+                },
             );
         }
-        push_value(&mut diagnostics, (source_index, diagnostic));
+        emit(source_index, &diagnostic);
     }
-    box_values(diagnostics)
+    unused_overrides
 }
 
-pub(crate) fn layer_manifest_version_text(path: &Path) -> Option<String> {
-    let bytes = platform::read_file(path)?;
-    let root = parse_json_value(&bytes)?;
-    let mut text = own_cow(diagnostic_text(root.get("file_format_version")?)?);
-    if let Some(end) = text.find('\0') {
-        text.truncate(end);
-    }
-    Some(text)
+fn unused_override_layer(layer: Value<'_>, executable: &Path) -> bool {
+    let layer_type = layer.get("type").and_then(Value::as_str);
+    let api_version = layer
+        .get("api_version")
+        .and_then(Value::as_str)
+        .and_then(|version| parse_api_version(Some(version)));
+    let has_library = layer.get("library_path").and_then(Value::as_str).is_some();
+    let has_components = layer.get("component_layers").is_some();
+    let valid_disable = layer
+        .get("disable_environment")
+        .and_then(Value::as_object)
+        .and_then(|environment| environment.iter().next())
+        .is_some_and(|(name, value)| !name.is_empty() && value.as_str().is_some());
+    layer.get("name").and_then(Value::as_str) == Some("VK_LAYER_LUNARG_override")
+        && matches!(layer_type, Some("INSTANCE" | "GLOBAL"))
+        && api_version.is_some_and(|version| vk::VK_API_VERSION_VARIANT(version) == 0)
+        && layer
+            .get("implementation_version")
+            .and_then(Value::as_str)
+            .is_some()
+        && layer.get("description").and_then(Value::as_str).is_some()
+        && has_library != has_components
+        && valid_disable
+        && layer
+            .get("app_keys")
+            .and_then(Value::as_array)
+            .is_some_and(|keys| {
+                !keys.iter().any(|key| {
+                    key.as_str()
+                        .is_some_and(|key| Path::new(cjson_string(key).as_ref()) == executable)
+                })
+            })
 }
 
-pub(crate) fn unused_override_layer_count(path: &Path, executable: &Path) -> usize {
-    let Some(bytes) = platform::read_file(path) else {
-        return 0;
-    };
-    let Some(root) = parse_json_value(&bytes) else {
-        return 0;
-    };
-    let layers = match root.get("layers").and_then(Value::as_array) {
-        Some(layers) => layers,
-        None => root.get("layer").map_or(&[][..], core::slice::from_ref),
-    };
-    layers
-        .iter()
-        .filter(|layer| {
-            let layer_type = layer.get("type").and_then(Value::as_str);
-            let api_version = layer
-                .get("api_version")
-                .and_then(Value::as_str)
-                .and_then(|version| parse_api_version(Some(version)));
-            let has_library = layer.get("library_path").and_then(Value::as_str).is_some();
-            let has_components = layer.get("component_layers").is_some();
-            let valid_disable = layer
-                .get("disable_environment")
-                .and_then(Value::as_object)
-                .and_then(|environment| environment.iter().next())
-                .is_some_and(|(name, value)| !name.is_empty() && value.as_str().is_some());
-            layer.get("name").and_then(Value::as_str) == Some("VK_LAYER_LUNARG_override")
-                && matches!(layer_type, Some("INSTANCE" | "GLOBAL"))
-                && api_version.is_some_and(|version| vk::VK_API_VERSION_VARIANT(version) == 0)
-                && layer
-                    .get("implementation_version")
-                    .and_then(Value::as_str)
-                    .is_some()
-                && layer.get("description").and_then(Value::as_str).is_some()
-                && has_library != has_components
-                && valid_disable
-                && layer
-                    .get("app_keys")
-                    .and_then(Value::as_array)
-                    .is_some_and(|keys| {
-                        !keys.iter().any(|key| {
-                            key.as_str().is_some_and(|key| {
-                                Path::new(cjson_string(key).as_ref()) == executable
-                            })
-                        })
-                    })
-        })
-        .count()
-}
-
-fn diagnose_layer(layer: &Value, implicit: bool, version: u32) -> Option<LayerManifestDiagnostic> {
-    let Some(layer) = layer.as_object() else {
+fn diagnose_raw_layer<'a>(
+    layer: Option<&RawLayer<'a>>,
+    implicit: bool,
+    version: u32,
+    version_text: &'a str,
+) -> Option<LayerManifestDiagnostic<'a>> {
+    let Some(layer) = layer else {
         return Some(LayerManifestDiagnostic::InvalidJson);
     };
     let missing = |name| {
         Some(LayerManifestDiagnostic::MissingRequiredValue {
-            manifest_version: version,
+            version: alloc::borrow::Cow::Borrowed(version_text),
             name,
         })
     };
-    for (name, capacity) in [
-        ("name", Some(vk::VK_MAX_EXTENSION_NAME_SIZE as usize)),
-        ("type", None),
-        ("api_version", None),
+    for (name, value, capacity) in [
+        (
+            LayerRequiredValue::Name,
+            layer.name(),
+            Some(vk::VK_MAX_EXTENSION_NAME_SIZE as usize),
+        ),
+        (LayerRequiredValue::Type, layer.layer_type(), None),
+        (LayerRequiredValue::ApiVersion, layer.api_version(), None),
     ] {
-        let value = layer.get(name).and_then(Value::as_bytes);
         let valid = value.is_some_and(|value| {
             capacity.is_none_or(|capacity| printed_bytes_fit(value, capacity))
         });
         if !valid {
             return missing(name);
         }
-        if name == "type"
-            && !matches!(
-                layer.get("type").and_then(Value::as_str),
-                Some("INSTANCE" | "GLOBAL")
-            )
+        if name == LayerRequiredValue::Type
+            && !matches!(layer.layer_type(), Some(b"INSTANCE" | b"GLOBAL"))
         {
             return None;
         }
     }
-    if layer
-        .get("api_version")
-        .and_then(Value::as_str)
-        .and_then(|version| parse_api_version(Some(version)))
+    if parse_api_version_bytes(layer.api_version())
         .is_some_and(|version| vk::VK_API_VERSION_VARIANT(version) != 0)
     {
         return None;
     }
-    if layer
-        .get("implementation_version")
-        .and_then(Value::as_bytes)
-        .is_none()
-    {
-        return missing("implementation_version");
+    if layer.implementation_version().is_none() {
+        return missing(LayerRequiredValue::ImplementationVersion);
     }
-    let description = layer.get("description").and_then(Value::as_bytes);
+    let description = layer.description();
     if description.is_none_or(|description| {
         !printed_bytes_fit(description, vk::VK_MAX_DESCRIPTION_SIZE as usize)
     }) {
-        return missing("description");
+        return missing(LayerRequiredValue::Description);
     }
-    let has_library = layer
-        .get("library_path")
-        .and_then(Value::as_bytes)
-        .is_some();
-    let has_components = layer.get("component_layers").is_some();
-    let name_text = layer
-        .get("name")
-        .and_then(diagnostic_text)
-        .unwrap_or_default();
-    let name = name_text.as_ref();
+    let has_library = layer.library_path().is_some();
+    let has_components = layer.value(11).is_some();
+    let name_text = layer.name().and_then(diagnostic_bytes).unwrap_or_default();
     if has_library == has_components {
         return Some(LayerManifestDiagnostic::InvalidLibraryAndComponents {
             manifest_version: version,
-            name: owned_string(name),
+            name: name_text,
             both_defined: has_library,
         });
     }
-    if implicit && layer.get("disable_environment").is_none() {
-        let name = owned_string(name);
+    if implicit && layer.value(10).is_none() {
         let meta_layer = layer
-            .get("component_layers")
+            .value(11)
             .and_then(Value::as_array)
             .is_some_and(|components| !components.is_empty());
         return Some(LayerManifestDiagnostic::MissingDisableEnvironment {
             manifest_version: version,
-            name,
+            name: name_text,
             meta_layer,
         });
     }
     if implicit {
-        let disable = layer.get("disable_environment").and_then(Value::as_object);
+        let disable = layer.value(10).and_then(Value::as_object);
         if disable.is_none_or(|disable| {
             disable
                 .iter()
@@ -276,7 +247,7 @@ fn diagnose_layer(layer: &Value, implicit: bool, version: u32) -> Option<LayerMa
         }) {
             return Some(LayerManifestDiagnostic::InvalidDisableEnvironment {
                 manifest_version: version,
-                name: owned_string(name),
+                name: name_text,
             });
         }
     }
@@ -285,7 +256,7 @@ fn diagnose_layer(layer: &Value, implicit: bool, version: u32) -> Option<LayerMa
 
 #[cfg(test)]
 mod tests {
-    use super::{LayerManifestDiagnostic, diagnose_layer};
+    use super::{LayerManifestDiagnostic, RawLayer, diagnose_raw_layer};
 
     #[test]
     fn malformed_layer_diagnostic_names_propagate_allocation_failure() {
@@ -300,7 +271,9 @@ mod tests {
             let layer = crate::json::parse(source.as_bytes()).unwrap();
             crate::allocation::fault::sweep_operation(|| {
                 crate::pending::with_json_error_scope(|| {
-                    let diagnostic = diagnose_layer(&layer, true, vk::VK_API_VERSION_1_0);
+                    let raw = RawLayer::from_value(layer.root());
+                    let diagnostic =
+                        diagnose_raw_layer(raw.as_ref(), true, vk::VK_API_VERSION_1_0, "1.0.0");
                     if crate::pending::json_allocation_failed() {
                         return vk::VkResult::ERROR_OUT_OF_HOST_MEMORY;
                     }
@@ -317,7 +290,7 @@ mod tests {
                         _ => panic!("unexpected diagnostic"),
                     };
                     assert_eq!(kind, expected);
-                    assert_eq!(name, "VK_LAYER_TEST_name");
+                    assert_eq!(&*name, "VK_LAYER_TEST_name");
                     vk::VkResult::SUCCESS
                 })
             });

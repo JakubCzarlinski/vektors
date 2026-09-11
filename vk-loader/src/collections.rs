@@ -9,7 +9,9 @@
 mod seeds;
 
 use alloc::vec::Vec;
-use core::{hash::BuildHasher, mem::MaybeUninit, sync::atomic::AtomicUsize};
+use core::{
+    ffi::c_void, hash::BuildHasher, mem::MaybeUninit, ptr::NonNull, sync::atomic::AtomicUsize,
+};
 
 pub(crate) use std::collections::hash_map::Entry as HashMapEntry;
 
@@ -41,6 +43,36 @@ impl BuildHasher for RandomState {
 }
 
 pub(crate) type HashMap<K, V> = std::collections::HashMap<K, V, RandomState>;
+
+/// Provenance-preserving common representation for thin owned/alias pointers.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) struct ErasedPointer(NonNull<c_void>);
+
+impl ErasedPointer {
+    /// # Safety
+    ///
+    /// The caller must ensure moving the erased owner between registry threads
+    /// is valid for `T`.
+    pub(crate) unsafe fn from_box<T>(value: Box<T>) -> Self {
+        Self(NonNull::from(Box::leak(value)).cast())
+    }
+
+    pub(crate) const fn as_ptr<T>(self) -> *mut T {
+        self.0.cast::<T>().as_ptr()
+    }
+
+    /// # Safety
+    ///
+    /// This pointer must be the unique owner produced by `from_box` for `T`.
+    pub(crate) unsafe fn into_box<T>(self) -> Box<T> {
+        unsafe { Box::from_raw(self.as_ptr()) }
+    }
+}
+
+// Construction requires a Send pointee; aliases are only used under registry
+// synchronization and the pointee's external synchronization rules.
+unsafe impl Send for ErasedPointer {}
+unsafe impl Sync for ErasedPointer {}
 
 /// Call-scoped uninitialized storage with a bounded stack fast path.
 pub(crate) struct ScratchArray<T, const STACK_CAPACITY: usize> {

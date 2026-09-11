@@ -2,16 +2,17 @@
 
 use super::manifest::{owned_byte_path, printed_bytes};
 use super::{
-    collect_optional_values, collect_values, owned_box_str, owned_c_string, owned_path,
-    parse_json_value, parse_layer_manifest, probe_instance_shrinking_reallocation,
-    shadow_json_allocations,
+    box_values, owned_box_str, owned_c_string, owned_path, parse_json_value, parse_layer_manifest,
+    probe_instance_shrinking_reallocation, shadow_json_allocations,
 };
 use crate::debug::diagnostics::{self, LossyBytes};
 use crate::json::Value;
 use crate::platform::LogFilter;
 use crate::sync::{GlobalMutex, MutexAcquire};
+use crate::{LoaderPathExt, layer};
 use crate::{pending, platform};
 use alloc::ffi::CString;
+use alloc::vec::Vec;
 use core::{cell::Cell, ffi::CStr, ops::DerefMut};
 #[cfg(unix)]
 use std::ffi::OsStr;
@@ -127,6 +128,16 @@ pub(crate) struct LoaderSettings {
 }
 
 impl LoaderSettings {
+    fn empty() -> Self {
+        Self {
+            settings_file_path: PathBuf::new(),
+            layer_configurations: None,
+            additional_drivers: Box::default(),
+            additional_drivers_use_exclusively: false,
+            device_configurations: None,
+        }
+    }
+
     pub(crate) fn settings_file_path(&self) -> &Path {
         &self.settings_file_path
     }
@@ -229,6 +240,17 @@ fn load_loader_settings(global: Option<bool>, force_diagnostics: bool) -> Option
         return None;
     };
     LAST_SETTINGS_FILE_FOUND.set(true);
+    parse_found_loader_settings(global, force_diagnostics, file_path, bytes)
+}
+
+#[cold]
+#[inline(never)]
+fn parse_found_loader_settings(
+    global: Option<bool>,
+    force_diagnostics: bool,
+    file_path: PathBuf,
+    bytes: Box<[u8]>,
+) -> Option<LoaderSettings> {
     let emit_diagnostics = if force_diagnostics {
         true
     } else if global == Some(true) {
@@ -246,7 +268,7 @@ fn load_loader_settings(global: Option<bool>, force_diagnostics: bool) -> Option
         return None;
     };
     if shadow_root.as_ref().is_some_and(|root| {
-        let (settings, _) = select_settings(root);
+        let (settings, _) = select_settings(root.root());
         settings
             .and_then(|settings| settings.get("stderr_log"))
             .and_then(Value::as_array)
@@ -256,42 +278,54 @@ fn load_loader_settings(global: Option<bool>, force_diagnostics: bool) -> Option
         pending::mark_json_allocation_failed();
         return None;
     }
-    // Callback-allocation emulation already parsed the document when active.
-    // Reuse it rather than allocating a second identical tree.
-    let root = shadow_root.or_else(|| parse_json_value(&bytes));
-    let selected = select_settings_document(root.as_ref());
-    if emit_diagnostics {
-        emit_settings_document_diagnostics(&selected, &display_path);
+    let (parsed_settings, settings_log_filters, settings_logging_active) = {
+        // Callback-allocation emulation already parsed the document when active.
+        // Reuse it rather than allocating a second identical tree.
+        let root = shadow_root.or_else(|| parse_json_value(&bytes));
+        let selected = select_settings_document(root.as_ref().map(crate::json::Document::root));
+        if emit_diagnostics {
+            emit_settings_document_diagnostics(&selected, &display_path);
+        }
+        let (settings, _) = selected.ok()?;
+        let settings = settings?;
+        let settings_log_filters =
+            settings
+                .get("stderr_log")
+                .and_then(Value::as_array)
+                .map_or(0, |filters| {
+                    filters.iter().fold(0, |mask, value| {
+                        let Some(name) = value.as_str() else {
+                            return mask;
+                        };
+                        if name.eq_ignore_ascii_case("all") {
+                            return u8::MAX;
+                        }
+                        platform::LogFilter::ALL
+                            .into_iter()
+                            .filter(|filter| filter.matches_name(name))
+                            .fold(mask, |mask, filter| mask | filter.bit())
+                    })
+                });
+        let settings_logging_active = settings_log_filters != 0;
+        platform::set_loader_settings_log_filter(
+            settings_logging_active.then_some(settings_log_filters),
+        );
+        (
+            parse_loader_settings(settings),
+            settings_log_filters,
+            settings_logging_active,
+        )
+    };
+    if pending::json_allocation_failed() {
+        return None;
     }
-    let (settings, _) = selected.ok()?;
-    let settings = settings?;
-    let settings_log_filters =
-        settings
-            .get("stderr_log")
-            .and_then(Value::as_array)
-            .map_or(0, |filters| {
-                filters.iter().fold(0, |mask, value| {
-                    let Some(name) = value.as_str() else {
-                        return mask;
-                    };
-                    if name.eq_ignore_ascii_case("all") {
-                        return u8::MAX;
-                    }
-                    platform::LogFilter::ALL
-                        .into_iter()
-                        .filter(|filter| filter.matches_name(name))
-                        .fold(mask, |mask, filter| mask | filter.bit())
-                })
-            });
-    let settings_logging_active = settings_log_filters != 0;
-    platform::set_loader_settings_log_filter(
-        settings_logging_active.then_some(settings_log_filters),
-    );
-    let mut parsed_settings = parse_loader_settings(settings)?;
-    let settings_active = parsed_settings.layer_configurations.is_some()
-        || settings_logging_active
-        || !parsed_settings.additional_drivers.is_empty()
-        || parsed_settings.device_configurations.is_some();
+    let parse_valid = parsed_settings.is_some();
+    let mut parsed_settings = parsed_settings.unwrap_or_else(LoaderSettings::empty);
+    let settings_active = parse_valid
+        && (parsed_settings.layer_configurations.is_some()
+            || settings_logging_active
+            || !parsed_settings.additional_drivers.is_empty()
+            || parsed_settings.device_configurations.is_some());
     if emit_diagnostics {
         emit_parsed_settings(
             &parsed_settings,
@@ -327,9 +361,9 @@ enum SettingsDocumentError {
     MissingSettings,
 }
 
-fn select_settings_document<'a>(
-    root: Option<&'a Value<'a>>,
-) -> Result<(Option<&'a Value<'a>>, bool), SettingsDocumentError> {
+fn select_settings_document(
+    root: Option<Value<'_>>,
+) -> Result<(Option<Value<'_>>, bool), SettingsDocumentError> {
     let root = root.ok_or(SettingsDocumentError::InvalidJson)?;
     if !root.is_object() {
         return Err(SettingsDocumentError::NotObject);
@@ -349,7 +383,7 @@ fn select_settings_document<'a>(
 
 #[cold]
 fn emit_settings_document_diagnostics(
-    selected: &Result<(Option<&Value>, bool), SettingsDocumentError>,
+    selected: &Result<(Option<Value>, bool), SettingsDocumentError>,
     display_path: &impl core::fmt::Display,
 ) {
     match selected {
@@ -427,21 +461,20 @@ fn diagnostic_cache_failure_preserves_settings_and_oom_classification() {
     assert_eq!(cache.as_deref(), Some(b"settings".as_slice()));
 }
 
-fn parse_device_configuration(value: &Value) -> Option<DeviceConfiguration> {
-    fn uuid(value: &Value) -> Option<[u8; vk::VK_UUID_SIZE as usize]> {
-        let values = value.as_array()?;
-        if values.len() != vk::VK_UUID_SIZE as usize {
-            return None;
-        }
+#[inline(never)]
+fn parse_device_configuration(value: Value) -> Option<DeviceConfiguration> {
+    fn uuid(value: Value) -> Option<[u8; vk::VK_UUID_SIZE as usize]> {
+        let mut values = value.as_array()?.iter();
         let mut uuid = [0; vk::VK_UUID_SIZE as usize];
-        for (destination, value) in uuid.iter_mut().zip(values) {
+        for destination in &mut uuid {
+            let value = values.next()?;
             let value = value.as_u64()?;
             if value > u64::from(u8::MAX) {
                 return None;
             }
             *destination = value as u8;
         }
-        Some(uuid)
+        values.next().is_none().then_some(uuid)
     }
 
     let driver_version = value.get("driverVersion")?.as_u64()?;
@@ -466,7 +499,7 @@ fn parse_device_configuration(value: &Value) -> Option<DeviceConfiguration> {
     })
 }
 
-pub(super) fn select_settings<'a>(root: &'a Value<'_>) -> (Option<&'a Value<'a>>, bool) {
+pub(super) fn select_settings(root: Value<'_>) -> (Option<Value<'_>>, bool) {
     if root.get("settings_array").is_none()
         && let Some(settings) = root.get("settings")
     {
@@ -741,7 +774,11 @@ fn emit_parsed_settings(
             );
         }
         if let Some(configurations) = &parsed_settings.layer_configurations {
-            emit_configured_manifest_diagnostics(configurations, global, filter_enabled);
+            emit_configured_manifest_diagnostics(
+                configurations,
+                global,
+                settings_logging_active.then_some(settings_log_filters),
+            );
         }
     }
 }
@@ -763,20 +800,20 @@ fn emit_layer_configurations(configurations: &[SettingsLayerConfiguration]) {
             );
             platform::write_loader_log(
                 platform::LogFilter::Debug,
-                format_args!("Path: {}", configuration.path.display()),
+                format_args!("Path: {}", configuration.path.loader_display()),
             );
             platform::write_stderr_fmt(format_args!(
                 "[Vulkan Loader] DEBUG:          Layer Type: {}\n",
-                if configuration.treat_as_implicit_manifest {
+                diagnostics::Text(if configuration.treat_as_implicit_manifest {
                     "Implicit"
                 } else {
                     "Explicit"
-                }
+                })
             ));
         }
         platform::write_stderr_fmt(format_args!(
             "[Vulkan Loader] DEBUG:          Control: {}\n",
-            configuration.control.as_str()
+            diagnostics::Text(configuration.control.as_str())
         ));
     }
 }
@@ -786,11 +823,11 @@ fn emit_additional_drivers(parsed_settings: &LoaderSettings) {
     platform::write_stderr("[Vulkan Loader] DEBUG:          ----\n");
     platform::write_stderr_fmt(format_args!(
         "[Vulkan Loader] DEBUG:          Use Additional Drivers Exclusively = {}\n",
-        if parsed_settings.additional_drivers_use_exclusively {
+        diagnostics::Text(if parsed_settings.additional_drivers_use_exclusively {
             "true"
         } else {
             "false"
-        }
+        })
     ));
     platform::write_stderr_fmt(format_args!(
         "[Vulkan Loader] DEBUG:          Additional Driver Configurations count = {}\n",
@@ -802,7 +839,7 @@ fn emit_additional_drivers(parsed_settings: &LoaderSettings) {
         ));
         platform::write_stderr_fmt(format_args!(
             "[Vulkan Loader] DEBUG:          Path: {}\n",
-            path.display()
+            path.loader_display()
         ));
     }
 }
@@ -832,12 +869,14 @@ fn emit_device_configurations(configurations: &[DeviceConfiguration]) {
         ));
         if let Some(name) = &configuration.device_name {
             platform::write_stderr_fmt(format_args!(
-                "[Vulkan Loader] DEBUG:          deviceName: {name}\n"
+                "[Vulkan Loader] DEBUG:          deviceName: {}\n",
+                diagnostics::Text(name)
             ));
         }
         if let Some(name) = &configuration.driver_name {
             platform::write_stderr_fmt(format_args!(
-                "[Vulkan Loader] DEBUG:          driverName: {name}\n"
+                "[Vulkan Loader] DEBUG:          driverName: {}\n",
+                diagnostics::Text(name)
             ));
         }
     }
@@ -847,8 +886,9 @@ fn emit_device_configurations(configurations: &[DeviceConfiguration]) {
 fn emit_configured_manifest_diagnostics(
     configurations: &[SettingsLayerConfiguration],
     global: Option<bool>,
-    filter_enabled: impl Fn(LogFilter) -> bool + Copy,
+    settings_log_filters: Option<u8>,
 ) {
+    let filter_enabled = |filter| configured_filter_enabled(settings_log_filters, filter);
     for configuration in configurations {
         if global.is_none()
             && platform::is_json_path(&configuration.path)
@@ -868,37 +908,27 @@ fn emit_configured_manifest_diagnostics(
                 &configuration.path,
                 configuration.treat_as_implicit_manifest,
             ) {
+                let sink = layer::MetaDiagnosticSink::Global;
                 if filter_enabled(platform::LogFilter::Info) {
-                    platform::write_stderr_fmt(format_args!(
-                        "[Vulkan Loader] INFO:           Found manifest file {} (file version {}.{}.{})\n",
-                        manifest.manifest_path.display(),
-                        vk::VK_API_VERSION_MAJOR(manifest.manifest_version),
-                        vk::VK_API_VERSION_MINOR(manifest.manifest_version),
-                        vk::VK_API_VERSION_PATCH(manifest.manifest_version),
-                    ));
+                    layer::emit_found_manifest_version(
+                        sink,
+                        &manifest.manifest_path,
+                        format_args!("{}", layer::ManifestVersion(manifest.manifest_version)),
+                    );
                 }
                 if filter_enabled(platform::LogFilter::Warning)
                     && !manifest.name.to_bytes().starts_with(b"VK_LAYER_")
                 {
-                    platform::write_stderr_fmt(format_args!(
-                        "[Vulkan Loader] WARNING:        Layer name {} does not conform to naming standard (Policy #LLP_LAYER_3)\n",
-                        LossyBytes(manifest.name.to_bytes())
-                    ));
+                    layer::emit_nonconforming_layer_name(sink, &manifest.name);
                 }
                 if manifest.is_meta_layer() && filter_enabled(platform::LogFilter::Layer) {
-                    platform::write_stderr_fmt(format_args!(
-                        "[Vulkan Loader] INFO | LAYER:   Encountered meta-layer \"{}\"\n",
-                        LossyBytes(manifest.name.to_bytes())
-                    ));
+                    layer::emit_meta_layer_encountered(sink, &manifest.name);
                 }
                 if !configuration.treat_as_implicit_manifest
                     && manifest.has_pre_instance_functions
                     && filter_enabled(platform::LogFilter::Warning)
                 {
-                    platform::write_stderr_fmt(format_args!(
-                        "[Vulkan Loader] WARNING:        Found pre_instance_functions section in explicit layer from \"{}\". This section is only valid in implicit layers. The section will be ignored\n",
-                        manifest.manifest_path.display()
-                    ));
+                    layer::emit_explicit_pre_instance_warning(sink, &manifest.manifest_path);
                 }
             }
         }
@@ -915,66 +945,31 @@ fn emit_configured_manifest_diagnostics(
         {
             platform::write_stderr_fmt(format_args!(
                 "[Vulkan Loader] ERROR:          loader_get_json: Failed to open JSON file {}\n",
-                configuration.path.display()
+                configuration.path.loader_display()
             ));
         }
     }
 }
 
-fn parse_loader_settings(settings: &Value) -> Option<LoaderSettings> {
-    let layer_configurations: Option<Box<[SettingsLayerConfiguration]>> = match settings
-        .get("layers")
-    {
-        Some(layers) => collect_optional_values(layers.as_array()?.iter().map(|layer| {
-            let control_value = printed_bytes(layer.get("control")?.as_bytes()?);
-            let control = LayerControl::parse(core::str::from_utf8(&control_value).unwrap_or(""));
-            if control == LayerControl::UnorderedLayerLocation {
-                return Some(SettingsLayerConfiguration {
-                    name: owned_c_string(b"")?,
-                    path: PathBuf::new(),
-                    control,
-                    treat_as_implicit_manifest: false,
-                });
-            }
-            let name = printed_bytes(layer.get("name")?.as_bytes()?);
-            let path = printed_bytes(layer.get("path")?.as_bytes()?);
-            Some(SettingsLayerConfiguration {
-                name: owned_c_string(&name)?,
-                path: owned_byte_path(&path)?,
-                control,
-                treat_as_implicit_manifest: layer
-                    .get("treat_as_implicit_manifest")
-                    .and_then(Value::as_bool)
-                    .unwrap_or(false),
-            })
-        })),
+#[cold]
+#[inline(never)]
+fn configured_filter_enabled(settings_log_filters: Option<u8>, filter: LogFilter) -> bool {
+    settings_log_filters.map_or_else(
+        || platform::loader_debug_filter_enabled(filter),
+        |filters| filters & filter.bit() != 0,
+    )
+}
+
+#[inline(never)]
+fn parse_loader_settings(settings: Value) -> Option<LoaderSettings> {
+    let layer_configurations = match settings.get("layers") {
+        Some(layers) => Some(parse_layer_configurations(layers)?),
         None => None,
     };
-    let additional_drivers = settings
-        .get("additional_drivers")
-        .and_then(Value::as_array)
-        .and_then(|drivers| {
-            collect_optional_values(drivers.iter().map(|driver| {
-                driver
-                    .as_object()?
-                    .get("path")?
-                    .as_bytes()
-                    .map(printed_bytes)
-                    .and_then(|path| owned_byte_path(&path))
-            }))
-        })
-        .unwrap_or_default();
-    let device_configurations: Option<Box<[DeviceConfiguration]>> =
-        settings.get("device_configurations").map(|configurations| {
-            collect_values(
-                configurations
-                    .as_array()
-                    .into_iter()
-                    .flatten()
-                    .filter_map(parse_device_configuration),
-            )
-            .unwrap_or_default()
-        });
+    let additional_drivers = parse_additional_drivers(settings.get("additional_drivers"));
+    let device_configurations = settings
+        .get("device_configurations")
+        .map(parse_device_configurations);
     if pending::json_allocation_failed() {
         return None;
     }
@@ -989,4 +984,133 @@ fn parse_loader_settings(settings: &Value) -> Option<LoaderSettings> {
         device_configurations,
     };
     Some(parsed_settings)
+}
+
+fn reserve_json_values<T>(values: &mut Vec<T>, len: usize) -> bool {
+    if values.try_reserve_exact(len).is_ok() {
+        true
+    } else {
+        pending::mark_json_allocation_failed();
+        false
+    }
+}
+
+#[inline(never)]
+fn parse_layer_configurations(value: Value) -> Option<Box<[SettingsLayerConfiguration]>> {
+    let layers = value.as_array()?;
+    super::collect_exact_values(
+        layers.len(),
+        layers.into_iter().map(|layer| {
+            let control_value = printed_bytes(layer.get("control")?.as_bytes()?);
+            let control = LayerControl::parse(core::str::from_utf8(&control_value).unwrap_or(""));
+            let configuration = if control == LayerControl::UnorderedLayerLocation {
+                SettingsLayerConfiguration {
+                    name: owned_c_string(b"")?,
+                    path: PathBuf::new(),
+                    control,
+                    treat_as_implicit_manifest: false,
+                }
+            } else {
+                let name = printed_bytes(layer.get("name")?.as_bytes()?);
+                let path = printed_bytes(layer.get("path")?.as_bytes()?);
+                SettingsLayerConfiguration {
+                    name: owned_c_string(&name)?,
+                    path: owned_byte_path(&path)?,
+                    control,
+                    treat_as_implicit_manifest: layer
+                        .get("treat_as_implicit_manifest")
+                        .and_then(Value::as_bool)
+                        .unwrap_or(false),
+                }
+            };
+            Some(configuration)
+        }),
+    )
+}
+
+#[inline(never)]
+fn parse_additional_drivers(value: Option<Value>) -> Box<[PathBuf]> {
+    let Some(drivers) = value.and_then(Value::as_array) else {
+        return Box::default();
+    };
+    for driver in drivers {
+        if driver
+            .as_object()
+            .and_then(|driver| driver.get("path"))
+            .and_then(Value::as_bytes)
+            .is_none()
+        {
+            return Box::default();
+        }
+    }
+    super::collect_exact_values(
+        drivers.len(),
+        drivers.into_iter().map(|driver| {
+            let path = driver
+                .get("path")
+                .and_then(Value::as_bytes)
+                .unwrap_or_default();
+            owned_byte_path(&printed_bytes(path))
+        }),
+    )
+    .unwrap_or_default()
+}
+
+#[inline(never)]
+fn parse_device_configurations(value: Value) -> Box<[DeviceConfiguration]> {
+    let Some(values) = value.as_array() else {
+        return Box::default();
+    };
+    let mut configurations = Vec::new();
+    if !reserve_json_values(&mut configurations, values.len()) {
+        return Box::default();
+    }
+    for value in values {
+        if let Some(configuration) = parse_device_configuration(value) {
+            configurations.push(configuration);
+        }
+    }
+    box_values(configurations)
+}
+
+#[cfg(test)]
+#[test]
+fn settings_arrays_propagate_every_allocation_failure() {
+    let source = br#"{
+        "settings": {
+            "layers": [
+                {"name":"VK_LAYER_test","path":"layer.json","control":"on"},
+                {"control":"unordered_layer_location"}
+            ],
+            "additional_drivers": [
+                {"path":"driver-a.json"},
+                {"path":"driver-b.json"}
+            ],
+            "device_configurations": [{
+                "deviceUUID":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+                "driverUUID":[15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0],
+                "driverVersion":1,
+                "deviceName":"device",
+                "driverName":"driver"
+            }]
+        }
+    }"#;
+    crate::allocation::fault::sweep_operation(|| {
+        pending::with_json_error_scope(|| {
+            let root = parse_json_value(source);
+            let parsed = root
+                .as_ref()
+                .and_then(|root| root.root().get("settings"))
+                .and_then(parse_loader_settings);
+            if pending::json_allocation_failed() {
+                assert!(parsed.is_none());
+                return vk::VkResult::ERROR_OUT_OF_HOST_MEMORY;
+            }
+            let parsed = parsed.unwrap();
+            assert_eq!(parsed.layer_configurations.as_deref().unwrap().len(), 2);
+            assert_eq!(parsed.additional_drivers.len(), 2);
+            assert_eq!(parsed.device_configurations.as_deref().unwrap().len(), 1);
+            vk::VkResult::SUCCESS
+        })
+    });
 }

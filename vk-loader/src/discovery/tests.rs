@@ -17,7 +17,7 @@ fn manifest_c_strings_preserve_non_utf8_bytes_and_rollback_on_oom() {
             let Some(value) = parse_json_value(source) else {
                 return vk::VkResult::SUCCESS;
             };
-            let raw = &RawLayer::from_value(&value).unwrap();
+            let raw = &RawLayer::from_value(value.root()).unwrap();
             let layer = parse_raw_layer(
                 Path::new("layer.json"),
                 raw,
@@ -226,7 +226,7 @@ fn nested_manifest_construction_propagates_every_allocation_failure() {
             let parsed = parse_json_value(bytes).and_then(|root| {
                 parse_raw_layer(
                     Path::new("/manifest/layer.json"),
-                    &RawLayer::from_value(&root)?,
+                    &RawLayer::from_value(root.root())?,
                     0,
                     true,
                     true,
@@ -296,8 +296,7 @@ fn borrowed_layer_extension_array_preserves_entries() {
         }
     ]"#;
     let value = crate::json::parse(json.as_bytes()).unwrap();
-    let raw = &value;
-    let extensions = parse_raw_layer_extensions(Some(raw), false);
+    let extensions = parse_raw_layer_extensions(Some(value.root()), false);
     assert_eq!(extensions.len(), 1);
     assert_eq!(extensions[0].name.as_c_str(), c"VK_EXT_debug_utils");
     assert_eq!(extensions[0].spec_version, 1);
@@ -314,7 +313,7 @@ fn borrowed_layer_parser_rejects_missing_api_version() {
         "description": "invalid"
     }"#;
     let value = crate::json::parse(json.as_bytes()).unwrap();
-    let raw = &RawLayer::from_value(&value).unwrap();
+    let raw = &RawLayer::from_value(value.root()).unwrap();
     assert!(
         parse_raw_layer(
             Path::new("layer.json"),
@@ -339,7 +338,7 @@ fn layer_keys_are_case_insensitive_like_upstream_cjson() {
         "DESCRIPTION": "valid"
     }"#;
     let value = crate::json::parse(json.as_bytes()).unwrap();
-    let raw = &RawLayer::from_value(&value).unwrap();
+    let raw = &RawLayer::from_value(value.root()).unwrap();
     let layer = parse_raw_layer(
         Path::new("layer.json"),
         raw,
@@ -363,7 +362,7 @@ fn device_layer_manifest_is_rejected_like_upstream() {
         "description": "deprecated"
     }"#;
     let value = crate::json::parse(json.as_bytes()).unwrap();
-    let raw = &RawLayer::from_value(&value).unwrap();
+    let raw = &RawLayer::from_value(value.root()).unwrap();
     assert!(
         parse_raw_layer(
             Path::new("layer.json"),
@@ -397,7 +396,7 @@ fn layer_source_and_app_keys_presence_survive_parsing() {
             let value = crate::json::parse(json.as_bytes()).unwrap();
             let layer = parse_raw_layer(
                 Path::new("layer.json"),
-                &RawLayer::from_value(&value).unwrap(),
+                &RawLayer::from_value(value.root()).unwrap(),
                 0,
                 false,
                 false,
@@ -425,7 +424,7 @@ fn component_layers_presence_conflicts_with_library_path() {
         "description": "invalid"
     }"#;
     let value = crate::json::parse(json.as_bytes()).unwrap();
-    let raw = &RawLayer::from_value(&value).unwrap();
+    let raw = &RawLayer::from_value(value.root()).unwrap();
     assert!(
         parse_raw_layer(
             Path::new("layer.json"),
@@ -453,7 +452,7 @@ fn wrong_typed_optional_objects_do_not_reject_explicit_layer() {
         "instance_extensions": false
     }"#;
     let value = crate::json::parse(json.as_bytes()).unwrap();
-    let raw = &RawLayer::from_value(&value).unwrap();
+    let raw = &RawLayer::from_value(value.root()).unwrap();
     let layer = parse_raw_layer(
         Path::new("layer.json"),
         raw,
@@ -528,7 +527,7 @@ fn settings_selection_stops_at_a_non_object_after_the_global_entry() {
         }"#,
     )
     .unwrap();
-    let (settings, invalid_element) = select_settings(&root);
+    let (settings, invalid_element) = select_settings(root.root());
 
     assert!(invalid_element);
     assert_eq!(
@@ -536,7 +535,7 @@ fn settings_selection_stops_at_a_non_object_after_the_global_entry() {
             .unwrap()
             .get("stderr_log")
             .and_then(Value::as_array)
-            .and_then(|values| values.first())
+            .and_then(crate::json::Array::first)
             .and_then(Value::as_str),
         Some("all")
     );

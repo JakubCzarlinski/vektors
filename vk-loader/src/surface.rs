@@ -27,9 +27,9 @@ use crate::{
 const STACK_SURFACE_FORMATS: usize = 32;
 const STACK_SWAPCHAIN_CREATE_INFOS: usize = 4;
 
-type NativeSurfaceCreate<T> = unsafe extern "system" fn(
+type NativeSurfaceCreate = unsafe extern "system" fn(
     VkInstance,
-    *const T,
+    *const c_void,
     *const VkAllocationCallbacks<'_>,
     *mut VkSurfaceKHR,
 ) -> VkResult;
@@ -64,8 +64,9 @@ struct OwnedCreateInfo {
 }
 
 impl OwnedCreateInfo {
-    unsafe fn copy_from<T: Copy>(
-        source: *const T,
+    unsafe fn copy_from(
+        source: *const c_void,
+        root_size: usize,
         expected_structure_type: VkStructureType,
         callbacks: Option<&VkAllocationCallbacks<'static>>,
     ) -> Result<Self, VkResult> {
@@ -74,10 +75,6 @@ impl OwnedCreateInfo {
         fn aligned_size(size: usize) -> Option<usize> {
             size.checked_add(CHAIN_ALIGNMENT - 1)
                 .map(|size| size & !(CHAIN_ALIGNMENT - 1))
-        }
-
-        const {
-            assert!(core::mem::align_of::<T>() <= CHAIN_ALIGNMENT);
         }
 
         if source.is_null() {
@@ -91,8 +88,7 @@ impl OwnedCreateInfo {
         if root.sType != expected_structure_type {
             return Err(VkResult::ERROR_EXTENSION_NOT_PRESENT);
         }
-        let mut total =
-            aligned_size(core::mem::size_of::<T>()).ok_or(VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+        let mut total = aligned_size(root_size).ok_or(VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
         let mut next = root.pNext;
         while !next.is_null() {
             let header = unsafe { &*next };
@@ -114,7 +110,7 @@ impl OwnedCreateInfo {
         while !source_node.is_null() {
             let header = unsafe { &*source_node };
             let size = if first {
-                core::mem::size_of::<T>()
+                root_size
             } else {
                 // SAFETY: The immutable Vulkan input chain was validated by
                 // the sizing pass immediately above.
@@ -160,19 +156,29 @@ pub(crate) struct DeferredSurface {
     native_surfaces: ObjectMutex<LoaderArray<VkSurfaceKHR>>,
 }
 
+pub(crate) struct SurfaceCreateDescriptor {
+    pub(crate) root_size: usize,
+    pub(crate) expected_structure_type: VkStructureType,
+    pub(crate) command_name: &'static CStr,
+    pub(crate) extension_id: u16,
+}
+
 impl DeferredSurface {
-    unsafe fn new<T: Copy>(
-        create_info: *const T,
-        expected_structure_type: VkStructureType,
+    unsafe fn new(
+        create_info: *const c_void,
         allocator: *const VkAllocationCallbacks<'_>,
         instance_allocator: Option<&VkAllocationCallbacks<'static>>,
-        command_name: &'static CStr,
-        extension_id: u16,
         icd_count: usize,
+        descriptor: &SurfaceCreateDescriptor,
     ) -> Result<LoaderBox<Self>, VkResult> {
         // SAFETY: Propagates the Vulkan command's readable-pointer contract.
         let create_info = unsafe {
-            OwnedCreateInfo::copy_from(create_info, expected_structure_type, instance_allocator)
+            OwnedCreateInfo::copy_from(
+                create_info,
+                descriptor.root_size,
+                descriptor.expected_structure_type,
+                instance_allocator,
+            )
         }?;
         let allocator = if allocator.is_null() {
             None
@@ -191,18 +197,24 @@ impl DeferredSurface {
             VkSurfaceKHR::NULL,
             vk::VkSystemAllocationScope::INSTANCE,
         )?;
-        LoaderBox::new(
+        let native_surfaces = ObjectMutex::try_new(native_surfaces)?;
+        let mut surface = LoaderBox::<Self>::try_new_uninit(
             instance_allocator,
-            Self {
-                command_name,
-                extension_id,
-                create_info,
-                create_native: create_native_surface::<T>,
-                allocator,
-                native_surfaces: ObjectMutex::try_new(native_surfaces)?,
-            },
             vk::VkSystemAllocationScope::OBJECT,
-        )
+        )?;
+        let pointer = surface.as_mut_ptr();
+        // SAFETY: Allocation succeeded and every field is written exactly
+        // once; no fallible operation can interrupt initialization.
+        unsafe {
+            core::ptr::addr_of_mut!((*pointer).command_name).write(descriptor.command_name);
+            core::ptr::addr_of_mut!((*pointer).extension_id).write(descriptor.extension_id);
+            core::ptr::addr_of_mut!((*pointer).create_info).write(create_info);
+            core::ptr::addr_of_mut!((*pointer).create_native).write(create_native_surface);
+            core::ptr::addr_of_mut!((*pointer).allocator).write(allocator);
+            core::ptr::addr_of_mut!((*pointer).native_surfaces).write(native_surfaces);
+        }
+        // SAFETY: Every `DeferredSurface` field was initialized above.
+        Ok(unsafe { surface.assume_init() })
     }
 
     fn allocator(&self) -> *const VkAllocationCallbacks<'_> {
@@ -311,6 +323,21 @@ impl SurfaceState {
 }
 
 #[cfg(any(target_os = "android", target_os = "ios"))]
+fn allocate_passthrough_surface(
+    instance_allocator: Option<&VkAllocationCallbacks<'static>>,
+    surface: IcdPassthroughSurface,
+) -> Result<LoaderBox<IcdPassthroughSurface>, VkResult> {
+    let mut storage = LoaderBox::<IcdPassthroughSurface>::try_new_uninit(
+        instance_allocator,
+        vk::VkSystemAllocationScope::OBJECT,
+    )?;
+    // SAFETY: The fresh allocation is large and aligned enough for this value.
+    unsafe { storage.as_mut_ptr().write(surface) };
+    // SAFETY: The preceding write initialized the complete object.
+    Ok(unsafe { storage.assume_init() })
+}
+
+#[cfg(any(target_os = "android", target_os = "ios"))]
 unsafe fn create_passthrough_surface<T>(
     create_info: *const T,
     expected_structure_type: VkStructureType,
@@ -327,13 +354,12 @@ unsafe fn create_passthrough_surface<T>(
         if create_info.sType != expected_structure_type {
             return Err(VkResult::ERROR_EXTENSION_NOT_PRESENT);
         }
-        return LoaderBox::new(
+        return allocate_passthrough_surface(
             instance_allocator,
             IcdPassthroughSurface {
                 platform: ICD_WSI_PLATFORM_ANDROID,
                 object: create_info.window.cast_const().cast(),
             },
-            vk::VkSystemAllocationScope::OBJECT,
         )
         .map(SurfaceState::Passthrough)
         .map(Some);
@@ -350,13 +376,12 @@ unsafe fn create_passthrough_surface<T>(
         if create_info.sType != expected_structure_type {
             return Err(VkResult::ERROR_EXTENSION_NOT_PRESENT);
         }
-        return LoaderBox::new(
+        return allocate_passthrough_surface(
             instance_allocator,
             IcdPassthroughSurface {
                 platform: ICD_WSI_PLATFORM_IOS,
                 object: create_info.pView,
             },
-            vk::VkSystemAllocationScope::OBJECT,
         )
         .map(SurfaceState::Passthrough)
         .map(Some);
@@ -365,7 +390,7 @@ unsafe fn create_passthrough_surface<T>(
     Ok(None)
 }
 
-unsafe fn create_native_surface<T: Copy>(
+unsafe fn create_native_surface(
     surface: &DeferredSurface,
     icd: &IcdInstance,
 ) -> Result<VkSurfaceKHR, VkResult> {
@@ -373,7 +398,7 @@ unsafe fn create_native_surface<T: Copy>(
         return Err(VkResult::ERROR_EXTENSION_NOT_PRESENT);
     }
     // SAFETY: The command name and instance are retained by the same ICD.
-    let create: Option<NativeSurfaceCreate<T>> =
+    let create: Option<NativeSurfaceCreate> =
         unsafe { icd.icd.resolve(icd.handle, surface.command_name) };
     let Some(create) = create else {
         return Err(VkResult::ERROR_EXTENSION_NOT_PRESENT);
@@ -384,7 +409,7 @@ unsafe fn create_native_surface<T: Copy>(
     let result = unsafe {
         create(
             icd.handle,
-            surface.create_info.as_ptr().cast::<T>(),
+            surface.create_info.as_ptr(),
             surface.allocator(),
             &raw mut native,
         )
@@ -409,14 +434,13 @@ fn surface_key(surface: VkSurfaceKHR) -> Option<usize> {
 ///
 /// All handles and pointers must satisfy the corresponding Vulkan platform
 /// surface creation command's contract.
-pub(crate) unsafe fn create_loader_surface<T: Copy>(
+#[inline(never)]
+pub(crate) unsafe fn create_loader_surface(
     instance: VkInstance,
-    create_info: *const T,
-    expected_structure_type: VkStructureType,
+    create_info: *const c_void,
     allocator: *const VkAllocationCallbacks<'_>,
     surface: *mut VkSurfaceKHR,
-    command_name: &'static CStr,
-    extension_id: u16,
+    descriptor: &SurfaceCreateDescriptor,
 ) -> VkResult {
     if surface.is_null() {
         return VkResult::ERROR_INITIALIZATION_FAILED;
@@ -425,15 +449,18 @@ pub(crate) unsafe fn create_loader_surface<T: Copy>(
     let Some(instance) = (unsafe { LoaderInstance::from_handle(instance) }) else {
         return VkResult::ERROR_INITIALIZATION_FAILED;
     };
-    if !instance.enabled_extensions.contains(extension_id) {
+    if !instance
+        .enabled_extensions
+        .contains(descriptor.extension_id)
+    {
         platform::write_loader_log(
             platform::LogFilter::Error,
             format_args!(
                 "{} extension not enabled. {} not executed!",
                 crate::debug::diagnostics::LossyBytes(
-                    crate::extension_name(extension_id).to_bytes()
+                    crate::extension_name(descriptor.extension_id).to_bytes()
                 ),
-                crate::debug::diagnostics::LossyBytes(command_name.to_bytes()),
+                crate::debug::diagnostics::LossyBytes(descriptor.command_name.to_bytes()),
             ),
         );
         return VkResult::ERROR_EXTENSION_NOT_PRESENT;
@@ -442,7 +469,11 @@ pub(crate) unsafe fn create_loader_surface<T: Copy>(
     // invoke an ICD surface-creation command.
     #[cfg(any(target_os = "android", target_os = "ios"))]
     let passthrough = unsafe {
-        create_passthrough_surface(create_info, expected_structure_type, instance.allocator())
+        create_passthrough_surface(
+            create_info,
+            descriptor.expected_structure_type,
+            instance.allocator(),
+        )
     };
     #[cfg(not(any(target_os = "android", target_os = "ios")))]
     let passthrough = Ok(None);
@@ -453,12 +484,10 @@ pub(crate) unsafe fn create_loader_surface<T: Copy>(
             match unsafe {
                 DeferredSurface::new(
                     create_info,
-                    expected_structure_type,
                     allocator,
                     instance.allocator(),
-                    command_name,
-                    extension_id,
                     instance.icds.len(),
+                    descriptor,
                 )
             } {
                 Ok(surface) => SurfaceState::Deferred(surface),
@@ -1125,7 +1154,8 @@ mod tests {
         };
         let owned = unsafe {
             OwnedCreateInfo::copy_from(
-                &raw const root,
+                (&raw const root).cast(),
+                core::mem::size_of_val(&root),
                 VkStructureType::DISPLAY_SURFACE_CREATE_INFO_KHR,
                 None,
             )
@@ -1160,7 +1190,8 @@ mod tests {
         assert!(matches!(
             unsafe {
                 OwnedCreateInfo::copy_from(
-                    &raw const root,
+                    (&raw const root).cast(),
+                    core::mem::size_of_val(&root),
                     VkStructureType::HEADLESS_SURFACE_CREATE_INFO_EXT,
                     None,
                 )
@@ -1178,7 +1209,8 @@ mod tests {
         assert!(matches!(
             unsafe {
                 OwnedCreateInfo::copy_from(
-                    &raw const root,
+                    (&raw const root).cast(),
+                    core::mem::size_of_val(&root),
                     VkStructureType::HEADLESS_SURFACE_CREATE_INFO_EXT,
                     None,
                 )

@@ -4,6 +4,7 @@
 //! A Rust function cannot express the same contract because the command's
 //! integer, SIMD, and stack arguments are intentionally unknown.
 
+use crate::LoaderPathExt;
 use alloc::ffi::CString;
 #[cfg(any(
     target_arch = "aarch64",
@@ -246,7 +247,7 @@ pub(crate) fn physical_device_proc_addr(
                 .icd
                 .library_path()
                 .unwrap_or_else(|| Path::new("<direct_driver>"))
-                .display();
+                .loader_display();
             emit_unknown_debug(format_args!(
                 "loader_phys_dev_ext_gpa: Driver {path} returned ptr {:p} for {}",
                 function_address(terminator_function(index)),

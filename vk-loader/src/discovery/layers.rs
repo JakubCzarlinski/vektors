@@ -355,7 +355,7 @@ fn discover_layers_in_roots_with_files(
             extend_values(&mut layers, parsed);
             if needs_diagnostics {
                 if callbacks.is_some() && !pending::json_allocation_failed() {
-                    layer::emit_global_layer_manifest_diagnostic(&path, implicit, true, None);
+                    layer::emit_global_layer_manifest_diagnostic(&path, implicit, true);
                 }
                 if (reparse_for_diagnostics
                     || callbacks.is_none()

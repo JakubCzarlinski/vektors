@@ -1,30 +1,10 @@
 //! Loader-owned dispatchable instance state.
 
-use alloc::{ffi::CString, vec::Vec};
-use core::{
-    ffi::c_void,
-    mem::MaybeUninit,
-    ptr::NonNull,
-    sync::atomic::{AtomicBool, Ordering as AtomicOrdering},
-};
-
-use crate::{
-    ScannedIcdRecord,
-    debug::messenger,
-    platform,
-    sync::{GlobalLazyMutex, MutexInit, ObjectMutex},
-};
-use vk::{
-    VK_API_VERSION_1_0, VkAllocationCallbacks, VkDebugReportFlagsEXT, VkDebugReportObjectTypeEXT,
-    VkDebugUtilsMessageSeverityFlagBitsEXT, VkDebugUtilsMessageTypeFlagBitsEXT,
-    VkDebugUtilsMessageTypeFlagsEXT, VkDebugUtilsMessengerCallbackDataEXT,
-    VkDebugUtilsObjectNameInfoEXT, VkInstance, VkObjectType, VkPhysicalDevice, VkResult,
-};
-
+use crate::LoaderPathExt;
 use crate::{
     ExtensionSet, LayerInstanceDispatchTable,
     allocation::try_box_uninit,
-    collections::HashMap,
+    collections::{ErasedPointer, HashMap},
     debug::messenger::{DebugCallback, DebugMessengerState},
     discovery::DeviceConfiguration,
     generated::EmulatedCommand,
@@ -33,6 +13,25 @@ use crate::{
     surface::SurfaceState,
     unknown::{UnknownDeviceState, UnknownPhysicalDeviceState},
 };
+use crate::{
+    ScannedIcdRecord,
+    debug::messenger,
+    platform,
+    sync::{GlobalLazyMutex, MutexInit, ObjectMutex},
+};
+use alloc::{ffi::CString, vec::Vec};
+use core::{
+    ffi::c_void,
+    mem::MaybeUninit,
+    ptr::NonNull,
+    sync::atomic::{AtomicBool, Ordering as AtomicOrdering},
+};
+use vk::{
+    VK_API_VERSION_1_0, VkAllocationCallbacks, VkDebugReportFlagsEXT, VkDebugReportObjectTypeEXT,
+    VkDebugUtilsMessageSeverityFlagBitsEXT, VkDebugUtilsMessageTypeFlagBitsEXT,
+    VkDebugUtilsMessageTypeFlagsEXT, VkDebugUtilsMessengerCallbackDataEXT,
+    VkDebugUtilsObjectNameInfoEXT, VkInstance, VkObjectType, VkPhysicalDevice, VkResult,
+};
 
 const INSTANCE_MAGIC: u64 = 0x10AD_ED01_0110_ADED;
 const PHYSICAL_DEVICE_MAGIC: u64 = 0x10AD_ED02_0210_ADED;
@@ -40,8 +39,18 @@ const PHYSICAL_DEVICE_TRAMPOLINE_MAGIC: u64 = 0x10AD_ED03_0310_ADED;
 
 #[derive(Default)]
 struct InstanceRegistry {
-    owned: HashMap<usize, usize>,
+    owned: HashMap<usize, ErasedPointer>,
     reservations: usize,
+}
+
+impl InstanceRegistry {
+    #[cold]
+    #[inline(never)]
+    fn reset_if_unused(&mut self) {
+        if self.owned.is_empty() && self.reservations == 0 {
+            self.owned = HashMap::default();
+        }
+    }
 }
 
 static INSTANCES: GlobalLazyMutex<InstanceRegistry> =
@@ -71,6 +80,7 @@ struct InstanceRegistrationReservation {
 }
 
 impl InstanceRegistrationReservation {
+    #[inline(never)]
     fn new() -> Result<Self, VkResult> {
         let mut registry = INSTANCES.try_lock()?;
         let additional = registry
@@ -95,9 +105,7 @@ impl Drop for InstanceRegistrationReservation {
             let mut registry = InstanceRegistryReady::lock(&self.ready);
             debug_assert!(registry.reservations != 0);
             registry.reservations -= 1;
-            if registry.owned.is_empty() && registry.reservations == 0 {
-                registry.owned = HashMap::default();
-            }
+            registry.reset_if_unused();
         }
     }
 }
@@ -138,8 +146,17 @@ impl Drop for LoaderInstance {
 #[derive(Default)]
 pub(crate) struct PhysicalDeviceState {
     pub(crate) owned: HashMap<(usize, usize), Box<LoaderPhysicalDevice>>,
-    pub(crate) trampolines: HashMap<usize, Box<LoaderPhysicalDeviceTrampoline>>,
+    pub(crate) trampolines: HashMap<usize, ErasedPointer>,
     pub(crate) active: Vec<VkPhysicalDevice>,
+}
+
+impl Drop for PhysicalDeviceState {
+    fn drop(&mut self) {
+        for pointer in self.trampolines.values().copied() {
+            // SAFETY: `trampolines` contains one raw Box owner per entry.
+            drop(unsafe { pointer.into_box::<LoaderPhysicalDeviceTrampoline>() });
+        }
+    }
 }
 
 #[repr(C)]
@@ -212,31 +229,37 @@ impl LoaderInstance {
                 return Err(result);
             }
         };
-        let mut instance = Box::write(
-            storage,
-            Self {
-                dispatch,
-                magic: INSTANCE_MAGIC,
-                chain_instance: VkInstance::NULL,
-                api_version: api_version.max(VK_API_VERSION_1_0),
-                enabled_extensions,
-                icds: Vec::new(),
-                layers: active_layers.loaded,
-                physical_devices,
-                unknown_physical_devices,
-                unknown_devices,
-                dispatch_table,
-                pending_icds: Some(scanned_icds),
-                active_layer_properties: active_layers.reported,
-                enabled_layer_names: active_layers.requested,
-                device_configurations,
-                allocator,
-                surfaces,
-                debug_messengers,
-                has_debug_callbacks: AtomicBool::new(false),
-                registration,
-            },
-        );
+        let mut storage = storage;
+        let instance = storage.as_mut_ptr();
+        // SAFETY: Every field is written exactly once without reading the
+        // allocation. No fallible operation remains between these writes and
+        // assume_init, so ownership transfers cannot be interrupted.
+        unsafe {
+            core::ptr::addr_of_mut!((*instance).dispatch).write(dispatch);
+            core::ptr::addr_of_mut!((*instance).magic).write(INSTANCE_MAGIC);
+            core::ptr::addr_of_mut!((*instance).chain_instance).write(VkInstance::NULL);
+            core::ptr::addr_of_mut!((*instance).api_version)
+                .write(api_version.max(VK_API_VERSION_1_0));
+            core::ptr::addr_of_mut!((*instance).enabled_extensions).write(enabled_extensions);
+            core::ptr::addr_of_mut!((*instance).icds).write(Vec::new());
+            core::ptr::addr_of_mut!((*instance).layers).write(active_layers.loaded);
+            core::ptr::addr_of_mut!((*instance).physical_devices).write(physical_devices);
+            core::ptr::addr_of_mut!((*instance).unknown_physical_devices)
+                .write(unknown_physical_devices);
+            core::ptr::addr_of_mut!((*instance).unknown_devices).write(unknown_devices);
+            core::ptr::addr_of_mut!((*instance).dispatch_table).write(dispatch_table);
+            core::ptr::addr_of_mut!((*instance).pending_icds).write(Some(scanned_icds));
+            core::ptr::addr_of_mut!((*instance).active_layer_properties)
+                .write(active_layers.reported);
+            core::ptr::addr_of_mut!((*instance).enabled_layer_names).write(active_layers.requested);
+            core::ptr::addr_of_mut!((*instance).device_configurations).write(device_configurations);
+            core::ptr::addr_of_mut!((*instance).allocator).write(allocator);
+            core::ptr::addr_of_mut!((*instance).surfaces).write(surfaces);
+            core::ptr::addr_of_mut!((*instance).debug_messengers).write(debug_messengers);
+            core::ptr::addr_of_mut!((*instance).has_debug_callbacks).write(AtomicBool::new(false));
+            core::ptr::addr_of_mut!((*instance).registration).write(registration);
+        }
+        let mut instance = unsafe { storage.assume_init() };
         let handle = instance.handle();
         instance.chain_instance = handle;
         if has_layers {
@@ -271,7 +294,9 @@ impl LoaderInstance {
         debug_assert!(registry.reservations != 0);
         registry.reservations -= 1;
         instance.registration.active = false;
-        let pointer = Box::into_raw(instance) as usize;
+        // SAFETY: Registration serializes ownership, and the instance remains
+        // valid until it is removed from this registry.
+        let pointer = unsafe { ErasedPointer::from_box(instance) };
         let previous = registry.owned.insert(key, pointer);
         debug_assert!(previous.is_none());
         let _ = previous;
@@ -361,7 +386,7 @@ impl LoaderInstance {
             .owned
             .get(&(dispatch as usize))?;
         // SAFETY: Registration retains this boxed allocation until destruction.
-        let instance = unsafe { &*(pointer as *const Self) };
+        let instance = unsafe { &*pointer.as_ptr::<Self>() };
         (instance.magic == INSTANCE_MAGIC).then_some(instance)
     }
 
@@ -389,13 +414,11 @@ impl LoaderInstance {
     pub(crate) fn take_dispatch(dispatch: *const LayerInstanceDispatchTable) -> Option<Box<Self>> {
         let mut instances = INSTANCES.lock_if_initialized()?;
         let pointer = instances.owned.remove(&(dispatch as usize))?;
-        if instances.owned.is_empty() && instances.reservations == 0 {
-            instances.owned = HashMap::default();
-        }
+        instances.reset_if_unused();
         drop(instances);
         // SAFETY: Registration stored the unique Box allocation and removal
         // makes this the sole reconstruction during destruction.
-        Some(unsafe { Box::from_raw(pointer as *mut Self) })
+        Some(unsafe { pointer.into_box::<Self>() })
     }
 
     pub(crate) fn submit_debug_message(
@@ -674,20 +697,24 @@ impl LoaderPhysicalDevice {
             .icd()
             .library_path()
             .unwrap_or_else(|| std::path::Path::new(""))
-            .display();
+            .loader_display();
         match command.diagnostic_legacy_name() {
             Some(legacy) => self.instance().log_loader_message_text(
                 VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
                 VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
                 format_args!(
-                    "{}: Emulating call in ICD \"{library}\" using {legacy}",
-                    command.name(),
+                    "{}: Emulating call in ICD \"{library}\" using {}",
+                    crate::debug::diagnostics::Text(command.name()),
+                    crate::debug::diagnostics::Text(legacy),
                 ),
             ),
             None => self.instance().log_loader_message_text(
                 VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
                 VkDebugUtilsMessageTypeFlagBitsEXT::GENERAL,
-                format_args!("{}: Emulating call in ICD \"{library}\"", command.name()),
+                format_args!(
+                    "{}: Emulating call in ICD \"{library}\"",
+                    crate::debug::diagnostics::Text(command.name())
+                ),
             ),
         }
     }

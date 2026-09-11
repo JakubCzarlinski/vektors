@@ -205,12 +205,14 @@ fn missing_symbol_does_not_allocate_rust_error_storage() {
 
 #[test]
 fn log_buffer_preserves_the_utf8_prefix_across_format_fragments() {
-    let mut message = LogBuffer::<4>::new();
+    let mut message_storage = [0; 4];
+    let mut message = LogBuffer::new(&mut message_storage);
     let _ = message.write_str("abc");
     let _ = message.write_str("é");
     let _ = message.write_str("z");
     assert_eq!(message.as_str(), "abc");
-    let mut exact = LogBuffer::<4>::new();
+    let mut exact_storage = [0; 4];
+    let mut exact = LogBuffer::new(&mut exact_storage);
     let _ = exact.write_str("éé");
     assert_eq!(exact.as_str(), "éé");
 }

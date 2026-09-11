@@ -1,15 +1,5 @@
 //! Layer chaining and enumeration entry points.
 
-use crate::{
-    CommandScope, LayerDeviceDispatchTable, allocation,
-    device::LoaderDevice,
-    erase_function,
-    instance::{LoaderInstance, LoaderPhysicalDevice},
-    pending,
-    platform::LogFilter,
-    unknown,
-};
-
 use super::{
     ActiveLayerProperty, CStr, CString, DeviceCreateSentinel, GetPhysicalDeviceProcAddr,
     LayerDeviceCallbacks, LayerDeviceCreateInfo, LayerDeviceCreateInfoUnion, LayerDeviceLink,
@@ -20,6 +10,17 @@ use super::{
     available_layer_mask, c_char, c_void, discover_layers, emit_global_layer_search_diagnostics,
     fatal_layer_policy, forced_disabled, forced_enabled, ptr,
 };
+use crate::{
+    CommandScope, LayerDeviceDispatchTable, allocation,
+    device::LoaderDevice,
+    erase_function,
+    instance::{LoaderInstance, LoaderPhysicalDevice},
+    pending,
+    platform::LogFilter,
+    unknown,
+};
+use crate::{LoaderPathExt, discovery};
+use core::slice;
 
 /// Returns whether deprecated device-layer names differ from instance names.
 ///
@@ -62,9 +63,9 @@ pub(crate) unsafe extern "system" fn create_instance_terminator(
     }
     let returned = unsafe { instance.read() };
     if returned == vk::VkInstance::NULL {
-        fatal_layer_policy(
+        fatal_layer_policy(format_args!(
             "terminator_CreateInstance: Loader instance pointer null encountered.  Possibly set by active layer. (Policy #LLP_LAYER_21)",
-        );
+        ));
     }
     let magic = unsafe { LoaderInstance::internal_magic(returned) }.unwrap_or(0);
     if unsafe { LoaderInstance::from_internal_handle(returned) }.is_none() {
@@ -188,70 +189,36 @@ pub(crate) unsafe extern "system" fn terminator_get_instance_proc_addr(
     }
     // SAFETY: The layer ABI requires a live, NUL-terminated command name.
     let name = unsafe { CStr::from_ptr(name) };
-    let address = match name.to_bytes() {
-        b"vkCreateInstance" => create_instance_terminator as *const (),
-        b"vkGetInstanceProcAddr" => terminator_get_instance_proc_addr as *const (),
-        b"vk_layerGetPhysicalDeviceProcAddr" => {
-            terminator_get_physical_device_proc_addr as *const ()
+    if name.to_bytes() == b"vk_layerGetPhysicalDeviceProcAddr" {
+        return Some(erase_function(
+            terminator_get_physical_device_proc_addr as *const (),
+        ));
+    }
+    let Some(lookup) = crate::command_lookup(name.to_bytes()) else {
+        // SAFETY: During vkCreateInstance the not-yet-registered loader handle
+        // is passed down-chain; later handles use their registered table.
+        let loader = unsafe {
+            LoaderInstance::from_handle(instance)
+                .or_else(|| LoaderInstance::from_internal_handle(instance))
+        };
+        let address = loader.and_then(|loader| {
+            unknown::physical_device_proc_addr(loader, name, false)
+                .or_else(|| unknown::device_proc_addr(loader, name, false))
+        });
+        if address.is_none() {
+            unknown::log_unrecognized_instance_command(name);
         }
-        b"vkCreateDevice" => crate::create_device_terminator as *const (),
-        b"vkDestroyInstance" => crate::destroy_instance_terminator as *const (),
-        b"vkEnumeratePhysicalDevices" => crate::terminator_enumerate_physical_devices as *const (),
-        b"vkEnumeratePhysicalDeviceGroups" => {
-            crate::terminator_enumerate_physical_device_groups as *const ()
-        }
-        b"vkEnumeratePhysicalDeviceGroupsKHR" => {
-            crate::terminator_enumerate_physical_device_groups_khr as *const ()
-        }
-        b"vkEnumerateDeviceLayerProperties" => {
-            terminator_enumerate_device_layer_properties as *const ()
-        }
-        b"vkEnumerateDeviceExtensionProperties" => {
-            terminator_enumerate_device_extension_properties as *const ()
-        }
-        b"vkCreateDebugUtilsMessengerEXT" => {
-            crate::debug::messenger::terminator_create_debug_utils_messenger as *const ()
-        }
-        b"vkCreateDebugReportCallbackEXT" => {
-            crate::debug::messenger::terminator_create_debug_report_callback as *const ()
-        }
-        b"vkDestroyDebugUtilsMessengerEXT" => {
-            crate::debug::messenger::terminator_destroy_debug_utils_messenger as *const ()
-        }
-        b"vkDestroyDebugReportCallbackEXT" => {
-            crate::debug::messenger::terminator_destroy_debug_report_callback as *const ()
-        }
-        b"vkSubmitDebugUtilsMessageEXT" => {
-            crate::debug::messenger::terminator_submit_debug_utils_message as *const ()
-        }
-        b"vkDebugReportMessageEXT" => {
-            crate::debug::messenger::terminator_debug_report_message as *const ()
-        }
-        _ if instance == vk::VkInstance::NULL => return crate::global_proc_addr(name),
-        _ => {
-            if let Some(lookup) = crate::command_lookup(name) {
-                return crate::instance_terminator_proc_addr(lookup.id)
-                    .or_else(|| crate::physical_device_terminator_proc_addr(lookup.id))
-                    .or_else(|| crate::exported_proc_addr(lookup.id));
-            }
-            // SAFETY: During vkCreateInstance the not-yet-registered loader
-            // handle is passed down the layer chain; afterwards normal
-            // dispatch-table lookup identifies the registered instance.
-            let loader = unsafe {
-                LoaderInstance::from_handle(instance)
-                    .or_else(|| LoaderInstance::from_internal_handle(instance))
-            };
-            let address = loader.and_then(|loader| {
-                unknown::physical_device_proc_addr(loader, name, false)
-                    .or_else(|| unknown::device_proc_addr(loader, name, false))
-            });
-            if address.is_none() {
-                unknown::log_unrecognized_instance_command(name);
-            }
-            return address;
-        }
+        return address;
     };
-    Some(erase_function(address))
+    if let Some(address) = crate::layer_instance_special_proc_addr(lookup.id) {
+        return Some(address);
+    }
+    if instance == vk::VkInstance::NULL {
+        return crate::global_proc_addr(lookup.id);
+    }
+    crate::instance_terminator_proc_addr(lookup.id)
+        .or_else(|| crate::physical_device_terminator_proc_addr(lookup.id))
+        .or_else(|| crate::exported_proc_addr(lookup.id))
 }
 
 pub(crate) unsafe extern "system" fn terminator_get_device_proc_addr(
@@ -263,40 +230,19 @@ pub(crate) unsafe extern "system" fn terminator_get_device_proc_addr(
     }
     // SAFETY: The layer ABI requires a live, NUL-terminated command name.
     let name = unsafe { CStr::from_ptr(name) };
-    let address = match name.to_bytes() {
-        b"vkGetDeviceProcAddr" => terminator_get_device_proc_addr as *const (),
-        b"vkDestroyDevice" => crate::destroy_device_terminator as *const (),
-        b"vkCreateSwapchainKHR" => crate::surface::terminator_create_swapchain as *const (),
-        b"vkCreateSharedSwapchainsKHR" => {
-            crate::surface::terminator_create_shared_swapchains as *const ()
-        }
-        b"vkGetDeviceGroupSurfacePresentModesKHR" => {
-            crate::surface::terminator_get_device_group_surface_present_modes as *const ()
-        }
-        b"vkDebugMarkerSetObjectNameEXT" => {
-            crate::debug::terminator_vkDebugMarkerSetObjectNameEXT as *const ()
-        }
-        b"vkDebugMarkerSetObjectTagEXT" => {
-            crate::debug::terminator_vkDebugMarkerSetObjectTagEXT as *const ()
-        }
-        b"vkSetDebugUtilsObjectNameEXT" => {
-            crate::debug::terminator_vkSetDebugUtilsObjectNameEXT as *const ()
-        }
-        b"vkSetDebugUtilsObjectTagEXT" => {
-            crate::debug::terminator_vkSetDebugUtilsObjectTagEXT as *const ()
-        }
-        _ => {
-            // SAFETY: The device was returned by the lower chain and registered
-            // before control returned to the requesting layer.
-            let device = unsafe { LoaderDevice::from_handle(device) }?;
-            // SAFETY: The stored ICD resolver and device originate together.
-            return device.resolve(name);
-        }
-    };
-    Some(erase_function(address))
+    if let Some(lookup) = crate::command_lookup(name.to_bytes())
+        && let Some(address) = crate::layer_device_special_proc_addr(lookup.id)
+    {
+        return Some(address);
+    }
+    // SAFETY: The device was returned by the lower chain and registered before
+    // control returned to the requesting layer.
+    let device = unsafe { LoaderDevice::from_handle(device) }?;
+    // SAFETY: The stored ICD resolver and device originate together.
+    device.resolve(name)
 }
 
-pub(super) unsafe extern "system" fn terminator_enumerate_device_layer_properties(
+pub(crate) unsafe extern "system" fn terminator_enumerate_device_layer_properties(
     physical_device: vk::VkPhysicalDevice,
     property_count: *mut u32,
     properties: *mut vk::VkLayerProperties,
@@ -313,28 +259,39 @@ pub(super) unsafe extern "system" fn terminator_enumerate_device_layer_propertie
     unsafe { enumerate_active_device_layers(layers, &mut *property_count, properties) }
 }
 
-pub(super) fn device_extension_property(extension: &LayerExtension) -> VkExtensionProperties {
-    let mut property = VkExtensionProperties::DEFAULT;
-    copy_c_string(&extension.name, &mut property.extensionName);
-    property.specVersion = extension.spec_version;
-    property
+fn has_device_extension(extensions: &[VkExtensionProperties], extension: &LayerExtension) -> bool {
+    extensions.iter().any(|property| {
+        // SAFETY: Vulkan extension properties always contain a terminated name.
+        unsafe { CStr::from_ptr(property.extensionName.as_ptr()) == extension.name.as_c_str() }
+    })
 }
 
-pub(super) fn append_unique_device_extension(
+unsafe fn write_device_extension(
+    destination: *mut VkExtensionProperties,
+    extension: &LayerExtension,
+) {
+    unsafe { destination.write(VkExtensionProperties::DEFAULT) };
+    unsafe {
+        copy_c_string(&extension.name, &mut (*destination).extensionName);
+        (*destination).specVersion = extension.spec_version;
+    }
+}
+
+pub(super) fn append_layer_device_extension(
     extensions: &mut Vec<VkExtensionProperties>,
-    extension: &VkExtensionProperties,
+    extension: &LayerExtension,
 ) -> Result<(), VkResult> {
-    // `loader_add_to_ext_list` keeps the property encountered first.
-    if extensions
-        .iter()
-        .any(|existing| existing.extensionName == extension.extensionName)
-    {
+    if has_device_extension(extensions, extension) {
         return Ok(());
     }
     extensions
         .try_reserve(1)
         .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
-    extensions.push(*extension);
+    let index = extensions.len();
+    unsafe {
+        write_device_extension(extensions.as_mut_ptr().add(index), extension);
+        extensions.set_len(index + 1);
+    }
     Ok(())
 }
 
@@ -367,7 +324,7 @@ pub(super) fn named_layer_device_extensions(
         visited[index] = true;
         let manifest = &manifests[index];
         for extension in &manifest.device_extensions {
-            append_unique_device_extension(&mut extensions, &device_extension_property(extension))?;
+            append_layer_device_extension(&mut extensions, extension)?;
         }
         for component in manifest.component_layers().iter().rev() {
             if let Some(index) = component.index() {
@@ -443,10 +400,10 @@ pub(super) unsafe fn enumerate_icd_device_extensions(
             .filter(|layer| layer.implicit)
         {
             for extension in &layer.device_extensions {
-                let property = device_extension_property(extension);
-                let existing = unsafe { core::slice::from_raw_parts(properties, written as usize) }
-                    .iter()
-                    .any(|existing| existing.extensionName == property.extensionName);
+                let existing = has_device_extension(
+                    unsafe { slice::from_raw_parts(properties, written as usize) },
+                    extension,
+                );
                 if existing {
                     continue;
                 }
@@ -454,7 +411,9 @@ pub(super) unsafe fn enumerate_icd_device_extensions(
                     *property_count = written;
                     return VkResult::INCOMPLETE;
                 }
-                unsafe { properties.add(written as usize).write(property) };
+                unsafe {
+                    write_device_extension(properties.add(written as usize), extension);
+                }
                 written += 1;
             }
         }
@@ -515,10 +474,7 @@ unsafe fn count_icd_device_extensions(
         .filter(|layer| layer.implicit)
     {
         for extension in &layer.device_extensions {
-            if let Err(result) = append_unique_device_extension(
-                &mut extensions,
-                &device_extension_property(extension),
-            ) {
+            if let Err(result) = append_layer_device_extension(&mut extensions, extension) {
                 return result;
             }
         }
@@ -556,36 +512,78 @@ pub(crate) unsafe extern "system" fn terminator_enumerate_device_extension_prope
     unsafe { enumerate_icd_device_extensions(physical_device, &mut *property_count, properties) }
 }
 
-pub(crate) unsafe fn enumerate_active_device_layers(
-    layers: &[ActiveLayerProperty],
+unsafe fn write_active_layer_property(
+    context: *const (),
+    index: usize,
+    properties: *mut vk::VkLayerProperties,
+) {
+    let layer = unsafe { &*context.cast::<ActiveLayerProperty>().add(index) };
+    let mut property = vk::VkLayerProperties::DEFAULT;
+    copy_c_string(&layer.name, &mut property.layerName);
+    copy_c_string(&layer.description, &mut property.description);
+    property.specVersion = layer.api_version;
+    property.implementationVersion = layer.implementation_version;
+    unsafe { properties.write(property) };
+}
+
+unsafe fn write_instance_layer_property(
+    context: *const (),
+    index: usize,
+    properties: *mut vk::VkLayerProperties,
+) {
+    let manifest = unsafe { &*context.cast::<discovery::LayerManifest>().add(index) };
+    let mut property = vk::VkLayerProperties::DEFAULT;
+    copy_c_string(&manifest.name, &mut property.layerName);
+    copy_c_string(&manifest.description, &mut property.description);
+    property.specVersion = manifest.api_version;
+    property.implementationVersion = manifest.implementation_version;
+    unsafe { properties.write(property) };
+}
+
+#[inline(never)]
+unsafe fn write_layer_properties(
     property_count: &mut u32,
     properties: *mut vk::VkLayerProperties,
+    total: usize,
+    context: *const (),
+    write: unsafe fn(*const (), usize, *mut vk::VkLayerProperties),
 ) -> VkResult {
-    let total = layers.len().min(u32::MAX as usize) as u32;
+    let total_count = total.min(u32::MAX as usize) as u32;
     if properties.is_null() {
-        *property_count = total;
+        *property_count = total_count;
         return VkResult::SUCCESS;
     }
     let capacity = *property_count as usize;
-    let written = capacity.min(layers.len());
-    for (index, layer) in layers.iter().take(written).enumerate() {
-        let mut property = vk::VkLayerProperties::DEFAULT;
-        copy_c_string(&layer.name, &mut property.layerName);
-        copy_c_string(&layer.description, &mut property.description);
-        property.specVersion = layer.api_version;
-        property.implementationVersion = layer.implementation_version;
-        unsafe { properties.add(index).write(property) };
+    let written = capacity.min(total);
+    for index in 0..written {
+        unsafe { write(context, index, properties.add(index)) };
     }
     *property_count = written as u32;
-    if written < layers.len() {
+    if written < total {
         VkResult::INCOMPLETE
     } else {
         VkResult::SUCCESS
     }
 }
 
+pub(crate) unsafe fn enumerate_active_device_layers(
+    layers: &[ActiveLayerProperty],
+    property_count: &mut u32,
+    properties: *mut vk::VkLayerProperties,
+) -> VkResult {
+    unsafe {
+        write_layer_properties(
+            property_count,
+            properties,
+            layers.len(),
+            layers.as_ptr().cast(),
+            write_active_layer_property,
+        )
+    }
+}
+
 pub(crate) unsafe fn enumerate_instance_layers(
-    discovered: crate::discovery::DiscoveredLayers,
+    discovered: discovery::DiscoveredLayers,
     property_count: &mut u32,
     properties: *mut vk::VkLayerProperties,
 ) -> VkResult {
@@ -620,26 +618,14 @@ pub(crate) unsafe fn enumerate_instance_layers(
         }
         index += 1;
     }
-    let total = manifests.len().min(u32::MAX as usize) as u32;
-    if properties.is_null() {
-        *property_count = total;
-        return VkResult::SUCCESS;
-    }
-    let capacity = *property_count as usize;
-    let written = capacity.min(manifests.len());
-    for (index, manifest) in manifests.iter().take(written).enumerate() {
-        let mut property = vk::VkLayerProperties::DEFAULT;
-        copy_c_string(&manifest.name, &mut property.layerName);
-        copy_c_string(&manifest.description, &mut property.description);
-        property.specVersion = manifest.api_version;
-        property.implementationVersion = manifest.implementation_version;
-        unsafe { properties.add(index).write(property) };
-    }
-    *property_count = written as u32;
-    if written < manifests.len() {
-        VkResult::INCOMPLETE
-    } else {
-        VkResult::SUCCESS
+    unsafe {
+        write_layer_properties(
+            property_count,
+            properties,
+            manifests.len(),
+            manifests.as_ptr().cast(),
+            write_instance_layer_property,
+        )
     }
 }
 
@@ -664,7 +650,7 @@ pub(crate) unsafe extern "system" fn terminator_get_physical_device_proc_addr(
     }
     // SAFETY: GPDPA requires a live NUL-terminated command name.
     let name = unsafe { CStr::from_ptr(name) };
-    if let Some(lookup) = crate::command_lookup(name) {
+    if let Some(lookup) = crate::command_lookup(name.to_bytes()) {
         if lookup.scope != CommandScope::Instance {
             return None;
         }
@@ -787,7 +773,7 @@ pub(crate) unsafe fn create_instance_chain(
 pub(super) fn extension_property_name(property: &VkExtensionProperties) -> Option<&CStr> {
     let chars = property.extensionName.as_slice();
     // SAFETY: `c_char` is exactly one byte on every supported C ABI.
-    let bytes = unsafe { core::slice::from_raw_parts(chars.as_ptr().cast::<u8>(), chars.len()) };
+    let bytes = unsafe { slice::from_raw_parts(chars.as_ptr().cast::<u8>(), chars.len()) };
     CStr::from_bytes_until_nul(bytes).ok()
 }
 
@@ -799,8 +785,8 @@ pub(super) fn extension_property_name(property: &VkExtensionProperties) -> Optio
 pub(crate) unsafe fn available_device_extensions(
     instance: &LoaderInstance,
     physical_device: vk::VkPhysicalDevice,
-) -> Result<crate::discovery::AvailableDeviceExtensions, VkResult> {
-    let mut names = crate::discovery::AvailableDeviceExtensions::default();
+) -> Result<discovery::AvailableDeviceExtensions, VkResult> {
+    let mut names = discovery::AvailableDeviceExtensions::default();
     for extension in instance
         .layers
         .iter()
@@ -1020,9 +1006,9 @@ pub(crate) unsafe fn validate_pending_device_output(output: &mut vk::VkDevice) {
     };
     let returned = *output;
     if returned == vk::VkDevice::NULL {
-        fatal_layer_policy(
+        fatal_layer_policy(format_args!(
             "terminator_CreateDevice: Loader device pointer null encountered.  Possibly set by active layer. (Policy #LLP_LAYER_22)",
-        );
+        ));
     }
     if returned.0 as usize != expected {
         let pointer = LayerPointer(returned.0);
@@ -1077,7 +1063,7 @@ fn emit_inserted_device_layers(instance: &LoaderInstance, layers: &[super::Loade
             format_args!(
                 "Inserted device layer \"{}\" ({})",
                 crate::debug::diagnostics::LossyBytes(layer.name.to_bytes()),
-                layer.library_path.display()
+                layer.library_path.loader_display()
             ),
         );
     }

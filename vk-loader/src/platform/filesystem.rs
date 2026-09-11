@@ -175,6 +175,13 @@ pub(crate) fn read_file(path: &Path) -> Option<Box<[u8]>> {
         return None;
     }
 
+    // The manifest extent is known before the single full-file read below.
+    // Avoid libc allocating and copying through a separate `FILE` buffer.
+    // SAFETY: No I/O has been performed on this newly opened stream.
+    unsafe {
+        libc::setvbuf(file, core::ptr::null_mut(), libc::_IONBF, 0);
+    }
+
     let result = (|| {
         // Match upstream's `fstat(fileno(file))` path. Besides avoiding two
         // seeks per manifest, this deliberately rejects streams for which the

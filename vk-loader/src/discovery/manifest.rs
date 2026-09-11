@@ -7,13 +7,17 @@ use super::LayerExtension;
 use super::LayerFunctions;
 use super::LayerManifest;
 use super::PreInstanceFunctions;
-use super::collect_values;
 use super::owned_c_string;
 use super::owned_path;
 use super::parse_json_value;
 use super::shadow_layer_json_allocations;
+use crate::allocation;
 use crate::platform;
-use crate::{debug::diagnostics, json::Value, pending};
+use crate::{
+    debug::diagnostics,
+    json::{Array, Value, ValueKind},
+    pending,
+};
 use alloc::{borrow::Cow, ffi::CString, string::String};
 use core::fmt::Write as _;
 #[cfg(unix)]
@@ -65,23 +69,34 @@ pub(super) fn parse_api_version(version: Option<&str>) -> Option<u32> {
     parse_api_version_bytes(version.map(str::as_bytes))
 }
 
-fn parse_api_version_bytes(version: Option<&[u8]>) -> Option<u32> {
-    let version = version?.split(|byte| *byte == 0).next()?;
-    let mut components = version.split(|byte| matches!(byte, b'.' | b'"' | b'\n' | b'\r'));
-    let mut next_component = || {
-        components
-            .find(|component| !component.is_empty())
-            .map_or(0, |component| u32::from(strtoul_prefix(component) as u16))
-    };
-    let first = next_component();
-    let second = next_component();
-    let third = next_component();
-    let fourth = components
-        .find(|component| !component.is_empty())
-        .map(|component| u32::from(strtoul_prefix(component) as u16));
-    Some(match fourth {
-        Some(patch) => VK_MAKE_API_VERSION(first, second, third, patch),
-        None => VK_MAKE_API_VERSION(0, first, second, third),
+pub(super) fn parse_api_version_bytes(version: Option<&[u8]>) -> Option<u32> {
+    let version = version?;
+    let length = version
+        .iter()
+        .position(|byte| *byte == 0)
+        .unwrap_or(version.len());
+    let version = &version[..length];
+    let mut components = [0_u32; 4];
+    let mut count = 0;
+    let mut start = 0;
+    while start <= version.len() && count < components.len() {
+        let mut end = start;
+        while end < version.len() && !matches!(version[end], b'.' | b'"' | b'\n' | b'\r') {
+            end += 1;
+        }
+        if end != start {
+            components[count] = u32::from(strtoul_prefix(&version[start..end]) as u16);
+            count += 1;
+        }
+        if end == version.len() {
+            break;
+        }
+        start = end + 1;
+    }
+    Some(if count == components.len() {
+        VK_MAKE_API_VERSION(components[0], components[1], components[2], components[3])
+    } else {
+        VK_MAKE_API_VERSION(0, components[0], components[1], components[2])
     })
 }
 
@@ -94,7 +109,7 @@ pub(super) fn resolve_library_path(manifest_path: &Path, library: PathBuf) -> Op
         Some(library)
     } else {
         let parent = manifest_path.parent()?;
-        crate::allocation::try_join_path(parent, &library)
+        allocation::try_join_path(parent, &library)
             .map_err(|_| {
                 pending::mark_json_allocation_failed();
             })
@@ -112,73 +127,10 @@ fn library_architecture_supported(value: Option<&[u8]>) -> bool {
     )
 }
 
-#[cfg(test)]
-mod byte_contract_tests {
-    use super::{library_architecture_supported, parse_api_version_bytes};
-
-    #[test]
-    fn layer_fields_preserve_first_case_insensitive_and_nul_terminated_key() {
-        let value = crate::json::parse(br#"{"NAME":null,"name":"later","TyPe\u0000ignored":"GLOBAL","type":"DEVICE","DESCRIPTION":"first","description":"later"}"#).unwrap();
-        let raw = super::RawLayer::from_value(&value).unwrap();
-        assert_eq!(raw.name, None);
-        assert_eq!(raw.layer_type, Some(b"GLOBAL".as_slice()));
-        assert_eq!(raw.description, Some(b"first".as_slice()));
-    }
-
-    #[test]
-    fn control_byte_scan_preserves_word_and_tail_boundaries() {
-        for byte in 0..=u8::MAX {
-            for position in 0..24 {
-                let mut bytes = [b'a'; 32];
-                bytes[position] = byte;
-                for length in [position + 1, bytes.len()] {
-                    assert_eq!(super::contains_control_byte(&bytes[..length]), byte < 32);
-                }
-            }
-        }
-        assert!(!super::contains_control_byte(b""));
-    }
-
-    #[test]
-    fn printed_string_capacity_includes_escapes_and_terminator() {
-        for (value, printed_length) in [
-            (b"".as_slice(), 0),
-            (b"plain".as_slice(), 5),
-            (b"\"\\\n".as_slice(), 6),
-            (b"\x01\x1f".as_slice(), 12),
-            (b"prefix\x00ignored".as_slice(), 6),
-            (b"\xff".as_slice(), 1),
-        ] {
-            assert!(!super::printed_bytes_fit(value, printed_length));
-            assert!(!super::printed_bytes_fit(value, printed_length + 1));
-            assert!(super::printed_bytes_fit(value, printed_length + 2));
-        }
-        assert!(super::printed_bytes_fit(&[b'a'; 254], 256));
-        assert!(!super::printed_bytes_fit(&[b'a'; 255], 256));
-        assert!(!super::printed_bytes_fit(&[b'a'; 256], 256));
-    }
-
-    #[test]
-    fn architecture_and_version_prefixes_do_not_require_utf8() {
-        assert_eq!(
-            library_architecture_supported(Some(b"32\xff")),
-            core::mem::size_of::<usize>() != 8
-        );
-        assert_eq!(
-            library_architecture_supported(Some(b"64\xff")),
-            core::mem::size_of::<usize>() != 4
-        );
-        assert_eq!(
-            parse_api_version_bytes(Some(b"1.3.127\xff")),
-            Some(vk::VK_MAKE_API_VERSION(0, 1, 3, 127))
-        );
-    }
-}
-
-fn raw_json_path(value: &Value) -> Option<PathBuf> {
-    match value {
-        Value::String(value) => owned_byte_path(value),
-        Value::Number(value) => {
+fn raw_json_path(value: Value) -> Option<PathBuf> {
+    match value.kind() {
+        ValueKind::String(value) => owned_byte_path(value),
+        ValueKind::Number(value) => {
             if let Ok(value) = diagnostics::try_format(format_args!("{value}")) {
                 Some(PathBuf::from(value))
             } else {
@@ -186,43 +138,61 @@ fn raw_json_path(value: &Value) -> Option<PathBuf> {
                 None
             }
         }
-        Value::Bool(value) => owned_path(Path::new(if *value { "true" } else { "false" })),
-        Value::Null => owned_path(Path::new("null")),
+        ValueKind::Bool(value) => owned_path(Path::new(if value { "true" } else { "false" })),
+        ValueKind::Null => owned_path(Path::new("null")),
         _ => None,
     }
 }
 
 pub(super) fn parse_manifest_result(path: &Path) -> Result<DriverManifest, DriverManifestError> {
     let bytes = platform::read_file(path).ok_or(DriverManifestError::FailedOpen)?;
-    let root = parse_json_value(&bytes).ok_or(DriverManifestError::InvalidJson)?;
-    let file_format_version = root
-        .field("file_format_version")
+    let document = parse_json_value(&bytes).ok_or(DriverManifestError::InvalidJson)?;
+    let root = document.root();
+    let root_object = root.as_object().ok_or(DriverManifestError::Invalid)?;
+    let mut root_fields = [None; 2];
+    for (name, value) in root_object.iter() {
+        let name = name.split(|byte| *byte == 0).next().unwrap_or_default();
+        let index = match name.len() {
+            19 if layer_field_matches(name, b"file_format_version") => 0,
+            3 if layer_field_matches(name, b"ICD") => 1,
+            _ => continue,
+        };
+        root_fields[index].get_or_insert(value);
+    }
+    let file_format_version = root_fields[0]
         .and_then(Value::as_bytes)
         .ok_or(DriverManifestError::MissingFileFormatVersion)?;
     let manifest_version =
         parse_api_version_bytes(Some(file_format_version)).ok_or(DriverManifestError::Invalid)?;
-    let icd = root.field("ICD").ok_or(DriverManifestError::Invalid)?;
-    let library = raw_json_path(
-        icd.field("library_path")
-            .ok_or(DriverManifestError::Invalid)?,
-    )
-    .ok_or(DriverManifestError::Invalid)?;
+    let icd = root_fields[1].ok_or(DriverManifestError::Invalid)?;
+    let icd_object = icd.as_object().ok_or(DriverManifestError::Invalid)?;
+    let mut fields = [None; 4];
+    for (name, value) in icd_object.iter() {
+        let name = name.split(|byte| *byte == 0).next().unwrap_or_default();
+        let index = match name.len() {
+            12 if layer_field_matches(name, b"library_path") => 0,
+            11 if layer_field_matches(name, b"api_version") => 1,
+            12 if layer_field_matches(name, b"library_arch") => 2,
+            21 if layer_field_matches(name, b"is_portability_driver") => 3,
+            _ => continue,
+        };
+        fields[index].get_or_insert(value);
+    }
+    let library = raw_json_path(fields[0].ok_or(DriverManifestError::Invalid)?)
+        .ok_or(DriverManifestError::Invalid)?;
     if library.as_os_str().is_empty() {
         return Err(DriverManifestError::EmptyLibraryPath { manifest_version });
     }
     let library_path = resolve_library_path(path, library).ok_or(DriverManifestError::Invalid)?;
-    let api_version = parse_api_version_bytes(icd.field("api_version").and_then(Value::as_bytes))
+    let api_version = parse_api_version_bytes(fields[1].and_then(Value::as_bytes))
         .ok_or(DriverManifestError::Invalid)?;
     Ok(DriverManifest {
         manifest_path: owned_path(path).ok_or(DriverManifestError::OutOfMemory)?,
         library_path,
         manifest_version,
         api_version,
-        architecture_supported: library_architecture_supported(
-            icd.field("library_arch").and_then(Value::as_bytes),
-        ),
-        portability_driver: icd.field("is_portability_driver").and_then(Value::as_bool)
-            == Some(true),
+        architecture_supported: library_architecture_supported(fields[2].and_then(Value::as_bytes)),
+        portability_driver: fields[3].and_then(Value::as_bool) == Some(true),
     })
 }
 
@@ -232,104 +202,108 @@ pub(crate) fn parse_manifest(path: &Path) -> Option<DriverManifest> {
 
 #[derive(Default)]
 pub(super) struct RawLayer<'a> {
-    name: Option<&'a [u8]>,
-    layer_type: Option<&'a [u8]>,
-    library_path: Option<&'a [u8]>,
-    api_version: Option<&'a [u8]>,
-    library_arch: Option<&'a [u8]>,
-    implementation_version: Option<&'a [u8]>,
-    description: Option<&'a [u8]>,
-    instance_extensions: Option<&'a Value<'a>>,
-    device_extensions: Option<&'a Value<'a>>,
-    enable_environment: Option<&'a Value<'a>>,
-    disable_environment: Option<&'a Value<'a>>,
-    component_layers: Option<&'a Value<'a>>,
-    blacklisted_layers: Option<&'a Value<'a>>,
-    override_paths: Option<&'a Value<'a>>,
-    app_keys: Option<&'a Value<'a>>,
-    functions: Option<&'a Value<'a>>,
-    pre_instance_functions: Option<&'a Value<'a>>,
+    fields: [Option<Value<'a>>; 17],
 }
+
+#[inline(never)]
+fn layer_field_matches(name: &[u8], expected: &[u8]) -> bool {
+    name.eq_ignore_ascii_case(expected)
+}
+
 impl<'a> RawLayer<'a> {
-    pub(super) fn from_value(value: &'a Value<'a>) -> Option<Self> {
+    pub(super) fn from_value(value: Value<'a>) -> Option<Self> {
         let object = value.as_object()?;
         let mut fields = [None; 17];
         for (name, value) in object.iter() {
             let name = name.split(|byte| *byte == 0).next().unwrap_or_default();
             let index = match name.len() {
-                4 if name.eq_ignore_ascii_case(b"name") => 0,
-                4 if name.eq_ignore_ascii_case(b"type") => 1,
-                12 if name.eq_ignore_ascii_case(b"library_path") => 2,
-                11 if name.eq_ignore_ascii_case(b"api_version") => 3,
-                12 if name.eq_ignore_ascii_case(b"library_arch") => 4,
-                22 if name.eq_ignore_ascii_case(b"implementation_version") => 5,
-                11 if name.eq_ignore_ascii_case(b"description") => 6,
-                19 if name.eq_ignore_ascii_case(b"instance_extensions") => 7,
-                17 if name.eq_ignore_ascii_case(b"device_extensions") => 8,
-                18 if name.eq_ignore_ascii_case(b"enable_environment") => 9,
-                19 if name.eq_ignore_ascii_case(b"disable_environment") => 10,
-                16 if name.eq_ignore_ascii_case(b"component_layers") => 11,
-                18 if name.eq_ignore_ascii_case(b"blacklisted_layers") => 12,
-                14 if name.eq_ignore_ascii_case(b"override_paths") => 13,
-                8 if name.eq_ignore_ascii_case(b"app_keys") => 14,
-                9 if name.eq_ignore_ascii_case(b"functions") => 15,
-                22 if name.eq_ignore_ascii_case(b"pre_instance_functions") => 16,
+                4 if layer_field_matches(name, b"name") => 0,
+                4 if layer_field_matches(name, b"type") => 1,
+                12 if layer_field_matches(name, b"library_path") => 2,
+                11 if layer_field_matches(name, b"api_version") => 3,
+                12 if layer_field_matches(name, b"library_arch") => 4,
+                22 if layer_field_matches(name, b"implementation_version") => 5,
+                11 if layer_field_matches(name, b"description") => 6,
+                19 if layer_field_matches(name, b"instance_extensions") => 7,
+                17 if layer_field_matches(name, b"device_extensions") => 8,
+                18 if layer_field_matches(name, b"enable_environment") => 9,
+                19 if layer_field_matches(name, b"disable_environment") => 10,
+                16 if layer_field_matches(name, b"component_layers") => 11,
+                18 if layer_field_matches(name, b"blacklisted_layers") => 12,
+                14 if layer_field_matches(name, b"override_paths") => 13,
+                8 if layer_field_matches(name, b"app_keys") => 14,
+                9 if layer_field_matches(name, b"functions") => 15,
+                22 if layer_field_matches(name, b"pre_instance_functions") => 16,
                 _ => continue,
             };
             fields[index].get_or_insert(value);
         }
-        Some(Self {
-            name: fields[0].and_then(Value::as_bytes),
-            layer_type: fields[1].and_then(Value::as_bytes),
-            library_path: fields[2].and_then(Value::as_bytes),
-            api_version: fields[3].and_then(Value::as_bytes),
-            library_arch: fields[4].and_then(Value::as_bytes),
-            implementation_version: fields[5].and_then(Value::as_bytes),
-            description: fields[6].and_then(Value::as_bytes),
-            instance_extensions: fields[7],
-            device_extensions: fields[8],
-            enable_environment: fields[9],
-            disable_environment: fields[10],
-            component_layers: fields[11],
-            blacklisted_layers: fields[12],
-            override_paths: fields[13],
-            app_keys: fields[14],
-            functions: fields[15],
-            pre_instance_functions: fields[16],
-        })
+        Some(Self { fields })
+    }
+
+    fn bytes(&self, index: usize) -> Option<&'a [u8]> {
+        self.fields[index].and_then(Value::as_bytes)
+    }
+
+    pub(super) fn name(&self) -> Option<&'a [u8]> {
+        self.bytes(0)
+    }
+
+    pub(super) fn layer_type(&self) -> Option<&'a [u8]> {
+        self.bytes(1)
+    }
+
+    pub(super) fn library_path(&self) -> Option<&'a [u8]> {
+        self.bytes(2)
+    }
+
+    pub(super) fn api_version(&self) -> Option<&'a [u8]> {
+        self.bytes(3)
+    }
+
+    pub(super) fn library_arch(&self) -> Option<&'a [u8]> {
+        self.bytes(4)
+    }
+
+    pub(super) fn implementation_version(&self) -> Option<&'a [u8]> {
+        self.bytes(5)
+    }
+
+    pub(super) fn description(&self) -> Option<&'a [u8]> {
+        self.bytes(6)
+    }
+
+    pub(super) fn value(&self, index: usize) -> Option<Value<'a>> {
+        self.fields[index]
     }
 }
 
 #[derive(Default)]
 struct RawLayerFunctions<'a> {
-    negotiate: Option<&'a [u8]>,
-    get_instance_proc_addr: Option<&'a [u8]>,
-    get_device_proc_addr: Option<&'a [u8]>,
-    enumerate_instance_extension_properties: Option<&'a [u8]>,
-    enumerate_instance_layer_properties: Option<&'a [u8]>,
-    enumerate_instance_version: Option<&'a [u8]>,
+    fields: [Option<Value<'a>>; 6],
 }
 impl<'a> RawLayerFunctions<'a> {
-    fn from_value(value: &'a Value<'a>) -> Option<Self> {
-        value.as_object()?;
-        Some(Self {
-            negotiate: value
-                .field("vkNegotiateLoaderLayerInterfaceVersion")
-                .and_then(Value::as_bytes),
-            get_instance_proc_addr: value
-                .field("vkGetInstanceProcAddr")
-                .and_then(Value::as_bytes),
-            get_device_proc_addr: value.field("vkGetDeviceProcAddr").and_then(Value::as_bytes),
-            enumerate_instance_extension_properties: value
-                .field("vkEnumerateInstanceExtensionProperties")
-                .and_then(Value::as_bytes),
-            enumerate_instance_layer_properties: value
-                .field("vkEnumerateInstanceLayerProperties")
-                .and_then(Value::as_bytes),
-            enumerate_instance_version: value
-                .field("vkEnumerateInstanceVersion")
-                .and_then(Value::as_bytes),
-        })
+    fn from_value(value: Value<'a>) -> Option<Self> {
+        let object = value.as_object()?;
+        let mut fields = [None; 6];
+        for (name, value) in object.iter() {
+            let name = name.split(|byte| *byte == 0).next().unwrap_or_default();
+            let index = match name.len() {
+                38 if layer_field_matches(name, b"vkNegotiateLoaderLayerInterfaceVersion") => 0,
+                21 if layer_field_matches(name, b"vkGetInstanceProcAddr") => 1,
+                19 if layer_field_matches(name, b"vkGetDeviceProcAddr") => 2,
+                38 if layer_field_matches(name, b"vkEnumerateInstanceExtensionProperties") => 3,
+                34 if layer_field_matches(name, b"vkEnumerateInstanceLayerProperties") => 4,
+                26 if layer_field_matches(name, b"vkEnumerateInstanceVersion") => 5,
+                _ => continue,
+            };
+            fields[index].get_or_insert(value);
+        }
+        Some(Self { fields })
+    }
+
+    fn bytes(&self, index: usize) -> Option<&'a [u8]> {
+        self.fields[index].and_then(Value::as_bytes)
     }
 }
 
@@ -337,40 +311,62 @@ impl<'a> RawLayerFunctions<'a> {
 struct RawLayerExtension<'a> {
     name: Option<&'a [u8]>,
     spec_version: Option<&'a [u8]>,
-    entrypoints: Option<&'a Value<'a>>,
+    entrypoints: Option<Value<'a>>,
 }
 impl<'a> RawLayerExtension<'a> {
-    fn from_value(value: &'a Value<'a>) -> Option<Self> {
-        value.as_object()?;
+    fn from_value(value: Value<'a>) -> Option<Self> {
+        let object = value.as_object()?;
+        let mut fields = [None; 3];
+        for (name, value) in object.iter() {
+            let name = name.split(|byte| *byte == 0).next().unwrap_or_default();
+            let index = match name.len() {
+                4 if layer_field_matches(name, b"name") => 0,
+                12 if layer_field_matches(name, b"spec_version") => 1,
+                11 if layer_field_matches(name, b"entrypoints") => 2,
+                _ => continue,
+            };
+            fields[index].get_or_insert(value);
+        }
         Some(Self {
-            name: value.field("name").and_then(Value::as_bytes),
-            spec_version: value.field("spec_version").and_then(Value::as_bytes),
-            entrypoints: value.field("entrypoints"),
+            name: fields[0].and_then(Value::as_bytes),
+            spec_version: fields[1].and_then(Value::as_bytes),
+            entrypoints: fields[2],
         })
     }
 }
 
 struct LayerManifestDocument<'a> {
     file_format_version: Option<&'a [u8]>,
-    layer: Option<&'a Value<'a>>,
-    layers: Option<&'a [Value<'a>]>,
+    layer: Option<Value<'a>>,
+    layers: Option<Array<'a>>,
 }
 impl<'a> LayerManifestDocument<'a> {
-    fn from_value(value: &'a Value<'a>) -> Option<Self> {
-        value.as_object()?;
-        let layers = match value.field("layers") {
+    fn from_value(value: Value<'a>) -> Option<Self> {
+        let object = value.as_object()?;
+        let mut fields = [None; 3];
+        for (name, value) in object.iter() {
+            let name = name.split(|byte| *byte == 0).next().unwrap_or_default();
+            let index = match name.len() {
+                19 if layer_field_matches(name, b"file_format_version") => 0,
+                5 if layer_field_matches(name, b"layer") => 1,
+                6 if layer_field_matches(name, b"layers") => 2,
+                _ => continue,
+            };
+            fields[index].get_or_insert(value);
+        }
+        let layers = match fields[2] {
             Some(value) => {
                 let values = value.as_array()?;
                 if values.iter().any(|value| !value.is_object()) {
                     return None;
                 }
-                Some(values.as_slice())
+                Some(values)
             }
             None => None,
         };
         Some(Self {
-            file_format_version: value.field("file_format_version").and_then(Value::as_bytes),
-            layer: match value.field("layer") {
+            file_format_version: fields[0].and_then(Value::as_bytes),
+            layer: match fields[1] {
                 Some(value) => {
                     value.as_object()?;
                     Some(value)
@@ -405,7 +401,7 @@ fn borrowed_c_string_limited(value: Option<&[u8]>, capacity: usize) -> Option<CS
 /// `value` must contain no NUL bytes, as guaranteed by `printed_bytes`.
 unsafe fn copy_printed_c_string(value: &[u8]) -> Option<CString> {
     // SAFETY: The caller guarantees the bytes contain no NUL.
-    if let Ok(value) = unsafe { crate::allocation::try_c_string_bytes_unchecked(value) } {
+    if let Ok(value) = unsafe { allocation::try_c_string_bytes_unchecked(value) } {
         Some(value)
     } else {
         pending::mark_json_allocation_failed();
@@ -560,44 +556,46 @@ fn escaped_control_length(value: &[u8]) -> Option<usize> {
         })
 }
 
-fn raw_string_array<T: From<CString>>(value: Option<&Value>) -> Box<[T]> {
+fn raw_string_array<T: From<CString>>(value: Option<Value>) -> Box<[T]> {
     let Some(values) = value.and_then(Value::as_array) else {
         return Box::default();
     };
     if values.iter().any(|value| value.as_bytes().is_none()) {
         return Box::default();
     }
-    collect_values(
+    super::collect_exact_values(
+        values.len(),
         values
-            .iter()
-            .filter_map(|value| borrowed_c_string(value.as_bytes()))
-            .map(T::from),
+            .into_iter()
+            .map(|value| borrowed_c_string(value.as_bytes()).map(T::from)),
     )
     .unwrap_or_default()
 }
-fn raw_path_array(value: Option<&Value>) -> Box<[PathBuf]> {
+fn raw_path_array(value: Option<Value>) -> Box<[PathBuf]> {
     let Some(values) = value.and_then(Value::as_array) else {
         return Box::default();
     };
     if values.iter().any(|value| value.as_bytes().is_none()) {
         return Box::default();
     }
-    collect_values(
-        values
-            .iter()
-            .filter_map(Value::as_bytes)
-            .filter_map(|value| owned_byte_path(&printed_bytes(value))),
+    super::collect_exact_values(
+        values.len(),
+        values.into_iter().map(|value| {
+            value
+                .as_bytes()
+                .and_then(|value| owned_byte_path(&printed_bytes(value)))
+        }),
     )
     .unwrap_or_default()
 }
-fn raw_environment(value: Option<&Value>) -> Option<(OsString, OsString)> {
+fn raw_environment(value: Option<Value>) -> Option<(OsString, OsString)> {
     let (name, value) = value?.as_object()?.iter().next()?;
     Some((
         owned_byte_path(name)?.into_os_string(),
         owned_byte_path(value.as_bytes()?)?.into_os_string(),
     ))
 }
-fn parse_raw_layer_extension(value: &Value) -> Option<LayerExtension> {
+fn parse_raw_layer_extension(value: Value) -> Option<LayerExtension> {
     let extension = RawLayerExtension::from_value(value)?;
     let name = extension.name?;
     if !printed_bytes_fit(name, vk::VK_MAX_EXTENSION_NAME_SIZE as usize) {
@@ -614,21 +612,44 @@ fn parse_raw_layer_extension(value: &Value) -> Option<LayerExtension> {
         entrypoints: raw_string_array(extension.entrypoints),
     })
 }
+
+fn raw_layer_extension_is_supported(value: Value, instance: bool) -> bool {
+    let Some(extension) = RawLayerExtension::from_value(value) else {
+        return false;
+    };
+    let Some(name) = extension.name else {
+        return false;
+    };
+    if !printed_bytes_fit(name, vk::VK_MAX_EXTENSION_NAME_SIZE as usize) {
+        return false;
+    }
+    if !instance {
+        return true;
+    }
+    let name = name.split(|byte| *byte == 0).next().unwrap_or_default();
+    crate::generated::extension_id_bytes(name)
+        .is_none_or(|id| crate::wsi_instance_extension_supported(crate::extension_name(id)))
+}
+
 pub(super) fn parse_raw_layer_extensions(
-    value: Option<&Value>,
+    value: Option<Value>,
     instance: bool,
 ) -> Box<[LayerExtension]> {
-    value
-        .and_then(Value::as_array)
-        .map(|values| {
-            collect_values(values.iter().filter_map(parse_raw_layer_extension).filter(
-                |extension| {
-                    !instance || crate::wsi_instance_extension_supported(extension.name.as_c_str())
-                },
-            ))
-            .unwrap_or_default()
-        })
-        .unwrap_or_default()
+    let Some(values) = value.and_then(Value::as_array) else {
+        return Box::default();
+    };
+    let len = values
+        .iter()
+        .filter(|value| raw_layer_extension_is_supported(*value, instance))
+        .count();
+    super::collect_exact_values(
+        len,
+        values
+            .iter()
+            .filter(|value| raw_layer_extension_is_supported(*value, instance))
+            .map(parse_raw_layer_extension),
+    )
+    .unwrap_or_default()
 }
 
 pub(super) fn parse_raw_layer(
@@ -639,22 +660,20 @@ pub(super) fn parse_raw_layer(
     supports_pre_instance: bool,
     manifest_version: u32,
 ) -> Option<LayerManifest> {
-    let has_component_layers = layer.component_layers.is_some();
-    let component_layers = raw_string_array(layer.component_layers);
-    let name = borrowed_c_string_limited(layer.name, vk::VK_MAX_EXTENSION_NAME_SIZE as usize)?;
-    match layer.layer_type? {
+    let has_component_layers = layer.value(11).is_some();
+    let component_layers = raw_string_array(layer.value(11));
+    let name = borrowed_c_string_limited(layer.name(), vk::VK_MAX_EXTENSION_NAME_SIZE as usize)?;
+    match layer.layer_type()? {
         b"INSTANCE" | b"GLOBAL" => {}
         _ => return None,
     }
     let is_override = name.as_c_str() == c"VK_LAYER_LUNARG_override";
-    let disable_environment = implicit
-        .then(|| raw_environment(layer.disable_environment))
-        .flatten();
+    let disable_environment = implicit.then(|| raw_environment(layer.value(10))).flatten();
     if implicit && disable_environment.is_none() {
         return None;
     }
     let library_path = layer
-        .library_path
+        .library_path()
         .and_then(owned_byte_path)
         .and_then(|library| resolve_library_path(path, library));
     let source = match (library_path, has_component_layers, is_override) {
@@ -664,34 +683,32 @@ pub(super) fn parse_raw_layer(
         (None, true, true) => super::LayerSource::OverrideMeta(component_layers),
         _ => return None,
     };
-    let functions = layer.functions.and_then(RawLayerFunctions::from_value);
-    let has_pre_instance_functions = layer.pre_instance_functions.is_some();
+    let functions = layer.value(15).and_then(RawLayerFunctions::from_value);
+    let has_pre_instance_functions = layer.value(16).is_some();
     let pre_instance = (implicit && supports_pre_instance)
-        .then_some(layer.pre_instance_functions)
+        .then_some(layer.value(16))
         .flatten()
         .and_then(RawLayerFunctions::from_value);
-    let api_version = parse_api_version_bytes(layer.api_version)?;
+    let api_version = parse_api_version_bytes(layer.api_version())?;
     // Preserve rejected records until layer diagnostics are emitted. Upstream
     // logs these conditions inside `loader_read_layer_json`; our discovery
     // phase has no create-info callback chain, so `valid_layer_mask` removes
     // them immediately after `load_active_layers` reports the same messages.
-    let library_arch = layer.library_arch;
+    let library_arch = layer.library_arch();
     let architecture_supported = library_architecture_supported(library_arch);
     let functions = functions.unwrap_or_default();
     let functions = LayerFunctions {
         negotiate: (manifest_version >= VK_MAKE_API_VERSION(0, 1, 1, 0))
-            .then(|| borrowed_c_string(functions.negotiate))
+            .then(|| borrowed_c_string(functions.bytes(0)))
             .flatten(),
-        get_instance_proc_addr: borrowed_c_string(functions.get_instance_proc_addr),
-        get_device_proc_addr: borrowed_c_string(functions.get_device_proc_addr),
+        get_instance_proc_addr: borrowed_c_string(functions.bytes(1)),
+        get_device_proc_addr: borrowed_c_string(functions.bytes(2)),
     };
     let pre_instance = pre_instance.unwrap_or_default();
     let pre_instance_functions = PreInstanceFunctions {
-        extension_properties: borrowed_c_string(
-            pre_instance.enumerate_instance_extension_properties,
-        ),
-        layer_properties: borrowed_c_string(pre_instance.enumerate_instance_layer_properties),
-        version: borrowed_c_string(pre_instance.enumerate_instance_version),
+        extension_properties: borrowed_c_string(pre_instance.bytes(3)),
+        layer_properties: borrowed_c_string(pre_instance.bytes(4)),
+        version: borrowed_c_string(pre_instance.bytes(5)),
     };
     Some(LayerManifest {
         source_index,
@@ -702,24 +719,22 @@ pub(super) fn parse_raw_layer(
         manifest_version,
         api_version,
         architecture_supported,
-        implementation_version: parse_manifest_u32(layer.implementation_version?),
+        implementation_version: parse_manifest_u32(layer.implementation_version()?),
         description: borrowed_c_string_limited(
-            layer.description,
+            layer.description(),
             vk::VK_MAX_DESCRIPTION_SIZE as usize,
         )?,
-        instance_extensions: parse_raw_layer_extensions(layer.instance_extensions, true),
-        device_extensions: parse_raw_layer_extensions(layer.device_extensions, false),
-        enable_environment: implicit
-            .then(|| raw_environment(layer.enable_environment))
-            .flatten(),
+        instance_extensions: parse_raw_layer_extensions(layer.value(7), true),
+        device_extensions: parse_raw_layer_extensions(layer.value(8), false),
+        enable_environment: implicit.then(|| raw_environment(layer.value(9))).flatten(),
         disable_environment,
         blacklisted_layers: if is_override {
-            raw_string_array(layer.blacklisted_layers)
+            raw_string_array(layer.value(12))
         } else {
             Box::default()
         },
-        override_paths: raw_path_array(layer.override_paths),
-        app_keys: layer.app_keys.map(|value| raw_path_array(Some(value))),
+        override_paths: raw_path_array(layer.value(13)),
+        app_keys: layer.value(14).map(|value| raw_path_array(Some(value))),
         functions,
         pre_instance_functions,
         has_pre_instance_functions,
@@ -745,20 +760,16 @@ pub(super) fn parse_layer_manifest_inner(
             }
         }
     }
-    let Some(value) = parse_json_value(&bytes) else {
+    let Some(document) = parse_json_value(&bytes) else {
         return (Box::default(), true, false);
     };
-    let Some(root) = LayerManifestDocument::from_value(&value) else {
+    let Some(root) = LayerManifestDocument::from_value(document.root()) else {
         return (Box::default(), true, false);
     };
     let Some(manifest_version) = parse_api_version_bytes(root.file_format_version) else {
         return (Box::default(), true, false);
     };
-    let major = vk::VK_API_VERSION_MAJOR(manifest_version);
-    let minor = vk::VK_API_VERSION_MINOR(manifest_version);
-    let patch = vk::VK_API_VERSION_PATCH(manifest_version);
-    let known_version = major == 1
-        && ((minor == 0 && patch < 2) || (minor == 1 && patch < 3) || (minor == 2 && patch < 2));
+    let known_version = manifest_version_is_known(manifest_version);
     let supports_pre_instance = manifest_version >= VK_MAKE_API_VERSION(0, 1, 1, 2);
     if let Some(layers) = root.layers {
         let source_count = layers.len();
@@ -778,7 +789,7 @@ pub(super) fn parse_layer_manifest_inner(
             ) else {
                 continue;
             };
-            if crate::allocation::try_push(&mut manifests, manifest).is_err() {
+            if allocation::try_push(&mut manifests, manifest).is_err() {
                 pending::mark_json_allocation_failed();
                 return (Box::default(), true, false);
             }
@@ -802,16 +813,25 @@ pub(super) fn parse_layer_manifest_inner(
     });
     let manifests: Box<[LayerManifest]> = match manifest {
         Some(manifest) => {
-            let Ok(storage) = crate::allocation::try_box_uninit::<[LayerManifest; 1]>() else {
+            let Ok(storage) = allocation::try_box_uninit::<[LayerManifest; 1]>() else {
                 pending::mark_json_allocation_failed();
                 return (Box::default(), true, false);
             };
-            Box::write(storage, [manifest])
+            Box::write(storage, [manifest]) as Box<[LayerManifest]>
         }
         None => Box::default(),
     };
     let needs_diagnostics = !known_version || manifests.len() != usize::from(had_layer);
     (manifests, needs_diagnostics, false)
+}
+
+#[inline(never)]
+pub(crate) fn manifest_version_is_known(version: u32) -> bool {
+    let major = vk::VK_API_VERSION_MAJOR(version);
+    let minor = vk::VK_API_VERSION_MINOR(version);
+    let patch = vk::VK_API_VERSION_PATCH(version);
+    major == 1
+        && ((minor == 0 && patch < 2) || (minor == 1 && patch < 3) || (minor == 2 && patch < 2))
 }
 
 pub(crate) fn parse_layer_manifest(path: &Path, implicit: bool) -> Box<[LayerManifest]> {
@@ -820,4 +840,67 @@ pub(crate) fn parse_layer_manifest(path: &Path, implicit: bool) -> Box<[LayerMan
 
 pub(crate) fn reparse_layer_manifest(path: &Path, implicit: bool) -> Box<[LayerManifest]> {
     parse_layer_manifest_inner(path, implicit, None).0
+}
+
+#[cfg(test)]
+mod byte_contract_tests {
+    use super::{library_architecture_supported, parse_api_version_bytes};
+
+    #[test]
+    fn layer_fields_preserve_first_case_insensitive_and_nul_terminated_key() {
+        let value = crate::json::parse(br#"{"NAME":null,"name":"later","TyPe\u0000ignored":"GLOBAL","type":"DEVICE","DESCRIPTION":"first","description":"later"}"#).unwrap();
+        let raw = super::RawLayer::from_value(value.root()).unwrap();
+        assert_eq!(raw.name(), None);
+        assert_eq!(raw.layer_type(), Some(b"GLOBAL".as_slice()));
+        assert_eq!(raw.description(), Some(b"first".as_slice()));
+    }
+
+    #[test]
+    fn control_byte_scan_preserves_word_and_tail_boundaries() {
+        for byte in 0..=u8::MAX {
+            for position in 0..24 {
+                let mut bytes = [b'a'; 32];
+                bytes[position] = byte;
+                for length in [position + 1, bytes.len()] {
+                    assert_eq!(super::contains_control_byte(&bytes[..length]), byte < 32);
+                }
+            }
+        }
+        assert!(!super::contains_control_byte(b""));
+    }
+
+    #[test]
+    fn printed_string_capacity_includes_escapes_and_terminator() {
+        for (value, printed_length) in [
+            (b"".as_slice(), 0),
+            (b"plain".as_slice(), 5),
+            (b"\"\\\n".as_slice(), 6),
+            (b"\x01\x1f".as_slice(), 12),
+            (b"prefix\x00ignored".as_slice(), 6),
+            (b"\xff".as_slice(), 1),
+        ] {
+            assert!(!super::printed_bytes_fit(value, printed_length));
+            assert!(!super::printed_bytes_fit(value, printed_length + 1));
+            assert!(super::printed_bytes_fit(value, printed_length + 2));
+        }
+        assert!(super::printed_bytes_fit(&[b'a'; 254], 256));
+        assert!(!super::printed_bytes_fit(&[b'a'; 255], 256));
+        assert!(!super::printed_bytes_fit(&[b'a'; 256], 256));
+    }
+
+    #[test]
+    fn architecture_and_version_prefixes_do_not_require_utf8() {
+        assert_eq!(
+            library_architecture_supported(Some(b"32\xff")),
+            core::mem::size_of::<usize>() != 8
+        );
+        assert_eq!(
+            library_architecture_supported(Some(b"64\xff")),
+            core::mem::size_of::<usize>() != 4
+        );
+        assert_eq!(
+            parse_api_version_bytes(Some(b"1.3.127\xff")),
+            Some(vk::VK_MAKE_API_VERSION(0, 1, 3, 127))
+        );
+    }
 }

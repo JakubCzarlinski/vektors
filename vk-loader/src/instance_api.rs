@@ -1,5 +1,6 @@
 //! instance implementation.
 
+use crate::LoaderPathExt;
 use crate::{
     CStr, DirectIcdError, ExtensionSet, IcdInstance, InstanceDispatchTable,
     LINUX_SORT_PLATFORM_ENABLED, LoaderInstance, ManifestApiVersionStatus, PFN_vkDestroyInstance,
@@ -10,8 +11,10 @@ use crate::{
     debug::{self, diagnostics},
     decimal_prefix_nonzero, destroy_all_surfaces, discovery, emulation, fatal_loader_error, icd,
     instance, layer, linux_sort_requires_properties_extension, load_typed, pending, platform,
-    unknown, wsi_instance_extension_supported,
+    pre_instance, unknown, wsi_instance_extension_supported,
 };
+use core::ffi::c_char;
+use core::ptr;
 use std::path::Path;
 
 /// Creates a Vulkan instance across the discovered ICDs.
@@ -182,13 +185,16 @@ pub(crate) unsafe fn log_instance_name_array(
     create_info: &VkInstanceCreateInfo<'_>,
     kind: &str,
     count: u32,
-    names: *const *const core::ffi::c_char,
+    names: *const *const c_char,
 ) {
     unsafe {
         emit_driver_create_message(
             create_info,
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-            format_args!("vkCreateInstance: Requested {count} instance {kind}(s):"),
+            format_args!(
+                "vkCreateInstance: Requested {count} instance {}(s):",
+                diagnostics::Text(kind)
+            ),
         );
     };
     if names.is_null() {
@@ -330,12 +336,9 @@ pub(crate) unsafe fn emit_driver_category_create_message(
     severity: vk::VkDebugUtilsMessageSeverityFlagBitsEXT,
     message: core::fmt::Arguments<'_>,
 ) {
-    let filter = platform::LogFilter::from_severity(severity);
-    platform::write_loader_log_with_category(filter, platform::LogFilter::Driver, message);
-    diagnostics::with_message(message, |message| {
-        // SAFETY: The caller retains the complete instance-create pNext chain.
-        unsafe { debug::messenger::submit_instance_create_message(create_info, severity, message) };
-    });
+    unsafe {
+        emit_category_create_message(create_info, severity, platform::LogFilter::Driver, message);
+    }
 }
 
 #[cold]
@@ -345,9 +348,23 @@ pub(crate) unsafe fn emit_layer_category_create_message(
     severity: vk::VkDebugUtilsMessageSeverityFlagBitsEXT,
     message: core::fmt::Arguments<'_>,
 ) {
+    unsafe {
+        emit_category_create_message(create_info, severity, platform::LogFilter::Layer, message);
+    }
+}
+
+#[cold]
+#[inline(never)]
+unsafe fn emit_category_create_message(
+    create_info: &VkInstanceCreateInfo<'_>,
+    severity: vk::VkDebugUtilsMessageSeverityFlagBitsEXT,
+    category: platform::LogFilter,
+    message: core::fmt::Arguments<'_>,
+) {
     let filter = platform::LogFilter::from_severity(severity);
-    platform::write_loader_log_with_category(filter, platform::LogFilter::Layer, message);
+    platform::write_loader_log_with_category(filter, category, message);
     diagnostics::with_message(message, |message| {
+        // SAFETY: The caller retains the complete instance-create pNext chain.
         unsafe { debug::messenger::submit_instance_create_message(create_info, severity, message) };
     });
 }
@@ -413,7 +430,7 @@ pub(crate) unsafe fn direct_driver_list<'a>(
         )
     }?;
     // SAFETY: sType identifies the concrete structure layout.
-    Some(unsafe { &*core::ptr::from_ref(structure).cast::<VkDirectDriverLoadingListLUNARG<'a>>() })
+    Some(unsafe { &*ptr::from_ref(structure).cast::<VkDirectDriverLoadingListLUNARG<'a>>() })
 }
 
 pub(crate) fn fatal_direct_driver_scan_error(result: VkResult) -> Option<VkResult> {
@@ -434,7 +451,7 @@ unsafe fn emit_empty_direct_driver_list(
         emit_driver_category_create_message(
             create_info,
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-            format_args!("{message}"),
+            format_args!("{}", diagnostics::Text(message)),
         );
     }
 }
@@ -571,7 +588,10 @@ pub(crate) unsafe fn emit_driver_scan_preamble(
     };
     for root in &scan.search_roots {
         unsafe {
-            emit_driver_only_create_message(create_info, format_args!("      {}", root.display()));
+            emit_driver_only_create_message(
+                create_info,
+                format_args!("      {}", root.loader_display()),
+            );
         };
     }
     if scan.reported_files.is_empty() {
@@ -595,7 +615,7 @@ pub(crate) unsafe fn emit_driver_scan_preamble(
             unsafe {
                 emit_driver_only_create_message(
                     create_info,
-                    format_args!("      {}", display_path.display()),
+                    format_args!("      {}", display_path.loader_display()),
                 );
             };
         }
@@ -609,7 +629,7 @@ pub(crate) unsafe fn emit_driver_scan_preamble(
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
                     format_args!(
                         "Located json file \"{}\" from registry \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Khronos\\Vulkan\\Drivers\"",
-                        path.display(),
+                        path.loader_display(),
                     ),
                 )
             };
@@ -672,8 +692,10 @@ pub(crate) unsafe fn emit_driver_candidate_diagnostics(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
                 format_args!(
-                    "Driver \"{}\" ignored because {reason} by env var '{variable}'",
-                    Path::new(name).display()
+                    "Driver \"{}\" ignored because {} by env var '{}'",
+                    Path::new(name).loader_display(),
+                    diagnostics::Text(reason),
+                    diagnostics::Text(variable),
                 ),
             );
         }
@@ -693,14 +715,17 @@ pub(crate) unsafe fn emit_driver_candidate_manifest_diagnostics(
             let displayed_library_path = manifest
                 .library_path
                 .to_str()
-                .and_then(|path| path.rfind("/./").map(|index| Path::new(&path[index + 1..])))
+                .and_then(|path| {
+                    crate::rfind_bytes(path.as_bytes(), b"/./")
+                        .map(|index| Path::new(&path[index + 1..]))
+                })
                 .unwrap_or(&manifest.library_path);
             emit_driver_category_create_message(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::VERBOSE,
                 format_args!(
                     "Searching for ICD drivers named {}",
-                    displayed_library_path.display()
+                    displayed_library_path.loader_display()
                 ),
             );
         }
@@ -721,11 +746,9 @@ pub(crate) unsafe fn emit_driver_manifest_diagnostics(
                     create_info,
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
                     format_args!(
-                        "loader_parse_icd_manifest: {} has unknown icd manifest file version {}.{}.{}. May cause errors.",
-                        manifest.manifest_path.display(),
-                        vk::VK_API_VERSION_MAJOR(manifest.manifest_version),
-                        vk::VK_API_VERSION_MINOR(manifest.manifest_version),
-                        vk::VK_API_VERSION_PATCH(manifest.manifest_version),
+                        "loader_parse_icd_manifest: {} has unknown icd manifest file version {}. May cause errors.",
+                        manifest.manifest_path.loader_display(),
+                        layer::ManifestVersion(manifest.manifest_version),
                     ),
                 );
             };
@@ -737,7 +760,7 @@ pub(crate) unsafe fn emit_driver_manifest_diagnostics(
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::VERBOSE,
                     format_args!(
                         "Searching for ICD drivers named {}",
-                        manifest.library_path.display()
+                        manifest.library_path.loader_display()
                     ),
                 );
                 emit_driver_category_create_message(
@@ -745,7 +768,7 @@ pub(crate) unsafe fn emit_driver_manifest_diagnostics(
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
                     format_args!(
                         "loader_parse_icd_manifest: Driver's ICD JSON {} 'api_version' field contains a non-zero variant value of {variant}.  Skipping ICD JSON.",
-                        manifest.manifest_path.display(),
+                        manifest.manifest_path.loader_display(),
                     ),
                 );
             };
@@ -757,7 +780,7 @@ pub(crate) unsafe fn emit_driver_manifest_diagnostics(
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::VERBOSE,
                     format_args!(
                         "Searching for ICD drivers named {}",
-                        manifest.library_path.display()
+                        manifest.library_path.loader_display()
                     ),
                 );
                 emit_driver_create_message(
@@ -787,7 +810,7 @@ unsafe fn emit_driver_manifest_error(
             } else {
                 path.file_name().unwrap_or(path.as_os_str())
             };
-            let path = Path::new(path).display();
+            let path = Path::new(path).loader_display();
             emit_driver_create_message(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
@@ -795,7 +818,7 @@ unsafe fn emit_driver_manifest_error(
             );
         },
         discovery::DriverManifestError::InvalidJson => unsafe {
-            let path = path.display();
+            let path = path.loader_display();
             emit_driver_create_message(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
@@ -803,7 +826,7 @@ unsafe fn emit_driver_manifest_error(
             );
         },
         discovery::DriverManifestError::MissingFileFormatVersion => unsafe {
-            let path = path.display();
+            let path = path.loader_display();
             emit_driver_category_create_message(
                 create_info,
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
@@ -813,14 +836,12 @@ unsafe fn emit_driver_manifest_error(
             );
         },
         discovery::DriverManifestError::EmptyLibraryPath { manifest_version } => unsafe {
-            let path = path.display();
+            let path = path.loader_display();
             emit_driver_only_create_message(
                 create_info,
                 format_args!(
-                    "Found ICD manifest file {path}, version {}.{}.{}",
-                    vk::VK_API_VERSION_MAJOR(manifest_version),
-                    vk::VK_API_VERSION_MINOR(manifest_version),
-                    vk::VK_API_VERSION_PATCH(manifest_version),
+                    "Found ICD manifest file {path}, version {}",
+                    layer::ManifestVersion(manifest_version),
                 ),
             );
             if manifest_version >= vk::VK_MAKE_API_VERSION(0, 1, 0, 2) {
@@ -828,10 +849,8 @@ unsafe fn emit_driver_manifest_error(
                     create_info,
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
                     format_args!(
-                        "loader_parse_icd_manifest: {path} has unknown icd manifest file version {}.{}.{}. May cause errors.",
-                        vk::VK_API_VERSION_MAJOR(manifest_version),
-                        vk::VK_API_VERSION_MINOR(manifest_version),
-                        vk::VK_API_VERSION_PATCH(manifest_version),
+                        "loader_parse_icd_manifest: {path} has unknown icd manifest file version {}. May cause errors.",
+                        layer::ManifestVersion(manifest_version),
                     ),
                 );
             }
@@ -856,11 +875,9 @@ pub(crate) unsafe fn emit_driver_manifest_found(
         emit_driver_only_create_message(
             create_info,
             format_args!(
-                "Found ICD manifest file {}, version {}.{}.{}",
-                manifest.manifest_path.display(),
-                vk::VK_API_VERSION_MAJOR(manifest.manifest_version),
-                vk::VK_API_VERSION_MINOR(manifest.manifest_version),
-                vk::VK_API_VERSION_PATCH(manifest.manifest_version),
+                "Found ICD manifest file {}, version {}",
+                manifest.manifest_path.loader_display(),
+                layer::ManifestVersion(manifest.manifest_version),
             ),
         );
     };
@@ -953,7 +970,7 @@ pub(crate) unsafe fn scan_icds(
                 emit_driver_category_create_message(
                     create_info,
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-                    format_args!("{message}"),
+                    format_args!("{}", diagnostics::Text(message)),
                 );
             };
         }
@@ -991,7 +1008,7 @@ pub(crate) unsafe fn load_scanned_icd(
                 emit_driver_create_message(
                     create_info,
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
-                    format_args!("{message}"),
+                    format_args!("{}", diagnostics::Text(&message)),
                 );
             };
             if wrong_bit_type {
@@ -1000,7 +1017,7 @@ pub(crate) unsafe fn load_scanned_icd(
                         create_info,
                         format_args!(
                             "Requested ICD {} was wrong bit-type. Ignoring this JSON",
-                            manifest.library_path.display()
+                            manifest.library_path.loader_display()
                         ),
                     );
                 };
@@ -1014,7 +1031,7 @@ pub(crate) unsafe fn load_scanned_icd(
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
                     format_args!(
                         "loader_scanned_icd_add: ICD {} reports an interface version of {interface_version} but doesn't export vk_icdGetInstanceProcAddr, skip this ICD.",
-                        manifest.library_path.display()
+                        manifest.library_path.loader_display()
                     ),
                 );
                 emit_driver_category_create_message(
@@ -1022,7 +1039,7 @@ pub(crate) unsafe fn load_scanned_icd(
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
                     format_args!(
                         "loader_icd_scan: Failed loading library associated with ICD JSON {}. Ignoring this JSON",
-                        manifest.library_path.display()
+                        manifest.library_path.loader_display()
                     ),
                 );
             }
@@ -1042,7 +1059,7 @@ pub(crate) unsafe fn load_scanned_icd(
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::VERBOSE,
                 format_args!(
                     "normalize_path: Call to realpath() failed with error code 2 when given the path {}",
-                    manifest.library_path.display()
+                    manifest.library_path.loader_display()
                 ),
             );
             if let Some(loaded_path) = icd.library_path() {
@@ -1051,8 +1068,8 @@ pub(crate) unsafe fn load_scanned_icd(
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
                     format_args!(
                         "Path to given binary {} was found to differ from OS loaded path {}",
-                        manifest.library_path.display(),
-                        loaded_path.display()
+                        manifest.library_path.loader_display(),
+                        loaded_path.loader_display()
                     ),
                 );
             }
@@ -1065,7 +1082,7 @@ pub(crate) unsafe fn load_scanned_icd(
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
                 format_args!(
                     "loader_scanned_icd_add: Using deprecated ICD interface of 'vkGetInstanceProcAddr' instead of 'vk_icdGetInstanceProcAddr' for ICD {}",
-                    manifest.library_path.display()
+                    manifest.library_path.loader_display()
                 ),
             );
         };
@@ -1181,7 +1198,7 @@ pub(crate) unsafe fn emit_icd_version_status(
         .icd
         .library_path()
         .unwrap_or_else(|| Path::new("<direct driver>"))
-        .display();
+        .loader_display();
     match scanned.version_status {
         ManifestApiVersionStatus::Consistent => {}
         ManifestApiVersionStatus::EnumerateInstanceVersionMissing => unsafe {
@@ -1235,93 +1252,93 @@ pub(crate) unsafe fn create_scanned_icd_instance(
     has_device_configurations: bool,
     output: *mut IcdInstance,
 ) -> Result<bool, VkResult> {
-    let mut icd_create_info = *create_info;
-    icd_create_info.enabledLayerCount = 0;
-    icd_create_info.ppEnabledLayerNames = core::ptr::null();
-    let supported_extensions = unsafe { scanned_icd_instance_extensions(&icd) }?;
-    let supports = |name: *const core::ffi::c_char| {
-        !name.is_null()
-            && supported_extensions.iter().any(|property| unsafe {
-                CStr::from_ptr(property.extensionName.as_ptr()) == CStr::from_ptr(name)
-            })
-    };
-    let icd_extension_names = unsafe {
-        filtered_icd_instance_extensions(
-            create_info,
+    let (handle, enabled_extensions, unknown_physical_device_dispatch) = {
+        let mut icd_create_info = *create_info;
+        icd_create_info.enabledLayerCount = 0;
+        icd_create_info.ppEnabledLayerNames = ptr::null();
+        let supported_extensions = unsafe { scanned_icd_instance_extensions(&icd) }?;
+        let supports = |name: *const c_char| {
+            !name.is_null()
+                && supported_extensions.iter().any(|property| unsafe {
+                    CStr::from_ptr(property.extensionName.as_ptr()) == CStr::from_ptr(name)
+                })
+        };
+        let icd_extension_names = unsafe {
+            filtered_icd_instance_extensions(
+                create_info,
+                requested_api_version,
+                icd.api_version,
+                supports,
+            )
+        }?;
+        if !icd_extension_names.is_empty() {
+            icd_create_info.enabledExtensionCount = icd_extension_names.len() as u32;
+            icd_create_info.ppEnabledExtensionNames = icd_extension_names.as_ptr();
+        }
+        if icd_create_info
+            .flags
+            .intersects(vk::VkInstanceCreateFlagBits::ENUMERATE_PORTABILITY_BIT_KHR)
+            && !supports(vk::VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME.as_ptr())
+        {
+            icd_create_info.flags.0 &=
+                !vk::VkInstanceCreateFlagBits::ENUMERATE_PORTABILITY_BIT_KHR.0;
+        }
+        let enabled_extensions = unsafe {
+            ExtensionSet::from_names(
+                icd_extension_names.len() as u32,
+                icd_extension_names.as_ptr(),
+            )
+        };
+        let mut icd_application_info = if create_info.pApplicationInfo.is_null() {
+            vk::VkApplicationInfo::DEFAULT
+        } else {
+            // SAFETY: A non-null application-info pointer is readable by contract.
+            unsafe { *create_info.pApplicationInfo }
+        };
+        if let Some(api_version) = icd_create_application_api_version(
             requested_api_version,
             icd.api_version,
-            supports,
-        )
-    }?;
-    if !icd_extension_names.is_empty() {
-        icd_create_info.enabledExtensionCount = icd_extension_names.len() as u32;
-        icd_create_info.ppEnabledExtensionNames = icd_extension_names.as_ptr();
-    }
-    if icd_create_info
-        .flags
-        .intersects(vk::VkInstanceCreateFlagBits::ENUMERATE_PORTABILITY_BIT_KHR)
-        && !supports(vk::VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME.as_ptr())
-    {
-        icd_create_info.flags.0 &= !vk::VkInstanceCreateFlagBits::ENUMERATE_PORTABILITY_BIT_KHR.0;
-    }
-    let enabled_extensions = unsafe {
-        ExtensionSet::from_names(
-            icd_extension_names.len() as u32,
-            icd_extension_names.as_ptr(),
-        )
-    };
-    let mut icd_application_info = if create_info.pApplicationInfo.is_null() {
-        vk::VkApplicationInfo::DEFAULT
-    } else {
-        // SAFETY: A non-null application-info pointer is readable by contract.
-        unsafe { *create_info.pApplicationInfo }
-    };
-    if let Some(api_version) = icd_create_application_api_version(
-        requested_api_version,
-        icd.api_version,
-        has_device_configurations,
-    ) {
-        icd_application_info.apiVersion = api_version;
-        icd_create_info.pApplicationInfo = &raw const icd_application_info;
-    }
-    let unknown_physical_device_dispatch = unknown::UnknownDispatchTable::try_new()?;
-    let mut handle = VkInstance::NULL;
-    // SAFETY: The scanned function has the registry ABI and receives valid structures.
-    match unsafe { (icd.create_instance)(&raw const icd_create_info, allocator, &raw mut handle) } {
-        VkResult::SUCCESS => {
-            let dispatch = unsafe { core::ptr::addr_of_mut!((*output).dispatch) };
-            // SAFETY: The reserved vector slot is writable and `handle` was
-            // just created by this ICD whose GIPA remains live.
-            unsafe {
-                InstanceDispatchTable::load_into(dispatch, icd.get_instance_proc_addr, handle);
-            };
-            // SAFETY: `load_into` initialized the complete dispatch field.
-            let dispatch_ref = unsafe { &*dispatch };
-            if !dispatch_ref.has_required_core_1_0() {
-                unsafe {
-                    discard_incomplete_icd_instance(
-                        create_info,
-                        &icd,
-                        dispatch_ref,
-                        handle,
-                        allocator,
-                    );
-                };
-                return Ok(false);
-            }
-            unsafe {
-                core::ptr::addr_of_mut!((*output).icd).write(icd);
-                core::ptr::addr_of_mut!((*output).handle).write(handle);
-                core::ptr::addr_of_mut!((*output).enabled_extensions).write(enabled_extensions);
-                core::ptr::addr_of_mut!((*output).unknown_physical_device_dispatch)
-                    .write(unknown_physical_device_dispatch);
-                IcdInstance::initialize_active(output);
-            }
-            Ok(true)
+            has_device_configurations,
+        ) {
+            icd_application_info.apiVersion = api_version;
+            icd_create_info.pApplicationInfo = &raw const icd_application_info;
         }
-        VkResult::ERROR_OUT_OF_HOST_MEMORY => Err(VkResult::ERROR_OUT_OF_HOST_MEMORY),
-        _ => Ok(false),
+        let unknown_physical_device_dispatch = unknown::UnknownDispatchTable::try_new()?;
+        let mut handle = VkInstance::NULL;
+        // SAFETY: The scanned function has the registry ABI and receives valid structures.
+        match unsafe {
+            (icd.create_instance)(&raw const icd_create_info, allocator, &raw mut handle)
+        } {
+            VkResult::SUCCESS => (handle, enabled_extensions, unknown_physical_device_dispatch),
+            VkResult::ERROR_OUT_OF_HOST_MEMORY => {
+                return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
+            }
+            _ => return Ok(false),
+        }
+    };
+    let dispatch = unsafe { ptr::addr_of_mut!((*output).dispatch) };
+    // SAFETY: The reserved vector slot is writable and `handle` was just
+    // created by this ICD whose GIPA remains live.
+    unsafe {
+        InstanceDispatchTable::load_into(dispatch, icd.get_instance_proc_addr, handle);
+    };
+    // SAFETY: `load_into` initialized the complete dispatch field.
+    let dispatch_ref = unsafe { &*dispatch };
+    if !dispatch_ref.has_required_core_1_0() {
+        unsafe {
+            discard_incomplete_icd_instance(create_info, &icd, dispatch_ref, handle, allocator);
+        };
+        return Ok(false);
     }
+    unsafe {
+        ptr::addr_of_mut!((*output).icd).write(icd);
+        ptr::addr_of_mut!((*output).handle).write(handle);
+        ptr::addr_of_mut!((*output).enabled_extensions).write(enabled_extensions);
+        ptr::addr_of_mut!((*output).unknown_physical_device_dispatch)
+            .write(unknown_physical_device_dispatch);
+        IcdInstance::initialize_active(output);
+    }
+    Ok(true)
 }
 
 pub(crate) unsafe fn scanned_icd_instance_extensions(
@@ -1332,23 +1349,7 @@ pub(crate) unsafe fn scanned_icd_instance_extensions(
     else {
         return Ok(Vec::new());
     };
-    let mut count = 0;
-    let result = unsafe { enumerate(core::ptr::null(), &raw mut count, core::ptr::null_mut()) };
-    if result != VkResult::SUCCESS {
-        return Err(result);
-    }
-    let capacity = count as usize;
-    let mut properties = Vec::new();
-    properties
-        .try_reserve_exact(capacity)
-        .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
-    properties.resize(capacity, VkExtensionProperties::DEFAULT);
-    let result = unsafe { enumerate(core::ptr::null(), &raw mut count, properties.as_mut_ptr()) };
-    if result != VkResult::SUCCESS && result != VkResult::INCOMPLETE {
-        return Err(result);
-    }
-    properties.truncate((count as usize).min(capacity));
-    Ok(properties)
+    unsafe { pre_instance::enumerate_icd_extension_properties(enumerate, true) }
 }
 
 pub(crate) fn destroy_icd_instances(
@@ -1395,7 +1396,7 @@ pub unsafe extern "system" fn vkDestroyInstance(
     debug_assert!(dispatch.vkDestroyInstance.is_some());
     // SAFETY: Core Vulkan 1.0 requires this entry in every conforming chain.
     let destroy = unsafe { dispatch.vkDestroyInstance.unwrap_unchecked() };
-    let dispatch_key = core::ptr::from_ref(dispatch);
+    let dispatch_key = ptr::from_ref(dispatch);
     // SAFETY: Forward the caller's live chain handle and matching allocator.
     unsafe { destroy(instance, allocator) };
     // The layer libraries must remain loaded until every destroy frame has
@@ -1552,7 +1553,7 @@ unsafe fn discard_incomplete_icd_instance(
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
                 format_args!(
                     "Unable to load vkGetPhysicalDeviceFeatures from ICD {}",
-                    path.display()
+                    path.loader_display()
                 ),
             );
         };
@@ -1564,7 +1565,7 @@ unsafe fn discard_incomplete_icd_instance(
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
                 format_args!(
                     "terminator_CreateInstance: Failed to find required entrypoints in ICD {}. Skipping this driver.",
-                    path.display()
+                    path.loader_display()
                 ),
             );
         };
@@ -1622,8 +1623,8 @@ unsafe fn filtered_icd_instance_extensions(
     create_info: &VkInstanceCreateInfo<'_>,
     requested_api_version: u32,
     driver_api_version: u32,
-    supports: impl Fn(*const core::ffi::c_char) -> bool,
-) -> Result<Vec<*const core::ffi::c_char>, VkResult> {
+    supports: impl Fn(*const c_char) -> bool,
+) -> Result<Vec<*const c_char>, VkResult> {
     let mut icd_extension_names = Vec::new();
     if create_info.enabledExtensionCount != 0 {
         let capacity = (create_info.enabledExtensionCount as usize)

@@ -1,5 +1,6 @@
 //! `vk_layer.h` pre-instance enumeration chains.
 
+use crate::LoaderPathExt;
 use crate::{
     collections::ScratchArray,
     discovery::{
@@ -10,6 +11,7 @@ use crate::{
     platform::{self, LoaderLibrary, LogFilter},
 };
 use alloc::vec::Vec;
+use core::ptr;
 use core::{ffi::CStr, mem};
 use vk::{
     PFN_vkEnumerateInstanceExtensionProperties, VkExtensionProperties, VkInstance,
@@ -85,18 +87,21 @@ struct VersionChain {
     next_link: *const Self,
 }
 
-struct LoadedFunction<'a, F> {
+struct LoadedFunction<'a> {
     _library: LoaderLibrary,
     library_path: &'a std::path::Path,
-    function: F,
+    function: unsafe extern "system" fn(),
 }
 
-impl<F> Drop for LoadedFunction<'_, F> {
+impl Drop for LoadedFunction<'_> {
     fn drop(&mut self) {
         platform::write_loader_log_with_category(
             LogFilter::Debug,
             LogFilter::Layer,
-            format_args!("Unloading layer library {}", self.library_path.display()),
+            format_args!(
+                "Unloading layer library {}",
+                self.library_path.loader_display()
+            ),
         );
     }
 }
@@ -105,17 +110,37 @@ fn is_enabled_implicit(manifest: &LayerManifest) -> bool {
     layer::implicit_manifest_is_active(manifest)
 }
 
-fn load_functions<F: Copy>(
+#[derive(Clone, Copy)]
+enum PreInstanceFunction {
+    ExtensionProperties,
+    LayerProperties,
+    Version,
+}
+
+impl PreInstanceFunction {
+    fn name(self, manifest: &LayerManifest) -> Option<&CStr> {
+        match self {
+            Self::ExtensionProperties => manifest
+                .pre_instance_functions
+                .extension_properties
+                .as_deref(),
+            Self::LayerProperties => manifest.pre_instance_functions.layer_properties.as_deref(),
+            Self::Version => manifest.pre_instance_functions.version.as_deref(),
+        }
+    }
+}
+
+fn load_functions(
     manifests: &[LayerManifest],
-    select: impl Fn(&LayerManifest) -> Option<&CStr>,
-) -> Result<Vec<LoadedFunction<'_, F>>, VkResult> {
+    function: PreInstanceFunction,
+) -> Result<Vec<LoadedFunction<'_>>, VkResult> {
     let valid = valid_layer_mask(manifests)?;
     let mut functions = Vec::new();
     for (manifest, valid) in manifests.iter().zip(valid.iter()) {
         if !valid || !is_enabled_implicit(manifest) {
             continue;
         }
-        let Some(name) = select(manifest) else {
+        let Some(name) = function.name(manifest) else {
             continue;
         };
         let Some(path) = manifest.library_path() else {
@@ -132,12 +157,14 @@ fn load_functions<F: Copy>(
         platform::write_loader_log_with_category(
             LogFilter::Debug,
             LogFilter::Layer,
-            format_args!("Loading layer library {}", path.display()),
+            format_args!("Loading layer library {}", path.loader_display()),
         );
-        // SAFETY: The manifest names a function with the selected `vk_layer.h` ABI.
+        // SAFETY: Vulkan function pointers have a common representation. The
+        // selected manifest field determines the concrete ABI restored by the
+        // corresponding typed chain below.
         let function = unsafe {
             library
-                .get::<F>(name.to_bytes_with_nul())
+                .get::<unsafe extern "system" fn()>(name.to_bytes_with_nul())
                 .ok()
                 .map(|symbol| *symbol)
         };
@@ -219,21 +246,73 @@ fn push_extension(
     Ok(())
 }
 
+fn push_named_extension(
+    extensions: &mut InstanceExtensions,
+    name: &CStr,
+    spec_version: u32,
+) -> Result<(), VkResult> {
+    let id = crate::generated::extension_id_bytes(name.to_bytes());
+    // SAFETY: `c_char` and `u8` have identical layout, and this view does not
+    // outlive the C string.
+    let name_chars = unsafe {
+        core::slice::from_raw_parts(name.to_bytes().as_ptr().cast(), name.to_bytes().len())
+    };
+    let duplicate = match id {
+        Some(id) => extensions.known.contains(id),
+        None => extensions
+            .properties
+            .iter()
+            .any(|existing| extension_name(existing) == name_chars),
+    };
+    if duplicate {
+        return Ok(());
+    }
+    extensions
+        .properties
+        .try_reserve(1)
+        .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+    let index = extensions.properties.len();
+    // SAFETY: The successful reservation leaves one writable spare slot.
+    let property = unsafe { extensions.properties.as_mut_ptr().add(index) };
+    unsafe { property.write(VkExtensionProperties::DEFAULT) };
+    let bytes = name.to_bytes_with_nul();
+    let count = bytes.len().min(vk::VK_MAX_EXTENSION_NAME_SIZE as usize);
+    // SAFETY: The spare property is initialized, both element types occupy one
+    // byte, and extensionName has at least `count` entries.
+    unsafe {
+        ptr::copy_nonoverlapping(
+            bytes.as_ptr(),
+            (*property).extensionName.as_mut_ptr().cast(),
+            count,
+        );
+    }
+    if count == vk::VK_MAX_EXTENSION_NAME_SIZE as usize {
+        unsafe { (*property).extensionName[count - 1] = 0 };
+    }
+    unsafe {
+        (*property).specVersion = spec_version;
+        extensions.properties.set_len(index + 1);
+    }
+    if let Some(id) = id {
+        extensions.known.insert(id);
+    }
+    Ok(())
+}
+
+#[cfg(test)]
 fn extension_property(name: &CStr, spec_version: u32) -> VkExtensionProperties {
     let mut property = VkExtensionProperties::DEFAULT;
     let bytes = name.to_bytes_with_nul();
     let count = bytes.len().min(property.extensionName.len());
-    // SAFETY: Both element types occupy one byte and the slices have `count` entries.
     unsafe {
-        core::ptr::copy_nonoverlapping(
+        ptr::copy_nonoverlapping(
             bytes.as_ptr(),
             property.extensionName.as_mut_ptr().cast(),
             count,
         );
     }
     if count == property.extensionName.len() {
-        let last = property.extensionName.len() - 1;
-        property.extensionName[last] = 0;
+        property.extensionName[count - 1] = 0;
     }
     property.specVersion = spec_version;
     property
@@ -247,7 +326,7 @@ fn append_manifest_extensions(
     crate::discovery::resolve_layer_names(manifests);
     let root_index = manifests
         .iter()
-        .position(|manifest| core::ptr::eq(manifest, root))
+        .position(|manifest| ptr::eq(manifest, root))
         .ok_or(VkResult::ERROR_LAYER_NOT_PRESENT)?;
     let mut visited = crate::allocation::try_boxed_slice_filled(manifests.len(), false)?;
     let mut pending = Vec::new();
@@ -262,10 +341,7 @@ fn append_manifest_extensions(
         visited[index] = true;
         let manifest = &manifests[index];
         for extension in &manifest.instance_extensions {
-            push_extension(
-                extensions,
-                &extension_property(&extension.name, extension.spec_version),
-            )?;
+            push_named_extension(extensions, &extension.name, extension.spec_version)?;
         }
         for component in manifest.component_layers().iter().rev() {
             if let Some(index) = component.index() {
@@ -302,9 +378,37 @@ fn append_loader_extensions(extensions: &mut InstanceExtensions) -> Result<(), V
         .try_reserve(LOADER_EXTENSIONS.len())
         .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
     for (name, spec_version) in LOADER_EXTENSIONS {
-        push_extension(extensions, &extension_property(name, spec_version))?;
+        push_named_extension(extensions, name, spec_version)?;
     }
     Ok(())
+}
+
+/// Enumerates an ICD's instance extensions into owned storage.
+///
+/// `accept_incomplete` preserves the different error policies of the loader's
+/// two callers: instance creation accepts a truncated second query, while the
+/// pre-instance layer ABI requires a complete result.
+pub(crate) unsafe fn enumerate_icd_extension_properties(
+    enumerate: PFN_vkEnumerateInstanceExtensionProperties,
+    accept_incomplete: bool,
+) -> Result<Vec<VkExtensionProperties>, VkResult> {
+    let mut count = 0;
+    let result = unsafe { enumerate(ptr::null(), &raw mut count, ptr::null_mut()) };
+    if result != VkResult::SUCCESS {
+        return Err(result);
+    }
+    let capacity = count as usize;
+    let mut properties = Vec::new();
+    properties
+        .try_reserve_exact(capacity)
+        .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+    properties.resize(capacity, VkExtensionProperties::DEFAULT);
+    let result = unsafe { enumerate(ptr::null(), &raw mut count, properties.as_mut_ptr()) };
+    if result != VkResult::SUCCESS && (!accept_incomplete || result != VkResult::INCOMPLETE) {
+        return Err(result);
+    }
+    properties.truncate((count as usize).min(capacity));
+    Ok(properties)
 }
 
 unsafe fn append_icd_extensions(extensions: &mut InstanceExtensions) -> Result<(), VkResult> {
@@ -324,24 +428,7 @@ unsafe fn append_icd_extensions(extensions: &mut InstanceExtensions) -> Result<(
             let Some(enumerate) = enumerate else {
                 continue;
             };
-            let mut count = 0;
-            let result =
-                unsafe { enumerate(core::ptr::null(), &raw mut count, core::ptr::null_mut()) };
-            if result != VkResult::SUCCESS {
-                return Err(result);
-            }
-            let capacity = count as usize;
-            let mut properties = Vec::new();
-            properties
-                .try_reserve_exact(capacity)
-                .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
-            properties.resize(capacity, VkExtensionProperties::DEFAULT);
-            let result =
-                unsafe { enumerate(core::ptr::null(), &raw mut count, properties.as_mut_ptr()) };
-            if result != VkResult::SUCCESS {
-                return Err(result);
-            }
-            properties.truncate((count as usize).min(capacity));
+            let properties = unsafe { enumerate_icd_extension_properties(enumerate, false) }?;
             for property in properties {
                 let name = unsafe { CStr::from_ptr(property.extensionName.as_ptr()) };
                 if !crate::wsi_instance_extension_supported(name)
@@ -423,10 +510,9 @@ unsafe fn enumerate_extension_properties_from_manifests(
             .filter(|manifest| is_enabled_implicit(manifest))
         {
             for extension in &manifest.instance_extensions {
-                if let Err(result) = push_extension(
-                    &mut extensions,
-                    &extension_property(&extension.name, extension.spec_version),
-                ) {
+                if let Err(result) =
+                    push_named_extension(&mut extensions, &extension.name, extension.spec_version)
+                {
                     return result;
                 }
             }
@@ -452,7 +538,7 @@ unsafe fn enumerate_extension_properties_from_manifests(
     let capacity = *property_count as usize;
     let written = capacity.min(extensions.properties.len());
     unsafe {
-        core::ptr::copy_nonoverlapping(extensions.properties.as_ptr(), properties, written);
+        ptr::copy_nonoverlapping(extensions.properties.as_ptr(), properties, written);
     }
     *property_count = written as u32;
     if written < extensions.properties.len() {
@@ -488,16 +574,16 @@ unsafe extern "system" fn version_terminator(
 
 /// Builds stable links for the synchronous call. Small chains stay on the
 /// stack; Copy excludes resources requiring destruction from scratch storage.
-fn with_chain<T: Copy, F>(
+fn with_chain<T: Copy>(
     tail: &T,
-    functions: &[LoadedFunction<'_, F>],
-    link: impl Fn(&LoadedFunction<'_, F>, *const T) -> T,
+    functions: &[LoadedFunction<'_>],
+    link: impl Fn(&LoadedFunction<'_>, *const T) -> T,
     call: impl FnOnce(&T) -> VkResult,
 ) -> VkResult {
     let Ok(mut links) = ScratchArray::<T, 8>::try_new(functions.len()) else {
         return VkResult::ERROR_OUT_OF_HOST_MEMORY;
     };
-    let mut head = core::ptr::from_ref(tail);
+    let mut head = ptr::from_ref(tail);
     for (index, function) in functions.iter().enumerate() {
         // SAFETY: Each slot is within the reserved storage and written once.
         // The storage stays at this address until the synchronous call ends.
@@ -527,12 +613,7 @@ pub(crate) unsafe fn enumerate_extension_properties(
     if !nested_instance_create {
         emit_layer_searches(&manifests);
     }
-    let functions = match load_functions::<EnumerateExtensionProperties>(&manifests, |manifest| {
-        manifest
-            .pre_instance_functions
-            .extension_properties
-            .as_deref()
-    }) {
+    let functions = match load_functions(&manifests, PreInstanceFunction::ExtensionProperties) {
         Ok(functions) => functions,
         Err(result) => return result,
     };
@@ -542,14 +623,16 @@ pub(crate) unsafe fn enumerate_extension_properties(
             mem::size_of::<ExtensionPropertiesChain>(),
         ),
         next_function: extension_terminator,
-        next_link: core::ptr::null(),
+        next_link: ptr::null(),
     };
     with_chain(
         &tail,
         &functions,
         |function, next_link| ExtensionPropertiesChain {
             header: tail.header,
-            next_function: function.function,
+            // SAFETY: `load_functions` selected the extension-properties field.
+            next_function: unsafe { crate::load_typed(Some(function.function)) }
+                .unwrap_or(extension_terminator),
             next_link,
         },
         // SAFETY: Negotiated ABI functions and caller-provided output storage
@@ -580,9 +663,7 @@ pub(crate) unsafe fn enumerate_layer_properties(
     if !nested_instance_create {
         emit_layer_searches(&manifests);
     }
-    let functions = match load_functions::<EnumerateLayerProperties>(&manifests, |manifest| {
-        manifest.pre_instance_functions.layer_properties.as_deref()
-    }) {
+    let functions = match load_functions(&manifests, PreInstanceFunction::LayerProperties) {
         Ok(functions) => functions,
         Err(result) => return result,
     };
@@ -592,14 +673,16 @@ pub(crate) unsafe fn enumerate_layer_properties(
             mem::size_of::<LayerPropertiesChain>(),
         ),
         next_function: layer_terminator,
-        next_link: core::ptr::null(),
+        next_link: ptr::null(),
     };
     with_chain(
         &tail,
         &functions,
         |function, next_link| LayerPropertiesChain {
             header: tail.header,
-            next_function: function.function,
+            // SAFETY: `load_functions` selected the layer-properties field.
+            next_function: unsafe { crate::load_typed(Some(function.function)) }
+                .unwrap_or(layer_terminator),
             next_link,
         },
         // SAFETY: Negotiated ABI functions and caller-provided output storage
@@ -619,23 +702,23 @@ pub(crate) unsafe fn enumerate_version(api_version: &mut u32) -> VkResult {
     if !nested_instance_create {
         emit_layer_searches(&manifests);
     }
-    let functions = match load_functions::<EnumerateVersion>(&manifests, |manifest| {
-        manifest.pre_instance_functions.version.as_deref()
-    }) {
+    let functions = match load_functions(&manifests, PreInstanceFunction::Version) {
         Ok(functions) => functions,
         Err(result) => return result,
     };
     let tail = VersionChain {
         header: header(CHAIN_TYPE_INSTANCE_VERSION, mem::size_of::<VersionChain>()),
         next_function: version_terminator,
-        next_link: core::ptr::null(),
+        next_link: ptr::null(),
     };
     with_chain(
         &tail,
         &functions,
         |function, next_link| VersionChain {
             header: tail.header,
-            next_function: function.function,
+            // SAFETY: `load_functions` selected the version field.
+            next_function: unsafe { crate::load_typed(Some(function.function)) }
+                .unwrap_or(version_terminator),
             next_link,
         },
         // SAFETY: Negotiated ABI functions and caller-provided output storage

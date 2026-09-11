@@ -203,22 +203,26 @@ fn null_instance_rejects_non_global_commands() {
 #[test]
 fn generated_command_table_classifies_dispatch() {
     assert_eq!(
-        command_lookup(c"vkCreateInstance").unwrap().scope,
+        command_lookup(c"vkCreateInstance".to_bytes())
+            .unwrap()
+            .scope,
         CommandScope::Global
     );
     assert_eq!(
-        command_lookup(c"vkDestroyInstance").unwrap().scope,
+        command_lookup(c"vkDestroyInstance".to_bytes())
+            .unwrap()
+            .scope,
         CommandScope::Instance
     );
     assert_eq!(
-        command_lookup(c"vkQueueSubmit").unwrap().scope,
+        command_lookup(c"vkQueueSubmit".to_bytes()).unwrap().scope,
         CommandScope::Device
     );
-    assert!(command_lookup(c"vkTrimCommandPoolKHR").is_some());
-    assert!(command_lookup(c"vkNotACommand").is_none());
-    assert!(command_lookup(c"CreateInstance").is_none());
-    assert!(command_lookup(c"vCreateInstance").is_none());
-    assert!(exported_proc_addr(command_lookup(c"vkQueueSubmit").unwrap().id).is_some());
+    assert!(command_lookup(c"vkTrimCommandPoolKHR".to_bytes()).is_some());
+    assert!(command_lookup(c"vkNotACommand".to_bytes()).is_none());
+    assert!(command_lookup(c"CreateInstance".to_bytes()).is_none());
+    assert!(command_lookup(c"vCreateInstance".to_bytes()).is_none());
+    assert!(exported_proc_addr(command_lookup(c"vkQueueSubmit".to_bytes()).unwrap().id).is_some());
     assert!(core::hint::black_box(COMMAND_COUNT) > 800);
     assert!(core::hint::black_box(COMMAND_MAX_DISPLACEMENT) < u8::MAX);
 }
@@ -226,7 +230,7 @@ fn generated_command_table_classifies_dispatch() {
 #[test]
 fn generated_surface_commands_separate_trampolines_and_terminators() {
     for name in [c"vkCreateHeadlessSurfaceEXT", c"vkDestroySurfaceKHR"] {
-        let id = command_lookup(name).unwrap().id;
+        let id = command_lookup(name.to_bytes()).unwrap().id;
         let trampoline = exported_proc_addr(id).map(|function| function as usize);
         let terminator = instance_terminator_proc_addr(id).map(|function| function as usize);
         assert!(
@@ -254,7 +258,7 @@ fn generated_command_lookup_is_exhaustive_and_exact() {
         name.push(0);
         let name = CStr::from_bytes_with_nul(&name).unwrap();
         assert_eq!(
-            command_lookup(name),
+            command_lookup(name.to_bytes()),
             Some(CommandLookup {
                 id: record.id,
                 scope: record.scope,
@@ -286,7 +290,10 @@ fn generated_command_lookup_is_exhaustive_and_exact() {
         c"vkZzTs0sr",
         c"vkF5TyK",
     ] {
-        assert!(command_lookup(name).is_none(), "resolved {name:?}");
+        assert!(
+            command_lookup(name.to_bytes()).is_none(),
+            "resolved {name:?}"
+        );
     }
 }
 

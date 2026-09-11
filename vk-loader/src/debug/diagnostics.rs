@@ -1,5 +1,6 @@
 //! Bounded stderr formatting and fallible callback message storage.
 
+use crate::LoaderPathExt;
 use alloc::{borrow::Cow, string::String, vec::Vec};
 use core::{
     ffi::CStr,
@@ -7,18 +8,26 @@ use core::{
 };
 use std::path::Path;
 
+pub(crate) struct Text<'a>(pub(crate) &'a str);
+
+impl fmt::Display for Text<'_> {
+    fn fmt(&self, output: &mut fmt::Formatter<'_>) -> fmt::Result {
+        output.write_str(self.0)
+    }
+}
+
 /// Keeps the first N UTF-8 bytes of a diagnostic without allocating. Once a
 /// fragment is truncated, later fragments must not fill its unused tail.
-pub(crate) struct LogBuffer<const N: usize> {
-    bytes: [u8; N],
+pub(crate) struct LogBuffer<'a> {
+    bytes: &'a mut [u8],
     len: usize,
     truncated: bool,
 }
 
-impl<const N: usize> LogBuffer<N> {
-    pub(crate) const fn new() -> Self {
+impl<'a> LogBuffer<'a> {
+    pub(crate) const fn new(bytes: &'a mut [u8]) -> Self {
         Self {
-            bytes: [0; N],
+            bytes,
             len: 0,
             truncated: false,
         }
@@ -35,20 +44,36 @@ impl<const N: usize> LogBuffer<N> {
     }
 }
 
-impl<const N: usize> core::fmt::Write for LogBuffer<N> {
+impl core::fmt::Write for LogBuffer<'_> {
     fn write_str(&mut self, value: &str) -> core::fmt::Result {
-        if self.truncated {
-            return Ok(());
-        }
-        let mut len = value.len().min(N - self.len);
-        self.truncated = len != value.len();
-        while !value.is_char_boundary(len) {
-            len -= 1;
-        }
-        self.bytes[self.len..self.len + len].copy_from_slice(&value.as_bytes()[..len]);
-        self.len += len;
+        write_log_buffer(self.bytes, &mut self.len, &mut self.truncated, value);
         Ok(())
     }
+
+    fn write_char(&mut self, value: char) -> core::fmt::Result {
+        write_log_buffer_char(self.bytes, &mut self.len, &mut self.truncated, value);
+        Ok(())
+    }
+}
+
+#[inline(never)]
+fn write_log_buffer(bytes: &mut [u8], used: &mut usize, truncated: &mut bool, value: &str) {
+    if *truncated {
+        return;
+    }
+    let mut len = value.len().min(bytes.len() - *used);
+    *truncated = len != value.len();
+    while !value.is_char_boundary(len) {
+        len -= 1;
+    }
+    bytes[*used..*used + len].copy_from_slice(&value.as_bytes()[..len]);
+    *used += len;
+}
+
+#[inline(never)]
+fn write_log_buffer_char(bytes: &mut [u8], used: &mut usize, truncated: &mut bool, value: char) {
+    let mut encoded = [0; 4];
+    write_log_buffer(bytes, used, truncated, value.encode_utf8(&mut encoded));
 }
 
 struct MessageBuffer {
@@ -63,15 +88,17 @@ struct SettingsPath<'a>(Cow<'a, str>);
 
 impl fmt::Display for SettingsPath<'_> {
     fn fmt(&self, output: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut pieces = self.0.split("/vulkan/loader_settings.d");
-        if let Some(first) = pieces.next() {
-            output.write_str(first)?;
-        }
-        for piece in pieces {
+        const NEEDLE: &[u8] = b"/vulkan/loader_settings.d";
+        let mut remaining = self.0.as_bytes();
+        while let Some(index) = crate::find_bytes(remaining, NEEDLE) {
+            // SAFETY: `self.0` is UTF-8, and an ASCII slash cannot occur within
+            // a multibyte character, so both split boundaries are valid.
+            output.write_str(unsafe { core::str::from_utf8_unchecked(&remaining[..index]) })?;
             output.write_str("/vulkan//loader_settings.d")?;
-            output.write_str(piece)?;
+            remaining = &remaining[index + NEEDLE.len()..];
         }
-        Ok(())
+        // SAFETY: This is the remaining suffix of the original UTF-8 string.
+        output.write_str(unsafe { core::str::from_utf8_unchecked(remaining) })
     }
 }
 
@@ -80,7 +107,7 @@ impl fmt::Display for SettingsPath<'_> {
 pub(crate) fn settings_path(path: &Path) -> Result<impl fmt::Display + '_, vk::VkResult> {
     let text = match path.to_str() {
         Some(text) => Cow::Borrowed(text),
-        None => Cow::Owned(try_format(format_args!("{}", path.display()))?),
+        None => Cow::Owned(try_format(format_args!("{}", path.loader_display()))?),
     };
     Ok(SettingsPath(text))
 }
@@ -256,7 +283,8 @@ mod tests {
         for first in u8::MIN..=u8::MAX {
             for second in u8::MIN..=u8::MAX {
                 let bytes = [first, second];
-                let mut output = LogBuffer::<16>::new();
+                let mut storage = [0; 16];
+                let mut output = LogBuffer::new(&mut storage);
                 write!(&mut output, "{}", LossyBytes(&bytes)).unwrap();
                 assert_eq!(output.as_str(), String::from_utf8_lossy(&bytes));
             }
@@ -268,7 +296,8 @@ mod tests {
             b"\xe2\x82",
             b"\xf4\x90\x80\x80",
         ] {
-            let mut output = LogBuffer::<16>::new();
+            let mut storage = [0; 16];
+            let mut output = LogBuffer::new(&mut storage);
             write!(&mut output, "{}", LossyBytes(bytes)).unwrap();
             assert_eq!(output.as_str(), String::from_utf8_lossy(bytes));
         }

@@ -16,9 +16,7 @@ mod tests;
 #[cfg(test)]
 pub(crate) use tests::override_manifest as test_manifest;
 
-pub(crate) use diagnostics::layer_manifest_diagnostics;
-pub(crate) use diagnostics::layer_manifest_version_text;
-pub(crate) use diagnostics::unused_override_layer_count;
+pub(crate) use diagnostics::visit_layer_manifest_diagnostics;
 pub(crate) use drivers::scan_drivers;
 pub(crate) use drivers::scan_drivers_with_settings;
 pub(crate) use extension::{AvailableDeviceExtensions, ExtensionName};
@@ -28,6 +26,7 @@ pub(crate) use layers::discover_layers;
 pub(crate) use layers::discover_layers_with_settings;
 use manifest::cjson_string;
 use manifest::cjson_value_string;
+pub(crate) use manifest::manifest_version_is_known;
 use manifest::parse_api_version;
 pub(crate) use manifest::parse_layer_manifest;
 use manifest::parse_layer_manifest_inner;
@@ -47,14 +46,12 @@ use shadow::shadow_json_allocations;
 use shadow::shadow_layer_json_allocations;
 use storage::box_array;
 use storage::box_values;
-use storage::collect_optional_values;
+use storage::collect_exact_values;
 use storage::collect_values;
 use storage::extend_values;
-use storage::own_cow;
 use storage::owned_box_str;
 use storage::owned_c_string;
 use storage::owned_path;
-use storage::owned_string;
 use storage::push_value;
 
 #[cfg(all(test, unix))]
@@ -71,7 +68,7 @@ pub(crate) use settings::{destroy_global_settings_lock, release_global_loader_se
 
 #[cfg(windows)]
 use crate::platform;
-use alloc::{ffi::CString, string::String, vec::Vec};
+use alloc::{ffi::CString, vec::Vec};
 use core::{cell::Cell, ops::Deref};
 use std::{
     ffi::OsString,
@@ -234,44 +231,65 @@ pub(crate) struct LayerSearch {
     pub(crate) diagnostic_files: Box<[PathBuf]>,
 }
 
-pub(crate) enum LayerManifestDiagnostic {
+pub(crate) enum LayerManifestDiagnostic<'a> {
     FailedOpen,
     InvalidJson,
     MissingFileFormatVersion,
     MissingLayers {
-        version: String,
+        version: alloc::borrow::Cow<'a, str>,
         parsed_version: u32,
     },
     UnknownManifestVersion {
-        version: String,
+        version: alloc::borrow::Cow<'a, str>,
         parsed_version: u32,
     },
     UnsupportedLayersArray {
-        found_version: String,
-        version: String,
+        found_version: alloc::borrow::Cow<'a, str>,
+        version: alloc::borrow::Cow<'a, str>,
     },
     NonConformingName {
         manifest_version: u32,
-        name: String,
+        name: alloc::borrow::Cow<'a, str>,
     },
     MissingRequiredValue {
-        manifest_version: u32,
-        name: &'static str,
+        version: alloc::borrow::Cow<'a, str>,
+        name: LayerRequiredValue,
     },
     MissingDisableEnvironment {
         manifest_version: u32,
-        name: String,
+        name: alloc::borrow::Cow<'a, str>,
         meta_layer: bool,
     },
     InvalidDisableEnvironment {
         manifest_version: u32,
-        name: String,
+        name: alloc::borrow::Cow<'a, str>,
     },
     InvalidLibraryAndComponents {
         manifest_version: u32,
-        name: String,
+        name: alloc::borrow::Cow<'a, str>,
         both_defined: bool,
     },
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum LayerRequiredValue {
+    Name,
+    Type,
+    ApiVersion,
+    ImplementationVersion,
+    Description,
+}
+
+impl LayerRequiredValue {
+    pub(crate) const fn label(self) -> &'static str {
+        match self {
+            Self::Name => "name",
+            Self::Type => "type",
+            Self::ApiVersion => "api_version",
+            Self::ImplementationVersion => "implementation_version",
+            Self::Description => "description",
+        }
+    }
 }
 
 impl DiscoveredLayers {

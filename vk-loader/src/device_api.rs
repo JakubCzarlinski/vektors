@@ -1,5 +1,6 @@
 //! device implementation.
 
+use crate::LoaderPathExt;
 use crate::{
     CStr, CommandScope, ExtensionSet, LoaderDevice, LoaderInstance, LoaderPhysicalDevice,
     LoaderPhysicalDeviceTrampoline, PFN_vkCreateDevice, PFN_vkDestroyDevice,
@@ -52,8 +53,8 @@ pub unsafe extern "system" fn vkCreateDevice(
             Ok(extensions) => extensions,
             Err(result) => return result,
         };
-    let extension_token = match pending::push_device_extensions(&layer_extensions) {
-        Ok(token) => token,
+    let _extension_guard = match pending::push_device_extensions(&layer_extensions) {
+        Ok(guard) => guard,
         Err(result) => return result,
     };
     let mut chain_create_info = *create_info;
@@ -66,11 +67,7 @@ pub unsafe extern "system" fn vkCreateDevice(
         })
     } {
         Ok(patch) => patch,
-        Err(result) => {
-            let popped = pending::pop_device_extensions();
-            debug_assert_eq!(popped, Some(extension_token));
-            return result;
-        }
+        Err(result) => return result,
     };
     // Upstream executes the chain builder even when no layers are active. In
     // that case it still inserts VK_LOADER_DATA_CALLBACK for the loader/driver
@@ -87,8 +84,6 @@ pub unsafe extern "system" fn vkCreateDevice(
         )
     };
     drop(group_patch);
-    let popped = pending::pop_device_extensions();
-    debug_assert_eq!(popped, Some(extension_token));
     if result == VkResult::ERROR_OUT_OF_HOST_MEMORY {
         emit_instance_loader_message(
             instance,
@@ -117,7 +112,7 @@ pub(crate) unsafe fn emit_device_layer_callstack(instance: &LoaderInstance) {
             instance,
             &[platform::LogFilter::Layer, platform::LogFilter::Driver],
             "DRIVER",
-            format_args!("{message}"),
+            format_args!("{}", diagnostics::Text(message)),
         );
     }
     let first_device_layer = pending::device_layer_start().min(instance.layers.len());
@@ -137,18 +132,21 @@ pub(crate) unsafe fn emit_device_layer_callstack(instance: &LoaderInstance) {
             "LAYER",
             format_args!(
                 "           Type: {}",
-                if layer.implicit {
+                diagnostics::Text(if layer.implicit {
                     "Implicit"
                 } else {
                     "Explicit"
-                }
+                })
             ),
         );
         emit_instance_category_message(
             instance,
             &[platform::LogFilter::Layer],
             "LAYER",
-            format_args!("           Enabled By: {}", layer.enabled_by()),
+            format_args!(
+                "           Enabled By: {}",
+                diagnostics::Text(layer.enabled_by())
+            ),
         );
         if let Some(disable_environment) = layer.disable_environment() {
             emit_instance_category_message(
@@ -157,7 +155,7 @@ pub(crate) unsafe fn emit_device_layer_callstack(instance: &LoaderInstance) {
                 "LAYER",
                 format_args!(
                     "               Disable Env Var:  {}",
-                    std::path::Path::new(disable_environment).display()
+                    std::path::Path::new(disable_environment).loader_display()
                 ),
             );
         }
@@ -165,13 +163,19 @@ pub(crate) unsafe fn emit_device_layer_callstack(instance: &LoaderInstance) {
             instance,
             &[platform::LogFilter::Layer],
             "LAYER",
-            format_args!("           Manifest: {}", layer.manifest_path().display()),
+            format_args!(
+                "           Manifest: {}",
+                layer.manifest_path().loader_display()
+            ),
         );
         emit_instance_category_message(
             instance,
             &[platform::LogFilter::Layer],
             "LAYER",
-            format_args!("           Library:  {}", layer.library_path.display()),
+            format_args!(
+                "           Library:  {}",
+                layer.library_path.loader_display()
+            ),
         );
         emit_instance_category_message(
             instance,
@@ -206,7 +210,7 @@ pub(crate) unsafe fn emit_device_driver(
         .icd
         .library_path()
         .unwrap_or_else(|| std::path::Path::new(""))
-        .display();
+        .loader_display();
     emit_instance_category_message(
         instance,
         &[platform::LogFilter::Layer, platform::LogFilter::Driver],
@@ -233,52 +237,55 @@ pub(crate) unsafe extern "system" fn create_device_terminator(
         return VkResult::ERROR_INITIALIZATION_FAILED;
     };
     let icd_instance = physical_device.icd();
-    let icd_extension_names =
-        match unsafe { validated_icd_device_extensions(physical_device, create_info) } {
-            Ok(names) => names,
+    let native = {
+        let icd_extension_names =
+            match unsafe { validated_icd_device_extensions(physical_device, create_info) } {
+                Ok(names) => names,
+                Err(result) => return result,
+            };
+        unsafe { emit_device_driver(physical_device.instance(), physical_device) };
+        // SAFETY: The physical device and native instance belong to this ICD.
+        let Some(create_device): Option<PFN_vkCreateDevice> = (unsafe {
+            icd_instance
+                .icd
+                .resolve(icd_instance.handle, c"vkCreateDevice")
+        }) else {
+            return VkResult::ERROR_INITIALIZATION_FAILED;
+        };
+        let mut native = VkDevice::NULL;
+        let mut icd_create_info = *create_info;
+        icd_create_info.enabledExtensionCount = icd_extension_names.len() as u32;
+        icd_create_info.ppEnabledExtensionNames = if icd_extension_names.is_empty() {
+            core::ptr::null()
+        } else {
+            icd_extension_names.as_ptr()
+        };
+        // Translate terminator physical-device wrappers embedded in a device-group
+        // create-info node to the ICD's native handles.
+        let _group_patch = match unsafe {
+            translate_device_group_chain(&mut icd_create_info, |handle| {
+                // SAFETY: Layers pass the matching loader terminator handles down.
+                LoaderPhysicalDevice::from_handle(handle).map(|device| device.native)
+            })
+        } {
+            Ok(patch) => patch,
             Err(result) => return result,
         };
-    unsafe { emit_device_driver(physical_device.instance(), physical_device) };
-    // SAFETY: The physical device and native instance belong to this ICD.
-    let Some(create_device): Option<PFN_vkCreateDevice> = (unsafe {
-        icd_instance
-            .icd
-            .resolve(icd_instance.handle, c"vkCreateDevice")
-    }) else {
-        return VkResult::ERROR_INITIALIZATION_FAILED;
+        // SAFETY: The caller owns the create structures and output storage, while
+        // the translated physical-device handle belongs to the selected ICD.
+        let result = unsafe {
+            create_device(
+                physical_device.native,
+                &raw const icd_create_info,
+                allocator,
+                &raw mut native,
+            )
+        };
+        if result != VkResult::SUCCESS {
+            return result;
+        }
+        native
     };
-    let mut native = VkDevice::NULL;
-    let mut icd_create_info = *create_info;
-    icd_create_info.enabledExtensionCount = icd_extension_names.len() as u32;
-    icd_create_info.ppEnabledExtensionNames = if icd_extension_names.is_empty() {
-        core::ptr::null()
-    } else {
-        icd_extension_names.as_ptr()
-    };
-    // Translate terminator physical-device wrappers embedded in a device-group
-    // create-info node to the ICD's native handles.
-    let _group_patch = match unsafe {
-        translate_device_group_chain(&mut icd_create_info, |handle| {
-            // SAFETY: Layers pass the matching loader terminator handles down.
-            LoaderPhysicalDevice::from_handle(handle).map(|device| device.native)
-        })
-    } {
-        Ok(patch) => patch,
-        Err(result) => return result,
-    };
-    // SAFETY: The caller owns the create structures and output storage, while
-    // the translated physical-device handle belongs to the selected ICD.
-    let result = unsafe {
-        create_device(
-            physical_device.native,
-            &raw const icd_create_info,
-            allocator,
-            &raw mut native,
-        )
-    };
-    if result != VkResult::SUCCESS {
-        return result;
-    }
 
     // SAFETY: Device proc-address lookup is exposed through this native instance.
     let get_device_proc_addr: Option<PFN_vkGetDeviceProcAddr> = unsafe {
@@ -405,7 +412,7 @@ pub unsafe extern "system" fn vkGetDeviceProcAddr(
     // SAFETY: A live Vulkan device stores its loader dispatch table in its
     // first machine word. The magic check rejects null or incompatible data.
     let dispatch = unsafe { device_dispatch(device.0.cast()) }?;
-    let Some(lookup) = command_lookup(name) else {
+    let Some(lookup) = command_lookup(name.to_bytes()) else {
         let resolver = dispatch.vkGetDeviceProcAddr?;
         // SAFETY: The resolver was installed from this completed device chain.
         return unsafe { resolver(device, name.as_ptr()) };
@@ -507,6 +514,7 @@ pub(crate) unsafe extern "system" fn terminator_enumerate_physical_devices(
         active.push(device.handle());
     }
     devices.active = active;
+    drop(native_devices);
 
     let total = devices.active.len().min(u32::MAX as usize) as u32;
     if physical_devices.is_null() {

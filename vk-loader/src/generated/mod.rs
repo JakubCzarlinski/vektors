@@ -33,8 +33,8 @@ pub(crate) use extensions::{
 };
 pub(crate) use proc_addr::{
     exported_proc_addr, global_proc_addr, icd_device_terminator_proc_addr,
-    instance_terminator_proc_addr, layer_device_dispatch_proc_addr,
-    physical_device_terminator_proc_addr,
+    instance_terminator_proc_addr, layer_device_dispatch_proc_addr, layer_device_special_proc_addr,
+    layer_instance_special_proc_addr, physical_device_terminator_proc_addr,
 };
 pub(crate) use promotions::{
     EmulatedCommand, PromotedDispatch, dispatch_promoted_external_buffer_properties,

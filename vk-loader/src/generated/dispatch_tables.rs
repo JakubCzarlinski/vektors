@@ -1,9 +1,30 @@
 // Generated from registry/vk.xml by vk-loader-codegen. Do not edit.
 
+use super::commands::DEVICE_DISPATCH_LOADS;
 use super::commands::DEVICE_DISPATCH_MASKS;
-use crate::CStr;
+use super::commands::DeviceDispatchLoad;
+use super::commands::IcdDeviceDispatchLoad;
+use super::commands::LAYER_INSTANCE_DISPATCH_LOADS;
+use super::commands::LayerInstanceDispatchLoad;
+use super::commands::VK_CMD_BEGIN_DEBUG_UTILS_LABEL_EXT_COMMAND_ID;
+use super::commands::VK_CMD_END_DEBUG_UTILS_LABEL_EXT_COMMAND_ID;
+use super::commands::VK_CMD_INSERT_DEBUG_UTILS_LABEL_EXT_COMMAND_ID;
+use super::commands::VK_CREATE_SHARED_SWAPCHAINS_KHR_COMMAND_ID;
+use super::commands::VK_CREATE_SWAPCHAIN_KHR_COMMAND_ID;
+use super::commands::VK_DEBUG_MARKER_SET_OBJECT_NAME_EXT_COMMAND_ID;
+use super::commands::VK_DEBUG_MARKER_SET_OBJECT_TAG_EXT_COMMAND_ID;
+use super::commands::VK_DESTROY_DEVICE_COMMAND_ID;
+use super::commands::VK_GET_DEVICE_GROUP_SURFACE_PRESENT_MODES_KHR_COMMAND_ID;
+#[cfg(target_os = "windows")]
+use super::commands::VK_GET_DEVICE_GROUP_SURFACE_PRESENT_MODES2EXT_COMMAND_ID;
+use super::commands::VK_QUEUE_BEGIN_DEBUG_UTILS_LABEL_EXT_COMMAND_ID;
+use super::commands::VK_QUEUE_END_DEBUG_UTILS_LABEL_EXT_COMMAND_ID;
+use super::commands::VK_QUEUE_INSERT_DEBUG_UTILS_LABEL_EXT_COMMAND_ID;
+use super::commands::VK_SET_DEBUG_UTILS_OBJECT_NAME_EXT_COMMAND_ID;
+use super::commands::VK_SET_DEBUG_UTILS_OBJECT_TAG_EXT_COMMAND_ID;
 use crate::DEVICE_DISPATCH_MAGIC;
-use crate::load_typed;
+use crate::dispatch_offset;
+#[repr(C)]
 #[derive(Clone, Default)]
 pub(crate) struct InstanceDispatchTable {
     pub(crate) vkAcquireDrmDisplayEXT: Option<vk::PFN_vkAcquireDrmDisplayEXT>,
@@ -197,813 +218,847 @@ pub(crate) struct InstanceDispatchTable {
     pub(crate) vkReleaseDisplayEXT: Option<vk::PFN_vkReleaseDisplayEXT>,
     pub(crate) vkSubmitDebugUtilsMessageEXT: Option<vk::PFN_vkSubmitDebugUtilsMessageEXT>,
 }
+const _: () = assert!(core::mem::size_of::<InstanceDispatchTable>() <= 65_535);
+pub(super) static ICD_INSTANCE_DISPATCH_LOADS: &[LayerInstanceDispatchLoad] = &[
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkAcquireDrmDisplayEXT
+        )),
+        name: c"vkAcquireDrmDisplayEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkAcquireWinrtDisplayNV
+        )),
+        name: c"vkAcquireWinrtDisplayNV",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkAcquireXlibDisplayEXT
+        )),
+        name: c"vkAcquireXlibDisplayEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkCreateAndroidSurfaceKHR
+        )),
+        name: c"vkCreateAndroidSurfaceKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkCreateDebugReportCallbackEXT
+        )),
+        name: c"vkCreateDebugReportCallbackEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkCreateDebugUtilsMessengerEXT
+        )),
+        name: c"vkCreateDebugUtilsMessengerEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(InstanceDispatchTable, vkCreateDevice)),
+        name: c"vkCreateDevice",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkCreateDirectFBSurfaceEXT
+        )),
+        name: c"vkCreateDirectFBSurfaceEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkCreateDisplayModeKHR
+        )),
+        name: c"vkCreateDisplayModeKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkCreateDisplayPlaneSurfaceKHR
+        )),
+        name: c"vkCreateDisplayPlaneSurfaceKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkCreateHeadlessSurfaceEXT
+        )),
+        name: c"vkCreateHeadlessSurfaceEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkCreateIOSSurfaceMVK
+        )),
+        name: c"vkCreateIOSSurfaceMVK",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkCreateImagePipeSurfaceFUCHSIA
+        )),
+        name: c"vkCreateImagePipeSurfaceFUCHSIA",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkCreateMacOSSurfaceMVK
+        )),
+        name: c"vkCreateMacOSSurfaceMVK",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkCreateMetalSurfaceEXT
+        )),
+        name: c"vkCreateMetalSurfaceEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkCreateScreenSurfaceQNX
+        )),
+        name: c"vkCreateScreenSurfaceQNX",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkCreateStreamDescriptorSurfaceGGP
+        )),
+        name: c"vkCreateStreamDescriptorSurfaceGGP",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkCreateSurfaceOHOS
+        )),
+        name: c"vkCreateSurfaceOHOS",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkCreateUbmSurfaceSEC
+        )),
+        name: c"vkCreateUbmSurfaceSEC",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkCreateViSurfaceNN
+        )),
+        name: c"vkCreateViSurfaceNN",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkCreateWaylandSurfaceKHR
+        )),
+        name: c"vkCreateWaylandSurfaceKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkCreateWin32SurfaceKHR
+        )),
+        name: c"vkCreateWin32SurfaceKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkCreateXcbSurfaceKHR
+        )),
+        name: c"vkCreateXcbSurfaceKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkCreateXlibSurfaceKHR
+        )),
+        name: c"vkCreateXlibSurfaceKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkDebugReportMessageEXT
+        )),
+        name: c"vkDebugReportMessageEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkDestroyDebugReportCallbackEXT
+        )),
+        name: c"vkDestroyDebugReportCallbackEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkDestroyDebugUtilsMessengerEXT
+        )),
+        name: c"vkDestroyDebugUtilsMessengerEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkDestroyInstance
+        )),
+        name: c"vkDestroyInstance",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkDestroySurfaceKHR
+        )),
+        name: c"vkDestroySurfaceKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkEnumerateDeviceExtensionProperties
+        )),
+        name: c"vkEnumerateDeviceExtensionProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkEnumerateDeviceLayerProperties
+        )),
+        name: c"vkEnumerateDeviceLayerProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkEnumeratePhysicalDeviceGroups
+        )),
+        name: c"vkEnumeratePhysicalDeviceGroups",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkEnumeratePhysicalDeviceGroupsKHR
+        )),
+        name: c"vkEnumeratePhysicalDeviceGroupsKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM
+        )),
+        name: c"vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR
+        )),
+        name: c"vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM
+        )),
+        name: c"vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkEnumeratePhysicalDevices
+        )),
+        name: c"vkEnumeratePhysicalDevices",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetDeviceProcAddr
+        )),
+        name: c"vkGetDeviceProcAddr",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetDisplayModeProperties2KHR
+        )),
+        name: c"vkGetDisplayModeProperties2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetDisplayModePropertiesKHR
+        )),
+        name: c"vkGetDisplayModePropertiesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetDisplayPlaneCapabilities2KHR
+        )),
+        name: c"vkGetDisplayPlaneCapabilities2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetDisplayPlaneCapabilitiesKHR
+        )),
+        name: c"vkGetDisplayPlaneCapabilitiesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetDisplayPlaneSupportedDisplaysKHR
+        )),
+        name: c"vkGetDisplayPlaneSupportedDisplaysKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetDrmDisplayEXT
+        )),
+        name: c"vkGetDrmDisplayEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceCalibrateableTimeDomainsEXT
+        )),
+        name: c"vkGetPhysicalDeviceCalibrateableTimeDomainsEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceCalibrateableTimeDomainsKHR
+        )),
+        name: c"vkGetPhysicalDeviceCalibrateableTimeDomainsKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV
+        )),
+        name: c"vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceCooperativeMatrixProperties2EXT
+        )),
+        name: c"vkGetPhysicalDeviceCooperativeMatrixProperties2EXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR
+        )),
+        name: c"vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceCooperativeMatrixPropertiesNV
+        )),
+        name: c"vkGetPhysicalDeviceCooperativeMatrixPropertiesNV",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceCooperativeVectorPropertiesNV
+        )),
+        name: c"vkGetPhysicalDeviceCooperativeVectorPropertiesNV",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceDescriptorSizeEXT
+        )),
+        name: c"vkGetPhysicalDeviceDescriptorSizeEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceDirectFBPresentationSupportEXT
+        )),
+        name: c"vkGetPhysicalDeviceDirectFBPresentationSupportEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceDisplayPlaneProperties2KHR
+        )),
+        name: c"vkGetPhysicalDeviceDisplayPlaneProperties2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceDisplayPlanePropertiesKHR
+        )),
+        name: c"vkGetPhysicalDeviceDisplayPlanePropertiesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceDisplayProperties2KHR
+        )),
+        name: c"vkGetPhysicalDeviceDisplayProperties2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceDisplayPropertiesKHR
+        )),
+        name: c"vkGetPhysicalDeviceDisplayPropertiesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceExternalBufferProperties
+        )),
+        name: c"vkGetPhysicalDeviceExternalBufferProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceExternalBufferPropertiesKHR
+        )),
+        name: c"vkGetPhysicalDeviceExternalBufferPropertiesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceExternalFenceProperties
+        )),
+        name: c"vkGetPhysicalDeviceExternalFenceProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceExternalFencePropertiesKHR
+        )),
+        name: c"vkGetPhysicalDeviceExternalFencePropertiesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceExternalImageFormatPropertiesNV
+        )),
+        name: c"vkGetPhysicalDeviceExternalImageFormatPropertiesNV",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceExternalSemaphoreProperties
+        )),
+        name: c"vkGetPhysicalDeviceExternalSemaphoreProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceExternalSemaphorePropertiesKHR
+        )),
+        name: c"vkGetPhysicalDeviceExternalSemaphorePropertiesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceExternalTensorPropertiesARM
+        )),
+        name: c"vkGetPhysicalDeviceExternalTensorPropertiesARM",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceFeatures
+        )),
+        name: c"vkGetPhysicalDeviceFeatures",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceFeatures2
+        )),
+        name: c"vkGetPhysicalDeviceFeatures2",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceFeatures2KHR
+        )),
+        name: c"vkGetPhysicalDeviceFeatures2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceFormatProperties
+        )),
+        name: c"vkGetPhysicalDeviceFormatProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceFormatProperties2
+        )),
+        name: c"vkGetPhysicalDeviceFormatProperties2",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceFormatProperties2KHR
+        )),
+        name: c"vkGetPhysicalDeviceFormatProperties2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceFragmentShadingRatesKHR
+        )),
+        name: c"vkGetPhysicalDeviceFragmentShadingRatesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceImageFormatProperties
+        )),
+        name: c"vkGetPhysicalDeviceImageFormatProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceImageFormatProperties2
+        )),
+        name: c"vkGetPhysicalDeviceImageFormatProperties2",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceImageFormatProperties2KHR
+        )),
+        name: c"vkGetPhysicalDeviceImageFormatProperties2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceMemoryProperties
+        )),
+        name: c"vkGetPhysicalDeviceMemoryProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceMemoryProperties2
+        )),
+        name: c"vkGetPhysicalDeviceMemoryProperties2",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceMemoryProperties2KHR
+        )),
+        name: c"vkGetPhysicalDeviceMemoryProperties2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceMultisamplePropertiesEXT
+        )),
+        name: c"vkGetPhysicalDeviceMultisamplePropertiesEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceOpticalFlowImageFormatsNV
+        )),
+        name: c"vkGetPhysicalDeviceOpticalFlowImageFormatsNV",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDevicePresentRectanglesKHR
+        )),
+        name: c"vkGetPhysicalDevicePresentRectanglesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceProperties
+        )),
+        name: c"vkGetPhysicalDeviceProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceProperties2
+        )),
+        name: c"vkGetPhysicalDeviceProperties2",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceProperties2KHR
+        )),
+        name: c"vkGetPhysicalDeviceProperties2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM
+        )),
+        name: c"vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM
+        )),
+        name: c"vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM
+        )),
+        name: c"vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM
+        )),
+        name: c"vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR
+        )),
+        name: c"vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceQueueFamilyProperties
+        )),
+        name: c"vkGetPhysicalDeviceQueueFamilyProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceQueueFamilyProperties2
+        )),
+        name: c"vkGetPhysicalDeviceQueueFamilyProperties2",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceQueueFamilyProperties2KHR
+        )),
+        name: c"vkGetPhysicalDeviceQueueFamilyProperties2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceScreenPresentationSupportQNX
+        )),
+        name: c"vkGetPhysicalDeviceScreenPresentationSupportQNX",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceSparseImageFormatProperties
+        )),
+        name: c"vkGetPhysicalDeviceSparseImageFormatProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceSparseImageFormatProperties2
+        )),
+        name: c"vkGetPhysicalDeviceSparseImageFormatProperties2",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceSparseImageFormatProperties2KHR
+        )),
+        name: c"vkGetPhysicalDeviceSparseImageFormatProperties2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV
+        )),
+        name: c"vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceSurfaceCapabilities2EXT
+        )),
+        name: c"vkGetPhysicalDeviceSurfaceCapabilities2EXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceSurfaceCapabilities2KHR
+        )),
+        name: c"vkGetPhysicalDeviceSurfaceCapabilities2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceSurfaceCapabilitiesKHR
+        )),
+        name: c"vkGetPhysicalDeviceSurfaceCapabilitiesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceSurfaceFormats2KHR
+        )),
+        name: c"vkGetPhysicalDeviceSurfaceFormats2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceSurfaceFormatsKHR
+        )),
+        name: c"vkGetPhysicalDeviceSurfaceFormatsKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceSurfacePresentModes2EXT
+        )),
+        name: c"vkGetPhysicalDeviceSurfacePresentModes2EXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceSurfacePresentModesKHR
+        )),
+        name: c"vkGetPhysicalDeviceSurfacePresentModesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceSurfaceSupportKHR
+        )),
+        name: c"vkGetPhysicalDeviceSurfaceSupportKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceToolProperties
+        )),
+        name: c"vkGetPhysicalDeviceToolProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceToolPropertiesEXT
+        )),
+        name: c"vkGetPhysicalDeviceToolPropertiesEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceUbmPresentationSupportSEC
+        )),
+        name: c"vkGetPhysicalDeviceUbmPresentationSupportSEC",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceVideoCapabilitiesKHR
+        )),
+        name: c"vkGetPhysicalDeviceVideoCapabilitiesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR
+        )),
+        name: c"vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceVideoFormatPropertiesKHR
+        )),
+        name: c"vkGetPhysicalDeviceVideoFormatPropertiesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceWaylandPresentationSupportKHR
+        )),
+        name: c"vkGetPhysicalDeviceWaylandPresentationSupportKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceWin32PresentationSupportKHR
+        )),
+        name: c"vkGetPhysicalDeviceWin32PresentationSupportKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceXcbPresentationSupportKHR
+        )),
+        name: c"vkGetPhysicalDeviceXcbPresentationSupportKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetPhysicalDeviceXlibPresentationSupportKHR
+        )),
+        name: c"vkGetPhysicalDeviceXlibPresentationSupportKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetRandROutputDisplayEXT
+        )),
+        name: c"vkGetRandROutputDisplayEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkGetWinrtDisplayNV
+        )),
+        name: c"vkGetWinrtDisplayNV",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkReleaseDisplayEXT
+        )),
+        name: c"vkReleaseDisplayEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            InstanceDispatchTable,
+            vkSubmitDebugUtilsMessageEXT
+        )),
+        name: c"vkSubmitDebugUtilsMessageEXT",
+    },
+];
 impl InstanceDispatchTable {
-    #[allow(clippy::too_many_lines)]
     pub(crate) unsafe fn load_into(
         table: *mut Self,
         gipa: vk::PFN_vkGetInstanceProcAddr,
         handle: vk::VkInstance,
     ) {
         unsafe {
-            core::ptr::addr_of_mut!((*table).vkAcquireDrmDisplayEXT)
-                .write(load_typed(gipa(handle, c"vkAcquireDrmDisplayEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkAcquireWinrtDisplayNV).write(load_typed(gipa(
-                handle,
-                c"vkAcquireWinrtDisplayNV".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkAcquireXlibDisplayEXT).write(load_typed(gipa(
-                handle,
-                c"vkAcquireXlibDisplayEXT".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkCreateAndroidSurfaceKHR).write(load_typed(gipa(
-                handle,
-                c"vkCreateAndroidSurfaceKHR".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkCreateDebugReportCallbackEXT).write(load_typed(
-                gipa(handle, c"vkCreateDebugReportCallbackEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkCreateDebugUtilsMessengerEXT).write(load_typed(
-                gipa(handle, c"vkCreateDebugUtilsMessengerEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkCreateDevice)
-                .write(load_typed(gipa(handle, c"vkCreateDevice".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkCreateDirectFBSurfaceEXT).write(load_typed(gipa(
-                handle,
-                c"vkCreateDirectFBSurfaceEXT".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkCreateDisplayModeKHR)
-                .write(load_typed(gipa(handle, c"vkCreateDisplayModeKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkCreateDisplayPlaneSurfaceKHR).write(load_typed(
-                gipa(handle, c"vkCreateDisplayPlaneSurfaceKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkCreateHeadlessSurfaceEXT).write(load_typed(gipa(
-                handle,
-                c"vkCreateHeadlessSurfaceEXT".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkCreateIOSSurfaceMVK)
-                .write(load_typed(gipa(handle, c"vkCreateIOSSurfaceMVK".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkCreateImagePipeSurfaceFUCHSIA).write(load_typed(
-                gipa(handle, c"vkCreateImagePipeSurfaceFUCHSIA".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkCreateMacOSSurfaceMVK).write(load_typed(gipa(
-                handle,
-                c"vkCreateMacOSSurfaceMVK".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkCreateMetalSurfaceEXT).write(load_typed(gipa(
-                handle,
-                c"vkCreateMetalSurfaceEXT".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkCreateScreenSurfaceQNX).write(load_typed(gipa(
-                handle,
-                c"vkCreateScreenSurfaceQNX".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkCreateStreamDescriptorSurfaceGGP).write(load_typed(
-                gipa(handle, c"vkCreateStreamDescriptorSurfaceGGP".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkCreateSurfaceOHOS)
-                .write(load_typed(gipa(handle, c"vkCreateSurfaceOHOS".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkCreateUbmSurfaceSEC)
-                .write(load_typed(gipa(handle, c"vkCreateUbmSurfaceSEC".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkCreateViSurfaceNN)
-                .write(load_typed(gipa(handle, c"vkCreateViSurfaceNN".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkCreateWaylandSurfaceKHR).write(load_typed(gipa(
-                handle,
-                c"vkCreateWaylandSurfaceKHR".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkCreateWin32SurfaceKHR).write(load_typed(gipa(
-                handle,
-                c"vkCreateWin32SurfaceKHR".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkCreateXcbSurfaceKHR)
-                .write(load_typed(gipa(handle, c"vkCreateXcbSurfaceKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkCreateXlibSurfaceKHR)
-                .write(load_typed(gipa(handle, c"vkCreateXlibSurfaceKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkDebugReportMessageEXT).write(load_typed(gipa(
-                handle,
-                c"vkDebugReportMessageEXT".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkDestroyDebugReportCallbackEXT).write(load_typed(
-                gipa(handle, c"vkDestroyDebugReportCallbackEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkDestroyDebugUtilsMessengerEXT).write(load_typed(
-                gipa(handle, c"vkDestroyDebugUtilsMessengerEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkDestroyInstance)
-                .write(load_typed(gipa(handle, c"vkDestroyInstance".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkDestroySurfaceKHR)
-                .write(load_typed(gipa(handle, c"vkDestroySurfaceKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkEnumerateDeviceExtensionProperties).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkEnumerateDeviceExtensionProperties".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkEnumerateDeviceLayerProperties).write(load_typed(
-                gipa(handle, c"vkEnumerateDeviceLayerProperties".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkEnumeratePhysicalDeviceGroups).write(load_typed(
-                gipa(handle, c"vkEnumeratePhysicalDeviceGroups".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkEnumeratePhysicalDeviceGroupsKHR).write(load_typed(
-                gipa(handle, c"vkEnumeratePhysicalDeviceGroupsKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table).vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM
-            )
-            .write(load_typed(gipa(
-                handle,
-                c"vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table).vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR
-            )
-            .write(load_typed(gipa(
-                handle,
-                c"vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table).vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM
-            )
-            .write(load_typed(gipa(
-                handle,
-                c"vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkEnumeratePhysicalDevices).write(load_typed(gipa(
-                handle,
-                c"vkEnumeratePhysicalDevices".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetDeviceProcAddr)
-                .write(load_typed(gipa(handle, c"vkGetDeviceProcAddr".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetDisplayModeProperties2KHR).write(load_typed(
-                gipa(handle, c"vkGetDisplayModeProperties2KHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetDisplayModePropertiesKHR).write(load_typed(
-                gipa(handle, c"vkGetDisplayModePropertiesKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetDisplayPlaneCapabilities2KHR).write(load_typed(
-                gipa(handle, c"vkGetDisplayPlaneCapabilities2KHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetDisplayPlaneCapabilitiesKHR).write(load_typed(
-                gipa(handle, c"vkGetDisplayPlaneCapabilitiesKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetDisplayPlaneSupportedDisplaysKHR).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetDisplayPlaneSupportedDisplaysKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetDrmDisplayEXT)
-                .write(load_typed(gipa(handle, c"vkGetDrmDisplayEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceCalibrateableTimeDomainsEXT).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceCalibrateableTimeDomainsEXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceCalibrateableTimeDomainsKHR).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceCalibrateableTimeDomainsKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table).vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV
-            )
-            .write(load_typed(gipa(
-                handle,
-                c"vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceCooperativeMatrixProperties2EXT)
-                .write(load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceCooperativeMatrixProperties2EXT".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR)
-                .write(load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceCooperativeMatrixPropertiesNV)
-                .write(load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceCooperativeMatrixPropertiesNV".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceCooperativeVectorPropertiesNV)
-                .write(load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceCooperativeVectorPropertiesNV".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceDescriptorSizeEXT).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceDescriptorSizeEXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceDirectFBPresentationSupportEXT)
-                .write(load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceDirectFBPresentationSupportEXT".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceDisplayPlaneProperties2KHR).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceDisplayPlaneProperties2KHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceDisplayPlanePropertiesKHR).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceDisplayPlanePropertiesKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceDisplayProperties2KHR).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceDisplayProperties2KHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceDisplayPropertiesKHR).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceDisplayPropertiesKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceExternalBufferProperties).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceExternalBufferProperties".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceExternalBufferPropertiesKHR).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceExternalBufferPropertiesKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceExternalFenceProperties).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceExternalFenceProperties".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceExternalFencePropertiesKHR).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceExternalFencePropertiesKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceExternalImageFormatPropertiesNV)
-                .write(load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceExternalImageFormatPropertiesNV".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceExternalSemaphoreProperties).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceExternalSemaphoreProperties".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceExternalSemaphorePropertiesKHR)
-                .write(load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceExternalSemaphorePropertiesKHR".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceExternalTensorPropertiesARM).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceExternalTensorPropertiesARM".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceFeatures).write(load_typed(gipa(
-                handle,
-                c"vkGetPhysicalDeviceFeatures".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceFeatures2).write(load_typed(gipa(
-                handle,
-                c"vkGetPhysicalDeviceFeatures2".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceFeatures2KHR).write(load_typed(
-                gipa(handle, c"vkGetPhysicalDeviceFeatures2KHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceFormatProperties).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceFormatProperties".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceFormatProperties2).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceFormatProperties2".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceFormatProperties2KHR).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceFormatProperties2KHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceFragmentShadingRatesKHR).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceFragmentShadingRatesKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceImageFormatProperties).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceImageFormatProperties".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceImageFormatProperties2).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceImageFormatProperties2".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceImageFormatProperties2KHR).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceImageFormatProperties2KHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceMemoryProperties).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceMemoryProperties".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceMemoryProperties2).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceMemoryProperties2".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceMemoryProperties2KHR).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceMemoryProperties2KHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceMultisamplePropertiesEXT).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceMultisamplePropertiesEXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceOpticalFlowImageFormatsNV).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceOpticalFlowImageFormatsNV".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDevicePresentRectanglesKHR).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDevicePresentRectanglesKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceProperties).write(load_typed(
-                gipa(handle, c"vkGetPhysicalDeviceProperties".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceProperties2).write(load_typed(
-                gipa(handle, c"vkGetPhysicalDeviceProperties2".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceProperties2KHR).write(load_typed(
-                gipa(handle, c"vkGetPhysicalDeviceProperties2KHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table).vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM
-            )
-            .write(load_typed(gipa(
-                handle,
-                c"vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table).vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM
-            )
-            .write(load_typed(gipa(
-                handle,
-                c"vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table).vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM
-            )
-            .write(load_typed(gipa(
-                handle,
-                c"vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM)
-                .write(load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table).vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR
-            )
-            .write(load_typed(gipa(
-                handle,
-                c"vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceQueueFamilyProperties).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceQueueFamilyProperties".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceQueueFamilyProperties2).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceQueueFamilyProperties2".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceQueueFamilyProperties2KHR).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceQueueFamilyProperties2KHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceScreenPresentationSupportQNX)
-                .write(load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceScreenPresentationSupportQNX".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceSparseImageFormatProperties).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceSparseImageFormatProperties".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceSparseImageFormatProperties2)
-                .write(load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceSparseImageFormatProperties2".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceSparseImageFormatProperties2KHR)
-                .write(load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceSparseImageFormatProperties2KHR".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table).vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV
-            )
-            .write(load_typed(gipa(
-                handle,
-                c"vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceSurfaceCapabilities2EXT).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceSurfaceCapabilities2EXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceSurfaceCapabilities2KHR).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceSurfaceCapabilities2KHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceSurfaceCapabilitiesKHR).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceSurfaceCapabilitiesKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceSurfaceFormats2KHR).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceSurfaceFormats2KHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceSurfaceFormatsKHR).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceSurfaceFormatsKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceSurfacePresentModes2EXT).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceSurfacePresentModes2EXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceSurfacePresentModesKHR).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceSurfacePresentModesKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceSurfaceSupportKHR).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceSurfaceSupportKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceToolProperties).write(load_typed(
-                gipa(handle, c"vkGetPhysicalDeviceToolProperties".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceToolPropertiesEXT).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceToolPropertiesEXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceUbmPresentationSupportSEC).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceUbmPresentationSupportSEC".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceVideoCapabilitiesKHR).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceVideoCapabilitiesKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table).vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR
-            )
-            .write(load_typed(gipa(
-                handle,
-                c"vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceVideoFormatPropertiesKHR).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceVideoFormatPropertiesKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceWaylandPresentationSupportKHR)
-                .write(load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceWaylandPresentationSupportKHR".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceWin32PresentationSupportKHR).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceWin32PresentationSupportKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceXcbPresentationSupportKHR).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceXcbPresentationSupportKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetPhysicalDeviceXlibPresentationSupportKHR).write(
-                load_typed(gipa(
-                    handle,
-                    c"vkGetPhysicalDeviceXlibPresentationSupportKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetRandROutputDisplayEXT).write(load_typed(gipa(
-                handle,
-                c"vkGetRandROutputDisplayEXT".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkGetWinrtDisplayNV)
-                .write(load_typed(gipa(handle, c"vkGetWinrtDisplayNV".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkReleaseDisplayEXT)
-                .write(load_typed(gipa(handle, c"vkReleaseDisplayEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table).vkSubmitDebugUtilsMessageEXT).write(load_typed(gipa(
-                handle,
-                c"vkSubmitDebugUtilsMessageEXT".as_ptr(),
-            )));
+            load_instance_dispatch_fields(table.cast(), gipa, handle, ICD_INSTANCE_DISPATCH_LOADS);
         }
     }
 }
@@ -1345,8 +1400,24 @@ pub(crate) struct LayerInstanceDispatchTable {
     pub(crate) vkGetPhysicalDeviceUbmPresentationSupportSEC:
         Option<vk::PFN_vkGetPhysicalDeviceUbmPresentationSupportSEC>,
 }
+#[inline(never)]
+pub(super) unsafe fn load_instance_dispatch_fields(
+    table: *mut u8,
+    gipa: vk::PFN_vkGetInstanceProcAddr,
+    instance: vk::VkInstance,
+    loads: &[LayerInstanceDispatchLoad],
+) {
+    for load in loads {
+        let function = unsafe { gipa(instance, load.name.as_ptr()) };
+        unsafe {
+            table
+                .add(usize::from(load.offset))
+                .cast::<vk::PFN_vkVoidFunction>()
+                .write(function);
+        }
+    }
+}
 impl LayerInstanceDispatchTable {
-    #[allow(clippy::too_many_lines)]
     pub(crate) unsafe fn load_into(
         table_ptr: *mut Self,
         gipa: vk::PFN_vkGetInstanceProcAddr,
@@ -1357,956 +1428,15 @@ impl LayerInstanceDispatchTable {
             core::ptr::addr_of_mut!((*table_ptr).vk_layerGetPhysicalDeviceProcAddr).write(gpdpa);
         }
         unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateInstance)
-                .write(load_typed(gipa(instance, c"vkCreateInstance".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyInstance)
-                .write(load_typed(gipa(instance, c"vkDestroyInstance".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkEnumeratePhysicalDevices).write(load_typed(
-                gipa(instance, c"vkEnumeratePhysicalDevices".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceFeatures).write(load_typed(
-                gipa(instance, c"vkGetPhysicalDeviceFeatures".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceFormatProperties).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceFormatProperties".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceImageFormatProperties).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceImageFormatProperties".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceProperties).write(load_typed(
-                gipa(instance, c"vkGetPhysicalDeviceProperties".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceQueueFamilyProperties).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceQueueFamilyProperties".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceMemoryProperties).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceMemoryProperties".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
             core::ptr::addr_of_mut!((*table_ptr).vkGetInstanceProcAddr).write(Some(gipa));
         }
         unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateDevice)
-                .write(load_typed(gipa(instance, c"vkCreateDevice".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkEnumerateInstanceExtensionProperties).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkEnumerateInstanceExtensionProperties".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkEnumerateDeviceExtensionProperties).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkEnumerateDeviceExtensionProperties".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkEnumerateInstanceLayerProperties).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkEnumerateInstanceLayerProperties".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkEnumerateDeviceLayerProperties).write(
-                load_typed(gipa(instance, c"vkEnumerateDeviceLayerProperties".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceSparseImageFormatProperties)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceSparseImageFormatProperties".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkEnumerateInstanceVersion).write(load_typed(
-                gipa(instance, c"vkEnumerateInstanceVersion".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkEnumeratePhysicalDeviceGroups).write(
-                load_typed(gipa(instance, c"vkEnumeratePhysicalDeviceGroups".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceFeatures2).write(load_typed(
-                gipa(instance, c"vkGetPhysicalDeviceFeatures2".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceProperties2).write(load_typed(
-                gipa(instance, c"vkGetPhysicalDeviceProperties2".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceFormatProperties2).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceFormatProperties2".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceImageFormatProperties2).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceImageFormatProperties2".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceQueueFamilyProperties2).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceQueueFamilyProperties2".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceMemoryProperties2).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceMemoryProperties2".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceSparseImageFormatProperties2)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceSparseImageFormatProperties2".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceExternalBufferProperties)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceExternalBufferProperties".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceExternalFenceProperties).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceExternalFenceProperties".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceExternalSemaphoreProperties)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceExternalSemaphoreProperties".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceToolProperties).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceToolProperties".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroySurfaceKHR)
-                .write(load_typed(gipa(instance, c"vkDestroySurfaceKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceSurfaceSupportKHR).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceSurfaceSupportKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceSurfaceCapabilitiesKHR).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceSurfaceCapabilitiesKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceSurfaceFormatsKHR).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceSurfaceFormatsKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceSurfacePresentModesKHR).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceSurfacePresentModesKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDevicePresentRectanglesKHR).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDevicePresentRectanglesKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceDisplayPropertiesKHR).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceDisplayPropertiesKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceDisplayPlanePropertiesKHR)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceDisplayPlanePropertiesKHR".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDisplayPlaneSupportedDisplaysKHR).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetDisplayPlaneSupportedDisplaysKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDisplayModePropertiesKHR).write(load_typed(
-                gipa(instance, c"vkGetDisplayModePropertiesKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateDisplayModeKHR).write(load_typed(gipa(
+            load_instance_dispatch_fields(
+                table_ptr.cast(),
+                gipa,
                 instance,
-                c"vkCreateDisplayModeKHR".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDisplayPlaneCapabilitiesKHR).write(
-                load_typed(gipa(instance, c"vkGetDisplayPlaneCapabilitiesKHR".as_ptr())),
+                LAYER_INSTANCE_DISPATCH_LOADS,
             );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateDisplayPlaneSurfaceKHR).write(load_typed(
-                gipa(instance, c"vkCreateDisplayPlaneSurfaceKHR".as_ptr()),
-            ));
-        }
-        #[cfg(all(
-            feature = "wsi-xlib",
-            any(
-                target_os = "linux",
-                target_os = "freebsd",
-                target_os = "openbsd",
-                target_os = "netbsd",
-                target_os = "dragonfly",
-                target_os = "hurd",
-                target_os = "cygwin"
-            )
-        ))]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateXlibSurfaceKHR).write(load_typed(gipa(
-                instance,
-                c"vkCreateXlibSurfaceKHR".as_ptr(),
-            )));
-        }
-        #[cfg(all(
-            feature = "wsi-xlib",
-            any(
-                target_os = "linux",
-                target_os = "freebsd",
-                target_os = "openbsd",
-                target_os = "netbsd",
-                target_os = "dragonfly",
-                target_os = "hurd",
-                target_os = "cygwin"
-            )
-        ))]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceXlibPresentationSupportKHR)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceXlibPresentationSupportKHR".as_ptr(),
-                )));
-        }
-        #[cfg(all(
-            feature = "wsi-xcb",
-            any(
-                target_os = "linux",
-                target_os = "freebsd",
-                target_os = "openbsd",
-                target_os = "netbsd",
-                target_os = "dragonfly",
-                target_os = "hurd",
-                target_os = "cygwin"
-            )
-        ))]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateXcbSurfaceKHR).write(load_typed(gipa(
-                instance,
-                c"vkCreateXcbSurfaceKHR".as_ptr(),
-            )));
-        }
-        #[cfg(all(
-            feature = "wsi-xcb",
-            any(
-                target_os = "linux",
-                target_os = "freebsd",
-                target_os = "openbsd",
-                target_os = "netbsd",
-                target_os = "dragonfly",
-                target_os = "hurd",
-                target_os = "cygwin"
-            )
-        ))]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceXcbPresentationSupportKHR)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceXcbPresentationSupportKHR".as_ptr(),
-                )));
-        }
-        #[cfg(all(
-            feature = "wsi-wayland",
-            any(
-                target_os = "linux",
-                target_os = "freebsd",
-                target_os = "openbsd",
-                target_os = "netbsd",
-                target_os = "dragonfly",
-                target_os = "hurd",
-                target_os = "cygwin"
-            )
-        ))]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateWaylandSurfaceKHR).write(load_typed(
-                gipa(instance, c"vkCreateWaylandSurfaceKHR".as_ptr()),
-            ));
-        }
-        #[cfg(all(
-            feature = "wsi-wayland",
-            any(
-                target_os = "linux",
-                target_os = "freebsd",
-                target_os = "openbsd",
-                target_os = "netbsd",
-                target_os = "dragonfly",
-                target_os = "hurd",
-                target_os = "cygwin"
-            )
-        ))]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceWaylandPresentationSupportKHR)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceWaylandPresentationSupportKHR".as_ptr(),
-                )));
-        }
-        #[cfg(target_os = "android")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateAndroidSurfaceKHR).write(load_typed(
-                gipa(instance, c"vkCreateAndroidSurfaceKHR".as_ptr()),
-            ));
-        }
-        #[cfg(target_os = "windows")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateWin32SurfaceKHR).write(load_typed(gipa(
-                instance,
-                c"vkCreateWin32SurfaceKHR".as_ptr(),
-            )));
-        }
-        #[cfg(target_os = "windows")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceWin32PresentationSupportKHR)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceWin32PresentationSupportKHR".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceVideoCapabilitiesKHR).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceVideoCapabilitiesKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceVideoFormatPropertiesKHR)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceVideoFormatPropertiesKHR".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceFeatures2KHR).write(
-                load_typed(gipa(instance, c"vkGetPhysicalDeviceFeatures2KHR".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceProperties2KHR).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceProperties2KHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceFormatProperties2KHR).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceFormatProperties2KHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceImageFormatProperties2KHR)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceImageFormatProperties2KHR".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceQueueFamilyProperties2KHR)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceQueueFamilyProperties2KHR".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceMemoryProperties2KHR).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceMemoryProperties2KHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table_ptr).vkGetPhysicalDeviceSparseImageFormatProperties2KHR
-            )
-            .write(load_typed(gipa(
-                instance,
-                c"vkGetPhysicalDeviceSparseImageFormatProperties2KHR".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkEnumeratePhysicalDeviceGroupsKHR).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkEnumeratePhysicalDeviceGroupsKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceExternalBufferPropertiesKHR)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceExternalBufferPropertiesKHR".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceExternalSemaphorePropertiesKHR)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceExternalSemaphorePropertiesKHR".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceExternalFencePropertiesKHR)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceExternalFencePropertiesKHR".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table_ptr).vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR
-            )
-            .write(load_typed(gipa(
-                instance,
-                c"vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table_ptr).vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR
-            )
-            .write(load_typed(gipa(
-                instance,
-                c"vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceSurfaceCapabilities2KHR).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceSurfaceCapabilities2KHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceSurfaceFormats2KHR).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceSurfaceFormats2KHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceDisplayProperties2KHR).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceDisplayProperties2KHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceDisplayPlaneProperties2KHR)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceDisplayPlaneProperties2KHR".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDisplayModeProperties2KHR).write(load_typed(
-                gipa(instance, c"vkGetDisplayModeProperties2KHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDisplayPlaneCapabilities2KHR).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetDisplayPlaneCapabilities2KHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceFragmentShadingRatesKHR).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceFragmentShadingRatesKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table_ptr).vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR
-            )
-            .write(load_typed(gipa(
-                instance,
-                c"vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceCalibrateableTimeDomainsKHR)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceCalibrateableTimeDomainsKHR".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateDebugReportCallbackEXT).write(load_typed(
-                gipa(instance, c"vkCreateDebugReportCallbackEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyDebugReportCallbackEXT).write(
-                load_typed(gipa(instance, c"vkDestroyDebugReportCallbackEXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDebugReportMessageEXT).write(load_typed(gipa(
-                instance,
-                c"vkDebugReportMessageEXT".as_ptr(),
-            )));
-        }
-        #[cfg(feature = "platform-ggp")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateStreamDescriptorSurfaceGGP).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkCreateStreamDescriptorSurfaceGGP".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table_ptr).vkGetPhysicalDeviceExternalImageFormatPropertiesNV
-            )
-            .write(load_typed(gipa(
-                instance,
-                c"vkGetPhysicalDeviceExternalImageFormatPropertiesNV".as_ptr(),
-            )));
-        }
-        #[cfg(feature = "platform-vi")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateViSurfaceNN)
-                .write(load_typed(gipa(instance, c"vkCreateViSurfaceNN".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkReleaseDisplayEXT)
-                .write(load_typed(gipa(instance, c"vkReleaseDisplayEXT".as_ptr())));
-        }
-        #[cfg(all(
-            feature = "wsi-xlib-xrandr",
-            any(
-                target_os = "linux",
-                target_os = "freebsd",
-                target_os = "openbsd",
-                target_os = "netbsd",
-                target_os = "dragonfly",
-                target_os = "hurd",
-                target_os = "cygwin"
-            )
-        ))]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkAcquireXlibDisplayEXT).write(load_typed(gipa(
-                instance,
-                c"vkAcquireXlibDisplayEXT".as_ptr(),
-            )));
-        }
-        #[cfg(all(
-            feature = "wsi-xlib-xrandr",
-            any(
-                target_os = "linux",
-                target_os = "freebsd",
-                target_os = "openbsd",
-                target_os = "netbsd",
-                target_os = "dragonfly",
-                target_os = "hurd",
-                target_os = "cygwin"
-            )
-        ))]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetRandROutputDisplayEXT).write(load_typed(
-                gipa(instance, c"vkGetRandROutputDisplayEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceSurfaceCapabilities2EXT).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceSurfaceCapabilities2EXT".as_ptr(),
-                )),
-            );
-        }
-        #[cfg(target_os = "ios")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateIOSSurfaceMVK).write(load_typed(gipa(
-                instance,
-                c"vkCreateIOSSurfaceMVK".as_ptr(),
-            )));
-        }
-        #[cfg(target_os = "macos")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateMacOSSurfaceMVK).write(load_typed(gipa(
-                instance,
-                c"vkCreateMacOSSurfaceMVK".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateDebugUtilsMessengerEXT).write(load_typed(
-                gipa(instance, c"vkCreateDebugUtilsMessengerEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyDebugUtilsMessengerEXT).write(
-                load_typed(gipa(instance, c"vkDestroyDebugUtilsMessengerEXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkSubmitDebugUtilsMessageEXT).write(load_typed(
-                gipa(instance, c"vkSubmitDebugUtilsMessageEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceDescriptorSizeEXT).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceDescriptorSizeEXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceMultisamplePropertiesEXT)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceMultisamplePropertiesEXT".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceCalibrateableTimeDomainsEXT)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceCalibrateableTimeDomainsEXT".as_ptr(),
-                )));
-        }
-        #[cfg(target_os = "fuchsia")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateImagePipeSurfaceFUCHSIA).write(
-                load_typed(gipa(instance, c"vkCreateImagePipeSurfaceFUCHSIA".as_ptr())),
-            );
-        }
-        #[cfg(any(
-            target_os = "macos",
-            target_os = "ios",
-            target_os = "tvos",
-            target_os = "visionos"
-        ))]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateMetalSurfaceEXT).write(load_typed(gipa(
-                instance,
-                c"vkCreateMetalSurfaceEXT".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceToolPropertiesEXT).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceToolPropertiesEXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceCooperativeMatrixPropertiesNV)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceCooperativeMatrixPropertiesNV".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table_ptr).vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV
-            )
-            .write(load_typed(gipa(
-                instance,
-                c"vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV".as_ptr(),
-            )));
-        }
-        #[cfg(target_os = "windows")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceSurfacePresentModes2EXT).write(
-                load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceSurfacePresentModes2EXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateHeadlessSurfaceEXT).write(load_typed(
-                gipa(instance, c"vkCreateHeadlessSurfaceEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkAcquireDrmDisplayEXT).write(load_typed(gipa(
-                instance,
-                c"vkAcquireDrmDisplayEXT".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDrmDisplayEXT)
-                .write(load_typed(gipa(instance, c"vkGetDrmDisplayEXT".as_ptr())));
-        }
-        #[cfg(target_os = "windows")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkAcquireWinrtDisplayNV).write(load_typed(gipa(
-                instance,
-                c"vkAcquireWinrtDisplayNV".as_ptr(),
-            )));
-        }
-        #[cfg(target_os = "windows")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetWinrtDisplayNV)
-                .write(load_typed(gipa(instance, c"vkGetWinrtDisplayNV".as_ptr())));
-        }
-        #[cfg(feature = "wsi-directfb")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateDirectFBSurfaceEXT).write(load_typed(
-                gipa(instance, c"vkCreateDirectFBSurfaceEXT".as_ptr()),
-            ));
-        }
-        #[cfg(feature = "wsi-directfb")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceDirectFBPresentationSupportEXT)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceDirectFBPresentationSupportEXT".as_ptr(),
-                )));
-        }
-        #[cfg(any(target_os = "nto", target_os = "qnx"))]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateScreenSurfaceQNX).write(load_typed(gipa(
-                instance,
-                c"vkCreateScreenSurfaceQNX".as_ptr(),
-            )));
-        }
-        #[cfg(any(target_os = "nto", target_os = "qnx"))]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceScreenPresentationSupportQNX)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceScreenPresentationSupportQNX".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceExternalTensorPropertiesARM)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceExternalTensorPropertiesARM".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceOpticalFlowImageFormatsNV)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceOpticalFlowImageFormatsNV".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceCooperativeVectorPropertiesNV)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceCooperativeVectorPropertiesNV".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table_ptr).vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM
-            )
-            .write(load_typed(gipa(
-                instance,
-                c"vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table_ptr).vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM
-            )
-            .write(load_typed(gipa(
-                instance,
-                c"vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table_ptr).vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM
-            )
-            .write(load_typed(gipa(
-                instance,
-                c"vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM".as_ptr(),
-            )));
-        }
-        #[cfg(target_env = "ohos")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateSurfaceOHOS)
-                .write(load_typed(gipa(instance, c"vkCreateSurfaceOHOS".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table_ptr).vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV
-            )
-            .write(load_typed(gipa(
-                instance,
-                c"vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table_ptr).vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM
-            )
-            .write(load_typed(gipa(
-                instance,
-                c"vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table_ptr).vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM
-            )
-            .write(load_typed(gipa(
-                instance,
-                c"vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table_ptr).vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM
-            )
-            .write(load_typed(gipa(
-                instance,
-                c"vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table_ptr).vkGetPhysicalDeviceCooperativeMatrixProperties2EXT
-            )
-            .write(load_typed(gipa(
-                instance,
-                c"vkGetPhysicalDeviceCooperativeMatrixProperties2EXT".as_ptr(),
-            )));
-        }
-        #[cfg(feature = "platform-ubm")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateUbmSurfaceSEC).write(load_typed(gipa(
-                instance,
-                c"vkCreateUbmSurfaceSEC".as_ptr(),
-            )));
-        }
-        #[cfg(feature = "platform-ubm")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPhysicalDeviceUbmPresentationSupportSEC)
-                .write(load_typed(gipa(
-                    instance,
-                    c"vkGetPhysicalDeviceUbmPresentationSupportSEC".as_ptr(),
-                )));
         }
     }
 }
@@ -3235,8 +2365,25 @@ pub(crate) struct LayerDeviceDispatchTable {
     pub(crate) vkCmdDrawMeshTasksIndirectCountEXT:
         Option<vk::PFN_vkCmdDrawMeshTasksIndirectCountEXT>,
 }
+const _: () = assert!(core::mem::size_of::<LayerDeviceDispatchTable>() <= 65_535);
+#[inline(never)]
+pub(super) unsafe fn load_device_dispatch_fields(
+    table: *mut u8,
+    gdpa: vk::PFN_vkGetDeviceProcAddr,
+    device: vk::VkDevice,
+    loads: &[DeviceDispatchLoad],
+) {
+    for load in loads {
+        let function = unsafe { gdpa(device, load.name.as_ptr()) };
+        unsafe {
+            table
+                .add(usize::from(load.offset))
+                .cast::<vk::PFN_vkVoidFunction>()
+                .write(function);
+        }
+    }
+}
 impl LayerDeviceDispatchTable {
-    #[allow(clippy::too_many_lines)]
     pub(crate) unsafe fn load_into(
         table_ptr: *mut Self,
         gdpa: vk::PFN_vkGetDeviceProcAddr,
@@ -3249,3818 +2396,7 @@ impl LayerDeviceDispatchTable {
             core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceProcAddr).write(Some(gdpa));
         }
         unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyDevice)
-                .write(load_typed(gdpa(device, c"vkDestroyDevice".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceQueue)
-                .write(load_typed(gdpa(device, c"vkGetDeviceQueue".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkQueueSubmit)
-                .write(load_typed(gdpa(device, c"vkQueueSubmit".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkQueueWaitIdle)
-                .write(load_typed(gdpa(device, c"vkQueueWaitIdle".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDeviceWaitIdle)
-                .write(load_typed(gdpa(device, c"vkDeviceWaitIdle".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkAllocateMemory)
-                .write(load_typed(gdpa(device, c"vkAllocateMemory".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkFreeMemory)
-                .write(load_typed(gdpa(device, c"vkFreeMemory".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkMapMemory)
-                .write(load_typed(gdpa(device, c"vkMapMemory".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkUnmapMemory)
-                .write(load_typed(gdpa(device, c"vkUnmapMemory".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkFlushMappedMemoryRanges).write(load_typed(
-                gdpa(device, c"vkFlushMappedMemoryRanges".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkInvalidateMappedMemoryRanges).write(load_typed(
-                gdpa(device, c"vkInvalidateMappedMemoryRanges".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceMemoryCommitment).write(load_typed(
-                gdpa(device, c"vkGetDeviceMemoryCommitment".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkBindBufferMemory)
-                .write(load_typed(gdpa(device, c"vkBindBufferMemory".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkBindImageMemory)
-                .write(load_typed(gdpa(device, c"vkBindImageMemory".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetBufferMemoryRequirements).write(load_typed(
-                gdpa(device, c"vkGetBufferMemoryRequirements".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetImageMemoryRequirements).write(load_typed(
-                gdpa(device, c"vkGetImageMemoryRequirements".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetImageSparseMemoryRequirements).write(
-                load_typed(gdpa(device, c"vkGetImageSparseMemoryRequirements".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkQueueBindSparse)
-                .write(load_typed(gdpa(device, c"vkQueueBindSparse".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateFence)
-                .write(load_typed(gdpa(device, c"vkCreateFence".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyFence)
-                .write(load_typed(gdpa(device, c"vkDestroyFence".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkResetFences)
-                .write(load_typed(gdpa(device, c"vkResetFences".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetFenceStatus)
-                .write(load_typed(gdpa(device, c"vkGetFenceStatus".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkWaitForFences)
-                .write(load_typed(gdpa(device, c"vkWaitForFences".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateSemaphore)
-                .write(load_typed(gdpa(device, c"vkCreateSemaphore".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroySemaphore)
-                .write(load_typed(gdpa(device, c"vkDestroySemaphore".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateQueryPool)
-                .write(load_typed(gdpa(device, c"vkCreateQueryPool".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyQueryPool)
-                .write(load_typed(gdpa(device, c"vkDestroyQueryPool".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetQueryPoolResults)
-                .write(load_typed(gdpa(device, c"vkGetQueryPoolResults".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateBuffer)
-                .write(load_typed(gdpa(device, c"vkCreateBuffer".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyBuffer)
-                .write(load_typed(gdpa(device, c"vkDestroyBuffer".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateImage)
-                .write(load_typed(gdpa(device, c"vkCreateImage".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyImage)
-                .write(load_typed(gdpa(device, c"vkDestroyImage".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetImageSubresourceLayout).write(load_typed(
-                gdpa(device, c"vkGetImageSubresourceLayout".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateImageView)
-                .write(load_typed(gdpa(device, c"vkCreateImageView".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyImageView)
-                .write(load_typed(gdpa(device, c"vkDestroyImageView".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateCommandPool)
-                .write(load_typed(gdpa(device, c"vkCreateCommandPool".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyCommandPool)
-                .write(load_typed(gdpa(device, c"vkDestroyCommandPool".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkResetCommandPool)
-                .write(load_typed(gdpa(device, c"vkResetCommandPool".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkAllocateCommandBuffers).write(load_typed(gdpa(
-                device,
-                c"vkAllocateCommandBuffers".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkFreeCommandBuffers)
-                .write(load_typed(gdpa(device, c"vkFreeCommandBuffers".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkBeginCommandBuffer)
-                .write(load_typed(gdpa(device, c"vkBeginCommandBuffer".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkEndCommandBuffer)
-                .write(load_typed(gdpa(device, c"vkEndCommandBuffer".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkResetCommandBuffer)
-                .write(load_typed(gdpa(device, c"vkResetCommandBuffer".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyBuffer)
-                .write(load_typed(gdpa(device, c"vkCmdCopyBuffer".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyImage)
-                .write(load_typed(gdpa(device, c"vkCmdCopyImage".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyBufferToImage)
-                .write(load_typed(gdpa(device, c"vkCmdCopyBufferToImage".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyImageToBuffer)
-                .write(load_typed(gdpa(device, c"vkCmdCopyImageToBuffer".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdUpdateBuffer)
-                .write(load_typed(gdpa(device, c"vkCmdUpdateBuffer".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdFillBuffer)
-                .write(load_typed(gdpa(device, c"vkCmdFillBuffer".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdPipelineBarrier)
-                .write(load_typed(gdpa(device, c"vkCmdPipelineBarrier".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBeginQuery)
-                .write(load_typed(gdpa(device, c"vkCmdBeginQuery".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdEndQuery)
-                .write(load_typed(gdpa(device, c"vkCmdEndQuery".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdResetQueryPool)
-                .write(load_typed(gdpa(device, c"vkCmdResetQueryPool".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdWriteTimestamp)
-                .write(load_typed(gdpa(device, c"vkCmdWriteTimestamp".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyQueryPoolResults).write(load_typed(
-                gdpa(device, c"vkCmdCopyQueryPoolResults".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdExecuteCommands)
-                .write(load_typed(gdpa(device, c"vkCmdExecuteCommands".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateEvent)
-                .write(load_typed(gdpa(device, c"vkCreateEvent".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyEvent)
-                .write(load_typed(gdpa(device, c"vkDestroyEvent".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetEventStatus)
-                .write(load_typed(gdpa(device, c"vkGetEventStatus".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkSetEvent)
-                .write(load_typed(gdpa(device, c"vkSetEvent".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkResetEvent)
-                .write(load_typed(gdpa(device, c"vkResetEvent".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateBufferView)
-                .write(load_typed(gdpa(device, c"vkCreateBufferView".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyBufferView)
-                .write(load_typed(gdpa(device, c"vkDestroyBufferView".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateShaderModule)
-                .write(load_typed(gdpa(device, c"vkCreateShaderModule".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyShaderModule)
-                .write(load_typed(gdpa(device, c"vkDestroyShaderModule".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreatePipelineCache)
-                .write(load_typed(gdpa(device, c"vkCreatePipelineCache".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyPipelineCache)
-                .write(load_typed(gdpa(device, c"vkDestroyPipelineCache".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPipelineCacheData)
-                .write(load_typed(gdpa(device, c"vkGetPipelineCacheData".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkMergePipelineCaches)
-                .write(load_typed(gdpa(device, c"vkMergePipelineCaches".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateComputePipelines).write(load_typed(gdpa(
-                device,
-                c"vkCreateComputePipelines".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyPipeline)
-                .write(load_typed(gdpa(device, c"vkDestroyPipeline".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreatePipelineLayout)
-                .write(load_typed(gdpa(device, c"vkCreatePipelineLayout".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyPipelineLayout).write(load_typed(gdpa(
-                device,
-                c"vkDestroyPipelineLayout".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateSampler)
-                .write(load_typed(gdpa(device, c"vkCreateSampler".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroySampler)
-                .write(load_typed(gdpa(device, c"vkDestroySampler".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateDescriptorSetLayout).write(load_typed(
-                gdpa(device, c"vkCreateDescriptorSetLayout".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyDescriptorSetLayout).write(load_typed(
-                gdpa(device, c"vkDestroyDescriptorSetLayout".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateDescriptorPool)
-                .write(load_typed(gdpa(device, c"vkCreateDescriptorPool".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyDescriptorPool).write(load_typed(gdpa(
-                device,
-                c"vkDestroyDescriptorPool".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkResetDescriptorPool)
-                .write(load_typed(gdpa(device, c"vkResetDescriptorPool".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkAllocateDescriptorSets).write(load_typed(gdpa(
-                device,
-                c"vkAllocateDescriptorSets".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkFreeDescriptorSets)
-                .write(load_typed(gdpa(device, c"vkFreeDescriptorSets".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkUpdateDescriptorSets)
-                .write(load_typed(gdpa(device, c"vkUpdateDescriptorSets".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBindPipeline)
-                .write(load_typed(gdpa(device, c"vkCmdBindPipeline".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBindDescriptorSets).write(load_typed(gdpa(
-                device,
-                c"vkCmdBindDescriptorSets".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdClearColorImage)
-                .write(load_typed(gdpa(device, c"vkCmdClearColorImage".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDispatch)
-                .write(load_typed(gdpa(device, c"vkCmdDispatch".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDispatchIndirect)
-                .write(load_typed(gdpa(device, c"vkCmdDispatchIndirect".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetEvent)
-                .write(load_typed(gdpa(device, c"vkCmdSetEvent".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdResetEvent)
-                .write(load_typed(gdpa(device, c"vkCmdResetEvent".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdWaitEvents)
-                .write(load_typed(gdpa(device, c"vkCmdWaitEvents".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdPushConstants)
-                .write(load_typed(gdpa(device, c"vkCmdPushConstants".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateGraphicsPipelines).write(load_typed(
-                gdpa(device, c"vkCreateGraphicsPipelines".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateFramebuffer)
-                .write(load_typed(gdpa(device, c"vkCreateFramebuffer".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyFramebuffer)
-                .write(load_typed(gdpa(device, c"vkDestroyFramebuffer".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateRenderPass)
-                .write(load_typed(gdpa(device, c"vkCreateRenderPass".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyRenderPass)
-                .write(load_typed(gdpa(device, c"vkDestroyRenderPass".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetRenderAreaGranularity).write(load_typed(
-                gdpa(device, c"vkGetRenderAreaGranularity".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetViewport)
-                .write(load_typed(gdpa(device, c"vkCmdSetViewport".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetScissor)
-                .write(load_typed(gdpa(device, c"vkCmdSetScissor".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetLineWidth)
-                .write(load_typed(gdpa(device, c"vkCmdSetLineWidth".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetDepthBias)
-                .write(load_typed(gdpa(device, c"vkCmdSetDepthBias".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetBlendConstants)
-                .write(load_typed(gdpa(device, c"vkCmdSetBlendConstants".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetDepthBounds)
-                .write(load_typed(gdpa(device, c"vkCmdSetDepthBounds".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetStencilCompareMask).write(load_typed(
-                gdpa(device, c"vkCmdSetStencilCompareMask".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetStencilWriteMask).write(load_typed(gdpa(
-                device,
-                c"vkCmdSetStencilWriteMask".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetStencilReference).write(load_typed(gdpa(
-                device,
-                c"vkCmdSetStencilReference".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBindIndexBuffer)
-                .write(load_typed(gdpa(device, c"vkCmdBindIndexBuffer".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBindVertexBuffers)
-                .write(load_typed(gdpa(device, c"vkCmdBindVertexBuffers".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDraw)
-                .write(load_typed(gdpa(device, c"vkCmdDraw".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawIndexed)
-                .write(load_typed(gdpa(device, c"vkCmdDrawIndexed".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawIndirect)
-                .write(load_typed(gdpa(device, c"vkCmdDrawIndirect".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawIndexedIndirect).write(load_typed(gdpa(
-                device,
-                c"vkCmdDrawIndexedIndirect".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBlitImage)
-                .write(load_typed(gdpa(device, c"vkCmdBlitImage".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdClearDepthStencilImage).write(load_typed(
-                gdpa(device, c"vkCmdClearDepthStencilImage".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdClearAttachments)
-                .write(load_typed(gdpa(device, c"vkCmdClearAttachments".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdResolveImage)
-                .write(load_typed(gdpa(device, c"vkCmdResolveImage".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBeginRenderPass)
-                .write(load_typed(gdpa(device, c"vkCmdBeginRenderPass".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdNextSubpass)
-                .write(load_typed(gdpa(device, c"vkCmdNextSubpass".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdEndRenderPass)
-                .write(load_typed(gdpa(device, c"vkCmdEndRenderPass".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkBindBufferMemory2)
-                .write(load_typed(gdpa(device, c"vkBindBufferMemory2".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkBindImageMemory2)
-                .write(load_typed(gdpa(device, c"vkBindImageMemory2".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceGroupPeerMemoryFeatures).write(
-                load_typed(gdpa(device, c"vkGetDeviceGroupPeerMemoryFeatures".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetDeviceMask)
-                .write(load_typed(gdpa(device, c"vkCmdSetDeviceMask".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetImageMemoryRequirements2).write(load_typed(
-                gdpa(device, c"vkGetImageMemoryRequirements2".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetBufferMemoryRequirements2).write(load_typed(
-                gdpa(device, c"vkGetBufferMemoryRequirements2".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetImageSparseMemoryRequirements2).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetImageSparseMemoryRequirements2".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkTrimCommandPool)
-                .write(load_typed(gdpa(device, c"vkTrimCommandPool".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceQueue2)
-                .write(load_typed(gdpa(device, c"vkGetDeviceQueue2".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDispatchBase)
-                .write(load_typed(gdpa(device, c"vkCmdDispatchBase".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateDescriptorUpdateTemplate).write(
-                load_typed(gdpa(device, c"vkCreateDescriptorUpdateTemplate".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyDescriptorUpdateTemplate).write(
-                load_typed(gdpa(device, c"vkDestroyDescriptorUpdateTemplate".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkUpdateDescriptorSetWithTemplate).write(
-                load_typed(gdpa(device, c"vkUpdateDescriptorSetWithTemplate".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDescriptorSetLayoutSupport).write(
-                load_typed(gdpa(device, c"vkGetDescriptorSetLayoutSupport".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateSamplerYcbcrConversion).write(load_typed(
-                gdpa(device, c"vkCreateSamplerYcbcrConversion".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroySamplerYcbcrConversion).write(
-                load_typed(gdpa(device, c"vkDestroySamplerYcbcrConversion".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkResetQueryPool)
-                .write(load_typed(gdpa(device, c"vkResetQueryPool".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetSemaphoreCounterValue).write(load_typed(
-                gdpa(device, c"vkGetSemaphoreCounterValue".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkWaitSemaphores)
-                .write(load_typed(gdpa(device, c"vkWaitSemaphores".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkSignalSemaphore)
-                .write(load_typed(gdpa(device, c"vkSignalSemaphore".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetBufferDeviceAddress).write(load_typed(gdpa(
-                device,
-                c"vkGetBufferDeviceAddress".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetBufferOpaqueCaptureAddress).write(
-                load_typed(gdpa(device, c"vkGetBufferOpaqueCaptureAddress".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceMemoryOpaqueCaptureAddress).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetDeviceMemoryOpaqueCaptureAddress".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawIndirectCount)
-                .write(load_typed(gdpa(device, c"vkCmdDrawIndirectCount".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawIndexedIndirectCount).write(load_typed(
-                gdpa(device, c"vkCmdDrawIndexedIndirectCount".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateRenderPass2)
-                .write(load_typed(gdpa(device, c"vkCreateRenderPass2".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBeginRenderPass2)
-                .write(load_typed(gdpa(device, c"vkCmdBeginRenderPass2".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdNextSubpass2)
-                .write(load_typed(gdpa(device, c"vkCmdNextSubpass2".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdEndRenderPass2)
-                .write(load_typed(gdpa(device, c"vkCmdEndRenderPass2".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreatePrivateDataSlot).write(load_typed(gdpa(
-                device,
-                c"vkCreatePrivateDataSlot".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyPrivateDataSlot).write(load_typed(gdpa(
-                device,
-                c"vkDestroyPrivateDataSlot".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkSetPrivateData)
-                .write(load_typed(gdpa(device, c"vkSetPrivateData".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPrivateData)
-                .write(load_typed(gdpa(device, c"vkGetPrivateData".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdPipelineBarrier2)
-                .write(load_typed(gdpa(device, c"vkCmdPipelineBarrier2".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdWriteTimestamp2)
-                .write(load_typed(gdpa(device, c"vkCmdWriteTimestamp2".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkQueueSubmit2)
-                .write(load_typed(gdpa(device, c"vkQueueSubmit2".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyBuffer2)
-                .write(load_typed(gdpa(device, c"vkCmdCopyBuffer2".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyImage2)
-                .write(load_typed(gdpa(device, c"vkCmdCopyImage2".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyBufferToImage2).write(load_typed(gdpa(
-                device,
-                c"vkCmdCopyBufferToImage2".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyImageToBuffer2).write(load_typed(gdpa(
-                device,
-                c"vkCmdCopyImageToBuffer2".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceBufferMemoryRequirements).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetDeviceBufferMemoryRequirements".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceImageMemoryRequirements).write(
-                load_typed(gdpa(device, c"vkGetDeviceImageMemoryRequirements".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceImageSparseMemoryRequirements).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetDeviceImageSparseMemoryRequirements".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetEvent2)
-                .write(load_typed(gdpa(device, c"vkCmdSetEvent2".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdResetEvent2)
-                .write(load_typed(gdpa(device, c"vkCmdResetEvent2".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdWaitEvents2)
-                .write(load_typed(gdpa(device, c"vkCmdWaitEvents2".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBlitImage2)
-                .write(load_typed(gdpa(device, c"vkCmdBlitImage2".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdResolveImage2)
-                .write(load_typed(gdpa(device, c"vkCmdResolveImage2".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBeginRendering)
-                .write(load_typed(gdpa(device, c"vkCmdBeginRendering".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdEndRendering)
-                .write(load_typed(gdpa(device, c"vkCmdEndRendering".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetCullMode)
-                .write(load_typed(gdpa(device, c"vkCmdSetCullMode".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetFrontFace)
-                .write(load_typed(gdpa(device, c"vkCmdSetFrontFace".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetPrimitiveTopology).write(load_typed(
-                gdpa(device, c"vkCmdSetPrimitiveTopology".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetViewportWithCount).write(load_typed(
-                gdpa(device, c"vkCmdSetViewportWithCount".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetScissorWithCount).write(load_typed(gdpa(
-                device,
-                c"vkCmdSetScissorWithCount".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBindVertexBuffers2).write(load_typed(gdpa(
-                device,
-                c"vkCmdBindVertexBuffers2".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetDepthTestEnable).write(load_typed(gdpa(
-                device,
-                c"vkCmdSetDepthTestEnable".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetDepthWriteEnable).write(load_typed(gdpa(
-                device,
-                c"vkCmdSetDepthWriteEnable".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetDepthCompareOp)
-                .write(load_typed(gdpa(device, c"vkCmdSetDepthCompareOp".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetDepthBoundsTestEnable).write(load_typed(
-                gdpa(device, c"vkCmdSetDepthBoundsTestEnable".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetStencilTestEnable).write(load_typed(
-                gdpa(device, c"vkCmdSetStencilTestEnable".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetStencilOp)
-                .write(load_typed(gdpa(device, c"vkCmdSetStencilOp".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetRasterizerDiscardEnable).write(
-                load_typed(gdpa(device, c"vkCmdSetRasterizerDiscardEnable".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetDepthBiasEnable).write(load_typed(gdpa(
-                device,
-                c"vkCmdSetDepthBiasEnable".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetPrimitiveRestartEnable).write(load_typed(
-                gdpa(device, c"vkCmdSetPrimitiveRestartEnable".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkMapMemory2)
-                .write(load_typed(gdpa(device, c"vkMapMemory2".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkUnmapMemory2)
-                .write(load_typed(gdpa(device, c"vkUnmapMemory2".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceImageSubresourceLayout).write(
-                load_typed(gdpa(device, c"vkGetDeviceImageSubresourceLayout".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetImageSubresourceLayout2).write(load_typed(
-                gdpa(device, c"vkGetImageSubresourceLayout2".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCopyMemoryToImage)
-                .write(load_typed(gdpa(device, c"vkCopyMemoryToImage".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCopyImageToMemory)
-                .write(load_typed(gdpa(device, c"vkCopyImageToMemory".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCopyImageToImage)
-                .write(load_typed(gdpa(device, c"vkCopyImageToImage".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkTransitionImageLayout).write(load_typed(gdpa(
-                device,
-                c"vkTransitionImageLayout".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdPushDescriptorSet)
-                .write(load_typed(gdpa(device, c"vkCmdPushDescriptorSet".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdPushDescriptorSetWithTemplate).write(
-                load_typed(gdpa(device, c"vkCmdPushDescriptorSetWithTemplate".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBindDescriptorSets2).write(load_typed(gdpa(
-                device,
-                c"vkCmdBindDescriptorSets2".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdPushConstants2)
-                .write(load_typed(gdpa(device, c"vkCmdPushConstants2".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdPushDescriptorSet2).write(load_typed(gdpa(
-                device,
-                c"vkCmdPushDescriptorSet2".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdPushDescriptorSetWithTemplate2).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdPushDescriptorSetWithTemplate2".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetLineStipple)
-                .write(load_typed(gdpa(device, c"vkCmdSetLineStipple".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBindIndexBuffer2)
-                .write(load_typed(gdpa(device, c"vkCmdBindIndexBuffer2".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetRenderingAreaGranularity).write(load_typed(
-                gdpa(device, c"vkGetRenderingAreaGranularity".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetRenderingAttachmentLocations).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdSetRenderingAttachmentLocations".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetRenderingInputAttachmentIndices).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdSetRenderingInputAttachmentIndices".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateSwapchainKHR)
-                .write(load_typed(gdpa(device, c"vkCreateSwapchainKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroySwapchainKHR)
-                .write(load_typed(gdpa(device, c"vkDestroySwapchainKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetSwapchainImagesKHR).write(load_typed(gdpa(
-                device,
-                c"vkGetSwapchainImagesKHR".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkAcquireNextImageKHR)
-                .write(load_typed(gdpa(device, c"vkAcquireNextImageKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkQueuePresentKHR)
-                .write(load_typed(gdpa(device, c"vkQueuePresentKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceGroupPresentCapabilitiesKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetDeviceGroupPresentCapabilitiesKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceGroupSurfacePresentModesKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetDeviceGroupSurfacePresentModesKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkAcquireNextImage2KHR)
-                .write(load_typed(gdpa(device, c"vkAcquireNextImage2KHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateSharedSwapchainsKHR).write(load_typed(
-                gdpa(device, c"vkCreateSharedSwapchainsKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateVideoSessionKHR).write(load_typed(gdpa(
-                device,
-                c"vkCreateVideoSessionKHR".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyVideoSessionKHR).write(load_typed(gdpa(
-                device,
-                c"vkDestroyVideoSessionKHR".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetVideoSessionMemoryRequirementsKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetVideoSessionMemoryRequirementsKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkBindVideoSessionMemoryKHR).write(load_typed(
-                gdpa(device, c"vkBindVideoSessionMemoryKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateVideoSessionParametersKHR).write(
-                load_typed(gdpa(device, c"vkCreateVideoSessionParametersKHR".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkUpdateVideoSessionParametersKHR).write(
-                load_typed(gdpa(device, c"vkUpdateVideoSessionParametersKHR".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyVideoSessionParametersKHR).write(
-                load_typed(gdpa(device, c"vkDestroyVideoSessionParametersKHR".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBeginVideoCodingKHR).write(load_typed(gdpa(
-                device,
-                c"vkCmdBeginVideoCodingKHR".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdEndVideoCodingKHR)
-                .write(load_typed(gdpa(device, c"vkCmdEndVideoCodingKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdControlVideoCodingKHR).write(load_typed(
-                gdpa(device, c"vkCmdControlVideoCodingKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDecodeVideoKHR)
-                .write(load_typed(gdpa(device, c"vkCmdDecodeVideoKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBeginRenderingKHR)
-                .write(load_typed(gdpa(device, c"vkCmdBeginRenderingKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdEndRenderingKHR)
-                .write(load_typed(gdpa(device, c"vkCmdEndRenderingKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceGroupPeerMemoryFeaturesKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetDeviceGroupPeerMemoryFeaturesKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetDeviceMaskKHR)
-                .write(load_typed(gdpa(device, c"vkCmdSetDeviceMaskKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDispatchBaseKHR)
-                .write(load_typed(gdpa(device, c"vkCmdDispatchBaseKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkTrimCommandPoolKHR)
-                .write(load_typed(gdpa(device, c"vkTrimCommandPoolKHR".as_ptr())));
-        }
-        #[cfg(target_os = "windows")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetMemoryWin32HandleKHR).write(load_typed(
-                gdpa(device, c"vkGetMemoryWin32HandleKHR".as_ptr()),
-            ));
-        }
-        #[cfg(target_os = "windows")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetMemoryWin32HandlePropertiesKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetMemoryWin32HandlePropertiesKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetMemoryFdKHR)
-                .write(load_typed(gdpa(device, c"vkGetMemoryFdKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetMemoryFdPropertiesKHR).write(load_typed(
-                gdpa(device, c"vkGetMemoryFdPropertiesKHR".as_ptr()),
-            ));
-        }
-        #[cfg(target_os = "windows")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkImportSemaphoreWin32HandleKHR).write(
-                load_typed(gdpa(device, c"vkImportSemaphoreWin32HandleKHR".as_ptr())),
-            );
-        }
-        #[cfg(target_os = "windows")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetSemaphoreWin32HandleKHR).write(load_typed(
-                gdpa(device, c"vkGetSemaphoreWin32HandleKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkImportSemaphoreFdKHR)
-                .write(load_typed(gdpa(device, c"vkImportSemaphoreFdKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetSemaphoreFdKHR)
-                .write(load_typed(gdpa(device, c"vkGetSemaphoreFdKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdPushDescriptorSetKHR).write(load_typed(
-                gdpa(device, c"vkCmdPushDescriptorSetKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdPushDescriptorSetWithTemplateKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdPushDescriptorSetWithTemplateKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateDescriptorUpdateTemplateKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCreateDescriptorUpdateTemplateKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyDescriptorUpdateTemplateKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkDestroyDescriptorUpdateTemplateKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkUpdateDescriptorSetWithTemplateKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkUpdateDescriptorSetWithTemplateKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateRenderPass2KHR)
-                .write(load_typed(gdpa(device, c"vkCreateRenderPass2KHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBeginRenderPass2KHR).write(load_typed(gdpa(
-                device,
-                c"vkCmdBeginRenderPass2KHR".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdNextSubpass2KHR)
-                .write(load_typed(gdpa(device, c"vkCmdNextSubpass2KHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdEndRenderPass2KHR)
-                .write(load_typed(gdpa(device, c"vkCmdEndRenderPass2KHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetSwapchainStatusKHR).write(load_typed(gdpa(
-                device,
-                c"vkGetSwapchainStatusKHR".as_ptr(),
-            )));
-        }
-        #[cfg(target_os = "windows")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkImportFenceWin32HandleKHR).write(load_typed(
-                gdpa(device, c"vkImportFenceWin32HandleKHR".as_ptr()),
-            ));
-        }
-        #[cfg(target_os = "windows")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetFenceWin32HandleKHR).write(load_typed(gdpa(
-                device,
-                c"vkGetFenceWin32HandleKHR".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkImportFenceFdKHR)
-                .write(load_typed(gdpa(device, c"vkImportFenceFdKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetFenceFdKHR)
-                .write(load_typed(gdpa(device, c"vkGetFenceFdKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkAcquireProfilingLockKHR).write(load_typed(
-                gdpa(device, c"vkAcquireProfilingLockKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkReleaseProfilingLockKHR).write(load_typed(
-                gdpa(device, c"vkReleaseProfilingLockKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetImageMemoryRequirements2KHR).write(
-                load_typed(gdpa(device, c"vkGetImageMemoryRequirements2KHR".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetBufferMemoryRequirements2KHR).write(
-                load_typed(gdpa(device, c"vkGetBufferMemoryRequirements2KHR".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetImageSparseMemoryRequirements2KHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetImageSparseMemoryRequirements2KHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateSamplerYcbcrConversionKHR).write(
-                load_typed(gdpa(device, c"vkCreateSamplerYcbcrConversionKHR".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroySamplerYcbcrConversionKHR).write(
-                load_typed(gdpa(device, c"vkDestroySamplerYcbcrConversionKHR".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkBindBufferMemory2KHR)
-                .write(load_typed(gdpa(device, c"vkBindBufferMemory2KHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkBindImageMemory2KHR)
-                .write(load_typed(gdpa(device, c"vkBindImageMemory2KHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDescriptorSetLayoutSupportKHR).write(
-                load_typed(gdpa(device, c"vkGetDescriptorSetLayoutSupportKHR".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawIndirectCountKHR).write(load_typed(
-                gdpa(device, c"vkCmdDrawIndirectCountKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawIndexedIndirectCountKHR).write(
-                load_typed(gdpa(device, c"vkCmdDrawIndexedIndirectCountKHR".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetSemaphoreCounterValueKHR).write(load_typed(
-                gdpa(device, c"vkGetSemaphoreCounterValueKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkWaitSemaphoresKHR)
-                .write(load_typed(gdpa(device, c"vkWaitSemaphoresKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkSignalSemaphoreKHR)
-                .write(load_typed(gdpa(device, c"vkSignalSemaphoreKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetFragmentShadingRateKHR).write(load_typed(
-                gdpa(device, c"vkCmdSetFragmentShadingRateKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetRenderingAttachmentLocationsKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdSetRenderingAttachmentLocationsKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetRenderingInputAttachmentIndicesKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdSetRenderingInputAttachmentIndicesKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkWaitForPresentKHR)
-                .write(load_typed(gdpa(device, c"vkWaitForPresentKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetBufferDeviceAddressKHR).write(load_typed(
-                gdpa(device, c"vkGetBufferDeviceAddressKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetBufferOpaqueCaptureAddressKHR).write(
-                load_typed(gdpa(device, c"vkGetBufferOpaqueCaptureAddressKHR".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceMemoryOpaqueCaptureAddressKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetDeviceMemoryOpaqueCaptureAddressKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateDeferredOperationKHR).write(load_typed(
-                gdpa(device, c"vkCreateDeferredOperationKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyDeferredOperationKHR).write(load_typed(
-                gdpa(device, c"vkDestroyDeferredOperationKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeferredOperationMaxConcurrencyKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetDeferredOperationMaxConcurrencyKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeferredOperationResultKHR).write(
-                load_typed(gdpa(device, c"vkGetDeferredOperationResultKHR".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDeferredOperationJoinKHR).write(load_typed(
-                gdpa(device, c"vkDeferredOperationJoinKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPipelineExecutablePropertiesKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetPipelineExecutablePropertiesKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPipelineExecutableStatisticsKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetPipelineExecutableStatisticsKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPipelineExecutableInternalRepresentationsKHR)
-                .write(load_typed(gdpa(
-                    device,
-                    c"vkGetPipelineExecutableInternalRepresentationsKHR".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkMapMemory2KHR)
-                .write(load_typed(gdpa(device, c"vkMapMemory2KHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkUnmapMemory2KHR)
-                .write(load_typed(gdpa(device, c"vkUnmapMemory2KHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetEncodedVideoSessionParametersKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetEncodedVideoSessionParametersKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdEncodeVideoKHR)
-                .write(load_typed(gdpa(device, c"vkCmdEncodeVideoKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetEvent2KHR)
-                .write(load_typed(gdpa(device, c"vkCmdSetEvent2KHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdResetEvent2KHR)
-                .write(load_typed(gdpa(device, c"vkCmdResetEvent2KHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdWaitEvents2KHR)
-                .write(load_typed(gdpa(device, c"vkCmdWaitEvents2KHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdPipelineBarrier2KHR).write(load_typed(gdpa(
-                device,
-                c"vkCmdPipelineBarrier2KHR".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdWriteTimestamp2KHR).write(load_typed(gdpa(
-                device,
-                c"vkCmdWriteTimestamp2KHR".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkQueueSubmit2KHR)
-                .write(load_typed(gdpa(device, c"vkQueueSubmit2KHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBindIndexBuffer3KHR).write(load_typed(gdpa(
-                device,
-                c"vkCmdBindIndexBuffer3KHR".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBindVertexBuffers3KHR).write(load_typed(
-                gdpa(device, c"vkCmdBindVertexBuffers3KHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawIndirect2KHR)
-                .write(load_typed(gdpa(device, c"vkCmdDrawIndirect2KHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawIndexedIndirect2KHR).write(load_typed(
-                gdpa(device, c"vkCmdDrawIndexedIndirect2KHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDispatchIndirect2KHR).write(load_typed(
-                gdpa(device, c"vkCmdDispatchIndirect2KHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyMemoryKHR)
-                .write(load_typed(gdpa(device, c"vkCmdCopyMemoryKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyMemoryToImageKHR).write(load_typed(
-                gdpa(device, c"vkCmdCopyMemoryToImageKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyImageToMemoryKHR).write(load_typed(
-                gdpa(device, c"vkCmdCopyImageToMemoryKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdUpdateMemoryKHR)
-                .write(load_typed(gdpa(device, c"vkCmdUpdateMemoryKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdFillMemoryKHR)
-                .write(load_typed(gdpa(device, c"vkCmdFillMemoryKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyQueryPoolResultsToMemoryKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdCopyQueryPoolResultsToMemoryKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawIndirectCount2KHR).write(load_typed(
-                gdpa(device, c"vkCmdDrawIndirectCount2KHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawIndexedIndirectCount2KHR).write(
-                load_typed(gdpa(device, c"vkCmdDrawIndexedIndirectCount2KHR".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBeginConditionalRendering2EXT).write(
-                load_typed(gdpa(device, c"vkCmdBeginConditionalRendering2EXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBindTransformFeedbackBuffers2EXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdBindTransformFeedbackBuffers2EXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBeginTransformFeedback2EXT).write(
-                load_typed(gdpa(device, c"vkCmdBeginTransformFeedback2EXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdEndTransformFeedback2EXT).write(load_typed(
-                gdpa(device, c"vkCmdEndTransformFeedback2EXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawIndirectByteCount2EXT).write(load_typed(
-                gdpa(device, c"vkCmdDrawIndirectByteCount2EXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawMeshTasksIndirect2EXT).write(load_typed(
-                gdpa(device, c"vkCmdDrawMeshTasksIndirect2EXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawMeshTasksIndirectCount2EXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdDrawMeshTasksIndirectCount2EXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdWriteMarkerToMemoryAMD).write(load_typed(
-                gdpa(device, c"vkCmdWriteMarkerToMemoryAMD".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateAccelerationStructure2KHR).write(
-                load_typed(gdpa(device, c"vkCreateAccelerationStructure2KHR".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyBuffer2KHR)
-                .write(load_typed(gdpa(device, c"vkCmdCopyBuffer2KHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyImage2KHR)
-                .write(load_typed(gdpa(device, c"vkCmdCopyImage2KHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyBufferToImage2KHR).write(load_typed(
-                gdpa(device, c"vkCmdCopyBufferToImage2KHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyImageToBuffer2KHR).write(load_typed(
-                gdpa(device, c"vkCmdCopyImageToBuffer2KHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBlitImage2KHR)
-                .write(load_typed(gdpa(device, c"vkCmdBlitImage2KHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdResolveImage2KHR)
-                .write(load_typed(gdpa(device, c"vkCmdResolveImage2KHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdTraceRaysIndirect2KHR).write(load_typed(
-                gdpa(device, c"vkCmdTraceRaysIndirect2KHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceBufferMemoryRequirementsKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetDeviceBufferMemoryRequirementsKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceImageMemoryRequirementsKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetDeviceImageMemoryRequirementsKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceImageSparseMemoryRequirementsKHR)
-                .write(load_typed(gdpa(
-                    device,
-                    c"vkGetDeviceImageSparseMemoryRequirementsKHR".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBindIndexBuffer2KHR).write(load_typed(gdpa(
-                device,
-                c"vkCmdBindIndexBuffer2KHR".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetRenderingAreaGranularityKHR).write(
-                load_typed(gdpa(device, c"vkGetRenderingAreaGranularityKHR".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceImageSubresourceLayoutKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetDeviceImageSubresourceLayoutKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetImageSubresourceLayout2KHR).write(
-                load_typed(gdpa(device, c"vkGetImageSubresourceLayout2KHR".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkWaitForPresent2KHR)
-                .write(load_typed(gdpa(device, c"vkWaitForPresent2KHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreatePipelineBinariesKHR).write(load_typed(
-                gdpa(device, c"vkCreatePipelineBinariesKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyPipelineBinaryKHR).write(load_typed(
-                gdpa(device, c"vkDestroyPipelineBinaryKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPipelineKeyKHR)
-                .write(load_typed(gdpa(device, c"vkGetPipelineKeyKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPipelineBinaryDataKHR).write(load_typed(
-                gdpa(device, c"vkGetPipelineBinaryDataKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkReleaseCapturedPipelineDataKHR).write(
-                load_typed(gdpa(device, c"vkReleaseCapturedPipelineDataKHR".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkReleaseSwapchainImagesKHR).write(load_typed(
-                gdpa(device, c"vkReleaseSwapchainImagesKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetLineStippleKHR)
-                .write(load_typed(gdpa(device, c"vkCmdSetLineStippleKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetCalibratedTimestampsKHR).write(load_typed(
-                gdpa(device, c"vkGetCalibratedTimestampsKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBindDescriptorSets2KHR).write(load_typed(
-                gdpa(device, c"vkCmdBindDescriptorSets2KHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdPushConstants2KHR)
-                .write(load_typed(gdpa(device, c"vkCmdPushConstants2KHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdPushDescriptorSet2KHR).write(load_typed(
-                gdpa(device, c"vkCmdPushDescriptorSet2KHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdPushDescriptorSetWithTemplate2KHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdPushDescriptorSetWithTemplate2KHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetDescriptorBufferOffsets2EXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdSetDescriptorBufferOffsets2EXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBindDescriptorBufferEmbeddedSamplers2EXT)
-                .write(load_typed(gdpa(
-                    device,
-                    c"vkCmdBindDescriptorBufferEmbeddedSamplers2EXT".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyMemoryIndirectKHR).write(load_typed(
-                gdpa(device, c"vkCmdCopyMemoryIndirectKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyMemoryToImageIndirectKHR).write(
-                load_typed(gdpa(device, c"vkCmdCopyMemoryToImageIndirectKHR".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceFaultReportsKHR).write(load_typed(
-                gdpa(device, c"vkGetDeviceFaultReportsKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceFaultDebugInfoKHR).write(load_typed(
-                gdpa(device, c"vkGetDeviceFaultDebugInfoKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdEndRendering2KHR)
-                .write(load_typed(gdpa(device, c"vkCmdEndRendering2KHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDebugMarkerSetObjectTagEXT).write(load_typed(
-                gdpa(device, c"vkDebugMarkerSetObjectTagEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDebugMarkerSetObjectNameEXT).write(load_typed(
-                gdpa(device, c"vkDebugMarkerSetObjectNameEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDebugMarkerBeginEXT).write(load_typed(gdpa(
-                device,
-                c"vkCmdDebugMarkerBeginEXT".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDebugMarkerEndEXT)
-                .write(load_typed(gdpa(device, c"vkCmdDebugMarkerEndEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDebugMarkerInsertEXT).write(load_typed(
-                gdpa(device, c"vkCmdDebugMarkerInsertEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBindTransformFeedbackBuffersEXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdBindTransformFeedbackBuffersEXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBeginTransformFeedbackEXT).write(load_typed(
-                gdpa(device, c"vkCmdBeginTransformFeedbackEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdEndTransformFeedbackEXT).write(load_typed(
-                gdpa(device, c"vkCmdEndTransformFeedbackEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBeginQueryIndexedEXT).write(load_typed(
-                gdpa(device, c"vkCmdBeginQueryIndexedEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdEndQueryIndexedEXT).write(load_typed(gdpa(
-                device,
-                c"vkCmdEndQueryIndexedEXT".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawIndirectByteCountEXT).write(load_typed(
-                gdpa(device, c"vkCmdDrawIndirectByteCountEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateCuModuleNVX)
-                .write(load_typed(gdpa(device, c"vkCreateCuModuleNVX".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateCuFunctionNVX)
-                .write(load_typed(gdpa(device, c"vkCreateCuFunctionNVX".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyCuModuleNVX)
-                .write(load_typed(gdpa(device, c"vkDestroyCuModuleNVX".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyCuFunctionNVX)
-                .write(load_typed(gdpa(device, c"vkDestroyCuFunctionNVX".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCuLaunchKernelNVX)
-                .write(load_typed(gdpa(device, c"vkCmdCuLaunchKernelNVX".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetImageViewHandleNVX).write(load_typed(gdpa(
-                device,
-                c"vkGetImageViewHandleNVX".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetImageViewHandle64NVX).write(load_typed(
-                gdpa(device, c"vkGetImageViewHandle64NVX".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetImageViewAddressNVX).write(load_typed(gdpa(
-                device,
-                c"vkGetImageViewAddressNVX".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceCombinedImageSamplerIndexNVX).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetDeviceCombinedImageSamplerIndexNVX".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawIndirectCountAMD).write(load_typed(
-                gdpa(device, c"vkCmdDrawIndirectCountAMD".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawIndexedIndirectCountAMD).write(
-                load_typed(gdpa(device, c"vkCmdDrawIndexedIndirectCountAMD".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetShaderInfoAMD)
-                .write(load_typed(gdpa(device, c"vkGetShaderInfoAMD".as_ptr())));
-        }
-        #[cfg(target_os = "windows")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetMemoryWin32HandleNV).write(load_typed(gdpa(
-                device,
-                c"vkGetMemoryWin32HandleNV".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBeginConditionalRenderingEXT).write(
-                load_typed(gdpa(device, c"vkCmdBeginConditionalRenderingEXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdEndConditionalRenderingEXT).write(
-                load_typed(gdpa(device, c"vkCmdEndConditionalRenderingEXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetViewportWScalingNV).write(load_typed(
-                gdpa(device, c"vkCmdSetViewportWScalingNV".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDisplayPowerControlEXT).write(load_typed(gdpa(
-                device,
-                c"vkDisplayPowerControlEXT".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkRegisterDeviceEventEXT).write(load_typed(gdpa(
-                device,
-                c"vkRegisterDeviceEventEXT".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkRegisterDisplayEventEXT).write(load_typed(
-                gdpa(device, c"vkRegisterDisplayEventEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetSwapchainCounterEXT).write(load_typed(gdpa(
-                device,
-                c"vkGetSwapchainCounterEXT".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetRefreshCycleDurationGOOGLE).write(
-                load_typed(gdpa(device, c"vkGetRefreshCycleDurationGOOGLE".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPastPresentationTimingGOOGLE).write(
-                load_typed(gdpa(device, c"vkGetPastPresentationTimingGOOGLE".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetDiscardRectangleEXT).write(load_typed(
-                gdpa(device, c"vkCmdSetDiscardRectangleEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetDiscardRectangleEnableEXT).write(
-                load_typed(gdpa(device, c"vkCmdSetDiscardRectangleEnableEXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetDiscardRectangleModeEXT).write(
-                load_typed(gdpa(device, c"vkCmdSetDiscardRectangleModeEXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkSetHdrMetadataEXT)
-                .write(load_typed(gdpa(device, c"vkSetHdrMetadataEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkSetDebugUtilsObjectNameEXT).write(load_typed(
-                gdpa(device, c"vkSetDebugUtilsObjectNameEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkSetDebugUtilsObjectTagEXT).write(load_typed(
-                gdpa(device, c"vkSetDebugUtilsObjectTagEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkQueueBeginDebugUtilsLabelEXT).write(load_typed(
-                gdpa(device, c"vkQueueBeginDebugUtilsLabelEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkQueueEndDebugUtilsLabelEXT).write(load_typed(
-                gdpa(device, c"vkQueueEndDebugUtilsLabelEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkQueueInsertDebugUtilsLabelEXT).write(
-                load_typed(gdpa(device, c"vkQueueInsertDebugUtilsLabelEXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBeginDebugUtilsLabelEXT).write(load_typed(
-                gdpa(device, c"vkCmdBeginDebugUtilsLabelEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdEndDebugUtilsLabelEXT).write(load_typed(
-                gdpa(device, c"vkCmdEndDebugUtilsLabelEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdInsertDebugUtilsLabelEXT).write(load_typed(
-                gdpa(device, c"vkCmdInsertDebugUtilsLabelEXT".as_ptr()),
-            ));
-        }
-        #[cfg(target_os = "android")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetAndroidHardwareBufferPropertiesANDROID)
-                .write(load_typed(gdpa(
-                    device,
-                    c"vkGetAndroidHardwareBufferPropertiesANDROID".as_ptr(),
-                )));
-        }
-        #[cfg(target_os = "android")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetMemoryAndroidHardwareBufferANDROID).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetMemoryAndroidHardwareBufferANDROID".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateGpaSessionAMD)
-                .write(load_typed(gdpa(device, c"vkCreateGpaSessionAMD".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyGpaSessionAMD)
-                .write(load_typed(gdpa(device, c"vkDestroyGpaSessionAMD".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkSetGpaDeviceClockModeAMD).write(load_typed(
-                gdpa(device, c"vkSetGpaDeviceClockModeAMD".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetGpaDeviceClockInfoAMD).write(load_typed(
-                gdpa(device, c"vkGetGpaDeviceClockInfoAMD".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBeginGpaSessionAMD).write(load_typed(gdpa(
-                device,
-                c"vkCmdBeginGpaSessionAMD".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdEndGpaSessionAMD)
-                .write(load_typed(gdpa(device, c"vkCmdEndGpaSessionAMD".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBeginGpaSampleAMD)
-                .write(load_typed(gdpa(device, c"vkCmdBeginGpaSampleAMD".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdEndGpaSampleAMD)
-                .write(load_typed(gdpa(device, c"vkCmdEndGpaSampleAMD".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetGpaSessionStatusAMD).write(load_typed(gdpa(
-                device,
-                c"vkGetGpaSessionStatusAMD".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetGpaSessionResultsAMD).write(load_typed(
-                gdpa(device, c"vkGetGpaSessionResultsAMD".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkResetGpaSessionAMD)
-                .write(load_typed(gdpa(device, c"vkResetGpaSessionAMD".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyGpaSessionResultsAMD).write(load_typed(
-                gdpa(device, c"vkCmdCopyGpaSessionResultsAMD".as_ptr()),
-            ));
-        }
-        #[cfg(feature = "beta-extensions")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateExecutionGraphPipelinesAMDX).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCreateExecutionGraphPipelinesAMDX".as_ptr(),
-                )),
-            );
-        }
-        #[cfg(feature = "beta-extensions")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetExecutionGraphPipelineScratchSizeAMDX).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetExecutionGraphPipelineScratchSizeAMDX".as_ptr(),
-                )),
-            );
-        }
-        #[cfg(feature = "beta-extensions")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetExecutionGraphPipelineNodeIndexAMDX).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetExecutionGraphPipelineNodeIndexAMDX".as_ptr(),
-                )),
-            );
-        }
-        #[cfg(feature = "beta-extensions")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdInitializeGraphScratchMemoryAMDX).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdInitializeGraphScratchMemoryAMDX".as_ptr(),
-                )),
-            );
-        }
-        #[cfg(feature = "beta-extensions")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDispatchGraphAMDX)
-                .write(load_typed(gdpa(device, c"vkCmdDispatchGraphAMDX".as_ptr())));
-        }
-        #[cfg(feature = "beta-extensions")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDispatchGraphIndirectAMDX).write(load_typed(
-                gdpa(device, c"vkCmdDispatchGraphIndirectAMDX".as_ptr()),
-            ));
-        }
-        #[cfg(feature = "beta-extensions")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDispatchGraphIndirectCountAMDX).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdDispatchGraphIndirectCountAMDX".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkWriteSamplerDescriptorsEXT).write(load_typed(
-                gdpa(device, c"vkWriteSamplerDescriptorsEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkWriteResourceDescriptorsEXT).write(load_typed(
-                gdpa(device, c"vkWriteResourceDescriptorsEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBindSamplerHeapEXT).write(load_typed(gdpa(
-                device,
-                c"vkCmdBindSamplerHeapEXT".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBindResourceHeapEXT).write(load_typed(gdpa(
-                device,
-                c"vkCmdBindResourceHeapEXT".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdPushDataEXT)
-                .write(load_typed(gdpa(device, c"vkCmdPushDataEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetImageOpaqueCaptureDataEXT).write(load_typed(
-                gdpa(device, c"vkGetImageOpaqueCaptureDataEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkRegisterCustomBorderColorEXT).write(load_typed(
-                gdpa(device, c"vkRegisterCustomBorderColorEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkUnregisterCustomBorderColorEXT).write(
-                load_typed(gdpa(device, c"vkUnregisterCustomBorderColorEXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetTensorOpaqueCaptureDataARM).write(
-                load_typed(gdpa(device, c"vkGetTensorOpaqueCaptureDataARM".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetSampleLocationsEXT).write(load_typed(
-                gdpa(device, c"vkCmdSetSampleLocationsEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetImageDrmFormatModifierPropertiesEXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetImageDrmFormatModifierPropertiesEXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateValidationCacheEXT).write(load_typed(
-                gdpa(device, c"vkCreateValidationCacheEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyValidationCacheEXT).write(load_typed(
-                gdpa(device, c"vkDestroyValidationCacheEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkMergeValidationCachesEXT).write(load_typed(
-                gdpa(device, c"vkMergeValidationCachesEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetValidationCacheDataEXT).write(load_typed(
-                gdpa(device, c"vkGetValidationCacheDataEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBindShadingRateImageNV).write(load_typed(
-                gdpa(device, c"vkCmdBindShadingRateImageNV".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetViewportShadingRatePaletteNV).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdSetViewportShadingRatePaletteNV".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetCoarseSampleOrderNV).write(load_typed(
-                gdpa(device, c"vkCmdSetCoarseSampleOrderNV".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateAccelerationStructureNV).write(
-                load_typed(gdpa(device, c"vkCreateAccelerationStructureNV".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyAccelerationStructureNV).write(
-                load_typed(gdpa(device, c"vkDestroyAccelerationStructureNV".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetAccelerationStructureMemoryRequirementsNV)
-                .write(load_typed(gdpa(
-                    device,
-                    c"vkGetAccelerationStructureMemoryRequirementsNV".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkBindAccelerationStructureMemoryNV).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkBindAccelerationStructureMemoryNV".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBuildAccelerationStructureNV).write(
-                load_typed(gdpa(device, c"vkCmdBuildAccelerationStructureNV".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyAccelerationStructureNV).write(
-                load_typed(gdpa(device, c"vkCmdCopyAccelerationStructureNV".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdTraceRaysNV)
-                .write(load_typed(gdpa(device, c"vkCmdTraceRaysNV".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateRayTracingPipelinesNV).write(load_typed(
-                gdpa(device, c"vkCreateRayTracingPipelinesNV".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetRayTracingShaderGroupHandlesKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetRayTracingShaderGroupHandlesKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetRayTracingShaderGroupHandlesNV).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetRayTracingShaderGroupHandlesNV".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetAccelerationStructureHandleNV).write(
-                load_typed(gdpa(device, c"vkGetAccelerationStructureHandleNV".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdWriteAccelerationStructuresPropertiesNV)
-                .write(load_typed(gdpa(
-                    device,
-                    c"vkCmdWriteAccelerationStructuresPropertiesNV".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCompileDeferredNV)
-                .write(load_typed(gdpa(device, c"vkCompileDeferredNV".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetMemoryHostPointerPropertiesEXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetMemoryHostPointerPropertiesEXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdWriteBufferMarkerAMD).write(load_typed(
-                gdpa(device, c"vkCmdWriteBufferMarkerAMD".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdWriteBufferMarker2AMD).write(load_typed(
-                gdpa(device, c"vkCmdWriteBufferMarker2AMD".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetCalibratedTimestampsEXT).write(load_typed(
-                gdpa(device, c"vkGetCalibratedTimestampsEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawMeshTasksNV)
-                .write(load_typed(gdpa(device, c"vkCmdDrawMeshTasksNV".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawMeshTasksIndirectNV).write(load_typed(
-                gdpa(device, c"vkCmdDrawMeshTasksIndirectNV".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawMeshTasksIndirectCountNV).write(
-                load_typed(gdpa(device, c"vkCmdDrawMeshTasksIndirectCountNV".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetExclusiveScissorEnableNV).write(
-                load_typed(gdpa(device, c"vkCmdSetExclusiveScissorEnableNV".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetExclusiveScissorNV).write(load_typed(
-                gdpa(device, c"vkCmdSetExclusiveScissorNV".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetCheckpointNV)
-                .write(load_typed(gdpa(device, c"vkCmdSetCheckpointNV".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetQueueCheckpointDataNV).write(load_typed(
-                gdpa(device, c"vkGetQueueCheckpointDataNV".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetQueueCheckpointData2NV).write(load_typed(
-                gdpa(device, c"vkGetQueueCheckpointData2NV".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkSetSwapchainPresentTimingQueueSizeEXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkSetSwapchainPresentTimingQueueSizeEXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetSwapchainTimingPropertiesEXT).write(
-                load_typed(gdpa(device, c"vkGetSwapchainTimingPropertiesEXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetSwapchainTimeDomainPropertiesEXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetSwapchainTimeDomainPropertiesEXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPastPresentationTimingEXT).write(load_typed(
-                gdpa(device, c"vkGetPastPresentationTimingEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkInitializePerformanceApiINTEL).write(
-                load_typed(gdpa(device, c"vkInitializePerformanceApiINTEL".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkUninitializePerformanceApiINTEL).write(
-                load_typed(gdpa(device, c"vkUninitializePerformanceApiINTEL".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetPerformanceMarkerINTEL).write(load_typed(
-                gdpa(device, c"vkCmdSetPerformanceMarkerINTEL".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetPerformanceStreamMarkerINTEL).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdSetPerformanceStreamMarkerINTEL".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetPerformanceOverrideINTEL).write(
-                load_typed(gdpa(device, c"vkCmdSetPerformanceOverrideINTEL".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkAcquirePerformanceConfigurationINTEL).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkAcquirePerformanceConfigurationINTEL".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkReleasePerformanceConfigurationINTEL).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkReleasePerformanceConfigurationINTEL".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkQueueSetPerformanceConfigurationINTEL).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkQueueSetPerformanceConfigurationINTEL".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPerformanceParameterINTEL).write(load_typed(
-                gdpa(device, c"vkGetPerformanceParameterINTEL".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkSetLocalDimmingAMD)
-                .write(load_typed(gdpa(device, c"vkSetLocalDimmingAMD".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetBufferDeviceAddressEXT).write(load_typed(
-                gdpa(device, c"vkGetBufferDeviceAddressEXT".as_ptr()),
-            ));
-        }
-        #[cfg(target_os = "windows")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkAcquireFullScreenExclusiveModeEXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkAcquireFullScreenExclusiveModeEXT".as_ptr(),
-                )),
-            );
-        }
-        #[cfg(target_os = "windows")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkReleaseFullScreenExclusiveModeEXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkReleaseFullScreenExclusiveModeEXT".as_ptr(),
-                )),
-            );
-        }
-        #[cfg(target_os = "windows")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceGroupSurfacePresentModes2EXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetDeviceGroupSurfacePresentModes2EXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetLineStippleEXT)
-                .write(load_typed(gdpa(device, c"vkCmdSetLineStippleEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkResetQueryPoolEXT)
-                .write(load_typed(gdpa(device, c"vkResetQueryPoolEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetCullModeEXT)
-                .write(load_typed(gdpa(device, c"vkCmdSetCullModeEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetFrontFaceEXT)
-                .write(load_typed(gdpa(device, c"vkCmdSetFrontFaceEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetPrimitiveTopologyEXT).write(load_typed(
-                gdpa(device, c"vkCmdSetPrimitiveTopologyEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetViewportWithCountEXT).write(load_typed(
-                gdpa(device, c"vkCmdSetViewportWithCountEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetScissorWithCountEXT).write(load_typed(
-                gdpa(device, c"vkCmdSetScissorWithCountEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBindVertexBuffers2EXT).write(load_typed(
-                gdpa(device, c"vkCmdBindVertexBuffers2EXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetDepthTestEnableEXT).write(load_typed(
-                gdpa(device, c"vkCmdSetDepthTestEnableEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetDepthWriteEnableEXT).write(load_typed(
-                gdpa(device, c"vkCmdSetDepthWriteEnableEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetDepthCompareOpEXT).write(load_typed(
-                gdpa(device, c"vkCmdSetDepthCompareOpEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetDepthBoundsTestEnableEXT).write(
-                load_typed(gdpa(device, c"vkCmdSetDepthBoundsTestEnableEXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetStencilTestEnableEXT).write(load_typed(
-                gdpa(device, c"vkCmdSetStencilTestEnableEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetStencilOpEXT)
-                .write(load_typed(gdpa(device, c"vkCmdSetStencilOpEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCopyMemoryToImageEXT)
-                .write(load_typed(gdpa(device, c"vkCopyMemoryToImageEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCopyImageToMemoryEXT)
-                .write(load_typed(gdpa(device, c"vkCopyImageToMemoryEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCopyImageToImageEXT)
-                .write(load_typed(gdpa(device, c"vkCopyImageToImageEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkTransitionImageLayoutEXT).write(load_typed(
-                gdpa(device, c"vkTransitionImageLayoutEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetImageSubresourceLayout2EXT).write(
-                load_typed(gdpa(device, c"vkGetImageSubresourceLayout2EXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkReleaseSwapchainImagesEXT).write(load_typed(
-                gdpa(device, c"vkReleaseSwapchainImagesEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetGeneratedCommandsMemoryRequirementsNV).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetGeneratedCommandsMemoryRequirementsNV".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdPreprocessGeneratedCommandsNV).write(
-                load_typed(gdpa(device, c"vkCmdPreprocessGeneratedCommandsNV".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdExecuteGeneratedCommandsNV).write(
-                load_typed(gdpa(device, c"vkCmdExecuteGeneratedCommandsNV".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBindPipelineShaderGroupNV).write(load_typed(
-                gdpa(device, c"vkCmdBindPipelineShaderGroupNV".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateIndirectCommandsLayoutNV).write(
-                load_typed(gdpa(device, c"vkCreateIndirectCommandsLayoutNV".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyIndirectCommandsLayoutNV).write(
-                load_typed(gdpa(device, c"vkDestroyIndirectCommandsLayoutNV".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetDepthBias2EXT)
-                .write(load_typed(gdpa(device, c"vkCmdSetDepthBias2EXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreatePrivateDataSlotEXT).write(load_typed(
-                gdpa(device, c"vkCreatePrivateDataSlotEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyPrivateDataSlotEXT).write(load_typed(
-                gdpa(device, c"vkDestroyPrivateDataSlotEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkSetPrivateDataEXT)
-                .write(load_typed(gdpa(device, c"vkSetPrivateDataEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPrivateDataEXT)
-                .write(load_typed(gdpa(device, c"vkGetPrivateDataEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkQueueSetPerfHintQCOM)
-                .write(load_typed(gdpa(device, c"vkQueueSetPerfHintQCOM".as_ptr())));
-        }
-        #[cfg(feature = "beta-extensions")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateCudaModuleNV)
-                .write(load_typed(gdpa(device, c"vkCreateCudaModuleNV".as_ptr())));
-        }
-        #[cfg(feature = "beta-extensions")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetCudaModuleCacheNV)
-                .write(load_typed(gdpa(device, c"vkGetCudaModuleCacheNV".as_ptr())));
-        }
-        #[cfg(feature = "beta-extensions")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateCudaFunctionNV)
-                .write(load_typed(gdpa(device, c"vkCreateCudaFunctionNV".as_ptr())));
-        }
-        #[cfg(feature = "beta-extensions")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyCudaModuleNV)
-                .write(load_typed(gdpa(device, c"vkDestroyCudaModuleNV".as_ptr())));
-        }
-        #[cfg(feature = "beta-extensions")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyCudaFunctionNV).write(load_typed(gdpa(
-                device,
-                c"vkDestroyCudaFunctionNV".as_ptr(),
-            )));
-        }
-        #[cfg(feature = "beta-extensions")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCudaLaunchKernelNV).write(load_typed(gdpa(
-                device,
-                c"vkCmdCudaLaunchKernelNV".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDispatchTileQCOM)
-                .write(load_typed(gdpa(device, c"vkCmdDispatchTileQCOM".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBeginPerTileExecutionQCOM).write(load_typed(
-                gdpa(device, c"vkCmdBeginPerTileExecutionQCOM".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdEndPerTileExecutionQCOM).write(load_typed(
-                gdpa(device, c"vkCmdEndPerTileExecutionQCOM".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkSetLatencySleepModeLegacyNV).write(load_typed(
-                gdpa(device, c"vkSetLatencySleepModeLegacyNV".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkLatencySleepLegacyNV)
-                .write(load_typed(gdpa(device, c"vkLatencySleepLegacyNV".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkSetLatencyMarkerLegacyNV).write(load_typed(
-                gdpa(device, c"vkSetLatencyMarkerLegacyNV".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetLatencyTimingsLegacyNV).write(load_typed(
-                gdpa(device, c"vkGetLatencyTimingsLegacyNV".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkQueueNotifyOutOfBandLegacyNV).write(load_typed(
-                gdpa(device, c"vkQueueNotifyOutOfBandLegacyNV".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetSleepStatusLegacyNV).write(load_typed(gdpa(
-                device,
-                c"vkGetSleepStatusLegacyNV".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkShutdownLatencyDeviceLegacyNV).write(
-                load_typed(gdpa(device, c"vkShutdownLatencyDeviceLegacyNV".as_ptr())),
-            );
-        }
-        #[cfg(any(
-            target_os = "macos",
-            target_os = "ios",
-            target_os = "tvos",
-            target_os = "visionos"
-        ))]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkExportMetalObjectsEXT).write(load_typed(gdpa(
-                device,
-                c"vkExportMetalObjectsEXT".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDescriptorSetLayoutSizeEXT).write(
-                load_typed(gdpa(device, c"vkGetDescriptorSetLayoutSizeEXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDescriptorSetLayoutBindingOffsetEXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetDescriptorSetLayoutBindingOffsetEXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDescriptorEXT)
-                .write(load_typed(gdpa(device, c"vkGetDescriptorEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBindDescriptorBuffersEXT).write(load_typed(
-                gdpa(device, c"vkCmdBindDescriptorBuffersEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetDescriptorBufferOffsetsEXT).write(
-                load_typed(gdpa(device, c"vkCmdSetDescriptorBufferOffsetsEXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBindDescriptorBufferEmbeddedSamplersEXT)
-                .write(load_typed(gdpa(
-                    device,
-                    c"vkCmdBindDescriptorBufferEmbeddedSamplersEXT".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetBufferOpaqueCaptureDescriptorDataEXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetBufferOpaqueCaptureDescriptorDataEXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetImageOpaqueCaptureDescriptorDataEXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetImageOpaqueCaptureDescriptorDataEXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetImageViewOpaqueCaptureDescriptorDataEXT)
-                .write(load_typed(gdpa(
-                    device,
-                    c"vkGetImageViewOpaqueCaptureDescriptorDataEXT".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetSamplerOpaqueCaptureDescriptorDataEXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetSamplerOpaqueCaptureDescriptorDataEXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table_ptr).vkGetAccelerationStructureOpaqueCaptureDescriptorDataEXT
-            )
-            .write(load_typed(gdpa(
-                device,
-                c"vkGetAccelerationStructureOpaqueCaptureDescriptorDataEXT".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetFragmentShadingRateEnumNV).write(
-                load_typed(gdpa(device, c"vkCmdSetFragmentShadingRateEnumNV".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceFaultInfoEXT).write(load_typed(gdpa(
-                device,
-                c"vkGetDeviceFaultInfoEXT".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetVertexInputEXT)
-                .write(load_typed(gdpa(device, c"vkCmdSetVertexInputEXT".as_ptr())));
-        }
-        #[cfg(target_os = "fuchsia")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetMemoryZirconHandleFUCHSIA).write(load_typed(
-                gdpa(device, c"vkGetMemoryZirconHandleFUCHSIA".as_ptr()),
-            ));
-        }
-        #[cfg(target_os = "fuchsia")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetMemoryZirconHandlePropertiesFUCHSIA).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetMemoryZirconHandlePropertiesFUCHSIA".as_ptr(),
-                )),
-            );
-        }
-        #[cfg(target_os = "fuchsia")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkImportSemaphoreZirconHandleFUCHSIA).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkImportSemaphoreZirconHandleFUCHSIA".as_ptr(),
-                )),
-            );
-        }
-        #[cfg(target_os = "fuchsia")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetSemaphoreZirconHandleFUCHSIA).write(
-                load_typed(gdpa(device, c"vkGetSemaphoreZirconHandleFUCHSIA".as_ptr())),
-            );
-        }
-        #[cfg(target_os = "fuchsia")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateBufferCollectionFUCHSIA).write(
-                load_typed(gdpa(device, c"vkCreateBufferCollectionFUCHSIA".as_ptr())),
-            );
-        }
-        #[cfg(target_os = "fuchsia")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkSetBufferCollectionImageConstraintsFUCHSIA)
-                .write(load_typed(gdpa(
-                    device,
-                    c"vkSetBufferCollectionImageConstraintsFUCHSIA".as_ptr(),
-                )));
-        }
-        #[cfg(target_os = "fuchsia")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkSetBufferCollectionBufferConstraintsFUCHSIA)
-                .write(load_typed(gdpa(
-                    device,
-                    c"vkSetBufferCollectionBufferConstraintsFUCHSIA".as_ptr(),
-                )));
-        }
-        #[cfg(target_os = "fuchsia")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyBufferCollectionFUCHSIA).write(
-                load_typed(gdpa(device, c"vkDestroyBufferCollectionFUCHSIA".as_ptr())),
-            );
-        }
-        #[cfg(target_os = "fuchsia")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetBufferCollectionPropertiesFUCHSIA).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetBufferCollectionPropertiesFUCHSIA".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceSubpassShadingMaxWorkgroupSizeHUAWEI)
-                .write(load_typed(gdpa(
-                    device,
-                    c"vkGetDeviceSubpassShadingMaxWorkgroupSizeHUAWEI".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSubpassShadingHUAWEI).write(load_typed(
-                gdpa(device, c"vkCmdSubpassShadingHUAWEI".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBindInvocationMaskHUAWEI).write(load_typed(
-                gdpa(device, c"vkCmdBindInvocationMaskHUAWEI".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetMemoryRemoteAddressNV).write(load_typed(
-                gdpa(device, c"vkGetMemoryRemoteAddressNV".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPipelinePropertiesEXT).write(load_typed(
-                gdpa(device, c"vkGetPipelinePropertiesEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetPatchControlPointsEXT).write(load_typed(
-                gdpa(device, c"vkCmdSetPatchControlPointsEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetRasterizerDiscardEnableEXT).write(
-                load_typed(gdpa(device, c"vkCmdSetRasterizerDiscardEnableEXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetDepthBiasEnableEXT).write(load_typed(
-                gdpa(device, c"vkCmdSetDepthBiasEnableEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetLogicOpEXT)
-                .write(load_typed(gdpa(device, c"vkCmdSetLogicOpEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetPrimitiveRestartEnableEXT).write(
-                load_typed(gdpa(device, c"vkCmdSetPrimitiveRestartEnableEXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetColorWriteEnableEXT).write(load_typed(
-                gdpa(device, c"vkCmdSetColorWriteEnableEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawMultiEXT)
-                .write(load_typed(gdpa(device, c"vkCmdDrawMultiEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawMultiIndexedEXT).write(load_typed(gdpa(
-                device,
-                c"vkCmdDrawMultiIndexedEXT".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateMicromapEXT)
-                .write(load_typed(gdpa(device, c"vkCreateMicromapEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyMicromapEXT)
-                .write(load_typed(gdpa(device, c"vkDestroyMicromapEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBuildMicromapsEXT)
-                .write(load_typed(gdpa(device, c"vkCmdBuildMicromapsEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkBuildMicromapsEXT)
-                .write(load_typed(gdpa(device, c"vkBuildMicromapsEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCopyMicromapEXT)
-                .write(load_typed(gdpa(device, c"vkCopyMicromapEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCopyMicromapToMemoryEXT).write(load_typed(
-                gdpa(device, c"vkCopyMicromapToMemoryEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCopyMemoryToMicromapEXT).write(load_typed(
-                gdpa(device, c"vkCopyMemoryToMicromapEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkWriteMicromapsPropertiesEXT).write(load_typed(
-                gdpa(device, c"vkWriteMicromapsPropertiesEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyMicromapEXT)
-                .write(load_typed(gdpa(device, c"vkCmdCopyMicromapEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyMicromapToMemoryEXT).write(load_typed(
-                gdpa(device, c"vkCmdCopyMicromapToMemoryEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyMemoryToMicromapEXT).write(load_typed(
-                gdpa(device, c"vkCmdCopyMemoryToMicromapEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdWriteMicromapsPropertiesEXT).write(
-                load_typed(gdpa(device, c"vkCmdWriteMicromapsPropertiesEXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceMicromapCompatibilityEXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetDeviceMicromapCompatibilityEXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetMicromapBuildSizesEXT).write(load_typed(
-                gdpa(device, c"vkGetMicromapBuildSizesEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawClusterHUAWEI)
-                .write(load_typed(gdpa(device, c"vkCmdDrawClusterHUAWEI".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawClusterIndirectHUAWEI).write(load_typed(
-                gdpa(device, c"vkCmdDrawClusterIndirectHUAWEI".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkSetDeviceMemoryPriorityEXT).write(load_typed(
-                gdpa(device, c"vkSetDeviceMemoryPriorityEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetDispatchParametersARM).write(load_typed(
-                gdpa(device, c"vkCmdSetDispatchParametersARM".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDescriptorSetLayoutHostMappingInfoVALVE)
-                .write(load_typed(gdpa(
-                    device,
-                    c"vkGetDescriptorSetLayoutHostMappingInfoVALVE".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDescriptorSetHostMappingVALVE).write(
-                load_typed(gdpa(device, c"vkGetDescriptorSetHostMappingVALVE".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyMemoryIndirectNV).write(load_typed(
-                gdpa(device, c"vkCmdCopyMemoryIndirectNV".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyMemoryToImageIndirectNV).write(
-                load_typed(gdpa(device, c"vkCmdCopyMemoryToImageIndirectNV".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDecompressMemoryNV).write(load_typed(gdpa(
-                device,
-                c"vkCmdDecompressMemoryNV".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDecompressMemoryIndirectCountNV).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdDecompressMemoryIndirectCountNV".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPipelineIndirectMemoryRequirementsNV).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetPipelineIndirectMemoryRequirementsNV".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdUpdatePipelineIndirectBufferNV).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdUpdatePipelineIndirectBufferNV".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetPipelineIndirectDeviceAddressNV).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetPipelineIndirectDeviceAddressNV".as_ptr(),
-                )),
-            );
-        }
-        #[cfg(target_env = "ohos")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetNativeBufferPropertiesOHOS).write(
-                load_typed(gdpa(device, c"vkGetNativeBufferPropertiesOHOS".as_ptr())),
-            );
-        }
-        #[cfg(target_env = "ohos")]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetMemoryNativeBufferOHOS).write(load_typed(
-                gdpa(device, c"vkGetMemoryNativeBufferOHOS".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetDepthClampEnableEXT).write(load_typed(
-                gdpa(device, c"vkCmdSetDepthClampEnableEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetPolygonModeEXT)
-                .write(load_typed(gdpa(device, c"vkCmdSetPolygonModeEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetRasterizationSamplesEXT).write(
-                load_typed(gdpa(device, c"vkCmdSetRasterizationSamplesEXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetSampleMaskEXT)
-                .write(load_typed(gdpa(device, c"vkCmdSetSampleMaskEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetAlphaToCoverageEnableEXT).write(
-                load_typed(gdpa(device, c"vkCmdSetAlphaToCoverageEnableEXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetAlphaToOneEnableEXT).write(load_typed(
-                gdpa(device, c"vkCmdSetAlphaToOneEnableEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetLogicOpEnableEXT).write(load_typed(gdpa(
-                device,
-                c"vkCmdSetLogicOpEnableEXT".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetColorBlendEnableEXT).write(load_typed(
-                gdpa(device, c"vkCmdSetColorBlendEnableEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetColorBlendEquationEXT).write(load_typed(
-                gdpa(device, c"vkCmdSetColorBlendEquationEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetColorWriteMaskEXT).write(load_typed(
-                gdpa(device, c"vkCmdSetColorWriteMaskEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetTessellationDomainOriginEXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdSetTessellationDomainOriginEXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetRasterizationStreamEXT).write(load_typed(
-                gdpa(device, c"vkCmdSetRasterizationStreamEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetConservativeRasterizationModeEXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdSetConservativeRasterizationModeEXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetExtraPrimitiveOverestimationSizeEXT)
-                .write(load_typed(gdpa(
-                    device,
-                    c"vkCmdSetExtraPrimitiveOverestimationSizeEXT".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetDepthClipEnableEXT).write(load_typed(
-                gdpa(device, c"vkCmdSetDepthClipEnableEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetSampleLocationsEnableEXT).write(
-                load_typed(gdpa(device, c"vkCmdSetSampleLocationsEnableEXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetColorBlendAdvancedEXT).write(load_typed(
-                gdpa(device, c"vkCmdSetColorBlendAdvancedEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetProvokingVertexModeEXT).write(load_typed(
-                gdpa(device, c"vkCmdSetProvokingVertexModeEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetLineRasterizationModeEXT).write(
-                load_typed(gdpa(device, c"vkCmdSetLineRasterizationModeEXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetLineStippleEnableEXT).write(load_typed(
-                gdpa(device, c"vkCmdSetLineStippleEnableEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetDepthClipNegativeOneToOneEXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdSetDepthClipNegativeOneToOneEXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetViewportWScalingEnableNV).write(
-                load_typed(gdpa(device, c"vkCmdSetViewportWScalingEnableNV".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetViewportSwizzleNV).write(load_typed(
-                gdpa(device, c"vkCmdSetViewportSwizzleNV".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetCoverageToColorEnableNV).write(
-                load_typed(gdpa(device, c"vkCmdSetCoverageToColorEnableNV".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetCoverageToColorLocationNV).write(
-                load_typed(gdpa(device, c"vkCmdSetCoverageToColorLocationNV".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetCoverageModulationModeNV).write(
-                load_typed(gdpa(device, c"vkCmdSetCoverageModulationModeNV".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetCoverageModulationTableEnableNV).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdSetCoverageModulationTableEnableNV".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetCoverageModulationTableNV).write(
-                load_typed(gdpa(device, c"vkCmdSetCoverageModulationTableNV".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetShadingRateImageEnableNV).write(
-                load_typed(gdpa(device, c"vkCmdSetShadingRateImageEnableNV".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetRepresentativeFragmentTestEnableNV).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdSetRepresentativeFragmentTestEnableNV".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetCoverageReductionModeNV).write(
-                load_typed(gdpa(device, c"vkCmdSetCoverageReductionModeNV".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateTensorARM)
-                .write(load_typed(gdpa(device, c"vkCreateTensorARM".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyTensorARM)
-                .write(load_typed(gdpa(device, c"vkDestroyTensorARM".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateTensorViewARM)
-                .write(load_typed(gdpa(device, c"vkCreateTensorViewARM".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyTensorViewARM)
-                .write(load_typed(gdpa(device, c"vkDestroyTensorViewARM".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetTensorMemoryRequirementsARM).write(
-                load_typed(gdpa(device, c"vkGetTensorMemoryRequirementsARM".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkBindTensorMemoryARM)
-                .write(load_typed(gdpa(device, c"vkBindTensorMemoryARM".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceTensorMemoryRequirementsARM).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetDeviceTensorMemoryRequirementsARM".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyTensorARM)
-                .write(load_typed(gdpa(device, c"vkCmdCopyTensorARM".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetTensorOpaqueCaptureDescriptorDataARM).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetTensorOpaqueCaptureDescriptorDataARM".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetTensorViewOpaqueCaptureDescriptorDataARM)
-                .write(load_typed(gdpa(
-                    device,
-                    c"vkGetTensorViewOpaqueCaptureDescriptorDataARM".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetShaderModuleIdentifierEXT).write(load_typed(
-                gdpa(device, c"vkGetShaderModuleIdentifierEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetShaderModuleCreateInfoIdentifierEXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetShaderModuleCreateInfoIdentifierEXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateOpticalFlowSessionNV).write(load_typed(
-                gdpa(device, c"vkCreateOpticalFlowSessionNV".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyOpticalFlowSessionNV).write(load_typed(
-                gdpa(device, c"vkDestroyOpticalFlowSessionNV".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkBindOpticalFlowSessionImageNV).write(
-                load_typed(gdpa(device, c"vkBindOpticalFlowSessionImageNV".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdOpticalFlowExecuteNV).write(load_typed(
-                gdpa(device, c"vkCmdOpticalFlowExecuteNV".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkAntiLagUpdateAMD)
-                .write(load_typed(gdpa(device, c"vkAntiLagUpdateAMD".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateShadersEXT)
-                .write(load_typed(gdpa(device, c"vkCreateShadersEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyShaderEXT)
-                .write(load_typed(gdpa(device, c"vkDestroyShaderEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetShaderBinaryDataEXT).write(load_typed(gdpa(
-                device,
-                c"vkGetShaderBinaryDataEXT".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBindShadersEXT)
-                .write(load_typed(gdpa(device, c"vkCmdBindShadersEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetDepthClampRangeEXT).write(load_typed(
-                gdpa(device, c"vkCmdSetDepthClampRangeEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetFramebufferTilePropertiesQCOM).write(
-                load_typed(gdpa(device, c"vkGetFramebufferTilePropertiesQCOM".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDynamicRenderingTilePropertiesQCOM).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetDynamicRenderingTilePropertiesQCOM".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkConvertCooperativeVectorMatrixNV).write(
-                load_typed(gdpa(device, c"vkConvertCooperativeVectorMatrixNV".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdConvertCooperativeVectorMatrixNV).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdConvertCooperativeVectorMatrixNV".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkSetLatencySleepModeNV).write(load_typed(gdpa(
-                device,
-                c"vkSetLatencySleepModeNV".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkLatencySleepNV)
-                .write(load_typed(gdpa(device, c"vkLatencySleepNV".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkSetLatencyMarkerNV)
-                .write(load_typed(gdpa(device, c"vkSetLatencyMarkerNV".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetLatencyTimingsNV)
-                .write(load_typed(gdpa(device, c"vkGetLatencyTimingsNV".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkQueueNotifyOutOfBandNV).write(load_typed(gdpa(
-                device,
-                c"vkQueueNotifyOutOfBandNV".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateDataGraphPipelinesARM).write(load_typed(
-                gdpa(device, c"vkCreateDataGraphPipelinesARM".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateDataGraphPipelineSessionARM).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCreateDataGraphPipelineSessionARM".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table_ptr).vkGetDataGraphPipelineSessionBindPointRequirementsARM
-            )
-            .write(load_typed(gdpa(
-                device,
-                c"vkGetDataGraphPipelineSessionBindPointRequirementsARM".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table_ptr).vkGetDataGraphPipelineSessionMemoryRequirementsARM
-            )
-            .write(load_typed(gdpa(
-                device,
-                c"vkGetDataGraphPipelineSessionMemoryRequirementsARM".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkBindDataGraphPipelineSessionMemoryARM).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkBindDataGraphPipelineSessionMemoryARM".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyDataGraphPipelineSessionARM).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkDestroyDataGraphPipelineSessionARM".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDispatchDataGraphARM).write(load_typed(
-                gdpa(device, c"vkCmdDispatchDataGraphARM".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDataGraphPipelineAvailablePropertiesARM)
-                .write(load_typed(gdpa(
-                    device,
-                    c"vkGetDataGraphPipelineAvailablePropertiesARM".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDataGraphPipelinePropertiesARM).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetDataGraphPipelinePropertiesARM".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetAttachmentFeedbackLoopEnableEXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdSetAttachmentFeedbackLoopEnableEXT".as_ptr(),
-                )),
-            );
-        }
-        #[cfg(any(target_os = "nto", target_os = "qnx"))]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetScreenBufferPropertiesQNX).write(load_typed(
-                gdpa(device, c"vkGetScreenBufferPropertiesQNX".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBindTileMemoryQCOM).write(load_typed(gdpa(
-                device,
-                c"vkCmdBindTileMemoryQCOM".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDecompressMemoryEXT).write(load_typed(gdpa(
-                device,
-                c"vkCmdDecompressMemoryEXT".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDecompressMemoryIndirectCountEXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdDecompressMemoryIndirectCountEXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateExternalComputeQueueNV).write(load_typed(
-                gdpa(device, c"vkCreateExternalComputeQueueNV".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyExternalComputeQueueNV).write(
-                load_typed(gdpa(device, c"vkDestroyExternalComputeQueueNV".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetExternalComputeQueueDataNV).write(
-                load_typed(gdpa(device, c"vkGetExternalComputeQueueDataNV".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetClusterAccelerationStructureBuildSizesNV)
-                .write(load_typed(gdpa(
-                    device,
-                    c"vkGetClusterAccelerationStructureBuildSizesNV".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBuildClusterAccelerationStructureIndirectNV)
-                .write(load_typed(gdpa(
-                    device,
-                    c"vkCmdBuildClusterAccelerationStructureIndirectNV".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!(
-                (*table_ptr).vkGetPartitionedAccelerationStructuresBuildSizesNV
-            )
-            .write(load_typed(gdpa(
-                device,
-                c"vkGetPartitionedAccelerationStructuresBuildSizesNV".as_ptr(),
-            )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBuildPartitionedAccelerationStructuresNV)
-                .write(load_typed(gdpa(
-                    device,
-                    c"vkCmdBuildPartitionedAccelerationStructuresNV".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetGeneratedCommandsMemoryRequirementsEXT)
-                .write(load_typed(gdpa(
-                    device,
-                    c"vkGetGeneratedCommandsMemoryRequirementsEXT".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdPreprocessGeneratedCommandsEXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdPreprocessGeneratedCommandsEXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdExecuteGeneratedCommandsEXT).write(
-                load_typed(gdpa(device, c"vkCmdExecuteGeneratedCommandsEXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateIndirectCommandsLayoutEXT).write(
-                load_typed(gdpa(device, c"vkCreateIndirectCommandsLayoutEXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyIndirectCommandsLayoutEXT).write(
-                load_typed(gdpa(device, c"vkDestroyIndirectCommandsLayoutEXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateIndirectExecutionSetEXT).write(
-                load_typed(gdpa(device, c"vkCreateIndirectExecutionSetEXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyIndirectExecutionSetEXT).write(
-                load_typed(gdpa(device, c"vkDestroyIndirectExecutionSetEXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkUpdateIndirectExecutionSetPipelineEXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkUpdateIndirectExecutionSetPipelineEXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkUpdateIndirectExecutionSetShaderEXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkUpdateIndirectExecutionSetShaderEXT".as_ptr(),
-                )),
-            );
-        }
-        #[cfg(any(
-            target_os = "macos",
-            target_os = "ios",
-            target_os = "tvos",
-            target_os = "visionos"
-        ))]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetMemoryMetalHandleEXT).write(load_typed(
-                gdpa(device, c"vkGetMemoryMetalHandleEXT".as_ptr()),
-            ));
-        }
-        #[cfg(any(
-            target_os = "macos",
-            target_os = "ios",
-            target_os = "tvos",
-            target_os = "visionos"
-        ))]
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetMemoryMetalHandlePropertiesEXT).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetMemoryMetalHandlePropertiesEXT".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateShaderInstrumentationARM).write(
-                load_typed(gdpa(device, c"vkCreateShaderInstrumentationARM".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyShaderInstrumentationARM).write(
-                load_typed(gdpa(device, c"vkDestroyShaderInstrumentationARM".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBeginShaderInstrumentationARM).write(
-                load_typed(gdpa(device, c"vkCmdBeginShaderInstrumentationARM".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdEndShaderInstrumentationARM).write(
-                load_typed(gdpa(device, c"vkCmdEndShaderInstrumentationARM".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetShaderInstrumentationValuesARM).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetShaderInstrumentationValuesARM".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkClearShaderInstrumentationMetricsARM).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkClearShaderInstrumentationMetricsARM".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdEndRendering2EXT)
-                .write(load_typed(gdpa(device, c"vkCmdEndRendering2EXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBeginCustomResolveEXT).write(load_typed(
-                gdpa(device, c"vkCmdBeginCustomResolveEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetComputeOccupancyPriorityNV).write(
-                load_typed(gdpa(device, c"vkCmdSetComputeOccupancyPriorityNV".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetPrimitiveRestartIndexEXT).write(
-                load_typed(gdpa(device, c"vkCmdSetPrimitiveRestartIndexEXT".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateAccelerationStructureKHR).write(
-                load_typed(gdpa(device, c"vkCreateAccelerationStructureKHR".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkDestroyAccelerationStructureKHR).write(
-                load_typed(gdpa(device, c"vkDestroyAccelerationStructureKHR".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBuildAccelerationStructuresKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdBuildAccelerationStructuresKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdBuildAccelerationStructuresIndirectKHR)
-                .write(load_typed(gdpa(
-                    device,
-                    c"vkCmdBuildAccelerationStructuresIndirectKHR".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkBuildAccelerationStructuresKHR).write(
-                load_typed(gdpa(device, c"vkBuildAccelerationStructuresKHR".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCopyAccelerationStructureKHR).write(load_typed(
-                gdpa(device, c"vkCopyAccelerationStructureKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCopyAccelerationStructureToMemoryKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCopyAccelerationStructureToMemoryKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCopyMemoryToAccelerationStructureKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCopyMemoryToAccelerationStructureKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkWriteAccelerationStructuresPropertiesKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkWriteAccelerationStructuresPropertiesKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyAccelerationStructureKHR).write(
-                load_typed(gdpa(device, c"vkCmdCopyAccelerationStructureKHR".as_ptr())),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyAccelerationStructureToMemoryKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdCopyAccelerationStructureToMemoryKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdCopyMemoryToAccelerationStructureKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdCopyMemoryToAccelerationStructureKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetAccelerationStructureDeviceAddressKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetAccelerationStructureDeviceAddressKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdWriteAccelerationStructuresPropertiesKHR)
-                .write(load_typed(gdpa(
-                    device,
-                    c"vkCmdWriteAccelerationStructuresPropertiesKHR".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetDeviceAccelerationStructureCompatibilityKHR)
-                .write(load_typed(gdpa(
-                    device,
-                    c"vkGetDeviceAccelerationStructureCompatibilityKHR".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetAccelerationStructureBuildSizesKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetAccelerationStructureBuildSizesKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdTraceRaysKHR)
-                .write(load_typed(gdpa(device, c"vkCmdTraceRaysKHR".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCreateRayTracingPipelinesKHR).write(load_typed(
-                gdpa(device, c"vkCreateRayTracingPipelinesKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetRayTracingCaptureReplayShaderGroupHandlesKHR)
-                .write(load_typed(gdpa(
-                    device,
-                    c"vkGetRayTracingCaptureReplayShaderGroupHandlesKHR".as_ptr(),
-                )));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdTraceRaysIndirectKHR).write(load_typed(
-                gdpa(device, c"vkCmdTraceRaysIndirectKHR".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkGetRayTracingShaderGroupStackSizeKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkGetRayTracingShaderGroupStackSizeKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdSetRayTracingPipelineStackSizeKHR).write(
-                load_typed(gdpa(
-                    device,
-                    c"vkCmdSetRayTracingPipelineStackSizeKHR".as_ptr(),
-                )),
-            );
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawMeshTasksEXT)
-                .write(load_typed(gdpa(device, c"vkCmdDrawMeshTasksEXT".as_ptr())));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawMeshTasksIndirectEXT).write(load_typed(
-                gdpa(device, c"vkCmdDrawMeshTasksIndirectEXT".as_ptr()),
-            ));
-        }
-        unsafe {
-            core::ptr::addr_of_mut!((*table_ptr).vkCmdDrawMeshTasksIndirectCountEXT).write(
-                load_typed(gdpa(device, c"vkCmdDrawMeshTasksIndirectCountEXT".as_ptr())),
-            );
+            load_device_dispatch_fields(table_ptr.cast(), gdpa, device, DEVICE_DISPATCH_LOADS);
         }
     }
     pub(crate) fn mask_unavailable(&mut self, mut available: impl FnMut(u16) -> bool) {
@@ -7076,6 +2412,7 @@ impl LayerDeviceDispatchTable {
         }
     }
 }
+#[repr(C)]
 pub(crate) struct IcdDeviceTerminatorDispatchTable {
     pub(crate) vkDestroyDevice: Option<vk::PFN_vkDestroyDevice>,
     pub(crate) vkCreateSwapchainKHR: Option<vk::PFN_vkCreateSwapchainKHR>,
@@ -7096,103 +2433,168 @@ pub(crate) struct IcdDeviceTerminatorDispatchTable {
     pub(crate) vkGetDeviceGroupSurfacePresentModes2EXT:
         Option<vk::PFN_vkGetDeviceGroupSurfacePresentModes2EXT>,
 }
+const _: () = assert!(core::mem::size_of::<IcdDeviceTerminatorDispatchTable>() <= 65_535);
+pub(super) static ICD_DEVICE_DISPATCH_LOADS: &[IcdDeviceDispatchLoad] = &[
+    IcdDeviceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            IcdDeviceTerminatorDispatchTable,
+            vkDestroyDevice
+        )),
+        command_id: VK_DESTROY_DEVICE_COMMAND_ID,
+        name: c"vkDestroyDevice",
+    },
+    IcdDeviceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            IcdDeviceTerminatorDispatchTable,
+            vkCreateSwapchainKHR
+        )),
+        command_id: VK_CREATE_SWAPCHAIN_KHR_COMMAND_ID,
+        name: c"vkCreateSwapchainKHR",
+    },
+    IcdDeviceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            IcdDeviceTerminatorDispatchTable,
+            vkGetDeviceGroupSurfacePresentModesKHR
+        )),
+        command_id: VK_GET_DEVICE_GROUP_SURFACE_PRESENT_MODES_KHR_COMMAND_ID,
+        name: c"vkGetDeviceGroupSurfacePresentModesKHR",
+    },
+    IcdDeviceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            IcdDeviceTerminatorDispatchTable,
+            vkCreateSharedSwapchainsKHR
+        )),
+        command_id: VK_CREATE_SHARED_SWAPCHAINS_KHR_COMMAND_ID,
+        name: c"vkCreateSharedSwapchainsKHR",
+    },
+    IcdDeviceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            IcdDeviceTerminatorDispatchTable,
+            vkDebugMarkerSetObjectTagEXT
+        )),
+        command_id: VK_DEBUG_MARKER_SET_OBJECT_TAG_EXT_COMMAND_ID,
+        name: c"vkDebugMarkerSetObjectTagEXT",
+    },
+    IcdDeviceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            IcdDeviceTerminatorDispatchTable,
+            vkDebugMarkerSetObjectNameEXT
+        )),
+        command_id: VK_DEBUG_MARKER_SET_OBJECT_NAME_EXT_COMMAND_ID,
+        name: c"vkDebugMarkerSetObjectNameEXT",
+    },
+    IcdDeviceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            IcdDeviceTerminatorDispatchTable,
+            vkSetDebugUtilsObjectNameEXT
+        )),
+        command_id: VK_SET_DEBUG_UTILS_OBJECT_NAME_EXT_COMMAND_ID,
+        name: c"vkSetDebugUtilsObjectNameEXT",
+    },
+    IcdDeviceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            IcdDeviceTerminatorDispatchTable,
+            vkSetDebugUtilsObjectTagEXT
+        )),
+        command_id: VK_SET_DEBUG_UTILS_OBJECT_TAG_EXT_COMMAND_ID,
+        name: c"vkSetDebugUtilsObjectTagEXT",
+    },
+    IcdDeviceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            IcdDeviceTerminatorDispatchTable,
+            vkQueueBeginDebugUtilsLabelEXT
+        )),
+        command_id: VK_QUEUE_BEGIN_DEBUG_UTILS_LABEL_EXT_COMMAND_ID,
+        name: c"vkQueueBeginDebugUtilsLabelEXT",
+    },
+    IcdDeviceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            IcdDeviceTerminatorDispatchTable,
+            vkQueueEndDebugUtilsLabelEXT
+        )),
+        command_id: VK_QUEUE_END_DEBUG_UTILS_LABEL_EXT_COMMAND_ID,
+        name: c"vkQueueEndDebugUtilsLabelEXT",
+    },
+    IcdDeviceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            IcdDeviceTerminatorDispatchTable,
+            vkQueueInsertDebugUtilsLabelEXT
+        )),
+        command_id: VK_QUEUE_INSERT_DEBUG_UTILS_LABEL_EXT_COMMAND_ID,
+        name: c"vkQueueInsertDebugUtilsLabelEXT",
+    },
+    IcdDeviceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            IcdDeviceTerminatorDispatchTable,
+            vkCmdBeginDebugUtilsLabelEXT
+        )),
+        command_id: VK_CMD_BEGIN_DEBUG_UTILS_LABEL_EXT_COMMAND_ID,
+        name: c"vkCmdBeginDebugUtilsLabelEXT",
+    },
+    IcdDeviceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            IcdDeviceTerminatorDispatchTable,
+            vkCmdEndDebugUtilsLabelEXT
+        )),
+        command_id: VK_CMD_END_DEBUG_UTILS_LABEL_EXT_COMMAND_ID,
+        name: c"vkCmdEndDebugUtilsLabelEXT",
+    },
+    IcdDeviceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            IcdDeviceTerminatorDispatchTable,
+            vkCmdInsertDebugUtilsLabelEXT
+        )),
+        command_id: VK_CMD_INSERT_DEBUG_UTILS_LABEL_EXT_COMMAND_ID,
+        name: c"vkCmdInsertDebugUtilsLabelEXT",
+    },
+    #[cfg(target_os = "windows")]
+    IcdDeviceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            IcdDeviceTerminatorDispatchTable,
+            vkGetDeviceGroupSurfacePresentModes2EXT
+        )),
+        command_id: VK_GET_DEVICE_GROUP_SURFACE_PRESENT_MODES2EXT_COMMAND_ID,
+        name: c"vkGetDeviceGroupSurfacePresentModes2EXT",
+    },
+];
+#[inline(never)]
+pub(super) unsafe fn load_icd_device_dispatch_fields(
+    table: *mut u8,
+    gdpa: vk::PFN_vkGetDeviceProcAddr,
+    device: vk::VkDevice,
+    loads: &[IcdDeviceDispatchLoad],
+    available: &mut impl FnMut(u16) -> bool,
+) {
+    for load in loads {
+        let function = if available(load.command_id) {
+            unsafe { gdpa(device, load.name.as_ptr()) }
+        } else {
+            None
+        };
+        unsafe {
+            table
+                .add(usize::from(load.offset))
+                .cast::<vk::PFN_vkVoidFunction>()
+                .write(function);
+        }
+    }
+}
 impl IcdDeviceTerminatorDispatchTable {
     pub(crate) unsafe fn load(
         gdpa: vk::PFN_vkGetDeviceProcAddr,
         device: vk::VkDevice,
-        mut available: impl FnMut(&CStr) -> bool,
+        mut available: impl FnMut(u16) -> bool,
     ) -> Self {
-        Self {
-            vkDestroyDevice: if available(c"vkDestroyDevice") {
-                unsafe { load_typed(gdpa(device, c"vkDestroyDevice".as_ptr())) }
-            } else {
-                None
-            },
-            vkCreateSwapchainKHR: if available(c"vkCreateSwapchainKHR") {
-                unsafe { load_typed(gdpa(device, c"vkCreateSwapchainKHR".as_ptr())) }
-            } else {
-                None
-            },
-            vkGetDeviceGroupSurfacePresentModesKHR: if available(
-                c"vkGetDeviceGroupSurfacePresentModesKHR",
-            ) {
-                unsafe {
-                    load_typed(gdpa(
-                        device,
-                        c"vkGetDeviceGroupSurfacePresentModesKHR".as_ptr(),
-                    ))
-                }
-            } else {
-                None
-            },
-            vkCreateSharedSwapchainsKHR: if available(c"vkCreateSharedSwapchainsKHR") {
-                unsafe { load_typed(gdpa(device, c"vkCreateSharedSwapchainsKHR".as_ptr())) }
-            } else {
-                None
-            },
-            vkDebugMarkerSetObjectTagEXT: if available(c"vkDebugMarkerSetObjectTagEXT") {
-                unsafe { load_typed(gdpa(device, c"vkDebugMarkerSetObjectTagEXT".as_ptr())) }
-            } else {
-                None
-            },
-            vkDebugMarkerSetObjectNameEXT: if available(c"vkDebugMarkerSetObjectNameEXT") {
-                unsafe { load_typed(gdpa(device, c"vkDebugMarkerSetObjectNameEXT".as_ptr())) }
-            } else {
-                None
-            },
-            vkSetDebugUtilsObjectNameEXT: if available(c"vkSetDebugUtilsObjectNameEXT") {
-                unsafe { load_typed(gdpa(device, c"vkSetDebugUtilsObjectNameEXT".as_ptr())) }
-            } else {
-                None
-            },
-            vkSetDebugUtilsObjectTagEXT: if available(c"vkSetDebugUtilsObjectTagEXT") {
-                unsafe { load_typed(gdpa(device, c"vkSetDebugUtilsObjectTagEXT".as_ptr())) }
-            } else {
-                None
-            },
-            vkQueueBeginDebugUtilsLabelEXT: if available(c"vkQueueBeginDebugUtilsLabelEXT") {
-                unsafe { load_typed(gdpa(device, c"vkQueueBeginDebugUtilsLabelEXT".as_ptr())) }
-            } else {
-                None
-            },
-            vkQueueEndDebugUtilsLabelEXT: if available(c"vkQueueEndDebugUtilsLabelEXT") {
-                unsafe { load_typed(gdpa(device, c"vkQueueEndDebugUtilsLabelEXT".as_ptr())) }
-            } else {
-                None
-            },
-            vkQueueInsertDebugUtilsLabelEXT: if available(c"vkQueueInsertDebugUtilsLabelEXT") {
-                unsafe { load_typed(gdpa(device, c"vkQueueInsertDebugUtilsLabelEXT".as_ptr())) }
-            } else {
-                None
-            },
-            vkCmdBeginDebugUtilsLabelEXT: if available(c"vkCmdBeginDebugUtilsLabelEXT") {
-                unsafe { load_typed(gdpa(device, c"vkCmdBeginDebugUtilsLabelEXT".as_ptr())) }
-            } else {
-                None
-            },
-            vkCmdEndDebugUtilsLabelEXT: if available(c"vkCmdEndDebugUtilsLabelEXT") {
-                unsafe { load_typed(gdpa(device, c"vkCmdEndDebugUtilsLabelEXT".as_ptr())) }
-            } else {
-                None
-            },
-            vkCmdInsertDebugUtilsLabelEXT: if available(c"vkCmdInsertDebugUtilsLabelEXT") {
-                unsafe { load_typed(gdpa(device, c"vkCmdInsertDebugUtilsLabelEXT".as_ptr())) }
-            } else {
-                None
-            },
-            #[cfg(target_os = "windows")]
-            vkGetDeviceGroupSurfacePresentModes2EXT: if available(
-                c"vkGetDeviceGroupSurfacePresentModes2EXT",
-            ) {
-                unsafe {
-                    load_typed(gdpa(
-                        device,
-                        c"vkGetDeviceGroupSurfacePresentModes2EXT".as_ptr(),
-                    ))
-                }
-            } else {
-                None
-            },
+        let mut table = core::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            load_icd_device_dispatch_fields(
+                table.as_mut_ptr().cast(),
+                gdpa,
+                device,
+                ICD_DEVICE_DISPATCH_LOADS,
+                &mut available,
+            );
+            table.assume_init()
         }
     }
 }

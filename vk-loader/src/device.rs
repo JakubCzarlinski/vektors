@@ -1,7 +1,18 @@
 //! Loader-owned dispatchable device state.
 
 mod snapshot;
-
+use crate::LoaderPathExt;
+use crate::{
+    ExtensionSet, IcdDeviceTerminatorDispatchTable, LayerDeviceDispatchTable,
+    allocation::{try_box, try_box_uninit},
+    collections::{ErasedPointer, HashMap},
+    emulation::find_input_chain,
+    erase_function,
+    icd::IcdInstance,
+    instance::LoaderInstance,
+    vkGetDeviceProcAddr,
+};
+use crate::{allocation, sync::GlobalLazyMutex, unknown};
 use core::{
     ffi::{CStr, c_void},
     mem::MaybeUninit,
@@ -9,80 +20,37 @@ use core::{
     ptr::NonNull,
     sync::atomic::{AtomicPtr, Ordering},
 };
-
-use crate::{allocation, sync::GlobalLazyMutex, unknown};
 use vk::{
     PFN_vkEnumerateDeviceExtensionProperties, PFN_vkGetDeviceProcAddr, PFN_vkVoidFunction,
     VK_KHR_MAINTENANCE_5_EXTENSION_NAME, VkDevice, VkDeviceCreateInfo, VkExtensionProperties,
     VkPhysicalDevice, VkPhysicalDeviceMaintenance5FeaturesKHR, VkResult, VkStructureType,
 };
 
-use crate::{
-    ExtensionSet, IcdDeviceTerminatorDispatchTable, LayerDeviceDispatchTable,
-    allocation::{try_box, try_box_uninit},
-    collections::HashMap,
-    emulation::find_input_chain,
-    erase_function,
-    icd::IcdInstance,
-    instance::LoaderInstance,
-    vkGetDeviceProcAddr,
-};
-
-#[derive(Clone, Copy, PartialEq, Eq)]
-struct DeviceAlias(NonNull<LoaderDevice>);
-
-// SAFETY: The registry owns the pointed-to allocations and serializes alias changes.
-// Dereferencing an alias additionally requires a live externally synchronized device.
-unsafe impl Send for DeviceAlias {}
-
-/// Owns a device while raw aliases are published in the registry and snapshot.
-/// Moving a Box after deriving an alias can invalidate that alias; transferring
-/// it into raw ownership first keeps one provenance for the registered lifetime.
-struct RegisteredDevice(NonNull<LoaderDevice>);
-
-impl RegisteredDevice {
-    fn new(device: Box<LoaderDevice>) -> Self {
-        // SAFETY: Box::into_raw transfers a non-null allocation to this owner.
-        Self(unsafe { NonNull::new_unchecked(Box::into_raw(device)) })
-    }
-
-    fn as_ref(&self) -> &LoaderDevice {
-        // SAFETY: This owner retains the initialized allocation until removal.
-        unsafe { self.0.as_ref() }
-    }
-
-    fn into_box(self) -> Box<LoaderDevice> {
-        let owner = core::mem::ManuallyDrop::new(self);
-        // SAFETY: All aliases have been invalidated before exclusive ownership
-        // is restored. Disabling this owner's destructor prevents a second drop.
-        unsafe { Box::from_raw(owner.0.as_ptr()) }
-    }
-}
-
-impl Deref for RegisteredDevice {
-    type Target = LoaderDevice;
-
-    fn deref(&self) -> &Self::Target {
-        self.as_ref()
-    }
-}
-
-impl Drop for RegisteredDevice {
-    fn drop(&mut self) {
-        // SAFETY: This is the sole owner, and registry removal or library
-        // termination excludes further use of the device's published aliases.
-        drop(unsafe { Box::from_raw(self.0.as_ptr()) });
-    }
-}
-
-// SAFETY: LoaderDevice is Send; the registry serializes ownership changes.
-unsafe impl Send for RegisteredDevice {}
-
 #[derive(Default)]
 struct DeviceRegistry {
-    owned: HashMap<usize, RegisteredDevice>,
-    aliases: HashMap<usize, DeviceAlias>,
+    owned: HashMap<usize, ErasedPointer>,
+    aliases: HashMap<usize, ErasedPointer>,
     alias_reservations: usize,
+}
+
+impl Drop for DeviceRegistry {
+    fn drop(&mut self) {
+        for pointer in self.owned.values().copied() {
+            // SAFETY: `owned` contains one raw Box owner for every registered device.
+            drop(unsafe { pointer.into_box::<LoaderDevice>() });
+        }
+    }
+}
+
+impl DeviceRegistry {
+    #[cold]
+    #[inline(never)]
+    fn reset_if_unused(&mut self) {
+        if self.owned.is_empty() && self.aliases.is_empty() && self.alias_reservations == 0 {
+            self.owned = HashMap::default();
+            self.aliases = HashMap::default();
+        }
+    }
 }
 
 static DEVICE_SNAPSHOT: snapshot::Cache = snapshot::Cache::new();
@@ -112,6 +80,7 @@ struct DeviceAliasReservation {
 }
 
 impl DeviceAliasReservation {
+    #[inline(never)]
     fn new() -> Result<Self, VkResult> {
         let mut devices = DEVICES.try_lock()?;
         let additional = devices
@@ -129,14 +98,14 @@ impl DeviceAliasReservation {
         })
     }
 
-    fn insert(mut self, key: usize, canonical: usize) -> Option<DeviceAlias> {
+    fn insert(mut self, key: usize, canonical: usize) -> Option<ErasedPointer> {
         let mut devices = DeviceRegistryReady::lock(&self.ready);
         debug_assert!(devices.alias_reservations != 0);
         devices.alias_reservations -= 1;
         self.active = false;
         let alias = devices.aliases[&canonical];
         let previous = devices.aliases.insert(key, alias);
-        DEVICE_SNAPSHOT.publish(canonical, key, alias.0.as_ptr());
+        DEVICE_SNAPSHOT.publish(canonical, key, alias.as_ptr());
         previous
     }
 }
@@ -147,12 +116,7 @@ impl Drop for DeviceAliasReservation {
             let mut devices = DeviceRegistryReady::lock(&self.ready);
             debug_assert!(devices.alias_reservations != 0);
             devices.alias_reservations -= 1;
-            if devices.owned.is_empty()
-                && devices.aliases.is_empty()
-                && devices.alias_reservations == 0
-            {
-                *devices = DeviceRegistry::default();
-            }
+            devices.reset_if_unused();
         }
     }
 }
@@ -250,6 +214,17 @@ impl DerefMut for LoaderDeviceDispatch {
 unsafe impl Send for LoaderDevice {}
 unsafe impl Sync for LoaderDevice {}
 
+#[inline(never)]
+fn device_terminator_command_available(
+    id: u16,
+    instance_extensions: &ExtensionSet,
+    device_extensions: &ExtensionSet,
+) -> bool {
+    crate::command_core_level(id) != 0
+        || crate::command_has_enabled_instance_extension(id, instance_extensions)
+        || crate::command_has_enabled_device_extension(id, device_extensions)
+}
+
 impl LoaderDevice {
     /// Creates loader-owned state for a device returned by an ICD.
     ///
@@ -270,15 +245,7 @@ impl LoaderDevice {
         let instance_extensions = instance.enabled_extensions;
         let icd_terminator_dispatch = unsafe {
             IcdDeviceTerminatorDispatchTable::load(get_device_proc_addr, native, |name| {
-                let Some(lookup) = crate::command_lookup(name) else {
-                    return false;
-                };
-                crate::command_core_level(lookup.id) != 0
-                    || crate::command_has_enabled_instance_extension(
-                        lookup.id,
-                        &instance_extensions,
-                    )
-                    || crate::command_has_enabled_device_extension(lookup.id, &enabled_extensions)
+                device_terminator_command_available(name, &instance_extensions, &enabled_extensions)
             })
         };
         let device = try_box(Self {
@@ -319,14 +286,17 @@ impl LoaderDevice {
         {
             return Err((VkResult::ERROR_OUT_OF_HOST_MEMORY, device));
         }
-        let device = RegisteredDevice::new(device);
-        let alias = DeviceAlias(device.0);
-        let previous = devices.owned.insert(dispatch_key, device);
-        let previous_alias = devices.aliases.insert(dispatch_key, alias);
-        DEVICE_SNAPSHOT.publish(dispatch_key, 0, alias.0.as_ptr());
+        // SAFETY: LoaderDevice is Send and registry ownership is synchronized.
+        let pointer = unsafe { ErasedPointer::from_box(device) };
+        let previous = devices.owned.insert(dispatch_key, pointer);
+        let previous_alias = devices.aliases.insert(dispatch_key, pointer);
+        DEVICE_SNAPSHOT.publish(dispatch_key, 0, pointer.as_ptr());
         debug_assert!(previous.is_none());
         debug_assert!(previous_alias.is_none());
-        drop(previous);
+        if let Some(previous) = previous {
+            // Preserve the old typed-map replacement semantics on an impossible key collision.
+            drop(unsafe { previous.into_box::<LoaderDevice>() });
+        }
         drop(devices);
         crate::pending::set_created_device(dispatch_key);
         Ok(handle)
@@ -368,7 +338,7 @@ impl LoaderDevice {
     /// Resolves a command directly from the owning ICD.
     ///
     pub(crate) fn resolve(&self, name: &CStr) -> PFN_vkVoidFunction {
-        if let Some(lookup) = crate::command_lookup(name)
+        if let Some(lookup) = crate::command_lookup(name.to_bytes())
             && let Some(command) =
                 crate::icd_device_terminator_proc_addr(&self.icd_terminator_dispatch, lookup.id)
         {
@@ -387,13 +357,14 @@ impl LoaderDevice {
 
     pub(crate) unsafe fn from_dispatch_key_mut<'a>(key: usize) -> Option<&'a mut Self> {
         let devices = DEVICES.lock_if_initialized()?;
-        let device = devices.aliases.get(&key)?.0.as_ptr();
+        let device = devices.aliases.get(&key)?.as_ptr::<LoaderDevice>();
         drop(devices);
         // SAFETY: The caller guarantees creation-time exclusive access and the
         // boxed allocation remains stable after releasing the registry lock.
         Some(unsafe { &mut *device })
     }
 
+    #[inline(never)]
     pub(crate) unsafe fn set_chain(
         &mut self,
         handle: VkDevice,
@@ -431,7 +402,8 @@ impl LoaderDevice {
             };
             let previous = alias_reservation.insert(self.chain_dispatch_key, own_key);
             debug_assert!(
-                previous.is_none_or(|alias| alias.0.as_ptr() == core::ptr::from_mut(self))
+                previous
+                    .is_none_or(|alias| alias.as_ptr::<LoaderDevice>() == core::ptr::from_mut(self))
             );
         }
         // Replace direct-ICD unknown slots with top-of-layer-chain targets.
@@ -457,7 +429,7 @@ impl LoaderDevice {
     #[inline(never)]
     unsafe fn from_registry<'a>(key: usize) -> Option<&'a Self> {
         let devices = DEVICES.lock_if_initialized()?;
-        let device = devices.aliases.get(&key)?.0.as_ptr();
+        let device = devices.aliases.get(&key)?.as_ptr::<LoaderDevice>();
         if DEVICE_SNAPSHOT.is_empty(key) {
             // SAFETY: Registry ownership keeps the box live while refreshing
             // the snapshot after the previously published device was removed.
@@ -478,18 +450,19 @@ impl LoaderDevice {
         let mut devices = DEVICES.lock_if_initialized()?;
         let alias = devices.aliases.remove(&(dispatch as usize))?;
         // SAFETY: The registry lock keeps the owning box live until removal below.
-        let canonical = unsafe { alias.0.as_ref().dispatch() as usize };
+        let pointer = alias.as_ptr::<LoaderDevice>();
+        let canonical = unsafe { (&*pointer).dispatch() as usize };
         let device = devices.owned.remove(&canonical)?;
-        DEVICE_SNAPSHOT.remove(alias.0.as_ptr());
+        DEVICE_SNAPSHOT.remove(pointer);
         devices.aliases.remove(&canonical);
-        if device.chain_dispatch_key != 0 {
-            devices.aliases.remove(&device.chain_dispatch_key);
+        if unsafe { (*device.as_ptr::<LoaderDevice>()).chain_dispatch_key } != 0 {
+            devices
+                .aliases
+                .remove(&unsafe { (*device.as_ptr::<LoaderDevice>()).chain_dispatch_key });
         }
-        if devices.owned.is_empty() && devices.aliases.is_empty() && devices.alias_reservations == 0
-        {
-            *devices = DeviceRegistry::default();
-        }
-        Some(device.into_box())
+        devices.reset_if_unused();
+        // SAFETY: The owning raw pointer was removed and all aliases were invalidated.
+        Some(unsafe { device.into_box::<LoaderDevice>() })
     }
 
     unsafe fn dispatch_key(handle: VkDevice) -> Option<usize> {
@@ -556,8 +529,10 @@ pub(crate) fn initialize_unknown_dispatches(
         devices
             .owned
             .values()
-            .filter(|device| core::ptr::eq(device.instance(), instance))
-            .map(|device| device.dispatch() as usize),
+            .filter(|pointer| unsafe {
+                core::ptr::eq((&*pointer.as_ptr::<LoaderDevice>()).instance(), instance)
+            })
+            .map(|pointer| unsafe { (&*pointer.as_ptr::<LoaderDevice>()).dispatch() as usize }),
     );
     drop(devices);
     // Finish fallible snapshot allocation before interning a command name.
@@ -571,7 +546,7 @@ pub(crate) fn initialize_unknown_dispatches(
             let Some(device) = devices.owned.get(&key) else {
                 continue;
             };
-            core::ptr::from_ref(device.as_ref())
+            device.as_ptr::<LoaderDevice>()
         };
         // SAFETY: The loader lock excludes concurrent device destruction;
         // the resolver must keep its own device live for the call.
@@ -853,7 +828,7 @@ fn emit_unavailable_icd_extension(instance: &LoaderInstance, icd: &IcdInstance, 
             icd.icd
                 .library_path()
                 .unwrap_or_else(|| std::path::Path::new(""))
-                .display()
+                .loader_display()
         ),
     );
 }

@@ -25,9 +25,10 @@ impl Drop for DeviceGroupChainPatch<'_> {
     }
 }
 
+#[inline(never)]
 pub(crate) unsafe fn translate_device_group_chain<'a>(
     create_info: &mut VkDeviceCreateInfo<'a>,
-    mut translate: impl FnMut(VkPhysicalDevice) -> Option<VkPhysicalDevice>,
+    translate: fn(VkPhysicalDevice) -> Option<VkPhysicalDevice>,
 ) -> Result<Option<DeviceGroupChainPatch<'a>>, VkResult> {
     let root_next = &raw mut create_info.pNext;
     let mut predecessor = root_next;
@@ -269,13 +270,7 @@ pub(crate) struct CommandProviderRange {
 }
 
 pub(crate) fn command_hash(name: &[u8]) -> u64 {
-    if name.len() < 8 {
-        let mut hash = 0xcbf2_9ce4_8422_2325_u64;
-        for byte in name {
-            hash = (hash ^ u64::from(*byte)).wrapping_mul(0x0100_0000_01b3);
-        }
-        return hash;
-    }
+    debug_assert!(name.len() >= 8);
     let word = |start| {
         // SAFETY: Every caller-selected start leaves eight bytes in `name`.
         u64::from_le(unsafe { name.as_ptr().add(start).cast::<u64>().read_unaligned() })

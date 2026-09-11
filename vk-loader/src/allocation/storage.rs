@@ -4,11 +4,10 @@ use alloc::{
     alloc::{Layout, alloc, dealloc, realloc},
     boxed::Box,
     ffi::CString,
-    string::String,
     vec::Vec,
 };
 use core::{
-    ffi::CStr,
+    ffi::{CStr, c_void},
     marker::PhantomData,
     mem::{ManuallyDrop, MaybeUninit},
     ops::{Deref, DerefMut},
@@ -126,15 +125,6 @@ pub(crate) fn try_path(value: &Path) -> Result<PathBuf, VkResult> {
     try_os_string(value.as_os_str()).map(PathBuf::from)
 }
 
-pub(crate) fn try_string(value: &str) -> Result<String, VkResult> {
-    let mut owned = String::new();
-    owned
-        .try_reserve_exact(value.len())
-        .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
-    owned.push_str(value);
-    Ok(owned)
-}
-
 pub(crate) fn try_box_str(value: &str) -> Result<Box<str>, VkResult> {
     let mut storage = try_box_uninit_slice::<u8>(value.len())?;
     for (slot, byte) in storage.iter_mut().zip(value.bytes()) {
@@ -231,10 +221,15 @@ pub(crate) fn try_boxed_slice_filled<T: Copy>(len: usize, value: T) -> Result<Bo
     Ok(unsafe { storage.assume_init() })
 }
 
+union LoaderAllocationData {
+    global_size: usize,
+    callback_user_data: *mut c_void,
+}
+
 pub(crate) struct LoaderAllocation {
     pointer: NonNull<u8>,
-    layout: Layout,
-    callbacks: Option<VkAllocationCallbacks<'static>>,
+    free: vk::PFN_vkFreeFunction,
+    data: LoaderAllocationData,
 }
 
 impl LoaderAllocation {
@@ -260,10 +255,19 @@ impl LoaderAllocation {
             NonNull::new(unsafe { alloc(layout) })
         }
         .ok_or(VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+        let free = callbacks.and_then(|callbacks| callbacks.pfnFree);
+        let data = if free.is_some() {
+            LoaderAllocationData {
+                callback_user_data: callbacks
+                    .map_or(core::ptr::null_mut(), |callbacks| callbacks.pUserData),
+            }
+        } else {
+            LoaderAllocationData { global_size: size }
+        };
         Ok(Self {
             pointer,
-            layout,
-            callbacks: callbacks.copied(),
+            free,
+            data,
         })
     }
 
@@ -279,40 +283,45 @@ pub(crate) struct LoaderBox<T> {
 }
 
 impl<T> LoaderBox<T> {
-    pub(crate) fn new(
+    /// Allocates stable storage without first constructing `T` on the stack.
+    pub(crate) fn try_new_uninit(
         callbacks: Option<&VkAllocationCallbacks<'static>>,
-        value: T,
         scope: VkSystemAllocationScope,
-    ) -> Result<Self, VkResult> {
-        Self::try_new(callbacks, value, scope).map_err(|(result, _value)| result)
-    }
-
-    /// Allocates stable storage while returning ownership of `value` when the
-    /// allocation fails, so callers can roll back resources held by it.
-    pub(crate) fn try_new(
-        callbacks: Option<&VkAllocationCallbacks<'static>>,
-        value: T,
-        scope: VkSystemAllocationScope,
-    ) -> Result<Self, (VkResult, T)> {
+    ) -> Result<LoaderBox<MaybeUninit<T>>, VkResult> {
         const {
             assert!(core::mem::size_of::<T>() != 0);
             assert!(core::mem::align_of::<T>() <= LOADER_ALIGNMENT);
         }
-        let allocation = match LoaderAllocation::new(callbacks, core::mem::size_of::<T>(), scope) {
-            Ok(allocation) => allocation,
-            Err(result) => return Err((result, value)),
-        };
-        // SAFETY: The allocation has the size and alignment required for `T`
-        // and is uniquely owned until this wrapper is dropped.
-        unsafe { allocation.as_ptr().cast::<T>().write(value) };
-        Ok(Self {
-            allocation,
+        Ok(LoaderBox {
+            allocation: LoaderAllocation::new(callbacks, core::mem::size_of::<T>(), scope)?,
             marker: PhantomData,
         })
     }
 
     pub(crate) const fn as_ptr(&self) -> *const T {
         self.allocation.as_ptr().cast()
+    }
+}
+
+impl<T> LoaderBox<MaybeUninit<T>> {
+    pub(crate) const fn as_mut_ptr(&mut self) -> *mut T {
+        self.allocation.as_ptr().cast()
+    }
+
+    /// Converts this allocation after every field of `T` has been initialized.
+    ///
+    /// # Safety
+    ///
+    /// The allocation must contain a valid, fully initialized `T`.
+    pub(crate) unsafe fn assume_init(self) -> LoaderBox<T> {
+        let this = ManuallyDrop::new(self);
+        // SAFETY: `ManuallyDrop` keeps the allocation owned while it is moved
+        // into the identically represented initialized wrapper.
+        let allocation = unsafe { core::ptr::read(&raw const this.allocation) };
+        LoaderBox {
+            allocation,
+            marker: PhantomData,
+        }
     }
 }
 
@@ -420,16 +429,21 @@ unsafe impl Sync for LoaderAllocation {}
 
 impl Drop for LoaderAllocation {
     fn drop(&mut self) {
-        if let Some(callbacks) = self.callbacks.as_ref()
-            && let Some(free_callback) = callbacks.pfnFree
-        {
+        if let Some(free) = self.free {
             // SAFETY: This pointer was returned under the matching retained
-            // callback set and is released exactly once.
-            unsafe { free_callback(callbacks.pUserData, self.pointer.as_ptr().cast()) };
+            // callback set, so the union contains its user-data pointer.
+            unsafe {
+                free(self.data.callback_user_data, self.pointer.as_ptr().cast());
+            }
         } else {
+            // SAFETY: A missing callback free function identifies a global
+            // allocation, whose union member is its validated nonzero size.
+            let layout = unsafe {
+                Layout::from_size_align_unchecked(self.data.global_size, LOADER_ALIGNMENT)
+            };
             // SAFETY: The fallback allocator created this pointer with the
             // exact retained layout.
-            unsafe { dealloc(self.pointer.as_ptr(), self.layout) };
+            unsafe { dealloc(self.pointer.as_ptr(), layout) };
         }
     }
 }
@@ -545,8 +559,13 @@ mod tests {
         }
 
         let drops = AtomicUsize::new(0);
-        let value =
-            LoaderBox::new(None, DropCounter(&drops), VkSystemAllocationScope::OBJECT).unwrap();
+        let mut value =
+            LoaderBox::<DropCounter<'_>>::try_new_uninit(None, VkSystemAllocationScope::OBJECT)
+                .unwrap();
+        // SAFETY: The allocation is valid, aligned, and uniquely owned.
+        unsafe { value.as_mut_ptr().write(DropCounter(&drops)) };
+        // SAFETY: The allocation was initialized immediately above.
+        let value = unsafe { value.assume_init() };
         assert_eq!(drops.load(Ordering::Relaxed), 0);
         drop(value);
         assert_eq!(drops.load(Ordering::Relaxed), 1);

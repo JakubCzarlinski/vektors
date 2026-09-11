@@ -96,22 +96,22 @@ fn requested_layers_propagate_allocation_failures() {
 #[test]
 fn duplicate_device_extension_retains_first_property_like_upstream() {
     let mut extensions = Vec::new();
-    append_unique_device_extension(
+    append_layer_device_extension(
         &mut extensions,
-        &device_extension_property(&LayerExtension {
+        &LayerExtension {
             name: c"VK_EXT_debug_marker".to_owned().into(),
             spec_version: 1,
             entrypoints: Box::default(),
-        }),
+        },
     )
     .unwrap();
-    append_unique_device_extension(
+    append_layer_device_extension(
         &mut extensions,
-        &device_extension_property(&LayerExtension {
+        &LayerExtension {
             name: c"VK_EXT_debug_marker".to_owned().into(),
             spec_version: 99,
             entrypoints: Box::default(),
-        }),
+        },
     )
     .unwrap();
 

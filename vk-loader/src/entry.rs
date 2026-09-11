@@ -168,7 +168,7 @@ pub unsafe extern "system" fn vkGetInstanceProcAddr(
     // SAFETY: Required by this function's public contract.
     let name = unsafe { CStr::from_ptr(p_name) };
     if instance == VkInstance::NULL {
-        global_proc_addr(name)
+        command_lookup(name.to_bytes()).and_then(|lookup| global_proc_addr(lookup.id))
     } else {
         // SAFETY: A non-null instance supplied to GIPA must be a live loader instance.
         let loader = unsafe { LoaderInstance::from_handle(instance) }.unwrap_or_else(|| {
@@ -176,7 +176,7 @@ pub unsafe extern "system" fn vkGetInstanceProcAddr(
                 c"vkGetInstanceProcAddr: Invalid instance [VUID-vkGetInstanceProcAddr-instance-parameter]",
             )
         });
-        let Some(lookup) = command_lookup(name) else {
+        let Some(lookup) = command_lookup(name.to_bytes()) else {
             return unknown::physical_device_proc_addr(loader, name, true)
                 .or_else(|| unknown::device_proc_addr(loader, name, true));
         };
@@ -187,7 +187,7 @@ pub unsafe extern "system" fn vkGetInstanceProcAddr(
                 ))
             } else {
                 (loader.api_version < VK_API_VERSION_1_3)
-                    .then(|| global_proc_addr(name))
+                    .then(|| global_proc_addr(lookup.id))
                     .flatten()
             }
         } else {

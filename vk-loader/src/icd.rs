@@ -1,21 +1,20 @@
 //! Installable Client Driver loading and interface negotiation.
 
+use crate::LoaderPathExt;
 use crate::sync::{GlobalMutex, MutexAcquire, MutexInit, ObjectMutex};
-use crate::{ExtensionSet, allocation, discovery, platform, unknown};
-use core::ffi::{CStr, c_char, c_void};
-use core::sync::atomic::{AtomicBool, Ordering};
-use std::path::{Path, PathBuf};
-
-use vk::{
-    PFN_vkCreateInstance, PFN_vkEnumerateInstanceVersion, PFN_vkGetInstanceProcAddr,
-    VK_API_VERSION_1_0, VkInstance, VkResult,
-};
-
+use crate::{ExtensionSet, allocation, discovery, layer, platform, unknown};
 use crate::{
     InstanceDispatchTable,
     discovery::DriverManifest,
     load_typed,
     platform::{LoaderLibrary, LogFilter},
+};
+use core::ffi::{CStr, c_char, c_void};
+use core::sync::atomic::{AtomicBool, Ordering};
+use std::path::{Path, PathBuf};
+use vk::{
+    PFN_vkCreateInstance, PFN_vkEnumerateInstanceVersion, PFN_vkGetInstanceProcAddr,
+    VK_API_VERSION_1_0, VkInstance, VkResult,
 };
 
 #[cfg(windows)]
@@ -68,6 +67,8 @@ pub(crate) fn scan_global_icds() -> Result<Vec<ScannedIcd>, VkResult> {
     Ok(loaded)
 }
 
+#[cold]
+#[inline(never)]
 fn emit_global_scan_diagnostics(scan: &discovery::DriverScan) {
     platform::write_loader_category_log(
         LogFilter::Driver,
@@ -80,7 +81,7 @@ fn emit_global_scan_diagnostics(scan: &discovery::DriverScan) {
     for root in &scan.search_roots {
         platform::write_loader_category_log(
             LogFilter::Driver,
-            format_args!("      {}", root.display()),
+            format_args!("      {}", root.loader_display()),
         );
     }
     if scan.reported_files.is_empty() {
@@ -93,7 +94,7 @@ fn emit_global_scan_diagnostics(scan: &discovery::DriverScan) {
         for path in &scan.reported_files {
             platform::write_loader_category_log(
                 LogFilter::Driver,
-                format_args!("      {}", path.display()),
+                format_args!("      {}", path.loader_display()),
             );
         }
     }
@@ -103,24 +104,24 @@ fn load_global_icd(manifest: &DriverManifest) -> Result<Option<ScannedIcd>, VkRe
     platform::write_loader_category_log(
         LogFilter::Driver,
         format_args!(
-            "Found ICD manifest file {}, version {}.{}.{}",
-            manifest.manifest_path.display(),
-            vk::VK_API_VERSION_MAJOR(manifest.manifest_version),
-            vk::VK_API_VERSION_MINOR(manifest.manifest_version),
-            vk::VK_API_VERSION_PATCH(manifest.manifest_version),
+            "Found ICD manifest file {}, version {}",
+            manifest.manifest_path.loader_display(),
+            layer::ManifestVersion(manifest.manifest_version),
         ),
     );
     let displayed_library_path = manifest
         .library_path
         .to_str()
-        .and_then(|path| path.rfind("/./").map(|index| &path[index + 1..]))
+        .and_then(|path| {
+            crate::rfind_bytes(path.as_bytes(), b"/./").map(|index| &path[index + 1..])
+        })
         .map_or(manifest.library_path.as_path(), Path::new);
     platform::write_loader_log_with_category(
         LogFilter::Debug,
         LogFilter::Driver,
         format_args!(
             "Searching for ICD drivers named {}",
-            displayed_library_path.display()
+            displayed_library_path.loader_display()
         ),
     );
     if vk::VK_API_VERSION_VARIANT(manifest.api_version) != 0 || !manifest.architecture_supported {
@@ -140,7 +141,7 @@ fn load_global_icd(manifest: &DriverManifest) -> Result<Option<ScannedIcd>, VkRe
             LogFilter::Debug,
             format_args!(
                 "normalize_path: Call to realpath() failed with error code 2 when given the path {}",
-                manifest.library_path.display()
+                manifest.library_path.loader_display()
             ),
         );
         if let Some(loaded_path) = icd.library_path() {
@@ -149,8 +150,8 @@ fn load_global_icd(manifest: &DriverManifest) -> Result<Option<ScannedIcd>, VkRe
                 LogFilter::Layer,
                 format_args!(
                     "Path to given binary {} was found to differ from OS loaded path {}",
-                    manifest.library_path.display(),
-                    loaded_path.display()
+                    manifest.library_path.loader_display(),
+                    loaded_path.loader_display()
                 ),
             );
         }

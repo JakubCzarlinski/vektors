@@ -18,22 +18,25 @@ pub(crate) use activation::{
 };
 
 #[cfg(test)]
-use chain::{append_unique_device_extension, device_extension_property};
+use chain::append_layer_device_extension;
 pub(crate) use chain::{
     available_device_extensions, create_device_chain, create_instance_chain,
     create_instance_terminator, enumerate_active_device_layers, enumerate_instance_layers,
     has_mismatched_device_layers, terminator_enumerate_device_extension_properties,
+    terminator_enumerate_device_layer_properties, terminator_get_device_proc_addr,
     terminator_get_instance_proc_addr, terminator_get_physical_device_proc_addr,
     validate_pending_device_output,
 };
 
+pub(crate) use diagnostics::{
+    ManifestVersion, MetaDiagnosticSink, emit_explicit_pre_instance_warning,
+    emit_found_manifest_version, emit_global_layer_manifest_diagnostic,
+    emit_global_layer_search_diagnostics, emit_instance_layer_callstack,
+    emit_meta_layer_encountered, emit_nonconforming_layer_name,
+};
 use diagnostics::{
     compatibility_manifest_graph, emit_create_message, emit_layer_message,
     emit_layer_search_diagnostics, emit_meta_layer_diagnostics,
-};
-pub(crate) use diagnostics::{
-    emit_global_layer_manifest_diagnostic, emit_global_layer_search_diagnostics,
-    emit_instance_layer_callstack,
 };
 
 use alloc::ffi::CString;
@@ -187,12 +190,37 @@ pub(crate) struct LoadedLayer {
     manifest_path: std::path::PathBuf,
     enable_environment: Option<(std::ffi::OsString, std::ffi::OsString)>,
     disable_environment: Option<std::ffi::OsString>,
-    enabled_by: &'static str,
+    enabled_by: LayerEnabledBy,
     pub(crate) implicit: bool,
     pub(crate) get_instance_proc_addr: PFN_vkGetInstanceProcAddr,
     pub(crate) get_device_proc_addr: PFN_vkGetDeviceProcAddr,
     pub(crate) get_physical_device_proc_addr: Option<GetPhysicalDeviceProcAddr>,
     pub(crate) device_extensions: Box<[LayerExtension]>,
+}
+
+#[derive(Clone, Copy)]
+pub(super) enum LayerEnabledBy {
+    Settings,
+    MetaSettings,
+    InstanceEnvironment,
+    Implicit,
+    LoaderEnvironment,
+    Application,
+    MetaLayer,
+}
+
+impl LayerEnabledBy {
+    pub(super) const fn label(self) -> &'static str {
+        match self {
+            Self::Settings => "Loader Settings File (Vulkan Configurator)",
+            Self::MetaSettings => "Meta Layer (Vulkan Configurator)",
+            Self::InstanceEnvironment => "Environment Variable VK_INSTANCE_LAYERS",
+            Self::Implicit => "Implicit Layer",
+            Self::LoaderEnvironment => "Environment Variable VK_LOADER_LAYERS_ENABLE",
+            Self::Application => "By the Application",
+            Self::MetaLayer => "Meta-layer",
+        }
+    }
 }
 
 pub(crate) struct ActiveLayers {
@@ -225,9 +253,7 @@ pub(crate) struct SelectedLayers {
     requested: Box<[CString]>,
     environment_count: usize,
     activation_messages: Vec<String>,
-    repeated_activation_messages: Vec<String>,
     activation_error_messages: Vec<String>,
-    repeated_activation_error_messages: Vec<String>,
 }
 
 impl SelectedLayers {
@@ -269,8 +295,9 @@ struct DeviceCreateSentinel {
 
 #[cold]
 #[inline(never)]
-fn fatal_layer_policy(message: impl core::fmt::Display) -> ! {
-    platform::write_stderr_fmt(format_args!("{message}\n"));
+fn fatal_layer_policy(message: core::fmt::Arguments<'_>) -> ! {
+    platform::write_stderr_fmt(message);
+    platform::write_stderr("\n");
     // SAFETY: Fatal loader diagnostics terminate immediately, matching
     // upstream's C abort path.
     unsafe { libc::abort() }

@@ -56,7 +56,7 @@ fn dynamic_error() -> Result<String, vk::VkResult> {
     // SAFETY: `dlerror` returns either NULL or a thread-local C string.
     let error = unsafe { libc::dlerror() };
     if error.is_null() {
-        crate::allocation::try_string("dlopen_vmo failed")
+        crate::debug::diagnostics::try_format(format_args!("dlopen_vmo failed"))
     } else {
         // SAFETY: A non-null dlerror result is NUL-terminated for this call.
         let bytes = unsafe { CStr::from_ptr(error) }.to_bytes();
@@ -81,9 +81,9 @@ pub(super) unsafe fn open(path: &Path, driver: bool) -> Result<LoaderLibrary, Op
     let service = loader_service();
     if service == ZX_HANDLE_INVALID {
         return Err(OpenLibraryError {
-            message: crate::allocation::try_string(
-                "libvulkan.so:dlopen_fuchsia: no connection to loader svc\n",
-            ),
+            message: crate::debug::diagnostics::try_format(format_args!(
+                "libvulkan.so:dlopen_fuchsia: no connection to loader svc\n"
+            )),
         });
     }
     let name_bytes = path.as_os_str().as_bytes();
@@ -111,9 +111,9 @@ pub(super) unsafe fn open(path: &Path, driver: bool) -> Result<LoaderLibrary, Op
     }
     if vmo == ZX_HANDLE_INVALID {
         return Err(OpenLibraryError {
-            message: crate::allocation::try_string(
-                "libvulkan.so:dlopen_fuchsia: Get() returned invalid vmo\n",
-            ),
+            message: crate::debug::diagnostics::try_format(format_args!(
+                "libvulkan.so:dlopen_fuchsia: Get() returned invalid vmo\n"
+            )),
         });
     }
     // SAFETY: The service returned a VMO intended for dynamic loading.

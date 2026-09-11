@@ -1,14 +1,15 @@
 //! Layer selection, filtering, and activation.
 
-use crate::{allocation, debug::diagnostics, pending};
-
+use super::diagnostics::record_message;
 use super::{
-    ActiveLayerProperty, ActiveLayers, CStr, CString, LayerControl, LayerFilterVariable,
-    LayerLoadError, LayerManifest, LayerNames, LoadedLayer, LoaderSettings, OsStr, SelectedLayers,
-    VkInstanceCreateInfo, VkResult, compatibility_manifest_graph, discover_layers_with_settings,
-    emit_create_message, emit_layer_message, emit_layer_search_diagnostics,
-    emit_meta_layer_diagnostics, valid_layer_mask,
+    ActiveLayerProperty, ActiveLayers, CStr, CString, LayerControl, LayerEnabledBy,
+    LayerFilterVariable, LayerLoadError, LayerManifest, LayerNames, LoadedLayer, LoaderSettings,
+    OsStr, SelectedLayers, VkInstanceCreateInfo, VkResult, compatibility_manifest_graph,
+    discover_layers_with_settings, emit_create_message, emit_layer_message,
+    emit_layer_search_diagnostics, emit_meta_layer_diagnostics, valid_layer_mask,
 };
+use crate::LoaderPathExt;
+use crate::{allocation, debug::diagnostics, pending};
 #[cfg(unix)]
 use alloc::borrow::Cow;
 #[cfg(unix)]
@@ -35,7 +36,10 @@ pub(super) fn requested_layer_names(
 
             let text = match name.to_str() {
                 Some(text) => Cow::Borrowed(text),
-                None => Cow::Owned(diagnostics::try_format(format_args!("{}", name.display()))?),
+                None => Cow::Owned(diagnostics::try_format(format_args!(
+                    "{}",
+                    name.loader_display()
+                ))?),
             };
             let name =
                 allocation::try_c_string_bytes(text.as_bytes()).map_err(|error| match error {
@@ -295,7 +299,6 @@ pub(crate) fn select_active_layers(
     settings: Option<&LoaderSettings>,
 ) -> Result<SelectedLayers, VkResult> {
     let mut activation_messages = Vec::new();
-    let mut repeated_activation_messages = Vec::new();
     let manifests = discover_layers_with_settings(settings);
     if pending::take_json_allocation_failed() {
         return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
@@ -318,19 +321,12 @@ pub(crate) fn select_active_layers(
         environment_count,
         settings,
         &mut activation_messages,
-        &mut repeated_activation_messages,
     )?;
-    record_forced_layers(
-        &manifests,
-        settings,
-        &mut activation_messages,
-        &mut repeated_activation_messages,
-    )?;
+    record_forced_layers(&manifests, settings, &mut activation_messages)?;
     emit_meta_layer_diagnostics(
         create_info,
         compatibility_manifests.as_deref().unwrap_or(&manifests),
         &mut activation_messages,
-        &mut repeated_activation_messages,
     )?;
     emit_disabled_layers(create_info, &manifests);
     let valid = available_layer_mask(&manifests)?;
@@ -340,9 +336,7 @@ pub(crate) fn select_active_layers(
         selected: Vec::new(),
         reported: Vec::new(),
         activation_messages,
-        repeated_activation_messages,
         activation_error_messages: Vec::new(),
-        repeated_activation_error_messages: Vec::new(),
     };
     selection.activate_implicit(
         &manifests,
@@ -370,9 +364,7 @@ pub(crate) fn select_active_layers(
         selected,
         reported,
         activation_messages,
-        repeated_activation_messages,
         activation_error_messages,
-        repeated_activation_error_messages,
         ..
     } = selection;
     Ok(SelectedLayers {
@@ -382,9 +374,7 @@ pub(crate) fn select_active_layers(
         requested,
         environment_count,
         activation_messages,
-        repeated_activation_messages,
         activation_error_messages,
-        repeated_activation_error_messages,
     })
 }
 
@@ -395,46 +385,30 @@ pub(crate) fn emit_selected_layer_activation_diagnostics(
     emit_layer_activation_messages(
         create_info,
         &selected.activation_messages,
-        &selected.repeated_activation_messages,
         &selected.activation_error_messages,
-        &selected.repeated_activation_error_messages,
     );
 }
 
 pub(super) fn emit_layer_activation_messages(
     create_info: &VkInstanceCreateInfo<'_>,
     messages: &[String],
-    repeated_messages: &[String],
     error_messages: &[String],
-    repeated_error_messages: &[String],
 ) {
-    for message in messages {
-        emit_layer_message(
-            create_info,
-            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-            format_args!("{message}"),
-        );
-    }
-    for message in error_messages {
-        emit_layer_message(
-            create_info,
-            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-            format_args!("{message}"),
-        );
-    }
-    for message in repeated_messages {
-        emit_layer_message(
-            create_info,
-            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
-            format_args!("{message}"),
-        );
-    }
-    for message in repeated_error_messages {
-        emit_layer_message(
-            create_info,
-            vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-            format_args!("{message}"),
-        );
+    for _ in 0..2 {
+        for message in messages {
+            emit_layer_message(
+                create_info,
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
+                format_args!("{}", diagnostics::Text(message)),
+            );
+        }
+        for message in error_messages {
+            emit_layer_message(
+                create_info,
+                vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
+                format_args!("{}", diagnostics::Text(message)),
+            );
+        }
     }
 }
 
@@ -490,24 +464,24 @@ pub(crate) fn load_selected_layers(
             })
         });
         let enabled_by = if manifest.settings_control == Some(LayerControl::On) {
-            "Loader Settings File (Vulkan Configurator)"
+            LayerEnabledBy::Settings
         } else if enabled_by_meta_layer {
-            "Meta Layer (Vulkan Configurator)"
+            LayerEnabledBy::MetaSettings
         } else if requested[..environment_count]
             .iter()
             .any(|name| name.as_c_str() == manifest.name.as_c_str())
         {
-            "Environment Variable VK_INSTANCE_LAYERS"
+            LayerEnabledBy::InstanceEnvironment
         } else if manifest.implicit
             && (implicit_manifest_is_active(manifest) || !requested_by_application)
         {
-            "Implicit Layer"
+            LayerEnabledBy::Implicit
         } else if forced_enabled(manifest) {
-            "Environment Variable VK_LOADER_LAYERS_ENABLE"
+            LayerEnabledBy::LoaderEnvironment
         } else if requested_by_application {
-            "By the Application"
+            LayerEnabledBy::Application
         } else {
-            "Meta-layer"
+            LayerEnabledBy::MetaLayer
         };
         match LoadedLayer::load(&mut manifests[index], index, enabled_by) {
             Ok(layer) => {
@@ -530,7 +504,7 @@ pub(crate) fn load_selected_layers(
         emit_layer_message(
             create_info,
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-            format_args!("{message}"),
+            format_args!("{}", diagnostics::Text(&message)),
         );
     }
     if requested_layer_failed {
@@ -556,7 +530,6 @@ fn activate_manifest(
     reported: &mut Vec<ActiveLayerProperty>,
     parent: Option<&ActivationPath<'_>>,
     activation_messages: &mut Vec<String>,
-    repeated_activation_messages: &mut Vec<String>,
 ) -> Result<bool, VkResult> {
     let manifest = &manifests[index];
     if reported.iter().any(|layer| {
@@ -602,8 +575,7 @@ fn activate_manifest(
                     crate::debug::diagnostics::LossyBytes(component.name.to_bytes()),
                     crate::debug::diagnostics::LossyBytes(component.name.to_bytes())
                 ))?;
-                allocation::try_push(&mut *activation_messages, allocation::try_string(&message)?)?;
-                allocation::try_push(&mut *repeated_activation_messages, message)?;
+                record_message(activation_messages, message)?;
                 complete = false;
                 continue;
             }
@@ -614,7 +586,6 @@ fn activate_manifest(
                 reported,
                 Some(&path),
                 activation_messages,
-                repeated_activation_messages,
             )? {
                 complete = false;
             }
@@ -638,7 +609,7 @@ fn emit_loaded_layer(
     emit_layer_message(
         create_info,
         vk::VkDebugUtilsMessageSeverityFlagBitsEXT::VERBOSE,
-        format_args!("Loading layer library {}", layer.load_path.display()),
+        format_args!("Loading layer library {}", layer.load_path.loader_display()),
     );
     if layer.load_path.is_absolute()
         && layer.load_path != layer.library_path
@@ -649,7 +620,7 @@ fn emit_loaded_layer(
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::VERBOSE,
             format_args!(
                 "normalize_path: Call to realpath() failed with error code 2 when given the path {}",
-                layer.load_path.display()
+                layer.load_path.loader_display()
             ),
         );
         emit_layer_message(
@@ -657,8 +628,8 @@ fn emit_loaded_layer(
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::WARNING,
             format_args!(
                 "Path to given binary {} was found to differ from OS loaded path {}",
-                layer.load_path.display(),
-                layer.library_path.display()
+                layer.load_path.loader_display(),
+                layer.library_path.loader_display()
             ),
         );
     }
@@ -668,7 +639,7 @@ fn emit_loaded_layer(
         format_args!(
             "Insert instance layer \"{}\" ({})",
             crate::debug::diagnostics::LossyBytes(layer.name.to_bytes()),
-            layer.library_path.display()
+            layer.library_path.loader_display()
         ),
     );
     Ok(())
@@ -704,7 +675,7 @@ fn emit_layer_load_error(
             } else {
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR
             },
-            format_args!("{message}"),
+            format_args!("{}", diagnostics::Text(&message)),
         );
     }
     let severity = if explicitly_requested {
@@ -712,16 +683,22 @@ fn emit_layer_load_error(
     } else {
         vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO
     };
-    let ending = if explicitly_requested { '!' } else { '.' };
+    let ending = if explicitly_requested { "!" } else { "." };
     let message = diagnostics::try_format(format_args!(
-        "Requested layer \"{}\" {reason}{ending}",
-        crate::debug::diagnostics::LossyBytes(manifest.name.to_bytes())
+        "Requested layer \"{}\" {}{}",
+        crate::debug::diagnostics::LossyBytes(manifest.name.to_bytes()),
+        diagnostics::Text(reason),
+        diagnostics::Text(ending),
     ))?;
     if explicitly_requested {
         *requested_layer_failed = true;
         allocation::try_push(requested_failure_messages, message)?;
     } else {
-        emit_layer_message(create_info, severity, format_args!("{message}"));
+        emit_layer_message(
+            create_info,
+            severity,
+            format_args!("{}", diagnostics::Text(&message)),
+        );
     }
     Ok(())
 }
@@ -758,7 +735,6 @@ fn record_environment_layers(
     environment_count: usize,
     settings: Option<&LoaderSettings>,
     activation_messages: &mut Vec<String>,
-    repeated_activation_messages: &mut Vec<String>,
 ) -> Result<(), VkResult> {
     if environment_count != 0 {
         let names = LayerNames(&requested[..environment_count]);
@@ -771,8 +747,7 @@ fn record_environment_layers(
                 "env var 'VK_INSTANCE_LAYERS' defined and adding layers \"{names}\""
             ))?
         };
-        allocation::try_push(activation_messages, allocation::try_string(&message)?)?;
-        allocation::try_push(repeated_activation_messages, message)?;
+        record_message(activation_messages, message)?;
     }
     Ok(())
 }
@@ -782,7 +757,6 @@ fn record_forced_layers(
     manifests: &[LayerManifest],
     settings: Option<&LoaderSettings>,
     activation_messages: &mut Vec<String>,
-    repeated_activation_messages: &mut Vec<String>,
 ) -> Result<(), VkResult> {
     for manifest in manifests {
         let natural = naturally_enabled(manifest);
@@ -806,8 +780,7 @@ fn record_forced_layers(
                     "Layer \"{}\" forced disabled because name matches filter of env var 'VK_LOADER_LAYERS_DISABLE'.",
                     crate::debug::diagnostics::LossyBytes(manifest.name.to_bytes())
                 ))?;
-                allocation::try_push(activation_messages, allocation::try_string(&message)?)?;
-                allocation::try_push(repeated_activation_messages, message)?;
+                record_message(activation_messages, message)?;
             }
         } else if environment_controlled && enabled && !natural && !enabled_by_meta_layer {
             let kind = if manifest.implicit {
@@ -815,17 +788,18 @@ fn record_forced_layers(
             } else {
                 "Layer"
             };
+            let suffix = if settings.is_some() || manifest.implicit {
+                "."
+            } else {
+                ""
+            };
             let message = diagnostics::try_format(format_args!(
-                "{kind} \"{}\" forced enabled due to env var 'VK_LOADER_LAYERS_ENABLE'{}",
+                "{} \"{}\" forced enabled due to env var 'VK_LOADER_LAYERS_ENABLE'{}",
+                diagnostics::Text(kind),
                 crate::debug::diagnostics::LossyBytes(manifest.name.to_bytes()),
-                if settings.is_some() || manifest.implicit {
-                    "."
-                } else {
-                    ""
-                }
+                diagnostics::Text(suffix),
             ))?;
-            allocation::try_push(activation_messages, allocation::try_string(&message)?)?;
-            allocation::try_push(repeated_activation_messages, message)?;
+            record_message(activation_messages, message)?;
         } else if settings.is_some()
             && !manifest.implicit
             && manifest.settings_control != Some(LayerControl::On)
@@ -843,8 +817,7 @@ fn record_forced_layers(
                 "Layer \"{}\" forced disabled because name matches filter of env var 'VK_LOADER_LAYERS_DISABLE'.",
                 crate::debug::diagnostics::LossyBytes(manifest.name.to_bytes())
             ))?;
-            allocation::try_push(activation_messages, allocation::try_string(&message)?)?;
-            allocation::try_push(repeated_activation_messages, message)?;
+            record_message(activation_messages, message)?;
         }
     }
     Ok(())
@@ -924,9 +897,7 @@ struct LayerSelection {
     selected: Vec<usize>,
     reported: Vec<ActiveLayerProperty>,
     activation_messages: Vec<String>,
-    repeated_activation_messages: Vec<String>,
     activation_error_messages: Vec<String>,
-    repeated_activation_error_messages: Vec<String>,
 }
 
 impl LayerSelection {
@@ -939,7 +910,6 @@ impl LayerSelection {
             &mut self.reported,
             None,
             &mut self.activation_messages,
-            &mut self.repeated_activation_messages,
         )
     }
 
@@ -1025,11 +995,7 @@ impl LayerSelection {
                         "Layer \"{}\" was not found but was requested by env var VK_INSTANCE_LAYERS!",
                         crate::debug::diagnostics::LossyBytes(requested_name.to_bytes())
                     ))?;
-                    allocation::try_push(
-                        &mut self.activation_error_messages,
-                        allocation::try_string(&message)?,
-                    )?;
-                    allocation::try_push(&mut self.repeated_activation_error_messages, message)?;
+                    record_message(&mut self.activation_error_messages, message)?;
                     continue;
                 }
                 emit_create_message(
@@ -1042,9 +1008,7 @@ impl LayerSelection {
                 emit_layer_activation_messages(
                     create_info,
                     &self.activation_messages,
-                    &self.repeated_activation_messages,
                     &self.activation_error_messages,
-                    &self.repeated_activation_error_messages,
                 );
                 return Err(VkResult::ERROR_LAYER_NOT_PRESENT);
             };
@@ -1069,9 +1033,7 @@ impl LayerSelection {
                 emit_layer_activation_messages(
                     create_info,
                     &self.activation_messages,
-                    &self.repeated_activation_messages,
                     &self.activation_error_messages,
-                    &self.repeated_activation_error_messages,
                 );
                 return Err(VkResult::ERROR_LAYER_NOT_PRESENT);
             }
@@ -1104,7 +1066,10 @@ fn validate_reported_layers(
         emit_create_message(
             create_info,
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
-            format_args!("loader_validate_layers: Layer {requested_index} {reason}"),
+            format_args!(
+                "loader_validate_layers: Layer {requested_index} {}",
+                diagnostics::Text(reason)
+            ),
         );
         return Err(VkResult::ERROR_LAYER_NOT_PRESENT);
     }

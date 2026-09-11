@@ -1206,7 +1206,6 @@ use super::trampolines::vkWriteAccelerationStructuresPropertiesKHR;
 use super::trampolines::vkWriteMicromapsPropertiesEXT;
 use super::trampolines::vkWriteResourceDescriptorsEXT;
 use super::trampolines::vkWriteSamplerDescriptorsEXT;
-use crate::CStr;
 use crate::PFN_vkVoidFunction;
 use crate::erase_function;
 use crate::terminator_vkDestroySurfaceKHR;
@@ -1248,19 +1247,6 @@ use crate::vkGetInstanceProcAddr;
 use crate::vkSetDebugUtilsObjectNameEXT;
 use crate::vkSetDebugUtilsObjectTagEXT;
 use crate::vkSubmitDebugUtilsMessageEXT;
-pub(crate) fn global_proc_addr(name: &CStr) -> PFN_vkVoidFunction {
-    let address = match name.to_bytes() {
-        b"vkCreateInstance" => vkCreateInstance as *const (),
-        b"vkEnumerateInstanceExtensionProperties" => {
-            vkEnumerateInstanceExtensionProperties as *const ()
-        }
-        b"vkEnumerateInstanceLayerProperties" => vkEnumerateInstanceLayerProperties as *const (),
-        b"vkEnumerateInstanceVersion" => vkEnumerateInstanceVersion as *const (),
-        b"vkGetInstanceProcAddr" => vkGetInstanceProcAddr as *const (),
-        _ => return None,
-    };
-    Some(erase_function(address))
-}
 #[inline]
 pub(crate) unsafe fn layer_device_dispatch_proc_addr(
     table: &LayerDeviceDispatchTable,
@@ -1279,6 +1265,17 @@ pub(crate) unsafe fn layer_device_dispatch_proc_addr(
             .cast::<PFN_vkVoidFunction>()
             .read()
     }
+}
+pub(crate) fn global_proc_addr(id: u16) -> PFN_vkVoidFunction {
+    let address = match id {
+        398 => vkCreateInstance as *const (),
+        500 => vkEnumerateInstanceExtensionProperties as *const (),
+        501 => vkEnumerateInstanceLayerProperties as *const (),
+        502 => vkEnumerateInstanceVersion as *const (),
+        612 => vkGetInstanceProcAddr as *const (),
+        _ => return None,
+    };
+    Some(erase_function(address))
 }
 #[inline(never)]
 #[allow(clippy::too_many_lines)]
@@ -2582,6 +2579,42 @@ pub(crate) fn icd_device_terminator_proc_addr(
         186 => table.vkCmdInsertDebugUtilsLabelEXT? as *const (),
         #[cfg(target_os = "windows")]
         557 => table.vkGetDeviceGroupSurfacePresentModes2EXT? as *const (),
+        _ => return None,
+    };
+    Some(erase_function(address))
+}
+pub(crate) fn layer_instance_special_proc_addr(id: u16) -> PFN_vkVoidFunction {
+    let address = match id {
+        398 => crate::layer::create_instance_terminator as *const (),
+        612 => crate::layer::terminator_get_instance_proc_addr as *const (),
+        379 => crate::create_device_terminator as *const (),
+        470 => crate::destroy_instance_terminator as *const (),
+        508 => crate::terminator_enumerate_physical_devices as *const (),
+        503 => crate::terminator_enumerate_physical_device_groups as *const (),
+        504 => crate::terminator_enumerate_physical_device_groups_khr as *const (),
+        499 => crate::layer::terminator_enumerate_device_layer_properties as *const (),
+        498 => crate::layer::terminator_enumerate_device_extension_properties as *const (),
+        373 => crate::debug::messenger::terminator_create_debug_utils_messenger as *const (),
+        372 => crate::debug::messenger::terminator_create_debug_report_callback as *const (),
+        453 => crate::debug::messenger::terminator_destroy_debug_utils_messenger as *const (),
+        452 => crate::debug::messenger::terminator_destroy_debug_report_callback as *const (),
+        817 => crate::debug::messenger::terminator_submit_debug_utils_message as *const (),
+        439 => crate::debug::messenger::terminator_debug_report_message as *const (),
+        _ => return None,
+    };
+    Some(erase_function(address))
+}
+pub(crate) fn layer_device_special_proc_addr(id: u16) -> PFN_vkVoidFunction {
+    let address = match id {
+        569 => crate::layer::terminator_get_device_proc_addr as *const (),
+        459 => crate::destroy_device_terminator as *const (),
+        425 => crate::surface::terminator_create_swapchain as *const (),
+        422 => crate::surface::terminator_create_shared_swapchains as *const (),
+        558 => crate::surface::terminator_get_device_group_surface_present_modes as *const (),
+        437 => crate::debug::terminator_vkDebugMarkerSetObjectNameEXT as *const (),
+        438 => crate::debug::terminator_vkDebugMarkerSetObjectTagEXT as *const (),
+        800 => crate::debug::terminator_vkSetDebugUtilsObjectNameEXT as *const (),
+        801 => crate::debug::terminator_vkSetDebugUtilsObjectTagEXT as *const (),
         _ => return None,
     };
     Some(erase_function(address))

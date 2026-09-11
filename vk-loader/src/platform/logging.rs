@@ -25,7 +25,7 @@ use windows_sys::Win32::{
 
 #[cfg(unix)]
 pub(crate) fn write_stderr(message: &str) {
-    write_stderr_fmt(format_args!("{message}"));
+    write_stderr_fmt(format_args!("{}", crate::debug::diagnostics::Text(message)));
 }
 
 #[cfg(unix)]
@@ -167,13 +167,11 @@ pub(crate) fn write_loader_log_with_category(
     {
         return;
     }
-    let mut label = LogBuffer::<64>::new();
-    let _ = write!(
-        label,
-        "{} | {}",
-        severity_filter.label(),
-        category_filter.label()
-    );
+    let mut label_storage = [0; 64];
+    let mut label = LogBuffer::new(&mut label_storage);
+    let _ = label.write_str(severity_filter.label());
+    let _ = label.write_str(" | ");
+    let _ = label.write_str(category_filter.label());
     write_loader_log_enabled(label.as_str(), message);
 }
 
@@ -203,15 +201,23 @@ pub(crate) fn write_loader_category_log_any(
 }
 
 fn write_loader_log_enabled(label: &str, message: core::fmt::Arguments<'_>) {
-    let mut text = LogBuffer::<511>::new();
+    let mut text_storage = [0; 511];
+    let mut text = LogBuffer::new(&mut text_storage);
     let _ = text.write_fmt(message);
     // All labels are fixed loader categories, at most two seven-byte names.
     // Prefix (16), label (17), separator (2), message (511), newline (1).
     debug_assert!(label.len() <= 17);
-    let mut line = LogBuffer::<547>::new();
-    let _ = write!(line, "[Vulkan Loader] {label}: ");
+    let mut line_storage = [0; 547];
+    let mut line = LogBuffer::new(&mut line_storage);
+    let _ = line.write_str("[Vulkan Loader] ");
+    let _ = line.write_str(label);
+    let _ = line.write_str(": ");
     let padding = 32_usize.saturating_sub(line.len());
-    let _ = writeln!(line, "{:padding$}{}", "", text.as_str());
+    for _ in 0..padding {
+        let _ = line.write_char(' ');
+    }
+    let _ = line.write_str(text.as_str());
+    let _ = line.write_char('\n');
     write_stderr(line.as_str());
 }
 
@@ -250,8 +256,11 @@ pub(crate) fn write_stderr(message: &str) {
             remaining = &remaining[written as usize..];
         }
     }
-    crate::debug::diagnostics::with_message(format_args!("{message}"), |message| {
-        // SAFETY: The message is NUL-terminated and remains live for the call.
-        unsafe { OutputDebugStringA(message.as_ptr().cast()) };
-    });
+    crate::debug::diagnostics::with_message(
+        format_args!("{}", crate::debug::diagnostics::Text(message)),
+        |message| {
+            // SAFETY: The message is NUL-terminated and remains live for the call.
+            unsafe { OutputDebugStringA(message.as_ptr().cast()) };
+        },
+    );
 }

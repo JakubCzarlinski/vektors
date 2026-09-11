@@ -1,25 +1,26 @@
 //! Upstream-compatible allocation probes.
 
-use crate::json::{self, Value};
+use crate::LoaderPathExt;
+use crate::json::{self, Document, Value, ValueKind};
 use crate::{allocation, pending, platform};
 use std::path::Path;
 
-fn cjson_allocation_count(value: &Value) -> usize {
-    match value {
-        Value::Null | Value::Bool(_) | Value::Number(_) => 0,
-        Value::String(_) => 1,
-        Value::Array(values) => values
+fn cjson_allocation_count(value: Value) -> usize {
+    match value.kind() {
+        ValueKind::Null | ValueKind::Bool(_) | ValueKind::Number(_) => 0,
+        ValueKind::String(_) => 1,
+        ValueKind::Array(values) => values
             .iter()
             .map(|value| 1usize.saturating_add(cjson_allocation_count(value)))
             .sum(),
-        Value::Object(values) => values
+        ValueKind::Object(values) => values
             .values()
             .map(|value| 2usize.saturating_add(cjson_allocation_count(value)))
             .sum(),
     }
 }
 
-pub(super) fn parse_json_value(bytes: &[u8]) -> Option<Value<'_>> {
+pub(super) fn parse_json_value(bytes: &[u8]) -> Option<Document<'_>> {
     match json::parse(bytes) {
         Ok(value) => Some(value),
         Err(json::Error::Invalid) => None,
@@ -250,7 +251,7 @@ pub(super) fn shadow_json_allocations<'a>(
     display_path: impl core::fmt::Display,
     bytes: &'a [u8],
     callbacks: Option<*const vk::VkAllocationCallbacks<'static>>,
-) -> Result<Option<Value<'a>>, ()> {
+) -> Result<Option<Document<'a>>, ()> {
     let Some(callbacks) = callbacks else {
         return Ok(None);
     };
@@ -264,7 +265,7 @@ fn shadow_json_with_callbacks<'a>(
     display_path: core::fmt::Arguments<'_>,
     bytes: &'a [u8],
     callbacks: *const vk::VkAllocationCallbacks<'static>,
-) -> Result<Option<Value<'a>>, ()> {
+) -> Result<Option<Document<'a>>, ()> {
     // SAFETY: Discovery retains the callback set for this synchronous operation.
     if !unsafe { probe_callback_allocation(callbacks, bytes.len().saturating_add(1)) } {
         platform::write_loader_log(
@@ -279,7 +280,7 @@ fn shadow_json_with_callbacks<'a>(
     let value = parse_json_value(bytes);
     let parse_allocations = value.as_ref().map_or_else(
         || cjson_partial_allocation_count(bytes),
-        |value| 1usize.saturating_add(cjson_allocation_count(value)),
+        |value| 1usize.saturating_add(cjson_allocation_count(value.root())),
     );
     for _ in 0..parse_allocations {
         // SAFETY: The same callback set remains live across synchronous reentry.
@@ -308,17 +309,18 @@ pub(super) fn shadow_layer_json_allocations(
     bytes: &[u8],
     callbacks: *const vk::VkAllocationCallbacks<'static>,
 ) -> LayerAllocationShadow {
-    let display_path = path.display();
+    let display_path = path.loader_display();
     let value = match shadow_json_with_callbacks(format_args!("{display_path}"), bytes, callbacks) {
         Ok(Some(value)) => value,
         Ok(None) => return LayerAllocationShadow::Continue,
         Err(()) => return LayerAllocationShadow::Abort,
     };
+    let value = value.root();
     let layer = value.get("layer").or_else(|| {
         value
             .get("layers")
             .and_then(Value::as_array)
-            .and_then(|layers| layers.first())
+            .and_then(crate::json::Array::first)
     });
     let Some(layer) = layer else {
         return LayerAllocationShadow::Continue;
@@ -345,14 +347,16 @@ pub(super) fn shadow_layer_json_allocations(
             platform::write_loader_log(
                 platform::LogFilter::Warning,
                 format_args!(
-                    "Layer name {name} does not conform to naming standard (Policy #LLP_LAYER_3)"
+                    "Layer name {} does not conform to naming standard (Policy #LLP_LAYER_3)",
+                    crate::debug::diagnostics::Text(name),
                 ),
             );
         }
         platform::write_loader_log(
             platform::LogFilter::Warning,
             format_args!(
-                "Skipping layer \"{name}\" due to problem accessing the library_path value in the manifest JSON file"
+                "Skipping layer \"{}\" due to problem accessing the library_path value in the manifest JSON file",
+                crate::debug::diagnostics::Text(name),
             ),
         );
         if nonconforming_name {

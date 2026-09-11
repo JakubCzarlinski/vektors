@@ -9,8 +9,11 @@ use crate::discovery::AvailableDeviceExtensions;
 use alloc::rc::Rc;
 use core::marker::PhantomData;
 
+#[cfg(windows)]
 use crate::collections::HashMap;
+#[cfg(windows)]
 use crate::platform;
+#[cfg(windows)]
 use crate::sync::GlobalLazyMutex;
 
 #[derive(Default)]
@@ -24,20 +27,70 @@ struct ThreadState {
     device_layer_starts: Vec<usize>,
 }
 
+impl ThreadState {
+    fn is_empty(&self) -> bool {
+        self.instance == 0
+            && self.device_sentinels.is_empty()
+            && self.instance_allocators.is_empty()
+            && !self.json_allocation_failed
+            && self.device_extensions.is_empty()
+            && self.created_devices.is_empty()
+            && self.device_layer_starts.is_empty()
+    }
+}
+
+#[cfg(windows)]
 static THREADS: GlobalLazyMutex<HashMap<usize, ThreadState>> =
     GlobalLazyMutex::new(HashMap::default);
 
-#[cfg(not(all(target_vendor = "apple", feature = "apple-static-loader")))]
-pub(crate) unsafe fn destroy_thread_state_lock() {
-    // SAFETY: The caller excludes loader entry points and pending-state guards.
-    unsafe { THREADS.destroy() };
+#[cfg(not(windows))]
+std::thread_local! {
+    // ManuallyDrop prevents registration of a TLS destructor into this shared
+    // library. Empty outermost scopes replace the state and release all heaps.
+    static THREAD_STATE: core::mem::ManuallyDrop<core::cell::UnsafeCell<ThreadState>> =
+        const {
+            core::mem::ManuallyDrop::new(core::cell::UnsafeCell::new(ThreadState {
+                instance: 0,
+                instance_allocators: Vec::new(),
+                json_allocation_failed: false,
+                device_sentinels: Vec::new(),
+                device_extensions: Vec::new(),
+                created_devices: Vec::new(),
+                device_layer_starts: Vec::new(),
+            }))
+        };
 }
 
+#[cfg(not(windows))]
+#[inline(never)]
+fn thread_state() -> *mut ThreadState {
+    THREAD_STATE.with(|state| state.get())
+}
+
+#[cfg(not(all(target_vendor = "apple", feature = "apple-static-loader")))]
+pub(crate) unsafe fn destroy_thread_state_lock() {
+    #[cfg(windows)]
+    // SAFETY: The caller excludes loader entry points and pending-state guards.
+    unsafe {
+        THREADS.destroy()
+    };
+}
+
+#[cfg(windows)]
 fn with_thread_state<R>(operation: impl FnOnce(&ThreadState) -> R) -> Option<R> {
     let threads = THREADS.lock_if_initialized()?;
     threads.get(&platform::current_thread_key()).map(operation)
 }
 
+#[cfg(not(windows))]
+fn with_thread_state<R>(operation: impl FnOnce(&ThreadState) -> R) -> Option<R> {
+    // SAFETY: The pointer is current-thread storage, the reference does not
+    // escape this call, and pending-state operations are non-reentrant.
+    let state = core::ptr::NonNull::new(thread_state())?;
+    Some(operation(unsafe { state.as_ref() }))
+}
+
+#[cfg(windows)]
 fn with_thread_state_mut<R>(operation: impl FnOnce(&mut ThreadState) -> R) -> Option<R> {
     let key = platform::current_thread_key();
     let mut threads = THREADS.lock_if_initialized()?;
@@ -46,21 +99,57 @@ fn with_thread_state_mut<R>(operation: impl FnOnce(&mut ThreadState) -> R) -> Op
     result
 }
 
+#[cfg(not(windows))]
+fn with_thread_state_mut<R>(operation: impl FnOnce(&mut ThreadState) -> R) -> Option<R> {
+    // SAFETY: The pointer is current-thread storage, the reference does not
+    // escape this call, and pending-state operations are non-reentrant.
+    let mut state = core::ptr::NonNull::new(thread_state())?;
+    let state = unsafe { state.as_mut() };
+    let result = operation(state);
+    if state.is_empty() {
+        *state = ThreadState::default();
+    }
+    Some(result)
+}
+
+#[cfg(windows)]
 fn remove_if_empty(threads: &mut HashMap<usize, ThreadState>, key: usize) {
-    if threads.get(&key).is_some_and(|state| {
-        state.instance == 0
-            && state.device_sentinels.is_empty()
-            && state.instance_allocators.is_empty()
-            && !state.json_allocation_failed
-            && state.device_extensions.is_empty()
-            && state.created_devices.is_empty()
-            && state.device_layer_starts.is_empty()
-    }) {
+    if threads.get(&key).is_some_and(ThreadState::is_empty) {
         threads.remove(&key);
         if threads.is_empty() {
             *threads = HashMap::default();
         }
     }
+}
+
+#[cfg(windows)]
+fn try_with_thread_state_mut<R>(
+    operation: impl FnOnce(&mut ThreadState) -> Result<R, vk::VkResult>,
+) -> Result<R, vk::VkResult> {
+    let key = platform::current_thread_key();
+    let mut threads = THREADS.try_lock()?;
+    if !threads.contains_key(&key) {
+        threads
+            .try_reserve(1)
+            .map_err(|_| vk::VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
+    }
+    let result = operation(threads.entry(key).or_default());
+    remove_if_empty(&mut threads, key);
+    result
+}
+
+#[cfg(not(windows))]
+fn try_with_thread_state_mut<R>(
+    operation: impl FnOnce(&mut ThreadState) -> Result<R, vk::VkResult>,
+) -> Result<R, vk::VkResult> {
+    // SAFETY: The pointer is current-thread storage, the reference does not
+    // escape this call, and pending-state operations are non-reentrant.
+    let state = unsafe { &mut *thread_state() };
+    let result = operation(state);
+    if state.is_empty() {
+        *state = ThreadState::default();
+    }
+    result
 }
 
 pub(crate) struct InstanceAllocatorGuard {
@@ -87,20 +176,15 @@ impl Drop for InstanceAllocatorGuard {
 pub(crate) fn push_instance_allocator(
     callbacks: *const vk::VkAllocationCallbacks<'_>,
 ) -> Result<InstanceAllocatorGuard, vk::VkResult> {
-    let key = platform::current_thread_key();
     let pointer = callbacks as usize;
-    let mut threads = THREADS.try_lock()?;
-    if !threads.contains_key(&key) {
-        threads
+    try_with_thread_state_mut(|state| {
+        state
+            .instance_allocators
             .try_reserve(1)
             .map_err(|_| vk::VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
-    }
-    let allocators = &mut threads.entry(key).or_default().instance_allocators;
-    if allocators.try_reserve(1).is_err() {
-        remove_if_empty(&mut threads, key);
-        return Err(vk::VkResult::ERROR_OUT_OF_HOST_MEMORY);
-    }
-    allocators.push(pointer);
+        state.instance_allocators.push(pointer);
+        Ok(())
+    })?;
     Ok(InstanceAllocatorGuard {
         pointer,
         thread_bound: PhantomData,
@@ -173,24 +257,34 @@ pub(crate) fn device_sentinel() -> Option<usize> {
     with_thread_state(|state| state.device_sentinels.last().copied()).flatten()
 }
 
+pub(crate) struct DeviceExtensionsGuard {
+    pointer: usize,
+    thread_bound: PhantomData<Rc<()>>,
+}
+
+impl Drop for DeviceExtensionsGuard {
+    fn drop(&mut self) {
+        let popped = with_thread_state_mut(|state| state.device_extensions.pop()).flatten();
+        debug_assert_eq!(popped, Some(self.pointer));
+    }
+}
+
 pub(crate) fn push_device_extensions(
     extensions: &AvailableDeviceExtensions,
-) -> Result<usize, vk::VkResult> {
+) -> Result<DeviceExtensionsGuard, vk::VkResult> {
     let value = core::ptr::from_ref(extensions) as usize;
-    let key = platform::current_thread_key();
-    let mut threads = THREADS.try_lock()?;
-    if !threads.contains_key(&key) {
-        threads
+    try_with_thread_state_mut(|state| {
+        state
+            .device_extensions
             .try_reserve(1)
             .map_err(|_| vk::VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
-    }
-    let extensions = &mut threads.entry(key).or_default().device_extensions;
-    if extensions.try_reserve(1).is_err() {
-        remove_if_empty(&mut threads, key);
-        return Err(vk::VkResult::ERROR_OUT_OF_HOST_MEMORY);
-    }
-    extensions.push(value);
-    Ok(value)
+        state.device_extensions.push(value);
+        Ok(())
+    })?;
+    Ok(DeviceExtensionsGuard {
+        pointer: value,
+        thread_bound: PhantomData,
+    })
 }
 
 /// Reserves every stack entry before entering a device chain or creating any
@@ -198,25 +292,17 @@ pub(crate) fn push_device_extensions(
 pub(crate) fn start_device_chain(
     sentinel: usize,
 ) -> Result<DeviceLayerStartReservation, vk::VkResult> {
-    let key = platform::current_thread_key();
-    let mut threads = THREADS.try_lock()?;
-    if !threads.contains_key(&key) {
-        threads
+    try_with_thread_state_mut(|state| {
+        state
+            .device_sentinels
             .try_reserve(1)
+            .and_then(|()| state.created_devices.try_reserve(1))
+            .and_then(|()| state.device_layer_starts.try_reserve(1))
             .map_err(|_| vk::VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
-    }
-    let state = threads.entry(key).or_default();
-    let result = state
-        .device_sentinels
-        .try_reserve(1)
-        .and_then(|()| state.created_devices.try_reserve(1))
-        .and_then(|()| state.device_layer_starts.try_reserve(1));
-    if result.is_err() {
-        remove_if_empty(&mut threads, key);
-        return Err(vk::VkResult::ERROR_OUT_OF_HOST_MEMORY);
-    }
-    state.device_sentinels.push(sentinel);
-    state.created_devices.push(0);
+        state.device_sentinels.push(sentinel);
+        state.created_devices.push(0);
+        Ok(())
+    })?;
     Ok(DeviceLayerStartReservation {
         thread_bound: PhantomData,
     })
@@ -233,10 +319,6 @@ impl DeviceLayerStartReservation {
         let inserted = with_thread_state_mut(|state| state.device_layer_starts.push(first));
         debug_assert!(inserted.is_some());
     }
-}
-
-pub(crate) fn pop_device_extensions() -> Option<usize> {
-    with_thread_state_mut(|state| state.device_extensions.pop()).flatten()
 }
 
 pub(crate) fn device_extensions() -> Option<*const AvailableDeviceExtensions> {

@@ -70,6 +70,7 @@ use super::extensions::VK_OHOS_SURFACE_EXTENSION_ID;
 use super::extensions::VK_QNX_SCREEN_SURFACE_EXTENSION_ID;
 #[cfg(feature = "platform-ubm")]
 use super::extensions::VK_SEC_UBM_SURFACE_EXTENSION_ID;
+use crate::SurfaceCreateDescriptor;
 use crate::VkStructureType;
 use crate::create_loader_surface;
 use crate::fatal_loader_error;
@@ -404,15 +405,24 @@ pub(crate) unsafe extern "system" fn terminator_vkCreateAndroidSurfaceKHR(
     pAllocator: *const vk::VkAllocationCallbacks<'_>,
     pSurface: *mut vk::VkSurfaceKHR,
 ) -> vk::VkResult {
+    const {
+        assert!(
+            core::mem::align_of::<vk::VkAndroidSurfaceCreateInfoKHR<'static>>()
+                <= crate::allocation::LOADER_ALIGNMENT
+        );
+    }
     unsafe {
         create_loader_surface(
             instance,
-            pCreateInfo,
-            VkStructureType::ANDROID_SURFACE_CREATE_INFO_KHR,
+            pCreateInfo.cast(),
             pAllocator,
             pSurface,
-            c"vkCreateAndroidSurfaceKHR",
-            VK_KHR_ANDROID_SURFACE_EXTENSION_ID,
+            &SurfaceCreateDescriptor {
+                root_size: core::mem::size_of::<vk::VkAndroidSurfaceCreateInfoKHR<'static>>(),
+                expected_structure_type: VkStructureType::ANDROID_SURFACE_CREATE_INFO_KHR,
+                command_name: c"vkCreateAndroidSurfaceKHR",
+                extension_id: VK_KHR_ANDROID_SURFACE_EXTENSION_ID,
+            },
         )
     }
 }
@@ -428,15 +438,24 @@ pub(crate) unsafe extern "system" fn terminator_vkCreateDirectFBSurfaceEXT(
     pAllocator: *const vk::VkAllocationCallbacks<'_>,
     pSurface: *mut vk::VkSurfaceKHR,
 ) -> vk::VkResult {
+    const {
+        assert!(
+            core::mem::align_of::<vk::VkDirectFBSurfaceCreateInfoEXT<'static>>()
+                <= crate::allocation::LOADER_ALIGNMENT
+        );
+    }
     unsafe {
         create_loader_surface(
             instance,
-            pCreateInfo,
-            VkStructureType::DIRECTFB_SURFACE_CREATE_INFO_EXT,
+            pCreateInfo.cast(),
             pAllocator,
             pSurface,
-            c"vkCreateDirectFBSurfaceEXT",
-            VK_EXT_DIRECTFB_SURFACE_EXTENSION_ID,
+            &SurfaceCreateDescriptor {
+                root_size: core::mem::size_of::<vk::VkDirectFBSurfaceCreateInfoEXT<'static>>(),
+                expected_structure_type: VkStructureType::DIRECTFB_SURFACE_CREATE_INFO_EXT,
+                command_name: c"vkCreateDirectFBSurfaceEXT",
+                extension_id: VK_EXT_DIRECTFB_SURFACE_EXTENSION_ID,
+            },
         )
     }
 }
@@ -481,15 +500,24 @@ pub(crate) unsafe extern "system" fn terminator_vkCreateDisplayPlaneSurfaceKHR(
     pAllocator: *const vk::VkAllocationCallbacks<'_>,
     pSurface: *mut vk::VkSurfaceKHR,
 ) -> vk::VkResult {
+    const {
+        assert!(
+            core::mem::align_of::<vk::VkDisplaySurfaceCreateInfoKHR<'static>>()
+                <= crate::allocation::LOADER_ALIGNMENT
+        );
+    }
     unsafe {
         create_loader_surface(
             instance,
-            pCreateInfo,
-            VkStructureType::DISPLAY_SURFACE_CREATE_INFO_KHR,
+            pCreateInfo.cast(),
             pAllocator,
             pSurface,
-            c"vkCreateDisplayPlaneSurfaceKHR",
-            VK_KHR_DISPLAY_EXTENSION_ID,
+            &SurfaceCreateDescriptor {
+                root_size: core::mem::size_of::<vk::VkDisplaySurfaceCreateInfoKHR<'static>>(),
+                expected_structure_type: VkStructureType::DISPLAY_SURFACE_CREATE_INFO_KHR,
+                command_name: c"vkCreateDisplayPlaneSurfaceKHR",
+                extension_id: VK_KHR_DISPLAY_EXTENSION_ID,
+            },
         )
     }
 }
@@ -504,15 +532,24 @@ pub(crate) unsafe extern "system" fn terminator_vkCreateHeadlessSurfaceEXT(
     pAllocator: *const vk::VkAllocationCallbacks<'_>,
     pSurface: *mut vk::VkSurfaceKHR,
 ) -> vk::VkResult {
+    const {
+        assert!(
+            core::mem::align_of::<vk::VkHeadlessSurfaceCreateInfoEXT<'static>>()
+                <= crate::allocation::LOADER_ALIGNMENT
+        );
+    }
     unsafe {
         create_loader_surface(
             instance,
-            pCreateInfo,
-            VkStructureType::HEADLESS_SURFACE_CREATE_INFO_EXT,
+            pCreateInfo.cast(),
             pAllocator,
             pSurface,
-            c"vkCreateHeadlessSurfaceEXT",
-            VK_EXT_HEADLESS_SURFACE_EXTENSION_ID,
+            &SurfaceCreateDescriptor {
+                root_size: core::mem::size_of::<vk::VkHeadlessSurfaceCreateInfoEXT<'static>>(),
+                expected_structure_type: VkStructureType::HEADLESS_SURFACE_CREATE_INFO_EXT,
+                command_name: c"vkCreateHeadlessSurfaceEXT",
+                extension_id: VK_EXT_HEADLESS_SURFACE_EXTENSION_ID,
+            },
         )
     }
 }
@@ -528,15 +565,24 @@ pub(crate) unsafe extern "system" fn terminator_vkCreateIOSSurfaceMVK(
     pAllocator: *const vk::VkAllocationCallbacks<'_>,
     pSurface: *mut vk::VkSurfaceKHR,
 ) -> vk::VkResult {
+    const {
+        assert!(
+            core::mem::align_of::<vk::VkIOSSurfaceCreateInfoMVK<'static>>()
+                <= crate::allocation::LOADER_ALIGNMENT
+        );
+    }
     unsafe {
         create_loader_surface(
             instance,
-            pCreateInfo,
-            VkStructureType::IOS_SURFACE_CREATE_INFO_MVK,
+            pCreateInfo.cast(),
             pAllocator,
             pSurface,
-            c"vkCreateIOSSurfaceMVK",
-            VK_MVK_IOS_SURFACE_EXTENSION_ID,
+            &SurfaceCreateDescriptor {
+                root_size: core::mem::size_of::<vk::VkIOSSurfaceCreateInfoMVK<'static>>(),
+                expected_structure_type: VkStructureType::IOS_SURFACE_CREATE_INFO_MVK,
+                command_name: c"vkCreateIOSSurfaceMVK",
+                extension_id: VK_MVK_IOS_SURFACE_EXTENSION_ID,
+            },
         )
     }
 }
@@ -552,15 +598,24 @@ pub(crate) unsafe extern "system" fn terminator_vkCreateImagePipeSurfaceFUCHSIA(
     pAllocator: *const vk::VkAllocationCallbacks<'_>,
     pSurface: *mut vk::VkSurfaceKHR,
 ) -> vk::VkResult {
+    const {
+        assert!(
+            core::mem::align_of::<vk::VkImagePipeSurfaceCreateInfoFUCHSIA<'static>>()
+                <= crate::allocation::LOADER_ALIGNMENT
+        );
+    }
     unsafe {
         create_loader_surface(
             instance,
-            pCreateInfo,
-            VkStructureType::IMAGEPIPE_SURFACE_CREATE_INFO_FUCHSIA,
+            pCreateInfo.cast(),
             pAllocator,
             pSurface,
-            c"vkCreateImagePipeSurfaceFUCHSIA",
-            VK_FUCHSIA_IMAGEPIPE_SURFACE_EXTENSION_ID,
+            &SurfaceCreateDescriptor {
+                root_size: core::mem::size_of::<vk::VkImagePipeSurfaceCreateInfoFUCHSIA<'static>>(),
+                expected_structure_type: VkStructureType::IMAGEPIPE_SURFACE_CREATE_INFO_FUCHSIA,
+                command_name: c"vkCreateImagePipeSurfaceFUCHSIA",
+                extension_id: VK_FUCHSIA_IMAGEPIPE_SURFACE_EXTENSION_ID,
+            },
         )
     }
 }
@@ -576,15 +631,24 @@ pub(crate) unsafe extern "system" fn terminator_vkCreateMacOSSurfaceMVK(
     pAllocator: *const vk::VkAllocationCallbacks<'_>,
     pSurface: *mut vk::VkSurfaceKHR,
 ) -> vk::VkResult {
+    const {
+        assert!(
+            core::mem::align_of::<vk::VkMacOSSurfaceCreateInfoMVK<'static>>()
+                <= crate::allocation::LOADER_ALIGNMENT
+        );
+    }
     unsafe {
         create_loader_surface(
             instance,
-            pCreateInfo,
-            VkStructureType::MACOS_SURFACE_CREATE_INFO_MVK,
+            pCreateInfo.cast(),
             pAllocator,
             pSurface,
-            c"vkCreateMacOSSurfaceMVK",
-            VK_MVK_MACOS_SURFACE_EXTENSION_ID,
+            &SurfaceCreateDescriptor {
+                root_size: core::mem::size_of::<vk::VkMacOSSurfaceCreateInfoMVK<'static>>(),
+                expected_structure_type: VkStructureType::MACOS_SURFACE_CREATE_INFO_MVK,
+                command_name: c"vkCreateMacOSSurfaceMVK",
+                extension_id: VK_MVK_MACOS_SURFACE_EXTENSION_ID,
+            },
         )
     }
 }
@@ -605,15 +669,24 @@ pub(crate) unsafe extern "system" fn terminator_vkCreateMetalSurfaceEXT(
     pAllocator: *const vk::VkAllocationCallbacks<'_>,
     pSurface: *mut vk::VkSurfaceKHR,
 ) -> vk::VkResult {
+    const {
+        assert!(
+            core::mem::align_of::<vk::VkMetalSurfaceCreateInfoEXT<'static>>()
+                <= crate::allocation::LOADER_ALIGNMENT
+        );
+    }
     unsafe {
         create_loader_surface(
             instance,
-            pCreateInfo,
-            VkStructureType::METAL_SURFACE_CREATE_INFO_EXT,
+            pCreateInfo.cast(),
             pAllocator,
             pSurface,
-            c"vkCreateMetalSurfaceEXT",
-            VK_EXT_METAL_SURFACE_EXTENSION_ID,
+            &SurfaceCreateDescriptor {
+                root_size: core::mem::size_of::<vk::VkMetalSurfaceCreateInfoEXT<'static>>(),
+                expected_structure_type: VkStructureType::METAL_SURFACE_CREATE_INFO_EXT,
+                command_name: c"vkCreateMetalSurfaceEXT",
+                extension_id: VK_EXT_METAL_SURFACE_EXTENSION_ID,
+            },
         )
     }
 }
@@ -629,15 +702,24 @@ pub(crate) unsafe extern "system" fn terminator_vkCreateScreenSurfaceQNX(
     pAllocator: *const vk::VkAllocationCallbacks<'_>,
     pSurface: *mut vk::VkSurfaceKHR,
 ) -> vk::VkResult {
+    const {
+        assert!(
+            core::mem::align_of::<vk::VkScreenSurfaceCreateInfoQNX<'static>>()
+                <= crate::allocation::LOADER_ALIGNMENT
+        );
+    }
     unsafe {
         create_loader_surface(
             instance,
-            pCreateInfo,
-            VkStructureType::SCREEN_SURFACE_CREATE_INFO_QNX,
+            pCreateInfo.cast(),
             pAllocator,
             pSurface,
-            c"vkCreateScreenSurfaceQNX",
-            VK_QNX_SCREEN_SURFACE_EXTENSION_ID,
+            &SurfaceCreateDescriptor {
+                root_size: core::mem::size_of::<vk::VkScreenSurfaceCreateInfoQNX<'static>>(),
+                expected_structure_type: VkStructureType::SCREEN_SURFACE_CREATE_INFO_QNX,
+                command_name: c"vkCreateScreenSurfaceQNX",
+                extension_id: VK_QNX_SCREEN_SURFACE_EXTENSION_ID,
+            },
         )
     }
 }
@@ -653,15 +735,25 @@ pub(crate) unsafe extern "system" fn terminator_vkCreateStreamDescriptorSurfaceG
     pAllocator: *const vk::VkAllocationCallbacks<'_>,
     pSurface: *mut vk::VkSurfaceKHR,
 ) -> vk::VkResult {
+    const {
+        assert!(
+            core::mem::align_of::<vk::VkStreamDescriptorSurfaceCreateInfoGGP<'static>>()
+                <= crate::allocation::LOADER_ALIGNMENT
+        );
+    }
     unsafe {
         create_loader_surface(
             instance,
-            pCreateInfo,
-            VkStructureType::STREAM_DESCRIPTOR_SURFACE_CREATE_INFO_GGP,
+            pCreateInfo.cast(),
             pAllocator,
             pSurface,
-            c"vkCreateStreamDescriptorSurfaceGGP",
-            VK_GGP_STREAM_DESCRIPTOR_SURFACE_EXTENSION_ID,
+            &SurfaceCreateDescriptor {
+                root_size: core::mem::size_of::<vk::VkStreamDescriptorSurfaceCreateInfoGGP<'static>>(
+                ),
+                expected_structure_type: VkStructureType::STREAM_DESCRIPTOR_SURFACE_CREATE_INFO_GGP,
+                command_name: c"vkCreateStreamDescriptorSurfaceGGP",
+                extension_id: VK_GGP_STREAM_DESCRIPTOR_SURFACE_EXTENSION_ID,
+            },
         )
     }
 }
@@ -677,15 +769,24 @@ pub(crate) unsafe extern "system" fn terminator_vkCreateSurfaceOHOS(
     pAllocator: *const vk::VkAllocationCallbacks<'_>,
     pSurface: *mut vk::VkSurfaceKHR,
 ) -> vk::VkResult {
+    const {
+        assert!(
+            core::mem::align_of::<vk::VkSurfaceCreateInfoOHOS<'static>>()
+                <= crate::allocation::LOADER_ALIGNMENT
+        );
+    }
     unsafe {
         create_loader_surface(
             instance,
-            pCreateInfo,
-            VkStructureType::SURFACE_CREATE_INFO_OHOS,
+            pCreateInfo.cast(),
             pAllocator,
             pSurface,
-            c"vkCreateSurfaceOHOS",
-            VK_OHOS_SURFACE_EXTENSION_ID,
+            &SurfaceCreateDescriptor {
+                root_size: core::mem::size_of::<vk::VkSurfaceCreateInfoOHOS<'static>>(),
+                expected_structure_type: VkStructureType::SURFACE_CREATE_INFO_OHOS,
+                command_name: c"vkCreateSurfaceOHOS",
+                extension_id: VK_OHOS_SURFACE_EXTENSION_ID,
+            },
         )
     }
 }
@@ -701,15 +802,24 @@ pub(crate) unsafe extern "system" fn terminator_vkCreateUbmSurfaceSEC(
     pAllocator: *const vk::VkAllocationCallbacks<'_>,
     pSurface: *mut vk::VkSurfaceKHR,
 ) -> vk::VkResult {
+    const {
+        assert!(
+            core::mem::align_of::<vk::VkUbmSurfaceCreateInfoSEC<'static>>()
+                <= crate::allocation::LOADER_ALIGNMENT
+        );
+    }
     unsafe {
         create_loader_surface(
             instance,
-            pCreateInfo,
-            VkStructureType::UBM_SURFACE_CREATE_INFO_SEC,
+            pCreateInfo.cast(),
             pAllocator,
             pSurface,
-            c"vkCreateUbmSurfaceSEC",
-            VK_SEC_UBM_SURFACE_EXTENSION_ID,
+            &SurfaceCreateDescriptor {
+                root_size: core::mem::size_of::<vk::VkUbmSurfaceCreateInfoSEC<'static>>(),
+                expected_structure_type: VkStructureType::UBM_SURFACE_CREATE_INFO_SEC,
+                command_name: c"vkCreateUbmSurfaceSEC",
+                extension_id: VK_SEC_UBM_SURFACE_EXTENSION_ID,
+            },
         )
     }
 }
@@ -725,15 +835,24 @@ pub(crate) unsafe extern "system" fn terminator_vkCreateViSurfaceNN(
     pAllocator: *const vk::VkAllocationCallbacks<'_>,
     pSurface: *mut vk::VkSurfaceKHR,
 ) -> vk::VkResult {
+    const {
+        assert!(
+            core::mem::align_of::<vk::VkViSurfaceCreateInfoNN<'static>>()
+                <= crate::allocation::LOADER_ALIGNMENT
+        );
+    }
     unsafe {
         create_loader_surface(
             instance,
-            pCreateInfo,
-            VkStructureType::VI_SURFACE_CREATE_INFO_NN,
+            pCreateInfo.cast(),
             pAllocator,
             pSurface,
-            c"vkCreateViSurfaceNN",
-            VK_NN_VI_SURFACE_EXTENSION_ID,
+            &SurfaceCreateDescriptor {
+                root_size: core::mem::size_of::<vk::VkViSurfaceCreateInfoNN<'static>>(),
+                expected_structure_type: VkStructureType::VI_SURFACE_CREATE_INFO_NN,
+                command_name: c"vkCreateViSurfaceNN",
+                extension_id: VK_NN_VI_SURFACE_EXTENSION_ID,
+            },
         )
     }
 }
@@ -760,15 +879,24 @@ pub(crate) unsafe extern "system" fn terminator_vkCreateWaylandSurfaceKHR(
     pAllocator: *const vk::VkAllocationCallbacks<'_>,
     pSurface: *mut vk::VkSurfaceKHR,
 ) -> vk::VkResult {
+    const {
+        assert!(
+            core::mem::align_of::<vk::VkWaylandSurfaceCreateInfoKHR<'static>>()
+                <= crate::allocation::LOADER_ALIGNMENT
+        );
+    }
     unsafe {
         create_loader_surface(
             instance,
-            pCreateInfo,
-            VkStructureType::WAYLAND_SURFACE_CREATE_INFO_KHR,
+            pCreateInfo.cast(),
             pAllocator,
             pSurface,
-            c"vkCreateWaylandSurfaceKHR",
-            VK_KHR_WAYLAND_SURFACE_EXTENSION_ID,
+            &SurfaceCreateDescriptor {
+                root_size: core::mem::size_of::<vk::VkWaylandSurfaceCreateInfoKHR<'static>>(),
+                expected_structure_type: VkStructureType::WAYLAND_SURFACE_CREATE_INFO_KHR,
+                command_name: c"vkCreateWaylandSurfaceKHR",
+                extension_id: VK_KHR_WAYLAND_SURFACE_EXTENSION_ID,
+            },
         )
     }
 }
@@ -784,15 +912,24 @@ pub(crate) unsafe extern "system" fn terminator_vkCreateWin32SurfaceKHR(
     pAllocator: *const vk::VkAllocationCallbacks<'_>,
     pSurface: *mut vk::VkSurfaceKHR,
 ) -> vk::VkResult {
+    const {
+        assert!(
+            core::mem::align_of::<vk::VkWin32SurfaceCreateInfoKHR<'static>>()
+                <= crate::allocation::LOADER_ALIGNMENT
+        );
+    }
     unsafe {
         create_loader_surface(
             instance,
-            pCreateInfo,
-            VkStructureType::WIN32_SURFACE_CREATE_INFO_KHR,
+            pCreateInfo.cast(),
             pAllocator,
             pSurface,
-            c"vkCreateWin32SurfaceKHR",
-            VK_KHR_WIN32_SURFACE_EXTENSION_ID,
+            &SurfaceCreateDescriptor {
+                root_size: core::mem::size_of::<vk::VkWin32SurfaceCreateInfoKHR<'static>>(),
+                expected_structure_type: VkStructureType::WIN32_SURFACE_CREATE_INFO_KHR,
+                command_name: c"vkCreateWin32SurfaceKHR",
+                extension_id: VK_KHR_WIN32_SURFACE_EXTENSION_ID,
+            },
         )
     }
 }
@@ -819,15 +956,24 @@ pub(crate) unsafe extern "system" fn terminator_vkCreateXcbSurfaceKHR(
     pAllocator: *const vk::VkAllocationCallbacks<'_>,
     pSurface: *mut vk::VkSurfaceKHR,
 ) -> vk::VkResult {
+    const {
+        assert!(
+            core::mem::align_of::<vk::VkXcbSurfaceCreateInfoKHR<'static>>()
+                <= crate::allocation::LOADER_ALIGNMENT
+        );
+    }
     unsafe {
         create_loader_surface(
             instance,
-            pCreateInfo,
-            VkStructureType::XCB_SURFACE_CREATE_INFO_KHR,
+            pCreateInfo.cast(),
             pAllocator,
             pSurface,
-            c"vkCreateXcbSurfaceKHR",
-            VK_KHR_XCB_SURFACE_EXTENSION_ID,
+            &SurfaceCreateDescriptor {
+                root_size: core::mem::size_of::<vk::VkXcbSurfaceCreateInfoKHR<'static>>(),
+                expected_structure_type: VkStructureType::XCB_SURFACE_CREATE_INFO_KHR,
+                command_name: c"vkCreateXcbSurfaceKHR",
+                extension_id: VK_KHR_XCB_SURFACE_EXTENSION_ID,
+            },
         )
     }
 }
@@ -854,15 +1000,24 @@ pub(crate) unsafe extern "system" fn terminator_vkCreateXlibSurfaceKHR(
     pAllocator: *const vk::VkAllocationCallbacks<'_>,
     pSurface: *mut vk::VkSurfaceKHR,
 ) -> vk::VkResult {
+    const {
+        assert!(
+            core::mem::align_of::<vk::VkXlibSurfaceCreateInfoKHR<'static>>()
+                <= crate::allocation::LOADER_ALIGNMENT
+        );
+    }
     unsafe {
         create_loader_surface(
             instance,
-            pCreateInfo,
-            VkStructureType::XLIB_SURFACE_CREATE_INFO_KHR,
+            pCreateInfo.cast(),
             pAllocator,
             pSurface,
-            c"vkCreateXlibSurfaceKHR",
-            VK_KHR_XLIB_SURFACE_EXTENSION_ID,
+            &SurfaceCreateDescriptor {
+                root_size: core::mem::size_of::<vk::VkXlibSurfaceCreateInfoKHR<'static>>(),
+                expected_structure_type: VkStructureType::XLIB_SURFACE_CREATE_INFO_KHR,
+                command_name: c"vkCreateXlibSurfaceKHR",
+                extension_id: VK_KHR_XLIB_SURFACE_EXTENSION_ID,
+            },
         )
     }
 }

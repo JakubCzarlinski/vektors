@@ -6,6 +6,57 @@ compile_error!("the `apple-static-loader` feature is only supported on Apple pla
 
 extern crate alloc;
 
+use std::path::Path;
+
+struct LoaderPathDisplay<'a>(&'a Path);
+
+impl fmt::Display for LoaderPathDisplay<'_> {
+    #[cfg(unix)]
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        use std::os::unix::ffi::OsStrExt;
+
+        let mut bytes = self.0.as_os_str().as_bytes();
+        loop {
+            match core::str::from_utf8(bytes) {
+                Ok(text) => return formatter.write_str(text),
+                Err(error) => {
+                    let valid = error.valid_up_to();
+                    formatter.write_str(unsafe {
+                        // SAFETY: `Utf8Error::valid_up_to` identifies a valid UTF-8 prefix.
+                        core::str::from_utf8_unchecked(&bytes[..valid])
+                    })?;
+                    formatter.write_str("\u{fffd}")?;
+                    let invalid = error.error_len().unwrap_or(bytes.len() - valid);
+                    bytes = &bytes[valid + invalid..];
+                }
+            }
+        }
+    }
+
+    #[cfg(not(unix))]
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt::Display::fmt(&self.0.display(), formatter)
+    }
+}
+
+trait LoaderPathExt {
+    fn loader_display(&self) -> LoaderPathDisplay<'_>;
+}
+
+impl LoaderPathExt for Path {
+    #[inline]
+    fn loader_display(&self) -> LoaderPathDisplay<'_> {
+        LoaderPathDisplay(self)
+    }
+}
+
+impl LoaderPathExt for std::ffi::OsStr {
+    #[inline]
+    fn loader_display(&self) -> LoaderPathDisplay<'_> {
+        LoaderPathDisplay(Path::new(self))
+    }
+}
+
 mod allocation;
 mod collections;
 mod debug;
@@ -38,6 +89,7 @@ mod unknown;
 use core::{
     cmp::Ordering,
     ffi::{CStr, c_char, c_void},
+    fmt,
     mem::MaybeUninit,
 };
 use debug::messenger::{
@@ -65,7 +117,8 @@ use generated::{
     convert_core_object_to_debug_report_object, convert_debug_report_object_to_core_object,
     exported_proc_addr, extension_id, extension_name, global_proc_addr,
     icd_device_terminator_proc_addr, instance_terminator_proc_addr, is_known_instance_extension,
-    layer_device_dispatch_proc_addr, physical_device_terminator_proc_addr,
+    layer_device_dispatch_proc_addr, layer_device_special_proc_addr,
+    layer_instance_special_proc_addr, physical_device_terminator_proc_addr,
     surface_create_info_extension_size, wsi_instance_extension_supported,
 };
 use icd::{DirectIcdError, IcdInstance, ManifestApiVersionStatus, ScannedIcd, ScannedIcdLoadError};
@@ -74,7 +127,7 @@ use promoted::{
     terminator_vkGetPhysicalDeviceToolProperties, terminator_vkGetPhysicalDeviceToolPropertiesEXT,
 };
 use surface::{
-    create_loader_surface, destroy_all_surfaces, destroy_icd_surfaces,
+    SurfaceCreateDescriptor, create_loader_surface, destroy_all_surfaces, destroy_icd_surfaces,
     terminator_vkDestroySurfaceKHR, terminator_vkGetPhysicalDeviceSurfaceCapabilities2EXT,
     terminator_vkGetPhysicalDeviceSurfaceCapabilities2KHR,
     terminator_vkGetPhysicalDeviceSurfaceFormats2KHR,
@@ -91,6 +144,20 @@ use vk::{
     VkLayerProperties, VkPhysicalDevice, VkPhysicalDeviceGroupProperties,
     VkPhysicalDeviceGroupPropertiesKHR, VkResult, VkStructureType,
 };
+
+#[inline(never)]
+fn find_bytes(haystack: &[u8], needle: &[u8]) -> Option<usize> {
+    let last = haystack.len().checked_sub(needle.len())?;
+    (0..=last).find(|&index| haystack[index..].starts_with(needle))
+}
+
+#[inline(never)]
+fn rfind_bytes(haystack: &[u8], needle: &[u8]) -> Option<usize> {
+    let last = haystack.len().checked_sub(needle.len())?;
+    (0..=last)
+        .rev()
+        .find(|&index| haystack[index..].starts_with(needle))
+}
 
 pub(crate) use device_api::{
     create_device_terminator, destroy_device_terminator, terminator_enumerate_physical_devices,

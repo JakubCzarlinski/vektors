@@ -6,7 +6,6 @@ use super::DriverDisposition;
 use super::DriverScan;
 use super::LoaderSettings;
 use super::box_values;
-use super::collect_values;
 use super::deduplicate_paths;
 use super::default_search_paths;
 use super::extend_values;
@@ -128,27 +127,28 @@ pub(crate) fn scan_drivers_with_settings(settings: Option<&LoaderSettings>) -> D
         .then(|| driver_environment(c"VK_LOADER_DRIVERS_DISABLE"))
         .flatten()
         .filter(|filters| filters.to_str().is_some_and(|filters| !filters.is_empty()));
-    let candidates: Box<[_]> = collect_values(files.into_iter().map(|path| {
-        let selected = select
-            .as_deref()
-            .and_then(|filters| filters.to_str())
-            .is_some_and(|filters| driver_filter_matches(filters, &path));
-        let disposition = if selected {
+    let select = select.as_deref().and_then(|filters| filters.to_str());
+    let disable = disable.as_deref().and_then(|filters| filters.to_str());
+    let mut candidates = Vec::new();
+    if candidates.try_reserve_exact(files.len()).is_err() {
+        pending::mark_json_allocation_failed();
+    }
+    for path in files {
+        if pending::json_allocation_failed() {
+            break;
+        }
+        let disposition = if select.is_some_and(|filters| driver_filter_matches(filters, &path)) {
             DriverDisposition::Accepted
-        } else if disable
-            .as_deref()
-            .and_then(|filters| filters.to_str())
-            .is_some_and(|filters| driver_filter_matches(filters, &path))
-        {
+        } else if disable.is_some_and(|filters| driver_filter_matches(filters, &path)) {
             DriverDisposition::Disabled
         } else if select.is_some() {
             DriverDisposition::NotSelected
         } else {
             DriverDisposition::Accepted
         };
-        (path, disposition)
-    }))
-    .unwrap_or_default();
+        candidates.push((path, disposition));
+    }
+    let candidates = box_values(candidates);
     let mut manifests = Vec::new();
     let mut manifest_errors = Vec::new();
     for (path, _) in candidates

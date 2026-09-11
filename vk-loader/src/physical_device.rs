@@ -1,5 +1,6 @@
 //! physical device implementation.
 
+use crate::LoaderPathExt;
 use crate::{
     CStr, IcdInstance, LayerInstanceDispatchTable, LoaderInstance, LoaderPhysicalDevice,
     LoaderPhysicalDeviceTrampoline, MaybeUninit, Ordering, PFN_vkEnumeratePhysicalDevices,
@@ -10,6 +11,7 @@ use crate::{
 };
 use core::ffi::c_char;
 use core::ptr;
+use std::ffi::OsStr;
 
 /// Enumerates physical devices through the active instance layer chain.
 ///
@@ -101,7 +103,7 @@ pub(crate) fn retire_icds_without_physical_devices(instance: &LoaderInstance) {
                 platform::LogFilter::Driver,
                 format_args!(
                     "Removing driver {} due to not having any physical devices",
-                    path.display()
+                    path.loader_display()
                 ),
             );
         }
@@ -134,15 +136,19 @@ pub(crate) unsafe fn setup_trampoline_physical_devices(
         let terminator = state.active.get(index).copied().unwrap_or(chain);
         let key = chain.0 as usize;
         let trampoline = match state.trampolines.entry(key) {
-            collections::HashMapEntry::Occupied(entry) => entry.into_mut(),
+            collections::HashMapEntry::Occupied(entry) => *entry.into_mut(),
             collections::HashMapEntry::Vacant(entry) => {
                 let trampoline = allocation::try_box(LoaderPhysicalDeviceTrampoline::new(
                     instance, chain, terminator,
                 ))
                 .map_err(|(result, _trampoline)| result)?;
-                entry.insert(trampoline)
+                // SAFETY: The instance registry serializes ownership; Vulkan
+                // governs external synchronization of the pointed-to handle.
+                *entry.insert(unsafe { collections::ErasedPointer::from_box(trampoline) })
             }
         };
+        // SAFETY: The registry retains the trampoline's Box owner.
+        let trampoline = unsafe { &*trampoline.as_ptr::<LoaderPhysicalDeviceTrampoline>() };
         unsafe { physical_devices.add(index).write(trampoline.handle()) };
     }
     Ok(())
@@ -183,33 +189,32 @@ pub(crate) struct IdFilter {
 }
 
 impl IdFilter {
-    fn from_environment(name: &CStr) -> Result<(Self, bool), VkResult> {
+    fn from_environment(name: &CStr, filter: &mut Self) -> Result<bool, VkResult> {
         // SAFETY: Loader configuration excludes concurrent environment mutation;
         // the callback parses the borrowed value and retains no reference.
         unsafe {
             platform::inspect_environment_lossy(name, |value| {
                 let nonempty = value.is_some_and(|value| !value.is_empty());
-                let filter = value
-                    .map(|value| Self::parse(std::ffi::OsStr::new(value)))
-                    .transpose()?
-                    .unwrap_or_default();
-                Ok((filter, nonempty))
+                if let Some(value) = value {
+                    Self::parse_into(OsStr::new(value), filter)?;
+                }
+                Ok(nonempty)
             })
         }?
     }
 
-    fn parse(value: &std::ffi::OsStr) -> Result<Self, VkResult> {
+    fn parse_into(value: &OsStr, filter: &mut Self) -> Result<(), VkResult> {
         let owned;
         let value = if let Some(value) = value.to_str() {
             value
         } else {
             owned = debug::diagnostics::try_format(format_args!(
                 "{}",
-                std::path::Path::new(value).display()
+                std::path::Path::new(value).loader_display()
             ))?;
             &owned
         };
-        let mut filter = Self::default();
+        filter.len = 0;
         for (index, token) in value.split(',').take(MAX_ID_FILTERS).enumerate() {
             let (begin, consumed) = parse_c_u32(token.as_bytes());
             let end = token
@@ -219,7 +224,7 @@ impl IdFilter {
             filter.ranges[index] = IdRange { begin, end };
             filter.len += 1;
         }
-        Ok(filter)
+        Ok(())
     }
 
     fn matches(&self, value: u32) -> bool {
@@ -291,17 +296,17 @@ impl IdFilters {
         if platform::has_elevated_privileges() {
             return Ok(None);
         }
-        let (device, has_device) = IdFilter::from_environment(c"VK_LOADER_DEVICE_ID_FILTER")?;
-        let (vendor, has_vendor) = IdFilter::from_environment(c"VK_LOADER_VENDOR_ID_FILTER")?;
-        let (driver, has_driver) = IdFilter::from_environment(c"VK_LOADER_DRIVER_ID_FILTER")?;
+        let mut filters = Self::default();
+        let has_device =
+            IdFilter::from_environment(c"VK_LOADER_DEVICE_ID_FILTER", &mut filters.device)?;
+        let has_vendor =
+            IdFilter::from_environment(c"VK_LOADER_VENDOR_ID_FILTER", &mut filters.vendor)?;
+        let has_driver =
+            IdFilter::from_environment(c"VK_LOADER_DRIVER_ID_FILTER", &mut filters.driver)?;
         if !has_device && !has_vendor && !has_driver {
             return Ok(None);
         }
-        Ok(Some(Self {
-            device,
-            vendor,
-            driver,
-        }))
+        Ok(Some(filters))
     }
 }
 
@@ -762,7 +767,7 @@ pub(crate) unsafe fn discover_all_physical_devices(
                     .icd
                     .library_path()
                     .unwrap_or_else(|| std::path::Path::new(""))
-                    .display();
+                    .loader_display();
                 emit_instance_loader_message(
                     instance,
                     vk::VkDebugUtilsMessageSeverityFlagBitsEXT::ERROR,
@@ -1226,6 +1231,27 @@ pub unsafe extern "system" fn vkEnumeratePhysicalDeviceGroups(
     let Some(enumerate) = dispatch.vkEnumeratePhysicalDeviceGroups else {
         return VkResult::ERROR_INITIALIZATION_FAILED;
     };
+    unsafe {
+        enumerate_physical_device_groups_entry(
+            loader,
+            dispatch,
+            enumerate,
+            instance,
+            group_count,
+            group_properties,
+        )
+    }
+}
+
+#[inline(never)]
+unsafe fn enumerate_physical_device_groups_entry(
+    loader: &LoaderInstance,
+    dispatch: &LayerInstanceDispatchTable,
+    enumerate: vk::PFN_vkEnumeratePhysicalDeviceGroups,
+    instance: VkInstance,
+    group_count: *mut u32,
+    group_properties: *mut VkPhysicalDeviceGroupProperties<'_>,
+) -> VkResult {
     let filters = match IdFilters::from_environment() {
         Ok(filters) => filters,
         Err(result) => return result,
@@ -1277,44 +1303,32 @@ pub unsafe extern "system" fn vkEnumeratePhysicalDeviceGroupsKHR(
     let Some(enumerate) = dispatch.vkEnumeratePhysicalDeviceGroupsKHR else {
         return VkResult::ERROR_INITIALIZATION_FAILED;
     };
-    let filters = match IdFilters::from_environment() {
-        Ok(filters) => filters,
-        Err(result) => return result,
+    debug_assert_eq!(
+        core::mem::size_of::<VkPhysicalDeviceGroupPropertiesKHR<'_>>(),
+        core::mem::size_of::<VkPhysicalDeviceGroupProperties<'_>>()
+    );
+    debug_assert_eq!(
+        core::mem::align_of::<VkPhysicalDeviceGroupPropertiesKHR<'_>>(),
+        core::mem::align_of::<VkPhysicalDeviceGroupProperties<'_>>()
+    );
+    // SAFETY: The promoted KHR command and property structure have the same ABI
+    // as their core aliases, as asserted above.
+    let enumerate: vk::PFN_vkEnumeratePhysicalDeviceGroups = unsafe {
+        core::mem::transmute::<
+            vk::PFN_vkEnumeratePhysicalDeviceGroupsKHR,
+            vk::PFN_vkEnumeratePhysicalDeviceGroups,
+        >(enumerate)
     };
-    let result = if let Some(filters) = filters.as_ref() {
-        let enumerate: vk::PFN_vkEnumeratePhysicalDeviceGroups =
-            unsafe { core::mem::transmute(enumerate) };
-        unsafe {
-            enumerate_filtered_physical_device_groups(
-                loader,
-                dispatch,
-                enumerate,
-                instance,
-                group_count,
-                group_properties.cast(),
-                filters,
-            )
-        }
-    } else {
-        unsafe { enumerate(instance, group_count, group_properties) }
-    };
-    if !group_properties.is_null() && matches!(result, VkResult::SUCCESS | VkResult::INCOMPLETE) {
-        debug_assert_eq!(
-            core::mem::size_of::<VkPhysicalDeviceGroupPropertiesKHR<'_>>(),
-            core::mem::size_of::<VkPhysicalDeviceGroupProperties<'_>>()
-        );
-        debug_assert_eq!(
-            core::mem::align_of::<VkPhysicalDeviceGroupPropertiesKHR<'_>>(),
-            core::mem::align_of::<VkPhysicalDeviceGroupProperties<'_>>()
-        );
-        let count = unsafe { group_count.read() } as usize;
-        if let Err(error) = unsafe {
-            setup_trampoline_physical_device_groups(loader, group_properties.cast(), count)
-        } {
-            return error;
-        }
+    unsafe {
+        enumerate_physical_device_groups_entry(
+            loader,
+            dispatch,
+            enumerate,
+            instance,
+            group_count,
+            group_properties.cast(),
+        )
     }
-    result
 }
 
 /// Reports the device layers active on the physical device's instance.
@@ -1567,6 +1581,7 @@ pub(crate) fn linux_device_type_priority(device_type: vk::VkPhysicalDeviceType) 
     }
 }
 
+#[inline(never)]
 pub(crate) fn compare_linux_devices(
     left: &LinuxSortedDeviceInfo,
     right: &LinuxSortedDeviceInfo,
@@ -1835,7 +1850,10 @@ pub(crate) unsafe fn linux_sort_physical_devices(
             instance,
             vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
             platform::LogFilter::Driver,
-            format_args!("           [{index}] {name}  {default}"),
+            format_args!(
+                "           [{index}] {name}  {}",
+                debug::diagnostics::Text(default)
+            ),
         );
         *output = sorted.device;
     }
@@ -1846,6 +1864,24 @@ pub(crate) struct LinuxSortableGroup {
     group_index: usize,
     devices: core::ops::Range<usize>,
     original_order: usize,
+}
+
+#[inline(never)]
+fn compare_linux_groups(
+    left: &LinuxSortableGroup,
+    right: &LinuxSortableGroup,
+    devices: &[LinuxSortedDeviceInfo],
+) -> Ordering {
+    match (
+        devices[left.devices.clone()].first(),
+        devices[right.devices.clone()].first(),
+    ) {
+        (Some(left), Some(right)) => compare_linux_devices(left, right),
+        (Some(_), None) => Ordering::Less,
+        (None, Some(_)) => Ordering::Greater,
+        (None, None) => Ordering::Equal,
+    }
+    .then_with(|| left.original_order.cmp(&right.original_order))
 }
 
 unsafe fn linux_sort_physical_device_groups(
@@ -1959,16 +1995,7 @@ unsafe fn sort_physical_device_groups_with_diagnostics(
         });
     }
     heap_sort_by(&mut sortable, |left, right| {
-        match (
-            device_storage[left.devices.clone()].first(),
-            device_storage[right.devices.clone()].first(),
-        ) {
-            (Some(left), Some(right)) => compare_linux_devices(left, right),
-            (Some(_), None) => core::cmp::Ordering::Less,
-            (None, Some(_)) => core::cmp::Ordering::Greater,
-            (None, None) => core::cmp::Ordering::Equal,
-        }
-        .then_with(|| left.original_order.cmp(&right.original_order))
+        compare_linux_groups(left, right, &device_storage)
     });
     emit_sorted_physical_device_groups(instance, &sortable, &device_storage);
     reorder_groups(groups, &mut sortable);
@@ -2236,8 +2263,9 @@ fn emit_sorted_physical_device_groups(
                 vk::VkDebugUtilsMessageSeverityFlagBitsEXT::INFO,
                 platform::LogFilter::Driver,
                 format_args!(
-                    "               [{device_index}] {name} {:p} {default}",
-                    device.device.handle.0
+                    "               [{device_index}] {name} {:p} {}",
+                    device.device.handle.0,
+                    debug::diagnostics::Text(default),
                 ),
             );
         }
@@ -2265,11 +2293,14 @@ fn emit_missing_device_configuration(
         configuration.driver_name.as_deref(),
     ) {
         (Some(device_name), Some(driver_name)) => emit_identity(format_args!(
-            "deviceName: \"{device_name}\", deviceUUID: {device_uuid}, driverName: {driver_name}, driverUUID: {driver_uuid}, driverVersion: {}",
+            "deviceName: \"{}\", deviceUUID: {device_uuid}, driverName: {}, driverUUID: {driver_uuid}, driverVersion: {}",
+            debug::diagnostics::Text(device_name),
+            debug::diagnostics::Text(driver_name),
             configuration.driver_version
         )),
         (Some(device_name), None) => emit_identity(format_args!(
-            "deviceName: \"{device_name}\", deviceUUID: {device_uuid}, driverUUID: {driver_uuid}, driverVersion: {}",
+            "deviceName: \"{}\", deviceUUID: {device_uuid}, driverUUID: {driver_uuid}, driverVersion: {}",
+            debug::diagnostics::Text(device_name),
             configuration.driver_version
         )),
         (None, _) => emit_identity(format_args!(
@@ -2601,8 +2632,9 @@ mod allocation_tests {
             (b"\xff".as_slice(), 0, 0),
         ] {
             fault::sweep_operation(|| {
-                match super::IdFilter::parse(std::ffi::OsStr::from_bytes(bytes)) {
-                    Ok(filter) => {
+                let mut filter = super::IdFilter::default();
+                match super::IdFilter::parse_into(std::ffi::OsStr::from_bytes(bytes), &mut filter) {
+                    Ok(()) => {
                         assert_eq!(filter.len, 1);
                         assert_eq!(filter.ranges[0].begin, begin);
                         assert_eq!(filter.ranges[0].end, end);
@@ -2618,14 +2650,17 @@ mod allocation_tests {
     #[test]
     fn id_filter_unpaired_surrogate_conversion_is_fallible() {
         let value = std::ffi::OsString::from_wide(&[0x31, 0xd800, 0x32]);
-        fault::sweep_operation(|| match super::IdFilter::parse(&value) {
-            Ok(filter) => {
-                assert_eq!(filter.len, 1);
-                assert_eq!(filter.ranges[0].begin, 1);
-                assert_eq!(filter.ranges[0].end, 0);
-                vk::VkResult::SUCCESS
+        fault::sweep_operation(|| {
+            let mut filter = super::IdFilter::default();
+            match super::IdFilter::parse_into(&value, &mut filter) {
+                Ok(()) => {
+                    assert_eq!(filter.len, 1);
+                    assert_eq!(filter.ranges[0].begin, 1);
+                    assert_eq!(filter.ranges[0].end, 0);
+                    vk::VkResult::SUCCESS
+                }
+                Err(result) => result,
             }
-            Err(result) => result,
         });
     }
 }

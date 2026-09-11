@@ -31,7 +31,7 @@ unsafe fn checked_device(
     let Some(device) = (unsafe { LoaderDevice::from_handle(device) }) else {
         abort_invalid_dispatch();
     };
-    let Some(command) = command_lookup(command_name) else {
+    let Some(command) = command_lookup(command_name.to_bytes()) else {
         abort_invalid_dispatch();
     };
     let enabled =

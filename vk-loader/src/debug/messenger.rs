@@ -377,6 +377,7 @@ impl DebugMessenger {
     }
 }
 
+#[inline(never)]
 unsafe fn retain_allocator(
     allocator: *const VkAllocationCallbacks<'_>,
 ) -> Option<VkAllocationCallbacks<'static>> {
@@ -391,6 +392,80 @@ unsafe fn retain_allocator(
             )
         })
     }
+}
+
+#[derive(Clone, Copy)]
+enum NativeDebugKind {
+    Messenger,
+    Report,
+}
+
+#[cold]
+#[inline(never)]
+unsafe fn create_native_debug_callbacks(
+    instance: &LoaderInstance,
+    create_info: *const c_void,
+    allocator: *const VkAllocationCallbacks<'_>,
+    handles: *mut u64,
+    kind: NativeDebugKind,
+) -> VkResult {
+    const {
+        assert!(mem::size_of::<VkDebugUtilsMessengerEXT>() == mem::size_of::<u64>());
+        assert!(mem::size_of::<VkDebugReportCallbackEXT>() == mem::size_of::<u64>());
+    }
+    for (index, icd) in instance.active_icds() {
+        let output = unsafe { handles.add(index) };
+        let result = match kind {
+            NativeDebugKind::Messenger => {
+                let Some(create) = icd.dispatch.vkCreateDebugUtilsMessengerEXT else {
+                    continue;
+                };
+                unsafe { create(icd.handle, create_info.cast(), allocator, output.cast()) }
+            }
+            NativeDebugKind::Report => {
+                let Some(create) = icd.dispatch.vkCreateDebugReportCallbackEXT else {
+                    continue;
+                };
+                unsafe { create(icd.handle, create_info.cast(), allocator, output.cast()) }
+            }
+        };
+        if result == VkResult::SUCCESS {
+            continue;
+        }
+        for created_index in 0..index {
+            let handle = unsafe { handles.add(created_index).read() };
+            if handle == 0 {
+                continue;
+            }
+            let created_icd = &instance.icds[created_index];
+            match kind {
+                NativeDebugKind::Messenger => {
+                    if let Some(destroy) = created_icd.dispatch.vkDestroyDebugUtilsMessengerEXT {
+                        unsafe {
+                            destroy(
+                                created_icd.handle,
+                                VkDebugUtilsMessengerEXT(handle),
+                                allocator,
+                            );
+                        }
+                    }
+                }
+                NativeDebugKind::Report => {
+                    if let Some(destroy) = created_icd.dispatch.vkDestroyDebugReportCallbackEXT {
+                        unsafe {
+                            destroy(
+                                created_icd.handle,
+                                VkDebugReportCallbackEXT(handle),
+                                allocator,
+                            );
+                        }
+                    }
+                }
+            }
+        }
+        return result;
+    }
+    VkResult::SUCCESS
 }
 
 fn forced_destroy_allocator(
@@ -535,26 +610,18 @@ pub(crate) unsafe extern "system" fn terminator_create_debug_utils_messenger(
                 return result;
             }
         };
-    for (index, icd) in instance.active_icds() {
-        let Some(create) = icd.dispatch.vkCreateDebugUtilsMessengerEXT else {
-            continue;
-        };
-        // SAFETY: The native instance, create info, allocator, and output slot
-        // satisfy the ICD command contract.
-        let result = unsafe { create(icd.handle, create_info, allocator, &raw mut native[index]) };
-        if result != VkResult::SUCCESS {
-            // Roll back only objects created before the failing ICD.
-            for (created_icd, handle) in instance.icds[..index].iter().zip(&native[..index]) {
-                if *handle != VkDebugUtilsMessengerEXT::NULL
-                    && let Some(destroy) = created_icd.dispatch.vkDestroyDebugUtilsMessengerEXT
-                {
-                    // SAFETY: This handle was created above with the same allocator.
-                    unsafe { destroy(created_icd.handle, *handle, allocator) };
-                }
-            }
-            instance.debug_messengers.lock().release_messenger(slot);
-            return result;
-        }
+    let result = unsafe {
+        create_native_debug_callbacks(
+            instance,
+            core::ptr::from_ref(create_info).cast(),
+            allocator,
+            native.as_mut_ptr().cast(),
+            NativeDebugKind::Messenger,
+        )
+    };
+    if result != VkResult::SUCCESS {
+        instance.debug_messengers.lock().release_messenger(slot);
+        return result;
     }
 
     let object_allocator = unsafe { retain_allocator(allocator) };
@@ -562,28 +629,32 @@ pub(crate) unsafe extern "system" fn terminator_create_debug_utils_messenger(
         .as_ref()
         .or_else(|| instance.allocator())
         .copied();
-    let messenger_state = DebugMessenger {
-        callback: create_info.pfnUserCallback,
-        severity: create_info.messageSeverity,
-        message_types: create_info.messageType,
-        user_data: create_info.pUserData,
-        icd_handles: native,
-        allocator: object_allocator,
-        slot,
-        index_allocation,
-    };
-    let owned = match LoaderBox::try_new(
+    let mut owned = match LoaderBox::<DebugMessenger>::try_new_uninit(
         storage_allocator.as_ref(),
-        messenger_state,
         VkSystemAllocationScope::OBJECT,
     ) {
         Ok(owned) => owned,
-        Err((result, messenger_state)) => {
+        Err(result) => {
             instance.debug_messengers.lock().release_messenger(slot);
-            destroy_native(instance, &messenger_state.icd_handles, allocator);
+            destroy_native(instance, &native, allocator);
             return result;
         }
     };
+    let pointer = owned.as_mut_ptr();
+    // SAFETY: Allocation succeeded and every field is written exactly once;
+    // no fallible operation can interrupt initialization.
+    unsafe {
+        core::ptr::addr_of_mut!((*pointer).callback).write(create_info.pfnUserCallback);
+        core::ptr::addr_of_mut!((*pointer).severity).write(create_info.messageSeverity);
+        core::ptr::addr_of_mut!((*pointer).message_types).write(create_info.messageType);
+        core::ptr::addr_of_mut!((*pointer).user_data).write(create_info.pUserData);
+        core::ptr::addr_of_mut!((*pointer).icd_handles).write(native);
+        core::ptr::addr_of_mut!((*pointer).allocator).write(object_allocator);
+        core::ptr::addr_of_mut!((*pointer).slot).write(slot);
+        core::ptr::addr_of_mut!((*pointer).index_allocation).write(index_allocation);
+    }
+    // SAFETY: Every `DebugMessenger` field was initialized above.
+    let owned = unsafe { owned.assume_init() };
     let address = owned.index_allocation.pointer() as usize;
     let mut state = instance.debug_messengers.lock();
     if state.callbacks.try_reserve(1).is_err() {
@@ -685,47 +756,45 @@ pub(crate) unsafe extern "system" fn terminator_create_debug_report_callback(
             Ok(native) => native,
             Err(result) => return result,
         };
-    for (index, icd) in instance.active_icds() {
-        let Some(create) = icd.dispatch.vkCreateDebugReportCallbackEXT else {
-            continue;
-        };
-        // SAFETY: Native instance and output slot belong to this ICD.
-        let result = unsafe { create(icd.handle, create_info, allocator, &raw mut native[index]) };
-        if result != VkResult::SUCCESS {
-            for (created_icd, handle) in instance.icds[..index].iter().zip(&native[..index]) {
-                if *handle != VkDebugReportCallbackEXT::NULL
-                    && let Some(destroy) = created_icd.dispatch.vkDestroyDebugReportCallbackEXT
-                {
-                    // SAFETY: This handle was created above with the same allocator.
-                    unsafe { destroy(created_icd.handle, *handle, allocator) };
-                }
-            }
-            return result;
-        }
+    let result = unsafe {
+        create_native_debug_callbacks(
+            instance,
+            core::ptr::from_ref(create_info).cast(),
+            allocator,
+            native.as_mut_ptr().cast(),
+            NativeDebugKind::Report,
+        )
+    };
+    if result != VkResult::SUCCESS {
+        return result;
     }
     let object_allocator = unsafe { retain_allocator(allocator) };
     let storage_allocator = object_allocator
         .as_ref()
         .or_else(|| instance.allocator())
         .copied();
-    let report = DebugReport {
-        callback: create_info.pfnCallback,
-        flags: create_info.flags,
-        user_data: create_info.pUserData,
-        icd_handles: native,
-        allocator: object_allocator,
-    };
-    let owned = match LoaderBox::try_new(
+    let mut owned = match LoaderBox::<DebugReport>::try_new_uninit(
         storage_allocator.as_ref(),
-        report,
         VkSystemAllocationScope::OBJECT,
     ) {
         Ok(owned) => owned,
-        Err((result, report)) => {
-            destroy_native_reports(instance, &report.icd_handles, allocator);
+        Err(result) => {
+            destroy_native_reports(instance, &native, allocator);
             return result;
         }
     };
+    let pointer = owned.as_mut_ptr();
+    // SAFETY: Allocation succeeded and every field is written exactly once;
+    // no fallible operation can interrupt initialization.
+    unsafe {
+        core::ptr::addr_of_mut!((*pointer).callback).write(create_info.pfnCallback);
+        core::ptr::addr_of_mut!((*pointer).flags).write(create_info.flags);
+        core::ptr::addr_of_mut!((*pointer).user_data).write(create_info.pUserData);
+        core::ptr::addr_of_mut!((*pointer).icd_handles).write(native);
+        core::ptr::addr_of_mut!((*pointer).allocator).write(object_allocator);
+    }
+    // SAFETY: Every `DebugReport` field was initialized above.
+    let owned = unsafe { owned.assume_init() };
     let address = owned.as_ptr() as usize;
     let mut state = instance.debug_messengers.lock();
     if state.callbacks.try_reserve(1).is_err() {
@@ -894,6 +963,8 @@ pub(crate) fn destroy_icd_objects(instance: &LoaderInstance, icd_index: usize) {
     }
 }
 
+#[cold]
+#[inline(never)]
 fn destroy_native_reports(
     instance: &LoaderInstance,
     handles: &[VkDebugReportCallbackEXT],
@@ -910,6 +981,8 @@ fn destroy_native_reports(
     }
 }
 
+#[cold]
+#[inline(never)]
 fn destroy_native(
     instance: &LoaderInstance,
     handles: &[VkDebugUtilsMessengerEXT],

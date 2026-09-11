@@ -1,14 +1,14 @@
 //! Layer library loading and interface negotiation.
 
-use crate::{allocation, platform};
-
-use crate::discovery::LayerSource;
-
 use super::{
-    CURRENT_LAYER_INTERFACE_VERSION, LayerLoadError, LayerManifest, LoadedLayer, LoaderLibrary,
-    NEGOTIATE_INTERFACE_STRUCT, NegotiateLayerInterface, NegotiateLoaderLayerInterfaceVersion,
-    OsStr, PFN_vkGetDeviceProcAddr, PFN_vkGetInstanceProcAddr, Path, VkResult, c_void, ptr,
+    CURRENT_LAYER_INTERFACE_VERSION, LayerEnabledBy, LayerLoadError, LayerManifest, LoadedLayer,
+    LoaderLibrary, NEGOTIATE_INTERFACE_STRUCT, NegotiateLayerInterface,
+    NegotiateLoaderLayerInterfaceVersion, OsStr, PFN_vkGetDeviceProcAddr,
+    PFN_vkGetInstanceProcAddr, Path, VkResult, c_void, ptr,
 };
+use crate::LoaderPathExt;
+use crate::discovery::LayerSource;
+use crate::{allocation, platform};
 
 impl LoadedLayer {
     pub(crate) fn manifest_path(&self) -> &Path {
@@ -26,13 +26,13 @@ impl LoadedLayer {
     }
 
     pub(crate) const fn enabled_by(&self) -> &'static str {
-        self.enabled_by
+        self.enabled_by.label()
     }
 
     pub(super) fn load(
         manifest: &mut LayerManifest,
         manifest_index: usize,
-        enabled_by: &'static str,
+        enabled_by: LayerEnabledBy,
     ) -> Result<Self, LayerLoadError> {
         let path = manifest.library_path().ok_or(LayerLoadError::Failed)?;
         // SAFETY: The library is retained for the lifetime of every copied symbol.
@@ -130,7 +130,10 @@ impl LoadedLayer {
         platform::write_loader_log_with_category(
             platform::LogFilter::Debug,
             platform::LogFilter::Layer,
-            format_args!("Unloading layer library {}", self.library_path.display()),
+            format_args!(
+                "Unloading layer library {}",
+                self.library_path.loader_display()
+            ),
         );
     }
 }

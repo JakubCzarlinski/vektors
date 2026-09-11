@@ -1,6 +1,7 @@
 // Generated from registry/vk.xml by vk-loader-codegen. Do not edit.
 
 use super::dispatch_tables::LayerDeviceDispatchTable;
+use super::dispatch_tables::LayerInstanceDispatchTable;
 use super::extensions::COMMAND_DEVICE_EXTENSION_IDS;
 use super::extensions::COMMAND_DEVICE_EXTENSION_RANGES;
 use super::extensions::COMMAND_INSTANCE_EXTENSION_IDS;
@@ -14,7 +15,986 @@ use crate::CommandScope;
 use crate::command_hash;
 use crate::command_slot_hash;
 use crate::dispatch_offset;
-const _: () = assert!(core::mem::size_of::<LayerDeviceDispatchTable>() <= 65_535);
+pub(super) struct LayerInstanceDispatchLoad {
+    pub(crate) offset: u16,
+    pub(crate) name: &'static CStr,
+}
+pub(super) static LAYER_INSTANCE_DISPATCH_LOADS: &[LayerInstanceDispatchLoad] = &[
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkCreateInstance
+        )),
+        name: c"vkCreateInstance",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkDestroyInstance
+        )),
+        name: c"vkDestroyInstance",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkEnumeratePhysicalDevices
+        )),
+        name: c"vkEnumeratePhysicalDevices",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceFeatures
+        )),
+        name: c"vkGetPhysicalDeviceFeatures",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceFormatProperties
+        )),
+        name: c"vkGetPhysicalDeviceFormatProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceImageFormatProperties
+        )),
+        name: c"vkGetPhysicalDeviceImageFormatProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceProperties
+        )),
+        name: c"vkGetPhysicalDeviceProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceQueueFamilyProperties
+        )),
+        name: c"vkGetPhysicalDeviceQueueFamilyProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceMemoryProperties
+        )),
+        name: c"vkGetPhysicalDeviceMemoryProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkCreateDevice
+        )),
+        name: c"vkCreateDevice",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkEnumerateInstanceExtensionProperties
+        )),
+        name: c"vkEnumerateInstanceExtensionProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkEnumerateDeviceExtensionProperties
+        )),
+        name: c"vkEnumerateDeviceExtensionProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkEnumerateInstanceLayerProperties
+        )),
+        name: c"vkEnumerateInstanceLayerProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkEnumerateDeviceLayerProperties
+        )),
+        name: c"vkEnumerateDeviceLayerProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceSparseImageFormatProperties
+        )),
+        name: c"vkGetPhysicalDeviceSparseImageFormatProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkEnumerateInstanceVersion
+        )),
+        name: c"vkEnumerateInstanceVersion",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkEnumeratePhysicalDeviceGroups
+        )),
+        name: c"vkEnumeratePhysicalDeviceGroups",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceFeatures2
+        )),
+        name: c"vkGetPhysicalDeviceFeatures2",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceProperties2
+        )),
+        name: c"vkGetPhysicalDeviceProperties2",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceFormatProperties2
+        )),
+        name: c"vkGetPhysicalDeviceFormatProperties2",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceImageFormatProperties2
+        )),
+        name: c"vkGetPhysicalDeviceImageFormatProperties2",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceQueueFamilyProperties2
+        )),
+        name: c"vkGetPhysicalDeviceQueueFamilyProperties2",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceMemoryProperties2
+        )),
+        name: c"vkGetPhysicalDeviceMemoryProperties2",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceSparseImageFormatProperties2
+        )),
+        name: c"vkGetPhysicalDeviceSparseImageFormatProperties2",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceExternalBufferProperties
+        )),
+        name: c"vkGetPhysicalDeviceExternalBufferProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceExternalFenceProperties
+        )),
+        name: c"vkGetPhysicalDeviceExternalFenceProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceExternalSemaphoreProperties
+        )),
+        name: c"vkGetPhysicalDeviceExternalSemaphoreProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceToolProperties
+        )),
+        name: c"vkGetPhysicalDeviceToolProperties",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkDestroySurfaceKHR
+        )),
+        name: c"vkDestroySurfaceKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceSurfaceSupportKHR
+        )),
+        name: c"vkGetPhysicalDeviceSurfaceSupportKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceSurfaceCapabilitiesKHR
+        )),
+        name: c"vkGetPhysicalDeviceSurfaceCapabilitiesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceSurfaceFormatsKHR
+        )),
+        name: c"vkGetPhysicalDeviceSurfaceFormatsKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceSurfacePresentModesKHR
+        )),
+        name: c"vkGetPhysicalDeviceSurfacePresentModesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDevicePresentRectanglesKHR
+        )),
+        name: c"vkGetPhysicalDevicePresentRectanglesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceDisplayPropertiesKHR
+        )),
+        name: c"vkGetPhysicalDeviceDisplayPropertiesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceDisplayPlanePropertiesKHR
+        )),
+        name: c"vkGetPhysicalDeviceDisplayPlanePropertiesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetDisplayPlaneSupportedDisplaysKHR
+        )),
+        name: c"vkGetDisplayPlaneSupportedDisplaysKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetDisplayModePropertiesKHR
+        )),
+        name: c"vkGetDisplayModePropertiesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkCreateDisplayModeKHR
+        )),
+        name: c"vkCreateDisplayModeKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetDisplayPlaneCapabilitiesKHR
+        )),
+        name: c"vkGetDisplayPlaneCapabilitiesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkCreateDisplayPlaneSurfaceKHR
+        )),
+        name: c"vkCreateDisplayPlaneSurfaceKHR",
+    },
+    #[cfg(all(
+        feature = "wsi-xlib",
+        any(
+            target_os = "linux",
+            target_os = "freebsd",
+            target_os = "openbsd",
+            target_os = "netbsd",
+            target_os = "dragonfly",
+            target_os = "hurd",
+            target_os = "cygwin"
+        )
+    ))]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkCreateXlibSurfaceKHR
+        )),
+        name: c"vkCreateXlibSurfaceKHR",
+    },
+    #[cfg(all(
+        feature = "wsi-xlib",
+        any(
+            target_os = "linux",
+            target_os = "freebsd",
+            target_os = "openbsd",
+            target_os = "netbsd",
+            target_os = "dragonfly",
+            target_os = "hurd",
+            target_os = "cygwin"
+        )
+    ))]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceXlibPresentationSupportKHR
+        )),
+        name: c"vkGetPhysicalDeviceXlibPresentationSupportKHR",
+    },
+    #[cfg(all(
+        feature = "wsi-xcb",
+        any(
+            target_os = "linux",
+            target_os = "freebsd",
+            target_os = "openbsd",
+            target_os = "netbsd",
+            target_os = "dragonfly",
+            target_os = "hurd",
+            target_os = "cygwin"
+        )
+    ))]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkCreateXcbSurfaceKHR
+        )),
+        name: c"vkCreateXcbSurfaceKHR",
+    },
+    #[cfg(all(
+        feature = "wsi-xcb",
+        any(
+            target_os = "linux",
+            target_os = "freebsd",
+            target_os = "openbsd",
+            target_os = "netbsd",
+            target_os = "dragonfly",
+            target_os = "hurd",
+            target_os = "cygwin"
+        )
+    ))]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceXcbPresentationSupportKHR
+        )),
+        name: c"vkGetPhysicalDeviceXcbPresentationSupportKHR",
+    },
+    #[cfg(all(
+        feature = "wsi-wayland",
+        any(
+            target_os = "linux",
+            target_os = "freebsd",
+            target_os = "openbsd",
+            target_os = "netbsd",
+            target_os = "dragonfly",
+            target_os = "hurd",
+            target_os = "cygwin"
+        )
+    ))]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkCreateWaylandSurfaceKHR
+        )),
+        name: c"vkCreateWaylandSurfaceKHR",
+    },
+    #[cfg(all(
+        feature = "wsi-wayland",
+        any(
+            target_os = "linux",
+            target_os = "freebsd",
+            target_os = "openbsd",
+            target_os = "netbsd",
+            target_os = "dragonfly",
+            target_os = "hurd",
+            target_os = "cygwin"
+        )
+    ))]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceWaylandPresentationSupportKHR
+        )),
+        name: c"vkGetPhysicalDeviceWaylandPresentationSupportKHR",
+    },
+    #[cfg(target_os = "android")]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkCreateAndroidSurfaceKHR
+        )),
+        name: c"vkCreateAndroidSurfaceKHR",
+    },
+    #[cfg(target_os = "windows")]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkCreateWin32SurfaceKHR
+        )),
+        name: c"vkCreateWin32SurfaceKHR",
+    },
+    #[cfg(target_os = "windows")]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceWin32PresentationSupportKHR
+        )),
+        name: c"vkGetPhysicalDeviceWin32PresentationSupportKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceVideoCapabilitiesKHR
+        )),
+        name: c"vkGetPhysicalDeviceVideoCapabilitiesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceVideoFormatPropertiesKHR
+        )),
+        name: c"vkGetPhysicalDeviceVideoFormatPropertiesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceFeatures2KHR
+        )),
+        name: c"vkGetPhysicalDeviceFeatures2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceProperties2KHR
+        )),
+        name: c"vkGetPhysicalDeviceProperties2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceFormatProperties2KHR
+        )),
+        name: c"vkGetPhysicalDeviceFormatProperties2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceImageFormatProperties2KHR
+        )),
+        name: c"vkGetPhysicalDeviceImageFormatProperties2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceQueueFamilyProperties2KHR
+        )),
+        name: c"vkGetPhysicalDeviceQueueFamilyProperties2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceMemoryProperties2KHR
+        )),
+        name: c"vkGetPhysicalDeviceMemoryProperties2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceSparseImageFormatProperties2KHR
+        )),
+        name: c"vkGetPhysicalDeviceSparseImageFormatProperties2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkEnumeratePhysicalDeviceGroupsKHR
+        )),
+        name: c"vkEnumeratePhysicalDeviceGroupsKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceExternalBufferPropertiesKHR
+        )),
+        name: c"vkGetPhysicalDeviceExternalBufferPropertiesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceExternalSemaphorePropertiesKHR
+        )),
+        name: c"vkGetPhysicalDeviceExternalSemaphorePropertiesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceExternalFencePropertiesKHR
+        )),
+        name: c"vkGetPhysicalDeviceExternalFencePropertiesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR
+        )),
+        name: c"vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR
+        )),
+        name: c"vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceSurfaceCapabilities2KHR
+        )),
+        name: c"vkGetPhysicalDeviceSurfaceCapabilities2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceSurfaceFormats2KHR
+        )),
+        name: c"vkGetPhysicalDeviceSurfaceFormats2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceDisplayProperties2KHR
+        )),
+        name: c"vkGetPhysicalDeviceDisplayProperties2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceDisplayPlaneProperties2KHR
+        )),
+        name: c"vkGetPhysicalDeviceDisplayPlaneProperties2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetDisplayModeProperties2KHR
+        )),
+        name: c"vkGetDisplayModeProperties2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetDisplayPlaneCapabilities2KHR
+        )),
+        name: c"vkGetDisplayPlaneCapabilities2KHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceFragmentShadingRatesKHR
+        )),
+        name: c"vkGetPhysicalDeviceFragmentShadingRatesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR
+        )),
+        name: c"vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR
+        )),
+        name: c"vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceCalibrateableTimeDomainsKHR
+        )),
+        name: c"vkGetPhysicalDeviceCalibrateableTimeDomainsKHR",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkCreateDebugReportCallbackEXT
+        )),
+        name: c"vkCreateDebugReportCallbackEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkDestroyDebugReportCallbackEXT
+        )),
+        name: c"vkDestroyDebugReportCallbackEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkDebugReportMessageEXT
+        )),
+        name: c"vkDebugReportMessageEXT",
+    },
+    #[cfg(feature = "platform-ggp")]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkCreateStreamDescriptorSurfaceGGP
+        )),
+        name: c"vkCreateStreamDescriptorSurfaceGGP",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceExternalImageFormatPropertiesNV
+        )),
+        name: c"vkGetPhysicalDeviceExternalImageFormatPropertiesNV",
+    },
+    #[cfg(feature = "platform-vi")]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkCreateViSurfaceNN
+        )),
+        name: c"vkCreateViSurfaceNN",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkReleaseDisplayEXT
+        )),
+        name: c"vkReleaseDisplayEXT",
+    },
+    #[cfg(all(
+        feature = "wsi-xlib-xrandr",
+        any(
+            target_os = "linux",
+            target_os = "freebsd",
+            target_os = "openbsd",
+            target_os = "netbsd",
+            target_os = "dragonfly",
+            target_os = "hurd",
+            target_os = "cygwin"
+        )
+    ))]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkAcquireXlibDisplayEXT
+        )),
+        name: c"vkAcquireXlibDisplayEXT",
+    },
+    #[cfg(all(
+        feature = "wsi-xlib-xrandr",
+        any(
+            target_os = "linux",
+            target_os = "freebsd",
+            target_os = "openbsd",
+            target_os = "netbsd",
+            target_os = "dragonfly",
+            target_os = "hurd",
+            target_os = "cygwin"
+        )
+    ))]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetRandROutputDisplayEXT
+        )),
+        name: c"vkGetRandROutputDisplayEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceSurfaceCapabilities2EXT
+        )),
+        name: c"vkGetPhysicalDeviceSurfaceCapabilities2EXT",
+    },
+    #[cfg(target_os = "ios")]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkCreateIOSSurfaceMVK
+        )),
+        name: c"vkCreateIOSSurfaceMVK",
+    },
+    #[cfg(target_os = "macos")]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkCreateMacOSSurfaceMVK
+        )),
+        name: c"vkCreateMacOSSurfaceMVK",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkCreateDebugUtilsMessengerEXT
+        )),
+        name: c"vkCreateDebugUtilsMessengerEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkDestroyDebugUtilsMessengerEXT
+        )),
+        name: c"vkDestroyDebugUtilsMessengerEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkSubmitDebugUtilsMessageEXT
+        )),
+        name: c"vkSubmitDebugUtilsMessageEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceDescriptorSizeEXT
+        )),
+        name: c"vkGetPhysicalDeviceDescriptorSizeEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceMultisamplePropertiesEXT
+        )),
+        name: c"vkGetPhysicalDeviceMultisamplePropertiesEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceCalibrateableTimeDomainsEXT
+        )),
+        name: c"vkGetPhysicalDeviceCalibrateableTimeDomainsEXT",
+    },
+    #[cfg(target_os = "fuchsia")]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkCreateImagePipeSurfaceFUCHSIA
+        )),
+        name: c"vkCreateImagePipeSurfaceFUCHSIA",
+    },
+    #[cfg(any(
+        target_os = "macos",
+        target_os = "ios",
+        target_os = "tvos",
+        target_os = "visionos"
+    ))]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkCreateMetalSurfaceEXT
+        )),
+        name: c"vkCreateMetalSurfaceEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceToolPropertiesEXT
+        )),
+        name: c"vkGetPhysicalDeviceToolPropertiesEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceCooperativeMatrixPropertiesNV
+        )),
+        name: c"vkGetPhysicalDeviceCooperativeMatrixPropertiesNV",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV
+        )),
+        name: c"vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV",
+    },
+    #[cfg(target_os = "windows")]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceSurfacePresentModes2EXT
+        )),
+        name: c"vkGetPhysicalDeviceSurfacePresentModes2EXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkCreateHeadlessSurfaceEXT
+        )),
+        name: c"vkCreateHeadlessSurfaceEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkAcquireDrmDisplayEXT
+        )),
+        name: c"vkAcquireDrmDisplayEXT",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetDrmDisplayEXT
+        )),
+        name: c"vkGetDrmDisplayEXT",
+    },
+    #[cfg(target_os = "windows")]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkAcquireWinrtDisplayNV
+        )),
+        name: c"vkAcquireWinrtDisplayNV",
+    },
+    #[cfg(target_os = "windows")]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetWinrtDisplayNV
+        )),
+        name: c"vkGetWinrtDisplayNV",
+    },
+    #[cfg(feature = "wsi-directfb")]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkCreateDirectFBSurfaceEXT
+        )),
+        name: c"vkCreateDirectFBSurfaceEXT",
+    },
+    #[cfg(feature = "wsi-directfb")]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceDirectFBPresentationSupportEXT
+        )),
+        name: c"vkGetPhysicalDeviceDirectFBPresentationSupportEXT",
+    },
+    #[cfg(any(target_os = "nto", target_os = "qnx"))]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkCreateScreenSurfaceQNX
+        )),
+        name: c"vkCreateScreenSurfaceQNX",
+    },
+    #[cfg(any(target_os = "nto", target_os = "qnx"))]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceScreenPresentationSupportQNX
+        )),
+        name: c"vkGetPhysicalDeviceScreenPresentationSupportQNX",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceExternalTensorPropertiesARM
+        )),
+        name: c"vkGetPhysicalDeviceExternalTensorPropertiesARM",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceOpticalFlowImageFormatsNV
+        )),
+        name: c"vkGetPhysicalDeviceOpticalFlowImageFormatsNV",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceCooperativeVectorPropertiesNV
+        )),
+        name: c"vkGetPhysicalDeviceCooperativeVectorPropertiesNV",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM
+        )),
+        name: c"vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM
+        )),
+        name: c"vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM
+        )),
+        name: c"vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM",
+    },
+    #[cfg(target_env = "ohos")]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkCreateSurfaceOHOS
+        )),
+        name: c"vkCreateSurfaceOHOS",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV
+        )),
+        name: c"vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM
+        )),
+        name: c"vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM
+        )),
+        name: c"vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM
+        )),
+        name: c"vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM",
+    },
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceCooperativeMatrixProperties2EXT
+        )),
+        name: c"vkGetPhysicalDeviceCooperativeMatrixProperties2EXT",
+    },
+    #[cfg(feature = "platform-ubm")]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkCreateUbmSurfaceSEC
+        )),
+        name: c"vkCreateUbmSurfaceSEC",
+    },
+    #[cfg(feature = "platform-ubm")]
+    LayerInstanceDispatchLoad {
+        offset: dispatch_offset(core::mem::offset_of!(
+            LayerInstanceDispatchTable,
+            vkGetPhysicalDeviceUbmPresentationSupportSEC
+        )),
+        name: c"vkGetPhysicalDeviceUbmPresentationSupportSEC",
+    },
+];
 pub(super) const VK_GET_DEVICE_PROC_ADDR_DEVICE_DISPATCH_OFFSET: u16 = dispatch_offset(
     core::mem::offset_of!(LayerDeviceDispatchTable, vkGetDeviceProcAddr),
 );
@@ -11539,6 +12519,3068 @@ pub(super) static DEVICE_DISPATCH_MASKS: &[DeviceDispatchMask] = &[
         offset: VK_CMD_DRAW_MESH_TASKS_INDIRECT_COUNT_EXT_DEVICE_DISPATCH_OFFSET,
     },
 ];
+pub(super) struct DeviceDispatchLoad {
+    pub(crate) offset: u16,
+    pub(crate) name: &'static CStr,
+}
+pub(super) static DEVICE_DISPATCH_LOADS: &[DeviceDispatchLoad] = &[
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_DEVICE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyDevice",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_QUEUE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceQueue",
+    },
+    DeviceDispatchLoad {
+        offset: VK_QUEUE_SUBMIT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkQueueSubmit",
+    },
+    DeviceDispatchLoad {
+        offset: VK_QUEUE_WAIT_IDLE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkQueueWaitIdle",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DEVICE_WAIT_IDLE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDeviceWaitIdle",
+    },
+    DeviceDispatchLoad {
+        offset: VK_ALLOCATE_MEMORY_DEVICE_DISPATCH_OFFSET,
+        name: c"vkAllocateMemory",
+    },
+    DeviceDispatchLoad {
+        offset: VK_FREE_MEMORY_DEVICE_DISPATCH_OFFSET,
+        name: c"vkFreeMemory",
+    },
+    DeviceDispatchLoad {
+        offset: VK_MAP_MEMORY_DEVICE_DISPATCH_OFFSET,
+        name: c"vkMapMemory",
+    },
+    DeviceDispatchLoad {
+        offset: VK_UNMAP_MEMORY_DEVICE_DISPATCH_OFFSET,
+        name: c"vkUnmapMemory",
+    },
+    DeviceDispatchLoad {
+        offset: VK_FLUSH_MAPPED_MEMORY_RANGES_DEVICE_DISPATCH_OFFSET,
+        name: c"vkFlushMappedMemoryRanges",
+    },
+    DeviceDispatchLoad {
+        offset: VK_INVALIDATE_MAPPED_MEMORY_RANGES_DEVICE_DISPATCH_OFFSET,
+        name: c"vkInvalidateMappedMemoryRanges",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_MEMORY_COMMITMENT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceMemoryCommitment",
+    },
+    DeviceDispatchLoad {
+        offset: VK_BIND_BUFFER_MEMORY_DEVICE_DISPATCH_OFFSET,
+        name: c"vkBindBufferMemory",
+    },
+    DeviceDispatchLoad {
+        offset: VK_BIND_IMAGE_MEMORY_DEVICE_DISPATCH_OFFSET,
+        name: c"vkBindImageMemory",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_BUFFER_MEMORY_REQUIREMENTS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetBufferMemoryRequirements",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_IMAGE_MEMORY_REQUIREMENTS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetImageMemoryRequirements",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_IMAGE_SPARSE_MEMORY_REQUIREMENTS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetImageSparseMemoryRequirements",
+    },
+    DeviceDispatchLoad {
+        offset: VK_QUEUE_BIND_SPARSE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkQueueBindSparse",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_FENCE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateFence",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_FENCE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyFence",
+    },
+    DeviceDispatchLoad {
+        offset: VK_RESET_FENCES_DEVICE_DISPATCH_OFFSET,
+        name: c"vkResetFences",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_FENCE_STATUS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetFenceStatus",
+    },
+    DeviceDispatchLoad {
+        offset: VK_WAIT_FOR_FENCES_DEVICE_DISPATCH_OFFSET,
+        name: c"vkWaitForFences",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_SEMAPHORE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateSemaphore",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_SEMAPHORE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroySemaphore",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_QUERY_POOL_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateQueryPool",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_QUERY_POOL_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyQueryPool",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_QUERY_POOL_RESULTS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetQueryPoolResults",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_BUFFER_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateBuffer",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_BUFFER_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyBuffer",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_IMAGE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateImage",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_IMAGE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyImage",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_IMAGE_SUBRESOURCE_LAYOUT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetImageSubresourceLayout",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_IMAGE_VIEW_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateImageView",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_IMAGE_VIEW_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyImageView",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_COMMAND_POOL_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateCommandPool",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_COMMAND_POOL_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyCommandPool",
+    },
+    DeviceDispatchLoad {
+        offset: VK_RESET_COMMAND_POOL_DEVICE_DISPATCH_OFFSET,
+        name: c"vkResetCommandPool",
+    },
+    DeviceDispatchLoad {
+        offset: VK_ALLOCATE_COMMAND_BUFFERS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkAllocateCommandBuffers",
+    },
+    DeviceDispatchLoad {
+        offset: VK_FREE_COMMAND_BUFFERS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkFreeCommandBuffers",
+    },
+    DeviceDispatchLoad {
+        offset: VK_BEGIN_COMMAND_BUFFER_DEVICE_DISPATCH_OFFSET,
+        name: c"vkBeginCommandBuffer",
+    },
+    DeviceDispatchLoad {
+        offset: VK_END_COMMAND_BUFFER_DEVICE_DISPATCH_OFFSET,
+        name: c"vkEndCommandBuffer",
+    },
+    DeviceDispatchLoad {
+        offset: VK_RESET_COMMAND_BUFFER_DEVICE_DISPATCH_OFFSET,
+        name: c"vkResetCommandBuffer",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_BUFFER_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyBuffer",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_IMAGE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyImage",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_BUFFER_TO_IMAGE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyBufferToImage",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_IMAGE_TO_BUFFER_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyImageToBuffer",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_UPDATE_BUFFER_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdUpdateBuffer",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_FILL_BUFFER_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdFillBuffer",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_PIPELINE_BARRIER_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdPipelineBarrier",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BEGIN_QUERY_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBeginQuery",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_END_QUERY_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdEndQuery",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_RESET_QUERY_POOL_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdResetQueryPool",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_WRITE_TIMESTAMP_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdWriteTimestamp",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_QUERY_POOL_RESULTS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyQueryPoolResults",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_EXECUTE_COMMANDS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdExecuteCommands",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_EVENT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateEvent",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_EVENT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyEvent",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_EVENT_STATUS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetEventStatus",
+    },
+    DeviceDispatchLoad {
+        offset: VK_SET_EVENT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkSetEvent",
+    },
+    DeviceDispatchLoad {
+        offset: VK_RESET_EVENT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkResetEvent",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_BUFFER_VIEW_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateBufferView",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_BUFFER_VIEW_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyBufferView",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_SHADER_MODULE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateShaderModule",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_SHADER_MODULE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyShaderModule",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_PIPELINE_CACHE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreatePipelineCache",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_PIPELINE_CACHE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyPipelineCache",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_PIPELINE_CACHE_DATA_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetPipelineCacheData",
+    },
+    DeviceDispatchLoad {
+        offset: VK_MERGE_PIPELINE_CACHES_DEVICE_DISPATCH_OFFSET,
+        name: c"vkMergePipelineCaches",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_COMPUTE_PIPELINES_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateComputePipelines",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_PIPELINE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyPipeline",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_PIPELINE_LAYOUT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreatePipelineLayout",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_PIPELINE_LAYOUT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyPipelineLayout",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_SAMPLER_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateSampler",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_SAMPLER_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroySampler",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_DESCRIPTOR_SET_LAYOUT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateDescriptorSetLayout",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_DESCRIPTOR_SET_LAYOUT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyDescriptorSetLayout",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_DESCRIPTOR_POOL_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateDescriptorPool",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_DESCRIPTOR_POOL_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyDescriptorPool",
+    },
+    DeviceDispatchLoad {
+        offset: VK_RESET_DESCRIPTOR_POOL_DEVICE_DISPATCH_OFFSET,
+        name: c"vkResetDescriptorPool",
+    },
+    DeviceDispatchLoad {
+        offset: VK_ALLOCATE_DESCRIPTOR_SETS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkAllocateDescriptorSets",
+    },
+    DeviceDispatchLoad {
+        offset: VK_FREE_DESCRIPTOR_SETS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkFreeDescriptorSets",
+    },
+    DeviceDispatchLoad {
+        offset: VK_UPDATE_DESCRIPTOR_SETS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkUpdateDescriptorSets",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BIND_PIPELINE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBindPipeline",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BIND_DESCRIPTOR_SETS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBindDescriptorSets",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_CLEAR_COLOR_IMAGE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdClearColorImage",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DISPATCH_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDispatch",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DISPATCH_INDIRECT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDispatchIndirect",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_EVENT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetEvent",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_RESET_EVENT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdResetEvent",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_WAIT_EVENTS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdWaitEvents",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_PUSH_CONSTANTS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdPushConstants",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_GRAPHICS_PIPELINES_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateGraphicsPipelines",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_FRAMEBUFFER_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateFramebuffer",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_FRAMEBUFFER_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyFramebuffer",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_RENDER_PASS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateRenderPass",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_RENDER_PASS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyRenderPass",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_RENDER_AREA_GRANULARITY_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetRenderAreaGranularity",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_VIEWPORT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetViewport",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_SCISSOR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetScissor",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_LINE_WIDTH_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetLineWidth",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_DEPTH_BIAS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetDepthBias",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_BLEND_CONSTANTS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetBlendConstants",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_DEPTH_BOUNDS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetDepthBounds",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_STENCIL_COMPARE_MASK_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetStencilCompareMask",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_STENCIL_WRITE_MASK_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetStencilWriteMask",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_STENCIL_REFERENCE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetStencilReference",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BIND_INDEX_BUFFER_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBindIndexBuffer",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BIND_VERTEX_BUFFERS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBindVertexBuffers",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDraw",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_INDEXED_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawIndexed",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_INDIRECT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawIndirect",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_INDEXED_INDIRECT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawIndexedIndirect",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BLIT_IMAGE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBlitImage",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_CLEAR_DEPTH_STENCIL_IMAGE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdClearDepthStencilImage",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_CLEAR_ATTACHMENTS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdClearAttachments",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_RESOLVE_IMAGE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdResolveImage",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BEGIN_RENDER_PASS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBeginRenderPass",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_NEXT_SUBPASS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdNextSubpass",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_END_RENDER_PASS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdEndRenderPass",
+    },
+    DeviceDispatchLoad {
+        offset: VK_BIND_BUFFER_MEMORY2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkBindBufferMemory2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_BIND_IMAGE_MEMORY2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkBindImageMemory2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_GROUP_PEER_MEMORY_FEATURES_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceGroupPeerMemoryFeatures",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_DEVICE_MASK_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetDeviceMask",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_IMAGE_MEMORY_REQUIREMENTS2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetImageMemoryRequirements2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_BUFFER_MEMORY_REQUIREMENTS2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetBufferMemoryRequirements2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_IMAGE_SPARSE_MEMORY_REQUIREMENTS2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetImageSparseMemoryRequirements2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_TRIM_COMMAND_POOL_DEVICE_DISPATCH_OFFSET,
+        name: c"vkTrimCommandPool",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_QUEUE2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceQueue2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DISPATCH_BASE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDispatchBase",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_DESCRIPTOR_UPDATE_TEMPLATE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateDescriptorUpdateTemplate",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_DESCRIPTOR_UPDATE_TEMPLATE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyDescriptorUpdateTemplate",
+    },
+    DeviceDispatchLoad {
+        offset: VK_UPDATE_DESCRIPTOR_SET_WITH_TEMPLATE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkUpdateDescriptorSetWithTemplate",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DESCRIPTOR_SET_LAYOUT_SUPPORT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDescriptorSetLayoutSupport",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_SAMPLER_YCBCR_CONVERSION_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateSamplerYcbcrConversion",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_SAMPLER_YCBCR_CONVERSION_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroySamplerYcbcrConversion",
+    },
+    DeviceDispatchLoad {
+        offset: VK_RESET_QUERY_POOL_DEVICE_DISPATCH_OFFSET,
+        name: c"vkResetQueryPool",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_SEMAPHORE_COUNTER_VALUE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetSemaphoreCounterValue",
+    },
+    DeviceDispatchLoad {
+        offset: VK_WAIT_SEMAPHORES_DEVICE_DISPATCH_OFFSET,
+        name: c"vkWaitSemaphores",
+    },
+    DeviceDispatchLoad {
+        offset: VK_SIGNAL_SEMAPHORE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkSignalSemaphore",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_BUFFER_DEVICE_ADDRESS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetBufferDeviceAddress",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_BUFFER_OPAQUE_CAPTURE_ADDRESS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetBufferOpaqueCaptureAddress",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_MEMORY_OPAQUE_CAPTURE_ADDRESS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceMemoryOpaqueCaptureAddress",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_INDIRECT_COUNT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawIndirectCount",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_INDEXED_INDIRECT_COUNT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawIndexedIndirectCount",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_RENDER_PASS2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateRenderPass2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BEGIN_RENDER_PASS2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBeginRenderPass2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_NEXT_SUBPASS2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdNextSubpass2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_END_RENDER_PASS2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdEndRenderPass2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_PRIVATE_DATA_SLOT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreatePrivateDataSlot",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_PRIVATE_DATA_SLOT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyPrivateDataSlot",
+    },
+    DeviceDispatchLoad {
+        offset: VK_SET_PRIVATE_DATA_DEVICE_DISPATCH_OFFSET,
+        name: c"vkSetPrivateData",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_PRIVATE_DATA_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetPrivateData",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_PIPELINE_BARRIER2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdPipelineBarrier2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_WRITE_TIMESTAMP2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdWriteTimestamp2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_QUEUE_SUBMIT2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkQueueSubmit2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_BUFFER2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyBuffer2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_IMAGE2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyImage2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_BUFFER_TO_IMAGE2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyBufferToImage2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_IMAGE_TO_BUFFER2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyImageToBuffer2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_BUFFER_MEMORY_REQUIREMENTS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceBufferMemoryRequirements",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_IMAGE_MEMORY_REQUIREMENTS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceImageMemoryRequirements",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_IMAGE_SPARSE_MEMORY_REQUIREMENTS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceImageSparseMemoryRequirements",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_EVENT2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetEvent2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_RESET_EVENT2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdResetEvent2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_WAIT_EVENTS2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdWaitEvents2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BLIT_IMAGE2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBlitImage2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_RESOLVE_IMAGE2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdResolveImage2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BEGIN_RENDERING_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBeginRendering",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_END_RENDERING_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdEndRendering",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_CULL_MODE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetCullMode",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_FRONT_FACE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetFrontFace",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_PRIMITIVE_TOPOLOGY_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetPrimitiveTopology",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_VIEWPORT_WITH_COUNT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetViewportWithCount",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_SCISSOR_WITH_COUNT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetScissorWithCount",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BIND_VERTEX_BUFFERS2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBindVertexBuffers2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_DEPTH_TEST_ENABLE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetDepthTestEnable",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_DEPTH_WRITE_ENABLE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetDepthWriteEnable",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_DEPTH_COMPARE_OP_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetDepthCompareOp",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_DEPTH_BOUNDS_TEST_ENABLE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetDepthBoundsTestEnable",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_STENCIL_TEST_ENABLE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetStencilTestEnable",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_STENCIL_OP_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetStencilOp",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_RASTERIZER_DISCARD_ENABLE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetRasterizerDiscardEnable",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_DEPTH_BIAS_ENABLE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetDepthBiasEnable",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_PRIMITIVE_RESTART_ENABLE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetPrimitiveRestartEnable",
+    },
+    DeviceDispatchLoad {
+        offset: VK_MAP_MEMORY2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkMapMemory2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_UNMAP_MEMORY2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkUnmapMemory2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_IMAGE_SUBRESOURCE_LAYOUT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceImageSubresourceLayout",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_IMAGE_SUBRESOURCE_LAYOUT2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetImageSubresourceLayout2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_COPY_MEMORY_TO_IMAGE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCopyMemoryToImage",
+    },
+    DeviceDispatchLoad {
+        offset: VK_COPY_IMAGE_TO_MEMORY_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCopyImageToMemory",
+    },
+    DeviceDispatchLoad {
+        offset: VK_COPY_IMAGE_TO_IMAGE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCopyImageToImage",
+    },
+    DeviceDispatchLoad {
+        offset: VK_TRANSITION_IMAGE_LAYOUT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkTransitionImageLayout",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_PUSH_DESCRIPTOR_SET_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdPushDescriptorSet",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdPushDescriptorSetWithTemplate",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BIND_DESCRIPTOR_SETS2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBindDescriptorSets2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_PUSH_CONSTANTS2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdPushConstants2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_PUSH_DESCRIPTOR_SET2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdPushDescriptorSet2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdPushDescriptorSetWithTemplate2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_LINE_STIPPLE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetLineStipple",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BIND_INDEX_BUFFER2_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBindIndexBuffer2",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_RENDERING_AREA_GRANULARITY_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetRenderingAreaGranularity",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_RENDERING_ATTACHMENT_LOCATIONS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetRenderingAttachmentLocations",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_RENDERING_INPUT_ATTACHMENT_INDICES_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetRenderingInputAttachmentIndices",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_SWAPCHAIN_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateSwapchainKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_SWAPCHAIN_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroySwapchainKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_SWAPCHAIN_IMAGES_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetSwapchainImagesKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_ACQUIRE_NEXT_IMAGE_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkAcquireNextImageKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_QUEUE_PRESENT_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkQueuePresentKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_GROUP_PRESENT_CAPABILITIES_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceGroupPresentCapabilitiesKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_GROUP_SURFACE_PRESENT_MODES_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceGroupSurfacePresentModesKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_ACQUIRE_NEXT_IMAGE2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkAcquireNextImage2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_SHARED_SWAPCHAINS_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateSharedSwapchainsKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_VIDEO_SESSION_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateVideoSessionKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_VIDEO_SESSION_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyVideoSessionKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_VIDEO_SESSION_MEMORY_REQUIREMENTS_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetVideoSessionMemoryRequirementsKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_BIND_VIDEO_SESSION_MEMORY_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkBindVideoSessionMemoryKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_VIDEO_SESSION_PARAMETERS_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateVideoSessionParametersKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_UPDATE_VIDEO_SESSION_PARAMETERS_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkUpdateVideoSessionParametersKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_VIDEO_SESSION_PARAMETERS_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyVideoSessionParametersKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BEGIN_VIDEO_CODING_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBeginVideoCodingKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_END_VIDEO_CODING_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdEndVideoCodingKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_CONTROL_VIDEO_CODING_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdControlVideoCodingKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DECODE_VIDEO_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDecodeVideoKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BEGIN_RENDERING_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBeginRenderingKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_END_RENDERING_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdEndRenderingKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_GROUP_PEER_MEMORY_FEATURES_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceGroupPeerMemoryFeaturesKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_DEVICE_MASK_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetDeviceMaskKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DISPATCH_BASE_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDispatchBaseKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_TRIM_COMMAND_POOL_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkTrimCommandPoolKHR",
+    },
+    #[cfg(target_os = "windows")]
+    DeviceDispatchLoad {
+        offset: VK_GET_MEMORY_WIN32HANDLE_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetMemoryWin32HandleKHR",
+    },
+    #[cfg(target_os = "windows")]
+    DeviceDispatchLoad {
+        offset: VK_GET_MEMORY_WIN32HANDLE_PROPERTIES_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetMemoryWin32HandlePropertiesKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_MEMORY_FD_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetMemoryFdKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_MEMORY_FD_PROPERTIES_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetMemoryFdPropertiesKHR",
+    },
+    #[cfg(target_os = "windows")]
+    DeviceDispatchLoad {
+        offset: VK_IMPORT_SEMAPHORE_WIN32HANDLE_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkImportSemaphoreWin32HandleKHR",
+    },
+    #[cfg(target_os = "windows")]
+    DeviceDispatchLoad {
+        offset: VK_GET_SEMAPHORE_WIN32HANDLE_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetSemaphoreWin32HandleKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_IMPORT_SEMAPHORE_FD_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkImportSemaphoreFdKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_SEMAPHORE_FD_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetSemaphoreFdKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_PUSH_DESCRIPTOR_SET_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdPushDescriptorSetKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdPushDescriptorSetWithTemplateKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_DESCRIPTOR_UPDATE_TEMPLATE_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateDescriptorUpdateTemplateKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_DESCRIPTOR_UPDATE_TEMPLATE_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyDescriptorUpdateTemplateKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_UPDATE_DESCRIPTOR_SET_WITH_TEMPLATE_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkUpdateDescriptorSetWithTemplateKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_RENDER_PASS2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateRenderPass2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BEGIN_RENDER_PASS2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBeginRenderPass2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_NEXT_SUBPASS2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdNextSubpass2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_END_RENDER_PASS2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdEndRenderPass2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_SWAPCHAIN_STATUS_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetSwapchainStatusKHR",
+    },
+    #[cfg(target_os = "windows")]
+    DeviceDispatchLoad {
+        offset: VK_IMPORT_FENCE_WIN32HANDLE_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkImportFenceWin32HandleKHR",
+    },
+    #[cfg(target_os = "windows")]
+    DeviceDispatchLoad {
+        offset: VK_GET_FENCE_WIN32HANDLE_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetFenceWin32HandleKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_IMPORT_FENCE_FD_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkImportFenceFdKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_FENCE_FD_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetFenceFdKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_ACQUIRE_PROFILING_LOCK_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkAcquireProfilingLockKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_RELEASE_PROFILING_LOCK_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkReleaseProfilingLockKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_IMAGE_MEMORY_REQUIREMENTS2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetImageMemoryRequirements2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_BUFFER_MEMORY_REQUIREMENTS2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetBufferMemoryRequirements2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_IMAGE_SPARSE_MEMORY_REQUIREMENTS2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetImageSparseMemoryRequirements2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_SAMPLER_YCBCR_CONVERSION_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateSamplerYcbcrConversionKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_SAMPLER_YCBCR_CONVERSION_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroySamplerYcbcrConversionKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_BIND_BUFFER_MEMORY2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkBindBufferMemory2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_BIND_IMAGE_MEMORY2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkBindImageMemory2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DESCRIPTOR_SET_LAYOUT_SUPPORT_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDescriptorSetLayoutSupportKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_INDIRECT_COUNT_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawIndirectCountKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_INDEXED_INDIRECT_COUNT_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawIndexedIndirectCountKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_SEMAPHORE_COUNTER_VALUE_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetSemaphoreCounterValueKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_WAIT_SEMAPHORES_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkWaitSemaphoresKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_SIGNAL_SEMAPHORE_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkSignalSemaphoreKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_FRAGMENT_SHADING_RATE_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetFragmentShadingRateKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_RENDERING_ATTACHMENT_LOCATIONS_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetRenderingAttachmentLocationsKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_RENDERING_INPUT_ATTACHMENT_INDICES_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetRenderingInputAttachmentIndicesKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_WAIT_FOR_PRESENT_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkWaitForPresentKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_BUFFER_DEVICE_ADDRESS_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetBufferDeviceAddressKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_BUFFER_OPAQUE_CAPTURE_ADDRESS_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetBufferOpaqueCaptureAddressKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_MEMORY_OPAQUE_CAPTURE_ADDRESS_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceMemoryOpaqueCaptureAddressKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_DEFERRED_OPERATION_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateDeferredOperationKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_DEFERRED_OPERATION_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyDeferredOperationKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEFERRED_OPERATION_MAX_CONCURRENCY_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeferredOperationMaxConcurrencyKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEFERRED_OPERATION_RESULT_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeferredOperationResultKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DEFERRED_OPERATION_JOIN_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDeferredOperationJoinKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_PIPELINE_EXECUTABLE_PROPERTIES_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetPipelineExecutablePropertiesKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_PIPELINE_EXECUTABLE_STATISTICS_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetPipelineExecutableStatisticsKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_PIPELINE_EXECUTABLE_INTERNAL_REPRESENTATIONS_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetPipelineExecutableInternalRepresentationsKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_MAP_MEMORY2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkMapMemory2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_UNMAP_MEMORY2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkUnmapMemory2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_ENCODED_VIDEO_SESSION_PARAMETERS_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetEncodedVideoSessionParametersKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_ENCODE_VIDEO_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdEncodeVideoKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_EVENT2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetEvent2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_RESET_EVENT2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdResetEvent2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_WAIT_EVENTS2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdWaitEvents2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_PIPELINE_BARRIER2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdPipelineBarrier2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_WRITE_TIMESTAMP2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdWriteTimestamp2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_QUEUE_SUBMIT2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkQueueSubmit2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BIND_INDEX_BUFFER3KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBindIndexBuffer3KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BIND_VERTEX_BUFFERS3KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBindVertexBuffers3KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_INDIRECT2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawIndirect2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_INDEXED_INDIRECT2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawIndexedIndirect2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DISPATCH_INDIRECT2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDispatchIndirect2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_MEMORY_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyMemoryKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_MEMORY_TO_IMAGE_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyMemoryToImageKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_IMAGE_TO_MEMORY_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyImageToMemoryKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_UPDATE_MEMORY_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdUpdateMemoryKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_FILL_MEMORY_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdFillMemoryKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_QUERY_POOL_RESULTS_TO_MEMORY_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyQueryPoolResultsToMemoryKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_INDIRECT_COUNT2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawIndirectCount2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_INDEXED_INDIRECT_COUNT2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawIndexedIndirectCount2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BEGIN_CONDITIONAL_RENDERING2EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBeginConditionalRendering2EXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BIND_TRANSFORM_FEEDBACK_BUFFERS2EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBindTransformFeedbackBuffers2EXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BEGIN_TRANSFORM_FEEDBACK2EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBeginTransformFeedback2EXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_END_TRANSFORM_FEEDBACK2EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdEndTransformFeedback2EXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_INDIRECT_BYTE_COUNT2EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawIndirectByteCount2EXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_MESH_TASKS_INDIRECT2EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawMeshTasksIndirect2EXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_MESH_TASKS_INDIRECT_COUNT2EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawMeshTasksIndirectCount2EXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_WRITE_MARKER_TO_MEMORY_AMD_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdWriteMarkerToMemoryAMD",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_ACCELERATION_STRUCTURE2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateAccelerationStructure2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_BUFFER2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyBuffer2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_IMAGE2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyImage2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_BUFFER_TO_IMAGE2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyBufferToImage2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_IMAGE_TO_BUFFER2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyImageToBuffer2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BLIT_IMAGE2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBlitImage2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_RESOLVE_IMAGE2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdResolveImage2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_TRACE_RAYS_INDIRECT2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdTraceRaysIndirect2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_BUFFER_MEMORY_REQUIREMENTS_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceBufferMemoryRequirementsKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_IMAGE_MEMORY_REQUIREMENTS_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceImageMemoryRequirementsKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_IMAGE_SPARSE_MEMORY_REQUIREMENTS_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceImageSparseMemoryRequirementsKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BIND_INDEX_BUFFER2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBindIndexBuffer2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_RENDERING_AREA_GRANULARITY_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetRenderingAreaGranularityKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_IMAGE_SUBRESOURCE_LAYOUT_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceImageSubresourceLayoutKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_IMAGE_SUBRESOURCE_LAYOUT2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetImageSubresourceLayout2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_WAIT_FOR_PRESENT2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkWaitForPresent2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_PIPELINE_BINARIES_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreatePipelineBinariesKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_PIPELINE_BINARY_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyPipelineBinaryKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_PIPELINE_KEY_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetPipelineKeyKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_PIPELINE_BINARY_DATA_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetPipelineBinaryDataKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_RELEASE_CAPTURED_PIPELINE_DATA_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkReleaseCapturedPipelineDataKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_RELEASE_SWAPCHAIN_IMAGES_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkReleaseSwapchainImagesKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_LINE_STIPPLE_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetLineStippleKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_CALIBRATED_TIMESTAMPS_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetCalibratedTimestampsKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BIND_DESCRIPTOR_SETS2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBindDescriptorSets2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_PUSH_CONSTANTS2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdPushConstants2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_PUSH_DESCRIPTOR_SET2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdPushDescriptorSet2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdPushDescriptorSetWithTemplate2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_DESCRIPTOR_BUFFER_OFFSETS2EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetDescriptorBufferOffsets2EXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BIND_DESCRIPTOR_BUFFER_EMBEDDED_SAMPLERS2EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBindDescriptorBufferEmbeddedSamplers2EXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_MEMORY_INDIRECT_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyMemoryIndirectKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_MEMORY_TO_IMAGE_INDIRECT_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyMemoryToImageIndirectKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_FAULT_REPORTS_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceFaultReportsKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_FAULT_DEBUG_INFO_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceFaultDebugInfoKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_END_RENDERING2KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdEndRendering2KHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DEBUG_MARKER_SET_OBJECT_TAG_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDebugMarkerSetObjectTagEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DEBUG_MARKER_SET_OBJECT_NAME_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDebugMarkerSetObjectNameEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DEBUG_MARKER_BEGIN_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDebugMarkerBeginEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DEBUG_MARKER_END_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDebugMarkerEndEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DEBUG_MARKER_INSERT_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDebugMarkerInsertEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BIND_TRANSFORM_FEEDBACK_BUFFERS_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBindTransformFeedbackBuffersEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BEGIN_TRANSFORM_FEEDBACK_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBeginTransformFeedbackEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_END_TRANSFORM_FEEDBACK_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdEndTransformFeedbackEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BEGIN_QUERY_INDEXED_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBeginQueryIndexedEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_END_QUERY_INDEXED_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdEndQueryIndexedEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_INDIRECT_BYTE_COUNT_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawIndirectByteCountEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_CU_MODULE_NVX_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateCuModuleNVX",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_CU_FUNCTION_NVX_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateCuFunctionNVX",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_CU_MODULE_NVX_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyCuModuleNVX",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_CU_FUNCTION_NVX_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyCuFunctionNVX",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_CU_LAUNCH_KERNEL_NVX_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCuLaunchKernelNVX",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_IMAGE_VIEW_HANDLE_NVX_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetImageViewHandleNVX",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_IMAGE_VIEW_HANDLE64NVX_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetImageViewHandle64NVX",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_IMAGE_VIEW_ADDRESS_NVX_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetImageViewAddressNVX",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_COMBINED_IMAGE_SAMPLER_INDEX_NVX_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceCombinedImageSamplerIndexNVX",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_INDIRECT_COUNT_AMD_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawIndirectCountAMD",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_INDEXED_INDIRECT_COUNT_AMD_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawIndexedIndirectCountAMD",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_SHADER_INFO_AMD_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetShaderInfoAMD",
+    },
+    #[cfg(target_os = "windows")]
+    DeviceDispatchLoad {
+        offset: VK_GET_MEMORY_WIN32HANDLE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetMemoryWin32HandleNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BEGIN_CONDITIONAL_RENDERING_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBeginConditionalRenderingEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_END_CONDITIONAL_RENDERING_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdEndConditionalRenderingEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_VIEWPORT_W_SCALING_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetViewportWScalingNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DISPLAY_POWER_CONTROL_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDisplayPowerControlEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_REGISTER_DEVICE_EVENT_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkRegisterDeviceEventEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_REGISTER_DISPLAY_EVENT_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkRegisterDisplayEventEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_SWAPCHAIN_COUNTER_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetSwapchainCounterEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_REFRESH_CYCLE_DURATION_GOOGLE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetRefreshCycleDurationGOOGLE",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_PAST_PRESENTATION_TIMING_GOOGLE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetPastPresentationTimingGOOGLE",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_DISCARD_RECTANGLE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetDiscardRectangleEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_DISCARD_RECTANGLE_ENABLE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetDiscardRectangleEnableEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_DISCARD_RECTANGLE_MODE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetDiscardRectangleModeEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_SET_HDR_METADATA_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkSetHdrMetadataEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_SET_DEBUG_UTILS_OBJECT_NAME_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkSetDebugUtilsObjectNameEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_SET_DEBUG_UTILS_OBJECT_TAG_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkSetDebugUtilsObjectTagEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_QUEUE_BEGIN_DEBUG_UTILS_LABEL_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkQueueBeginDebugUtilsLabelEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_QUEUE_END_DEBUG_UTILS_LABEL_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkQueueEndDebugUtilsLabelEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_QUEUE_INSERT_DEBUG_UTILS_LABEL_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkQueueInsertDebugUtilsLabelEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BEGIN_DEBUG_UTILS_LABEL_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBeginDebugUtilsLabelEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_END_DEBUG_UTILS_LABEL_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdEndDebugUtilsLabelEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_INSERT_DEBUG_UTILS_LABEL_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdInsertDebugUtilsLabelEXT",
+    },
+    #[cfg(target_os = "android")]
+    DeviceDispatchLoad {
+        offset: VK_GET_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetAndroidHardwareBufferPropertiesANDROID",
+    },
+    #[cfg(target_os = "android")]
+    DeviceDispatchLoad {
+        offset: VK_GET_MEMORY_ANDROID_HARDWARE_BUFFER_ANDROID_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetMemoryAndroidHardwareBufferANDROID",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_GPA_SESSION_AMD_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateGpaSessionAMD",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_GPA_SESSION_AMD_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyGpaSessionAMD",
+    },
+    DeviceDispatchLoad {
+        offset: VK_SET_GPA_DEVICE_CLOCK_MODE_AMD_DEVICE_DISPATCH_OFFSET,
+        name: c"vkSetGpaDeviceClockModeAMD",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_GPA_DEVICE_CLOCK_INFO_AMD_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetGpaDeviceClockInfoAMD",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BEGIN_GPA_SESSION_AMD_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBeginGpaSessionAMD",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_END_GPA_SESSION_AMD_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdEndGpaSessionAMD",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BEGIN_GPA_SAMPLE_AMD_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBeginGpaSampleAMD",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_END_GPA_SAMPLE_AMD_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdEndGpaSampleAMD",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_GPA_SESSION_STATUS_AMD_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetGpaSessionStatusAMD",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_GPA_SESSION_RESULTS_AMD_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetGpaSessionResultsAMD",
+    },
+    DeviceDispatchLoad {
+        offset: VK_RESET_GPA_SESSION_AMD_DEVICE_DISPATCH_OFFSET,
+        name: c"vkResetGpaSessionAMD",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_GPA_SESSION_RESULTS_AMD_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyGpaSessionResultsAMD",
+    },
+    #[cfg(feature = "beta-extensions")]
+    DeviceDispatchLoad {
+        offset: VK_CREATE_EXECUTION_GRAPH_PIPELINES_AMDX_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateExecutionGraphPipelinesAMDX",
+    },
+    #[cfg(feature = "beta-extensions")]
+    DeviceDispatchLoad {
+        offset: VK_GET_EXECUTION_GRAPH_PIPELINE_SCRATCH_SIZE_AMDX_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetExecutionGraphPipelineScratchSizeAMDX",
+    },
+    #[cfg(feature = "beta-extensions")]
+    DeviceDispatchLoad {
+        offset: VK_GET_EXECUTION_GRAPH_PIPELINE_NODE_INDEX_AMDX_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetExecutionGraphPipelineNodeIndexAMDX",
+    },
+    #[cfg(feature = "beta-extensions")]
+    DeviceDispatchLoad {
+        offset: VK_CMD_INITIALIZE_GRAPH_SCRATCH_MEMORY_AMDX_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdInitializeGraphScratchMemoryAMDX",
+    },
+    #[cfg(feature = "beta-extensions")]
+    DeviceDispatchLoad {
+        offset: VK_CMD_DISPATCH_GRAPH_AMDX_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDispatchGraphAMDX",
+    },
+    #[cfg(feature = "beta-extensions")]
+    DeviceDispatchLoad {
+        offset: VK_CMD_DISPATCH_GRAPH_INDIRECT_AMDX_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDispatchGraphIndirectAMDX",
+    },
+    #[cfg(feature = "beta-extensions")]
+    DeviceDispatchLoad {
+        offset: VK_CMD_DISPATCH_GRAPH_INDIRECT_COUNT_AMDX_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDispatchGraphIndirectCountAMDX",
+    },
+    DeviceDispatchLoad {
+        offset: VK_WRITE_SAMPLER_DESCRIPTORS_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkWriteSamplerDescriptorsEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_WRITE_RESOURCE_DESCRIPTORS_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkWriteResourceDescriptorsEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BIND_SAMPLER_HEAP_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBindSamplerHeapEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BIND_RESOURCE_HEAP_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBindResourceHeapEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_PUSH_DATA_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdPushDataEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_IMAGE_OPAQUE_CAPTURE_DATA_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetImageOpaqueCaptureDataEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_REGISTER_CUSTOM_BORDER_COLOR_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkRegisterCustomBorderColorEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_UNREGISTER_CUSTOM_BORDER_COLOR_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkUnregisterCustomBorderColorEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_TENSOR_OPAQUE_CAPTURE_DATA_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetTensorOpaqueCaptureDataARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_SAMPLE_LOCATIONS_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetSampleLocationsEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_IMAGE_DRM_FORMAT_MODIFIER_PROPERTIES_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetImageDrmFormatModifierPropertiesEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_VALIDATION_CACHE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateValidationCacheEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_VALIDATION_CACHE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyValidationCacheEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_MERGE_VALIDATION_CACHES_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkMergeValidationCachesEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_VALIDATION_CACHE_DATA_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetValidationCacheDataEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BIND_SHADING_RATE_IMAGE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBindShadingRateImageNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_VIEWPORT_SHADING_RATE_PALETTE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetViewportShadingRatePaletteNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_COARSE_SAMPLE_ORDER_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetCoarseSampleOrderNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_ACCELERATION_STRUCTURE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateAccelerationStructureNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_ACCELERATION_STRUCTURE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyAccelerationStructureNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetAccelerationStructureMemoryRequirementsNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_BIND_ACCELERATION_STRUCTURE_MEMORY_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkBindAccelerationStructureMemoryNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BUILD_ACCELERATION_STRUCTURE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBuildAccelerationStructureNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_ACCELERATION_STRUCTURE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyAccelerationStructureNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_TRACE_RAYS_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdTraceRaysNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_RAY_TRACING_PIPELINES_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateRayTracingPipelinesNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_RAY_TRACING_SHADER_GROUP_HANDLES_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetRayTracingShaderGroupHandlesKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_RAY_TRACING_SHADER_GROUP_HANDLES_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetRayTracingShaderGroupHandlesNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_ACCELERATION_STRUCTURE_HANDLE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetAccelerationStructureHandleNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_WRITE_ACCELERATION_STRUCTURES_PROPERTIES_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdWriteAccelerationStructuresPropertiesNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_COMPILE_DEFERRED_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCompileDeferredNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_MEMORY_HOST_POINTER_PROPERTIES_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetMemoryHostPointerPropertiesEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_WRITE_BUFFER_MARKER_AMD_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdWriteBufferMarkerAMD",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_WRITE_BUFFER_MARKER2AMD_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdWriteBufferMarker2AMD",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_CALIBRATED_TIMESTAMPS_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetCalibratedTimestampsEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_MESH_TASKS_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawMeshTasksNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_MESH_TASKS_INDIRECT_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawMeshTasksIndirectNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_MESH_TASKS_INDIRECT_COUNT_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawMeshTasksIndirectCountNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_EXCLUSIVE_SCISSOR_ENABLE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetExclusiveScissorEnableNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_EXCLUSIVE_SCISSOR_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetExclusiveScissorNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_CHECKPOINT_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetCheckpointNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_QUEUE_CHECKPOINT_DATA_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetQueueCheckpointDataNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_QUEUE_CHECKPOINT_DATA2NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetQueueCheckpointData2NV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_SET_SWAPCHAIN_PRESENT_TIMING_QUEUE_SIZE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkSetSwapchainPresentTimingQueueSizeEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_SWAPCHAIN_TIMING_PROPERTIES_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetSwapchainTimingPropertiesEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_SWAPCHAIN_TIME_DOMAIN_PROPERTIES_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetSwapchainTimeDomainPropertiesEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_PAST_PRESENTATION_TIMING_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetPastPresentationTimingEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_INITIALIZE_PERFORMANCE_API_INTEL_DEVICE_DISPATCH_OFFSET,
+        name: c"vkInitializePerformanceApiINTEL",
+    },
+    DeviceDispatchLoad {
+        offset: VK_UNINITIALIZE_PERFORMANCE_API_INTEL_DEVICE_DISPATCH_OFFSET,
+        name: c"vkUninitializePerformanceApiINTEL",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_PERFORMANCE_MARKER_INTEL_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetPerformanceMarkerINTEL",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_PERFORMANCE_STREAM_MARKER_INTEL_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetPerformanceStreamMarkerINTEL",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_PERFORMANCE_OVERRIDE_INTEL_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetPerformanceOverrideINTEL",
+    },
+    DeviceDispatchLoad {
+        offset: VK_ACQUIRE_PERFORMANCE_CONFIGURATION_INTEL_DEVICE_DISPATCH_OFFSET,
+        name: c"vkAcquirePerformanceConfigurationINTEL",
+    },
+    DeviceDispatchLoad {
+        offset: VK_RELEASE_PERFORMANCE_CONFIGURATION_INTEL_DEVICE_DISPATCH_OFFSET,
+        name: c"vkReleasePerformanceConfigurationINTEL",
+    },
+    DeviceDispatchLoad {
+        offset: VK_QUEUE_SET_PERFORMANCE_CONFIGURATION_INTEL_DEVICE_DISPATCH_OFFSET,
+        name: c"vkQueueSetPerformanceConfigurationINTEL",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_PERFORMANCE_PARAMETER_INTEL_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetPerformanceParameterINTEL",
+    },
+    DeviceDispatchLoad {
+        offset: VK_SET_LOCAL_DIMMING_AMD_DEVICE_DISPATCH_OFFSET,
+        name: c"vkSetLocalDimmingAMD",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_BUFFER_DEVICE_ADDRESS_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetBufferDeviceAddressEXT",
+    },
+    #[cfg(target_os = "windows")]
+    DeviceDispatchLoad {
+        offset: VK_ACQUIRE_FULL_SCREEN_EXCLUSIVE_MODE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkAcquireFullScreenExclusiveModeEXT",
+    },
+    #[cfg(target_os = "windows")]
+    DeviceDispatchLoad {
+        offset: VK_RELEASE_FULL_SCREEN_EXCLUSIVE_MODE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkReleaseFullScreenExclusiveModeEXT",
+    },
+    #[cfg(target_os = "windows")]
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_GROUP_SURFACE_PRESENT_MODES2EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceGroupSurfacePresentModes2EXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_LINE_STIPPLE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetLineStippleEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_RESET_QUERY_POOL_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkResetQueryPoolEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_CULL_MODE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetCullModeEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_FRONT_FACE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetFrontFaceEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_PRIMITIVE_TOPOLOGY_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetPrimitiveTopologyEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_VIEWPORT_WITH_COUNT_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetViewportWithCountEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_SCISSOR_WITH_COUNT_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetScissorWithCountEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BIND_VERTEX_BUFFERS2EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBindVertexBuffers2EXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_DEPTH_TEST_ENABLE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetDepthTestEnableEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_DEPTH_WRITE_ENABLE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetDepthWriteEnableEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_DEPTH_COMPARE_OP_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetDepthCompareOpEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_DEPTH_BOUNDS_TEST_ENABLE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetDepthBoundsTestEnableEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_STENCIL_TEST_ENABLE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetStencilTestEnableEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_STENCIL_OP_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetStencilOpEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_COPY_MEMORY_TO_IMAGE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCopyMemoryToImageEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_COPY_IMAGE_TO_MEMORY_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCopyImageToMemoryEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_COPY_IMAGE_TO_IMAGE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCopyImageToImageEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_TRANSITION_IMAGE_LAYOUT_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkTransitionImageLayoutEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_IMAGE_SUBRESOURCE_LAYOUT2EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetImageSubresourceLayout2EXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_RELEASE_SWAPCHAIN_IMAGES_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkReleaseSwapchainImagesEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_GENERATED_COMMANDS_MEMORY_REQUIREMENTS_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetGeneratedCommandsMemoryRequirementsNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_PREPROCESS_GENERATED_COMMANDS_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdPreprocessGeneratedCommandsNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_EXECUTE_GENERATED_COMMANDS_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdExecuteGeneratedCommandsNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BIND_PIPELINE_SHADER_GROUP_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBindPipelineShaderGroupNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_INDIRECT_COMMANDS_LAYOUT_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateIndirectCommandsLayoutNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_INDIRECT_COMMANDS_LAYOUT_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyIndirectCommandsLayoutNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_DEPTH_BIAS2EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetDepthBias2EXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_PRIVATE_DATA_SLOT_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreatePrivateDataSlotEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_PRIVATE_DATA_SLOT_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyPrivateDataSlotEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_SET_PRIVATE_DATA_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkSetPrivateDataEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_PRIVATE_DATA_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetPrivateDataEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_QUEUE_SET_PERF_HINT_QCOM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkQueueSetPerfHintQCOM",
+    },
+    #[cfg(feature = "beta-extensions")]
+    DeviceDispatchLoad {
+        offset: VK_CREATE_CUDA_MODULE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateCudaModuleNV",
+    },
+    #[cfg(feature = "beta-extensions")]
+    DeviceDispatchLoad {
+        offset: VK_GET_CUDA_MODULE_CACHE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetCudaModuleCacheNV",
+    },
+    #[cfg(feature = "beta-extensions")]
+    DeviceDispatchLoad {
+        offset: VK_CREATE_CUDA_FUNCTION_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateCudaFunctionNV",
+    },
+    #[cfg(feature = "beta-extensions")]
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_CUDA_MODULE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyCudaModuleNV",
+    },
+    #[cfg(feature = "beta-extensions")]
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_CUDA_FUNCTION_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyCudaFunctionNV",
+    },
+    #[cfg(feature = "beta-extensions")]
+    DeviceDispatchLoad {
+        offset: VK_CMD_CUDA_LAUNCH_KERNEL_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCudaLaunchKernelNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DISPATCH_TILE_QCOM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDispatchTileQCOM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BEGIN_PER_TILE_EXECUTION_QCOM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBeginPerTileExecutionQCOM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_END_PER_TILE_EXECUTION_QCOM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdEndPerTileExecutionQCOM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_SET_LATENCY_SLEEP_MODE_LEGACY_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkSetLatencySleepModeLegacyNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_LATENCY_SLEEP_LEGACY_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkLatencySleepLegacyNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_SET_LATENCY_MARKER_LEGACY_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkSetLatencyMarkerLegacyNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_LATENCY_TIMINGS_LEGACY_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetLatencyTimingsLegacyNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_QUEUE_NOTIFY_OUT_OF_BAND_LEGACY_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkQueueNotifyOutOfBandLegacyNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_SLEEP_STATUS_LEGACY_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetSleepStatusLegacyNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_SHUTDOWN_LATENCY_DEVICE_LEGACY_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkShutdownLatencyDeviceLegacyNV",
+    },
+    #[cfg(any(
+        target_os = "macos",
+        target_os = "ios",
+        target_os = "tvos",
+        target_os = "visionos"
+    ))]
+    DeviceDispatchLoad {
+        offset: VK_EXPORT_METAL_OBJECTS_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkExportMetalObjectsEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DESCRIPTOR_SET_LAYOUT_SIZE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDescriptorSetLayoutSizeEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DESCRIPTOR_SET_LAYOUT_BINDING_OFFSET_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDescriptorSetLayoutBindingOffsetEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DESCRIPTOR_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDescriptorEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BIND_DESCRIPTOR_BUFFERS_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBindDescriptorBuffersEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_DESCRIPTOR_BUFFER_OFFSETS_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetDescriptorBufferOffsetsEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BIND_DESCRIPTOR_BUFFER_EMBEDDED_SAMPLERS_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBindDescriptorBufferEmbeddedSamplersEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_BUFFER_OPAQUE_CAPTURE_DESCRIPTOR_DATA_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetBufferOpaqueCaptureDescriptorDataEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_IMAGE_OPAQUE_CAPTURE_DESCRIPTOR_DATA_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetImageOpaqueCaptureDescriptorDataEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_IMAGE_VIEW_OPAQUE_CAPTURE_DESCRIPTOR_DATA_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetImageViewOpaqueCaptureDescriptorDataEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_SAMPLER_OPAQUE_CAPTURE_DESCRIPTOR_DATA_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetSamplerOpaqueCaptureDescriptorDataEXT",
+    },
+    DeviceDispatchLoad {
+        offset:
+            VK_GET_ACCELERATION_STRUCTURE_OPAQUE_CAPTURE_DESCRIPTOR_DATA_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetAccelerationStructureOpaqueCaptureDescriptorDataEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_FRAGMENT_SHADING_RATE_ENUM_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetFragmentShadingRateEnumNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_FAULT_INFO_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceFaultInfoEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_VERTEX_INPUT_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetVertexInputEXT",
+    },
+    #[cfg(target_os = "fuchsia")]
+    DeviceDispatchLoad {
+        offset: VK_GET_MEMORY_ZIRCON_HANDLE_FUCHSIA_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetMemoryZirconHandleFUCHSIA",
+    },
+    #[cfg(target_os = "fuchsia")]
+    DeviceDispatchLoad {
+        offset: VK_GET_MEMORY_ZIRCON_HANDLE_PROPERTIES_FUCHSIA_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetMemoryZirconHandlePropertiesFUCHSIA",
+    },
+    #[cfg(target_os = "fuchsia")]
+    DeviceDispatchLoad {
+        offset: VK_IMPORT_SEMAPHORE_ZIRCON_HANDLE_FUCHSIA_DEVICE_DISPATCH_OFFSET,
+        name: c"vkImportSemaphoreZirconHandleFUCHSIA",
+    },
+    #[cfg(target_os = "fuchsia")]
+    DeviceDispatchLoad {
+        offset: VK_GET_SEMAPHORE_ZIRCON_HANDLE_FUCHSIA_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetSemaphoreZirconHandleFUCHSIA",
+    },
+    #[cfg(target_os = "fuchsia")]
+    DeviceDispatchLoad {
+        offset: VK_CREATE_BUFFER_COLLECTION_FUCHSIA_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateBufferCollectionFUCHSIA",
+    },
+    #[cfg(target_os = "fuchsia")]
+    DeviceDispatchLoad {
+        offset: VK_SET_BUFFER_COLLECTION_IMAGE_CONSTRAINTS_FUCHSIA_DEVICE_DISPATCH_OFFSET,
+        name: c"vkSetBufferCollectionImageConstraintsFUCHSIA",
+    },
+    #[cfg(target_os = "fuchsia")]
+    DeviceDispatchLoad {
+        offset: VK_SET_BUFFER_COLLECTION_BUFFER_CONSTRAINTS_FUCHSIA_DEVICE_DISPATCH_OFFSET,
+        name: c"vkSetBufferCollectionBufferConstraintsFUCHSIA",
+    },
+    #[cfg(target_os = "fuchsia")]
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_BUFFER_COLLECTION_FUCHSIA_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyBufferCollectionFUCHSIA",
+    },
+    #[cfg(target_os = "fuchsia")]
+    DeviceDispatchLoad {
+        offset: VK_GET_BUFFER_COLLECTION_PROPERTIES_FUCHSIA_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetBufferCollectionPropertiesFUCHSIA",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_SUBPASS_SHADING_MAX_WORKGROUP_SIZE_HUAWEI_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceSubpassShadingMaxWorkgroupSizeHUAWEI",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SUBPASS_SHADING_HUAWEI_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSubpassShadingHUAWEI",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BIND_INVOCATION_MASK_HUAWEI_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBindInvocationMaskHUAWEI",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_MEMORY_REMOTE_ADDRESS_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetMemoryRemoteAddressNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_PIPELINE_PROPERTIES_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetPipelinePropertiesEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_PATCH_CONTROL_POINTS_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetPatchControlPointsEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_RASTERIZER_DISCARD_ENABLE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetRasterizerDiscardEnableEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_DEPTH_BIAS_ENABLE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetDepthBiasEnableEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_LOGIC_OP_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetLogicOpEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_PRIMITIVE_RESTART_ENABLE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetPrimitiveRestartEnableEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_COLOR_WRITE_ENABLE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetColorWriteEnableEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_MULTI_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawMultiEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_MULTI_INDEXED_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawMultiIndexedEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_MICROMAP_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateMicromapEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_MICROMAP_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyMicromapEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BUILD_MICROMAPS_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBuildMicromapsEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_BUILD_MICROMAPS_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkBuildMicromapsEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_COPY_MICROMAP_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCopyMicromapEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_COPY_MICROMAP_TO_MEMORY_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCopyMicromapToMemoryEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_COPY_MEMORY_TO_MICROMAP_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCopyMemoryToMicromapEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_WRITE_MICROMAPS_PROPERTIES_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkWriteMicromapsPropertiesEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_MICROMAP_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyMicromapEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_MICROMAP_TO_MEMORY_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyMicromapToMemoryEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_MEMORY_TO_MICROMAP_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyMemoryToMicromapEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_WRITE_MICROMAPS_PROPERTIES_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdWriteMicromapsPropertiesEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_MICROMAP_COMPATIBILITY_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceMicromapCompatibilityEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_MICROMAP_BUILD_SIZES_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetMicromapBuildSizesEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_CLUSTER_HUAWEI_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawClusterHUAWEI",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_CLUSTER_INDIRECT_HUAWEI_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawClusterIndirectHUAWEI",
+    },
+    DeviceDispatchLoad {
+        offset: VK_SET_DEVICE_MEMORY_PRIORITY_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkSetDeviceMemoryPriorityEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_DISPATCH_PARAMETERS_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetDispatchParametersARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DESCRIPTOR_SET_LAYOUT_HOST_MAPPING_INFO_VALVE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDescriptorSetLayoutHostMappingInfoVALVE",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DESCRIPTOR_SET_HOST_MAPPING_VALVE_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDescriptorSetHostMappingVALVE",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_MEMORY_INDIRECT_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyMemoryIndirectNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_MEMORY_TO_IMAGE_INDIRECT_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyMemoryToImageIndirectNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DECOMPRESS_MEMORY_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDecompressMemoryNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DECOMPRESS_MEMORY_INDIRECT_COUNT_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDecompressMemoryIndirectCountNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_PIPELINE_INDIRECT_MEMORY_REQUIREMENTS_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetPipelineIndirectMemoryRequirementsNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_UPDATE_PIPELINE_INDIRECT_BUFFER_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdUpdatePipelineIndirectBufferNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_PIPELINE_INDIRECT_DEVICE_ADDRESS_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetPipelineIndirectDeviceAddressNV",
+    },
+    #[cfg(target_env = "ohos")]
+    DeviceDispatchLoad {
+        offset: VK_GET_NATIVE_BUFFER_PROPERTIES_OHOS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetNativeBufferPropertiesOHOS",
+    },
+    #[cfg(target_env = "ohos")]
+    DeviceDispatchLoad {
+        offset: VK_GET_MEMORY_NATIVE_BUFFER_OHOS_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetMemoryNativeBufferOHOS",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_DEPTH_CLAMP_ENABLE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetDepthClampEnableEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_POLYGON_MODE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetPolygonModeEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_RASTERIZATION_SAMPLES_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetRasterizationSamplesEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_SAMPLE_MASK_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetSampleMaskEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_ALPHA_TO_COVERAGE_ENABLE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetAlphaToCoverageEnableEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_ALPHA_TO_ONE_ENABLE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetAlphaToOneEnableEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_LOGIC_OP_ENABLE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetLogicOpEnableEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_COLOR_BLEND_ENABLE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetColorBlendEnableEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_COLOR_BLEND_EQUATION_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetColorBlendEquationEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_COLOR_WRITE_MASK_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetColorWriteMaskEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_TESSELLATION_DOMAIN_ORIGIN_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetTessellationDomainOriginEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_RASTERIZATION_STREAM_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetRasterizationStreamEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_CONSERVATIVE_RASTERIZATION_MODE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetConservativeRasterizationModeEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_EXTRA_PRIMITIVE_OVERESTIMATION_SIZE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetExtraPrimitiveOverestimationSizeEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_DEPTH_CLIP_ENABLE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetDepthClipEnableEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_SAMPLE_LOCATIONS_ENABLE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetSampleLocationsEnableEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_COLOR_BLEND_ADVANCED_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetColorBlendAdvancedEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_PROVOKING_VERTEX_MODE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetProvokingVertexModeEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_LINE_RASTERIZATION_MODE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetLineRasterizationModeEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_LINE_STIPPLE_ENABLE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetLineStippleEnableEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_DEPTH_CLIP_NEGATIVE_ONE_TO_ONE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetDepthClipNegativeOneToOneEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_VIEWPORT_W_SCALING_ENABLE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetViewportWScalingEnableNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_VIEWPORT_SWIZZLE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetViewportSwizzleNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_COVERAGE_TO_COLOR_ENABLE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetCoverageToColorEnableNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_COVERAGE_TO_COLOR_LOCATION_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetCoverageToColorLocationNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_COVERAGE_MODULATION_MODE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetCoverageModulationModeNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_COVERAGE_MODULATION_TABLE_ENABLE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetCoverageModulationTableEnableNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_COVERAGE_MODULATION_TABLE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetCoverageModulationTableNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_SHADING_RATE_IMAGE_ENABLE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetShadingRateImageEnableNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_REPRESENTATIVE_FRAGMENT_TEST_ENABLE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetRepresentativeFragmentTestEnableNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_COVERAGE_REDUCTION_MODE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetCoverageReductionModeNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_TENSOR_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateTensorARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_TENSOR_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyTensorARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_TENSOR_VIEW_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateTensorViewARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_TENSOR_VIEW_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyTensorViewARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_TENSOR_MEMORY_REQUIREMENTS_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetTensorMemoryRequirementsARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_BIND_TENSOR_MEMORY_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkBindTensorMemoryARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_TENSOR_MEMORY_REQUIREMENTS_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceTensorMemoryRequirementsARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_TENSOR_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyTensorARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_TENSOR_OPAQUE_CAPTURE_DESCRIPTOR_DATA_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetTensorOpaqueCaptureDescriptorDataARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_TENSOR_VIEW_OPAQUE_CAPTURE_DESCRIPTOR_DATA_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetTensorViewOpaqueCaptureDescriptorDataARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_SHADER_MODULE_IDENTIFIER_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetShaderModuleIdentifierEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_SHADER_MODULE_CREATE_INFO_IDENTIFIER_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetShaderModuleCreateInfoIdentifierEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_OPTICAL_FLOW_SESSION_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateOpticalFlowSessionNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_OPTICAL_FLOW_SESSION_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyOpticalFlowSessionNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_BIND_OPTICAL_FLOW_SESSION_IMAGE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkBindOpticalFlowSessionImageNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_OPTICAL_FLOW_EXECUTE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdOpticalFlowExecuteNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_ANTI_LAG_UPDATE_AMD_DEVICE_DISPATCH_OFFSET,
+        name: c"vkAntiLagUpdateAMD",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_SHADERS_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateShadersEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_SHADER_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyShaderEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_SHADER_BINARY_DATA_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetShaderBinaryDataEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BIND_SHADERS_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBindShadersEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_DEPTH_CLAMP_RANGE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetDepthClampRangeEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_FRAMEBUFFER_TILE_PROPERTIES_QCOM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetFramebufferTilePropertiesQCOM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DYNAMIC_RENDERING_TILE_PROPERTIES_QCOM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDynamicRenderingTilePropertiesQCOM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CONVERT_COOPERATIVE_VECTOR_MATRIX_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkConvertCooperativeVectorMatrixNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_CONVERT_COOPERATIVE_VECTOR_MATRIX_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdConvertCooperativeVectorMatrixNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_SET_LATENCY_SLEEP_MODE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkSetLatencySleepModeNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_LATENCY_SLEEP_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkLatencySleepNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_SET_LATENCY_MARKER_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkSetLatencyMarkerNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_LATENCY_TIMINGS_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetLatencyTimingsNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_QUEUE_NOTIFY_OUT_OF_BAND_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkQueueNotifyOutOfBandNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_DATA_GRAPH_PIPELINES_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateDataGraphPipelinesARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_DATA_GRAPH_PIPELINE_SESSION_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateDataGraphPipelineSessionARM",
+    },
+    DeviceDispatchLoad {
+        offset:
+            VK_GET_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_REQUIREMENTS_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDataGraphPipelineSessionBindPointRequirementsARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DATA_GRAPH_PIPELINE_SESSION_MEMORY_REQUIREMENTS_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDataGraphPipelineSessionMemoryRequirementsARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_BIND_DATA_GRAPH_PIPELINE_SESSION_MEMORY_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkBindDataGraphPipelineSessionMemoryARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_DATA_GRAPH_PIPELINE_SESSION_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyDataGraphPipelineSessionARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DISPATCH_DATA_GRAPH_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDispatchDataGraphARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DATA_GRAPH_PIPELINE_AVAILABLE_PROPERTIES_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDataGraphPipelineAvailablePropertiesARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DATA_GRAPH_PIPELINE_PROPERTIES_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDataGraphPipelinePropertiesARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_ATTACHMENT_FEEDBACK_LOOP_ENABLE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetAttachmentFeedbackLoopEnableEXT",
+    },
+    #[cfg(any(target_os = "nto", target_os = "qnx"))]
+    DeviceDispatchLoad {
+        offset: VK_GET_SCREEN_BUFFER_PROPERTIES_QNX_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetScreenBufferPropertiesQNX",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BIND_TILE_MEMORY_QCOM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBindTileMemoryQCOM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DECOMPRESS_MEMORY_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDecompressMemoryEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DECOMPRESS_MEMORY_INDIRECT_COUNT_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDecompressMemoryIndirectCountEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_EXTERNAL_COMPUTE_QUEUE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateExternalComputeQueueNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_EXTERNAL_COMPUTE_QUEUE_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyExternalComputeQueueNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_EXTERNAL_COMPUTE_QUEUE_DATA_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetExternalComputeQueueDataNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_CLUSTER_ACCELERATION_STRUCTURE_BUILD_SIZES_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetClusterAccelerationStructureBuildSizesNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BUILD_CLUSTER_ACCELERATION_STRUCTURE_INDIRECT_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBuildClusterAccelerationStructureIndirectNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_PARTITIONED_ACCELERATION_STRUCTURES_BUILD_SIZES_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetPartitionedAccelerationStructuresBuildSizesNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BUILD_PARTITIONED_ACCELERATION_STRUCTURES_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBuildPartitionedAccelerationStructuresNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_GENERATED_COMMANDS_MEMORY_REQUIREMENTS_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetGeneratedCommandsMemoryRequirementsEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_PREPROCESS_GENERATED_COMMANDS_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdPreprocessGeneratedCommandsEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_EXECUTE_GENERATED_COMMANDS_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdExecuteGeneratedCommandsEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_INDIRECT_COMMANDS_LAYOUT_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateIndirectCommandsLayoutEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_INDIRECT_COMMANDS_LAYOUT_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyIndirectCommandsLayoutEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_INDIRECT_EXECUTION_SET_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateIndirectExecutionSetEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_INDIRECT_EXECUTION_SET_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyIndirectExecutionSetEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_UPDATE_INDIRECT_EXECUTION_SET_PIPELINE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkUpdateIndirectExecutionSetPipelineEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_UPDATE_INDIRECT_EXECUTION_SET_SHADER_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkUpdateIndirectExecutionSetShaderEXT",
+    },
+    #[cfg(any(
+        target_os = "macos",
+        target_os = "ios",
+        target_os = "tvos",
+        target_os = "visionos"
+    ))]
+    DeviceDispatchLoad {
+        offset: VK_GET_MEMORY_METAL_HANDLE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetMemoryMetalHandleEXT",
+    },
+    #[cfg(any(
+        target_os = "macos",
+        target_os = "ios",
+        target_os = "tvos",
+        target_os = "visionos"
+    ))]
+    DeviceDispatchLoad {
+        offset: VK_GET_MEMORY_METAL_HANDLE_PROPERTIES_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetMemoryMetalHandlePropertiesEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_SHADER_INSTRUMENTATION_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateShaderInstrumentationARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_SHADER_INSTRUMENTATION_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyShaderInstrumentationARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BEGIN_SHADER_INSTRUMENTATION_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBeginShaderInstrumentationARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_END_SHADER_INSTRUMENTATION_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdEndShaderInstrumentationARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_SHADER_INSTRUMENTATION_VALUES_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetShaderInstrumentationValuesARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CLEAR_SHADER_INSTRUMENTATION_METRICS_ARM_DEVICE_DISPATCH_OFFSET,
+        name: c"vkClearShaderInstrumentationMetricsARM",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_END_RENDERING2EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdEndRendering2EXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BEGIN_CUSTOM_RESOLVE_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBeginCustomResolveEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_COMPUTE_OCCUPANCY_PRIORITY_NV_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetComputeOccupancyPriorityNV",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_PRIMITIVE_RESTART_INDEX_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetPrimitiveRestartIndexEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_ACCELERATION_STRUCTURE_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateAccelerationStructureKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_DESTROY_ACCELERATION_STRUCTURE_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkDestroyAccelerationStructureKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BUILD_ACCELERATION_STRUCTURES_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBuildAccelerationStructuresKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_BUILD_ACCELERATION_STRUCTURES_INDIRECT_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdBuildAccelerationStructuresIndirectKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_BUILD_ACCELERATION_STRUCTURES_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkBuildAccelerationStructuresKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_COPY_ACCELERATION_STRUCTURE_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCopyAccelerationStructureKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_COPY_ACCELERATION_STRUCTURE_TO_MEMORY_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCopyAccelerationStructureToMemoryKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_COPY_MEMORY_TO_ACCELERATION_STRUCTURE_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCopyMemoryToAccelerationStructureKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_WRITE_ACCELERATION_STRUCTURES_PROPERTIES_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkWriteAccelerationStructuresPropertiesKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_ACCELERATION_STRUCTURE_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyAccelerationStructureKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_ACCELERATION_STRUCTURE_TO_MEMORY_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyAccelerationStructureToMemoryKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_COPY_MEMORY_TO_ACCELERATION_STRUCTURE_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdCopyMemoryToAccelerationStructureKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetAccelerationStructureDeviceAddressKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_WRITE_ACCELERATION_STRUCTURES_PROPERTIES_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdWriteAccelerationStructuresPropertiesKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_DEVICE_ACCELERATION_STRUCTURE_COMPATIBILITY_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetDeviceAccelerationStructureCompatibilityKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_ACCELERATION_STRUCTURE_BUILD_SIZES_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetAccelerationStructureBuildSizesKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_TRACE_RAYS_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdTraceRaysKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CREATE_RAY_TRACING_PIPELINES_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCreateRayTracingPipelinesKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_RAY_TRACING_CAPTURE_REPLAY_SHADER_GROUP_HANDLES_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetRayTracingCaptureReplayShaderGroupHandlesKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_TRACE_RAYS_INDIRECT_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdTraceRaysIndirectKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_GET_RAY_TRACING_SHADER_GROUP_STACK_SIZE_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkGetRayTracingShaderGroupStackSizeKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_SET_RAY_TRACING_PIPELINE_STACK_SIZE_KHR_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdSetRayTracingPipelineStackSizeKHR",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_MESH_TASKS_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawMeshTasksEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_MESH_TASKS_INDIRECT_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawMeshTasksIndirectEXT",
+    },
+    DeviceDispatchLoad {
+        offset: VK_CMD_DRAW_MESH_TASKS_INDIRECT_COUNT_EXT_DEVICE_DISPATCH_OFFSET,
+        name: c"vkCmdDrawMeshTasksIndirectCountEXT",
+    },
+];
+const _: () = assert!(
+    core::mem::size_of::<Option<vk::PFN_vkDestroyDevice>>()
+        == core::mem::size_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::align_of::<Option<vk::PFN_vkDestroyDevice>>()
+        == core::mem::align_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::size_of::<Option<vk::PFN_vkCreateSwapchainKHR>>()
+        == core::mem::size_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::align_of::<Option<vk::PFN_vkCreateSwapchainKHR>>()
+        == core::mem::align_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::size_of::<Option<vk::PFN_vkGetDeviceGroupSurfacePresentModesKHR>>()
+        == core::mem::size_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::align_of::<Option<vk::PFN_vkGetDeviceGroupSurfacePresentModesKHR>>()
+        == core::mem::align_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::size_of::<Option<vk::PFN_vkCreateSharedSwapchainsKHR>>()
+        == core::mem::size_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::align_of::<Option<vk::PFN_vkCreateSharedSwapchainsKHR>>()
+        == core::mem::align_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::size_of::<Option<vk::PFN_vkDebugMarkerSetObjectTagEXT>>()
+        == core::mem::size_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::align_of::<Option<vk::PFN_vkDebugMarkerSetObjectTagEXT>>()
+        == core::mem::align_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::size_of::<Option<vk::PFN_vkDebugMarkerSetObjectNameEXT>>()
+        == core::mem::size_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::align_of::<Option<vk::PFN_vkDebugMarkerSetObjectNameEXT>>()
+        == core::mem::align_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::size_of::<Option<vk::PFN_vkSetDebugUtilsObjectNameEXT>>()
+        == core::mem::size_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::align_of::<Option<vk::PFN_vkSetDebugUtilsObjectNameEXT>>()
+        == core::mem::align_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::size_of::<Option<vk::PFN_vkSetDebugUtilsObjectTagEXT>>()
+        == core::mem::size_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::align_of::<Option<vk::PFN_vkSetDebugUtilsObjectTagEXT>>()
+        == core::mem::align_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::size_of::<Option<vk::PFN_vkQueueBeginDebugUtilsLabelEXT>>()
+        == core::mem::size_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::align_of::<Option<vk::PFN_vkQueueBeginDebugUtilsLabelEXT>>()
+        == core::mem::align_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::size_of::<Option<vk::PFN_vkQueueEndDebugUtilsLabelEXT>>()
+        == core::mem::size_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::align_of::<Option<vk::PFN_vkQueueEndDebugUtilsLabelEXT>>()
+        == core::mem::align_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::size_of::<Option<vk::PFN_vkQueueInsertDebugUtilsLabelEXT>>()
+        == core::mem::size_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::align_of::<Option<vk::PFN_vkQueueInsertDebugUtilsLabelEXT>>()
+        == core::mem::align_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::size_of::<Option<vk::PFN_vkCmdBeginDebugUtilsLabelEXT>>()
+        == core::mem::size_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::align_of::<Option<vk::PFN_vkCmdBeginDebugUtilsLabelEXT>>()
+        == core::mem::align_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::size_of::<Option<vk::PFN_vkCmdEndDebugUtilsLabelEXT>>()
+        == core::mem::size_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::align_of::<Option<vk::PFN_vkCmdEndDebugUtilsLabelEXT>>()
+        == core::mem::align_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::size_of::<Option<vk::PFN_vkCmdInsertDebugUtilsLabelEXT>>()
+        == core::mem::size_of::<vk::PFN_vkVoidFunction>()
+);
+const _: () = assert!(
+    core::mem::align_of::<Option<vk::PFN_vkCmdInsertDebugUtilsLabelEXT>>()
+        == core::mem::align_of::<vk::PFN_vkVoidFunction>()
+);
+#[cfg(target_os = "windows")]
+const _: () = assert!(
+    core::mem::size_of::<Option<vk::PFN_vkGetDeviceGroupSurfacePresentModes2EXT>>()
+        == core::mem::size_of::<vk::PFN_vkVoidFunction>()
+);
+#[cfg(target_os = "windows")]
+const _: () = assert!(
+    core::mem::align_of::<Option<vk::PFN_vkGetDeviceGroupSurfacePresentModes2EXT>>()
+        == core::mem::align_of::<vk::PFN_vkVoidFunction>()
+);
+pub(super) struct IcdDeviceDispatchLoad {
+    pub(crate) offset: u16,
+    pub(crate) command_id: u16,
+    pub(crate) name: &'static CStr,
+}
 pub(crate) const GET_INSTANCE_PROC_ADDR_COMMAND_ID: u16 = 612;
 pub(super) const VK_GET_DEVICE_PROC_ADDR_COMMAND_ID: u16 = 569;
 pub(super) const VK_DESTROY_DEVICE_COMMAND_ID: u16 = 459;
@@ -20212,8 +24254,14 @@ pub(crate) const COMMAND_COUNT: usize = 842;
 #[cfg(test)]
 pub(crate) const COMMAND_MAX_DISPLACEMENT: u8 = 31;
 #[inline(never)]
-pub(crate) fn command_lookup(name: &CStr) -> Option<CommandLookup> {
-    let suffix = name.to_bytes().strip_prefix(b"vk")?;
+pub(crate) fn command_lookup(name: &[u8]) -> Option<CommandLookup> {
+    if name.len() < 10 {
+        return (name == b"vkCmdDraw").then_some(CommandLookup {
+            id: VK_CMD_DRAW_COMMAND_ID,
+            scope: CommandScope::Device,
+        });
+    }
+    let suffix = name.strip_prefix(b"vk")?;
     let hash = command_hash(suffix);
     let bucket_mask = (COMMAND_DISPLACEMENTS.len() - 1) as u64;
     let bucket = (hash & bucket_mask) as usize;

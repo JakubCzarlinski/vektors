@@ -5,8 +5,8 @@ mod value;
 use alloc::{borrow::Cow, vec::Vec};
 use core::mem::MaybeUninit;
 
-use value::Object;
-pub(crate) use value::{Number, Value};
+pub(crate) use value::{Array, Document, Number, Value, ValueKind};
+use value::{Kind, Node};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum Error {
@@ -16,7 +16,7 @@ pub(crate) enum Error {
 
 const NESTING_LIMIT: usize = 1_000;
 
-pub(crate) fn parse(bytes: &[u8]) -> Result<Value<'_>, Error> {
+pub(crate) fn parse(bytes: &[u8]) -> Result<Document<'_>, Error> {
     let mut parser = Parser {
         bytes,
         index: if bytes.starts_with(&[0xef, 0xbb, 0xbf]) {
@@ -26,13 +26,18 @@ pub(crate) fn parse(bytes: &[u8]) -> Result<Value<'_>, Error> {
         },
         depth: 0,
         allocation_failed: false,
+        nodes: Vec::new(),
     };
     parser.skip_whitespace();
-    let value = parser.value();
+    let value = parser.value(None);
     if parser.allocation_failed {
         Err(Error::OutOfMemory)
     } else {
-        value.ok_or(Error::Invalid)
+        value
+            .map(|_| Document {
+                nodes: parser.nodes,
+            })
+            .ok_or(Error::Invalid)
     }
 }
 
@@ -66,6 +71,7 @@ struct Parser<'a> {
     index: usize,
     depth: usize,
     allocation_failed: bool,
+    nodes: Vec<Node<'a>>,
 }
 
 impl<'a> Parser<'a> {
@@ -83,17 +89,33 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn value(&mut self) -> Option<Value<'a>> {
-        match self.bytes.get(self.index).copied()? {
-            b'n' if self.take_literal(b"null") => Some(Value::Null),
-            b'f' if self.take_literal(b"false") => Some(Value::Bool(false)),
-            b't' if self.take_literal(b"true") => Some(Value::Bool(true)),
-            b'"' => self.string().map(Value::String),
-            b'-' | b'0'..=b'9' => self.number(),
-            b'[' => self.array(),
-            b'{' => self.object(),
-            _ => None,
+    fn value(&mut self, name: Option<Cow<'a, [u8]>>) -> Option<usize> {
+        let kind = match self.bytes.get(self.index).copied()? {
+            b'n' if self.take_literal(b"null") => Kind::Null,
+            b'f' if self.take_literal(b"false") => Kind::Bool(false),
+            b't' if self.take_literal(b"true") => Kind::Bool(true),
+            b'"' => Kind::String(self.string()?),
+            b'-' | b'0'..=b'9' => self.number()?,
+            b'[' => return self.array(name),
+            b'{' => return self.object(name),
+            _ => return None,
+        };
+        self.push_node(kind, name)
+    }
+
+    fn push_node(&mut self, kind: Kind<'a>, name: Option<Cow<'a, [u8]>>) -> Option<usize> {
+        let additional = if self.nodes.is_empty() { 32 } else { 1 };
+        if self.nodes.try_reserve(additional).is_err() {
+            self.allocation_failed = true;
+            return None;
         }
+        let index = self.nodes.len();
+        self.nodes.push(Node {
+            kind,
+            name,
+            subtree_bytes: core::mem::size_of::<Node<'a>>(),
+        });
+        Some(index)
     }
 
     fn take_literal(&mut self, literal: &[u8]) -> bool {
@@ -213,7 +235,7 @@ impl<'a> Parser<'a> {
         Some(value)
     }
 
-    fn number(&mut self) -> Option<Value<'a>> {
+    fn number(&mut self) -> Option<Kind<'a>> {
         let start = self.index;
         let remaining = self.bytes.get(start..)?;
         // Initialize only the copied prefix and its terminator, as strtod
@@ -247,26 +269,27 @@ impl<'a> Parser<'a> {
             Ok(value) => Number::Unsigned(value),
             Err(_) => match token.parse::<i64>() {
                 Ok(value) => Number::Signed(value),
-                Err(_) if value.is_finite() => Number::Float(value),
-                Err(_) => return Some(Value::Null),
+                Err(_) if value.is_finite() => Number::Float(&remaining[..consumed]),
+                Err(_) => return Some(Kind::Null),
             },
         };
-        Some(Value::Number(number))
+        Some(Kind::Number(number))
     }
 
-    fn array(&mut self) -> Option<Value<'a>> {
+    fn array(&mut self, name: Option<Cow<'a, [u8]>>) -> Option<usize> {
         self.enter()?;
         self.index += 1;
         self.skip_whitespace();
-        let mut values = Vec::new();
+        let array = self.push_node(Kind::Array(0), name)?;
         if self.bytes.get(self.index) == Some(&b']') {
             self.index += 1;
             self.leave();
-            return Some(Value::Array(values));
+            return Some(array);
         }
+        let mut length = 0;
         loop {
-            self.reserve(&mut values, 1)?;
-            values.push(self.value()?);
+            self.value(None)?;
+            length += 1;
             self.skip_whitespace();
             match self.bytes.get(self.index) {
                 Some(b',') => {
@@ -276,22 +299,25 @@ impl<'a> Parser<'a> {
                 Some(b']') => {
                     self.index += 1;
                     self.leave();
-                    return Some(Value::Array(values));
+                    self.nodes[array].kind = Kind::Array(length);
+                    self.nodes[array].subtree_bytes =
+                        (self.nodes.len() - array) * core::mem::size_of::<Node<'a>>();
+                    return Some(array);
                 }
                 _ => return None,
             }
         }
     }
 
-    fn object(&mut self) -> Option<Value<'a>> {
+    fn object(&mut self, name: Option<Cow<'a, [u8]>>) -> Option<usize> {
         self.enter()?;
         self.index += 1;
         self.skip_whitespace();
-        let mut values = Object(Vec::new());
+        let object = self.push_node(Kind::Object, name)?;
         if self.bytes.get(self.index) == Some(&b'}') {
             self.index += 1;
             self.leave();
-            return Some(Value::Object(values));
+            return Some(object);
         }
         loop {
             if self.bytes.get(self.index) != Some(&b'"') {
@@ -304,12 +330,7 @@ impl<'a> Parser<'a> {
             }
             self.index += 1;
             self.skip_whitespace();
-            let value = self.value();
-            // Check validity without moving the payload across the fallible
-            // reserve; extracting it here introduces extra stack copies.
-            value.as_ref()?;
-            self.reserve(&mut values.0, 1)?;
-            values.0.push((key, value?));
+            self.value(Some(key))?;
             self.skip_whitespace();
             match self.bytes.get(self.index) {
                 Some(b',') => {
@@ -319,7 +340,9 @@ impl<'a> Parser<'a> {
                 Some(b'}') => {
                     self.index += 1;
                     self.leave();
-                    return Some(Value::Object(values));
+                    self.nodes[object].subtree_bytes =
+                        (self.nodes.len() - object) * core::mem::size_of::<Node<'a>>();
+                    return Some(object);
                 }
                 _ => return None,
             }
@@ -341,7 +364,7 @@ impl<'a> Parser<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::{Number, Parser, Value, parse};
+    use super::{Kind, Number, Parser, Value, parse};
 
     #[test]
     fn string_delimiters_preserve_first_match_at_word_boundaries() {
@@ -389,25 +412,12 @@ mod tests {
         ] {
             let object = value.as_object().unwrap();
             let expected = object
-                .0
                 .iter()
                 .find(|(name, _)| name.split(|byte| *byte == 0).next().unwrap() == key.as_bytes())
                 .map(|(_, value)| value);
-            let expected_insensitive = object
-                .0
-                .iter()
-                .find(|(name, _)| {
-                    name.split(|byte| *byte == 0)
-                        .next()
-                        .unwrap()
-                        .eq_ignore_ascii_case(key.as_bytes())
-                })
-                .map(|(_, value)| value);
             assert_eq!(value.get(key), expected, "{key:?}");
-            assert_eq!(value.field(key), expected_insensitive, "{key:?}");
         }
         assert_eq!(value.get("name").and_then(Value::as_u64), Some(1));
-        assert_eq!(value.field("NAME").and_then(Value::as_u64), Some(1));
         assert_eq!(value.get("").and_then(Value::as_u64), Some(4));
     }
 
@@ -426,6 +436,7 @@ mod tests {
             index: 0,
             depth: 0,
             allocation_failed: false,
+            nodes: Vec::new(),
         };
         assert!(parser.reserve(&mut Vec::<u64>::new(), usize::MAX).is_none());
         assert!(parser.allocation_failed);
@@ -434,8 +445,11 @@ mod tests {
 
     #[test]
     fn preserves_literals_and_unicode_escape_compatibility() {
-        assert_eq!(parse(b"null"), Ok(Value::Null));
-        assert_eq!(parse(b"false"), Ok(Value::Bool(false)));
+        assert!(matches!(
+            parse(b"null").unwrap().root().kind(),
+            super::ValueKind::Null
+        ));
+        assert_eq!(parse(b"false").unwrap().root().as_bool(), Some(false));
         assert_eq!(
             parse(br#""\b\f\r\t\ud83d\ude00""#).unwrap().as_str(),
             Some("\u{8}\u{c}\r\t\u{1f600}")
@@ -449,7 +463,10 @@ mod tests {
             value.get("path").and_then(Value::as_bytes),
             Some(b"a\xffb\n".as_slice())
         );
-        assert_eq!(parse(b"01.5suffix"), Ok(Value::Number(Number::Float(1.5))));
+        assert_eq!(
+            parse(b"01.5suffix").unwrap().root().kind(),
+            super::ValueKind::Number(&Number::Float(b"01.5"))
+        );
         assert_eq!(
             parse(br#""ab\ncd\\ef""#).unwrap().as_str(),
             Some("ab\ncd\\ef")
@@ -466,7 +483,9 @@ mod tests {
             (b"1e+".as_slice(), Number::Unsigned(1)),
             (b"12\xff".as_slice(), Number::Unsigned(12)),
         ] {
-            assert_eq!(parse(bytes), Ok(Value::Number(expected)));
+            assert!(
+                matches!(parse(bytes).unwrap().root().kind(), super::ValueKind::Number(value) if value == &expected)
+            );
         }
         let mut bytes = [b'0'; 64];
         bytes[63] = b'9';
@@ -475,10 +494,15 @@ mod tests {
             index: 0,
             depth: 0,
             allocation_failed: false,
+            nodes: Vec::new(),
         };
-        assert_eq!(parser.value(), Some(Value::Number(Number::Unsigned(0))));
+        let value = parser.value(None).unwrap();
+        assert_eq!(parser.nodes[value].kind, Kind::Number(Number::Unsigned(0)));
         assert_eq!(parser.index, 63);
-        assert_eq!(parse(b"1e999"), Ok(Value::Null));
+        assert!(matches!(
+            parse(b"1e999").unwrap().root().kind(),
+            super::ValueKind::Null
+        ));
     }
 
     #[test]
@@ -487,10 +511,6 @@ mod tests {
             parse(br#"{"library_path\u0000suffix":"first","LIBRARY_PATH":"second"}"#).unwrap();
         assert_eq!(
             value.get("library_path").and_then(Value::as_str),
-            Some("first")
-        );
-        assert_eq!(
-            value.field("LIBRARY_PATH").and_then(Value::as_str),
             Some("first")
         );
         assert_eq!(value.get("library_path_suffix"), None);

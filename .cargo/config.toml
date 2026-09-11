@@ -3,6 +3,7 @@ linker = "clang"
 rustflags = [
   "-C", "link-arg=-fuse-ld=mold",
   "-C", "link-arg=-Wl,--icf=safe",
+  "-C", "link-arg=-Wl,-z,pack-relative-relocs",
 ]
 
 [target.'cfg(not(windows))']

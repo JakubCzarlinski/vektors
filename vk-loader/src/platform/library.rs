@@ -5,6 +5,8 @@ use super::filesystem::with_c_path;
 #[cfg(target_os = "fuchsia")]
 use super::fuchsia;
 use super::{dynamic_library_unloading_disabled, initialize_loader};
+#[cfg(windows)]
+use crate::LoaderPathExt;
 use core::{
     ffi::{CStr, c_void},
     marker::PhantomData,
@@ -90,7 +92,7 @@ impl OpenLibraryError {
             let code = self.code?;
             diagnostics::try_format(format_args!(
                 "Failed to open dynamic library \"{}\" with error {}",
-                path.display(),
+                path.loader_display(),
                 code
             ))
         }
@@ -108,9 +110,9 @@ impl OpenLibraryError {
         }
         #[cfg(not(windows))]
         {
-            self.message
-                .as_ref()
-                .is_ok_and(|message| message.contains("wrong ELF class"))
+            self.message.as_ref().is_ok_and(|message| {
+                crate::find_bytes(message.as_bytes(), b"wrong ELF class").is_some()
+            })
         }
     }
 }
@@ -152,7 +154,9 @@ impl LoaderLibrary {
             // another dynamic-loader operation can replace it.
             let error = unsafe { libc::dlerror() };
             let message = if error.is_null() {
-                crate::allocation::try_string("dlopen failed, but system did not report the error")
+                crate::debug::diagnostics::try_format(format_args!(
+                    "dlopen failed, but system did not report the error"
+                ))
             } else {
                 // SAFETY: A non-null dlerror result is a live terminated string.
 
@@ -170,18 +174,8 @@ impl LoaderLibrary {
         }))
     }
 
-    /// Looks up a terminated symbol without allocating a discarded error.
-    ///
-    /// # Safety
-    /// T must be the symbol's pointer-sized ABI type. Calling it requires the
-    /// corresponding foreign contract, and copies must not outlive the module.
-    pub(crate) unsafe fn get<T>(&self, name: &[u8]) -> Result<LibrarySymbol<'_, T>, ()> {
-        const {
-            assert!(core::mem::size_of::<T>() == core::mem::size_of::<*mut c_void>());
-        }
-        const {
-            assert!(core::mem::align_of::<T>() <= core::mem::align_of::<*mut c_void>());
-        }
+    #[inline(never)]
+    unsafe fn get_raw(&self, name: &[u8]) -> Result<NonNull<c_void>, ()> {
         let name = CStr::from_bytes_with_nul(name).map_err(|_| ())?;
         #[cfg(unix)]
         // SAFETY: The module is live and the symbol name is terminated.
@@ -197,9 +191,23 @@ impl LoaderLibrary {
         // SAFETY: The module is live and the symbol name is terminated.
         let pointer = unsafe { GetProcAddress(self.0.as_ptr(), name.as_ptr().cast()) }
             .map_or(core::ptr::null_mut(), |function| function as *mut c_void);
-        if pointer.is_null() {
-            return Err(());
+        NonNull::new(pointer).ok_or(())
+    }
+
+    /// Looks up a terminated symbol without allocating a discarded error.
+    ///
+    /// # Safety
+    /// T must be the symbol's pointer-sized ABI type. Calling it requires the
+    /// corresponding foreign contract, and copies must not outlive the module.
+    pub(crate) unsafe fn get<T>(&self, name: &[u8]) -> Result<LibrarySymbol<'_, T>, ()> {
+        const {
+            assert!(core::mem::size_of::<T>() == core::mem::size_of::<*mut c_void>());
         }
+        const {
+            assert!(core::mem::align_of::<T>() <= core::mem::align_of::<*mut c_void>());
+        }
+        // SAFETY: The module remains live for the returned symbol's lifetime.
+        let pointer = unsafe { self.get_raw(name) }?.as_ptr();
         // SAFETY: Compile-time assertions establish the representation size
         // and alignment; the caller guarantees the symbol's ABI type.
         let value = unsafe { (&raw const pointer).cast::<T>().read() };
