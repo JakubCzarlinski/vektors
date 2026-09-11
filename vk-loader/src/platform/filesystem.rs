@@ -178,8 +178,13 @@ pub(crate) fn read_file(path: &Path) -> Option<Box<[u8]>> {
     // The manifest extent is known before the single full-file read below.
     // Avoid libc allocating and copying through a separate `FILE` buffer.
     // SAFETY: No I/O has been performed on this newly opened stream.
+    #[cfg(target_os = "linux")]
     unsafe {
         libc::setvbuf(file, core::ptr::null_mut(), libc::_IONBF, 0);
+    }
+    #[cfg(not(target_os = "linux"))]
+    unsafe {
+        libc::setbuf(file, core::ptr::null_mut());
     }
 
     let result = (|| {

@@ -5,7 +5,7 @@ args=()
 for arg in "$@"; do
   # rustc passes this deprecated no-op to GNU-like linkers. LLD warns about it,
   # so omit it rather than hiding linker diagnostics globally.
-  if [[ "$arg" == "-Wl,-O1" || "$arg" == "-fuse-ld=mold" || "$arg" == "-Wl,--icf=safe" ]]; then
+  if [[ "$arg" == "-Wl,-O1" || "$arg" == "-fuse-ld=mold" || "$arg" == "-Wl,--icf=safe" || "$arg" == "-Wl,-z,pack-relative-relocs" ]]; then
     continue
   fi
   args+=("$arg")
