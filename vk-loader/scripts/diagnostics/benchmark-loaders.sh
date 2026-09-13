@@ -24,7 +24,7 @@ esac
 output_dir="${VK_LOADER_BENCH_OUTPUT_DIR:-$default_output_dir}"
 rust_loader="${VK_LOADER_BENCH_RUST_LIBRARY:-$rust_target_dir/release/libvulkan.so}"
 performance_build_dir="${VK_LOADER_BENCH_UPSTREAM_BUILD_DIR:-$loader_test_root/benchmarks/$variant/upstream}"
-upstream_loader="${VK_LOADER_BENCH_UPSTREAM_LIBRARY:-$performance_build_dir/loader/libvulkan.so.1.4.361}"
+upstream_loader="${VK_LOADER_BENCH_UPSTREAM_LIBRARY:-$performance_build_dir/loader/libvulkan.so.1}"
 repetitions="${VK_LOADER_BENCH_REPETITIONS:-9}"
 bench_cpu="${VK_LOADER_BENCH_CPU:-2}"
 collect_perf="${VK_LOADER_BENCH_PERF:-1}"

@@ -131,7 +131,7 @@ run_suite "Rust loader" "$rust_loader"
 
 if [[ "${VK_LOADER_SASCHA_COMPARE_UPSTREAM:-0}" == "1" ]]; then
 
-  upstream_loader="${VK_LOADER_SASCHA_UPSTREAM_LIBRARY:-$upstream_build_dir/loader/libvulkan.so.1.4.361}"
+upstream_loader="${VK_LOADER_SASCHA_UPSTREAM_LIBRARY:-$upstream_build_dir/loader/libvulkan.so.1}"
   [[ -f "$upstream_loader" ]] || {
     echo "upstream loader not found: $upstream_loader" >&2
     exit 2

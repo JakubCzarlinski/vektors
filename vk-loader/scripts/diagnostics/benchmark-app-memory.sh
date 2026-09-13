@@ -6,7 +6,7 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
 output_dir="${VK_LOADER_E2E_MEMORY_DIR:-$loader_test_root/memory/e2e}"
 repetitions="${VK_LOADER_E2E_MEMORY_REPETITIONS:-7}"
 rust_loader="$(resolve_rust_loader "${VK_LOADER_LIBRARY:-}" release)"
-upstream_loader="${VK_LOADER_E2E_UPSTREAM_LIBRARY:-$loader_test_root/benchmarks/baseline/upstream/loader/libvulkan.so.1.4.361}"
+upstream_loader="${VK_LOADER_E2E_UPSTREAM_LIBRARY:-$loader_test_root/benchmarks/baseline/upstream/loader/libvulkan.so.1}"
 collect_heaptrack="${VK_LOADER_E2E_HEAPTRACK:-0}"
 IFS=, read -r -a layers <<<"${VK_LOADER_E2E_LAYERS:-none,VK_LAYER_KHRONOS_validation}"
 if (( $# == 0 )); then

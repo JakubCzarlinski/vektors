@@ -2,7 +2,7 @@
 set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
-upstream_loader="$upstream_build_dir/loader/libvulkan.so.1.4.361"
+upstream_loader="$upstream_build_dir/loader/libvulkan.so.1"
 target_dir="${VK_LOADER_COVERAGE_DIR:-$loader_test_root/coverage/rust}"
 profile_dir="$target_dir/profiles"
 upstream_profile_dir="$target_dir/upstream-profiles"

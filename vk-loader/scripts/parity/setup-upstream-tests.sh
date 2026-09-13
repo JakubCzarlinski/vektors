@@ -2,7 +2,7 @@
 set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
-expected_revision="b1d75f38257ffa71d7aa93552d2e2793296309aa"
+expected_revision="$upstream_revision"
 neutral_fuzz_patch="$loader_scripts/parity/upstream-loader-neutral-fuzz.patch"
 
 require_tools cmake git mold ninja
