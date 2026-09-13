@@ -174,8 +174,6 @@ pub(crate) unsafe fn setup_trampoline_physical_device_groups(
     Ok(())
 }
 
-pub(crate) const MAX_ID_FILTERS: usize = 16;
-
 #[derive(Clone, Copy, Default)]
 pub(crate) struct IdRange {
     begin: u32,
@@ -184,8 +182,7 @@ pub(crate) struct IdRange {
 
 #[derive(Default)]
 pub(crate) struct IdFilter {
-    ranges: [IdRange; MAX_ID_FILTERS],
-    len: usize,
+    ranges: Box<[IdRange]>,
 }
 
 impl IdFilter {
@@ -214,27 +211,31 @@ impl IdFilter {
             ))?;
             &owned
         };
-        filter.len = 0;
-        for (index, token) in value.split(',').take(MAX_ID_FILTERS).enumerate() {
+        let mut ranges = allocation::try_box_uninit_slice::<IdRange>(
+            value.bytes().filter(|&byte| byte == b',').count() + 1,
+        )?;
+        for (slot, token) in ranges.iter_mut().zip(value.split(',')) {
             let (begin, consumed) = parse_c_u32(token.as_bytes());
             let end = token
                 .as_bytes()
                 .get(consumed.saturating_add(1)..)
                 .map_or(begin, |tail| parse_c_u32(tail).0);
-            filter.ranges[index] = IdRange { begin, end };
-            filter.len += 1;
+            slot.write(IdRange { begin, end });
         }
+        // SAFETY: The allocation length equals the token count, and every slot
+        // was initialized above. Publish only after allocation and parsing succeed.
+        filter.ranges = unsafe { ranges.assume_init() };
         Ok(())
     }
 
     fn matches(&self, value: u32) -> bool {
-        self.ranges[..self.len]
+        self.ranges
             .iter()
             .any(|range| range.begin <= value && value <= range.end)
     }
 
-    fn is_empty(&self) -> bool {
-        self.len == 0
+    const fn is_empty(&self) -> bool {
+        self.ranges.is_empty()
     }
 }
 
@@ -2635,7 +2636,7 @@ mod allocation_tests {
                 let mut filter = super::IdFilter::default();
                 match super::IdFilter::parse_into(std::ffi::OsStr::from_bytes(bytes), &mut filter) {
                     Ok(()) => {
-                        assert_eq!(filter.len, 1);
+                        assert_eq!(filter.ranges.len(), 1);
                         assert_eq!(filter.ranges[0].begin, begin);
                         assert_eq!(filter.ranges[0].end, end);
                         vk::VkResult::SUCCESS
@@ -2646,6 +2647,27 @@ mod allocation_tests {
         }
     }
 
+    #[test]
+    fn id_filter_matches_past_sixteen_entries() {
+        fault::sweep_operation(|| {
+            let mut filter = super::IdFilter::default();
+            match super::IdFilter::parse_into(
+                std::ffi::OsStr::new("1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,100-102"),
+                &mut filter,
+            ) {
+                Ok(()) => {
+                    assert!(filter.matches(16));
+                    assert!(filter.matches(100));
+                    assert!(filter.matches(102));
+                    assert!(!filter.matches(99));
+                    assert!(!filter.matches(103));
+                    vk::VkResult::SUCCESS
+                }
+                Err(result) => result,
+            }
+        });
+    }
+
     #[cfg(windows)]
     #[test]
     fn id_filter_unpaired_surrogate_conversion_is_fallible() {
@@ -2654,7 +2676,7 @@ mod allocation_tests {
             let mut filter = super::IdFilter::default();
             match super::IdFilter::parse_into(&value, &mut filter) {
                 Ok(()) => {
-                    assert_eq!(filter.len, 1);
+                    assert_eq!(filter.ranges.len(), 1);
                     assert_eq!(filter.ranges[0].begin, 1);
                     assert_eq!(filter.ranges[0].end, 0);
                     vk::VkResult::SUCCESS
