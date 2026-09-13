@@ -278,6 +278,22 @@ fn gen_entry(
 
         if name == "vkCreateInstance" {
             methods_ts.extend(gen_create_instance(cmd, &providers, handle_meta));
+        } else if name == "vkEnumerateInstanceVersion" {
+            let cfg = cfg_availability(&cmd.availability, &providers, cmd.dep.as_ref());
+            for line in create_doc(cmd, &providers).lines() {
+                methods_ts.extend(quote! { #[doc = #line] });
+            }
+            methods_ts.extend(quote! {
+                ///
+                /// Vulkan 1.0 loaders may not export `vkEnumerateInstanceVersion`.
+                /// An absent function means Vulkan 1.0 support, not a load failure;
+                /// return that version without calling or unwrapping a null pointer.
+                #cfg
+                #[inline]
+                pub fn vkEnumerateInstanceVersion(&self, pApiVersion: &mut u32) -> Result<VkResult, VkResult> {
+                    enumerate_instance_version(self.table.vkEnumerateInstanceVersion, pApiVersion)
+                }
+            });
         } else {
             // No param[0] stripping for entry commands (handle_base = "").
             methods_ts.extend(safe_method(
@@ -297,6 +313,52 @@ fn gen_entry(
     }
 
     quote! {
+        #[cfg(feature = "VK_BASE_VERSION_1_1")]
+        #[inline]
+        fn enumerate_instance_version(
+            function: Option<PFN_vkEnumerateInstanceVersion>,
+            version: &mut u32,
+        ) -> Result<VkResult, VkResult> {
+            let result = match function {
+                Some(function) => unsafe { function(version) },
+                None => {
+                    *version = crate::VK_API_VERSION_1_0;
+                    VkResult::SUCCESS
+                }
+            };
+            match result {
+                result if result >= VkResult::SUCCESS => Ok(result),
+                error => Err(error),
+            }
+        }
+
+        #[cfg(all(test, feature = "VK_BASE_VERSION_1_1"))]
+        mod version_tests {
+            use super::*;
+
+            #[test]
+            fn absent_function_reports_vulkan_1_0() {
+                let mut version = 0;
+                assert_eq!(enumerate_instance_version(None, &mut version), Ok(VkResult::SUCCESS));
+                assert_eq!(version, crate::VK_API_VERSION_1_0);
+            }
+
+            #[test]
+            fn present_function_preserves_version_and_errors() {
+                unsafe extern "system" fn success(version: *mut u32) -> VkResult {
+                    unsafe { version.write(crate::VK_API_VERSION_1_1) };
+                    VkResult::SUCCESS
+                }
+                unsafe extern "system" fn failure(_: *mut u32) -> VkResult {
+                    VkResult::ERROR_OUT_OF_HOST_MEMORY
+                }
+                let mut version = 0;
+                assert_eq!(enumerate_instance_version(Some(success), &mut version), Ok(VkResult::SUCCESS));
+                assert_eq!(version, crate::VK_API_VERSION_1_1);
+                assert_eq!(enumerate_instance_version(Some(failure), &mut version), Err(VkResult::ERROR_OUT_OF_HOST_MEMORY));
+            }
+        }
+
         /// Pre-instance Vulkan entry point.
         ///
         /// Borrows the [`VulkanLib`] it was created from; cannot outlive it.
