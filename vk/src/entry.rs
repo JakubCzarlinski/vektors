@@ -102,12 +102,16 @@ impl core::fmt::Display for LoadError {
 ///
 /// # Cleanup
 /// No cleanup required. The library is closed when this value is dropped.
+#[cfg(feature = "VK_BASE_VERSION_1_0")]
 pub struct VulkanLib {
   _lib: libloading::Library,
   pub(crate) get_instance_proc_addr: PFN_vkGetInstanceProcAddr,
 }
+#[cfg(feature = "VK_BASE_VERSION_1_0")]
 unsafe impl Send for VulkanLib {}
+#[cfg(feature = "VK_BASE_VERSION_1_0")]
 unsafe impl Sync for VulkanLib {}
+#[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl VulkanLib {
   /// Open the platform Vulkan loader.
   pub fn load() -> Result<Self, LoadError> {
@@ -133,6 +137,7 @@ impl VulkanLib {
 /// Fields are `Option<PFN_*>`; `None` means absent at load time.
 /// Use [`Entry`] for the safe API.
 #[derive(Debug, Clone)]
+#[cfg(feature = "VK_BASE_VERSION_1_0")]
 pub struct EntryDispatchTable {
   #[cfg(feature = "VK_BASE_VERSION_1_0")]
   pub vkCreateInstance: Option<PFN_vkCreateInstance>,
@@ -143,6 +148,7 @@ pub struct EntryDispatchTable {
   #[cfg(feature = "VK_BASE_VERSION_1_1")]
   pub vkEnumerateInstanceVersion: Option<PFN_vkEnumerateInstanceVersion>,
 }
+#[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl EntryDispatchTable {
   pub const EMPTY: Self = Self {
     #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -187,14 +193,18 @@ impl EntryDispatchTable {
 ///
 /// # Cleanup
 /// No cleanup required.  Entry commands leave no Vulkan objects alive.
+#[cfg(feature = "VK_BASE_VERSION_1_0")]
 pub struct Entry<'lib> {
   table: EntryDispatchTable,
   /// Retained so that `vkCreateInstance` can resolve the instance-tier
   /// table via `vkGetInstanceProcAddr` after the instance is created.
   lib: &'lib VulkanLib,
 }
+#[cfg(feature = "VK_BASE_VERSION_1_0")]
 unsafe impl<'lib> Send for Entry<'lib> {}
+#[cfg(feature = "VK_BASE_VERSION_1_0")]
 unsafe impl<'lib> Sync for Entry<'lib> {}
+#[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl<'lib> Entry<'lib> {
   /// Create an `Entry` by loading all pre-instance commands from `lib`.
   #[inline]

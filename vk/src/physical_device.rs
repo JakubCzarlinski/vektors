@@ -249,6 +249,7 @@ use crate::enums::VkTimeDomainEXT;
   feature = "VK_EXT_calibrated_timestamps"
 ))]
 use crate::enums::VkTimeDomainKHR;
+#[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::instance::Instance;
 #[cfg(feature = "VK_QNX_screen_surface")]
 use crate::types::_screen_window;

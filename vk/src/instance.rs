@@ -55,6 +55,7 @@ use crate::commands::PFN_vkEnumeratePhysicalDevices;
 use crate::commands::PFN_vkGetDeviceProcAddr;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::commands::PFN_vkGetInstanceProcAddr;
+#[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::entry::VulkanLib;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkResult;

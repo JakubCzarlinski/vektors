@@ -46,6 +46,7 @@ fn preamble(imports: TokenStream) -> TokenStream {
         #![allow(non_snake_case, unused_imports, clippy::too_many_arguments, clippy::missing_safety_doc)]
         use core::ffi::{c_char, c_void};
         #imports
+        #[cfg(feature = "VK_BASE_VERSION_1_0")]
         use crate::instance::Instance;
     }
 }

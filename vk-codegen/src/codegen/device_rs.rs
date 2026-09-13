@@ -60,6 +60,7 @@ fn preamble(imports: TokenStream) -> TokenStream {
 
         use core::ffi::{c_char, c_void};
         #imports
+        #[cfg(feature = "VK_BASE_VERSION_1_0")]
         use crate::instance::Instance;
     }
 }

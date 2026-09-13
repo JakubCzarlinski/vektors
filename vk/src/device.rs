@@ -558,6 +558,7 @@ use crate::enums::VkPerformanceParameterTypeINTEL;
 use crate::enums::VkQueryType;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkResult;
+#[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::instance::Instance;
 #[cfg(feature = "VK_QNX_external_memory_screen_buffer")]
 use crate::types::_screen_buffer;
