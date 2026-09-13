@@ -13,11 +13,21 @@
 //! # Quick start
 //!
 //! ```rust,no_run
-//! let lib      = VulkanLib::load()?;
-//! let entry    = Entry::new(&lib);
-//! let instance = entry.vkCreateInstance(&info, ptr::null())?;
-//! let gpus     = instance.vkEnumeratePhysicalDevices()?;
-//! let device   = instance.vkCreateDevice(gpus[0], &dev_info, ptr::null())?;
+//! # #[cfg(feature = "VK_BASE_VERSION_1_0")]
+//! # {
+//! use core::ptr;
+//! use vk::{Entry, VulkanLib, VkInstanceCreateInfo};
+//!
+//! let lib = VulkanLib::load().expect("Vulkan loader unavailable");
+//! let entry = Entry::new(&lib);
+//! let info = VkInstanceCreateInfo::DEFAULT;
+//! let instance = entry.vkCreateInstance(&info, ptr::null())
+//!     .expect("instance creation failed");
+//! let gpus = instance.vkEnumeratePhysicalDevices()
+//!     .expect("physical device enumeration failed");
+//! println!("Found {} Vulkan physical devices", gpus.len());
+//! // The instance is destroyed before the library when these values drop.
+//! # }
 //! ```
 #![allow(
   non_snake_case,
