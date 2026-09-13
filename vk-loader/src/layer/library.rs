@@ -67,7 +67,7 @@ impl LoadedLayer {
                         .map(|symbol| *symbol)
                 }
             })
-            .ok_or(LayerLoadError::Failed)?;
+            .ok_or(LayerLoadError::MissingInstanceProcAddr)?;
         let get_device_proc_addr = negotiated_functions
             .then_some(negotiated.get_device_proc_addr)
             .flatten()
@@ -175,7 +175,7 @@ fn negotiate_layer_interface(
         if unsafe { negotiate(&raw mut negotiated) } != VkResult::SUCCESS
             || negotiated.loader_layer_interface_version == 0
         {
-            return Err(LayerLoadError::Failed);
+            return Err(LayerLoadError::NegotiationFailed);
         }
     }
     Ok((negotiate.is_some(), negotiated))

@@ -3,6 +3,42 @@ use crate::{allocation::fault, discovery};
 use core::mem::{offset_of, size_of};
 
 #[test]
+fn failed_implicit_component_is_not_reported_but_its_meta_layer_is() {
+    let mut component = discovery::test_manifest(&[]);
+    component.name = c"VK_LAYER_missing_component".to_owned();
+    component.source = discovery::LayerSource::Library(std::path::PathBuf::from(
+        "vektors_nonexistent_test_layer_library",
+    ));
+    let mut meta = discovery::test_manifest(&[]);
+    meta.name = c"VK_LAYER_meta".to_owned();
+    meta.source = discovery::LayerSource::Meta(
+        [discovery::LayerComponent::from(component.name.clone())].into(),
+    );
+    let manifests = Box::new([component, meta]);
+    let reported = manifests
+        .iter()
+        .enumerate()
+        .map(|(index, manifest)| ActiveLayerProperty::try_new(manifest, index).unwrap())
+        .collect();
+    let selected = SelectedLayers {
+        manifests,
+        selected: vec![0],
+        reported,
+        requested: Box::default(),
+        environment_count: 0,
+        activation_messages: Vec::new(),
+        activation_error_messages: Vec::new(),
+    };
+    let active = activation::load_selected_layers(&VkInstanceCreateInfo::DEFAULT, selected)
+        .unwrap_or_else(|error| {
+            panic!("implicit load failure aborted instance creation: {error:?}")
+        });
+    assert!(active.loaded.is_empty());
+    assert_eq!(active.reported.len(), 1);
+    assert_eq!(active.reported[0].name.as_c_str(), c"VK_LAYER_meta");
+}
+
+#[test]
 fn meta_reachability_handles_cycles_duplicates_and_allocation_failures() {
     let names = [c"VK_LAYER_a", c"VK_LAYER_b", c"VK_LAYER_isolated"];
     let mut manifests = names.map(|name| {

@@ -249,7 +249,7 @@ pub(crate) fn unload_layers(layers: &mut [LoadedLayer]) {
 pub(crate) struct SelectedLayers {
     manifests: Box<[LayerManifest]>,
     selected: Vec<usize>,
-    reported: Box<[ActiveLayerProperty]>,
+    reported: Vec<ActiveLayerProperty>,
     requested: Box<[CString]>,
     environment_count: usize,
     activation_messages: Vec<String>,
@@ -268,6 +268,7 @@ impl SelectedLayers {
 }
 
 pub(crate) struct ActiveLayerProperty {
+    manifest_index: usize,
     name: CString,
     manifest_path: std::path::PathBuf,
     api_version: u32,
@@ -276,8 +277,9 @@ pub(crate) struct ActiveLayerProperty {
 }
 
 impl ActiveLayerProperty {
-    fn try_new(manifest: &LayerManifest) -> Result<Self, VkResult> {
+    fn try_new(manifest: &LayerManifest, manifest_index: usize) -> Result<Self, VkResult> {
         Ok(Self {
+            manifest_index,
             name: allocation::try_c_string(&manifest.name)?,
             manifest_path: allocation::try_path(&manifest.manifest_path)?,
             api_version: manifest.api_version,
@@ -351,6 +353,8 @@ enum LayerLoadError {
         wrong_bit_type: bool,
     },
     Failed,
+    NegotiationFailed,
+    MissingInstanceProcAddr,
 }
 
 impl From<VkResult> for LayerLoadError {

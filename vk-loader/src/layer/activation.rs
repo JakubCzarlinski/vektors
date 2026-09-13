@@ -370,7 +370,7 @@ pub(crate) fn select_active_layers(
     Ok(SelectedLayers {
         manifests: manifests.into_manifests(),
         selected,
-        reported: allocation::try_into_boxed_slice(reported)?,
+        reported,
         requested,
         environment_count,
         activation_messages,
@@ -421,7 +421,7 @@ pub(crate) fn load_selected_layers(
     let SelectedLayers {
         mut manifests,
         selected,
-        reported,
+        mut reported,
         requested,
         environment_count,
         ..
@@ -455,13 +455,10 @@ pub(crate) fn load_selected_layers(
             .iter()
             .any(|name| name.as_c_str() == manifest.name.as_c_str());
         let enabled_by_meta_layer = reported.iter().any(|active| {
-            manifests.iter().any(|meta| {
-                meta.name == active.name
-                    && meta
-                        .component_layers()
-                        .iter()
-                        .any(|component| component == &manifest.name)
-            })
+            manifests[active.manifest_index]
+                .component_layers()
+                .iter()
+                .any(|component| component == &manifest.name)
         });
         let enabled_by = if manifest.settings_control == Some(LayerControl::On) {
             LayerEnabledBy::Settings
@@ -489,6 +486,9 @@ pub(crate) fn load_selected_layers(
                 allocation::try_push(&mut loaded, layer)?;
             }
             Err(error) => {
+                // Exclude failed libraries, preserving meta-layers and duplicate
+                // declarations skipped above, as upstream enumeration does.
+                reported.retain(|property| property.manifest_index != index);
                 emit_layer_load_error(
                     create_info,
                     &manifests[index],
@@ -513,7 +513,7 @@ pub(crate) fn load_selected_layers(
     loaded.reverse();
     Ok(ActiveLayers {
         loaded: allocation::try_into_boxed_slice(loaded)?,
-        reported,
+        reported: allocation::try_into_boxed_slice(reported)?,
         requested,
     })
 }
@@ -557,7 +557,7 @@ fn activate_manifest(
         reported
             .try_reserve(1)
             .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
-        let property = ActiveLayerProperty::try_new(manifest)?;
+        let property = ActiveLayerProperty::try_new(manifest, index)?;
         selected.push(index);
         reported.push(property);
         true
@@ -594,7 +594,7 @@ fn activate_manifest(
             reported
                 .try_reserve(1)
                 .map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
-            reported.push(ActiveLayerProperty::try_new(manifest)?);
+            reported.push(ActiveLayerProperty::try_new(manifest, index)?);
         }
         complete
     };
@@ -664,6 +664,11 @@ fn emit_layer_load_error(
             wrong_bit_type: false,
         } => ("failed to load", Some((message, false))),
         LayerLoadError::Failed => ("failed to load", None),
+        LayerLoadError::NegotiationFailed => (
+            "failed to negotiate a compatible interface version with layer",
+            None,
+        ),
+        LayerLoadError::MissingInstanceProcAddr => ("is missing vkGetInstanceProcAddr ", None),
         LayerLoadError::OutOfMemory => return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY),
         LayerLoadError::Initialization(error) => return Err(error),
     };
