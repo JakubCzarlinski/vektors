@@ -1894,6 +1894,8 @@ use crate::types::VkBufferCopy2KHR;
 use crate::types::VkBufferCreateFlags;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkBufferCreateInfo;
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+use crate::types::VkBufferDeviceAddressAlignmentAllocateInfoVALVE;
 #[cfg(feature = "VK_EXT_buffer_device_address")]
 use crate::types::VkBufferDeviceAddressCreateInfoEXT;
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
@@ -3602,6 +3604,10 @@ use crate::types::VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT;
 use crate::types::VkPhysicalDeviceBorderColorSwizzleFeaturesEXT;
 #[cfg(feature = "VK_EXT_buffer_device_address")]
 use crate::types::VkPhysicalDeviceBufferAddressFeaturesEXT;
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+use crate::types::VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE;
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+use crate::types::VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE;
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
 use crate::types::VkPhysicalDeviceBufferDeviceAddressFeatures;
 #[cfg(feature = "VK_EXT_buffer_device_address")]
@@ -4192,6 +4198,8 @@ use crate::types::VkPhysicalDevicePipelineCreationCacheControlFeaturesEXT;
 use crate::types::VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR;
 #[cfg(feature = "VK_EXT_pipeline_library_group_handles")]
 use crate::types::VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT;
+#[cfg(feature = "VK_KHR_pipeline_library_group_handles")]
+use crate::types::VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR;
 #[cfg(feature = "VK_ARM_pipeline_opacity_micromap")]
 use crate::types::VkPhysicalDevicePipelineOpacityMicromapFeaturesARM;
 #[cfg(feature = "VK_EXT_pipeline_properties")]

@@ -213,6 +213,10 @@ use crate::types::VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT;
 use crate::types::VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT;
 #[cfg(feature = "VK_EXT_border_color_swizzle")]
 use crate::types::VkPhysicalDeviceBorderColorSwizzleFeaturesEXT;
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+use crate::types::VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE;
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+use crate::types::VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE;
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
 use crate::types::VkPhysicalDeviceBufferDeviceAddressFeatures;
 #[cfg(feature = "VK_EXT_buffer_device_address")]
@@ -653,8 +657,8 @@ use crate::types::VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC;
 use crate::types::VkPhysicalDevicePipelineCreationCacheControlFeatures;
 #[cfg(feature = "VK_KHR_pipeline_executable_properties")]
 use crate::types::VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR;
-#[cfg(feature = "VK_EXT_pipeline_library_group_handles")]
-use crate::types::VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT;
+#[cfg(feature = "VK_KHR_pipeline_library_group_handles")]
+use crate::types::VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR;
 #[cfg(feature = "VK_ARM_pipeline_opacity_micromap")]
 use crate::types::VkPhysicalDevicePipelineOpacityMicromapFeaturesARM;
 #[cfg(feature = "VK_EXT_pipeline_properties")]
@@ -1300,6 +1304,22 @@ impl<'a> VkPhysicalDeviceFeatures2<'a> {
   ) -> Self {
     self.pNext =
       (val as *mut VkPhysicalDeviceBorderColorSwizzleFeaturesEXT<'child>).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE<
+    'child,
+  >(
+    mut self,
+    val: &'a mut VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE<'child>,
+  ) -> Self {
+    self.pNext = (val
+      as *mut VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE<'child>)
+      .cast::<c_void>();
     self
   }
   #[cfg(feature = "VK_BASE_VERSION_1_2")]
@@ -3053,17 +3073,17 @@ impl<'a> VkPhysicalDeviceFeatures2<'a> {
       .cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_EXT_pipeline_library_group_handles")]
+  #[cfg(feature = "VK_KHR_pipeline_library_group_handles")]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
   #[inline]
-  pub const fn with_pNext_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT<'child>(
+  pub const fn with_pNext_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR<'child>(
     mut self,
-    val: &'a mut VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT<'child>,
+    val: &'a mut VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR<'child>,
   ) -> Self {
     self.pNext =
-      (val as *mut VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT<'child>).cast::<c_void>();
+      (val as *mut VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR<'child>).cast::<c_void>();
     self
   }
   #[cfg(feature = "VK_ARM_pipeline_opacity_micromap")]
@@ -4767,6 +4787,22 @@ impl<'a> VkPhysicalDeviceProperties2<'a> {
   ) -> Self {
     self.pNext =
       (val as *mut VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT<'child>).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE<
+    'child,
+  >(
+    mut self,
+    val: &'a mut VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE<'child>,
+  ) -> Self {
+    self.pNext = (val
+      as *mut VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE<'child>)
+      .cast::<c_void>();
     self
   }
   #[cfg(feature = "VK_NV_cluster_acceleration_structure")]

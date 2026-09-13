@@ -26443,6 +26443,97 @@ impl<'a> VkPipelineLibraryCreateInfoKHR<'a> {
     self
   }
 }
+/// [VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR.html)
+///
+/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
+#[cfg(feature = "VK_KHR_pipeline_library_group_handles")]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_KHR
+  pub sType: VkStructureType,
+  /// Optional: true,  No Auto-Validity
+  pub pNext: *mut c_void,
+  pub pipelineLibraryGroupHandles: VkBool32,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(feature = "VK_KHR_pipeline_library_group_handles")]
+unsafe impl<'a> Send for VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR<'a> {}
+#[cfg(feature = "VK_KHR_pipeline_library_group_handles")]
+unsafe impl<'a> Sync for VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR<'a> {}
+#[cfg(all(
+  feature = "VK_KHR_pipeline_library_group_handles",
+  feature = "VK_BASE_VERSION_1_1"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
+  for VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR<'child>
+{
+}
+#[cfg(all(
+  feature = "VK_KHR_pipeline_library_group_handles",
+  feature = "VK_BASE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
+  for VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR<'child>
+{
+}
+#[cfg(feature = "VK_KHR_pipeline_library_group_handles")]
+impl<'a> VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_KHR,
+    pNext: core::ptr::null_mut(),
+    pipelineLibraryGroupHandles: 0,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_pipelineLibraryGroupHandles(mut self, val: VkBool32) -> Self {
+    self.pipelineLibraryGroupHandles = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkDeviceCreateInfo<
+    'root,
+    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
 /// [VkPhysicalDevicePortabilitySubsetFeaturesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDevicePortabilitySubsetFeaturesKHR.html)
 ///
 /// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.

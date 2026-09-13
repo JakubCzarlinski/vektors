@@ -18,6 +18,8 @@ use crate::enums::VkVideoEncodeRgbModelConversionFlagBitsVALVE;
 use crate::enums::VkVideoEncodeRgbRangeCompressionFlagBitsVALVE;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkBool32;
+#[cfg(feature = "VK_BASE_VERSION_1_0")]
+use crate::types::VkBufferCreateInfo;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 use crate::types::VkDescriptorPoolCreateInfo;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
@@ -28,6 +30,8 @@ use crate::types::VkDescriptorSetLayoutCreateInfo;
 use crate::types::VkDeviceCreateInfo;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 use crate::types::VkGraphicsPipelineCreateInfo;
+#[cfg(feature = "VK_BASE_VERSION_1_0")]
+use crate::types::VkMemoryAllocateInfo;
 use crate::types::VkPNextExtends;
 #[cfg(feature = "VK_BASE_VERSION_1_1")]
 use crate::types::VkPhysicalDeviceFeatures2;
@@ -40,6 +44,261 @@ use crate::types::VkVideoProfileInfoKHR;
 #[cfg(feature = "VK_KHR_video_queue")]
 use crate::types::VkVideoSessionCreateInfoKHR;
 use core::ffi::c_void;
+/// [VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE.html)
+///
+/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_FEATURES_VALVE
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  pub bufferDeviceAddressAllocationAlignment: VkBool32,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+unsafe impl<'a> Send for VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE<'a> {}
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+unsafe impl<'a> Sync for VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE<'a> {}
+#[cfg(all(
+  feature = "VK_VALVE_buffer_device_address_allocation_alignment",
+  feature = "VK_BASE_VERSION_1_1"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
+  for VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE<'child>
+{
+}
+#[cfg(all(
+  feature = "VK_VALVE_buffer_device_address_allocation_alignment",
+  feature = "VK_BASE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
+  for VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE<'child>
+{
+}
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+impl<'a> VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE<'a> {
+  pub const DEFAULT: Self = Self {
+    sType:
+      VkStructureType::PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_FEATURES_VALVE,
+    pNext: core::ptr::null_mut(),
+    bufferDeviceAddressAllocationAlignment: 0,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_bufferDeviceAddressAllocationAlignment(mut self, val: VkBool32) -> Self {
+    self.bufferDeviceAddressAllocationAlignment = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkDeviceCreateInfo<
+    'root,
+    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE.html)
+///
+/// *Note: This struct has **required limit types**.*
+///
+/// **Extends:** VkPhysicalDeviceProperties2.
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_PROPERTIES_VALVE
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  /// Limit Type: [Max, Pot]
+  pub maxBufferDeviceAddressAllocationAlignment: u32,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+unsafe impl<'a> Send for VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE<'a> {}
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+unsafe impl<'a> Sync for VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE<'a> {}
+#[cfg(all(
+  feature = "VK_VALVE_buffer_device_address_allocation_alignment",
+  feature = "VK_BASE_VERSION_1_1"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
+  for VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE<'child>
+{
+}
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+impl<'a> VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE<'a> {
+  pub const DEFAULT: Self = Self {
+    sType:
+      VkStructureType::PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_PROPERTIES_VALVE,
+    pNext: core::ptr::null_mut(),
+    maxBufferDeviceAddressAllocationAlignment: 0,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_maxBufferDeviceAddressAllocationAlignment(mut self, val: u32) -> Self {
+    self.maxBufferDeviceAddressAllocationAlignment = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceProperties2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceProperties2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkBufferDeviceAddressAlignmentAllocateInfoVALVE](https://docs.vulkan.org/refpages/latest/refpages/source/VkBufferDeviceAddressAlignmentAllocateInfoVALVE.html)
+///
+/// **Extends:** VkBufferCreateInfo, VkMemoryAllocateInfo.
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkBufferDeviceAddressAlignmentAllocateInfoVALVE<'a> {
+  /// Values: VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_ALIGNMENT_ALLOCATE_INFO_VALVE
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  pub alignment: u32,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+unsafe impl<'a> Send for VkBufferDeviceAddressAlignmentAllocateInfoVALVE<'a> {}
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+unsafe impl<'a> Sync for VkBufferDeviceAddressAlignmentAllocateInfoVALVE<'a> {}
+#[cfg(all(
+  feature = "VK_VALVE_buffer_device_address_allocation_alignment",
+  feature = "VK_BASE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkBufferCreateInfo<'root>>
+  for VkBufferDeviceAddressAlignmentAllocateInfoVALVE<'child>
+{
+}
+#[cfg(all(
+  feature = "VK_VALVE_buffer_device_address_allocation_alignment",
+  feature = "VK_BASE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkMemoryAllocateInfo<'root>>
+  for VkBufferDeviceAddressAlignmentAllocateInfoVALVE<'child>
+{
+}
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+impl<'a> VkBufferDeviceAddressAlignmentAllocateInfoVALVE<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::BUFFER_DEVICE_ADDRESS_ALIGNMENT_ALLOCATE_INFO_VALVE,
+    pNext: core::ptr::null_mut(),
+    alignment: 0,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_alignment(mut self, val: u32) -> Self {
+    self.alignment = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkBufferCreateInfo<
+    'root,
+    T: VkPNextExtends<VkBufferCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkMemoryAllocateInfo<
+    'root,
+    T: VkPNextExtends<VkMemoryAllocateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
 /// [VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE.html)
 ///
 /// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.

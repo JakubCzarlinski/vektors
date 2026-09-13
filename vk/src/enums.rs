@@ -3300,6 +3300,8 @@ impl VkStructureType {
   pub const COMPUTE_OCCUPANCY_PRIORITY_PARAMETERS_NV: Self = Self(1000645000);
   #[cfg(feature = "VK_NV_compute_occupancy_priority")]
   pub const PHYSICAL_DEVICE_COMPUTE_OCCUPANCY_PRIORITY_FEATURES_NV: Self = Self(1000645001);
+  #[cfg(feature = "VK_KHR_pipeline_library_group_handles")]
+  pub const PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_KHR: Self = Self(1000498000);
   #[cfg(feature = "VK_KHR_maintenance11")]
   pub const PHYSICAL_DEVICE_MAINTENANCE_11_FEATURES_KHR: Self = Self(1000657000);
   #[cfg(feature = "VK_KHR_maintenance11")]
@@ -3362,6 +3364,14 @@ impl VkStructureType {
   pub const PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV: Self = Self(1000689000);
   #[cfg(feature = "VK_NV_private_data_base_handle")]
   pub const PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV: Self = Self(1000707000);
+  #[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+  pub const PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_FEATURES_VALVE: Self =
+    Self(1000709000);
+  #[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+  pub const PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_PROPERTIES_VALVE: Self =
+    Self(1000709001);
+  #[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+  pub const BUFFER_DEVICE_ADDRESS_ALIGNMENT_ALLOCATE_INFO_VALVE: Self = Self(1000709002);
 }
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 impl core::fmt::Display for VkStructureType {
@@ -11528,6 +11538,14 @@ impl core::fmt::Display for VkStructureType {
                     "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_OCCUPANCY_PRIORITY_FEATURES_NV",
                 )
             }
+            #[cfg(feature = "VK_KHR_pipeline_library_group_handles")]
+            value if value
+                == Self::PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_KHR
+                    .0 => {
+                f.write_str(
+                    "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_KHR",
+                )
+            }
             #[cfg(feature = "VK_KHR_maintenance11")]
             value if value == Self::PHYSICAL_DEVICE_MAINTENANCE_11_FEATURES_KHR.0 => {
                 f.write_str(
@@ -11695,6 +11713,29 @@ impl core::fmt::Display for VkStructureType {
                 == Self::PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV.0 => {
                 f.write_str(
                     "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV",
+                )
+            }
+            #[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+            value if value
+                == Self::PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_FEATURES_VALVE
+                    .0 => {
+                f.write_str(
+                    "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_FEATURES_VALVE",
+                )
+            }
+            #[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+            value if value
+                == Self::PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_PROPERTIES_VALVE
+                    .0 => {
+                f.write_str(
+                    "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_PROPERTIES_VALVE",
+                )
+            }
+            #[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+            value if value
+                == Self::BUFFER_DEVICE_ADDRESS_ALIGNMENT_ALLOCATE_INFO_VALVE.0 => {
+                f.write_str(
+                    "VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_ALIGNMENT_ALLOCATE_INFO_VALVE",
                 )
             }
             _ => write!(f, "{}({})", stringify!(VkStructureType), self.0),

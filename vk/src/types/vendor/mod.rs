@@ -1205,6 +1205,8 @@ pub use sec::VkUbmSurfaceCreateInfoSEC;
 pub use sec::ubm_device;
 #[cfg(feature = "VK_SEC_ubm_surface")]
 pub use sec::ubm_surface;
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+pub use valve::VkBufferDeviceAddressAlignmentAllocateInfoVALVE;
 #[cfg(feature = "VK_VALVE_descriptor_set_host_mapping")]
 pub use valve::VkDescriptorSetBindingReferenceVALVE;
 #[cfg(feature = "VK_VALVE_descriptor_set_host_mapping")]
@@ -1213,6 +1215,10 @@ pub use valve::VkDescriptorSetLayoutHostMappingInfoVALVE;
 pub use valve::VkMutableDescriptorTypeCreateInfoVALVE;
 #[cfg(feature = "VK_VALVE_mutable_descriptor_type")]
 pub use valve::VkMutableDescriptorTypeListVALVE;
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+pub use valve::VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE;
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+pub use valve::VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE;
 #[cfg(feature = "VK_VALVE_descriptor_set_host_mapping")]
 pub use valve::VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE;
 #[cfg(feature = "VK_VALVE_fragment_density_map_layered")]

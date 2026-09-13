@@ -26226,7 +26226,7 @@ impl<'a> VkPipelineCreationFeedbackCreateInfoEXT<'a> {
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT<'a> {
-  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_EXT
+  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_KHR
   pub sType: VkStructureType,
   /// Optional: true,  No Auto-Validity
   pub pNext: *mut c_void,
@@ -28353,6 +28353,7 @@ pub struct VkPrivateDataSlotCreateInfoEXT<'a> {
   pub sType: VkStructureType,
   /// Optional: true
   pub pNext: *const c_void,
+  /// Optional: true
   pub flags: VkPrivateDataSlotCreateFlagsEXT,
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,

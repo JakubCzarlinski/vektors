@@ -623,7 +623,7 @@ pub const VK_API_VERSION: u32 = VK_MAKE_API_VERSION(0, 1, 0, 0);
 pub const VK_API_VERSION_1_0: u32 = VK_MAKE_API_VERSION(0, 1, 0, 0);
 /// [VK_HEADER_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION.html)
 #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
-pub const VK_HEADER_VERSION: u32 = 361u32;
+pub const VK_HEADER_VERSION: u32 = 362u32;
 /// [VK_HEADER_VERSION_COMPLETE](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION_COMPLETE.html)
 #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub const VK_HEADER_VERSION_COMPLETE: u32 = VK_MAKE_API_VERSION(0, 1, 4, VK_HEADER_VERSION);
@@ -3318,6 +3318,17 @@ pub const VK_KHR_PIPELINE_LIBRARY_SPEC_VERSION: u32 = 1;
 #[cfg(feature = "VK_KHR_pipeline_library")]
 pub const VK_KHR_PIPELINE_LIBRARY_EXTENSION_NAME: &'static core::ffi::CStr =
   c"VK_KHR_pipeline_library";
+/// [VK_KHR_PIPELINE_LIBRARY_GROUP_HANDLES_SPEC_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_KHR_pipeline_library_group_handles.html)
+///
+/// Extension type: device extension.
+#[cfg(feature = "VK_KHR_pipeline_library_group_handles")]
+pub const VK_KHR_PIPELINE_LIBRARY_GROUP_HANDLES_SPEC_VERSION: u32 = 1;
+/// [VK_KHR_PIPELINE_LIBRARY_GROUP_HANDLES_EXTENSION_NAME](https://docs.vulkan.org/refpages/latest/refpages/source/VK_KHR_pipeline_library_group_handles.html)
+///
+/// Extension type: device extension.
+#[cfg(feature = "VK_KHR_pipeline_library_group_handles")]
+pub const VK_KHR_PIPELINE_LIBRARY_GROUP_HANDLES_EXTENSION_NAME: &'static core::ffi::CStr =
+  c"VK_KHR_pipeline_library_group_handles";
 /// [VK_KHR_PORTABILITY_ENUMERATION_SPEC_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_KHR_portability_enumeration.html)
 ///
 /// Extension type: instance extension.
@@ -5576,6 +5587,17 @@ pub const VK_SEC_UBM_SURFACE_SPEC_VERSION: u32 = 1;
 /// Extension type: instance extension.
 #[cfg(feature = "VK_SEC_ubm_surface")]
 pub const VK_SEC_UBM_SURFACE_EXTENSION_NAME: &'static core::ffi::CStr = c"VK_SEC_ubm_surface";
+/// [VK_VALVE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_SPEC_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_VALVE_buffer_device_address_allocation_alignment.html)
+///
+/// Extension type: device extension.
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+pub const VK_VALVE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_SPEC_VERSION: u32 = 1;
+/// [VK_VALVE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_EXTENSION_NAME](https://docs.vulkan.org/refpages/latest/refpages/source/VK_VALVE_buffer_device_address_allocation_alignment.html)
+///
+/// Extension type: device extension.
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+pub const VK_VALVE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_EXTENSION_NAME:
+  &'static core::ffi::CStr = c"VK_VALVE_buffer_device_address_allocation_alignment";
 /// [VK_VALVE_DESCRIPTOR_SET_HOST_MAPPING_SPEC_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_VALVE_descriptor_set_host_mapping.html)
 ///
 /// Extension type: device extension.

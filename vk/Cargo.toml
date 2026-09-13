@@ -1,6 +1,6 @@
 [package]
 name = "vk"
-version = "0.1.18"
+version = "0.1.19"
 edition = "2024"
 license = "MIT"
 repository = "https://github.com/JakubCzarlinski/vk"
@@ -950,6 +950,7 @@ VK_EXT_legacy_vertex_attributes = ["VK_EXT_vertex_input_dynamic_state"]
 VK_EXT_layer_settings = []
 # type: device
 VK_ARM_shader_core_builtins = []
+# promoted to: VK_KHR_pipeline_library_group_handles
 # type: device
 VK_EXT_pipeline_library_group_handles = ["VK_KHR_ray_tracing_pipeline", "VK_KHR_pipeline_library"]
 # type: device
@@ -1136,6 +1137,8 @@ VK_EXT_shader_uniform_buffer_unsized_array = []
 # type: device
 VK_NV_compute_occupancy_priority = []
 # type: device
+VK_KHR_pipeline_library_group_handles = ["VK_KHR_ray_tracing_pipeline", "VK_KHR_pipeline_library"]
+# type: device
 VK_KHR_maintenance11 = []
 # type: device
 VK_EXT_cooperative_matrix_maintenance1 = ["VK_KHR_cooperative_matrix"]
@@ -1161,3 +1164,5 @@ VK_EXT_image_tiling_control = []
 VK_NV_cooperative_matrix_decode_vector = ["VK_NV_cooperative_matrix2"]
 # type: device
 VK_NV_private_data_base_handle = []
+# type: device
+VK_VALVE_buffer_device_address_allocation_alignment = []

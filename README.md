@@ -8,7 +8,7 @@ demos.
 I plan to move versioning to be pinned to Vulkan. This will happen when I am
 happy with the API in this repo.
 <!-- generated registry metadata -->
-As of 2026-08-29, bindings are generated from the Vulkan 1.4.361 registry.
+As of 2026-09-13, bindings are generated from the Vulkan 1.4.362 registry.
 
 ## Installation
 
@@ -18,7 +18,7 @@ number of features exposed.
 ```bash
 cargo add vk \
   --git https://github.com/JakubCzarlinski/vektors \
-  --tag v0.1.18
+  --tag v0.1.19
 ```
 
 See [https://blog.rust-lang.org/2023/10/26/broken-badges-and-23k-keywords.html](https://blog.rust-lang.org/2023/10/26/broken-badges-and-23k-keywords.html)

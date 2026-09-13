@@ -1,6 +1,6 @@
 [package]
 name = "vk-loader"
-version = "0.1.0"
+version = "0.1.19"
 edition = "2024"
 publish = false
 
@@ -341,6 +341,7 @@ features = [
   "VK_KHR_pipeline_binary",
   "VK_KHR_pipeline_executable_properties",
   "VK_KHR_pipeline_library",
+  "VK_KHR_pipeline_library_group_handles",
   "VK_KHR_portability_enumeration",
   "VK_KHR_portability_subset",
   "VK_KHR_present_id",
@@ -525,6 +526,7 @@ features = [
   "VK_SEC_pipeline_cache_incremental_mode",
   "VK_SEC_throttle_hint",
   "VK_SEC_ubm_surface",
+  "VK_VALVE_buffer_device_address_allocation_alignment",
   "VK_VALVE_descriptor_set_host_mapping",
   "VK_VALVE_fragment_density_map_layered",
   "VK_VALVE_mutable_descriptor_type",

@@ -2829,6 +2829,8 @@ pub use khr::VkPhysicalDevicePipelineBinaryFeaturesKHR;
 pub use khr::VkPhysicalDevicePipelineBinaryPropertiesKHR;
 #[cfg(feature = "VK_KHR_pipeline_executable_properties")]
 pub use khr::VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR;
+#[cfg(feature = "VK_KHR_pipeline_library_group_handles")]
+pub use khr::VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR;
 #[cfg(feature = "VK_KHR_maintenance2")]
 pub use khr::VkPhysicalDevicePointClippingPropertiesKHR;
 #[cfg(feature = "VK_KHR_portability_subset")]
@@ -3715,6 +3717,8 @@ pub use vendor::VkBufferCollectionImageCreateInfoFUCHSIA;
 pub use vendor::VkBufferCollectionPropertiesFUCHSIA;
 #[cfg(feature = "VK_FUCHSIA_buffer_collection")]
 pub use vendor::VkBufferConstraintsInfoFUCHSIA;
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+pub use vendor::VkBufferDeviceAddressAlignmentAllocateInfoVALVE;
 #[cfg(feature = "VK_NV_ray_tracing")]
 pub use vendor::VkBuildAccelerationStructureFlagsNV;
 #[cfg(feature = "VK_NV_partitioned_acceleration_structure")]
@@ -4212,6 +4216,10 @@ pub use vendor::VkPerformanceValueINTEL;
 pub use vendor::VkPhysicalDeviceAmigoProfilingFeaturesSEC;
 #[cfg(feature = "VK_AMD_anti_lag")]
 pub use vendor::VkPhysicalDeviceAntiLagFeaturesAMD;
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+pub use vendor::VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE;
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+pub use vendor::VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentPropertiesVALVE;
 #[cfg(feature = "VK_NV_cluster_acceleration_structure")]
 pub use vendor::VkPhysicalDeviceClusterAccelerationStructureFeaturesNV;
 #[cfg(feature = "VK_NV_cluster_acceleration_structure")]

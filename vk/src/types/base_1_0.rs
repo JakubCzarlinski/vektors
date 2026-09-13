@@ -107,6 +107,8 @@ use crate::types::VkAttachmentSampleCountInfoAMD;
 use crate::types::VkBufferCollectionBufferCreateInfoFUCHSIA;
 #[cfg(feature = "VK_FUCHSIA_buffer_collection")]
 use crate::types::VkBufferCollectionImageCreateInfoFUCHSIA;
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+use crate::types::VkBufferDeviceAddressAlignmentAllocateInfoVALVE;
 #[cfg(feature = "VK_EXT_buffer_device_address")]
 use crate::types::VkBufferDeviceAddressCreateInfoEXT;
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
@@ -361,6 +363,8 @@ use crate::types::VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT;
 use crate::types::VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT;
 #[cfg(feature = "VK_EXT_border_color_swizzle")]
 use crate::types::VkPhysicalDeviceBorderColorSwizzleFeaturesEXT;
+#[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+use crate::types::VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE;
 #[cfg(feature = "VK_BASE_VERSION_1_2")]
 use crate::types::VkPhysicalDeviceBufferDeviceAddressFeatures;
 #[cfg(feature = "VK_EXT_buffer_device_address")]
@@ -641,8 +645,8 @@ use crate::types::VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC;
 use crate::types::VkPhysicalDevicePipelineCreationCacheControlFeatures;
 #[cfg(feature = "VK_KHR_pipeline_executable_properties")]
 use crate::types::VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR;
-#[cfg(feature = "VK_EXT_pipeline_library_group_handles")]
-use crate::types::VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT;
+#[cfg(feature = "VK_KHR_pipeline_library_group_handles")]
+use crate::types::VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR;
 #[cfg(feature = "VK_ARM_pipeline_opacity_micromap")]
 use crate::types::VkPhysicalDevicePipelineOpacityMicromapFeaturesARM;
 #[cfg(feature = "VK_EXT_pipeline_properties")]
@@ -2577,6 +2581,22 @@ impl<'a> VkDeviceCreateInfo<'a> {
       (val as *const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT<'child>).cast::<c_void>();
     self
   }
+  #[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE<
+    'child,
+  >(
+    mut self,
+    val: &'a VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE<'child>,
+  ) -> Self {
+    self.pNext = (val
+      as *const VkPhysicalDeviceBufferDeviceAddressAllocationAlignmentFeaturesVALVE<'child>)
+      .cast::<c_void>();
+    self
+  }
   #[cfg(feature = "VK_BASE_VERSION_1_2")]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
@@ -4367,16 +4387,16 @@ impl<'a> VkDeviceCreateInfo<'a> {
       .cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_EXT_pipeline_library_group_handles")]
+  #[cfg(feature = "VK_KHR_pipeline_library_group_handles")]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
   #[inline]
-  pub const fn with_pNext_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT<'child>(
+  pub const fn with_pNext_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR<'child>(
     mut self,
-    val: &'a VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT<'child>,
+    val: &'a VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR<'child>,
   ) -> Self {
-    self.pNext = (val as *const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT<'child>)
+    self.pNext = (val as *const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR<'child>)
       .cast::<c_void>();
     self
   }
@@ -6380,6 +6400,19 @@ impl<'a> VkMemoryAllocateInfo<'a> {
     self.memoryTypeIndex = val;
     self
   }
+  #[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkBufferDeviceAddressAlignmentAllocateInfoVALVE<'child>(
+    mut self,
+    val: &'a VkBufferDeviceAddressAlignmentAllocateInfoVALVE<'child>,
+  ) -> Self {
+    self.pNext =
+      (val as *const VkBufferDeviceAddressAlignmentAllocateInfoVALVE<'child>).cast::<c_void>();
+    self
+  }
   #[cfg(feature = "VK_NV_dedicated_allocation")]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
@@ -7172,6 +7205,19 @@ impl<'a> VkBufferCreateInfo<'a> {
     val: &'a VkBufferCollectionBufferCreateInfoFUCHSIA<'child>,
   ) -> Self {
     self.pNext = (val as *const VkBufferCollectionBufferCreateInfoFUCHSIA<'child>).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkBufferDeviceAddressAlignmentAllocateInfoVALVE<'child>(
+    mut self,
+    val: &'a VkBufferDeviceAddressAlignmentAllocateInfoVALVE<'child>,
+  ) -> Self {
+    self.pNext =
+      (val as *const VkBufferDeviceAddressAlignmentAllocateInfoVALVE<'child>).cast::<c_void>();
     self
   }
   #[cfg(feature = "VK_EXT_buffer_device_address")]

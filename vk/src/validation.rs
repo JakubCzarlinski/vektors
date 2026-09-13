@@ -3704,6 +3704,16 @@ compile_error!(
   "Feature `VK_NV_compute_occupancy_priority` requires `VK_KHR_get_physical_device_properties2 , VK_VERSION_1_1`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_NV_compute_occupancy_priority.html"
 );
 #[cfg(all(
+  feature = "VK_KHR_pipeline_library_group_handles",
+  not(all(
+    feature = "VK_KHR_pipeline_library",
+    feature = "VK_KHR_ray_tracing_pipeline"
+  ))
+))]
+compile_error!(
+  "Feature `VK_KHR_pipeline_library_group_handles` requires `VK_KHR_ray_tracing_pipeline + VK_KHR_pipeline_library`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_KHR_pipeline_library_group_handles.html"
+);
+#[cfg(all(
   feature = "VK_KHR_maintenance11",
   not(any(
     feature = "VK_KHR_get_physical_device_properties2",
@@ -3811,4 +3821,11 @@ compile_error!(
 ))]
 compile_error!(
   "Feature `VK_NV_private_data_base_handle` requires `VK_VERSION_1_3 , VK_EXT_private_data`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_NV_private_data_base_handle.html"
+);
+#[cfg(all(
+  feature = "VK_VALVE_buffer_device_address_allocation_alignment",
+  not(any(feature = "VK_KHR_buffer_device_address", feature = "VK_VERSION_1_2"))
+))]
+compile_error!(
+  "Feature `VK_VALVE_buffer_device_address_allocation_alignment` requires `VK_KHR_buffer_device_address , VK_VERSION_1_2`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_VALVE_buffer_device_address_allocation_alignment.html"
 );

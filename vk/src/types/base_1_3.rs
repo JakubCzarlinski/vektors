@@ -243,6 +243,7 @@ pub struct VkPrivateDataSlotCreateInfo<'a> {
   pub sType: VkStructureType,
   /// Optional: true
   pub pNext: *const c_void,
+  /// Optional: true
   pub flags: VkPrivateDataSlotCreateFlags,
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
