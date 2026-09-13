@@ -211,13 +211,15 @@ impl IdFilter {
             ))?;
             &owned
         };
-        let mut ranges = allocation::try_box_uninit_slice::<IdRange>(
-            value.bytes().filter(|&byte| byte == b',').count() + 1,
-        )?;
-        for (slot, token) in ranges.iter_mut().zip(value.split(',')) {
-            let (begin, consumed) = parse_c_u32(token.as_bytes());
+        // Match upstream's strtok: skip empty tokens, but preserve whitespace.
+        let tokens = value
+            .as_bytes()
+            .split(|&byte| byte == b',')
+            .filter(|token| !token.is_empty());
+        let mut ranges = allocation::try_box_uninit_slice::<IdRange>(tokens.clone().count())?;
+        for (slot, token) in ranges.iter_mut().zip(tokens) {
+            let (begin, consumed) = parse_c_u32(token);
             let end = token
-                .as_bytes()
                 .get(consumed.saturating_add(1)..)
                 .map_or(begin, |tail| parse_c_u32(tail).0);
             slot.write(IdRange { begin, end });
@@ -2645,6 +2647,43 @@ mod allocation_tests {
                 }
             });
         }
+    }
+
+    #[test]
+    fn id_filter_empty_tokens_do_not_restrict_devices() {
+        for value in ["", ",", ",,,"] {
+            let mut filter = super::IdFilter::default();
+            super::IdFilter::parse_into(std::ffi::OsStr::new(value), &mut filter).unwrap();
+            assert!(filter.is_empty());
+        }
+    }
+
+    #[test]
+    fn id_filter_empty_tokens_do_not_add_zero() {
+        for value in ["1,,2", "1,2,", ",1,,2,"] {
+            fault::sweep_operation(|| {
+                let mut filter = super::IdFilter::default();
+                match super::IdFilter::parse_into(std::ffi::OsStr::new(value), &mut filter) {
+                    Ok(()) => {
+                        assert!(filter.matches(1));
+                        assert!(filter.matches(2));
+                        assert!(!filter.matches(0));
+                        assert!(!filter.matches(3));
+                        vk::VkResult::SUCCESS
+                    }
+                    Err(result) => result,
+                }
+            });
+        }
+    }
+
+    #[test]
+    fn id_filter_whitespace_token_is_not_empty() {
+        let mut filter = super::IdFilter::default();
+        super::IdFilter::parse_into(std::ffi::OsStr::new(", ,"), &mut filter).unwrap();
+        assert!(!filter.is_empty());
+        assert!(filter.matches(0));
+        assert!(!filter.matches(1));
     }
 
     #[test]
