@@ -3364,6 +3364,8 @@ impl VkStructureType {
   pub const PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV: Self = Self(1000689000);
   #[cfg(feature = "VK_NV_private_data_base_handle")]
   pub const PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV: Self = Self(1000707000);
+  #[cfg(feature = "VK_INTEL_device_info")]
+  pub const PHYSICAL_DEVICE_INFO_PROPERTIES_INTEL: Self = Self(1000708000);
   #[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
   pub const PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_ALLOCATION_ALIGNMENT_FEATURES_VALVE: Self =
     Self(1000709000);
@@ -11714,6 +11716,10 @@ impl core::fmt::Display for VkStructureType {
                 f.write_str(
                     "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV",
                 )
+            }
+            #[cfg(feature = "VK_INTEL_device_info")]
+            value if value == Self::PHYSICAL_DEVICE_INFO_PROPERTIES_INTEL.0 => {
+                f.write_str("VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INFO_PROPERTIES_INTEL")
             }
             #[cfg(feature = "VK_VALVE_buffer_device_address_allocation_alignment")]
             value if value

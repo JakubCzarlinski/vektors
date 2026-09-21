@@ -1,6 +1,6 @@
 [package]
 name = "vk"
-version = "0.1.19"
+version = "0.1.20"
 edition = "2024"
 license = "MIT"
 repository = "https://github.com/JakubCzarlinski/vk"
@@ -1164,5 +1164,7 @@ VK_EXT_image_tiling_control = []
 VK_NV_cooperative_matrix_decode_vector = ["VK_NV_cooperative_matrix2"]
 # type: device
 VK_NV_private_data_base_handle = []
+# type: device
+VK_INTEL_device_info = []
 # type: device
 VK_VALVE_buffer_device_address_allocation_alignment = []

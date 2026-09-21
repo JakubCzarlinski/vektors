@@ -4374,6 +4374,8 @@ pub use vendor::VkPhysicalDeviceImageProcessing3FeaturesQCOM;
 pub use vendor::VkPhysicalDeviceImageProcessingFeaturesQCOM;
 #[cfg(feature = "VK_QCOM_image_processing")]
 pub use vendor::VkPhysicalDeviceImageProcessingPropertiesQCOM;
+#[cfg(feature = "VK_INTEL_device_info")]
+pub use vendor::VkPhysicalDeviceInfoPropertiesINTEL;
 #[cfg(feature = "VK_NV_inherited_viewport_scissor")]
 pub use vendor::VkPhysicalDeviceInheritedViewportScissorFeaturesNV;
 #[cfg(feature = "VK_HUAWEI_invocation_mask")]

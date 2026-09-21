@@ -4004,6 +4004,8 @@ use crate::types::VkPhysicalDeviceIndexTypeUint8Features;
 use crate::types::VkPhysicalDeviceIndexTypeUint8FeaturesEXT;
 #[cfg(feature = "VK_KHR_index_type_uint8")]
 use crate::types::VkPhysicalDeviceIndexTypeUint8FeaturesKHR;
+#[cfg(feature = "VK_INTEL_device_info")]
+use crate::types::VkPhysicalDeviceInfoPropertiesINTEL;
 #[cfg(feature = "VK_NV_inherited_viewport_scissor")]
 use crate::types::VkPhysicalDeviceInheritedViewportScissorFeaturesNV;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_3")]

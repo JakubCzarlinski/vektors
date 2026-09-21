@@ -623,7 +623,7 @@ pub const VK_API_VERSION: u32 = VK_MAKE_API_VERSION(0, 1, 0, 0);
 pub const VK_API_VERSION_1_0: u32 = VK_MAKE_API_VERSION(0, 1, 0, 0);
 /// [VK_HEADER_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION.html)
 #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
-pub const VK_HEADER_VERSION: u32 = 362u32;
+pub const VK_HEADER_VERSION: u32 = 363u32;
 /// [VK_HEADER_VERSION_COMPLETE](https://docs.vulkan.org/refpages/latest/refpages/source/VK_HEADER_VERSION_COMPLETE.html)
 #[cfg(all(feature = "VK_BASE_VERSION_1_0", not(feature = "VKSC_VERSION_1_0")))]
 pub const VK_HEADER_VERSION_COMPLETE: u32 = VK_MAKE_API_VERSION(0, 1, 4, VK_HEADER_VERSION);
@@ -2504,6 +2504,16 @@ pub const VK_IMG_RELAXED_LINE_RASTERIZATION_SPEC_VERSION: u32 = 1;
 #[cfg(feature = "VK_IMG_relaxed_line_rasterization")]
 pub const VK_IMG_RELAXED_LINE_RASTERIZATION_EXTENSION_NAME: &'static core::ffi::CStr =
   c"VK_IMG_relaxed_line_rasterization";
+/// [VK_INTEL_DEVICE_INFO_SPEC_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_INTEL_device_info.html)
+///
+/// Extension type: device extension.
+#[cfg(feature = "VK_INTEL_device_info")]
+pub const VK_INTEL_DEVICE_INFO_SPEC_VERSION: u32 = 1;
+/// [VK_INTEL_DEVICE_INFO_EXTENSION_NAME](https://docs.vulkan.org/refpages/latest/refpages/source/VK_INTEL_device_info.html)
+///
+/// Extension type: device extension.
+#[cfg(feature = "VK_INTEL_device_info")]
+pub const VK_INTEL_DEVICE_INFO_EXTENSION_NAME: &'static core::ffi::CStr = c"VK_INTEL_device_info";
 /// [VK_INTEL_PERFORMANCE_QUERY_SPEC_VERSION](https://docs.vulkan.org/refpages/latest/refpages/source/VK_INTEL_performance_query.html)
 ///
 /// Extension type: device extension.

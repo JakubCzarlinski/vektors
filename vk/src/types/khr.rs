@@ -25231,6 +25231,7 @@ pub struct VkPipelineBinaryKeyKHR<'a> {
   pub pNext: *mut c_void,
   /// No Auto-Validity
   pub keySize: u32,
+  /// Length: keySize
   pub key: [u8; VK_MAX_PIPELINE_BINARY_KEY_SIZE_KHR as usize],
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,

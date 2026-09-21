@@ -11,7 +11,7 @@ loader_test_root="$repo_root/target/test"
 loader_test_build_dir="$loader_test_root/build/rust"
 windows_upstream_build_dir="${VK_LOADER_WINDOWS_UPSTREAM_BUILD_DIR:-$loader_test_root/platform/windows/upstream}"
 upstream_dir="$repo_root/.upstream/vulkan-loader"
-upstream_revision="bde79ad2dd832db9180c4a6eca2e84ceb12b1bb0"
+upstream_revision="9e9518d2cf00054a220ae1a40f4406804b420ef5"
 upstream_build_dir="${VK_LOADER_UPSTREAM_BUILD_DIR:-$loader_test_root/parity/upstream}"
 
 test_scratch_dir() {

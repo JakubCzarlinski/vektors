@@ -1,6 +1,6 @@
 [package]
 name = "vk-loader"
-version = "0.1.19"
+version = "0.1.20"
 edition = "2024"
 publish = false
 
@@ -265,6 +265,7 @@ features = [
   "VK_IMG_filter_linear_2d",
   "VK_IMG_format_pvrtc",
   "VK_IMG_relaxed_line_rasterization",
+  "VK_INTEL_device_info",
   "VK_INTEL_performance_query",
   "VK_INTEL_shader_integer_functions2",
   "VK_KHR_16bit_storage",

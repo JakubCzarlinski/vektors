@@ -446,6 +446,8 @@ pub use intel::VkPerformanceStreamMarkerInfoINTEL;
 pub use intel::VkPerformanceValueDataINTEL;
 #[cfg(feature = "VK_INTEL_performance_query")]
 pub use intel::VkPerformanceValueINTEL;
+#[cfg(feature = "VK_INTEL_device_info")]
+pub use intel::VkPhysicalDeviceInfoPropertiesINTEL;
 #[cfg(feature = "VK_INTEL_shader_integer_functions2")]
 pub use intel::VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL;
 #[cfg(feature = "VK_INTEL_performance_query")]

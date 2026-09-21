@@ -120,6 +120,27 @@ fn search_root_merge_preserves_order_and_reports_allocation_failure() {
     });
 }
 
+#[test]
+fn manifest_path_deduplication_retains_the_first_occurrence() {
+    let mut paths = vec![
+        PathBuf::from("directory/first.json"),
+        PathBuf::from("directory/shared.json"),
+        PathBuf::from("directory/second.json"),
+        PathBuf::from("directory/shared.json"),
+    ];
+
+    deduplicate_paths(&mut paths);
+
+    assert_eq!(
+        paths,
+        [
+            PathBuf::from("directory/first.json"),
+            PathBuf::from("directory/shared.json"),
+            PathBuf::from("directory/second.json"),
+        ]
+    );
+}
+
 #[cfg(windows)]
 #[test]
 fn windows_search_path_splitting_matches_std_and_reports_oom() {

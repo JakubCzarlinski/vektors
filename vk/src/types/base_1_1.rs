@@ -513,6 +513,8 @@ use crate::types::VkPhysicalDeviceImageViewMinLodFeaturesEXT;
 use crate::types::VkPhysicalDeviceImagelessFramebufferFeatures;
 #[cfg(feature = "VK_BASE_VERSION_1_4")]
 use crate::types::VkPhysicalDeviceIndexTypeUint8Features;
+#[cfg(feature = "VK_INTEL_device_info")]
+use crate::types::VkPhysicalDeviceInfoPropertiesINTEL;
 #[cfg(feature = "VK_NV_inherited_viewport_scissor")]
 use crate::types::VkPhysicalDeviceInheritedViewportScissorFeaturesNV;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_3")]
@@ -5398,6 +5400,18 @@ impl<'a> VkPhysicalDeviceProperties2<'a> {
   ) -> Self {
     self.pNext =
       (val as *mut VkPhysicalDeviceImageProcessingPropertiesQCOM<'child>).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_INTEL_device_info")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkPhysicalDeviceInfoPropertiesINTEL<'child>(
+    mut self,
+    val: &'a mut VkPhysicalDeviceInfoPropertiesINTEL<'child>,
+  ) -> Self {
+    self.pNext = (val as *mut VkPhysicalDeviceInfoPropertiesINTEL<'child>).cast::<c_void>();
     self
   }
   #[cfg(feature = "VK_COMPUTE_VERSION_1_3")]

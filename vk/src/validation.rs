@@ -3823,6 +3823,16 @@ compile_error!(
   "Feature `VK_NV_private_data_base_handle` requires `VK_VERSION_1_3 , VK_EXT_private_data`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_NV_private_data_base_handle.html"
 );
 #[cfg(all(
+  feature = "VK_INTEL_device_info",
+  not(any(
+    feature = "VK_KHR_get_physical_device_properties2",
+    feature = "VK_VERSION_1_1"
+  ))
+))]
+compile_error!(
+  "Feature `VK_INTEL_device_info` requires `VK_KHR_get_physical_device_properties2 , VK_VERSION_1_1`.\nAdd the required features to Cargo.toml.\nSpec: https://docs.vulkan.org/refpages/latest/refpages/source/VK_INTEL_device_info.html"
+);
+#[cfg(all(
   feature = "VK_VALVE_buffer_device_address_allocation_alignment",
   not(any(feature = "VK_KHR_buffer_device_address", feature = "VK_VERSION_1_2"))
 ))]

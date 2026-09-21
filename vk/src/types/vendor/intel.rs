@@ -15,9 +15,97 @@ use crate::types::VkDeviceCreateInfo;
 use crate::types::VkPNextExtends;
 #[cfg(feature = "VK_BASE_VERSION_1_1")]
 use crate::types::VkPhysicalDeviceFeatures2;
+#[cfg(feature = "VK_BASE_VERSION_1_1")]
+use crate::types::VkPhysicalDeviceProperties2;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkQueryPoolCreateInfo;
 use core::ffi::{c_char, c_void};
+/// [VkPhysicalDeviceInfoPropertiesINTEL](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceInfoPropertiesINTEL.html)
+///
+/// *Note: This is a **returned only** struct.*
+///
+/// *Note: This struct has **required limit types**.*
+///
+/// **Extends:** VkPhysicalDeviceProperties2.
+#[cfg(feature = "VK_INTEL_device_info")]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPhysicalDeviceInfoPropertiesINTEL<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INFO_PROPERTIES_INTEL
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  /// Limit Type: [Noauto]
+  pub deviceIpVersionArch: u32,
+  /// Limit Type: [Noauto]
+  pub deviceIpVersionRelease: u32,
+  /// Limit Type: [Noauto]
+  pub deviceIpVersionRevision: u32,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(feature = "VK_INTEL_device_info")]
+unsafe impl<'a> Send for VkPhysicalDeviceInfoPropertiesINTEL<'a> {}
+#[cfg(feature = "VK_INTEL_device_info")]
+unsafe impl<'a> Sync for VkPhysicalDeviceInfoPropertiesINTEL<'a> {}
+#[cfg(all(feature = "VK_INTEL_device_info", feature = "VK_BASE_VERSION_1_1"))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
+  for VkPhysicalDeviceInfoPropertiesINTEL<'child>
+{
+}
+#[cfg(feature = "VK_INTEL_device_info")]
+impl<'a> VkPhysicalDeviceInfoPropertiesINTEL<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::PHYSICAL_DEVICE_INFO_PROPERTIES_INTEL,
+    pNext: core::ptr::null_mut(),
+    deviceIpVersionArch: 0,
+    deviceIpVersionRelease: 0,
+    deviceIpVersionRevision: 0,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_deviceIpVersionArch(mut self, val: u32) -> Self {
+    self.deviceIpVersionArch = val;
+    self
+  }
+  #[inline]
+  pub const fn with_deviceIpVersionRelease(mut self, val: u32) -> Self {
+    self.deviceIpVersionRelease = val;
+    self
+  }
+  #[inline]
+  pub const fn with_deviceIpVersionRevision(mut self, val: u32) -> Self {
+    self.deviceIpVersionRevision = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceProperties2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceProperties2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
 /// [VkPerformanceConfigurationINTEL](https://docs.vulkan.org/refpages/latest/refpages/source/VkPerformanceConfigurationINTEL.html)
 #[cfg(feature = "VK_INTEL_performance_query")]
 #[repr(transparent)]
