@@ -258,9 +258,8 @@ impl<'a> Parser<'a> {
         if end == input.cast_mut() {
             return None;
         }
-        // SAFETY: `strtod` returns either the input pointer or a pointer within
-        // the same NUL-terminated allocation; equality was rejected above.
-        let consumed = unsafe { end.offset_from(input) } as usize;
+        // strtod returns a position within the input; c_char occupies one byte.
+        let consumed = end.addr() - input.addr();
         self.index = start + consumed;
         // SAFETY: The scanner copied only ASCII bytes. strtod's consumed prefix
         // ends within that initialized, NUL-terminated token.

@@ -629,7 +629,7 @@ pub(crate) unsafe extern "system" fn terminator_create_debug_utils_messenger(
         .as_ref()
         .or_else(|| instance.allocator())
         .copied();
-    let mut owned = match LoaderBox::<DebugMessenger>::try_new_uninit(
+    let owned = match LoaderBox::<DebugMessenger>::try_new_uninit(
         storage_allocator.as_ref(),
         VkSystemAllocationScope::OBJECT,
     ) {
@@ -640,21 +640,17 @@ pub(crate) unsafe extern "system" fn terminator_create_debug_utils_messenger(
             return result;
         }
     };
-    let pointer = owned.as_mut_ptr();
-    // SAFETY: Allocation succeeded and every field is written exactly once;
-    // no fallible operation can interrupt initialization.
-    unsafe {
-        core::ptr::addr_of_mut!((*pointer).callback).write(create_info.pfnUserCallback);
-        core::ptr::addr_of_mut!((*pointer).severity).write(create_info.messageSeverity);
-        core::ptr::addr_of_mut!((*pointer).message_types).write(create_info.messageType);
-        core::ptr::addr_of_mut!((*pointer).user_data).write(create_info.pUserData);
-        core::ptr::addr_of_mut!((*pointer).icd_handles).write(native);
-        core::ptr::addr_of_mut!((*pointer).allocator).write(object_allocator);
-        core::ptr::addr_of_mut!((*pointer).slot).write(slot);
-        core::ptr::addr_of_mut!((*pointer).index_allocation).write(index_allocation);
-    }
-    // SAFETY: Every `DebugMessenger` field was initialized above.
-    let owned = unsafe { owned.assume_init() };
+    // No fallible operation separates allocation from initialization.
+    let owned = owned.write(DebugMessenger {
+        callback: create_info.pfnUserCallback,
+        severity: create_info.messageSeverity,
+        message_types: create_info.messageType,
+        user_data: create_info.pUserData,
+        icd_handles: native,
+        allocator: object_allocator,
+        slot,
+        index_allocation,
+    });
     let address = owned.index_allocation.pointer() as usize;
     let mut state = instance.debug_messengers.lock();
     if state.callbacks.try_reserve(1).is_err() {
@@ -773,7 +769,7 @@ pub(crate) unsafe extern "system" fn terminator_create_debug_report_callback(
         .as_ref()
         .or_else(|| instance.allocator())
         .copied();
-    let mut owned = match LoaderBox::<DebugReport>::try_new_uninit(
+    let owned = match LoaderBox::<DebugReport>::try_new_uninit(
         storage_allocator.as_ref(),
         VkSystemAllocationScope::OBJECT,
     ) {
@@ -783,18 +779,14 @@ pub(crate) unsafe extern "system" fn terminator_create_debug_report_callback(
             return result;
         }
     };
-    let pointer = owned.as_mut_ptr();
-    // SAFETY: Allocation succeeded and every field is written exactly once;
-    // no fallible operation can interrupt initialization.
-    unsafe {
-        core::ptr::addr_of_mut!((*pointer).callback).write(create_info.pfnCallback);
-        core::ptr::addr_of_mut!((*pointer).flags).write(create_info.flags);
-        core::ptr::addr_of_mut!((*pointer).user_data).write(create_info.pUserData);
-        core::ptr::addr_of_mut!((*pointer).icd_handles).write(native);
-        core::ptr::addr_of_mut!((*pointer).allocator).write(object_allocator);
-    }
-    // SAFETY: Every `DebugReport` field was initialized above.
-    let owned = unsafe { owned.assume_init() };
+    // No fallible operation separates allocation from initialization.
+    let owned = owned.write(DebugReport {
+        callback: create_info.pfnCallback,
+        flags: create_info.flags,
+        user_data: create_info.pUserData,
+        icd_handles: native,
+        allocator: object_allocator,
+    });
     let address = owned.as_ptr() as usize;
     let mut state = instance.debug_messengers.lock();
     if state.callbacks.try_reserve(1).is_err() {

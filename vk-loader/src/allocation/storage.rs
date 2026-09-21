@@ -80,9 +80,9 @@ pub(crate) fn try_into_boxed_slice<T>(values: Vec<T>) -> Result<Box<[T]>, VkResu
     }
     .cast::<T>();
     let Some(pointer) = NonNull::new(pointer) else {
-        // SAFETY: A failed realloc leaves the original allocation unchanged.
+        // A failed realloc leaves the original allocation unchanged.
         // This is the only path that drops the original Vec.
-        unsafe { ManuallyDrop::drop(&mut values) };
+        drop(ManuallyDrop::into_inner(values));
         return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
     };
     // SAFETY: The successful realloc owns exactly len initialized elements,
@@ -162,20 +162,11 @@ pub(crate) fn try_c_string(value: &CStr) -> Result<CString, VkResult> {
 /// Allocates one value through Rust's global allocator without invoking the
 /// process-wide allocation-error handler.
 pub(crate) fn try_box<T>(value: T) -> Result<Box<T>, (VkResult, T)> {
-    if core::mem::size_of::<T>() == 0 {
-        return Ok(Box::new(value));
-    }
-    let layout = Layout::new::<T>();
-    // SAFETY: `layout` is non-zero and valid for `T`.
-    let pointer = unsafe { alloc(layout) }.cast::<T>();
-    let Some(pointer) = NonNull::new(pointer) else {
-        return Err((VkResult::ERROR_OUT_OF_HOST_MEMORY, value));
+    let storage = match try_box_uninit::<T>() {
+        Ok(storage) => storage,
+        Err(error) => return Err((error, value)),
     };
-    // SAFETY: The allocation has the exact layout of `T` and is uniquely owned.
-    unsafe { pointer.as_ptr().write(value) };
-    // SAFETY: The initialized allocation was made with the global allocator
-    // and is transferred directly into `Box` ownership.
-    Ok(unsafe { Box::from_raw(pointer.as_ptr()) })
+    Ok(Box::write(storage, value))
 }
 
 /// Allocates uninitialized stable storage without aborting on exhaustion.
@@ -195,13 +186,8 @@ pub(crate) fn try_box_uninit<T>() -> Result<Box<MaybeUninit<T>>, VkResult> {
 pub(crate) fn try_box_uninit_slice<T>(len: usize) -> Result<Box<[MaybeUninit<T>]>, VkResult> {
     let layout = Layout::array::<T>(len).map_err(|_| VkResult::ERROR_OUT_OF_HOST_MEMORY)?;
     if layout.size() == 0 {
-        let slice = core::ptr::slice_from_raw_parts_mut(
-            NonNull::<MaybeUninit<T>>::dangling().as_ptr(),
-            len,
-        );
-        // SAFETY: A zero-sized allocation requires only an aligned non-null
-        // pointer. Preserve `len` for non-empty slices of zero-sized elements.
-        return Ok(unsafe { Box::from_raw(slice) });
+        // Empty and zero-sized-element slices require no allocation.
+        return Ok(Box::<[T]>::new_uninit_slice(len));
     }
     // SAFETY: `layout` is non-zero and valid for an array of `len` values.
     let pointer = unsafe { alloc(layout) }.cast::<MaybeUninit<T>>();
@@ -306,6 +292,21 @@ impl<T> LoaderBox<T> {
 impl<T> LoaderBox<MaybeUninit<T>> {
     pub(crate) const fn as_mut_ptr(&mut self) -> *mut T {
         self.allocation.as_ptr().cast()
+    }
+
+    /// Initializes the allocation with `value`, mirroring `Box::write`.
+    pub(crate) fn write(self, value: T) -> LoaderBox<T> {
+        let mut this = ManuallyDrop::new(self);
+        // SAFETY: The allocation has `T`'s layout, is uniquely owned, and the
+        // value is moved in exactly once before ownership transfers below.
+        unsafe { this.as_mut_ptr().write(value) };
+        // SAFETY: `ManuallyDrop` keeps the allocation owned while it is moved
+        // into the identically represented initialized wrapper.
+        let allocation = unsafe { core::ptr::read(&raw const this.allocation) };
+        LoaderBox {
+            allocation,
+            marker: PhantomData,
+        }
     }
 
     /// Converts this allocation after every field of `T` has been initialized.

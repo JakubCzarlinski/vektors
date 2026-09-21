@@ -201,8 +201,7 @@ impl LoaderInstance {
     ) -> Result<Box<Self>, VkResult> {
         let has_layers = !active_layers.loaded.is_empty();
         let mut dispatch_table = try_box_uninit::<LayerInstanceDispatchTable>()?;
-        // SAFETY: The boxed table has stable, non-null storage.
-        let dispatch = unsafe { NonNull::new_unchecked(dispatch_table.as_mut_ptr()) };
+        let dispatch = NonNull::from(dispatch_table.as_mut()).cast::<LayerInstanceDispatchTable>();
         let allocator = if allocator.is_null() {
             None
         } else {
@@ -731,10 +730,7 @@ impl LoaderPhysicalDevice {
             instance: NonNull::from(instance),
             magic: PHYSICAL_DEVICE_MAGIC,
             native,
-            // SAFETY: The ICD owns a stable, non-null unknown-command table.
-            unknown_dispatch: unsafe {
-                NonNull::new_unchecked(icd.unknown_physical_device_dispatch.as_ptr().cast_mut())
-            },
+            unknown_dispatch: icd.unknown_physical_device_dispatch.non_null_ptr(),
             icd: NonNull::from(icd),
             icd_index,
             app_api_version,
@@ -781,15 +777,14 @@ impl LoaderPhysicalDevice {
     #[cfg(test)]
     pub(crate) fn test_stub(
         native: VkPhysicalDevice,
-        unknown_dispatch: *const core::sync::atomic::AtomicPtr<c_void>,
+        unknown_dispatch: &crate::unknown::UnknownDispatchTable,
     ) -> Self {
         Self {
             dispatch: NonNull::dangling(),
             instance: NonNull::dangling(),
             magic: PHYSICAL_DEVICE_MAGIC,
             native,
-            // SAFETY: Test callers pass a live dispatch-table allocation.
-            unknown_dispatch: unsafe { NonNull::new_unchecked(unknown_dispatch.cast_mut()) },
+            unknown_dispatch: unknown_dispatch.non_null_ptr(),
             icd: NonNull::dangling(),
             icd_index: 0,
             app_api_version: 0,
@@ -803,16 +798,18 @@ impl LoaderPhysicalDeviceTrampoline {
         chain: VkPhysicalDevice,
         terminator: VkPhysicalDevice,
     ) -> Self {
-        let unknown_dispatch = instance.unknown_physical_devices.lock().dispatch().as_ptr();
+        let unknown_dispatch = instance
+            .unknown_physical_devices
+            .lock()
+            .dispatch()
+            .non_null_ptr();
         Self {
             dispatch: instance.dispatch,
             instance: NonNull::from(instance),
             magic: PHYSICAL_DEVICE_TRAMPOLINE_MAGIC,
             chain,
             terminator,
-            // SAFETY: `dispatch` returns the stable, non-null table backing the
-            // instance's unknown-command state.
-            unknown_dispatch: unsafe { NonNull::new_unchecked(unknown_dispatch.cast_mut()) },
+            unknown_dispatch,
         }
     }
 
@@ -832,7 +829,7 @@ impl LoaderPhysicalDeviceTrampoline {
     #[cfg(test)]
     pub(crate) fn test_stub(
         chain: VkPhysicalDevice,
-        unknown_dispatch: *const core::sync::atomic::AtomicPtr<c_void>,
+        unknown_dispatch: &crate::unknown::UnknownDispatchTable,
     ) -> Self {
         Self {
             dispatch: NonNull::dangling(),
@@ -840,8 +837,7 @@ impl LoaderPhysicalDeviceTrampoline {
             magic: PHYSICAL_DEVICE_TRAMPOLINE_MAGIC,
             chain,
             terminator: VkPhysicalDevice::NULL,
-            // SAFETY: Test callers pass a live dispatch-table allocation.
-            unknown_dispatch: unsafe { NonNull::new_unchecked(unknown_dispatch.cast_mut()) },
+            unknown_dispatch: unknown_dispatch.non_null_ptr(),
         }
     }
 }

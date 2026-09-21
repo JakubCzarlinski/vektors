@@ -71,8 +71,8 @@ impl UnknownDispatchTable {
         })
     }
 
-    pub(crate) fn as_ptr(&self) -> *const AtomicPtr<c_void> {
-        self.entries.as_ptr()
+    pub(crate) fn non_null_ptr(&self) -> core::ptr::NonNull<AtomicPtr<c_void>> {
+        core::ptr::NonNull::from(self.entries.as_ref()).cast()
     }
 
     fn store(&self, index: usize, function: PFN_vkVoidFunction) {
@@ -1071,7 +1071,7 @@ mod tests {
         let dispatch = UnknownDispatchTable::try_new().unwrap();
         dispatch.store(SLOT, Some(erase_physical(physical_target)));
         let chain = VkPhysicalDevice(0x1234_5678usize as *mut c_void);
-        let wrapper = LoaderPhysicalDeviceTrampoline::test_stub(chain, dispatch.as_ptr());
+        let wrapper = LoaderPhysicalDeviceTrampoline::test_stub(chain, &dispatch);
         let handle = VkPhysicalDevice(core::ptr::from_ref(&wrapper).cast_mut().cast());
 
         // SAFETY: `wrapper`, its dispatch storage, and the target are live.
@@ -1086,7 +1086,7 @@ mod tests {
         let dispatch = UnknownDispatchTable::try_new().unwrap();
         dispatch.store(SLOT, Some(erase_physical(physical_target)));
         let native = VkPhysicalDevice(0x7654_3210usize as *mut c_void);
-        let wrapper = LoaderPhysicalDevice::test_stub(native, dispatch.as_ptr());
+        let wrapper = LoaderPhysicalDevice::test_stub(native, &dispatch);
         let handle = VkPhysicalDevice(core::ptr::from_ref(&wrapper).cast_mut().cast());
 
         // SAFETY: `wrapper`, its dispatch storage, and the target are live.

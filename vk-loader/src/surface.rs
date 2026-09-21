@@ -327,14 +327,13 @@ fn allocate_passthrough_surface(
     instance_allocator: Option<&VkAllocationCallbacks<'static>>,
     surface: IcdPassthroughSurface,
 ) -> Result<LoaderBox<IcdPassthroughSurface>, VkResult> {
-    let mut storage = LoaderBox::<IcdPassthroughSurface>::try_new_uninit(
+    let storage = LoaderBox::<IcdPassthroughSurface>::try_new_uninit(
         instance_allocator,
         vk::VkSystemAllocationScope::OBJECT,
     )?;
     // SAFETY: The fresh allocation is large and aligned enough for this value.
-    unsafe { storage.as_mut_ptr().write(surface) };
-    // SAFETY: The preceding write initialized the complete object.
-    Ok(unsafe { storage.assume_init() })
+    // No fallible operation separates allocation from initialization.
+    Ok(storage.write(surface))
 }
 
 #[cfg(any(target_os = "android", target_os = "ios"))]

@@ -324,8 +324,9 @@ pub(crate) unsafe fn physical_device_matches_id_filters(
     dispatch: &LayerInstanceDispatchTable,
     physical_device: VkPhysicalDevice,
     filters: &IdFilters,
-    storage: *mut IdFilterPropertyStorage,
+    storage: &mut MaybeUninit<IdFilterPropertyStorage>,
 ) -> bool {
+    let storage = storage.as_mut_ptr();
     let Some(get_properties) = dispatch.vkGetPhysicalDeviceProperties else {
         return false;
     };
@@ -367,14 +368,16 @@ pub(crate) unsafe fn physical_device_matches_id_filters(
         else {
             return false;
         };
-        debug_assert_eq!(
-            core::mem::size_of::<vk::VkPhysicalDeviceProperties2KHR<'_>>(),
-            core::mem::size_of::<vk::VkPhysicalDeviceProperties2<'_>>()
-        );
-        debug_assert_eq!(
-            core::mem::align_of::<vk::VkPhysicalDeviceProperties2KHR<'_>>(),
-            core::mem::align_of::<vk::VkPhysicalDeviceProperties2<'_>>()
-        );
+        const {
+            assert!(
+                core::mem::size_of::<vk::VkPhysicalDeviceProperties2KHR<'_>>()
+                    == core::mem::size_of::<vk::VkPhysicalDeviceProperties2<'_>>()
+            );
+            assert!(
+                core::mem::align_of::<vk::VkPhysicalDeviceProperties2KHR<'_>>()
+                    == core::mem::align_of::<vk::VkPhysicalDeviceProperties2<'_>>()
+            );
+        }
         unsafe {
             get_properties2(
                 physical_device,
@@ -424,11 +427,17 @@ pub(crate) unsafe fn enumerate_filtered_physical_devices(
         Ok(storage) => storage,
         Err(result) => return result,
     };
-    let storage = storage.as_mut_ptr();
+    let storage = storage.as_mut();
     let mut matched = 0_usize;
     for physical_device in chain_devices {
         if !unsafe {
-            physical_device_matches_id_filters(loader, dispatch, physical_device, filters, storage)
+            physical_device_matches_id_filters(
+                loader,
+                dispatch,
+                physical_device,
+                filters,
+                &mut *storage,
+            )
         } {
             continue;
         }
@@ -494,7 +503,7 @@ pub(crate) unsafe fn enumerate_filtered_physical_device_groups(
         Ok(storage) => storage,
         Err(result) => return result,
     };
-    let storage = storage.as_mut_ptr();
+    let storage = storage.as_mut();
     let mut matched = 0_usize;
     'groups: for group in &chain_groups[..returned] {
         let device_count =
@@ -506,7 +515,7 @@ pub(crate) unsafe fn enumerate_filtered_physical_device_groups(
                     dispatch,
                     physical_device,
                     filters,
-                    storage,
+                    &mut *storage,
                 )
             } {
                 continue 'groups;
@@ -1201,14 +1210,16 @@ pub(crate) unsafe extern "system" fn terminator_enumerate_physical_device_groups
     group_count: *mut u32,
     group_properties: *mut VkPhysicalDeviceGroupPropertiesKHR<'_>,
 ) -> VkResult {
-    debug_assert_eq!(
-        core::mem::size_of::<VkPhysicalDeviceGroupPropertiesKHR<'_>>(),
-        core::mem::size_of::<VkPhysicalDeviceGroupProperties<'_>>()
-    );
-    debug_assert_eq!(
-        core::mem::align_of::<VkPhysicalDeviceGroupPropertiesKHR<'_>>(),
-        core::mem::align_of::<VkPhysicalDeviceGroupProperties<'_>>()
-    );
+    const {
+        assert!(
+            core::mem::size_of::<VkPhysicalDeviceGroupPropertiesKHR<'_>>()
+                == core::mem::size_of::<VkPhysicalDeviceGroupProperties<'_>>()
+        );
+        assert!(
+            core::mem::align_of::<VkPhysicalDeviceGroupPropertiesKHR<'_>>()
+                == core::mem::align_of::<VkPhysicalDeviceGroupProperties<'_>>()
+        );
+    }
     unsafe { enumerate_physical_device_groups_impl(instance, group_count, group_properties.cast()) }
 }
 
@@ -1306,14 +1317,16 @@ pub unsafe extern "system" fn vkEnumeratePhysicalDeviceGroupsKHR(
     let Some(enumerate) = dispatch.vkEnumeratePhysicalDeviceGroupsKHR else {
         return VkResult::ERROR_INITIALIZATION_FAILED;
     };
-    debug_assert_eq!(
-        core::mem::size_of::<VkPhysicalDeviceGroupPropertiesKHR<'_>>(),
-        core::mem::size_of::<VkPhysicalDeviceGroupProperties<'_>>()
-    );
-    debug_assert_eq!(
-        core::mem::align_of::<VkPhysicalDeviceGroupPropertiesKHR<'_>>(),
-        core::mem::align_of::<VkPhysicalDeviceGroupProperties<'_>>()
-    );
+    const {
+        assert!(
+            core::mem::size_of::<VkPhysicalDeviceGroupPropertiesKHR<'_>>()
+                == core::mem::size_of::<VkPhysicalDeviceGroupProperties<'_>>()
+        );
+        assert!(
+            core::mem::align_of::<VkPhysicalDeviceGroupPropertiesKHR<'_>>()
+                == core::mem::align_of::<VkPhysicalDeviceGroupProperties<'_>>()
+        );
+    }
     // SAFETY: The promoted KHR command and property structure have the same ABI
     // as their core aliases, as asserted above.
     let enumerate: vk::PFN_vkEnumeratePhysicalDeviceGroups = unsafe {
@@ -1699,9 +1712,10 @@ pub(crate) unsafe fn icd_supports_device_extension(
 pub(crate) unsafe fn linux_sorted_device_info(
     instance: &LoaderInstance,
     device: NativePhysicalDevice,
-    storage: *mut LinuxSortPropertyStorage,
+    storage: &mut MaybeUninit<LinuxSortPropertyStorage>,
     needs_pci_order: bool,
 ) -> Result<LinuxSortedDeviceInfo, VkResult> {
+    let storage = storage.as_mut_ptr();
     let icd = &instance.icds[device.icd_index];
     let Some(get_properties) = icd.dispatch.vkGetPhysicalDeviceProperties else {
         return Err(VkResult::ERROR_INITIALIZATION_FAILED);
@@ -1739,14 +1753,16 @@ pub(crate) unsafe fn linux_sorted_device_info(
                     query(device.handle, ptr::addr_of_mut!((*storage).properties2));
                 })
         } else {
-            debug_assert_eq!(
-                core::mem::size_of::<vk::VkPhysicalDeviceProperties2KHR<'_>>(),
-                core::mem::size_of::<vk::VkPhysicalDeviceProperties2<'_>>()
-            );
-            debug_assert_eq!(
-                core::mem::align_of::<vk::VkPhysicalDeviceProperties2KHR<'_>>(),
-                core::mem::align_of::<vk::VkPhysicalDeviceProperties2<'_>>()
-            );
+            const {
+                assert!(
+                    core::mem::size_of::<vk::VkPhysicalDeviceProperties2KHR<'_>>()
+                        == core::mem::size_of::<vk::VkPhysicalDeviceProperties2<'_>>()
+                );
+                assert!(
+                    core::mem::align_of::<vk::VkPhysicalDeviceProperties2KHR<'_>>()
+                        == core::mem::align_of::<vk::VkPhysicalDeviceProperties2<'_>>()
+                );
+            };
             icd.dispatch
                 .vkGetPhysicalDeviceProperties2KHR
                 .map(|query| unsafe {
@@ -1796,7 +1812,7 @@ pub(crate) unsafe fn linux_sort_physical_devices(
     devices: &mut [NativePhysicalDevice],
 ) -> Result<(), VkResult> {
     let mut storage = allocation::try_box_uninit::<LinuxSortPropertyStorage>()?;
-    let storage = storage.as_mut_ptr();
+    let storage = storage.as_mut();
     let mut sorted = Vec::new();
     sorted
         .try_reserve_exact(devices.len())
@@ -1814,8 +1830,9 @@ pub(crate) unsafe fn linux_sort_physical_devices(
         format_args!("     Original order:"),
     );
     for (original_order, &device) in devices.iter().enumerate() {
-        let mut info =
-            unsafe { linux_sorted_device_info(instance, device, storage, devices.len() > 1) }?;
+        let mut info = unsafe {
+            linux_sorted_device_info(instance, device, &mut *storage, devices.len() > 1)
+        }?;
         info.original_order = original_order;
         let name = unsafe { CStr::from_ptr(info.device_name.as_ptr()) };
         let name = debug::diagnostics::LossyBytes(name.to_bytes());
@@ -1841,7 +1858,7 @@ pub(crate) unsafe fn linux_sort_physical_devices(
         platform::LogFilter::Driver,
         format_args!("     Sorted order:"),
     );
-    for (index, (output, sorted)) in devices.iter_mut().zip(sorted).enumerate() {
+    for (index, (output, sorted)) in devices.iter_mut().zip(&sorted).enumerate() {
         let name = unsafe { CStr::from_ptr(sorted.device_name.as_ptr()) };
         let name = debug::diagnostics::LossyBytes(name.to_bytes());
         let default = if sorted.default_device {
@@ -1915,7 +1932,7 @@ unsafe fn sort_physical_device_groups_with_diagnostics(
     selected: Option<(u32, u32)>,
 ) -> Result<(), VkResult> {
     let mut storage = allocation::try_box_uninit::<LinuxSortPropertyStorage>()?;
-    let storage = storage.as_mut_ptr();
+    let storage = storage.as_mut();
     let mut sortable = Vec::new();
     sortable
         .try_reserve_exact(groups.len())
@@ -1961,7 +1978,7 @@ unsafe fn sort_physical_device_groups_with_diagnostics(
                         icd_index: *icd_index,
                         handle,
                     },
-                    storage,
+                    &mut *storage,
                     needs_pci_order,
                 )
             }?;

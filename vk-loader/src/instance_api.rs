@@ -1111,7 +1111,7 @@ pub(crate) unsafe fn create_icd_instances(
             destroy_icd_instances(&icds, allocator);
             return Err(VkResult::ERROR_OUT_OF_HOST_MEMORY);
         };
-        let output = slot.as_mut_ptr();
+        let output = slot;
         match unsafe {
             create_scanned_icd_instance(
                 scanned.icd,
@@ -1250,8 +1250,9 @@ pub(crate) unsafe fn create_scanned_icd_instance(
     allocator: *const VkAllocationCallbacks<'_>,
     requested_api_version: u32,
     has_device_configurations: bool,
-    output: *mut IcdInstance,
+    output: &mut core::mem::MaybeUninit<IcdInstance>,
 ) -> Result<bool, VkResult> {
+    let output = output.as_mut_ptr();
     let (handle, enabled_extensions, unknown_physical_device_dispatch) = {
         let mut icd_create_info = *create_info;
         icd_create_info.enabledLayerCount = 0;

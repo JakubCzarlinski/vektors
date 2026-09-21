@@ -15,7 +15,6 @@ use crate::{
 use crate::{allocation, sync::GlobalLazyMutex, unknown};
 use core::{
     ffi::{CStr, c_void},
-    mem::MaybeUninit,
     ops::{Deref, DerefMut},
     ptr::NonNull,
     sync::atomic::{AtomicPtr, Ordering},
@@ -153,7 +152,7 @@ pub(crate) const UNKNOWN_DEVICE_DISPATCH_OFFSET: usize =
     core::mem::offset_of!(LoaderDeviceDispatchLayout, unknown);
 
 struct LoaderDeviceDispatch {
-    storage: Box<MaybeUninit<LoaderDeviceDispatchLayout>>,
+    storage: Box<LoaderDeviceDispatchLayout>,
 }
 
 impl LoaderDeviceDispatch {
@@ -170,17 +169,19 @@ impl LoaderDeviceDispatch {
             core::ptr::addr_of_mut!((*storage.as_mut_ptr()).layer.magic)
                 .write(crate::DEVICE_DISPATCH_MAGIC);
         };
+        // SAFETY: Zero initialization is valid for every field of the complete
+        // layout (integer magic, optional function pointers, and AtomicPtr slots).
+        // The loader magic was then set above before publishing the table.
+        let storage = unsafe { storage.assume_init() };
         Ok(Self { storage })
     }
 
     fn layer(&self) -> &LayerDeviceDispatchTable {
-        // SAFETY: `new` initializes the complete generated table before return.
-        unsafe { &(*self.storage.as_ptr()).layer }
+        &self.storage.layer
     }
 
     fn layer_mut(&mut self) -> &mut LayerDeviceDispatchTable {
-        // SAFETY: Exclusive access permits mutation of the initialized prefix.
-        unsafe { &mut (*self.storage.as_mut_ptr()).layer }
+        &mut self.storage.layer
     }
 
     pub(crate) fn store_unknown(&self, index: usize, function: PFN_vkVoidFunction) {
@@ -188,9 +189,7 @@ impl LoaderDeviceDispatch {
         let address = function.map_or(core::ptr::null_mut(), |function| {
             function as *const () as *mut c_void
         });
-        // SAFETY: `new` zero-initialized every AtomicPtr slot and the allocation
-        // remains stable for the device lifetime.
-        unsafe { (*self.storage.as_ptr()).unknown[index].store(address, Ordering::Release) };
+        self.storage.unknown[index].store(address, Ordering::Release);
     }
 }
 
@@ -394,12 +393,8 @@ impl LoaderDevice {
         self.chain_device = handle;
         self.chain_get_device_proc_addr = resolver;
         self.chain_dispatch_key = chain_dispatch_key;
-        if self.chain_dispatch_key != 0 {
+        if let Some(alias_reservation) = alias_reservation {
             let own_key = self.dispatch() as usize;
-            let Some(alias_reservation) = alias_reservation else {
-                // The non-zero key created a reservation immediately above.
-                unsafe { core::hint::unreachable_unchecked() }
-            };
             let previous = alias_reservation.insert(self.chain_dispatch_key, own_key);
             debug_assert!(
                 previous
