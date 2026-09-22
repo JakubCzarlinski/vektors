@@ -152,6 +152,14 @@ use crate::types::VkAccessFlags;
   all(
     feature = "VK_AMD_mixed_attachment_samples",
     feature = "VK_KHR_dynamic_rendering"
+  ),
+  all(
+    feature = "VK_NV_framebuffer_mixed_samples",
+    feature = "VK_VERSION_1_3"
+  ),
+  all(
+    feature = "VK_KHR_dynamic_rendering",
+    feature = "VK_NV_framebuffer_mixed_samples"
   )
 ))]
 use crate::types::VkAttachmentSampleCountInfoAMD;
@@ -241,7 +249,10 @@ use crate::types::VkPipelineFragmentShadingRateEnumStateCreateInfoNV;
 use crate::types::VkPipelineFragmentShadingRateStateCreateInfoKHR;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 use crate::types::VkPipelineLayout;
-#[cfg(feature = "VK_KHR_pipeline_library")]
+#[cfg(any(
+  feature = "VK_KHR_pipeline_library",
+  feature = "VK_KHR_ray_tracing_pipeline"
+))]
 use crate::types::VkPipelineLibraryCreateInfoKHR;
 #[cfg(feature = "VKSC_VERSION_1_0")]
 use crate::types::VkPipelineOfflineCreateInfo;
@@ -2265,6 +2276,14 @@ impl<'a> VkGraphicsPipelineCreateInfo<'a> {
     all(
       feature = "VK_AMD_mixed_attachment_samples",
       feature = "VK_KHR_dynamic_rendering"
+    ),
+    all(
+      feature = "VK_NV_framebuffer_mixed_samples",
+      feature = "VK_VERSION_1_3"
+    ),
+    all(
+      feature = "VK_KHR_dynamic_rendering",
+      feature = "VK_NV_framebuffer_mixed_samples"
     )
   ))]
   /// # Safety
@@ -2466,7 +2485,10 @@ impl<'a> VkGraphicsPipelineCreateInfo<'a> {
       (val as *const VkPipelineFragmentShadingRateStateCreateInfoKHR<'child>).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_KHR_pipeline_library")]
+  #[cfg(any(
+    feature = "VK_KHR_pipeline_library",
+    feature = "VK_KHR_ray_tracing_pipeline"
+  ))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.

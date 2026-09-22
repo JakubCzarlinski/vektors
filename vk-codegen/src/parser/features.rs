@@ -728,6 +728,11 @@ pub fn apply_require_extensions(reg: &mut Registry) {
             reg,
         );
     }
+
+    // XML feature dependencies describe Vulkan enablement, while generated
+    // Rust declarations must also be available when another ABI declaration
+    // embeds an extension-owned type.
+    super::declaration_availability::close_declaration_availability(reg);
 }
 
 fn infer_bitmask_bits_name(flags_name: &str) -> Option<String> {

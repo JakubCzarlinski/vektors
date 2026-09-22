@@ -131,6 +131,18 @@ use crate::types::VkWin32KeyedMutexAcquireReleaseInfoKHR;
 #[cfg(feature = "VK_NV_win32_keyed_mutex")]
 use crate::types::VkWin32KeyedMutexAcquireReleaseInfoNV;
 use core::ffi::{c_char, c_void};
+/// [VkFlags64](https://docs.vulkan.org/refpages/latest/refpages/source/VkFlags64.html)
+#[cfg(any(
+  feature = "VK_BASE_VERSION_1_3",
+  feature = "VK_KHR_synchronization2",
+  feature = "VK_KHR_extended_flags",
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_EXT_descriptor_heap",
+  feature = "VK_ARM_scheduling_controls",
+  feature = "VK_KHR_maintenance8",
+  feature = "VK_NV_memory_decompression"
+))]
+pub type VkFlags64 = u64;
 /// [VkPrivateDataSlotCreateFlags](https://docs.vulkan.org/refpages/latest/refpages/source/VkPrivateDataSlotCreateFlags.html)
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 pub type VkPrivateDataSlotCreateFlags = VkPrivateDataSlotCreateFlagBits;
@@ -3212,6 +3224,3 @@ impl<'a> VkFormatProperties3<'a> {
     self
   }
 }
-/// [VkFlags64](https://docs.vulkan.org/refpages/latest/refpages/source/VkFlags64.html)
-#[cfg(any(feature = "VK_BASE_VERSION_1_3", feature = "VK_KHR_synchronization2"))]
-pub type VkFlags64 = u64;

@@ -13,7 +13,11 @@ use crate::enums::VkPipelineCacheHeaderVersion;
 use crate::enums::VkQueueFlagBits;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkStructureType;
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(
+  feature = "VK_KHR_surface",
+  feature = "VK_QCOM_render_pass_transform",
+  feature = "VK_QCOM_rotated_copy_commands"
+))]
 use crate::enums::VkSurfaceTransformFlagBitsKHR;
 #[cfg(feature = "VK_QCOM_tile_shading")]
 use crate::enums::VkTileShadingRenderPassFlagBitsQCOM;
@@ -64,7 +68,10 @@ use crate::types::VkRenderPassBeginInfo;
 use crate::types::VkRenderPassCreateInfo;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
 use crate::types::VkRenderPassCreateInfo2;
-#[cfg(feature = "VK_KHR_maintenance10")]
+#[cfg(any(
+  feature = "VK_KHR_maintenance10",
+  feature = "VK_EXT_fragment_density_map_offset"
+))]
 use crate::types::VkRenderingEndInfoKHR;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_3")]
 use crate::types::VkRenderingInfo;
@@ -984,7 +991,10 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSubpassEndInfo<'root>>
 }
 #[cfg(all(
   feature = "VK_QCOM_fragment_density_map_offset",
-  feature = "VK_KHR_maintenance10"
+  any(
+    feature = "VK_KHR_maintenance10",
+    feature = "VK_EXT_fragment_density_map_offset"
+  )
 ))]
 unsafe impl<'child, 'root> VkPNextExtends<VkRenderingEndInfoKHR<'root>>
   for VkSubpassFragmentDensityMapOffsetEndInfoQCOM<'child>
@@ -1040,7 +1050,10 @@ impl<'a> VkSubpassFragmentDensityMapOffsetEndInfoQCOM<'a> {
     self.pNext = (val as *const T).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_KHR_maintenance10")]
+  #[cfg(any(
+    feature = "VK_KHR_maintenance10",
+    feature = "VK_EXT_fragment_density_map_offset"
+  ))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.

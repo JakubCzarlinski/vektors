@@ -152,7 +152,10 @@ use crate::types::VkImageView;
 use crate::types::VkImportMetalSharedEventInfoEXT;
 #[cfg(feature = "VK_EXT_device_generated_commands")]
 use crate::types::VkIndirectCommandsLayoutCreateInfoEXT;
-#[cfg(feature = "VK_EXT_mutable_descriptor_type")]
+#[cfg(any(
+  feature = "VK_EXT_mutable_descriptor_type",
+  feature = "VK_VALVE_mutable_descriptor_type"
+))]
 use crate::types::VkMutableDescriptorTypeCreateInfoEXT;
 #[cfg(feature = "VK_EXT_descriptor_buffer")]
 use crate::types::VkOpaqueCaptureDescriptorDataCreateInfoEXT;
@@ -1227,7 +1230,10 @@ impl<'a> VkDescriptorSetLayoutCreateInfo<'a> {
       (val as *const VkDescriptorSetLayoutBindingFlagsCreateInfo<'child>).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_EXT_mutable_descriptor_type")]
+  #[cfg(any(
+    feature = "VK_EXT_mutable_descriptor_type",
+    feature = "VK_VALVE_mutable_descriptor_type"
+  ))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -1383,7 +1389,10 @@ impl<'a> VkDescriptorPoolCreateInfo<'a> {
       (val as *const VkDescriptorPoolInlineUniformBlockCreateInfo<'child>).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_EXT_mutable_descriptor_type")]
+  #[cfg(any(
+    feature = "VK_EXT_mutable_descriptor_type",
+    feature = "VK_VALVE_mutable_descriptor_type"
+  ))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.

@@ -133,7 +133,10 @@ use crate::types::VkRenderPassCreationControlEXT;
 use crate::types::VkRenderPassCreationFeedbackCreateInfoEXT;
 #[cfg(feature = "VK_EXT_fragment_density_map")]
 use crate::types::VkRenderPassFragmentDensityMapCreateInfoEXT;
-#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+#[cfg(any(
+  feature = "VK_EXT_fragment_density_map_offset",
+  feature = "VK_QCOM_fragment_density_map_offset"
+))]
 use crate::types::VkRenderPassFragmentDensityMapOffsetEndInfoEXT;
 #[cfg(feature = "VK_EXT_subpass_merge_feedback")]
 use crate::types::VkRenderPassSubpassFeedbackCreateInfoEXT;
@@ -1050,7 +1053,10 @@ impl<'a> VkSubpassEndInfo<'a> {
     self.pNext = val;
     self
   }
-  #[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+  #[cfg(any(
+    feature = "VK_EXT_fragment_density_map_offset",
+    feature = "VK_QCOM_fragment_density_map_offset"
+  ))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.

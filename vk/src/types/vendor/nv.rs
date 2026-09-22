@@ -107,7 +107,10 @@ use crate::enums::VkIndirectCommandsTokenTypeNV;
 use crate::enums::VkIndirectStateFlagBitsNV;
 #[cfg(feature = "VK_NV_low_latency2")]
 use crate::enums::VkLatencyMarkerNV;
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 use crate::enums::VkMemoryDecompressionMethodFlagBitsEXT;
 #[cfg(feature = "VK_NV_optical_flow")]
 use crate::enums::VkOpticalFlowExecuteFlagBitsNV;
@@ -174,7 +177,7 @@ use crate::enums::VkPipelineStageFlagBits;
   feature = "VK_EXT_memory_decompression"
 ))]
 use crate::enums::VkPipelineStageFlagBits2;
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(feature = "VK_KHR_surface", feature = "VK_NV_low_latency2"))]
 use crate::enums::VkPresentModeKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkQueueFlagBits;
@@ -243,8 +246,19 @@ use crate::types::VkAccelerationStructureCreateInfoKHR;
 use crate::types::VkAccelerationStructureGeometryKHR;
 #[cfg(feature = "VK_KHR_acceleration_structure")]
 use crate::types::VkAccelerationStructureGeometryTrianglesDataKHR;
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
 use crate::types::VkAccelerationStructureInstanceKHR;
+#[cfg(any(
+  feature = "VK_NV_ray_tracing",
+  all(
+    feature = "VK_EXT_descriptor_buffer",
+    feature = "VK_KHR_acceleration_structure"
+  )
+))]
+use crate::types::VkAccelerationStructureNV;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkBool32;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -253,7 +267,10 @@ use crate::types::VkBuffer;
 use crate::types::VkBufferCreateInfo;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkBufferUsageFlags;
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
 use crate::types::VkBuildAccelerationStructureFlagsKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkCommandBufferInheritanceInfo;
@@ -293,11 +310,15 @@ use crate::types::VkFence;
 use crate::types::VkFenceCreateInfo;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkFlags;
-#[cfg(any(feature = "VK_BASE_VERSION_1_3", feature = "VK_KHR_synchronization2"))]
-use crate::types::VkFlags64;
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
 use crate::types::VkGeometryFlagsKHR;
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
 use crate::types::VkGeometryInstanceFlagsKHR;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 use crate::types::VkGraphicsPipelineCreateInfo;
@@ -320,7 +341,10 @@ use crate::types::VkIndirectCommandsLayoutPushDataTokenNV;
 use crate::types::VkIndirectCommandsLayoutTokenEXT;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkMemoryAllocateInfo;
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 use crate::types::VkMemoryDecompressionMethodFlagsEXT;
 #[cfg(feature = "VK_EXT_opacity_micromap")]
 use crate::types::VkMicromapEXT;
@@ -387,7 +411,10 @@ use crate::types::VkSemaphore;
 use crate::types::VkSemaphoreCreateInfo;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkShaderStageFlags;
-#[cfg(feature = "VK_KHR_ray_tracing_pipeline")]
+#[cfg(any(
+  feature = "VK_KHR_ray_tracing_pipeline",
+  feature = "VK_NV_cluster_acceleration_structure"
+))]
 use crate::types::VkStridedDeviceAddressRegionKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkSubmitInfo;
@@ -397,7 +424,10 @@ use crate::types::VkSubmitInfo2;
 use crate::types::VkSurfaceCapabilities2KHR;
 #[cfg(feature = "VK_KHR_swapchain")]
 use crate::types::VkSwapchainCreateInfoKHR;
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
 use crate::types::VkTransformMatrixKHR;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 use crate::types::VkViewport;
@@ -757,39 +787,6 @@ impl<'a> VkPhysicalDeviceClusterAccelerationStructurePropertiesNV<'a> {
     val: &'a mut T,
   ) -> Self {
     self.pNext = (val as *mut T).cast::<c_void>();
-    self
-  }
-}
-/// [VkStridedDeviceAddressNV](https://docs.vulkan.org/refpages/latest/refpages/source/VkStridedDeviceAddressNV.html)
-#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkStridedDeviceAddressNV {
-  pub startAddress: VkDeviceAddress,
-  pub strideInBytes: VkDeviceSize,
-}
-#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
-unsafe impl Send for VkStridedDeviceAddressNV {}
-#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
-unsafe impl Sync for VkStridedDeviceAddressNV {}
-#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
-impl VkStridedDeviceAddressNV {
-  pub const DEFAULT: Self = Self {
-    startAddress: 0,
-    strideInBytes: 0,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  #[inline]
-  pub const fn with_startAddress(mut self, val: VkDeviceAddress) -> Self {
-    self.startAddress = val;
-    self
-  }
-  #[inline]
-  pub const fn with_strideInBytes(mut self, val: VkDeviceSize) -> Self {
-    self.strideInBytes = val;
     self
   }
 }
@@ -1852,6 +1849,51 @@ impl<'a> VkClusterAccelerationStructureCommandsInfoNV<'a> {
     val: &'a mut T,
   ) -> Self {
     self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkStridedDeviceAddressNV](https://docs.vulkan.org/refpages/latest/refpages/source/VkStridedDeviceAddressNV.html)
+#[cfg(any(
+  feature = "VK_NV_cluster_acceleration_structure",
+  feature = "VK_NV_partitioned_acceleration_structure"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkStridedDeviceAddressNV {
+  pub startAddress: VkDeviceAddress,
+  pub strideInBytes: VkDeviceSize,
+}
+#[cfg(any(
+  feature = "VK_NV_cluster_acceleration_structure",
+  feature = "VK_NV_partitioned_acceleration_structure"
+))]
+unsafe impl Send for VkStridedDeviceAddressNV {}
+#[cfg(any(
+  feature = "VK_NV_cluster_acceleration_structure",
+  feature = "VK_NV_partitioned_acceleration_structure"
+))]
+unsafe impl Sync for VkStridedDeviceAddressNV {}
+#[cfg(any(
+  feature = "VK_NV_cluster_acceleration_structure",
+  feature = "VK_NV_partitioned_acceleration_structure"
+))]
+impl VkStridedDeviceAddressNV {
+  pub const DEFAULT: Self = Self {
+    startAddress: 0,
+    strideInBytes: 0,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  #[inline]
+  pub const fn with_startAddress(mut self, val: VkDeviceAddress) -> Self {
+    self.startAddress = val;
+    self
+  }
+  #[inline]
+  pub const fn with_strideInBytes(mut self, val: VkDeviceSize) -> Self {
+    self.strideInBytes = val;
     self
   }
 }
@@ -11551,7 +11593,7 @@ impl<'a> VkLatencySurfaceCapabilitiesNV<'a> {
 }
 /// [VkMemoryDecompressionMethodFlagsNV](https://docs.vulkan.org/refpages/latest/refpages/source/VkMemoryDecompressionMethodFlagsNV.html)
 #[cfg(feature = "VK_NV_memory_decompression")]
-pub type VkMemoryDecompressionMethodFlagsNV = VkFlags64;
+pub type VkMemoryDecompressionMethodFlagsNV = VkMemoryDecompressionMethodFlagBitsEXT;
 /// [VkPhysicalDeviceMemoryDecompressionFeaturesNV](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceMemoryDecompressionFeaturesNV.html)
 ///
 /// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
@@ -11682,7 +11724,7 @@ impl<'a> VkPhysicalDeviceMemoryDecompressionPropertiesNV<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::PHYSICAL_DEVICE_MEMORY_DECOMPRESSION_PROPERTIES_NV,
     pNext: core::ptr::null_mut(),
-    decompressionMethods: 0,
+    decompressionMethods: VkMemoryDecompressionMethodFlagBitsEXT(0),
     maxDecompressionIndirectCount: 0,
     _marker: core::marker::PhantomData,
   };
@@ -14466,26 +14508,6 @@ pub type VkGeometryInstanceFlagsNV = VkGeometryInstanceFlagBitsKHR;
 /// [VkBuildAccelerationStructureFlagsNV](https://docs.vulkan.org/refpages/latest/refpages/source/VkBuildAccelerationStructureFlagsNV.html)
 #[cfg(feature = "VK_NV_ray_tracing")]
 pub type VkBuildAccelerationStructureFlagsNV = VkBuildAccelerationStructureFlagBitsKHR;
-/// [VkAccelerationStructureNV](https://docs.vulkan.org/refpages/latest/refpages/source/VkAccelerationStructureNV.html)
-#[cfg(feature = "VK_NV_ray_tracing")]
-#[repr(transparent)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkAccelerationStructureNV(pub u64);
-#[cfg(feature = "VK_NV_ray_tracing")]
-impl VkAccelerationStructureNV {
-  pub const NULL: Self = Self(0);
-  pub const DEFAULT: Self = Self::NULL;
-}
-#[cfg(feature = "VK_NV_ray_tracing")]
-impl Default for VkAccelerationStructureNV {
-  fn default() -> Self {
-    Self::NULL
-  }
-}
-#[cfg(feature = "VK_NV_ray_tracing")]
-unsafe impl Send for VkAccelerationStructureNV {}
-#[cfg(feature = "VK_NV_ray_tracing")]
-unsafe impl Sync for VkAccelerationStructureNV {}
 /// [VkRayTracingShaderGroupCreateInfoNV](https://docs.vulkan.org/refpages/latest/refpages/source/VkRayTracingShaderGroupCreateInfoNV.html)
 #[cfg(feature = "VK_NV_ray_tracing")]
 #[repr(C)]

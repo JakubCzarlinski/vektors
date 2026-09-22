@@ -10,14 +10,20 @@ use crate::commands::PFN_vkDestroyAccelerationStructureNV;
 use crate::commands::PFN_vkGetAccelerationStructureHandleNV;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkResult;
-#[cfg(feature = "VK_NV_ray_tracing")]
+#[cfg(any(
+  feature = "VK_NV_ray_tracing",
+  all(
+    feature = "VK_EXT_descriptor_buffer",
+    feature = "VK_KHR_acceleration_structure"
+  )
+))]
 use crate::types::VkAccelerationStructureNV;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkAllocationCallbacks;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkDevice;
 use core::ffi::{c_char, c_void};
-#[cfg(feature = "VK_NV_ray_tracing")]
+#[cfg(any(feature = "VK_NV_ray_tracing", feature = "VK_EXT_descriptor_buffer"))]
 #[derive(Debug, Clone)]
 pub struct AccelerationStructureNVDispatchTable {
   #[cfg(feature = "VK_NV_ray_tracing")]
@@ -25,7 +31,7 @@ pub struct AccelerationStructureNVDispatchTable {
   #[cfg(feature = "VK_NV_ray_tracing")]
   pub vkGetAccelerationStructureHandleNV: Option<PFN_vkGetAccelerationStructureHandleNV>,
 }
-#[cfg(feature = "VK_NV_ray_tracing")]
+#[cfg(any(feature = "VK_NV_ray_tracing", feature = "VK_EXT_descriptor_buffer"))]
 impl AccelerationStructureNVDispatchTable {
   pub const EMPTY: Self = Self {
     #[cfg(feature = "VK_NV_ray_tracing")]
@@ -48,16 +54,16 @@ impl AccelerationStructureNVDispatchTable {
     }
   }
 }
-#[cfg(feature = "VK_NV_ray_tracing")]
+#[cfg(any(feature = "VK_NV_ray_tracing", feature = "VK_EXT_descriptor_buffer"))]
 pub struct AccelerationStructureNV<'dev> {
   pub(crate) raw: VkAccelerationStructureNV,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
 }
-#[cfg(feature = "VK_NV_ray_tracing")]
+#[cfg(any(feature = "VK_NV_ray_tracing", feature = "VK_EXT_descriptor_buffer"))]
 unsafe impl<'dev> Send for AccelerationStructureNV<'dev> {}
-#[cfg(feature = "VK_NV_ray_tracing")]
+#[cfg(any(feature = "VK_NV_ray_tracing", feature = "VK_EXT_descriptor_buffer"))]
 unsafe impl<'dev> Sync for AccelerationStructureNV<'dev> {}
-#[cfg(feature = "VK_NV_ray_tracing")]
+#[cfg(any(feature = "VK_NV_ray_tracing", feature = "VK_EXT_descriptor_buffer"))]
 impl<'dev> Drop for AccelerationStructureNV<'dev> {
   fn drop(&mut self) {
     if self.raw == VkAccelerationStructureNV::NULL {
@@ -69,7 +75,7 @@ impl<'dev> Drop for AccelerationStructureNV<'dev> {
     };
   }
 }
-#[cfg(feature = "VK_NV_ray_tracing")]
+#[cfg(any(feature = "VK_NV_ray_tracing", feature = "VK_EXT_descriptor_buffer"))]
 impl<'dev> AccelerationStructureNV<'dev> {
   #[inline(always)]
   pub const fn raw(&self) -> VkAccelerationStructureNV {

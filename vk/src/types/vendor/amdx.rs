@@ -60,7 +60,10 @@ use crate::types::VkPipelineCreateFlags;
 use crate::types::VkPipelineCreationFeedbackCreateInfo;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 use crate::types::VkPipelineLayout;
-#[cfg(feature = "VK_KHR_pipeline_library")]
+#[cfg(any(
+  feature = "VK_KHR_pipeline_library",
+  feature = "VK_KHR_ray_tracing_pipeline"
+))]
 use crate::types::VkPipelineLibraryCreateInfoKHR;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 use crate::types::VkPipelineShaderStageCreateInfo;

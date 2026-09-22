@@ -46397,17 +46397,29 @@ impl core::fmt::Display for VkDynamicState {
   }
 }
 /// [VkBlendOverlapEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkBlendOverlapEXT.html)
-#[cfg(feature = "VK_EXT_blend_operation_advanced")]
+#[cfg(any(
+  feature = "VK_EXT_blend_operation_advanced",
+  feature = "VK_EXT_extended_dynamic_state3",
+  feature = "VK_EXT_shader_object"
+))]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd)]
 pub struct VkBlendOverlapEXT(pub i32);
-#[cfg(feature = "VK_EXT_blend_operation_advanced")]
+#[cfg(any(
+  feature = "VK_EXT_blend_operation_advanced",
+  feature = "VK_EXT_extended_dynamic_state3",
+  feature = "VK_EXT_shader_object"
+))]
 impl VkBlendOverlapEXT {
   pub const UNCORRELATED: Self = Self(0);
   pub const DISJOINT: Self = Self(1);
   pub const CONJOINT: Self = Self(2);
 }
-#[cfg(feature = "VK_EXT_blend_operation_advanced")]
+#[cfg(any(
+  feature = "VK_EXT_blend_operation_advanced",
+  feature = "VK_EXT_extended_dynamic_state3",
+  feature = "VK_EXT_shader_object"
+))]
 impl core::fmt::Display for VkBlendOverlapEXT {
   fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
     match self.0 {
@@ -50446,6 +50458,37 @@ impl core::fmt::Display for VkDeviceFaultAddressTypeEXT {
     }
   }
 }
+/// [VkDeviceFaultVendorBinaryHeaderVersionKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkDeviceFaultVendorBinaryHeaderVersionKHR.html)
+#[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
+#[repr(transparent)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd)]
+pub struct VkDeviceFaultVendorBinaryHeaderVersionKHR(pub i32);
+#[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
+impl VkDeviceFaultVendorBinaryHeaderVersionKHR {
+  pub const VK_DEVICE_FAULT_VENDOR_BINARY_HEADER_VERSION_ONE_KHR: Self = Self(1);
+  pub const EXT: Self = Self(1);
+}
+#[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
+impl core::fmt::Display for VkDeviceFaultVendorBinaryHeaderVersionKHR {
+  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    match self.0 {
+      value if value == Self::VK_DEVICE_FAULT_VENDOR_BINARY_HEADER_VERSION_ONE_KHR.0 => {
+        f.write_str("VK_DEVICE_FAULT_VENDOR_BINARY_HEADER_VERSION_ONE_KHR")
+      }
+      value if value == Self::EXT.0 => {
+        f.write_str("VK_DEVICE_FAULT_VENDOR_BINARY_HEADER_VERSION_ONE_EXT")
+      }
+      _ => {
+        write!(
+          f,
+          "{}({})",
+          stringify!(VkDeviceFaultVendorBinaryHeaderVersionKHR),
+          self.0
+        )
+      }
+    }
+  }
+}
 /// [VkDeviceFaultAddressTypeKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkDeviceFaultAddressTypeKHR.html)
 #[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
 #[repr(transparent)]
@@ -51188,6 +51231,73 @@ impl core::fmt::Display for VkSurfaceCounterFlagBitsEXT {
       } else {
         write!(f, "0x{:x}", self.0)
       }
+    }
+  }
+}
+/// [VkLineRasterizationModeEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkLineRasterizationModeEXT.html)
+#[cfg(any(
+  feature = "VK_EXT_line_rasterization",
+  all(feature = "VK_EXT_extended_dynamic_state3", feature = "VK_VERSION_1_4"),
+  all(feature = "VK_EXT_shader_object", feature = "VK_VERSION_1_4"),
+  feature = "VK_KHR_line_rasterization"
+))]
+#[repr(transparent)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd)]
+pub struct VkLineRasterizationModeEXT(pub i32);
+#[cfg(any(
+  feature = "VK_EXT_line_rasterization",
+  all(feature = "VK_EXT_extended_dynamic_state3", feature = "VK_VERSION_1_4"),
+  all(feature = "VK_EXT_shader_object", feature = "VK_VERSION_1_4"),
+  feature = "VK_KHR_line_rasterization"
+))]
+impl VkLineRasterizationModeEXT {
+  pub const DEFAULT: Self = Self(0);
+  pub const RECTANGULAR: Self = Self(1);
+  pub const BRESENHAM: Self = Self(2);
+  pub const RECTANGULAR_SMOOTH: Self = Self(3);
+  #[cfg(feature = "VK_KHR_line_rasterization")]
+  pub const DEFAULT_KHR: Self = Self(0);
+  #[cfg(feature = "VK_KHR_line_rasterization")]
+  pub const RECTANGULAR_KHR: Self = Self(1);
+  #[cfg(feature = "VK_KHR_line_rasterization")]
+  pub const BRESENHAM_KHR: Self = Self(2);
+  #[cfg(feature = "VK_KHR_line_rasterization")]
+  pub const RECTANGULAR_SMOOTH_KHR: Self = Self(3);
+}
+#[cfg(any(
+  feature = "VK_EXT_line_rasterization",
+  all(feature = "VK_EXT_extended_dynamic_state3", feature = "VK_VERSION_1_4"),
+  all(feature = "VK_EXT_shader_object", feature = "VK_VERSION_1_4"),
+  feature = "VK_KHR_line_rasterization"
+))]
+impl core::fmt::Display for VkLineRasterizationModeEXT {
+  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    match self.0 {
+      value if value == Self::DEFAULT.0 => f.write_str("VK_LINE_RASTERIZATION_MODE_DEFAULT"),
+      value if value == Self::RECTANGULAR.0 => {
+        f.write_str("VK_LINE_RASTERIZATION_MODE_RECTANGULAR")
+      }
+      value if value == Self::BRESENHAM.0 => f.write_str("VK_LINE_RASTERIZATION_MODE_BRESENHAM"),
+      value if value == Self::RECTANGULAR_SMOOTH.0 => {
+        f.write_str("VK_LINE_RASTERIZATION_MODE_RECTANGULAR_SMOOTH")
+      }
+      #[cfg(feature = "VK_KHR_line_rasterization")]
+      value if value == Self::DEFAULT_KHR.0 => {
+        f.write_str("VK_LINE_RASTERIZATION_MODE_DEFAULT_KHR")
+      }
+      #[cfg(feature = "VK_KHR_line_rasterization")]
+      value if value == Self::RECTANGULAR_KHR.0 => {
+        f.write_str("VK_LINE_RASTERIZATION_MODE_RECTANGULAR_KHR")
+      }
+      #[cfg(feature = "VK_KHR_line_rasterization")]
+      value if value == Self::BRESENHAM_KHR.0 => {
+        f.write_str("VK_LINE_RASTERIZATION_MODE_BRESENHAM_KHR")
+      }
+      #[cfg(feature = "VK_KHR_line_rasterization")]
+      value if value == Self::RECTANGULAR_SMOOTH_KHR.0 => {
+        f.write_str("VK_LINE_RASTERIZATION_MODE_RECTANGULAR_SMOOTH_KHR")
+      }
+      _ => write!(f, "{}({})", stringify!(VkLineRasterizationModeEXT), self.0),
     }
   }
 }
@@ -52478,67 +52588,6 @@ impl core::fmt::Display for VkLayerSettingTypeEXT {
     }
   }
 }
-/// [VkLineRasterizationModeEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkLineRasterizationModeEXT.html)
-#[cfg(any(
-  feature = "VK_EXT_line_rasterization",
-  feature = "VK_KHR_line_rasterization"
-))]
-#[repr(transparent)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd)]
-pub struct VkLineRasterizationModeEXT(pub i32);
-#[cfg(any(
-  feature = "VK_EXT_line_rasterization",
-  feature = "VK_KHR_line_rasterization"
-))]
-impl VkLineRasterizationModeEXT {
-  pub const DEFAULT: Self = Self(0);
-  pub const RECTANGULAR: Self = Self(1);
-  pub const BRESENHAM: Self = Self(2);
-  pub const RECTANGULAR_SMOOTH: Self = Self(3);
-  #[cfg(feature = "VK_KHR_line_rasterization")]
-  pub const DEFAULT_KHR: Self = Self(0);
-  #[cfg(feature = "VK_KHR_line_rasterization")]
-  pub const RECTANGULAR_KHR: Self = Self(1);
-  #[cfg(feature = "VK_KHR_line_rasterization")]
-  pub const BRESENHAM_KHR: Self = Self(2);
-  #[cfg(feature = "VK_KHR_line_rasterization")]
-  pub const RECTANGULAR_SMOOTH_KHR: Self = Self(3);
-}
-#[cfg(any(
-  feature = "VK_EXT_line_rasterization",
-  feature = "VK_KHR_line_rasterization"
-))]
-impl core::fmt::Display for VkLineRasterizationModeEXT {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    match self.0 {
-      value if value == Self::DEFAULT.0 => f.write_str("VK_LINE_RASTERIZATION_MODE_DEFAULT"),
-      value if value == Self::RECTANGULAR.0 => {
-        f.write_str("VK_LINE_RASTERIZATION_MODE_RECTANGULAR")
-      }
-      value if value == Self::BRESENHAM.0 => f.write_str("VK_LINE_RASTERIZATION_MODE_BRESENHAM"),
-      value if value == Self::RECTANGULAR_SMOOTH.0 => {
-        f.write_str("VK_LINE_RASTERIZATION_MODE_RECTANGULAR_SMOOTH")
-      }
-      #[cfg(feature = "VK_KHR_line_rasterization")]
-      value if value == Self::DEFAULT_KHR.0 => {
-        f.write_str("VK_LINE_RASTERIZATION_MODE_DEFAULT_KHR")
-      }
-      #[cfg(feature = "VK_KHR_line_rasterization")]
-      value if value == Self::RECTANGULAR_KHR.0 => {
-        f.write_str("VK_LINE_RASTERIZATION_MODE_RECTANGULAR_KHR")
-      }
-      #[cfg(feature = "VK_KHR_line_rasterization")]
-      value if value == Self::BRESENHAM_KHR.0 => {
-        f.write_str("VK_LINE_RASTERIZATION_MODE_BRESENHAM_KHR")
-      }
-      #[cfg(feature = "VK_KHR_line_rasterization")]
-      value if value == Self::RECTANGULAR_SMOOTH_KHR.0 => {
-        f.write_str("VK_LINE_RASTERIZATION_MODE_RECTANGULAR_SMOOTH_KHR")
-      }
-      _ => write!(f, "{}({})", stringify!(VkLineRasterizationModeEXT), self.0),
-    }
-  }
-}
 /// [VkLineRasterizationMode](https://docs.vulkan.org/refpages/latest/refpages/source/VkLineRasterizationMode.html)
 #[cfg(any(
   feature = "VK_GRAPHICS_VERSION_1_4",
@@ -52725,11 +52774,17 @@ impl core::fmt::Display for VkAttachmentLoadOp {
   }
 }
 /// [VkMemoryDecompressionMethodFlagBitsEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkMemoryDecompressionMethodFlagsEXT.html)
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct VkMemoryDecompressionMethodFlagBitsEXT(pub u64);
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 impl VkMemoryDecompressionMethodFlagBitsEXT {
   pub const EMPTY: Self = Self(0);
   pub const VK_MEMORY_DECOMPRESSION_METHOD_GDEFLATE_1_0_BIT_EXT: Self = Self(1 << 0u64);
@@ -52747,7 +52802,10 @@ impl VkMemoryDecompressionMethodFlagBitsEXT {
     self.0 == 0
   }
 }
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 impl core::ops::BitOr for VkMemoryDecompressionMethodFlagBitsEXT {
   type Output = Self;
   #[inline]
@@ -52755,14 +52813,20 @@ impl core::ops::BitOr for VkMemoryDecompressionMethodFlagBitsEXT {
     Self(self.0 | r.0)
   }
 }
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 impl core::ops::BitOrAssign for VkMemoryDecompressionMethodFlagBitsEXT {
   #[inline]
   fn bitor_assign(&mut self, r: Self) {
     self.0 |= r.0;
   }
 }
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 impl core::ops::BitAnd for VkMemoryDecompressionMethodFlagBitsEXT {
   type Output = Self;
   #[inline]
@@ -52770,14 +52834,20 @@ impl core::ops::BitAnd for VkMemoryDecompressionMethodFlagBitsEXT {
     Self(self.0 & r.0)
   }
 }
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 impl core::ops::BitAndAssign for VkMemoryDecompressionMethodFlagBitsEXT {
   #[inline]
   fn bitand_assign(&mut self, r: Self) {
     self.0 &= r.0;
   }
 }
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 impl core::ops::BitXor for VkMemoryDecompressionMethodFlagBitsEXT {
   type Output = Self;
   #[inline]
@@ -52785,14 +52855,20 @@ impl core::ops::BitXor for VkMemoryDecompressionMethodFlagBitsEXT {
     Self(self.0 ^ r.0)
   }
 }
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 impl core::ops::BitXorAssign for VkMemoryDecompressionMethodFlagBitsEXT {
   #[inline]
   fn bitxor_assign(&mut self, r: Self) {
     self.0 ^= r.0;
   }
 }
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 impl core::ops::Not for VkMemoryDecompressionMethodFlagBitsEXT {
   type Output = Self;
   #[inline]
@@ -52800,7 +52876,10 @@ impl core::ops::Not for VkMemoryDecompressionMethodFlagBitsEXT {
     Self(!self.0)
   }
 }
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 impl core::ops::BitOr<u64> for VkMemoryDecompressionMethodFlagBitsEXT {
   type Output = Self;
   #[inline]
@@ -52808,14 +52887,20 @@ impl core::ops::BitOr<u64> for VkMemoryDecompressionMethodFlagBitsEXT {
     Self(self.0 | r)
   }
 }
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 impl core::ops::BitOrAssign<u64> for VkMemoryDecompressionMethodFlagBitsEXT {
   #[inline]
   fn bitor_assign(&mut self, r: u64) {
     self.0 |= r;
   }
 }
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 impl core::ops::BitAnd<u64> for VkMemoryDecompressionMethodFlagBitsEXT {
   type Output = Self;
   #[inline]
@@ -52823,14 +52908,20 @@ impl core::ops::BitAnd<u64> for VkMemoryDecompressionMethodFlagBitsEXT {
     Self(self.0 & r)
   }
 }
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 impl core::ops::BitAndAssign<u64> for VkMemoryDecompressionMethodFlagBitsEXT {
   #[inline]
   fn bitand_assign(&mut self, r: u64) {
     self.0 &= r;
   }
 }
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 impl core::ops::BitXor<u64> for VkMemoryDecompressionMethodFlagBitsEXT {
   type Output = Self;
   #[inline]
@@ -52838,14 +52929,20 @@ impl core::ops::BitXor<u64> for VkMemoryDecompressionMethodFlagBitsEXT {
     Self(self.0 ^ r)
   }
 }
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 impl core::ops::BitXorAssign<u64> for VkMemoryDecompressionMethodFlagBitsEXT {
   #[inline]
   fn bitxor_assign(&mut self, r: u64) {
     self.0 ^= r;
   }
 }
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 impl core::fmt::Display for VkMemoryDecompressionMethodFlagBitsEXT {
   #[allow(unused_mut)]
   fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -55243,11 +55340,11 @@ impl core::fmt::Display for VkPipelineRobustnessImageBehaviorEXT {
   }
 }
 /// [VkPresentModeKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPresentModeKHR.html)
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(feature = "VK_KHR_surface", feature = "VK_NV_low_latency2"))]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd)]
 pub struct VkPresentModeKHR(pub i32);
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(feature = "VK_KHR_surface", feature = "VK_NV_low_latency2"))]
 impl VkPresentModeKHR {
   pub const IMMEDIATE: Self = Self(0);
   pub const MAILBOX: Self = Self(1);
@@ -55262,7 +55359,7 @@ impl VkPresentModeKHR {
   #[cfg(feature = "VK_KHR_present_mode_fifo_latest_ready")]
   pub const FIFO_LATEST_READY: Self = Self(1000361000);
 }
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(feature = "VK_KHR_surface", feature = "VK_NV_low_latency2"))]
 impl core::fmt::Display for VkPresentModeKHR {
   fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
     match self.0 {
@@ -56830,6 +56927,528 @@ impl core::fmt::Display for VkPresentGravityFlagBitsEXT {
         }
         {
           bits |= Self::CENTERED.0;
+        }
+        bits
+      };
+      let unknown_bits = self.0 & !known_bits;
+      if unknown_bits != 0 {
+        if wrote {
+          f.write_str(" | ")?;
+        }
+        write!(f, "0x{:x}", unknown_bits)?;
+        wrote = true;
+      }
+      if wrote {
+        Ok(())
+      } else {
+        write!(f, "0x{:x}", self.0)
+      }
+    }
+  }
+}
+/// [VkPresentScalingFlagBitsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPresentScalingFlagsKHR.html)
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+#[repr(transparent)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+pub struct VkPresentScalingFlagBitsKHR(pub u32);
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl VkPresentScalingFlagBitsKHR {
+  pub const EMPTY: Self = Self(0);
+  pub const ONE_TO_ONE: Self = Self(1 << 0u64);
+  pub const ONE_TO_ONE_BIT_EXT: Self = Self(1 << 0u64);
+  pub const ASPECT_RATIO_STRETCH: Self = Self(1 << 1u64);
+  pub const ASPECT_RATIO_STRETCH_BIT_EXT: Self = Self(1 << 1u64);
+  pub const STRETCH: Self = Self(1 << 2u64);
+  pub const STRETCH_BIT_EXT: Self = Self(1 << 2u64);
+  #[inline]
+  pub const fn contains(self, o: Self) -> bool {
+    (self.0 & o.0) == o.0
+  }
+  #[inline]
+  pub const fn intersects(self, o: Self) -> bool {
+    (self.0 & o.0) != 0
+  }
+  #[inline]
+  pub const fn is_empty(self) -> bool {
+    self.0 == 0
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::BitOr for VkPresentScalingFlagBitsKHR {
+  type Output = Self;
+  #[inline]
+  fn bitor(self, r: Self) -> Self {
+    Self(self.0 | r.0)
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::BitOrAssign for VkPresentScalingFlagBitsKHR {
+  #[inline]
+  fn bitor_assign(&mut self, r: Self) {
+    self.0 |= r.0;
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::BitAnd for VkPresentScalingFlagBitsKHR {
+  type Output = Self;
+  #[inline]
+  fn bitand(self, r: Self) -> Self {
+    Self(self.0 & r.0)
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::BitAndAssign for VkPresentScalingFlagBitsKHR {
+  #[inline]
+  fn bitand_assign(&mut self, r: Self) {
+    self.0 &= r.0;
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::BitXor for VkPresentScalingFlagBitsKHR {
+  type Output = Self;
+  #[inline]
+  fn bitxor(self, r: Self) -> Self {
+    Self(self.0 ^ r.0)
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::BitXorAssign for VkPresentScalingFlagBitsKHR {
+  #[inline]
+  fn bitxor_assign(&mut self, r: Self) {
+    self.0 ^= r.0;
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::Not for VkPresentScalingFlagBitsKHR {
+  type Output = Self;
+  #[inline]
+  fn not(self) -> Self {
+    Self(!self.0)
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::BitOr<u32> for VkPresentScalingFlagBitsKHR {
+  type Output = Self;
+  #[inline]
+  fn bitor(self, r: u32) -> Self {
+    Self(self.0 | r)
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::BitOrAssign<u32> for VkPresentScalingFlagBitsKHR {
+  #[inline]
+  fn bitor_assign(&mut self, r: u32) {
+    self.0 |= r;
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::BitAnd<u32> for VkPresentScalingFlagBitsKHR {
+  type Output = Self;
+  #[inline]
+  fn bitand(self, r: u32) -> Self {
+    Self(self.0 & r)
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::BitAndAssign<u32> for VkPresentScalingFlagBitsKHR {
+  #[inline]
+  fn bitand_assign(&mut self, r: u32) {
+    self.0 &= r;
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::BitXor<u32> for VkPresentScalingFlagBitsKHR {
+  type Output = Self;
+  #[inline]
+  fn bitxor(self, r: u32) -> Self {
+    Self(self.0 ^ r)
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::BitXorAssign<u32> for VkPresentScalingFlagBitsKHR {
+  #[inline]
+  fn bitxor_assign(&mut self, r: u32) {
+    self.0 ^= r;
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::fmt::Display for VkPresentScalingFlagBitsKHR {
+  #[allow(unused_mut)]
+  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    if self.is_empty() {
+      f.write_str("0")
+    } else {
+      let mut wrote = false;
+      if self.intersects(Self::ONE_TO_ONE) {
+        if wrote {
+          f.write_str(" | ")?;
+        }
+        f.write_str("VK_PRESENT_SCALING_ONE_TO_ONE_BIT_KHR")?;
+        wrote = true;
+      }
+      if self.intersects(Self::ONE_TO_ONE_BIT_EXT) {
+        if wrote {
+          f.write_str(" | ")?;
+        }
+        f.write_str("VK_PRESENT_SCALING_ONE_TO_ONE_BIT_EXT")?;
+        wrote = true;
+      }
+      if self.intersects(Self::ASPECT_RATIO_STRETCH) {
+        if wrote {
+          f.write_str(" | ")?;
+        }
+        f.write_str("VK_PRESENT_SCALING_ASPECT_RATIO_STRETCH_BIT_KHR")?;
+        wrote = true;
+      }
+      if self.intersects(Self::ASPECT_RATIO_STRETCH_BIT_EXT) {
+        if wrote {
+          f.write_str(" | ")?;
+        }
+        f.write_str("VK_PRESENT_SCALING_ASPECT_RATIO_STRETCH_BIT_EXT")?;
+        wrote = true;
+      }
+      if self.intersects(Self::STRETCH) {
+        if wrote {
+          f.write_str(" | ")?;
+        }
+        f.write_str("VK_PRESENT_SCALING_STRETCH_BIT_KHR")?;
+        wrote = true;
+      }
+      if self.intersects(Self::STRETCH_BIT_EXT) {
+        if wrote {
+          f.write_str(" | ")?;
+        }
+        f.write_str("VK_PRESENT_SCALING_STRETCH_BIT_EXT")?;
+        wrote = true;
+      }
+      let known_bits = {
+        let mut bits = 0;
+        {
+          bits |= Self::ONE_TO_ONE.0;
+        }
+        {
+          bits |= Self::ONE_TO_ONE_BIT_EXT.0;
+        }
+        {
+          bits |= Self::ASPECT_RATIO_STRETCH.0;
+        }
+        {
+          bits |= Self::ASPECT_RATIO_STRETCH_BIT_EXT.0;
+        }
+        {
+          bits |= Self::STRETCH.0;
+        }
+        {
+          bits |= Self::STRETCH_BIT_EXT.0;
+        }
+        bits
+      };
+      let unknown_bits = self.0 & !known_bits;
+      if unknown_bits != 0 {
+        if wrote {
+          f.write_str(" | ")?;
+        }
+        write!(f, "0x{:x}", unknown_bits)?;
+        wrote = true;
+      }
+      if wrote {
+        Ok(())
+      } else {
+        write!(f, "0x{:x}", self.0)
+      }
+    }
+  }
+}
+/// [VkPresentGravityFlagBitsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPresentGravityFlagsKHR.html)
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+#[repr(transparent)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+pub struct VkPresentGravityFlagBitsKHR(pub u32);
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl VkPresentGravityFlagBitsKHR {
+  pub const EMPTY: Self = Self(0);
+  pub const MIN: Self = Self(1 << 0u64);
+  pub const MIN_BIT_EXT: Self = Self(1 << 0u64);
+  pub const MAX: Self = Self(1 << 1u64);
+  pub const MAX_BIT_EXT: Self = Self(1 << 1u64);
+  pub const CENTERED: Self = Self(1 << 2u64);
+  pub const CENTERED_BIT_EXT: Self = Self(1 << 2u64);
+  #[inline]
+  pub const fn contains(self, o: Self) -> bool {
+    (self.0 & o.0) == o.0
+  }
+  #[inline]
+  pub const fn intersects(self, o: Self) -> bool {
+    (self.0 & o.0) != 0
+  }
+  #[inline]
+  pub const fn is_empty(self) -> bool {
+    self.0 == 0
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::BitOr for VkPresentGravityFlagBitsKHR {
+  type Output = Self;
+  #[inline]
+  fn bitor(self, r: Self) -> Self {
+    Self(self.0 | r.0)
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::BitOrAssign for VkPresentGravityFlagBitsKHR {
+  #[inline]
+  fn bitor_assign(&mut self, r: Self) {
+    self.0 |= r.0;
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::BitAnd for VkPresentGravityFlagBitsKHR {
+  type Output = Self;
+  #[inline]
+  fn bitand(self, r: Self) -> Self {
+    Self(self.0 & r.0)
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::BitAndAssign for VkPresentGravityFlagBitsKHR {
+  #[inline]
+  fn bitand_assign(&mut self, r: Self) {
+    self.0 &= r.0;
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::BitXor for VkPresentGravityFlagBitsKHR {
+  type Output = Self;
+  #[inline]
+  fn bitxor(self, r: Self) -> Self {
+    Self(self.0 ^ r.0)
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::BitXorAssign for VkPresentGravityFlagBitsKHR {
+  #[inline]
+  fn bitxor_assign(&mut self, r: Self) {
+    self.0 ^= r.0;
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::Not for VkPresentGravityFlagBitsKHR {
+  type Output = Self;
+  #[inline]
+  fn not(self) -> Self {
+    Self(!self.0)
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::BitOr<u32> for VkPresentGravityFlagBitsKHR {
+  type Output = Self;
+  #[inline]
+  fn bitor(self, r: u32) -> Self {
+    Self(self.0 | r)
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::BitOrAssign<u32> for VkPresentGravityFlagBitsKHR {
+  #[inline]
+  fn bitor_assign(&mut self, r: u32) {
+    self.0 |= r;
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::BitAnd<u32> for VkPresentGravityFlagBitsKHR {
+  type Output = Self;
+  #[inline]
+  fn bitand(self, r: u32) -> Self {
+    Self(self.0 & r)
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::BitAndAssign<u32> for VkPresentGravityFlagBitsKHR {
+  #[inline]
+  fn bitand_assign(&mut self, r: u32) {
+    self.0 &= r;
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::BitXor<u32> for VkPresentGravityFlagBitsKHR {
+  type Output = Self;
+  #[inline]
+  fn bitxor(self, r: u32) -> Self {
+    Self(self.0 ^ r)
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::ops::BitXorAssign<u32> for VkPresentGravityFlagBitsKHR {
+  #[inline]
+  fn bitxor_assign(&mut self, r: u32) {
+    self.0 ^= r;
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl core::fmt::Display for VkPresentGravityFlagBitsKHR {
+  #[allow(unused_mut)]
+  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    if self.is_empty() {
+      f.write_str("0")
+    } else {
+      let mut wrote = false;
+      if self.intersects(Self::MIN) {
+        if wrote {
+          f.write_str(" | ")?;
+        }
+        f.write_str("VK_PRESENT_GRAVITY_MIN_BIT_KHR")?;
+        wrote = true;
+      }
+      if self.intersects(Self::MIN_BIT_EXT) {
+        if wrote {
+          f.write_str(" | ")?;
+        }
+        f.write_str("VK_PRESENT_GRAVITY_MIN_BIT_EXT")?;
+        wrote = true;
+      }
+      if self.intersects(Self::MAX) {
+        if wrote {
+          f.write_str(" | ")?;
+        }
+        f.write_str("VK_PRESENT_GRAVITY_MAX_BIT_KHR")?;
+        wrote = true;
+      }
+      if self.intersects(Self::MAX_BIT_EXT) {
+        if wrote {
+          f.write_str(" | ")?;
+        }
+        f.write_str("VK_PRESENT_GRAVITY_MAX_BIT_EXT")?;
+        wrote = true;
+      }
+      if self.intersects(Self::CENTERED) {
+        if wrote {
+          f.write_str(" | ")?;
+        }
+        f.write_str("VK_PRESENT_GRAVITY_CENTERED_BIT_KHR")?;
+        wrote = true;
+      }
+      if self.intersects(Self::CENTERED_BIT_EXT) {
+        if wrote {
+          f.write_str(" | ")?;
+        }
+        f.write_str("VK_PRESENT_GRAVITY_CENTERED_BIT_EXT")?;
+        wrote = true;
+      }
+      let known_bits = {
+        let mut bits = 0;
+        {
+          bits |= Self::MIN.0;
+        }
+        {
+          bits |= Self::MIN_BIT_EXT.0;
+        }
+        {
+          bits |= Self::MAX.0;
+        }
+        {
+          bits |= Self::MAX_BIT_EXT.0;
+        }
+        {
+          bits |= Self::CENTERED.0;
+        }
+        {
+          bits |= Self::CENTERED_BIT_EXT.0;
         }
         bits
       };
@@ -60751,37 +61370,6 @@ impl core::fmt::Display for VkAddressCommandFlagBitsKHR {
         Ok(())
       } else {
         write!(f, "0x{:x}", self.0)
-      }
-    }
-  }
-}
-/// [VkDeviceFaultVendorBinaryHeaderVersionKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkDeviceFaultVendorBinaryHeaderVersionKHR.html)
-#[cfg(feature = "VK_KHR_device_fault")]
-#[repr(transparent)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd)]
-pub struct VkDeviceFaultVendorBinaryHeaderVersionKHR(pub i32);
-#[cfg(feature = "VK_KHR_device_fault")]
-impl VkDeviceFaultVendorBinaryHeaderVersionKHR {
-  pub const VK_DEVICE_FAULT_VENDOR_BINARY_HEADER_VERSION_ONE_KHR: Self = Self(1);
-  pub const EXT: Self = Self(1);
-}
-#[cfg(feature = "VK_KHR_device_fault")]
-impl core::fmt::Display for VkDeviceFaultVendorBinaryHeaderVersionKHR {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    match self.0 {
-      value if value == Self::VK_DEVICE_FAULT_VENDOR_BINARY_HEADER_VERSION_ONE_KHR.0 => {
-        f.write_str("VK_DEVICE_FAULT_VENDOR_BINARY_HEADER_VERSION_ONE_KHR")
-      }
-      value if value == Self::EXT.0 => {
-        f.write_str("VK_DEVICE_FAULT_VENDOR_BINARY_HEADER_VERSION_ONE_EXT")
-      }
-      _ => {
-        write!(
-          f,
-          "{}({})",
-          stringify!(VkDeviceFaultVendorBinaryHeaderVersionKHR),
-          self.0
-        )
       }
     }
   }
@@ -71644,11 +72232,19 @@ impl core::fmt::Display for VkCompositeAlphaFlagBitsKHR {
   }
 }
 /// [VkSurfaceTransformFlagBitsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkSurfaceTransformFlagsKHR.html)
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(
+  feature = "VK_KHR_surface",
+  feature = "VK_QCOM_render_pass_transform",
+  feature = "VK_QCOM_rotated_copy_commands"
+))]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct VkSurfaceTransformFlagBitsKHR(pub u32);
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(
+  feature = "VK_KHR_surface",
+  feature = "VK_QCOM_render_pass_transform",
+  feature = "VK_QCOM_rotated_copy_commands"
+))]
 impl VkSurfaceTransformFlagBitsKHR {
   pub const EMPTY: Self = Self(0);
   pub const IDENTITY: Self = Self(1 << 0u64);
@@ -71673,7 +72269,11 @@ impl VkSurfaceTransformFlagBitsKHR {
     self.0 == 0
   }
 }
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(
+  feature = "VK_KHR_surface",
+  feature = "VK_QCOM_render_pass_transform",
+  feature = "VK_QCOM_rotated_copy_commands"
+))]
 impl core::ops::BitOr for VkSurfaceTransformFlagBitsKHR {
   type Output = Self;
   #[inline]
@@ -71681,14 +72281,22 @@ impl core::ops::BitOr for VkSurfaceTransformFlagBitsKHR {
     Self(self.0 | r.0)
   }
 }
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(
+  feature = "VK_KHR_surface",
+  feature = "VK_QCOM_render_pass_transform",
+  feature = "VK_QCOM_rotated_copy_commands"
+))]
 impl core::ops::BitOrAssign for VkSurfaceTransformFlagBitsKHR {
   #[inline]
   fn bitor_assign(&mut self, r: Self) {
     self.0 |= r.0;
   }
 }
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(
+  feature = "VK_KHR_surface",
+  feature = "VK_QCOM_render_pass_transform",
+  feature = "VK_QCOM_rotated_copy_commands"
+))]
 impl core::ops::BitAnd for VkSurfaceTransformFlagBitsKHR {
   type Output = Self;
   #[inline]
@@ -71696,14 +72304,22 @@ impl core::ops::BitAnd for VkSurfaceTransformFlagBitsKHR {
     Self(self.0 & r.0)
   }
 }
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(
+  feature = "VK_KHR_surface",
+  feature = "VK_QCOM_render_pass_transform",
+  feature = "VK_QCOM_rotated_copy_commands"
+))]
 impl core::ops::BitAndAssign for VkSurfaceTransformFlagBitsKHR {
   #[inline]
   fn bitand_assign(&mut self, r: Self) {
     self.0 &= r.0;
   }
 }
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(
+  feature = "VK_KHR_surface",
+  feature = "VK_QCOM_render_pass_transform",
+  feature = "VK_QCOM_rotated_copy_commands"
+))]
 impl core::ops::BitXor for VkSurfaceTransformFlagBitsKHR {
   type Output = Self;
   #[inline]
@@ -71711,14 +72327,22 @@ impl core::ops::BitXor for VkSurfaceTransformFlagBitsKHR {
     Self(self.0 ^ r.0)
   }
 }
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(
+  feature = "VK_KHR_surface",
+  feature = "VK_QCOM_render_pass_transform",
+  feature = "VK_QCOM_rotated_copy_commands"
+))]
 impl core::ops::BitXorAssign for VkSurfaceTransformFlagBitsKHR {
   #[inline]
   fn bitxor_assign(&mut self, r: Self) {
     self.0 ^= r.0;
   }
 }
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(
+  feature = "VK_KHR_surface",
+  feature = "VK_QCOM_render_pass_transform",
+  feature = "VK_QCOM_rotated_copy_commands"
+))]
 impl core::ops::Not for VkSurfaceTransformFlagBitsKHR {
   type Output = Self;
   #[inline]
@@ -71726,7 +72350,11 @@ impl core::ops::Not for VkSurfaceTransformFlagBitsKHR {
     Self(!self.0)
   }
 }
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(
+  feature = "VK_KHR_surface",
+  feature = "VK_QCOM_render_pass_transform",
+  feature = "VK_QCOM_rotated_copy_commands"
+))]
 impl core::ops::BitOr<u32> for VkSurfaceTransformFlagBitsKHR {
   type Output = Self;
   #[inline]
@@ -71734,14 +72362,22 @@ impl core::ops::BitOr<u32> for VkSurfaceTransformFlagBitsKHR {
     Self(self.0 | r)
   }
 }
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(
+  feature = "VK_KHR_surface",
+  feature = "VK_QCOM_render_pass_transform",
+  feature = "VK_QCOM_rotated_copy_commands"
+))]
 impl core::ops::BitOrAssign<u32> for VkSurfaceTransformFlagBitsKHR {
   #[inline]
   fn bitor_assign(&mut self, r: u32) {
     self.0 |= r;
   }
 }
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(
+  feature = "VK_KHR_surface",
+  feature = "VK_QCOM_render_pass_transform",
+  feature = "VK_QCOM_rotated_copy_commands"
+))]
 impl core::ops::BitAnd<u32> for VkSurfaceTransformFlagBitsKHR {
   type Output = Self;
   #[inline]
@@ -71749,14 +72385,22 @@ impl core::ops::BitAnd<u32> for VkSurfaceTransformFlagBitsKHR {
     Self(self.0 & r)
   }
 }
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(
+  feature = "VK_KHR_surface",
+  feature = "VK_QCOM_render_pass_transform",
+  feature = "VK_QCOM_rotated_copy_commands"
+))]
 impl core::ops::BitAndAssign<u32> for VkSurfaceTransformFlagBitsKHR {
   #[inline]
   fn bitand_assign(&mut self, r: u32) {
     self.0 &= r;
   }
 }
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(
+  feature = "VK_KHR_surface",
+  feature = "VK_QCOM_render_pass_transform",
+  feature = "VK_QCOM_rotated_copy_commands"
+))]
 impl core::ops::BitXor<u32> for VkSurfaceTransformFlagBitsKHR {
   type Output = Self;
   #[inline]
@@ -71764,14 +72408,22 @@ impl core::ops::BitXor<u32> for VkSurfaceTransformFlagBitsKHR {
     Self(self.0 ^ r)
   }
 }
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(
+  feature = "VK_KHR_surface",
+  feature = "VK_QCOM_render_pass_transform",
+  feature = "VK_QCOM_rotated_copy_commands"
+))]
 impl core::ops::BitXorAssign<u32> for VkSurfaceTransformFlagBitsKHR {
   #[inline]
   fn bitxor_assign(&mut self, r: u32) {
     self.0 ^= r;
   }
 }
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(
+  feature = "VK_KHR_surface",
+  feature = "VK_QCOM_render_pass_transform",
+  feature = "VK_QCOM_rotated_copy_commands"
+))]
 impl core::fmt::Display for VkSurfaceTransformFlagBitsKHR {
   #[allow(unused_mut)]
   fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -71870,432 +72522,6 @@ impl core::fmt::Display for VkSurfaceTransformFlagBitsKHR {
         }
         {
           bits |= Self::INHERIT.0;
-        }
-        bits
-      };
-      let unknown_bits = self.0 & !known_bits;
-      if unknown_bits != 0 {
-        if wrote {
-          f.write_str(" | ")?;
-        }
-        write!(f, "0x{:x}", unknown_bits)?;
-        wrote = true;
-      }
-      if wrote {
-        Ok(())
-      } else {
-        write!(f, "0x{:x}", self.0)
-      }
-    }
-  }
-}
-/// [VkPresentScalingFlagBitsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPresentScalingFlagsKHR.html)
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-#[repr(transparent)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
-pub struct VkPresentScalingFlagBitsKHR(pub u32);
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl VkPresentScalingFlagBitsKHR {
-  pub const EMPTY: Self = Self(0);
-  pub const ONE_TO_ONE: Self = Self(1 << 0u64);
-  pub const ONE_TO_ONE_BIT_EXT: Self = Self(1 << 0u64);
-  pub const ASPECT_RATIO_STRETCH: Self = Self(1 << 1u64);
-  pub const ASPECT_RATIO_STRETCH_BIT_EXT: Self = Self(1 << 1u64);
-  pub const STRETCH: Self = Self(1 << 2u64);
-  pub const STRETCH_BIT_EXT: Self = Self(1 << 2u64);
-  #[inline]
-  pub const fn contains(self, o: Self) -> bool {
-    (self.0 & o.0) == o.0
-  }
-  #[inline]
-  pub const fn intersects(self, o: Self) -> bool {
-    (self.0 & o.0) != 0
-  }
-  #[inline]
-  pub const fn is_empty(self) -> bool {
-    self.0 == 0
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::BitOr for VkPresentScalingFlagBitsKHR {
-  type Output = Self;
-  #[inline]
-  fn bitor(self, r: Self) -> Self {
-    Self(self.0 | r.0)
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::BitOrAssign for VkPresentScalingFlagBitsKHR {
-  #[inline]
-  fn bitor_assign(&mut self, r: Self) {
-    self.0 |= r.0;
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::BitAnd for VkPresentScalingFlagBitsKHR {
-  type Output = Self;
-  #[inline]
-  fn bitand(self, r: Self) -> Self {
-    Self(self.0 & r.0)
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::BitAndAssign for VkPresentScalingFlagBitsKHR {
-  #[inline]
-  fn bitand_assign(&mut self, r: Self) {
-    self.0 &= r.0;
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::BitXor for VkPresentScalingFlagBitsKHR {
-  type Output = Self;
-  #[inline]
-  fn bitxor(self, r: Self) -> Self {
-    Self(self.0 ^ r.0)
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::BitXorAssign for VkPresentScalingFlagBitsKHR {
-  #[inline]
-  fn bitxor_assign(&mut self, r: Self) {
-    self.0 ^= r.0;
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::Not for VkPresentScalingFlagBitsKHR {
-  type Output = Self;
-  #[inline]
-  fn not(self) -> Self {
-    Self(!self.0)
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::BitOr<u32> for VkPresentScalingFlagBitsKHR {
-  type Output = Self;
-  #[inline]
-  fn bitor(self, r: u32) -> Self {
-    Self(self.0 | r)
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::BitOrAssign<u32> for VkPresentScalingFlagBitsKHR {
-  #[inline]
-  fn bitor_assign(&mut self, r: u32) {
-    self.0 |= r;
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::BitAnd<u32> for VkPresentScalingFlagBitsKHR {
-  type Output = Self;
-  #[inline]
-  fn bitand(self, r: u32) -> Self {
-    Self(self.0 & r)
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::BitAndAssign<u32> for VkPresentScalingFlagBitsKHR {
-  #[inline]
-  fn bitand_assign(&mut self, r: u32) {
-    self.0 &= r;
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::BitXor<u32> for VkPresentScalingFlagBitsKHR {
-  type Output = Self;
-  #[inline]
-  fn bitxor(self, r: u32) -> Self {
-    Self(self.0 ^ r)
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::BitXorAssign<u32> for VkPresentScalingFlagBitsKHR {
-  #[inline]
-  fn bitxor_assign(&mut self, r: u32) {
-    self.0 ^= r;
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::fmt::Display for VkPresentScalingFlagBitsKHR {
-  #[allow(unused_mut)]
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    if self.is_empty() {
-      f.write_str("0")
-    } else {
-      let mut wrote = false;
-      if self.intersects(Self::ONE_TO_ONE) {
-        if wrote {
-          f.write_str(" | ")?;
-        }
-        f.write_str("VK_PRESENT_SCALING_ONE_TO_ONE_BIT_KHR")?;
-        wrote = true;
-      }
-      if self.intersects(Self::ONE_TO_ONE_BIT_EXT) {
-        if wrote {
-          f.write_str(" | ")?;
-        }
-        f.write_str("VK_PRESENT_SCALING_ONE_TO_ONE_BIT_EXT")?;
-        wrote = true;
-      }
-      if self.intersects(Self::ASPECT_RATIO_STRETCH) {
-        if wrote {
-          f.write_str(" | ")?;
-        }
-        f.write_str("VK_PRESENT_SCALING_ASPECT_RATIO_STRETCH_BIT_KHR")?;
-        wrote = true;
-      }
-      if self.intersects(Self::ASPECT_RATIO_STRETCH_BIT_EXT) {
-        if wrote {
-          f.write_str(" | ")?;
-        }
-        f.write_str("VK_PRESENT_SCALING_ASPECT_RATIO_STRETCH_BIT_EXT")?;
-        wrote = true;
-      }
-      if self.intersects(Self::STRETCH) {
-        if wrote {
-          f.write_str(" | ")?;
-        }
-        f.write_str("VK_PRESENT_SCALING_STRETCH_BIT_KHR")?;
-        wrote = true;
-      }
-      if self.intersects(Self::STRETCH_BIT_EXT) {
-        if wrote {
-          f.write_str(" | ")?;
-        }
-        f.write_str("VK_PRESENT_SCALING_STRETCH_BIT_EXT")?;
-        wrote = true;
-      }
-      let known_bits = {
-        let mut bits = 0;
-        {
-          bits |= Self::ONE_TO_ONE.0;
-        }
-        {
-          bits |= Self::ONE_TO_ONE_BIT_EXT.0;
-        }
-        {
-          bits |= Self::ASPECT_RATIO_STRETCH.0;
-        }
-        {
-          bits |= Self::ASPECT_RATIO_STRETCH_BIT_EXT.0;
-        }
-        {
-          bits |= Self::STRETCH.0;
-        }
-        {
-          bits |= Self::STRETCH_BIT_EXT.0;
-        }
-        bits
-      };
-      let unknown_bits = self.0 & !known_bits;
-      if unknown_bits != 0 {
-        if wrote {
-          f.write_str(" | ")?;
-        }
-        write!(f, "0x{:x}", unknown_bits)?;
-        wrote = true;
-      }
-      if wrote {
-        Ok(())
-      } else {
-        write!(f, "0x{:x}", self.0)
-      }
-    }
-  }
-}
-/// [VkPresentGravityFlagBitsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPresentGravityFlagsKHR.html)
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-#[repr(transparent)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
-pub struct VkPresentGravityFlagBitsKHR(pub u32);
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl VkPresentGravityFlagBitsKHR {
-  pub const EMPTY: Self = Self(0);
-  pub const MIN: Self = Self(1 << 0u64);
-  pub const MIN_BIT_EXT: Self = Self(1 << 0u64);
-  pub const MAX: Self = Self(1 << 1u64);
-  pub const MAX_BIT_EXT: Self = Self(1 << 1u64);
-  pub const CENTERED: Self = Self(1 << 2u64);
-  pub const CENTERED_BIT_EXT: Self = Self(1 << 2u64);
-  #[inline]
-  pub const fn contains(self, o: Self) -> bool {
-    (self.0 & o.0) == o.0
-  }
-  #[inline]
-  pub const fn intersects(self, o: Self) -> bool {
-    (self.0 & o.0) != 0
-  }
-  #[inline]
-  pub const fn is_empty(self) -> bool {
-    self.0 == 0
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::BitOr for VkPresentGravityFlagBitsKHR {
-  type Output = Self;
-  #[inline]
-  fn bitor(self, r: Self) -> Self {
-    Self(self.0 | r.0)
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::BitOrAssign for VkPresentGravityFlagBitsKHR {
-  #[inline]
-  fn bitor_assign(&mut self, r: Self) {
-    self.0 |= r.0;
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::BitAnd for VkPresentGravityFlagBitsKHR {
-  type Output = Self;
-  #[inline]
-  fn bitand(self, r: Self) -> Self {
-    Self(self.0 & r.0)
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::BitAndAssign for VkPresentGravityFlagBitsKHR {
-  #[inline]
-  fn bitand_assign(&mut self, r: Self) {
-    self.0 &= r.0;
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::BitXor for VkPresentGravityFlagBitsKHR {
-  type Output = Self;
-  #[inline]
-  fn bitxor(self, r: Self) -> Self {
-    Self(self.0 ^ r.0)
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::BitXorAssign for VkPresentGravityFlagBitsKHR {
-  #[inline]
-  fn bitxor_assign(&mut self, r: Self) {
-    self.0 ^= r.0;
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::Not for VkPresentGravityFlagBitsKHR {
-  type Output = Self;
-  #[inline]
-  fn not(self) -> Self {
-    Self(!self.0)
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::BitOr<u32> for VkPresentGravityFlagBitsKHR {
-  type Output = Self;
-  #[inline]
-  fn bitor(self, r: u32) -> Self {
-    Self(self.0 | r)
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::BitOrAssign<u32> for VkPresentGravityFlagBitsKHR {
-  #[inline]
-  fn bitor_assign(&mut self, r: u32) {
-    self.0 |= r;
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::BitAnd<u32> for VkPresentGravityFlagBitsKHR {
-  type Output = Self;
-  #[inline]
-  fn bitand(self, r: u32) -> Self {
-    Self(self.0 & r)
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::BitAndAssign<u32> for VkPresentGravityFlagBitsKHR {
-  #[inline]
-  fn bitand_assign(&mut self, r: u32) {
-    self.0 &= r;
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::BitXor<u32> for VkPresentGravityFlagBitsKHR {
-  type Output = Self;
-  #[inline]
-  fn bitxor(self, r: u32) -> Self {
-    Self(self.0 ^ r)
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::ops::BitXorAssign<u32> for VkPresentGravityFlagBitsKHR {
-  #[inline]
-  fn bitxor_assign(&mut self, r: u32) {
-    self.0 ^= r;
-  }
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl core::fmt::Display for VkPresentGravityFlagBitsKHR {
-  #[allow(unused_mut)]
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    if self.is_empty() {
-      f.write_str("0")
-    } else {
-      let mut wrote = false;
-      if self.intersects(Self::MIN) {
-        if wrote {
-          f.write_str(" | ")?;
-        }
-        f.write_str("VK_PRESENT_GRAVITY_MIN_BIT_KHR")?;
-        wrote = true;
-      }
-      if self.intersects(Self::MIN_BIT_EXT) {
-        if wrote {
-          f.write_str(" | ")?;
-        }
-        f.write_str("VK_PRESENT_GRAVITY_MIN_BIT_EXT")?;
-        wrote = true;
-      }
-      if self.intersects(Self::MAX) {
-        if wrote {
-          f.write_str(" | ")?;
-        }
-        f.write_str("VK_PRESENT_GRAVITY_MAX_BIT_KHR")?;
-        wrote = true;
-      }
-      if self.intersects(Self::MAX_BIT_EXT) {
-        if wrote {
-          f.write_str(" | ")?;
-        }
-        f.write_str("VK_PRESENT_GRAVITY_MAX_BIT_EXT")?;
-        wrote = true;
-      }
-      if self.intersects(Self::CENTERED) {
-        if wrote {
-          f.write_str(" | ")?;
-        }
-        f.write_str("VK_PRESENT_GRAVITY_CENTERED_BIT_KHR")?;
-        wrote = true;
-      }
-      if self.intersects(Self::CENTERED_BIT_EXT) {
-        if wrote {
-          f.write_str(" | ")?;
-        }
-        f.write_str("VK_PRESENT_GRAVITY_CENTERED_BIT_EXT")?;
-        wrote = true;
-      }
-      let known_bits = {
-        let mut bits = 0;
-        {
-          bits |= Self::MIN.0;
-        }
-        {
-          bits |= Self::MIN_BIT_EXT.0;
-        }
-        {
-          bits |= Self::MAX.0;
-        }
-        {
-          bits |= Self::MAX_BIT_EXT.0;
-        }
-        {
-          bits |= Self::CENTERED.0;
-        }
-        {
-          bits |= Self::CENTERED_BIT_EXT.0;
         }
         bits
       };

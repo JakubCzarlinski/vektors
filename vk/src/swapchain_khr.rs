@@ -72,14 +72,14 @@ use crate::types::VkRefreshCycleDurationGOOGLE;
 use crate::types::VkSemaphore;
 #[cfg(feature = "VK_NV_low_latency2")]
 use crate::types::VkSetLatencyMarkerInfoNV;
-#[cfg(feature = "VK_KHR_swapchain")]
+#[cfg(any(feature = "VK_KHR_swapchain", feature = "VK_NV_low_latency2"))]
 use crate::types::VkSwapchainKHR;
 #[cfg(feature = "VK_EXT_present_timing")]
 use crate::types::VkSwapchainTimeDomainPropertiesEXT;
 #[cfg(feature = "VK_EXT_present_timing")]
 use crate::types::VkSwapchainTimingPropertiesEXT;
 use core::ffi::{c_char, c_void};
-#[cfg(feature = "VK_KHR_swapchain")]
+#[cfg(any(feature = "VK_KHR_swapchain", feature = "VK_NV_low_latency2"))]
 #[derive(Debug, Clone)]
 pub struct SwapchainKHRDispatchTable {
   #[cfg(feature = "VK_AMD_display_native_hdr")]
@@ -121,7 +121,7 @@ pub struct SwapchainKHRDispatchTable {
   #[cfg(feature = "VK_NV_low_latency2")]
   pub vkSetLatencySleepModeNV: Option<PFN_vkSetLatencySleepModeNV>,
 }
-#[cfg(feature = "VK_KHR_swapchain")]
+#[cfg(any(feature = "VK_KHR_swapchain", feature = "VK_NV_low_latency2"))]
 impl SwapchainKHRDispatchTable {
   pub const EMPTY: Self = Self {
     #[cfg(feature = "VK_AMD_display_native_hdr")]
@@ -233,16 +233,16 @@ impl SwapchainKHRDispatchTable {
     }
   }
 }
-#[cfg(feature = "VK_KHR_swapchain")]
+#[cfg(any(feature = "VK_KHR_swapchain", feature = "VK_NV_low_latency2"))]
 pub struct SwapchainKHR<'dev> {
   pub(crate) raw: VkSwapchainKHR,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
 }
-#[cfg(feature = "VK_KHR_swapchain")]
+#[cfg(any(feature = "VK_KHR_swapchain", feature = "VK_NV_low_latency2"))]
 unsafe impl<'dev> Send for SwapchainKHR<'dev> {}
-#[cfg(feature = "VK_KHR_swapchain")]
+#[cfg(any(feature = "VK_KHR_swapchain", feature = "VK_NV_low_latency2"))]
 unsafe impl<'dev> Sync for SwapchainKHR<'dev> {}
-#[cfg(feature = "VK_KHR_swapchain")]
+#[cfg(any(feature = "VK_KHR_swapchain", feature = "VK_NV_low_latency2"))]
 #[cfg(not(feature = "VKSC_VERSION_1_0"))]
 impl<'dev> Drop for SwapchainKHR<'dev> {
   fn drop(&mut self) {
@@ -258,7 +258,7 @@ impl<'dev> Drop for SwapchainKHR<'dev> {
     };
   }
 }
-#[cfg(feature = "VK_KHR_swapchain")]
+#[cfg(any(feature = "VK_KHR_swapchain", feature = "VK_NV_low_latency2"))]
 impl<'dev> SwapchainKHR<'dev> {
   #[inline(always)]
   pub const fn raw(&self) -> VkSwapchainKHR {

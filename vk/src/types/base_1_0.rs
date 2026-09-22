@@ -100,6 +100,14 @@ use crate::types::VkApplicationParametersEXT;
   all(
     feature = "VK_AMD_mixed_attachment_samples",
     feature = "VK_KHR_dynamic_rendering"
+  ),
+  all(
+    feature = "VK_NV_framebuffer_mixed_samples",
+    feature = "VK_VERSION_1_3"
+  ),
+  all(
+    feature = "VK_KHR_dynamic_rendering",
+    feature = "VK_NV_framebuffer_mixed_samples"
   )
 ))]
 use crate::types::VkAttachmentSampleCountInfoAMD;
@@ -381,7 +389,10 @@ use crate::types::VkPhysicalDeviceColorWriteEnableFeaturesEXT;
 use crate::types::VkPhysicalDeviceCommandBufferInheritanceFeaturesNV;
 #[cfg(feature = "VK_NV_compute_occupancy_priority")]
 use crate::types::VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV;
-#[cfg(feature = "VK_KHR_compute_shader_derivatives")]
+#[cfg(any(
+  feature = "VK_KHR_compute_shader_derivatives",
+  feature = "VK_NV_compute_shader_derivatives"
+))]
 use crate::types::VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR;
 #[cfg(feature = "VK_EXT_conditional_rendering")]
 use crate::types::VkPhysicalDeviceConditionalRenderingFeaturesEXT;
@@ -433,7 +444,10 @@ use crate::types::VkPhysicalDeviceDenseGeometryFormatFeaturesAMDX;
 use crate::types::VkPhysicalDeviceDepthBiasControlFeaturesEXT;
 #[cfg(feature = "VK_EXT_depth_clamp_control")]
 use crate::types::VkPhysicalDeviceDepthClampControlFeaturesEXT;
-#[cfg(feature = "VK_KHR_depth_clamp_zero_one")]
+#[cfg(any(
+  feature = "VK_KHR_depth_clamp_zero_one",
+  feature = "VK_EXT_depth_clamp_zero_one"
+))]
 use crate::types::VkPhysicalDeviceDepthClampZeroOneFeaturesKHR;
 #[cfg(feature = "VK_EXT_depth_clip_control")]
 use crate::types::VkPhysicalDeviceDepthClipControlFeaturesEXT;
@@ -511,9 +525,15 @@ use crate::types::VkPhysicalDeviceFragmentDensityMap2FeaturesEXT;
 use crate::types::VkPhysicalDeviceFragmentDensityMapFeaturesEXT;
 #[cfg(feature = "VK_VALVE_fragment_density_map_layered")]
 use crate::types::VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE;
-#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+#[cfg(any(
+  feature = "VK_EXT_fragment_density_map_offset",
+  feature = "VK_QCOM_fragment_density_map_offset"
+))]
 use crate::types::VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT;
-#[cfg(feature = "VK_KHR_fragment_shader_barycentric")]
+#[cfg(any(
+  feature = "VK_KHR_fragment_shader_barycentric",
+  feature = "VK_NV_fragment_shader_barycentric"
+))]
 use crate::types::VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR;
 #[cfg(feature = "VK_EXT_fragment_shader_interlock")]
 use crate::types::VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT;
@@ -595,7 +615,10 @@ use crate::types::VkPhysicalDeviceMaintenance10FeaturesKHR;
 use crate::types::VkPhysicalDeviceMaintenance11FeaturesKHR;
 #[cfg(feature = "VK_EXT_map_memory_placed")]
 use crate::types::VkPhysicalDeviceMapMemoryPlacedFeaturesEXT;
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 use crate::types::VkPhysicalDeviceMemoryDecompressionFeaturesEXT;
 #[cfg(feature = "VK_EXT_memory_priority")]
 use crate::types::VkPhysicalDeviceMemoryPriorityFeaturesEXT;
@@ -615,7 +638,10 @@ use crate::types::VkPhysicalDeviceMultiviewFeatures;
 use crate::types::VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM;
 #[cfg(feature = "VK_QCOM_multiview_per_view_viewports")]
 use crate::types::VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM;
-#[cfg(feature = "VK_EXT_mutable_descriptor_type")]
+#[cfg(any(
+  feature = "VK_EXT_mutable_descriptor_type",
+  feature = "VK_VALVE_mutable_descriptor_type"
+))]
 use crate::types::VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT;
 #[cfg(feature = "VK_EXT_nested_command_buffer")]
 use crate::types::VkPhysicalDeviceNestedCommandBufferFeaturesEXT;
@@ -645,7 +671,10 @@ use crate::types::VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC;
 use crate::types::VkPhysicalDevicePipelineCreationCacheControlFeatures;
 #[cfg(feature = "VK_KHR_pipeline_executable_properties")]
 use crate::types::VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR;
-#[cfg(feature = "VK_KHR_pipeline_library_group_handles")]
+#[cfg(any(
+  feature = "VK_KHR_pipeline_library_group_handles",
+  feature = "VK_EXT_pipeline_library_group_handles"
+))]
 use crate::types::VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR;
 #[cfg(feature = "VK_ARM_pipeline_opacity_micromap")]
 use crate::types::VkPhysicalDevicePipelineOpacityMicromapFeaturesARM;
@@ -665,7 +694,10 @@ use crate::types::VkPhysicalDevicePresentId2FeaturesKHR;
 use crate::types::VkPhysicalDevicePresentIdFeaturesKHR;
 #[cfg(feature = "VK_NV_present_metering")]
 use crate::types::VkPhysicalDevicePresentMeteringFeaturesNV;
-#[cfg(feature = "VK_KHR_present_mode_fifo_latest_ready")]
+#[cfg(any(
+  feature = "VK_KHR_present_mode_fifo_latest_ready",
+  feature = "VK_EXT_present_mode_fifo_latest_ready"
+))]
 use crate::types::VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR;
 #[cfg(feature = "VK_EXT_present_timing")]
 use crate::types::VkPhysicalDevicePresentTimingFeaturesEXT;
@@ -693,7 +725,10 @@ use crate::types::VkPhysicalDevicePushConstantBankFeaturesNV;
 use crate::types::VkPhysicalDeviceQueuePerfHintFeaturesQCOM;
 #[cfg(feature = "VK_EXT_rgba10x6_formats")]
 use crate::types::VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT;
-#[cfg(feature = "VK_EXT_rasterization_order_attachment_access")]
+#[cfg(any(
+  feature = "VK_EXT_rasterization_order_attachment_access",
+  feature = "VK_ARM_rasterization_order_attachment_access"
+))]
 use crate::types::VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT;
 #[cfg(feature = "VK_NV_raw_access_chains")]
 use crate::types::VkPhysicalDeviceRawAccessChainsFeaturesNV;
@@ -721,7 +756,7 @@ use crate::types::VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG;
 use crate::types::VkPhysicalDeviceRenderPassStripedFeaturesARM;
 #[cfg(feature = "VK_NV_representative_fragment_test")]
 use crate::types::VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV;
-#[cfg(feature = "VK_KHR_robustness2")]
+#[cfg(any(feature = "VK_KHR_robustness2", feature = "VK_EXT_robustness2"))]
 use crate::types::VkPhysicalDeviceRobustness2FeaturesKHR;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_1")]
 use crate::types::VkPhysicalDeviceSamplerYcbcrConversionFeatures;
@@ -827,7 +862,10 @@ use crate::types::VkPhysicalDeviceSubgroupSizeControlFeatures;
 use crate::types::VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT;
 #[cfg(feature = "VK_HUAWEI_subpass_shading")]
 use crate::types::VkPhysicalDeviceSubpassShadingFeaturesHUAWEI;
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
 use crate::types::VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 use crate::types::VkPhysicalDeviceSynchronization2Features;
@@ -2700,7 +2738,10 @@ impl<'a> VkDeviceCreateInfo<'a> {
       (val as *const VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV<'child>).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_KHR_compute_shader_derivatives")]
+  #[cfg(any(
+    feature = "VK_KHR_compute_shader_derivatives",
+    feature = "VK_NV_compute_shader_derivatives"
+  ))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -3037,7 +3078,10 @@ impl<'a> VkDeviceCreateInfo<'a> {
       (val as *const VkPhysicalDeviceDepthClampControlFeaturesEXT<'child>).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_KHR_depth_clamp_zero_one")]
+  #[cfg(any(
+    feature = "VK_KHR_depth_clamp_zero_one",
+    feature = "VK_EXT_depth_clamp_zero_one"
+  ))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -3537,7 +3581,10 @@ impl<'a> VkDeviceCreateInfo<'a> {
       .cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+  #[cfg(any(
+    feature = "VK_EXT_fragment_density_map_offset",
+    feature = "VK_QCOM_fragment_density_map_offset"
+  ))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -3550,7 +3597,10 @@ impl<'a> VkDeviceCreateInfo<'a> {
       (val as *const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT<'child>).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_KHR_fragment_shader_barycentric")]
+  #[cfg(any(
+    feature = "VK_KHR_fragment_shader_barycentric",
+    feature = "VK_NV_fragment_shader_barycentric"
+  ))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -4068,7 +4118,10 @@ impl<'a> VkDeviceCreateInfo<'a> {
       (val as *const VkPhysicalDeviceMapMemoryPlacedFeaturesEXT<'child>).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_EXT_memory_decompression")]
+  #[cfg(any(
+    feature = "VK_EXT_memory_decompression",
+    feature = "VK_NV_memory_decompression"
+  ))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -4194,7 +4247,10 @@ impl<'a> VkDeviceCreateInfo<'a> {
       .cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_EXT_mutable_descriptor_type")]
+  #[cfg(any(
+    feature = "VK_EXT_mutable_descriptor_type",
+    feature = "VK_VALVE_mutable_descriptor_type"
+  ))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -4387,7 +4443,10 @@ impl<'a> VkDeviceCreateInfo<'a> {
       .cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_KHR_pipeline_library_group_handles")]
+  #[cfg(any(
+    feature = "VK_KHR_pipeline_library_group_handles",
+    feature = "VK_EXT_pipeline_library_group_handles"
+  ))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -4513,7 +4572,10 @@ impl<'a> VkDeviceCreateInfo<'a> {
     self.pNext = (val as *const VkPhysicalDevicePresentMeteringFeaturesNV<'child>).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_KHR_present_mode_fifo_latest_ready")]
+  #[cfg(any(
+    feature = "VK_KHR_present_mode_fifo_latest_ready",
+    feature = "VK_EXT_present_mode_fifo_latest_ready"
+  ))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -4689,7 +4751,10 @@ impl<'a> VkDeviceCreateInfo<'a> {
       (val as *const VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT<'child>).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_EXT_rasterization_order_attachment_access")]
+  #[cfg(any(
+    feature = "VK_EXT_rasterization_order_attachment_access",
+    feature = "VK_ARM_rasterization_order_attachment_access"
+  ))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -4870,7 +4935,7 @@ impl<'a> VkDeviceCreateInfo<'a> {
       (val as *const VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV<'child>).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_KHR_robustness2")]
+  #[cfg(any(feature = "VK_KHR_robustness2", feature = "VK_EXT_robustness2"))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -5550,7 +5615,10 @@ impl<'a> VkDeviceCreateInfo<'a> {
       (val as *const VkPhysicalDeviceSubpassShadingFeaturesHUAWEI<'child>).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_KHR_swapchain_maintenance1")]
+  #[cfg(any(
+    feature = "VK_KHR_swapchain_maintenance1",
+    feature = "VK_EXT_swapchain_maintenance1"
+  ))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -9396,6 +9464,14 @@ impl<'a> VkCommandBufferInheritanceInfo<'a> {
     all(
       feature = "VK_AMD_mixed_attachment_samples",
       feature = "VK_KHR_dynamic_rendering"
+    ),
+    all(
+      feature = "VK_NV_framebuffer_mixed_samples",
+      feature = "VK_VERSION_1_3"
+    ),
+    all(
+      feature = "VK_KHR_dynamic_rendering",
+      feature = "VK_NV_framebuffer_mixed_samples"
     )
   ))]
   /// # Safety

@@ -1,6 +1,7 @@
 //! Registry API and orchestration
 
 pub mod commands;
+mod declaration_availability;
 pub mod enums;
 pub mod features;
 pub mod nodes;
@@ -88,3 +89,4 @@ pub fn merge_registry(base: &mut Registry, xml: &str) {
 }
 
 pub use crate::parser::features::apply_require_extensions;
+pub use declaration_availability::close_declaration_availability;

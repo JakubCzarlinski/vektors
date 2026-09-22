@@ -598,11 +598,20 @@ use crate::types::VkAccelerationStructureCreateInfoKHR;
 use crate::types::VkAccelerationStructureCreateInfoNV;
 #[cfg(feature = "VK_KHR_acceleration_structure")]
 use crate::types::VkAccelerationStructureDeviceAddressInfoKHR;
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  all(feature = "VK_EXT_descriptor_buffer", feature = "VK_NV_ray_tracing")
+))]
 use crate::types::VkAccelerationStructureKHR;
 #[cfg(feature = "VK_NV_ray_tracing")]
 use crate::types::VkAccelerationStructureMemoryRequirementsInfoNV;
-#[cfg(feature = "VK_NV_ray_tracing")]
+#[cfg(any(
+  feature = "VK_NV_ray_tracing",
+  all(
+    feature = "VK_EXT_descriptor_buffer",
+    feature = "VK_KHR_acceleration_structure"
+  )
+))]
 use crate::types::VkAccelerationStructureNV;
 #[cfg(feature = "VK_KHR_acceleration_structure")]
 use crate::types::VkAccelerationStructureVersionInfoKHR;
@@ -663,7 +672,10 @@ use crate::types::VkBufferView;
 use crate::types::VkBufferViewCreateInfo;
 #[cfg(feature = "VK_EXT_calibrated_timestamps")]
 use crate::types::VkCalibratedTimestampInfoEXT;
-#[cfg(feature = "VK_KHR_calibrated_timestamps")]
+#[cfg(any(
+  feature = "VK_KHR_calibrated_timestamps",
+  feature = "VK_EXT_calibrated_timestamps"
+))]
 use crate::types::VkCalibratedTimestampInfoKHR;
 #[cfg(feature = "VK_NV_cluster_acceleration_structure")]
 use crate::types::VkClusterAccelerationStructureInputInfoNV;
@@ -1027,7 +1039,10 @@ use crate::types::VkPipelineExecutablePropertiesKHR;
 use crate::types::VkPipelineExecutableStatisticKHR;
 #[cfg(feature = "VK_NV_device_generated_commands_compute")]
 use crate::types::VkPipelineIndirectDeviceAddressInfoNV;
-#[cfg(feature = "VK_KHR_pipeline_executable_properties")]
+#[cfg(any(
+  feature = "VK_KHR_pipeline_executable_properties",
+  feature = "VK_EXT_pipeline_properties"
+))]
 use crate::types::VkPipelineInfoKHR;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 use crate::types::VkPipelineLayout;
@@ -1051,7 +1066,10 @@ use crate::types::VkQueue;
 use crate::types::VkReleaseCapturedPipelineDataInfoKHR;
 #[cfg(feature = "VK_EXT_swapchain_maintenance1")]
 use crate::types::VkReleaseSwapchainImagesInfoEXT;
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
 use crate::types::VkReleaseSwapchainImagesInfoKHR;
 #[cfg(feature = "VK_NV_external_memory_rdma")]
 use crate::types::VkRemoteAddressNV;
@@ -1115,7 +1133,10 @@ use crate::types::VkSemaphoreWaitInfo;
 use crate::types::VkSemaphoreWaitInfoKHR;
 #[cfg(feature = "VK_EXT_shader_object")]
 use crate::types::VkShaderCreateInfoEXT;
-#[cfg(feature = "VK_EXT_shader_object")]
+#[cfg(any(
+  feature = "VK_EXT_shader_object",
+  feature = "VK_EXT_device_generated_commands"
+))]
 use crate::types::VkShaderEXT;
 #[cfg(feature = "VK_ARM_shader_instrumentation")]
 use crate::types::VkShaderInstrumentationARM;
@@ -1140,7 +1161,7 @@ use crate::types::VkSubresourceLayout2;
 use crate::types::VkSubresourceLayout2KHR;
 #[cfg(feature = "VK_KHR_swapchain")]
 use crate::types::VkSwapchainCreateInfoKHR;
-#[cfg(feature = "VK_KHR_swapchain")]
+#[cfg(any(feature = "VK_KHR_swapchain", feature = "VK_NV_low_latency2"))]
 use crate::types::VkSwapchainKHR;
 #[cfg(any(feature = "VK_EXT_descriptor_heap", feature = "VK_ARM_tensors"))]
 use crate::types::VkTensorARM;
@@ -3120,10 +3141,19 @@ pub struct Device<'inst> {
   pub(crate) raw: VkDevice,
   pub(crate) instance: &'inst Instance<'inst>,
   pub(crate) table: DeviceDispatchTable,
-  #[cfg(feature = "VK_KHR_acceleration_structure")]
+  #[cfg(any(
+    feature = "VK_KHR_acceleration_structure",
+    all(feature = "VK_EXT_descriptor_buffer", feature = "VK_NV_ray_tracing")
+  ))]
   pub(crate) acceleration_structure_khr_table:
     crate::acceleration_structure_khr::AccelerationStructureKHRDispatchTable,
-  #[cfg(feature = "VK_NV_ray_tracing")]
+  #[cfg(any(
+    feature = "VK_NV_ray_tracing",
+    all(
+      feature = "VK_EXT_descriptor_buffer",
+      feature = "VK_KHR_acceleration_structure"
+    )
+  ))]
   pub(crate) acceleration_structure_nv_table:
     crate::acceleration_structure_nv::AccelerationStructureNVDispatchTable,
   #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -3233,14 +3263,17 @@ pub struct Device<'inst> {
   #[cfg(feature = "VK_NV_external_sci_sync2")]
   pub(crate) semaphore_sci_sync_pool_nv_table:
     crate::semaphore_sci_sync_pool_nv::SemaphoreSciSyncPoolNVDispatchTable,
-  #[cfg(feature = "VK_EXT_shader_object")]
+  #[cfg(any(
+    feature = "VK_EXT_shader_object",
+    feature = "VK_EXT_device_generated_commands"
+  ))]
   pub(crate) shader_ext_table: crate::shader_ext::ShaderEXTDispatchTable,
   #[cfg(feature = "VK_ARM_shader_instrumentation")]
   pub(crate) shader_instrumentation_arm_table:
     crate::shader_instrumentation_arm::ShaderInstrumentationARMDispatchTable,
   #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
   pub(crate) shader_module_table: crate::shader_module::ShaderModuleDispatchTable,
-  #[cfg(feature = "VK_KHR_swapchain")]
+  #[cfg(any(feature = "VK_KHR_swapchain", feature = "VK_NV_low_latency2"))]
   pub(crate) swapchain_khr_table: crate::swapchain_khr::SwapchainKHRDispatchTable,
   #[cfg(any(feature = "VK_EXT_descriptor_heap", feature = "VK_ARM_tensors"))]
   pub(crate) tensor_arm_table: crate::tensor_arm::TensorARMDispatchTable,
@@ -3270,9 +3303,22 @@ impl<'inst> Device<'inst> {
     raw: VkDevice,
     instance: &'inst Instance<'inst>,
     table: DeviceDispatchTable,
-    #[cfg(feature = "VK_KHR_acceleration_structure")]
+    #[cfg(
+            any(
+                feature = "VK_KHR_acceleration_structure",
+                all(feature = "VK_EXT_descriptor_buffer", feature = "VK_NV_ray_tracing")
+            )
+        )]
         acceleration_structure_khr_table: crate::acceleration_structure_khr::AccelerationStructureKHRDispatchTable,
-    #[cfg(feature = "VK_NV_ray_tracing")]
+    #[cfg(
+            any(
+                feature = "VK_NV_ray_tracing",
+                all(
+                    feature = "VK_EXT_descriptor_buffer",
+                    feature = "VK_KHR_acceleration_structure"
+                )
+            )
+        )]
         acceleration_structure_nv_table: crate::acceleration_structure_nv::AccelerationStructureNVDispatchTable,
     #[cfg(feature = "VK_BASE_VERSION_1_0")] buffer_table: crate::buffer::BufferDispatchTable,
     #[cfg(feature = "VK_FUCHSIA_buffer_collection")]
@@ -3363,13 +3409,16 @@ impl<'inst> Device<'inst> {
     semaphore_table: crate::semaphore::SemaphoreDispatchTable,
     #[cfg(feature = "VK_NV_external_sci_sync2")]
         semaphore_sci_sync_pool_nv_table: crate::semaphore_sci_sync_pool_nv::SemaphoreSciSyncPoolNVDispatchTable,
-    #[cfg(feature = "VK_EXT_shader_object")]
+    #[cfg(any(
+      feature = "VK_EXT_shader_object",
+      feature = "VK_EXT_device_generated_commands"
+    ))]
     shader_ext_table: crate::shader_ext::ShaderEXTDispatchTable,
     #[cfg(feature = "VK_ARM_shader_instrumentation")]
         shader_instrumentation_arm_table: crate::shader_instrumentation_arm::ShaderInstrumentationARMDispatchTable,
     #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
     shader_module_table: crate::shader_module::ShaderModuleDispatchTable,
-    #[cfg(feature = "VK_KHR_swapchain")]
+    #[cfg(any(feature = "VK_KHR_swapchain", feature = "VK_NV_low_latency2"))]
     swapchain_khr_table: crate::swapchain_khr::SwapchainKHRDispatchTable,
     #[cfg(any(feature = "VK_EXT_descriptor_heap", feature = "VK_ARM_tensors"))]
     tensor_arm_table: crate::tensor_arm::TensorARMDispatchTable,
@@ -3386,9 +3435,18 @@ impl<'inst> Device<'inst> {
       raw,
       instance,
       table,
-      #[cfg(feature = "VK_KHR_acceleration_structure")]
+      #[cfg(any(
+        feature = "VK_KHR_acceleration_structure",
+        all(feature = "VK_EXT_descriptor_buffer", feature = "VK_NV_ray_tracing")
+      ))]
       acceleration_structure_khr_table,
-      #[cfg(feature = "VK_NV_ray_tracing")]
+      #[cfg(any(
+        feature = "VK_NV_ray_tracing",
+        all(
+          feature = "VK_EXT_descriptor_buffer",
+          feature = "VK_KHR_acceleration_structure"
+        )
+      ))]
       acceleration_structure_nv_table,
       #[cfg(feature = "VK_BASE_VERSION_1_0")]
       buffer_table,
@@ -3481,13 +3539,16 @@ impl<'inst> Device<'inst> {
       semaphore_table,
       #[cfg(feature = "VK_NV_external_sci_sync2")]
       semaphore_sci_sync_pool_nv_table,
-      #[cfg(feature = "VK_EXT_shader_object")]
+      #[cfg(any(
+        feature = "VK_EXT_shader_object",
+        feature = "VK_EXT_device_generated_commands"
+      ))]
       shader_ext_table,
       #[cfg(feature = "VK_ARM_shader_instrumentation")]
       shader_instrumentation_arm_table,
       #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
       shader_module_table,
-      #[cfg(feature = "VK_KHR_swapchain")]
+      #[cfg(any(feature = "VK_KHR_swapchain", feature = "VK_NV_low_latency2"))]
       swapchain_khr_table,
       #[cfg(any(feature = "VK_EXT_descriptor_heap", feature = "VK_ARM_tensors"))]
       tensor_arm_table,

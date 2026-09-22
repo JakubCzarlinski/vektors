@@ -8,20 +8,29 @@
 use crate::commands::PFN_vkDestroyAccelerationStructureKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkResult;
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  all(feature = "VK_EXT_descriptor_buffer", feature = "VK_NV_ray_tracing")
+))]
 use crate::types::VkAccelerationStructureKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkAllocationCallbacks;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkDevice;
 use core::ffi::{c_char, c_void};
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_EXT_descriptor_buffer"
+))]
 #[derive(Debug, Clone)]
 pub struct AccelerationStructureKHRDispatchTable {
   #[cfg(feature = "VK_KHR_acceleration_structure")]
   pub vkDestroyAccelerationStructureKHR: Option<PFN_vkDestroyAccelerationStructureKHR>,
 }
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_EXT_descriptor_buffer"
+))]
 impl AccelerationStructureKHRDispatchTable {
   pub const EMPTY: Self = Self {
     #[cfg(feature = "VK_KHR_acceleration_structure")]
@@ -39,16 +48,28 @@ impl AccelerationStructureKHRDispatchTable {
     }
   }
 }
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_EXT_descriptor_buffer"
+))]
 pub struct AccelerationStructureKHR<'dev> {
   pub(crate) raw: VkAccelerationStructureKHR,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
 }
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_EXT_descriptor_buffer"
+))]
 unsafe impl<'dev> Send for AccelerationStructureKHR<'dev> {}
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_EXT_descriptor_buffer"
+))]
 unsafe impl<'dev> Sync for AccelerationStructureKHR<'dev> {}
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_EXT_descriptor_buffer"
+))]
 impl<'dev> Drop for AccelerationStructureKHR<'dev> {
   fn drop(&mut self) {
     if self.raw == VkAccelerationStructureKHR::NULL {
@@ -60,7 +81,10 @@ impl<'dev> Drop for AccelerationStructureKHR<'dev> {
     };
   }
 }
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_EXT_descriptor_buffer"
+))]
 impl<'dev> AccelerationStructureKHR<'dev> {
   #[inline(always)]
   pub const fn raw(&self) -> VkAccelerationStructureKHR {

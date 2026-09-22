@@ -11,7 +11,11 @@ use crate::enums::VkBlendFactor;
   feature = "VK_EXT_blend_operation_advanced"
 ))]
 use crate::enums::VkBlendOp;
-#[cfg(feature = "VK_EXT_blend_operation_advanced")]
+#[cfg(any(
+  feature = "VK_EXT_blend_operation_advanced",
+  feature = "VK_EXT_extended_dynamic_state3",
+  feature = "VK_EXT_shader_object"
+))]
 use crate::enums::VkBlendOverlapEXT;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkBufferUsageFlagBits;
@@ -150,9 +154,24 @@ use crate::enums::VkIndirectCommandsTokenTypeEXT;
 use crate::enums::VkIndirectExecutionSetInfoTypeEXT;
 #[cfg(feature = "VK_EXT_layer_settings")]
 use crate::enums::VkLayerSettingTypeEXT;
-#[cfg(feature = "VK_EXT_line_rasterization")]
+#[cfg(any(
+  feature = "VK_EXT_line_rasterization",
+  all(feature = "VK_EXT_extended_dynamic_state3", feature = "VK_VERSION_1_4"),
+  all(
+    feature = "VK_EXT_extended_dynamic_state3",
+    feature = "VK_KHR_line_rasterization"
+  ),
+  all(feature = "VK_EXT_shader_object", feature = "VK_VERSION_1_4"),
+  all(
+    feature = "VK_EXT_shader_object",
+    feature = "VK_KHR_line_rasterization"
+  )
+))]
 use crate::enums::VkLineRasterizationModeEXT;
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 use crate::enums::VkMemoryDecompressionMethodFlagBitsEXT;
 #[cfg(feature = "VK_EXT_opacity_micromap")]
 use crate::enums::VkMicromapCreateFlagBitsEXT;
@@ -171,11 +190,17 @@ use crate::enums::VkPipelineCreationFeedbackFlagBits;
 use crate::enums::VkPipelineRobustnessBufferBehaviorEXT;
 #[cfg(feature = "VK_EXT_pipeline_robustness")]
 use crate::enums::VkPipelineRobustnessImageBehaviorEXT;
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
 use crate::enums::VkPresentGravityFlagBitsKHR;
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(feature = "VK_KHR_surface", feature = "VK_NV_low_latency2"))]
 use crate::enums::VkPresentModeKHR;
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
 use crate::enums::VkPresentScalingFlagBitsKHR;
 #[cfg(feature = "VK_EXT_present_timing")]
 use crate::enums::VkPresentStageFlagBitsEXT;
@@ -229,7 +254,11 @@ use crate::enums::VkStructureType;
 use crate::enums::VkSubpassMergeStatusEXT;
 #[cfg(feature = "VK_EXT_display_surface_counter")]
 use crate::enums::VkSurfaceCounterFlagBitsEXT;
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(
+  feature = "VK_KHR_surface",
+  feature = "VK_QCOM_render_pass_transform",
+  feature = "VK_QCOM_rotated_copy_commands"
+))]
 use crate::enums::VkSurfaceTransformFlagBitsKHR;
 #[cfg(feature = "VK_KHR_swapchain")]
 use crate::enums::VkSwapchainCreateFlagBitsKHR;
@@ -265,10 +294,11 @@ use crate::types::VkAccelerationStructureCreateInfoNV;
 use crate::types::VkAccelerationStructureDenseGeometryFormatTrianglesDataAMDX;
 #[cfg(feature = "VK_KHR_acceleration_structure")]
 use crate::types::VkAccelerationStructureGeometryTrianglesDataKHR;
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  all(feature = "VK_EXT_descriptor_buffer", feature = "VK_NV_ray_tracing")
+))]
 use crate::types::VkAccelerationStructureKHR;
-#[cfg(feature = "VK_NV_ray_tracing")]
-use crate::types::VkAccelerationStructureNV;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkApplicationInfo;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
@@ -293,7 +323,10 @@ use crate::types::VkBufferUsageFlags2CreateInfo;
 use crate::types::VkBufferView;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 use crate::types::VkBufferViewCreateInfo;
-#[cfg(feature = "VK_KHR_calibrated_timestamps")]
+#[cfg(any(
+  feature = "VK_KHR_calibrated_timestamps",
+  feature = "VK_EXT_calibrated_timestamps"
+))]
 use crate::types::VkCalibratedTimestampInfoKHR;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 use crate::types::VkClearColorValue;
@@ -325,9 +358,9 @@ use crate::types::VkDescriptorSetLayoutSupport;
 use crate::types::VkDeviceAddress;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkDeviceCreateInfo;
-#[cfg(feature = "VK_KHR_device_fault")]
+#[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
 use crate::types::VkDeviceFaultAddressInfoKHR;
-#[cfg(feature = "VK_KHR_device_fault")]
+#[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
 use crate::types::VkDeviceFaultVendorInfoKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkDeviceMemory;
@@ -436,11 +469,17 @@ use crate::types::VkPipelineShaderStageRequiredSubgroupSizeCreateInfo;
 use crate::types::VkPipelineVertexInputStateCreateInfo;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 use crate::types::VkPipelineViewportStateCreateInfo;
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
 use crate::types::VkPresentGravityFlagsKHR;
 #[cfg(feature = "VK_KHR_swapchain")]
 use crate::types::VkPresentInfoKHR;
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
 use crate::types::VkPresentScalingFlagsKHR;
 #[cfg(feature = "VK_NV_push_constant_bank")]
 use crate::types::VkPushConstantBankInfoNV;
@@ -462,7 +501,10 @@ use crate::types::VkRenderPassBeginInfo;
 use crate::types::VkRenderPassCreateInfo;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
 use crate::types::VkRenderPassCreateInfo2;
-#[cfg(feature = "VK_KHR_maintenance10")]
+#[cfg(any(
+  feature = "VK_KHR_maintenance10",
+  feature = "VK_EXT_fragment_density_map_offset"
+))]
 use crate::types::VkRenderingEndInfoKHR;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_3")]
 use crate::types::VkRenderingInfo;
@@ -504,13 +546,136 @@ use crate::types::VkSurfaceTransformFlagsKHR;
 use crate::types::VkSwapchainCreateFlagsKHR;
 #[cfg(feature = "VK_KHR_swapchain")]
 use crate::types::VkSwapchainCreateInfoKHR;
-#[cfg(feature = "VK_KHR_swapchain")]
+#[cfg(any(feature = "VK_KHR_swapchain", feature = "VK_NV_low_latency2"))]
 use crate::types::VkSwapchainKHR;
 #[cfg(feature = "VK_ARM_tensors")]
 use crate::types::VkTensorCreateInfoARM;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 use crate::types::VkWriteDescriptorSet;
 use core::ffi::{c_char, c_void};
+/// [VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT.html)
+///
+/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
+#[cfg(any(
+  feature = "VK_EXT_rasterization_order_attachment_access",
+  feature = "VK_ARM_rasterization_order_attachment_access"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  pub rasterizationOrderColorAttachmentAccess: VkBool32,
+  pub rasterizationOrderDepthAttachmentAccess: VkBool32,
+  pub rasterizationOrderStencilAttachmentAccess: VkBool32,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(
+  feature = "VK_EXT_rasterization_order_attachment_access",
+  feature = "VK_ARM_rasterization_order_attachment_access"
+))]
+unsafe impl<'a> Send for VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT<'a> {}
+#[cfg(any(
+  feature = "VK_EXT_rasterization_order_attachment_access",
+  feature = "VK_ARM_rasterization_order_attachment_access"
+))]
+unsafe impl<'a> Sync for VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT<'a> {}
+#[cfg(all(
+  any(
+    feature = "VK_EXT_rasterization_order_attachment_access",
+    feature = "VK_ARM_rasterization_order_attachment_access"
+  ),
+  feature = "VK_BASE_VERSION_1_1"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
+  for VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT<'child>
+{
+}
+#[cfg(all(
+  any(
+    feature = "VK_EXT_rasterization_order_attachment_access",
+    feature = "VK_ARM_rasterization_order_attachment_access"
+  ),
+  feature = "VK_BASE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
+  for VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT<'child>
+{
+}
+#[cfg(any(
+  feature = "VK_EXT_rasterization_order_attachment_access",
+  feature = "VK_ARM_rasterization_order_attachment_access"
+))]
+impl<'a> VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT,
+    pNext: core::ptr::null_mut(),
+    rasterizationOrderColorAttachmentAccess: 0,
+    rasterizationOrderDepthAttachmentAccess: 0,
+    rasterizationOrderStencilAttachmentAccess: 0,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_rasterizationOrderColorAttachmentAccess(mut self, val: VkBool32) -> Self {
+    self.rasterizationOrderColorAttachmentAccess = val;
+    self
+  }
+  #[inline]
+  pub const fn with_rasterizationOrderDepthAttachmentAccess(mut self, val: VkBool32) -> Self {
+    self.rasterizationOrderDepthAttachmentAccess = val;
+    self
+  }
+  #[inline]
+  pub const fn with_rasterizationOrderStencilAttachmentAccess(mut self, val: VkBool32) -> Self {
+    self.rasterizationOrderStencilAttachmentAccess = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkDeviceCreateInfo<
+    'root,
+    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
 /// [VkTensorViewCreateFlagsARM](https://docs.vulkan.org/refpages/latest/refpages/source/VkTensorViewCreateFlagsARM.html)
 #[cfg(any(feature = "VK_EXT_descriptor_heap", feature = "VK_ARM_tensors"))]
 pub type VkTensorViewCreateFlagsARM = VkTensorViewCreateFlagBitsARM;
@@ -6565,18 +6730,10 @@ pub struct VkAccelerationStructureCaptureDescriptorDataInfoEXT<'a> {
   pub sType: VkStructureType,
   /// Optional: true
   pub pNext: *const c_void,
-  #[cfg(feature = "VK_KHR_acceleration_structure")]
   /// Optional: true
   pub accelerationStructure: VkAccelerationStructureKHR,
-  #[cfg(not(feature = "VK_KHR_acceleration_structure"))]
-  /// Optional: true
-  pub accelerationStructure: *mut c_void,
-  #[cfg(feature = "VK_NV_ray_tracing")]
   /// Optional: true
   pub accelerationStructureNV: VkAccelerationStructureNV,
-  #[cfg(not(feature = "VK_NV_ray_tracing"))]
-  /// Optional: true
-  pub accelerationStructureNV: *mut c_void,
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
@@ -6607,14 +6764,8 @@ impl<'a> VkAccelerationStructureCaptureDescriptorDataInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::ACCELERATION_STRUCTURE_CAPTURE_DESCRIPTOR_DATA_INFO_EXT,
     pNext: core::ptr::null(),
-    #[cfg(feature = "VK_KHR_acceleration_structure")]
     accelerationStructure: VkAccelerationStructureKHR::DEFAULT,
-    #[cfg(not(feature = "VK_KHR_acceleration_structure"))]
-    accelerationStructure: core::ptr::null_mut(),
-    #[cfg(feature = "VK_NV_ray_tracing")]
     accelerationStructureNV: VkAccelerationStructureNV::DEFAULT,
-    #[cfg(not(feature = "VK_NV_ray_tracing"))]
-    accelerationStructureNV: core::ptr::null_mut(),
     _marker: core::marker::PhantomData,
   };
   #[inline]
@@ -6629,13 +6780,11 @@ impl<'a> VkAccelerationStructureCaptureDescriptorDataInfoEXT<'a> {
     self.pNext = val;
     self
   }
-  #[cfg(feature = "VK_KHR_acceleration_structure")]
   #[inline]
   pub const fn with_accelerationStructure(mut self, val: VkAccelerationStructureKHR) -> Self {
     self.accelerationStructure = val;
     self
   }
-  #[cfg(feature = "VK_NV_ray_tracing")]
   #[inline]
   pub const fn with_accelerationStructureNV(mut self, val: VkAccelerationStructureNV) -> Self {
     self.accelerationStructureNV = val;
@@ -6909,6 +7058,56 @@ impl<'a> VkOpaqueCaptureDescriptorDataCreateInfoEXT<'a> {
     self
   }
 }
+/// [VkAccelerationStructureNV](https://docs.vulkan.org/refpages/latest/refpages/source/VkAccelerationStructureNV.html)
+#[cfg(any(
+  feature = "VK_NV_ray_tracing",
+  all(
+    feature = "VK_EXT_descriptor_buffer",
+    feature = "VK_KHR_acceleration_structure"
+  )
+))]
+#[repr(transparent)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct VkAccelerationStructureNV(pub u64);
+#[cfg(any(
+  feature = "VK_NV_ray_tracing",
+  all(
+    feature = "VK_EXT_descriptor_buffer",
+    feature = "VK_KHR_acceleration_structure"
+  )
+))]
+impl VkAccelerationStructureNV {
+  pub const NULL: Self = Self(0);
+  pub const DEFAULT: Self = Self::NULL;
+}
+#[cfg(any(
+  feature = "VK_NV_ray_tracing",
+  all(
+    feature = "VK_EXT_descriptor_buffer",
+    feature = "VK_KHR_acceleration_structure"
+  )
+))]
+impl Default for VkAccelerationStructureNV {
+  fn default() -> Self {
+    Self::NULL
+  }
+}
+#[cfg(any(
+  feature = "VK_NV_ray_tracing",
+  all(
+    feature = "VK_EXT_descriptor_buffer",
+    feature = "VK_KHR_acceleration_structure"
+  )
+))]
+unsafe impl Send for VkAccelerationStructureNV {}
+#[cfg(any(
+  feature = "VK_NV_ray_tracing",
+  all(
+    feature = "VK_EXT_descriptor_buffer",
+    feature = "VK_KHR_acceleration_structure"
+  )
+))]
+unsafe impl Sync for VkAccelerationStructureNV {}
 /// [VkSpirvResourceTypeFlagsEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkSpirvResourceTypeFlagsEXT.html)
 #[cfg(feature = "VK_EXT_descriptor_heap")]
 pub type VkSpirvResourceTypeFlagsEXT = VkSpirvResourceTypeFlagBitsEXT;
@@ -11613,10 +11812,7 @@ impl<'a> VkWriteIndirectExecutionSetPipelineEXT<'a> {
 /// [VkWriteIndirectExecutionSetShaderEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkWriteIndirectExecutionSetShaderEXT.html)
 ///
 /// **Availability:** depends on `VK_EXT_shader_object`.
-#[cfg(all(
-  feature = "VK_EXT_device_generated_commands",
-  feature = "VK_EXT_shader_object"
-))]
+#[cfg(feature = "VK_EXT_device_generated_commands")]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkWriteIndirectExecutionSetShaderEXT<'a> {
@@ -11629,20 +11825,11 @@ pub struct VkWriteIndirectExecutionSetShaderEXT<'a> {
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
-#[cfg(all(
-  feature = "VK_EXT_device_generated_commands",
-  feature = "VK_EXT_shader_object"
-))]
+#[cfg(feature = "VK_EXT_device_generated_commands")]
 unsafe impl<'a> Send for VkWriteIndirectExecutionSetShaderEXT<'a> {}
-#[cfg(all(
-  feature = "VK_EXT_device_generated_commands",
-  feature = "VK_EXT_shader_object"
-))]
+#[cfg(feature = "VK_EXT_device_generated_commands")]
 unsafe impl<'a> Sync for VkWriteIndirectExecutionSetShaderEXT<'a> {}
-#[cfg(all(
-  feature = "VK_EXT_device_generated_commands",
-  feature = "VK_EXT_shader_object"
-))]
+#[cfg(feature = "VK_EXT_device_generated_commands")]
 impl<'a> VkWriteIndirectExecutionSetShaderEXT<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::WRITE_INDIRECT_EXECUTION_SET_SHADER_EXT,
@@ -11673,10 +11860,7 @@ impl<'a> VkWriteIndirectExecutionSetShaderEXT<'a> {
     self.shader = val;
     self
   }
-  #[cfg(all(
-    feature = "VK_EXT_device_generated_commands",
-    feature = "VK_EXT_shader_object"
-  ))]
+  #[cfg(feature = "VK_EXT_device_generated_commands")]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -12163,6 +12347,41 @@ impl<'a> core::fmt::Debug for VkIndirectCommandsTokenDataEXT<'a> {
       .finish()
   }
 }
+/// [VkShaderEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkShaderEXT.html)
+#[cfg(any(
+  feature = "VK_EXT_shader_object",
+  feature = "VK_EXT_device_generated_commands"
+))]
+#[repr(transparent)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct VkShaderEXT(pub u64);
+#[cfg(any(
+  feature = "VK_EXT_shader_object",
+  feature = "VK_EXT_device_generated_commands"
+))]
+impl VkShaderEXT {
+  pub const NULL: Self = Self(0);
+  pub const DEFAULT: Self = Self::NULL;
+}
+#[cfg(any(
+  feature = "VK_EXT_shader_object",
+  feature = "VK_EXT_device_generated_commands"
+))]
+impl Default for VkShaderEXT {
+  fn default() -> Self {
+    Self::NULL
+  }
+}
+#[cfg(any(
+  feature = "VK_EXT_shader_object",
+  feature = "VK_EXT_device_generated_commands"
+))]
+unsafe impl Send for VkShaderEXT {}
+#[cfg(any(
+  feature = "VK_EXT_shader_object",
+  feature = "VK_EXT_device_generated_commands"
+))]
+unsafe impl Sync for VkShaderEXT {}
 /// [VkDeviceMemoryReportFlagsEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkDeviceMemoryReportFlagsEXT.html)
 #[cfg(feature = "VK_EXT_device_memory_report")]
 pub type VkDeviceMemoryReportFlagsEXT = VkFlags;
@@ -15196,10 +15415,64 @@ impl<'a> VkPhysicalDeviceFragmentDensityMap2PropertiesEXT<'a> {
     self
   }
 }
+/// [VkRenderingEndInfoEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkRenderingEndInfoEXT.html)
+#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkRenderingEndInfoEXT<'a> {
+  /// Values: VK_STRUCTURE_TYPE_RENDERING_END_INFO_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *const c_void,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+unsafe impl<'a> Send for VkRenderingEndInfoEXT<'a> {}
+#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+unsafe impl<'a> Sync for VkRenderingEndInfoEXT<'a> {}
+#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+impl<'a> VkRenderingEndInfoEXT<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::RENDERING_END_INFO_EXT,
+    pNext: core::ptr::null(),
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkRenderingEndInfoEXT<
+    'root,
+    T: VkPNextExtends<VkRenderingEndInfoEXT<'root>>,
+  >(
+    mut self,
+    val: &'a T,
+  ) -> Self {
+    self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+}
 /// [VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT.html)
 ///
 /// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
-#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+#[cfg(any(
+  feature = "VK_EXT_fragment_density_map_offset",
+  feature = "VK_QCOM_fragment_density_map_offset"
+))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT<'a> {
@@ -15211,12 +15484,21 @@ pub struct VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT<'a> {
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
-#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+#[cfg(any(
+  feature = "VK_EXT_fragment_density_map_offset",
+  feature = "VK_QCOM_fragment_density_map_offset"
+))]
 unsafe impl<'a> Send for VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT<'a> {}
-#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+#[cfg(any(
+  feature = "VK_EXT_fragment_density_map_offset",
+  feature = "VK_QCOM_fragment_density_map_offset"
+))]
 unsafe impl<'a> Sync for VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT<'a> {}
 #[cfg(all(
-  feature = "VK_EXT_fragment_density_map_offset",
+  any(
+    feature = "VK_EXT_fragment_density_map_offset",
+    feature = "VK_QCOM_fragment_density_map_offset"
+  ),
   feature = "VK_BASE_VERSION_1_1"
 ))]
 unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
@@ -15224,14 +15506,20 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
 {
 }
 #[cfg(all(
-  feature = "VK_EXT_fragment_density_map_offset",
+  any(
+    feature = "VK_EXT_fragment_density_map_offset",
+    feature = "VK_QCOM_fragment_density_map_offset"
+  ),
   feature = "VK_BASE_VERSION_1_0"
 ))]
 unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
   for VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT<'child>
 {
 }
-#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+#[cfg(any(
+  feature = "VK_EXT_fragment_density_map_offset",
+  feature = "VK_QCOM_fragment_density_map_offset"
+))]
 impl<'a> VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_EXT,
@@ -15294,7 +15582,10 @@ impl<'a> VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT<'a> {
 /// *Note: This struct has **required limit types**.*
 ///
 /// **Extends:** VkPhysicalDeviceProperties2.
-#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+#[cfg(any(
+  feature = "VK_EXT_fragment_density_map_offset",
+  feature = "VK_QCOM_fragment_density_map_offset"
+))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT<'a> {
@@ -15307,19 +15598,31 @@ pub struct VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT<'a> {
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
-#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+#[cfg(any(
+  feature = "VK_EXT_fragment_density_map_offset",
+  feature = "VK_QCOM_fragment_density_map_offset"
+))]
 unsafe impl<'a> Send for VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT<'a> {}
-#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+#[cfg(any(
+  feature = "VK_EXT_fragment_density_map_offset",
+  feature = "VK_QCOM_fragment_density_map_offset"
+))]
 unsafe impl<'a> Sync for VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT<'a> {}
 #[cfg(all(
-  feature = "VK_EXT_fragment_density_map_offset",
+  any(
+    feature = "VK_EXT_fragment_density_map_offset",
+    feature = "VK_QCOM_fragment_density_map_offset"
+  ),
   feature = "VK_BASE_VERSION_1_1"
 ))]
 unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
   for VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT<'child>
 {
 }
-#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+#[cfg(any(
+  feature = "VK_EXT_fragment_density_map_offset",
+  feature = "VK_QCOM_fragment_density_map_offset"
+))]
 impl<'a> VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_PROPERTIES_EXT,
@@ -15363,7 +15666,10 @@ impl<'a> VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT<'a> {
 /// [VkRenderPassFragmentDensityMapOffsetEndInfoEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkRenderPassFragmentDensityMapOffsetEndInfoEXT.html)
 ///
 /// **Extends:** VkSubpassEndInfo, VkRenderingEndInfoKHR.
-#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+#[cfg(any(
+  feature = "VK_EXT_fragment_density_map_offset",
+  feature = "VK_QCOM_fragment_density_map_offset"
+))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkRenderPassFragmentDensityMapOffsetEndInfoEXT<'a> {
@@ -15378,12 +15684,21 @@ pub struct VkRenderPassFragmentDensityMapOffsetEndInfoEXT<'a> {
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
-#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+#[cfg(any(
+  feature = "VK_EXT_fragment_density_map_offset",
+  feature = "VK_QCOM_fragment_density_map_offset"
+))]
 unsafe impl<'a> Send for VkRenderPassFragmentDensityMapOffsetEndInfoEXT<'a> {}
-#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+#[cfg(any(
+  feature = "VK_EXT_fragment_density_map_offset",
+  feature = "VK_QCOM_fragment_density_map_offset"
+))]
 unsafe impl<'a> Sync for VkRenderPassFragmentDensityMapOffsetEndInfoEXT<'a> {}
 #[cfg(all(
-  feature = "VK_EXT_fragment_density_map_offset",
+  any(
+    feature = "VK_EXT_fragment_density_map_offset",
+    feature = "VK_QCOM_fragment_density_map_offset"
+  ),
   feature = "VK_GRAPHICS_VERSION_1_2"
 ))]
 unsafe impl<'child, 'root> VkPNextExtends<VkSubpassEndInfo<'root>>
@@ -15391,14 +15706,23 @@ unsafe impl<'child, 'root> VkPNextExtends<VkSubpassEndInfo<'root>>
 {
 }
 #[cfg(all(
-  feature = "VK_EXT_fragment_density_map_offset",
-  feature = "VK_KHR_maintenance10"
+  any(
+    feature = "VK_EXT_fragment_density_map_offset",
+    feature = "VK_QCOM_fragment_density_map_offset"
+  ),
+  any(
+    feature = "VK_KHR_maintenance10",
+    feature = "VK_EXT_fragment_density_map_offset"
+  )
 ))]
 unsafe impl<'child, 'root> VkPNextExtends<VkRenderingEndInfoKHR<'root>>
   for VkRenderPassFragmentDensityMapOffsetEndInfoEXT<'child>
 {
 }
-#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+#[cfg(any(
+  feature = "VK_EXT_fragment_density_map_offset",
+  feature = "VK_QCOM_fragment_density_map_offset"
+))]
 impl<'a> VkRenderPassFragmentDensityMapOffsetEndInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::RENDER_PASS_FRAGMENT_DENSITY_MAP_OFFSET_END_INFO_EXT,
@@ -15448,7 +15772,10 @@ impl<'a> VkRenderPassFragmentDensityMapOffsetEndInfoEXT<'a> {
     self.pNext = (val as *const T).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_KHR_maintenance10")]
+  #[cfg(any(
+    feature = "VK_KHR_maintenance10",
+    feature = "VK_EXT_fragment_density_map_offset"
+  ))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -15456,57 +15783,6 @@ impl<'a> VkRenderPassFragmentDensityMapOffsetEndInfoEXT<'a> {
   pub const fn with_pNext_chain_VkRenderingEndInfoKHR<
     'root,
     T: VkPNextExtends<VkRenderingEndInfoKHR<'root>>,
-  >(
-    mut self,
-    val: &'a T,
-  ) -> Self {
-    self.pNext = (val as *const T).cast::<c_void>();
-    self
-  }
-}
-/// [VkRenderingEndInfoEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkRenderingEndInfoEXT.html)
-#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkRenderingEndInfoEXT<'a> {
-  /// Values: VK_STRUCTURE_TYPE_RENDERING_END_INFO_KHR
-  pub sType: VkStructureType,
-  /// Optional: true
-  pub pNext: *const c_void,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
-}
-#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
-unsafe impl<'a> Send for VkRenderingEndInfoEXT<'a> {}
-#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
-unsafe impl<'a> Sync for VkRenderingEndInfoEXT<'a> {}
-#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
-impl<'a> VkRenderingEndInfoEXT<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::RENDERING_END_INFO_EXT,
-    pNext: core::ptr::null(),
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[cfg(feature = "VK_EXT_fragment_density_map_offset")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkRenderingEndInfoEXT<
-    'root,
-    T: VkPNextExtends<VkRenderingEndInfoEXT<'root>>,
   >(
     mut self,
     val: &'a T,
@@ -21247,184 +21523,6 @@ impl<'a> VkPhysicalDeviceMemoryBudgetPropertiesEXT<'a> {
     self
   }
 }
-/// [VkMemoryDecompressionMethodFlagsEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkMemoryDecompressionMethodFlagsEXT.html)
-#[cfg(feature = "VK_EXT_memory_decompression")]
-pub type VkMemoryDecompressionMethodFlagsEXT = VkMemoryDecompressionMethodFlagBitsEXT;
-/// [VkPhysicalDeviceMemoryDecompressionFeaturesEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceMemoryDecompressionFeaturesEXT.html)
-///
-/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
-#[cfg(feature = "VK_EXT_memory_decompression")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkPhysicalDeviceMemoryDecompressionFeaturesEXT<'a> {
-  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_DECOMPRESSION_FEATURES_EXT
-  pub sType: VkStructureType,
-  /// Optional: true
-  pub pNext: *mut c_void,
-  pub memoryDecompression: VkBool32,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
-}
-#[cfg(feature = "VK_EXT_memory_decompression")]
-unsafe impl<'a> Send for VkPhysicalDeviceMemoryDecompressionFeaturesEXT<'a> {}
-#[cfg(feature = "VK_EXT_memory_decompression")]
-unsafe impl<'a> Sync for VkPhysicalDeviceMemoryDecompressionFeaturesEXT<'a> {}
-#[cfg(all(
-  feature = "VK_EXT_memory_decompression",
-  feature = "VK_BASE_VERSION_1_1"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
-  for VkPhysicalDeviceMemoryDecompressionFeaturesEXT<'child>
-{
-}
-#[cfg(all(
-  feature = "VK_EXT_memory_decompression",
-  feature = "VK_BASE_VERSION_1_0"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
-  for VkPhysicalDeviceMemoryDecompressionFeaturesEXT<'child>
-{
-}
-#[cfg(feature = "VK_EXT_memory_decompression")]
-impl<'a> VkPhysicalDeviceMemoryDecompressionFeaturesEXT<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::PHYSICAL_DEVICE_MEMORY_DECOMPRESSION_FEATURES_EXT,
-    pNext: core::ptr::null_mut(),
-    memoryDecompression: 0,
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[inline]
-  pub const fn with_memoryDecompression(mut self, val: VkBool32) -> Self {
-    self.memoryDecompression = val;
-    self
-  }
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
-    'root,
-    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
-  >(
-    mut self,
-    val: &'a mut T,
-  ) -> Self {
-    self.pNext = (val as *mut T).cast::<c_void>();
-    self
-  }
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkDeviceCreateInfo<
-    'root,
-    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
-  >(
-    mut self,
-    val: &'a mut T,
-  ) -> Self {
-    self.pNext = (val as *mut T).cast::<c_void>();
-    self
-  }
-}
-/// [VkPhysicalDeviceMemoryDecompressionPropertiesEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceMemoryDecompressionPropertiesEXT.html)
-///
-/// *Note: This is a **returned only** struct.*
-///
-/// *Note: This struct has **required limit types**.*
-///
-/// **Extends:** VkPhysicalDeviceProperties2.
-#[cfg(feature = "VK_EXT_memory_decompression")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkPhysicalDeviceMemoryDecompressionPropertiesEXT<'a> {
-  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_DECOMPRESSION_PROPERTIES_EXT
-  pub sType: VkStructureType,
-  /// Optional: true
-  pub pNext: *mut c_void,
-  /// Limit Type: [Bitmask]
-  pub decompressionMethods: VkMemoryDecompressionMethodFlagsEXT,
-  /// Limit Type: [Max]
-  pub maxDecompressionIndirectCount: u64,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
-}
-#[cfg(feature = "VK_EXT_memory_decompression")]
-unsafe impl<'a> Send for VkPhysicalDeviceMemoryDecompressionPropertiesEXT<'a> {}
-#[cfg(feature = "VK_EXT_memory_decompression")]
-unsafe impl<'a> Sync for VkPhysicalDeviceMemoryDecompressionPropertiesEXT<'a> {}
-#[cfg(all(
-  feature = "VK_EXT_memory_decompression",
-  feature = "VK_BASE_VERSION_1_1"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
-  for VkPhysicalDeviceMemoryDecompressionPropertiesEXT<'child>
-{
-}
-#[cfg(feature = "VK_EXT_memory_decompression")]
-impl<'a> VkPhysicalDeviceMemoryDecompressionPropertiesEXT<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::PHYSICAL_DEVICE_MEMORY_DECOMPRESSION_PROPERTIES_EXT,
-    pNext: core::ptr::null_mut(),
-    decompressionMethods: VkMemoryDecompressionMethodFlagBitsEXT(0),
-    maxDecompressionIndirectCount: 0,
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[inline]
-  pub const fn with_decompressionMethods(
-    mut self,
-    val: VkMemoryDecompressionMethodFlagsEXT,
-  ) -> Self {
-    self.decompressionMethods = val;
-    self
-  }
-  #[inline]
-  pub const fn with_maxDecompressionIndirectCount(mut self, val: u64) -> Self {
-    self.maxDecompressionIndirectCount = val;
-    self
-  }
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkPhysicalDeviceProperties2<
-    'root,
-    T: VkPNextExtends<VkPhysicalDeviceProperties2<'root>>,
-  >(
-    mut self,
-    val: &'a mut T,
-  ) -> Self {
-    self.pNext = (val as *mut T).cast::<c_void>();
-    self
-  }
-}
 /// [VkDecompressMemoryRegionEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkDecompressMemoryRegionEXT.html)
 #[cfg(feature = "VK_EXT_memory_decompression")]
 #[repr(C)]
@@ -21549,6 +21647,220 @@ impl<'a> VkDecompressMemoryInfoEXT<'a> {
     val: &'a T,
   ) -> Self {
     self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+}
+/// [VkMemoryDecompressionMethodFlagsEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkMemoryDecompressionMethodFlagsEXT.html)
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
+pub type VkMemoryDecompressionMethodFlagsEXT = VkMemoryDecompressionMethodFlagBitsEXT;
+/// [VkPhysicalDeviceMemoryDecompressionFeaturesEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceMemoryDecompressionFeaturesEXT.html)
+///
+/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPhysicalDeviceMemoryDecompressionFeaturesEXT<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_DECOMPRESSION_FEATURES_EXT
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  pub memoryDecompression: VkBool32,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
+unsafe impl<'a> Send for VkPhysicalDeviceMemoryDecompressionFeaturesEXT<'a> {}
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
+unsafe impl<'a> Sync for VkPhysicalDeviceMemoryDecompressionFeaturesEXT<'a> {}
+#[cfg(all(
+  any(
+    feature = "VK_EXT_memory_decompression",
+    feature = "VK_NV_memory_decompression"
+  ),
+  feature = "VK_BASE_VERSION_1_1"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
+  for VkPhysicalDeviceMemoryDecompressionFeaturesEXT<'child>
+{
+}
+#[cfg(all(
+  any(
+    feature = "VK_EXT_memory_decompression",
+    feature = "VK_NV_memory_decompression"
+  ),
+  feature = "VK_BASE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
+  for VkPhysicalDeviceMemoryDecompressionFeaturesEXT<'child>
+{
+}
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
+impl<'a> VkPhysicalDeviceMemoryDecompressionFeaturesEXT<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::PHYSICAL_DEVICE_MEMORY_DECOMPRESSION_FEATURES_EXT,
+    pNext: core::ptr::null_mut(),
+    memoryDecompression: 0,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_memoryDecompression(mut self, val: VkBool32) -> Self {
+    self.memoryDecompression = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkDeviceCreateInfo<
+    'root,
+    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkPhysicalDeviceMemoryDecompressionPropertiesEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceMemoryDecompressionPropertiesEXT.html)
+///
+/// *Note: This is a **returned only** struct.*
+///
+/// *Note: This struct has **required limit types**.*
+///
+/// **Extends:** VkPhysicalDeviceProperties2.
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPhysicalDeviceMemoryDecompressionPropertiesEXT<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_DECOMPRESSION_PROPERTIES_EXT
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  /// Limit Type: [Bitmask]
+  pub decompressionMethods: VkMemoryDecompressionMethodFlagsEXT,
+  /// Limit Type: [Max]
+  pub maxDecompressionIndirectCount: u64,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
+unsafe impl<'a> Send for VkPhysicalDeviceMemoryDecompressionPropertiesEXT<'a> {}
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
+unsafe impl<'a> Sync for VkPhysicalDeviceMemoryDecompressionPropertiesEXT<'a> {}
+#[cfg(all(
+  any(
+    feature = "VK_EXT_memory_decompression",
+    feature = "VK_NV_memory_decompression"
+  ),
+  feature = "VK_BASE_VERSION_1_1"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
+  for VkPhysicalDeviceMemoryDecompressionPropertiesEXT<'child>
+{
+}
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
+impl<'a> VkPhysicalDeviceMemoryDecompressionPropertiesEXT<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::PHYSICAL_DEVICE_MEMORY_DECOMPRESSION_PROPERTIES_EXT,
+    pNext: core::ptr::null_mut(),
+    decompressionMethods: VkMemoryDecompressionMethodFlagBitsEXT(0),
+    maxDecompressionIndirectCount: 0,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_decompressionMethods(
+    mut self,
+    val: VkMemoryDecompressionMethodFlagsEXT,
+  ) -> Self {
+    self.decompressionMethods = val;
+    self
+  }
+  #[inline]
+  pub const fn with_maxDecompressionIndirectCount(mut self, val: u64) -> Self {
+    self.maxDecompressionIndirectCount = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceProperties2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceProperties2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
     self
   }
 }
@@ -24044,7 +24356,10 @@ impl<'a> VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT<'a> {
 /// [VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT.html)
 ///
 /// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
-#[cfg(feature = "VK_EXT_mutable_descriptor_type")]
+#[cfg(any(
+  feature = "VK_EXT_mutable_descriptor_type",
+  feature = "VK_VALVE_mutable_descriptor_type"
+))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT<'a> {
@@ -24056,12 +24371,21 @@ pub struct VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT<'a> {
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
-#[cfg(feature = "VK_EXT_mutable_descriptor_type")]
+#[cfg(any(
+  feature = "VK_EXT_mutable_descriptor_type",
+  feature = "VK_VALVE_mutable_descriptor_type"
+))]
 unsafe impl<'a> Send for VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT<'a> {}
-#[cfg(feature = "VK_EXT_mutable_descriptor_type")]
+#[cfg(any(
+  feature = "VK_EXT_mutable_descriptor_type",
+  feature = "VK_VALVE_mutable_descriptor_type"
+))]
 unsafe impl<'a> Sync for VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT<'a> {}
 #[cfg(all(
-  feature = "VK_EXT_mutable_descriptor_type",
+  any(
+    feature = "VK_EXT_mutable_descriptor_type",
+    feature = "VK_VALVE_mutable_descriptor_type"
+  ),
   feature = "VK_BASE_VERSION_1_1"
 ))]
 unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
@@ -24069,14 +24393,20 @@ unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
 {
 }
 #[cfg(all(
-  feature = "VK_EXT_mutable_descriptor_type",
+  any(
+    feature = "VK_EXT_mutable_descriptor_type",
+    feature = "VK_VALVE_mutable_descriptor_type"
+  ),
   feature = "VK_BASE_VERSION_1_0"
 ))]
 unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
   for VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT<'child>
 {
 }
-#[cfg(feature = "VK_EXT_mutable_descriptor_type")]
+#[cfg(any(
+  feature = "VK_EXT_mutable_descriptor_type",
+  feature = "VK_VALVE_mutable_descriptor_type"
+))]
 impl<'a> VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_EXT,
@@ -24133,7 +24463,10 @@ impl<'a> VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT<'a> {
   }
 }
 /// [VkMutableDescriptorTypeListEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkMutableDescriptorTypeListEXT.html)
-#[cfg(feature = "VK_EXT_mutable_descriptor_type")]
+#[cfg(any(
+  feature = "VK_EXT_mutable_descriptor_type",
+  feature = "VK_VALVE_mutable_descriptor_type"
+))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkMutableDescriptorTypeListEXT<'a> {
@@ -24144,11 +24477,20 @@ pub struct VkMutableDescriptorTypeListEXT<'a> {
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
-#[cfg(feature = "VK_EXT_mutable_descriptor_type")]
+#[cfg(any(
+  feature = "VK_EXT_mutable_descriptor_type",
+  feature = "VK_VALVE_mutable_descriptor_type"
+))]
 unsafe impl<'a> Send for VkMutableDescriptorTypeListEXT<'a> {}
-#[cfg(feature = "VK_EXT_mutable_descriptor_type")]
+#[cfg(any(
+  feature = "VK_EXT_mutable_descriptor_type",
+  feature = "VK_VALVE_mutable_descriptor_type"
+))]
 unsafe impl<'a> Sync for VkMutableDescriptorTypeListEXT<'a> {}
-#[cfg(feature = "VK_EXT_mutable_descriptor_type")]
+#[cfg(any(
+  feature = "VK_EXT_mutable_descriptor_type",
+  feature = "VK_VALVE_mutable_descriptor_type"
+))]
 impl<'a> VkMutableDescriptorTypeListEXT<'a> {
   pub const DEFAULT: Self = Self {
     descriptorTypeCount: 0,
@@ -24177,7 +24519,10 @@ impl<'a> VkMutableDescriptorTypeListEXT<'a> {
 /// [VkMutableDescriptorTypeCreateInfoEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkMutableDescriptorTypeCreateInfoEXT.html)
 ///
 /// **Extends:** VkDescriptorSetLayoutCreateInfo, VkDescriptorPoolCreateInfo.
-#[cfg(feature = "VK_EXT_mutable_descriptor_type")]
+#[cfg(any(
+  feature = "VK_EXT_mutable_descriptor_type",
+  feature = "VK_VALVE_mutable_descriptor_type"
+))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkMutableDescriptorTypeCreateInfoEXT<'a> {
@@ -24192,12 +24537,21 @@ pub struct VkMutableDescriptorTypeCreateInfoEXT<'a> {
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
-#[cfg(feature = "VK_EXT_mutable_descriptor_type")]
+#[cfg(any(
+  feature = "VK_EXT_mutable_descriptor_type",
+  feature = "VK_VALVE_mutable_descriptor_type"
+))]
 unsafe impl<'a> Send for VkMutableDescriptorTypeCreateInfoEXT<'a> {}
-#[cfg(feature = "VK_EXT_mutable_descriptor_type")]
+#[cfg(any(
+  feature = "VK_EXT_mutable_descriptor_type",
+  feature = "VK_VALVE_mutable_descriptor_type"
+))]
 unsafe impl<'a> Sync for VkMutableDescriptorTypeCreateInfoEXT<'a> {}
 #[cfg(all(
-  feature = "VK_EXT_mutable_descriptor_type",
+  any(
+    feature = "VK_EXT_mutable_descriptor_type",
+    feature = "VK_VALVE_mutable_descriptor_type"
+  ),
   feature = "VK_COMPUTE_VERSION_1_0"
 ))]
 unsafe impl<'child, 'root> VkPNextExtends<VkDescriptorSetLayoutCreateInfo<'root>>
@@ -24205,14 +24559,20 @@ unsafe impl<'child, 'root> VkPNextExtends<VkDescriptorSetLayoutCreateInfo<'root>
 {
 }
 #[cfg(all(
-  feature = "VK_EXT_mutable_descriptor_type",
+  any(
+    feature = "VK_EXT_mutable_descriptor_type",
+    feature = "VK_VALVE_mutable_descriptor_type"
+  ),
   feature = "VK_COMPUTE_VERSION_1_0"
 ))]
 unsafe impl<'child, 'root> VkPNextExtends<VkDescriptorPoolCreateInfo<'root>>
   for VkMutableDescriptorTypeCreateInfoEXT<'child>
 {
 }
-#[cfg(feature = "VK_EXT_mutable_descriptor_type")]
+#[cfg(any(
+  feature = "VK_EXT_mutable_descriptor_type",
+  feature = "VK_VALVE_mutable_descriptor_type"
+))]
 impl<'a> VkMutableDescriptorTypeCreateInfoEXT<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_EXT,
@@ -27903,7 +28263,10 @@ unsafe impl<'a> Send for VkSwapchainCalibratedTimestampInfoEXT<'a> {}
 unsafe impl<'a> Sync for VkSwapchainCalibratedTimestampInfoEXT<'a> {}
 #[cfg(all(
   feature = "VK_EXT_present_timing",
-  feature = "VK_KHR_calibrated_timestamps"
+  any(
+    feature = "VK_KHR_calibrated_timestamps",
+    feature = "VK_EXT_calibrated_timestamps"
+  )
 ))]
 unsafe impl<'child, 'root> VkPNextExtends<VkCalibratedTimestampInfoKHR<'root>>
   for VkSwapchainCalibratedTimestampInfoEXT<'child>
@@ -27946,7 +28309,10 @@ impl<'a> VkSwapchainCalibratedTimestampInfoEXT<'a> {
     self.timeDomainId = val;
     self
   }
-  #[cfg(feature = "VK_KHR_calibrated_timestamps")]
+  #[cfg(any(
+    feature = "VK_KHR_calibrated_timestamps",
+    feature = "VK_EXT_calibrated_timestamps"
+  ))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -28726,111 +29092,6 @@ impl<'a> VkPipelineRasterizationProvokingVertexStateCreateInfoEXT<'a> {
     val: &'a T,
   ) -> Self {
     self.pNext = (val as *const T).cast::<c_void>();
-    self
-  }
-}
-/// [VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT.html)
-///
-/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
-#[cfg(feature = "VK_EXT_rasterization_order_attachment_access")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT<'a> {
-  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT
-  pub sType: VkStructureType,
-  /// Optional: true
-  pub pNext: *mut c_void,
-  pub rasterizationOrderColorAttachmentAccess: VkBool32,
-  pub rasterizationOrderDepthAttachmentAccess: VkBool32,
-  pub rasterizationOrderStencilAttachmentAccess: VkBool32,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
-}
-#[cfg(feature = "VK_EXT_rasterization_order_attachment_access")]
-unsafe impl<'a> Send for VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT<'a> {}
-#[cfg(feature = "VK_EXT_rasterization_order_attachment_access")]
-unsafe impl<'a> Sync for VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT<'a> {}
-#[cfg(all(
-  feature = "VK_EXT_rasterization_order_attachment_access",
-  feature = "VK_BASE_VERSION_1_1"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
-  for VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT<'child>
-{
-}
-#[cfg(all(
-  feature = "VK_EXT_rasterization_order_attachment_access",
-  feature = "VK_BASE_VERSION_1_0"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
-  for VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT<'child>
-{
-}
-#[cfg(feature = "VK_EXT_rasterization_order_attachment_access")]
-impl<'a> VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT,
-    pNext: core::ptr::null_mut(),
-    rasterizationOrderColorAttachmentAccess: 0,
-    rasterizationOrderDepthAttachmentAccess: 0,
-    rasterizationOrderStencilAttachmentAccess: 0,
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[inline]
-  pub const fn with_rasterizationOrderColorAttachmentAccess(mut self, val: VkBool32) -> Self {
-    self.rasterizationOrderColorAttachmentAccess = val;
-    self
-  }
-  #[inline]
-  pub const fn with_rasterizationOrderDepthAttachmentAccess(mut self, val: VkBool32) -> Self {
-    self.rasterizationOrderDepthAttachmentAccess = val;
-    self
-  }
-  #[inline]
-  pub const fn with_rasterizationOrderStencilAttachmentAccess(mut self, val: VkBool32) -> Self {
-    self.rasterizationOrderStencilAttachmentAccess = val;
-    self
-  }
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
-    'root,
-    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
-  >(
-    mut self,
-    val: &'a mut T,
-  ) -> Self {
-    self.pNext = (val as *mut T).cast::<c_void>();
-    self
-  }
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkDeviceCreateInfo<
-    'root,
-    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
-  >(
-    mut self,
-    val: &'a mut T,
-  ) -> Self {
-    self.pNext = (val as *mut T).cast::<c_void>();
     self
   }
 }
@@ -31350,26 +31611,6 @@ impl<'a> VkShaderModuleIdentifierEXT<'a> {
 /// [VkShaderCreateFlagsEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkShaderCreateFlagsEXT.html)
 #[cfg(feature = "VK_EXT_shader_object")]
 pub type VkShaderCreateFlagsEXT = VkShaderCreateFlagBitsEXT;
-/// [VkShaderEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkShaderEXT.html)
-#[cfg(feature = "VK_EXT_shader_object")]
-#[repr(transparent)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkShaderEXT(pub u64);
-#[cfg(feature = "VK_EXT_shader_object")]
-impl VkShaderEXT {
-  pub const NULL: Self = Self(0);
-  pub const DEFAULT: Self = Self::NULL;
-}
-#[cfg(feature = "VK_EXT_shader_object")]
-impl Default for VkShaderEXT {
-  fn default() -> Self {
-    Self::NULL
-  }
-}
-#[cfg(feature = "VK_EXT_shader_object")]
-unsafe impl Send for VkShaderEXT {}
-#[cfg(feature = "VK_EXT_shader_object")]
-unsafe impl Sync for VkShaderEXT {}
 /// [VkShaderRequiredSubgroupSizeCreateInfoEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkShaderRequiredSubgroupSizeCreateInfoEXT.html)
 ///
 /// **Extends:** VkPipelineShaderStageCreateInfo, VkShaderCreateInfoEXT.
@@ -33450,10 +33691,10 @@ impl<'a> VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT<'a> {
 }
 /// [VkPresentScalingFlagsEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkPresentScalingFlagsEXT.html)
 #[cfg(feature = "VK_EXT_surface_maintenance1")]
-pub type VkPresentScalingFlagsEXT = VkFlags;
+pub type VkPresentScalingFlagsEXT = VkPresentScalingFlagBitsKHR;
 /// [VkPresentGravityFlagsEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkPresentGravityFlagsEXT.html)
 #[cfg(feature = "VK_EXT_surface_maintenance1")]
-pub type VkPresentGravityFlagsEXT = VkFlags;
+pub type VkPresentGravityFlagsEXT = VkPresentGravityFlagBitsKHR;
 /// [VkSurfacePresentModeEXT](https://docs.vulkan.org/refpages/latest/refpages/source/VkSurfacePresentModeEXT.html)
 ///
 /// **Extends:** VkPhysicalDeviceSurfaceInfo2KHR.
@@ -33563,9 +33804,9 @@ impl<'a> VkSurfacePresentScalingCapabilitiesEXT<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::SURFACE_PRESENT_SCALING_CAPABILITIES_EXT,
     pNext: core::ptr::null_mut(),
-    supportedPresentScaling: 0,
-    supportedPresentGravityX: 0,
-    supportedPresentGravityY: 0,
+    supportedPresentScaling: VkPresentScalingFlagBitsKHR(0),
+    supportedPresentGravityX: VkPresentGravityFlagBitsKHR(0),
+    supportedPresentGravityY: VkPresentGravityFlagBitsKHR(0),
     minScaledImageExtent: VkExtent2D::DEFAULT,
     maxScaledImageExtent: VkExtent2D::DEFAULT,
     _marker: core::marker::PhantomData,

@@ -268,7 +268,7 @@ use crate::enums::VkDescriptorUpdateTemplateTypeKHR;
 use crate::enums::VkDeviceFaultAddressTypeKHR;
 #[cfg(feature = "VK_KHR_device_fault")]
 use crate::enums::VkDeviceFaultFlagBitsKHR;
-#[cfg(feature = "VK_KHR_device_fault")]
+#[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
 use crate::enums::VkDeviceFaultVendorBinaryHeaderVersionKHR;
 #[cfg(any(
   all(feature = "VK_KHR_swapchain", feature = "VK_VERSION_1_1"),
@@ -468,11 +468,17 @@ use crate::enums::VkPipelineStageFlagBits;
 use crate::enums::VkPipelineStageFlagBits2;
 #[cfg(feature = "VK_KHR_maintenance2")]
 use crate::enums::VkPointClippingBehaviorKHR;
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
 use crate::enums::VkPresentGravityFlagBitsKHR;
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(feature = "VK_KHR_surface", feature = "VK_NV_low_latency2"))]
 use crate::enums::VkPresentModeKHR;
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
 use crate::enums::VkPresentScalingFlagBitsKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkQueueFlagBits;
@@ -560,7 +566,11 @@ use crate::enums::VkSubpassContents;
   feature = "VK_EXT_custom_resolve"
 ))]
 use crate::enums::VkSubpassDescriptionFlagBits;
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(
+  feature = "VK_KHR_surface",
+  feature = "VK_QCOM_render_pass_transform",
+  feature = "VK_QCOM_rotated_copy_commands"
+))]
 use crate::enums::VkSurfaceTransformFlagBitsKHR;
 #[cfg(feature = "VK_KHR_swapchain")]
 use crate::enums::VkSwapchainCreateFlagBitsKHR;
@@ -745,7 +755,16 @@ use crate::types::VkFenceCreateInfo;
 use crate::types::VkFenceImportFlags;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkFlags;
-#[cfg(any(feature = "VK_BASE_VERSION_1_3", feature = "VK_KHR_synchronization2"))]
+#[cfg(any(
+  feature = "VK_BASE_VERSION_1_3",
+  feature = "VK_KHR_synchronization2",
+  feature = "VK_KHR_extended_flags",
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_EXT_descriptor_heap",
+  feature = "VK_ARM_scheduling_controls",
+  feature = "VK_KHR_maintenance8",
+  feature = "VK_NV_memory_decompression"
+))]
 use crate::types::VkFlags64;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkFormatProperties;
@@ -895,7 +914,10 @@ use crate::types::VkRenderPassBeginInfo;
 use crate::types::VkRenderPassCreateFlags;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 use crate::types::VkRenderPassCreateInfo;
-#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+#[cfg(any(
+  feature = "VK_EXT_fragment_density_map_offset",
+  feature = "VK_QCOM_fragment_density_map_offset"
+))]
 use crate::types::VkRenderPassFragmentDensityMapOffsetEndInfoEXT;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_3")]
 use crate::types::VkRenderingAttachmentInfo;
@@ -995,6 +1017,1976 @@ unsafe impl Send for Display {}
   feature = "VK_EXT_acquire_xlib_display"
 ))]
 unsafe impl Sync for Display {}
+/// [VkCalibratedTimestampInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkCalibratedTimestampInfoKHR.html)
+#[cfg(any(
+  feature = "VK_KHR_calibrated_timestamps",
+  feature = "VK_EXT_calibrated_timestamps"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkCalibratedTimestampInfoKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *const c_void,
+  pub timeDomain: VkTimeDomainKHR,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(
+  feature = "VK_KHR_calibrated_timestamps",
+  feature = "VK_EXT_calibrated_timestamps"
+))]
+unsafe impl<'a> Send for VkCalibratedTimestampInfoKHR<'a> {}
+#[cfg(any(
+  feature = "VK_KHR_calibrated_timestamps",
+  feature = "VK_EXT_calibrated_timestamps"
+))]
+unsafe impl<'a> Sync for VkCalibratedTimestampInfoKHR<'a> {}
+#[cfg(any(
+  feature = "VK_KHR_calibrated_timestamps",
+  feature = "VK_EXT_calibrated_timestamps"
+))]
+impl<'a> VkCalibratedTimestampInfoKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::CALIBRATED_TIMESTAMP_INFO_KHR,
+    pNext: core::ptr::null(),
+    timeDomain: VkTimeDomainKHR(0),
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_timeDomain(mut self, val: VkTimeDomainKHR) -> Self {
+    self.timeDomain = val;
+    self
+  }
+  #[cfg(feature = "VK_EXT_present_timing")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkSwapchainCalibratedTimestampInfoEXT<'child>(
+    mut self,
+    val: &'a VkSwapchainCalibratedTimestampInfoEXT<'child>,
+  ) -> Self {
+    self.pNext = (val as *const VkSwapchainCalibratedTimestampInfoEXT<'child>).cast::<c_void>();
+    self
+  }
+  #[cfg(any(
+    feature = "VK_KHR_calibrated_timestamps",
+    feature = "VK_EXT_calibrated_timestamps"
+  ))]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkCalibratedTimestampInfoKHR<
+    'root,
+    T: VkPNextExtends<VkCalibratedTimestampInfoKHR<'root>>,
+  >(
+    mut self,
+    val: &'a T,
+  ) -> Self {
+    self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+}
+/// [VkPhysicalDeviceDepthClampZeroOneFeaturesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceDepthClampZeroOneFeaturesKHR.html)
+///
+/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
+#[cfg(any(
+  feature = "VK_KHR_depth_clamp_zero_one",
+  feature = "VK_EXT_depth_clamp_zero_one"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPhysicalDeviceDepthClampZeroOneFeaturesKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_ZERO_ONE_FEATURES_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  pub depthClampZeroOne: VkBool32,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(
+  feature = "VK_KHR_depth_clamp_zero_one",
+  feature = "VK_EXT_depth_clamp_zero_one"
+))]
+unsafe impl<'a> Send for VkPhysicalDeviceDepthClampZeroOneFeaturesKHR<'a> {}
+#[cfg(any(
+  feature = "VK_KHR_depth_clamp_zero_one",
+  feature = "VK_EXT_depth_clamp_zero_one"
+))]
+unsafe impl<'a> Sync for VkPhysicalDeviceDepthClampZeroOneFeaturesKHR<'a> {}
+#[cfg(all(
+  any(
+    feature = "VK_KHR_depth_clamp_zero_one",
+    feature = "VK_EXT_depth_clamp_zero_one"
+  ),
+  feature = "VK_BASE_VERSION_1_1"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
+  for VkPhysicalDeviceDepthClampZeroOneFeaturesKHR<'child>
+{
+}
+#[cfg(all(
+  any(
+    feature = "VK_KHR_depth_clamp_zero_one",
+    feature = "VK_EXT_depth_clamp_zero_one"
+  ),
+  feature = "VK_BASE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
+  for VkPhysicalDeviceDepthClampZeroOneFeaturesKHR<'child>
+{
+}
+#[cfg(any(
+  feature = "VK_KHR_depth_clamp_zero_one",
+  feature = "VK_EXT_depth_clamp_zero_one"
+))]
+impl<'a> VkPhysicalDeviceDepthClampZeroOneFeaturesKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::PHYSICAL_DEVICE_DEPTH_CLAMP_ZERO_ONE_FEATURES_KHR,
+    pNext: core::ptr::null_mut(),
+    depthClampZeroOne: 0,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_depthClampZeroOne(mut self, val: VkBool32) -> Self {
+    self.depthClampZeroOne = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkDeviceCreateInfo<
+    'root,
+    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkAccelerationStructureKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkAccelerationStructureKHR.html)
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  all(feature = "VK_EXT_descriptor_buffer", feature = "VK_NV_ray_tracing")
+))]
+#[repr(transparent)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct VkAccelerationStructureKHR(pub u64);
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  all(feature = "VK_EXT_descriptor_buffer", feature = "VK_NV_ray_tracing")
+))]
+impl VkAccelerationStructureKHR {
+  pub const NULL: Self = Self(0);
+  pub const DEFAULT: Self = Self::NULL;
+}
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  all(feature = "VK_EXT_descriptor_buffer", feature = "VK_NV_ray_tracing")
+))]
+impl Default for VkAccelerationStructureKHR {
+  fn default() -> Self {
+    Self::NULL
+  }
+}
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  all(feature = "VK_EXT_descriptor_buffer", feature = "VK_NV_ray_tracing")
+))]
+unsafe impl Send for VkAccelerationStructureKHR {}
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  all(feature = "VK_EXT_descriptor_buffer", feature = "VK_NV_ray_tracing")
+))]
+unsafe impl Sync for VkAccelerationStructureKHR {}
+/// [VkDeviceAddressRangeKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkDeviceAddressRangeKHR.html)
+#[cfg(any(
+  feature = "VK_KHR_device_address_commands",
+  feature = "VK_EXT_descriptor_heap"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkDeviceAddressRangeKHR {
+  /// Optional: true
+  pub address: VkDeviceAddress,
+  pub size: VkDeviceSize,
+}
+#[cfg(any(
+  feature = "VK_KHR_device_address_commands",
+  feature = "VK_EXT_descriptor_heap"
+))]
+unsafe impl Send for VkDeviceAddressRangeKHR {}
+#[cfg(any(
+  feature = "VK_KHR_device_address_commands",
+  feature = "VK_EXT_descriptor_heap"
+))]
+unsafe impl Sync for VkDeviceAddressRangeKHR {}
+#[cfg(any(
+  feature = "VK_KHR_device_address_commands",
+  feature = "VK_EXT_descriptor_heap"
+))]
+impl VkDeviceAddressRangeKHR {
+  pub const DEFAULT: Self = Self {
+    address: 0,
+    size: 0,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  #[inline]
+  pub const fn with_address(mut self, val: VkDeviceAddress) -> Self {
+    self.address = val;
+    self
+  }
+  #[inline]
+  pub const fn with_size(mut self, val: VkDeviceSize) -> Self {
+    self.size = val;
+    self
+  }
+}
+/// [VkDeviceFaultAddressInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkDeviceFaultAddressInfoKHR.html)
+///
+/// *Note: This is a **returned only** struct.*
+#[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkDeviceFaultAddressInfoKHR {
+  pub addressType: VkDeviceFaultAddressTypeKHR,
+  pub reportedAddress: VkDeviceAddress,
+  pub addressPrecision: VkDeviceSize,
+}
+#[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
+unsafe impl Send for VkDeviceFaultAddressInfoKHR {}
+#[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
+unsafe impl Sync for VkDeviceFaultAddressInfoKHR {}
+#[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
+impl VkDeviceFaultAddressInfoKHR {
+  pub const DEFAULT: Self = Self {
+    addressType: VkDeviceFaultAddressTypeKHR(0),
+    reportedAddress: 0,
+    addressPrecision: 0,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  #[inline]
+  pub const fn with_addressType(mut self, val: VkDeviceFaultAddressTypeKHR) -> Self {
+    self.addressType = val;
+    self
+  }
+  #[inline]
+  pub const fn with_reportedAddress(mut self, val: VkDeviceAddress) -> Self {
+    self.reportedAddress = val;
+    self
+  }
+  #[inline]
+  pub const fn with_addressPrecision(mut self, val: VkDeviceSize) -> Self {
+    self.addressPrecision = val;
+    self
+  }
+}
+/// [VkDeviceFaultVendorInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkDeviceFaultVendorInfoKHR.html)
+///
+/// *Note: This is a **returned only** struct.*
+#[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkDeviceFaultVendorInfoKHR {
+  /// Length: null-terminated,  No Auto-Validity
+  pub description: [c_char; VK_MAX_DESCRIPTION_SIZE as usize],
+  pub vendorFaultCode: u64,
+  pub vendorFaultData: u64,
+}
+#[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
+unsafe impl Send for VkDeviceFaultVendorInfoKHR {}
+#[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
+unsafe impl Sync for VkDeviceFaultVendorInfoKHR {}
+#[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
+impl VkDeviceFaultVendorInfoKHR {
+  pub const DEFAULT: Self = Self {
+    description: [0 as c_char; VK_MAX_DESCRIPTION_SIZE as usize],
+    vendorFaultCode: 0,
+    vendorFaultData: 0,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  #[inline]
+  pub const fn with_description(mut self, val: [c_char; VK_MAX_DESCRIPTION_SIZE as usize]) -> Self {
+    self.description = val;
+    self
+  }
+  #[inline]
+  pub const fn with_vendorFaultCode(mut self, val: u64) -> Self {
+    self.vendorFaultCode = val;
+    self
+  }
+  #[inline]
+  pub const fn with_vendorFaultData(mut self, val: u64) -> Self {
+    self.vendorFaultData = val;
+    self
+  }
+}
+/// [VkDeviceFaultVendorBinaryHeaderVersionOneKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkDeviceFaultVendorBinaryHeaderVersionOneKHR.html)
+#[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkDeviceFaultVendorBinaryHeaderVersionOneKHR {
+  pub headerSize: u32,
+  pub headerVersion: VkDeviceFaultVendorBinaryHeaderVersionKHR,
+  pub vendorID: u32,
+  pub deviceID: u32,
+  pub driverVersion: u32,
+  pub pipelineCacheUUID: [u8; VK_UUID_SIZE as usize],
+  pub applicationNameOffset: u32,
+  pub applicationVersion: u32,
+  pub engineNameOffset: u32,
+  pub engineVersion: u32,
+  pub apiVersion: u32,
+}
+#[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
+unsafe impl Send for VkDeviceFaultVendorBinaryHeaderVersionOneKHR {}
+#[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
+unsafe impl Sync for VkDeviceFaultVendorBinaryHeaderVersionOneKHR {}
+#[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
+impl VkDeviceFaultVendorBinaryHeaderVersionOneKHR {
+  pub const DEFAULT: Self = Self {
+    headerSize: 0,
+    headerVersion: VkDeviceFaultVendorBinaryHeaderVersionKHR(0),
+    vendorID: 0,
+    deviceID: 0,
+    driverVersion: 0,
+    pipelineCacheUUID: [0u8; VK_UUID_SIZE as usize],
+    applicationNameOffset: 0,
+    applicationVersion: 0,
+    engineNameOffset: 0,
+    engineVersion: 0,
+    apiVersion: 0,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  #[inline]
+  pub const fn with_headerSize(mut self, val: u32) -> Self {
+    self.headerSize = val;
+    self
+  }
+  #[inline]
+  pub const fn with_headerVersion(
+    mut self,
+    val: VkDeviceFaultVendorBinaryHeaderVersionKHR,
+  ) -> Self {
+    self.headerVersion = val;
+    self
+  }
+  #[inline]
+  pub const fn with_vendorID(mut self, val: u32) -> Self {
+    self.vendorID = val;
+    self
+  }
+  #[inline]
+  pub const fn with_deviceID(mut self, val: u32) -> Self {
+    self.deviceID = val;
+    self
+  }
+  #[inline]
+  pub const fn with_driverVersion(mut self, val: u32) -> Self {
+    self.driverVersion = val;
+    self
+  }
+  #[inline]
+  pub const fn with_pipelineCacheUUID(mut self, val: [u8; VK_UUID_SIZE as usize]) -> Self {
+    self.pipelineCacheUUID = val;
+    self
+  }
+  #[inline]
+  pub const fn with_applicationNameOffset(mut self, val: u32) -> Self {
+    self.applicationNameOffset = val;
+    self
+  }
+  #[inline]
+  pub const fn with_applicationVersion(mut self, val: u32) -> Self {
+    self.applicationVersion = val;
+    self
+  }
+  #[inline]
+  pub const fn with_engineNameOffset(mut self, val: u32) -> Self {
+    self.engineNameOffset = val;
+    self
+  }
+  #[inline]
+  pub const fn with_engineVersion(mut self, val: u32) -> Self {
+    self.engineVersion = val;
+    self
+  }
+  #[inline]
+  pub const fn with_apiVersion(mut self, val: u32) -> Self {
+    self.apiVersion = val;
+    self
+  }
+}
+/// [VkRenderingEndInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkRenderingEndInfoKHR.html)
+#[cfg(any(
+  feature = "VK_KHR_maintenance10",
+  feature = "VK_EXT_fragment_density_map_offset"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkRenderingEndInfoKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_RENDERING_END_INFO_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *const c_void,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(
+  feature = "VK_KHR_maintenance10",
+  feature = "VK_EXT_fragment_density_map_offset"
+))]
+unsafe impl<'a> Send for VkRenderingEndInfoKHR<'a> {}
+#[cfg(any(
+  feature = "VK_KHR_maintenance10",
+  feature = "VK_EXT_fragment_density_map_offset"
+))]
+unsafe impl<'a> Sync for VkRenderingEndInfoKHR<'a> {}
+#[cfg(any(
+  feature = "VK_KHR_maintenance10",
+  feature = "VK_EXT_fragment_density_map_offset"
+))]
+impl<'a> VkRenderingEndInfoKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::RENDERING_END_INFO_KHR,
+    pNext: core::ptr::null(),
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[cfg(any(
+    feature = "VK_EXT_fragment_density_map_offset",
+    feature = "VK_QCOM_fragment_density_map_offset"
+  ))]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_VkRenderPassFragmentDensityMapOffsetEndInfoEXT<'child>(
+    mut self,
+    val: &'a VkRenderPassFragmentDensityMapOffsetEndInfoEXT<'child>,
+  ) -> Self {
+    self.pNext =
+      (val as *const VkRenderPassFragmentDensityMapOffsetEndInfoEXT<'child>).cast::<c_void>();
+    self
+  }
+  #[cfg(any(
+    feature = "VK_KHR_maintenance10",
+    feature = "VK_EXT_fragment_density_map_offset"
+  ))]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkRenderingEndInfoKHR<
+    'root,
+    T: VkPNextExtends<VkRenderingEndInfoKHR<'root>>,
+  >(
+    mut self,
+    val: &'a T,
+  ) -> Self {
+    self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+}
+/// [VkMicromapTriangleKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkMicromapTriangleKHR.html)
+#[cfg(any(
+  feature = "VK_KHR_opacity_micromap",
+  feature = "VK_EXT_opacity_micromap"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkMicromapTriangleKHR {
+  pub dataOffset: u32,
+  pub subdivisionLevel: u16,
+  pub format: u16,
+}
+#[cfg(any(
+  feature = "VK_KHR_opacity_micromap",
+  feature = "VK_EXT_opacity_micromap"
+))]
+unsafe impl Send for VkMicromapTriangleKHR {}
+#[cfg(any(
+  feature = "VK_KHR_opacity_micromap",
+  feature = "VK_EXT_opacity_micromap"
+))]
+unsafe impl Sync for VkMicromapTriangleKHR {}
+#[cfg(any(
+  feature = "VK_KHR_opacity_micromap",
+  feature = "VK_EXT_opacity_micromap"
+))]
+impl VkMicromapTriangleKHR {
+  pub const DEFAULT: Self = Self {
+    dataOffset: 0,
+    subdivisionLevel: 0,
+    format: 0,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  #[inline]
+  pub const fn with_dataOffset(mut self, val: u32) -> Self {
+    self.dataOffset = val;
+    self
+  }
+  #[inline]
+  pub const fn with_subdivisionLevel(mut self, val: u16) -> Self {
+    self.subdivisionLevel = val;
+    self
+  }
+  #[inline]
+  pub const fn with_format(mut self, val: u16) -> Self {
+    self.format = val;
+    self
+  }
+}
+/// [VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR.html)
+///
+/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
+#[cfg(any(
+  feature = "VK_KHR_pipeline_library_group_handles",
+  feature = "VK_EXT_pipeline_library_group_handles"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_KHR
+  pub sType: VkStructureType,
+  /// Optional: true,  No Auto-Validity
+  pub pNext: *mut c_void,
+  pub pipelineLibraryGroupHandles: VkBool32,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(
+  feature = "VK_KHR_pipeline_library_group_handles",
+  feature = "VK_EXT_pipeline_library_group_handles"
+))]
+unsafe impl<'a> Send for VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR<'a> {}
+#[cfg(any(
+  feature = "VK_KHR_pipeline_library_group_handles",
+  feature = "VK_EXT_pipeline_library_group_handles"
+))]
+unsafe impl<'a> Sync for VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR<'a> {}
+#[cfg(all(
+  any(
+    feature = "VK_KHR_pipeline_library_group_handles",
+    feature = "VK_EXT_pipeline_library_group_handles"
+  ),
+  feature = "VK_BASE_VERSION_1_1"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
+  for VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR<'child>
+{
+}
+#[cfg(all(
+  any(
+    feature = "VK_KHR_pipeline_library_group_handles",
+    feature = "VK_EXT_pipeline_library_group_handles"
+  ),
+  feature = "VK_BASE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
+  for VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR<'child>
+{
+}
+#[cfg(any(
+  feature = "VK_KHR_pipeline_library_group_handles",
+  feature = "VK_EXT_pipeline_library_group_handles"
+))]
+impl<'a> VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_KHR,
+    pNext: core::ptr::null_mut(),
+    pipelineLibraryGroupHandles: 0,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_pipelineLibraryGroupHandles(mut self, val: VkBool32) -> Self {
+    self.pipelineLibraryGroupHandles = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkDeviceCreateInfo<
+    'root,
+    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkPipelineInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPipelineInfoKHR.html)
+#[cfg(any(
+  feature = "VK_KHR_pipeline_executable_properties",
+  feature = "VK_EXT_pipeline_properties"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPipelineInfoKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PIPELINE_INFO_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *const c_void,
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+  pub pipeline: VkPipeline,
+  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+  pub pipeline: *mut c_void,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(
+  feature = "VK_KHR_pipeline_executable_properties",
+  feature = "VK_EXT_pipeline_properties"
+))]
+unsafe impl<'a> Send for VkPipelineInfoKHR<'a> {}
+#[cfg(any(
+  feature = "VK_KHR_pipeline_executable_properties",
+  feature = "VK_EXT_pipeline_properties"
+))]
+unsafe impl<'a> Sync for VkPipelineInfoKHR<'a> {}
+#[cfg(any(
+  feature = "VK_KHR_pipeline_executable_properties",
+  feature = "VK_EXT_pipeline_properties"
+))]
+impl<'a> VkPipelineInfoKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::PIPELINE_INFO_KHR,
+    pNext: core::ptr::null(),
+    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+    pipeline: VkPipeline::DEFAULT,
+    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
+    pipeline: core::ptr::null_mut(),
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
+  #[inline]
+  pub const fn with_pipeline(mut self, val: VkPipeline) -> Self {
+    self.pipeline = val;
+    self
+  }
+  #[cfg(any(
+    feature = "VK_KHR_pipeline_executable_properties",
+    feature = "VK_EXT_pipeline_properties"
+  ))]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPipelineInfoKHR<
+    'root,
+    T: VkPNextExtends<VkPipelineInfoKHR<'root>>,
+  >(
+    mut self,
+    val: &'a T,
+  ) -> Self {
+    self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+}
+/// [VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR.html)
+///
+/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
+#[cfg(any(
+  feature = "VK_KHR_present_mode_fifo_latest_ready",
+  feature = "VK_EXT_present_mode_fifo_latest_ready"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  pub presentModeFifoLatestReady: VkBool32,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(
+  feature = "VK_KHR_present_mode_fifo_latest_ready",
+  feature = "VK_EXT_present_mode_fifo_latest_ready"
+))]
+unsafe impl<'a> Send for VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR<'a> {}
+#[cfg(any(
+  feature = "VK_KHR_present_mode_fifo_latest_ready",
+  feature = "VK_EXT_present_mode_fifo_latest_ready"
+))]
+unsafe impl<'a> Sync for VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR<'a> {}
+#[cfg(all(
+  any(
+    feature = "VK_KHR_present_mode_fifo_latest_ready",
+    feature = "VK_EXT_present_mode_fifo_latest_ready"
+  ),
+  feature = "VK_BASE_VERSION_1_1"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
+  for VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR<'child>
+{
+}
+#[cfg(all(
+  any(
+    feature = "VK_KHR_present_mode_fifo_latest_ready",
+    feature = "VK_EXT_present_mode_fifo_latest_ready"
+  ),
+  feature = "VK_BASE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
+  for VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR<'child>
+{
+}
+#[cfg(any(
+  feature = "VK_KHR_present_mode_fifo_latest_ready",
+  feature = "VK_EXT_present_mode_fifo_latest_ready"
+))]
+impl<'a> VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_KHR,
+    pNext: core::ptr::null_mut(),
+    presentModeFifoLatestReady: 0,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_presentModeFifoLatestReady(mut self, val: VkBool32) -> Self {
+    self.presentModeFifoLatestReady = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkDeviceCreateInfo<
+    'root,
+    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkPhysicalDeviceRobustness2FeaturesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceRobustness2FeaturesKHR.html)
+///
+/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
+#[cfg(any(feature = "VK_KHR_robustness2", feature = "VK_EXT_robustness2"))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPhysicalDeviceRobustness2FeaturesKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  pub robustBufferAccess2: VkBool32,
+  pub robustImageAccess2: VkBool32,
+  pub nullDescriptor: VkBool32,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(feature = "VK_KHR_robustness2", feature = "VK_EXT_robustness2"))]
+unsafe impl<'a> Send for VkPhysicalDeviceRobustness2FeaturesKHR<'a> {}
+#[cfg(any(feature = "VK_KHR_robustness2", feature = "VK_EXT_robustness2"))]
+unsafe impl<'a> Sync for VkPhysicalDeviceRobustness2FeaturesKHR<'a> {}
+#[cfg(all(
+  any(feature = "VK_KHR_robustness2", feature = "VK_EXT_robustness2"),
+  feature = "VK_BASE_VERSION_1_1"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
+  for VkPhysicalDeviceRobustness2FeaturesKHR<'child>
+{
+}
+#[cfg(all(
+  any(feature = "VK_KHR_robustness2", feature = "VK_EXT_robustness2"),
+  feature = "VK_BASE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
+  for VkPhysicalDeviceRobustness2FeaturesKHR<'child>
+{
+}
+#[cfg(any(feature = "VK_KHR_robustness2", feature = "VK_EXT_robustness2"))]
+impl<'a> VkPhysicalDeviceRobustness2FeaturesKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_KHR,
+    pNext: core::ptr::null_mut(),
+    robustBufferAccess2: 0,
+    robustImageAccess2: 0,
+    nullDescriptor: 0,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_robustBufferAccess2(mut self, val: VkBool32) -> Self {
+    self.robustBufferAccess2 = val;
+    self
+  }
+  #[inline]
+  pub const fn with_robustImageAccess2(mut self, val: VkBool32) -> Self {
+    self.robustImageAccess2 = val;
+    self
+  }
+  #[inline]
+  pub const fn with_nullDescriptor(mut self, val: VkBool32) -> Self {
+    self.nullDescriptor = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkDeviceCreateInfo<
+    'root,
+    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkPhysicalDeviceRobustness2PropertiesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceRobustness2PropertiesKHR.html)
+///
+/// *Note: This is a **returned only** struct.*
+///
+/// *Note: This struct has **required limit types**.*
+///
+/// **Extends:** VkPhysicalDeviceProperties2.
+#[cfg(any(feature = "VK_KHR_robustness2", feature = "VK_EXT_robustness2"))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPhysicalDeviceRobustness2PropertiesKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_PROPERTIES_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  /// Limit Type: [Min, Pot]
+  pub robustStorageBufferAccessSizeAlignment: VkDeviceSize,
+  /// Limit Type: [Min, Pot]
+  pub robustUniformBufferAccessSizeAlignment: VkDeviceSize,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(feature = "VK_KHR_robustness2", feature = "VK_EXT_robustness2"))]
+unsafe impl<'a> Send for VkPhysicalDeviceRobustness2PropertiesKHR<'a> {}
+#[cfg(any(feature = "VK_KHR_robustness2", feature = "VK_EXT_robustness2"))]
+unsafe impl<'a> Sync for VkPhysicalDeviceRobustness2PropertiesKHR<'a> {}
+#[cfg(all(
+  any(feature = "VK_KHR_robustness2", feature = "VK_EXT_robustness2"),
+  feature = "VK_BASE_VERSION_1_1"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
+  for VkPhysicalDeviceRobustness2PropertiesKHR<'child>
+{
+}
+#[cfg(any(feature = "VK_KHR_robustness2", feature = "VK_EXT_robustness2"))]
+impl<'a> VkPhysicalDeviceRobustness2PropertiesKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::PHYSICAL_DEVICE_ROBUSTNESS_2_PROPERTIES_KHR,
+    pNext: core::ptr::null_mut(),
+    robustStorageBufferAccessSizeAlignment: 0,
+    robustUniformBufferAccessSizeAlignment: 0,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_robustStorageBufferAccessSizeAlignment(mut self, val: VkDeviceSize) -> Self {
+    self.robustStorageBufferAccessSizeAlignment = val;
+    self
+  }
+  #[inline]
+  pub const fn with_robustUniformBufferAccessSizeAlignment(mut self, val: VkDeviceSize) -> Self {
+    self.robustUniformBufferAccessSizeAlignment = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceProperties2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceProperties2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkPresentScalingFlagsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPresentScalingFlagsKHR.html)
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+pub type VkPresentScalingFlagsKHR = VkPresentScalingFlagBitsKHR;
+/// [VkPresentGravityFlagsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPresentGravityFlagsKHR.html)
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+pub type VkPresentGravityFlagsKHR = VkPresentGravityFlagBitsKHR;
+/// [VkSurfacePresentModeKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkSurfacePresentModeKHR.html)
+///
+/// **Extends:** VkPhysicalDeviceSurfaceInfo2KHR.
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkSurfacePresentModeKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  pub presentMode: VkPresentModeKHR,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+unsafe impl<'a> Send for VkSurfacePresentModeKHR<'a> {}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+unsafe impl<'a> Sync for VkSurfacePresentModeKHR<'a> {}
+#[cfg(all(
+  any(
+    feature = "VK_KHR_surface_maintenance1",
+    feature = "VK_EXT_surface_maintenance1"
+  ),
+  feature = "VK_KHR_get_surface_capabilities2"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceSurfaceInfo2KHR<'root>>
+  for VkSurfacePresentModeKHR<'child>
+{
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl<'a> VkSurfacePresentModeKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::SURFACE_PRESENT_MODE_KHR,
+    pNext: core::ptr::null_mut(),
+    presentMode: VkPresentModeKHR(0),
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_presentMode(mut self, val: VkPresentModeKHR) -> Self {
+    self.presentMode = val;
+    self
+  }
+  #[cfg(feature = "VK_KHR_get_surface_capabilities2")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceSurfaceInfo2KHR<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceSurfaceInfo2KHR<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkSurfacePresentScalingCapabilitiesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkSurfacePresentScalingCapabilitiesKHR.html)
+///
+/// **Extends:** VkSurfaceCapabilities2KHR.
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkSurfacePresentScalingCapabilitiesKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_SURFACE_PRESENT_SCALING_CAPABILITIES_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  /// Optional: true
+  pub supportedPresentScaling: VkPresentScalingFlagsKHR,
+  /// Optional: true
+  pub supportedPresentGravityX: VkPresentGravityFlagsKHR,
+  /// Optional: true
+  pub supportedPresentGravityY: VkPresentGravityFlagsKHR,
+  /// Optional: true
+  pub minScaledImageExtent: VkExtent2D,
+  /// Optional: true
+  pub maxScaledImageExtent: VkExtent2D,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+unsafe impl<'a> Send for VkSurfacePresentScalingCapabilitiesKHR<'a> {}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+unsafe impl<'a> Sync for VkSurfacePresentScalingCapabilitiesKHR<'a> {}
+#[cfg(all(
+  any(
+    feature = "VK_KHR_surface_maintenance1",
+    feature = "VK_EXT_surface_maintenance1"
+  ),
+  feature = "VK_KHR_get_surface_capabilities2"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkSurfaceCapabilities2KHR<'root>>
+  for VkSurfacePresentScalingCapabilitiesKHR<'child>
+{
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl<'a> VkSurfacePresentScalingCapabilitiesKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::SURFACE_PRESENT_SCALING_CAPABILITIES_KHR,
+    pNext: core::ptr::null_mut(),
+    supportedPresentScaling: VkPresentScalingFlagBitsKHR(0),
+    supportedPresentGravityX: VkPresentGravityFlagBitsKHR(0),
+    supportedPresentGravityY: VkPresentGravityFlagBitsKHR(0),
+    minScaledImageExtent: VkExtent2D::DEFAULT,
+    maxScaledImageExtent: VkExtent2D::DEFAULT,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_supportedPresentScaling(mut self, val: VkPresentScalingFlagsKHR) -> Self {
+    self.supportedPresentScaling = val;
+    self
+  }
+  #[inline]
+  pub const fn with_supportedPresentGravityX(mut self, val: VkPresentGravityFlagsKHR) -> Self {
+    self.supportedPresentGravityX = val;
+    self
+  }
+  #[inline]
+  pub const fn with_supportedPresentGravityY(mut self, val: VkPresentGravityFlagsKHR) -> Self {
+    self.supportedPresentGravityY = val;
+    self
+  }
+  #[inline]
+  pub const fn with_minScaledImageExtent(mut self, val: VkExtent2D) -> Self {
+    self.minScaledImageExtent = val;
+    self
+  }
+  #[inline]
+  pub const fn with_maxScaledImageExtent(mut self, val: VkExtent2D) -> Self {
+    self.maxScaledImageExtent = val;
+    self
+  }
+  #[cfg(feature = "VK_KHR_get_surface_capabilities2")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkSurfaceCapabilities2KHR<
+    'root,
+    T: VkPNextExtends<VkSurfaceCapabilities2KHR<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkSurfacePresentModeCompatibilityKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkSurfacePresentModeCompatibilityKHR.html)
+///
+/// **Extends:** VkSurfaceCapabilities2KHR.
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkSurfacePresentModeCompatibilityKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_COMPATIBILITY_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  /// Optional: true
+  pub presentModeCount: u32,
+  /// Optional: true,  Length: presentModeCount
+  pub pPresentModes: *mut VkPresentModeKHR,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+unsafe impl<'a> Send for VkSurfacePresentModeCompatibilityKHR<'a> {}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+unsafe impl<'a> Sync for VkSurfacePresentModeCompatibilityKHR<'a> {}
+#[cfg(all(
+  any(
+    feature = "VK_KHR_surface_maintenance1",
+    feature = "VK_EXT_surface_maintenance1"
+  ),
+  feature = "VK_KHR_get_surface_capabilities2"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkSurfaceCapabilities2KHR<'root>>
+  for VkSurfacePresentModeCompatibilityKHR<'child>
+{
+}
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
+impl<'a> VkSurfacePresentModeCompatibilityKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::SURFACE_PRESENT_MODE_COMPATIBILITY_KHR,
+    pNext: core::ptr::null_mut(),
+    presentModeCount: 0,
+    pPresentModes: core::ptr::null_mut(),
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_presentModeCount(mut self, val: u32) -> Self {
+    self.presentModeCount = val;
+    self
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pPresentModes(mut self, val: &'a mut [VkPresentModeKHR]) -> Self {
+    self.presentModeCount = val.len() as u32;
+    self.pPresentModes = val.as_mut_ptr();
+    self
+  }
+  #[cfg(feature = "VK_KHR_get_surface_capabilities2")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkSurfaceCapabilities2KHR<
+    'root,
+    T: VkPNextExtends<VkSurfaceCapabilities2KHR<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR.html)
+///
+/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  pub swapchainMaintenance1: VkBool32,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
+unsafe impl<'a> Send for VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR<'a> {}
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
+unsafe impl<'a> Sync for VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR<'a> {}
+#[cfg(all(
+  any(
+    feature = "VK_KHR_swapchain_maintenance1",
+    feature = "VK_EXT_swapchain_maintenance1"
+  ),
+  feature = "VK_BASE_VERSION_1_1"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
+  for VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR<'child>
+{
+}
+#[cfg(all(
+  any(
+    feature = "VK_KHR_swapchain_maintenance1",
+    feature = "VK_EXT_swapchain_maintenance1"
+  ),
+  feature = "VK_BASE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
+  for VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR<'child>
+{
+}
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
+impl<'a> VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_KHR,
+    pNext: core::ptr::null_mut(),
+    swapchainMaintenance1: 0,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_swapchainMaintenance1(mut self, val: VkBool32) -> Self {
+    self.swapchainMaintenance1 = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkDeviceCreateInfo<
+    'root,
+    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkSwapchainPresentFenceInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkSwapchainPresentFenceInfoKHR.html)
+///
+/// **Extends:** VkPresentInfoKHR.
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkSwapchainPresentFenceInfoKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *const c_void,
+  pub swapchainCount: u32,
+  /// Optional: pointer required, values optional if pointer not null,  Length: swapchainCount
+  pub pFences: *const VkFence,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
+unsafe impl<'a> Send for VkSwapchainPresentFenceInfoKHR<'a> {}
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
+unsafe impl<'a> Sync for VkSwapchainPresentFenceInfoKHR<'a> {}
+#[cfg(all(
+  any(
+    feature = "VK_KHR_swapchain_maintenance1",
+    feature = "VK_EXT_swapchain_maintenance1"
+  ),
+  feature = "VK_KHR_swapchain"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPresentInfoKHR<'root>>
+  for VkSwapchainPresentFenceInfoKHR<'child>
+{
+}
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
+impl<'a> VkSwapchainPresentFenceInfoKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::SWAPCHAIN_PRESENT_FENCE_INFO_KHR,
+    pNext: core::ptr::null(),
+    swapchainCount: 0,
+    pFences: core::ptr::null(),
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_swapchainCount(mut self, val: u32) -> Self {
+    self.swapchainCount = val;
+    self
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pFences(mut self, val: &'a [VkFence]) -> Self {
+    self.swapchainCount = val.len() as u32;
+    self.pFences = val.as_ptr();
+    self
+  }
+  #[cfg(feature = "VK_KHR_swapchain")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPresentInfoKHR<
+    'root,
+    T: VkPNextExtends<VkPresentInfoKHR<'root>>,
+  >(
+    mut self,
+    val: &'a T,
+  ) -> Self {
+    self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+}
+/// [VkSwapchainPresentModesCreateInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkSwapchainPresentModesCreateInfoKHR.html)
+///
+/// **Extends:** VkSwapchainCreateInfoKHR.
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkSwapchainPresentModesCreateInfoKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODES_CREATE_INFO_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *const c_void,
+  pub presentModeCount: u32,
+  /// Length: presentModeCount
+  pub pPresentModes: *const VkPresentModeKHR,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
+unsafe impl<'a> Send for VkSwapchainPresentModesCreateInfoKHR<'a> {}
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
+unsafe impl<'a> Sync for VkSwapchainPresentModesCreateInfoKHR<'a> {}
+#[cfg(all(
+  any(
+    feature = "VK_KHR_swapchain_maintenance1",
+    feature = "VK_EXT_swapchain_maintenance1"
+  ),
+  feature = "VK_KHR_swapchain"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkSwapchainCreateInfoKHR<'root>>
+  for VkSwapchainPresentModesCreateInfoKHR<'child>
+{
+}
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
+impl<'a> VkSwapchainPresentModesCreateInfoKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::SWAPCHAIN_PRESENT_MODES_CREATE_INFO_KHR,
+    pNext: core::ptr::null(),
+    presentModeCount: 0,
+    pPresentModes: core::ptr::null(),
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_presentModeCount(mut self, val: u32) -> Self {
+    self.presentModeCount = val;
+    self
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pPresentModes(mut self, val: &'a [VkPresentModeKHR]) -> Self {
+    self.presentModeCount = val.len() as u32;
+    self.pPresentModes = val.as_ptr();
+    self
+  }
+  #[cfg(feature = "VK_KHR_swapchain")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkSwapchainCreateInfoKHR<
+    'root,
+    T: VkPNextExtends<VkSwapchainCreateInfoKHR<'root>>,
+  >(
+    mut self,
+    val: &'a T,
+  ) -> Self {
+    self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+}
+/// [VkSwapchainPresentModeInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkSwapchainPresentModeInfoKHR.html)
+///
+/// **Extends:** VkPresentInfoKHR.
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkSwapchainPresentModeInfoKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODE_INFO_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *const c_void,
+  pub swapchainCount: u32,
+  /// Length: swapchainCount
+  pub pPresentModes: *const VkPresentModeKHR,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
+unsafe impl<'a> Send for VkSwapchainPresentModeInfoKHR<'a> {}
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
+unsafe impl<'a> Sync for VkSwapchainPresentModeInfoKHR<'a> {}
+#[cfg(all(
+  any(
+    feature = "VK_KHR_swapchain_maintenance1",
+    feature = "VK_EXT_swapchain_maintenance1"
+  ),
+  feature = "VK_KHR_swapchain"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPresentInfoKHR<'root>>
+  for VkSwapchainPresentModeInfoKHR<'child>
+{
+}
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
+impl<'a> VkSwapchainPresentModeInfoKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::SWAPCHAIN_PRESENT_MODE_INFO_KHR,
+    pNext: core::ptr::null(),
+    swapchainCount: 0,
+    pPresentModes: core::ptr::null(),
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_swapchainCount(mut self, val: u32) -> Self {
+    self.swapchainCount = val;
+    self
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pPresentModes(mut self, val: &'a [VkPresentModeKHR]) -> Self {
+    self.swapchainCount = val.len() as u32;
+    self.pPresentModes = val.as_ptr();
+    self
+  }
+  #[cfg(feature = "VK_KHR_swapchain")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPresentInfoKHR<
+    'root,
+    T: VkPNextExtends<VkPresentInfoKHR<'root>>,
+  >(
+    mut self,
+    val: &'a T,
+  ) -> Self {
+    self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+}
+/// [VkSwapchainPresentScalingCreateInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkSwapchainPresentScalingCreateInfoKHR.html)
+///
+/// **Extends:** VkSwapchainCreateInfoKHR.
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkSwapchainPresentScalingCreateInfoKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *const c_void,
+  /// Optional: true
+  pub scalingBehavior: VkPresentScalingFlagsKHR,
+  /// Optional: true
+  pub presentGravityX: VkPresentGravityFlagsKHR,
+  /// Optional: true
+  pub presentGravityY: VkPresentGravityFlagsKHR,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
+unsafe impl<'a> Send for VkSwapchainPresentScalingCreateInfoKHR<'a> {}
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
+unsafe impl<'a> Sync for VkSwapchainPresentScalingCreateInfoKHR<'a> {}
+#[cfg(all(
+  any(
+    feature = "VK_KHR_swapchain_maintenance1",
+    feature = "VK_EXT_swapchain_maintenance1"
+  ),
+  feature = "VK_KHR_swapchain"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkSwapchainCreateInfoKHR<'root>>
+  for VkSwapchainPresentScalingCreateInfoKHR<'child>
+{
+}
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
+impl<'a> VkSwapchainPresentScalingCreateInfoKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_KHR,
+    pNext: core::ptr::null(),
+    scalingBehavior: VkPresentScalingFlagBitsKHR(0),
+    presentGravityX: VkPresentGravityFlagBitsKHR(0),
+    presentGravityY: VkPresentGravityFlagBitsKHR(0),
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_scalingBehavior(mut self, val: VkPresentScalingFlagsKHR) -> Self {
+    self.scalingBehavior = val;
+    self
+  }
+  #[inline]
+  pub const fn with_presentGravityX(mut self, val: VkPresentGravityFlagsKHR) -> Self {
+    self.presentGravityX = val;
+    self
+  }
+  #[inline]
+  pub const fn with_presentGravityY(mut self, val: VkPresentGravityFlagsKHR) -> Self {
+    self.presentGravityY = val;
+    self
+  }
+  #[cfg(feature = "VK_KHR_swapchain")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkSwapchainCreateInfoKHR<
+    'root,
+    T: VkPNextExtends<VkSwapchainCreateInfoKHR<'root>>,
+  >(
+    mut self,
+    val: &'a T,
+  ) -> Self {
+    self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+}
+/// [VkReleaseSwapchainImagesInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkReleaseSwapchainImagesInfoKHR.html)
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkReleaseSwapchainImagesInfoKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_RELEASE_SWAPCHAIN_IMAGES_INFO_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *const c_void,
+  pub swapchain: VkSwapchainKHR,
+  pub imageIndexCount: u32,
+  /// Length: imageIndexCount
+  pub pImageIndices: *const u32,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
+unsafe impl<'a> Send for VkReleaseSwapchainImagesInfoKHR<'a> {}
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
+unsafe impl<'a> Sync for VkReleaseSwapchainImagesInfoKHR<'a> {}
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
+impl<'a> VkReleaseSwapchainImagesInfoKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::RELEASE_SWAPCHAIN_IMAGES_INFO_KHR,
+    pNext: core::ptr::null(),
+    swapchain: VkSwapchainKHR::DEFAULT,
+    imageIndexCount: 0,
+    pImageIndices: core::ptr::null(),
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_swapchain(mut self, val: VkSwapchainKHR) -> Self {
+    self.swapchain = val;
+    self
+  }
+  #[inline]
+  pub const fn with_imageIndexCount(mut self, val: u32) -> Self {
+    self.imageIndexCount = val;
+    self
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pImageIndices(mut self, val: &'a [u32]) -> Self {
+    self.imageIndexCount = val.len() as u32;
+    self.pImageIndices = val.as_ptr();
+    self
+  }
+  #[cfg(any(
+    feature = "VK_KHR_swapchain_maintenance1",
+    feature = "VK_EXT_swapchain_maintenance1"
+  ))]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkReleaseSwapchainImagesInfoKHR<
+    'root,
+    T: VkPNextExtends<VkReleaseSwapchainImagesInfoKHR<'root>>,
+  >(
+    mut self,
+    val: &'a T,
+  ) -> Self {
+    self.pNext = (val as *const T).cast::<c_void>();
+    self
+  }
+}
 /// [VkPhysicalDevice16BitStorageFeaturesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDevice16BitStorageFeaturesKHR.html)
 ///
 /// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
@@ -1200,38 +3192,9 @@ impl<'a> VkPhysicalDevice8BitStorageFeaturesKHR<'a> {
     self
   }
 }
-/// [VkGeometryFlagsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkGeometryFlagsKHR.html)
-#[cfg(feature = "VK_KHR_acceleration_structure")]
-pub type VkGeometryFlagsKHR = VkGeometryFlagBitsKHR;
-/// [VkGeometryInstanceFlagsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkGeometryInstanceFlagsKHR.html)
-#[cfg(feature = "VK_KHR_acceleration_structure")]
-pub type VkGeometryInstanceFlagsKHR = VkGeometryInstanceFlagBitsKHR;
-/// [VkBuildAccelerationStructureFlagsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkBuildAccelerationStructureFlagsKHR.html)
-#[cfg(feature = "VK_KHR_acceleration_structure")]
-pub type VkBuildAccelerationStructureFlagsKHR = VkBuildAccelerationStructureFlagBitsKHR;
 /// [VkAccelerationStructureCreateFlagsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkAccelerationStructureCreateFlagsKHR.html)
 #[cfg(feature = "VK_KHR_acceleration_structure")]
 pub type VkAccelerationStructureCreateFlagsKHR = VkAccelerationStructureCreateFlagBitsKHR;
-/// [VkAccelerationStructureKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkAccelerationStructureKHR.html)
-#[cfg(feature = "VK_KHR_acceleration_structure")]
-#[repr(transparent)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkAccelerationStructureKHR(pub u64);
-#[cfg(feature = "VK_KHR_acceleration_structure")]
-impl VkAccelerationStructureKHR {
-  pub const NULL: Self = Self(0);
-  pub const DEFAULT: Self = Self::NULL;
-}
-#[cfg(feature = "VK_KHR_acceleration_structure")]
-impl Default for VkAccelerationStructureKHR {
-  fn default() -> Self {
-    Self::NULL
-  }
-}
-#[cfg(feature = "VK_KHR_acceleration_structure")]
-unsafe impl Send for VkAccelerationStructureKHR {}
-#[cfg(feature = "VK_KHR_acceleration_structure")]
-unsafe impl Sync for VkAccelerationStructureKHR {}
 /// [VkWriteDescriptorSetAccelerationStructureKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkWriteDescriptorSetAccelerationStructureKHR.html)
 ///
 /// **Extends:** VkWriteDescriptorSet.
@@ -2323,155 +4286,6 @@ impl<'a> VkAccelerationStructureCreateInfoKHR<'a> {
     self
   }
 }
-/// [VkAabbPositionsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkAabbPositionsKHR.html)
-#[cfg(feature = "VK_KHR_acceleration_structure")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkAabbPositionsKHR {
-  pub minX: f32,
-  pub minY: f32,
-  pub minZ: f32,
-  pub maxX: f32,
-  pub maxY: f32,
-  pub maxZ: f32,
-}
-#[cfg(feature = "VK_KHR_acceleration_structure")]
-unsafe impl Send for VkAabbPositionsKHR {}
-#[cfg(feature = "VK_KHR_acceleration_structure")]
-unsafe impl Sync for VkAabbPositionsKHR {}
-#[cfg(feature = "VK_KHR_acceleration_structure")]
-impl VkAabbPositionsKHR {
-  pub const DEFAULT: Self = Self {
-    minX: 0.0f32,
-    minY: 0.0f32,
-    minZ: 0.0f32,
-    maxX: 0.0f32,
-    maxY: 0.0f32,
-    maxZ: 0.0f32,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  #[inline]
-  pub const fn with_minX(mut self, val: f32) -> Self {
-    self.minX = val;
-    self
-  }
-  #[inline]
-  pub const fn with_minY(mut self, val: f32) -> Self {
-    self.minY = val;
-    self
-  }
-  #[inline]
-  pub const fn with_minZ(mut self, val: f32) -> Self {
-    self.minZ = val;
-    self
-  }
-  #[inline]
-  pub const fn with_maxX(mut self, val: f32) -> Self {
-    self.maxX = val;
-    self
-  }
-  #[inline]
-  pub const fn with_maxY(mut self, val: f32) -> Self {
-    self.maxY = val;
-    self
-  }
-  #[inline]
-  pub const fn with_maxZ(mut self, val: f32) -> Self {
-    self.maxZ = val;
-    self
-  }
-}
-/// [VkTransformMatrixKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkTransformMatrixKHR.html)
-#[cfg(feature = "VK_KHR_acceleration_structure")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkTransformMatrixKHR {
-  pub matrix: [f32; 3],
-}
-#[cfg(feature = "VK_KHR_acceleration_structure")]
-unsafe impl Send for VkTransformMatrixKHR {}
-#[cfg(feature = "VK_KHR_acceleration_structure")]
-unsafe impl Sync for VkTransformMatrixKHR {}
-#[cfg(feature = "VK_KHR_acceleration_structure")]
-impl VkTransformMatrixKHR {
-  pub const DEFAULT: Self = Self {
-    matrix: [0.0f32; 3],
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  #[inline]
-  pub const fn with_matrix(mut self, val: [f32; 3]) -> Self {
-    self.matrix = val;
-    self
-  }
-}
-/// [VkAccelerationStructureInstanceKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkAccelerationStructureInstanceKHR.html)
-#[cfg(feature = "VK_KHR_acceleration_structure")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkAccelerationStructureInstanceKHR {
-  pub transform: VkTransformMatrixKHR,
-  pub instanceCustomIndex: u32,
-  pub mask: u32,
-  pub instanceShaderBindingTableRecordOffset: u32,
-  /// Optional: true
-  pub flags: VkGeometryInstanceFlagsKHR,
-  pub accelerationStructureReference: u64,
-}
-#[cfg(feature = "VK_KHR_acceleration_structure")]
-unsafe impl Send for VkAccelerationStructureInstanceKHR {}
-#[cfg(feature = "VK_KHR_acceleration_structure")]
-unsafe impl Sync for VkAccelerationStructureInstanceKHR {}
-#[cfg(feature = "VK_KHR_acceleration_structure")]
-impl VkAccelerationStructureInstanceKHR {
-  pub const DEFAULT: Self = Self {
-    transform: VkTransformMatrixKHR::DEFAULT,
-    instanceCustomIndex: 0,
-    mask: 0,
-    instanceShaderBindingTableRecordOffset: 0,
-    flags: VkGeometryInstanceFlagBitsKHR(0),
-    accelerationStructureReference: 0,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  #[inline]
-  pub const fn with_transform(mut self, val: VkTransformMatrixKHR) -> Self {
-    self.transform = val;
-    self
-  }
-  #[inline]
-  pub const fn with_instanceCustomIndex(mut self, val: u32) -> Self {
-    self.instanceCustomIndex = val;
-    self
-  }
-  #[inline]
-  pub const fn with_mask(mut self, val: u32) -> Self {
-    self.mask = val;
-    self
-  }
-  #[inline]
-  pub const fn with_instanceShaderBindingTableRecordOffset(mut self, val: u32) -> Self {
-    self.instanceShaderBindingTableRecordOffset = val;
-    self
-  }
-  #[inline]
-  pub const fn with_flags(mut self, val: VkGeometryInstanceFlagsKHR) -> Self {
-    self.flags = val;
-    self
-  }
-  #[inline]
-  pub const fn with_accelerationStructureReference(mut self, val: u64) -> Self {
-    self.accelerationStructureReference = val;
-    self
-  }
-}
 /// [VkAccelerationStructureDeviceAddressInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkAccelerationStructureDeviceAddressInfoKHR.html)
 #[cfg(feature = "VK_KHR_acceleration_structure")]
 #[repr(C)]
@@ -2982,6 +4796,209 @@ impl<'a> core::fmt::Debug for VkDeviceOrHostAddressConstKHR<'a> {
     f.debug_struct("VkDeviceOrHostAddressConstKHR")
       .field("deviceAddress", unsafe { &self.deviceAddress })
       .finish()
+  }
+}
+/// [VkGeometryFlagsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkGeometryFlagsKHR.html)
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
+pub type VkGeometryFlagsKHR = VkGeometryFlagBitsKHR;
+/// [VkGeometryInstanceFlagsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkGeometryInstanceFlagsKHR.html)
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
+pub type VkGeometryInstanceFlagsKHR = VkGeometryInstanceFlagBitsKHR;
+/// [VkBuildAccelerationStructureFlagsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkBuildAccelerationStructureFlagsKHR.html)
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
+pub type VkBuildAccelerationStructureFlagsKHR = VkBuildAccelerationStructureFlagBitsKHR;
+/// [VkAabbPositionsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkAabbPositionsKHR.html)
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkAabbPositionsKHR {
+  pub minX: f32,
+  pub minY: f32,
+  pub minZ: f32,
+  pub maxX: f32,
+  pub maxY: f32,
+  pub maxZ: f32,
+}
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
+unsafe impl Send for VkAabbPositionsKHR {}
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
+unsafe impl Sync for VkAabbPositionsKHR {}
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
+impl VkAabbPositionsKHR {
+  pub const DEFAULT: Self = Self {
+    minX: 0.0f32,
+    minY: 0.0f32,
+    minZ: 0.0f32,
+    maxX: 0.0f32,
+    maxY: 0.0f32,
+    maxZ: 0.0f32,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  #[inline]
+  pub const fn with_minX(mut self, val: f32) -> Self {
+    self.minX = val;
+    self
+  }
+  #[inline]
+  pub const fn with_minY(mut self, val: f32) -> Self {
+    self.minY = val;
+    self
+  }
+  #[inline]
+  pub const fn with_minZ(mut self, val: f32) -> Self {
+    self.minZ = val;
+    self
+  }
+  #[inline]
+  pub const fn with_maxX(mut self, val: f32) -> Self {
+    self.maxX = val;
+    self
+  }
+  #[inline]
+  pub const fn with_maxY(mut self, val: f32) -> Self {
+    self.maxY = val;
+    self
+  }
+  #[inline]
+  pub const fn with_maxZ(mut self, val: f32) -> Self {
+    self.maxZ = val;
+    self
+  }
+}
+/// [VkTransformMatrixKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkTransformMatrixKHR.html)
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkTransformMatrixKHR {
+  pub matrix: [f32; 3],
+}
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
+unsafe impl Send for VkTransformMatrixKHR {}
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
+unsafe impl Sync for VkTransformMatrixKHR {}
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
+impl VkTransformMatrixKHR {
+  pub const DEFAULT: Self = Self {
+    matrix: [0.0f32; 3],
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  #[inline]
+  pub const fn with_matrix(mut self, val: [f32; 3]) -> Self {
+    self.matrix = val;
+    self
+  }
+}
+/// [VkAccelerationStructureInstanceKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkAccelerationStructureInstanceKHR.html)
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkAccelerationStructureInstanceKHR {
+  pub transform: VkTransformMatrixKHR,
+  pub instanceCustomIndex: u32,
+  pub mask: u32,
+  pub instanceShaderBindingTableRecordOffset: u32,
+  /// Optional: true
+  pub flags: VkGeometryInstanceFlagsKHR,
+  pub accelerationStructureReference: u64,
+}
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
+unsafe impl Send for VkAccelerationStructureInstanceKHR {}
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
+unsafe impl Sync for VkAccelerationStructureInstanceKHR {}
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
+impl VkAccelerationStructureInstanceKHR {
+  pub const DEFAULT: Self = Self {
+    transform: VkTransformMatrixKHR::DEFAULT,
+    instanceCustomIndex: 0,
+    mask: 0,
+    instanceShaderBindingTableRecordOffset: 0,
+    flags: VkGeometryInstanceFlagBitsKHR(0),
+    accelerationStructureReference: 0,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  #[inline]
+  pub const fn with_transform(mut self, val: VkTransformMatrixKHR) -> Self {
+    self.transform = val;
+    self
+  }
+  #[inline]
+  pub const fn with_instanceCustomIndex(mut self, val: u32) -> Self {
+    self.instanceCustomIndex = val;
+    self
+  }
+  #[inline]
+  pub const fn with_mask(mut self, val: u32) -> Self {
+    self.mask = val;
+    self
+  }
+  #[inline]
+  pub const fn with_instanceShaderBindingTableRecordOffset(mut self, val: u32) -> Self {
+    self.instanceShaderBindingTableRecordOffset = val;
+    self
+  }
+  #[inline]
+  pub const fn with_flags(mut self, val: VkGeometryInstanceFlagsKHR) -> Self {
+    self.flags = val;
+    self
+  }
+  #[inline]
+  pub const fn with_accelerationStructureReference(mut self, val: u64) -> Self {
+    self.accelerationStructureReference = val;
+    self
   }
 }
 /// [ANativeWindow](https://docs.vulkan.org/refpages/latest/refpages/source/ANativeWindow.html)
@@ -3573,174 +5590,6 @@ impl<'a> VkDeviceMemoryOpaqueCaptureAddressInfoKHR<'a> {
     self
   }
 }
-/// [VkCalibratedTimestampInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkCalibratedTimestampInfoKHR.html)
-#[cfg(feature = "VK_KHR_calibrated_timestamps")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkCalibratedTimestampInfoKHR<'a> {
-  /// Values: VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_KHR
-  pub sType: VkStructureType,
-  /// Optional: true
-  pub pNext: *const c_void,
-  pub timeDomain: VkTimeDomainKHR,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
-}
-#[cfg(feature = "VK_KHR_calibrated_timestamps")]
-unsafe impl<'a> Send for VkCalibratedTimestampInfoKHR<'a> {}
-#[cfg(feature = "VK_KHR_calibrated_timestamps")]
-unsafe impl<'a> Sync for VkCalibratedTimestampInfoKHR<'a> {}
-#[cfg(feature = "VK_KHR_calibrated_timestamps")]
-impl<'a> VkCalibratedTimestampInfoKHR<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::CALIBRATED_TIMESTAMP_INFO_KHR,
-    pNext: core::ptr::null(),
-    timeDomain: VkTimeDomainKHR(0),
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[inline]
-  pub const fn with_timeDomain(mut self, val: VkTimeDomainKHR) -> Self {
-    self.timeDomain = val;
-    self
-  }
-  #[cfg(feature = "VK_EXT_present_timing")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_VkSwapchainCalibratedTimestampInfoEXT<'child>(
-    mut self,
-    val: &'a VkSwapchainCalibratedTimestampInfoEXT<'child>,
-  ) -> Self {
-    self.pNext = (val as *const VkSwapchainCalibratedTimestampInfoEXT<'child>).cast::<c_void>();
-    self
-  }
-  #[cfg(feature = "VK_KHR_calibrated_timestamps")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkCalibratedTimestampInfoKHR<
-    'root,
-    T: VkPNextExtends<VkCalibratedTimestampInfoKHR<'root>>,
-  >(
-    mut self,
-    val: &'a T,
-  ) -> Self {
-    self.pNext = (val as *const T).cast::<c_void>();
-    self
-  }
-}
-/// [VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR.html)
-///
-/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
-#[cfg(feature = "VK_KHR_compute_shader_derivatives")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR<'a> {
-  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_SHADER_DERIVATIVES_FEATURES_KHR
-  pub sType: VkStructureType,
-  /// Optional: true
-  pub pNext: *mut c_void,
-  pub computeDerivativeGroupQuads: VkBool32,
-  pub computeDerivativeGroupLinear: VkBool32,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
-}
-#[cfg(feature = "VK_KHR_compute_shader_derivatives")]
-unsafe impl<'a> Send for VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR<'a> {}
-#[cfg(feature = "VK_KHR_compute_shader_derivatives")]
-unsafe impl<'a> Sync for VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR<'a> {}
-#[cfg(all(
-  feature = "VK_KHR_compute_shader_derivatives",
-  feature = "VK_BASE_VERSION_1_1"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
-  for VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR<'child>
-{
-}
-#[cfg(all(
-  feature = "VK_KHR_compute_shader_derivatives",
-  feature = "VK_BASE_VERSION_1_0"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
-  for VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR<'child>
-{
-}
-#[cfg(feature = "VK_KHR_compute_shader_derivatives")]
-impl<'a> VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::PHYSICAL_DEVICE_COMPUTE_SHADER_DERIVATIVES_FEATURES_KHR,
-    pNext: core::ptr::null_mut(),
-    computeDerivativeGroupQuads: 0,
-    computeDerivativeGroupLinear: 0,
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[inline]
-  pub const fn with_computeDerivativeGroupQuads(mut self, val: VkBool32) -> Self {
-    self.computeDerivativeGroupQuads = val;
-    self
-  }
-  #[inline]
-  pub const fn with_computeDerivativeGroupLinear(mut self, val: VkBool32) -> Self {
-    self.computeDerivativeGroupLinear = val;
-    self
-  }
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
-    'root,
-    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
-  >(
-    mut self,
-    val: &'a mut T,
-  ) -> Self {
-    self.pNext = (val as *mut T).cast::<c_void>();
-    self
-  }
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkDeviceCreateInfo<
-    'root,
-    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
-  >(
-    mut self,
-    val: &'a mut T,
-  ) -> Self {
-    self.pNext = (val as *mut T).cast::<c_void>();
-    self
-  }
-}
 /// [VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR.html)
 ///
 /// *Note: This is a **returned only** struct.*
@@ -3806,6 +5655,122 @@ impl<'a> VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR<'a> {
   pub const fn with_pNext_chain_VkPhysicalDeviceProperties2<
     'root,
     T: VkPNextExtends<VkPhysicalDeviceProperties2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR.html)
+///
+/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
+#[cfg(any(
+  feature = "VK_KHR_compute_shader_derivatives",
+  feature = "VK_NV_compute_shader_derivatives"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_SHADER_DERIVATIVES_FEATURES_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  pub computeDerivativeGroupQuads: VkBool32,
+  pub computeDerivativeGroupLinear: VkBool32,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(
+  feature = "VK_KHR_compute_shader_derivatives",
+  feature = "VK_NV_compute_shader_derivatives"
+))]
+unsafe impl<'a> Send for VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR<'a> {}
+#[cfg(any(
+  feature = "VK_KHR_compute_shader_derivatives",
+  feature = "VK_NV_compute_shader_derivatives"
+))]
+unsafe impl<'a> Sync for VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR<'a> {}
+#[cfg(all(
+  any(
+    feature = "VK_KHR_compute_shader_derivatives",
+    feature = "VK_NV_compute_shader_derivatives"
+  ),
+  feature = "VK_BASE_VERSION_1_1"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
+  for VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR<'child>
+{
+}
+#[cfg(all(
+  any(
+    feature = "VK_KHR_compute_shader_derivatives",
+    feature = "VK_NV_compute_shader_derivatives"
+  ),
+  feature = "VK_BASE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
+  for VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR<'child>
+{
+}
+#[cfg(any(
+  feature = "VK_KHR_compute_shader_derivatives",
+  feature = "VK_NV_compute_shader_derivatives"
+))]
+impl<'a> VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::PHYSICAL_DEVICE_COMPUTE_SHADER_DERIVATIVES_FEATURES_KHR,
+    pNext: core::ptr::null_mut(),
+    computeDerivativeGroupQuads: 0,
+    computeDerivativeGroupLinear: 0,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_computeDerivativeGroupQuads(mut self, val: VkBool32) -> Self {
+    self.computeDerivativeGroupQuads = val;
+    self
+  }
+  #[inline]
+  pub const fn with_computeDerivativeGroupLinear(mut self, val: VkBool32) -> Self {
+    self.computeDerivativeGroupLinear = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkDeviceCreateInfo<
+    'root,
+    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
   >(
     mut self,
     val: &'a mut T,
@@ -5079,46 +7044,6 @@ impl<'a> VkResolveImageInfo2KHR<'a> {
 /// [VkAddressCopyFlagsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkAddressCopyFlagsKHR.html)
 #[cfg(feature = "VK_KHR_copy_memory_indirect")]
 pub type VkAddressCopyFlagsKHR = VkAddressCopyFlagBitsKHR;
-/// [VkCopyMemoryIndirectCommandKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkCopyMemoryIndirectCommandKHR.html)
-#[cfg(feature = "VK_KHR_copy_memory_indirect")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkCopyMemoryIndirectCommandKHR {
-  pub srcAddress: VkDeviceAddress,
-  pub dstAddress: VkDeviceAddress,
-  pub size: VkDeviceSize,
-}
-#[cfg(feature = "VK_KHR_copy_memory_indirect")]
-unsafe impl Send for VkCopyMemoryIndirectCommandKHR {}
-#[cfg(feature = "VK_KHR_copy_memory_indirect")]
-unsafe impl Sync for VkCopyMemoryIndirectCommandKHR {}
-#[cfg(feature = "VK_KHR_copy_memory_indirect")]
-impl VkCopyMemoryIndirectCommandKHR {
-  pub const DEFAULT: Self = Self {
-    srcAddress: 0,
-    dstAddress: 0,
-    size: 0,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  #[inline]
-  pub const fn with_srcAddress(mut self, val: VkDeviceAddress) -> Self {
-    self.srcAddress = val;
-    self
-  }
-  #[inline]
-  pub const fn with_dstAddress(mut self, val: VkDeviceAddress) -> Self {
-    self.dstAddress = val;
-    self
-  }
-  #[inline]
-  pub const fn with_size(mut self, val: VkDeviceSize) -> Self {
-    self.size = val;
-    self
-  }
-}
 /// [VkCopyMemoryIndirectInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkCopyMemoryIndirectInfoKHR.html)
 #[cfg(feature = "VK_KHR_copy_memory_indirect")]
 #[repr(C)]
@@ -5197,67 +7122,6 @@ impl<'a> VkCopyMemoryIndirectInfoKHR<'a> {
     val: &'a T,
   ) -> Self {
     self.pNext = (val as *const T).cast::<c_void>();
-    self
-  }
-}
-/// [VkCopyMemoryToImageIndirectCommandKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkCopyMemoryToImageIndirectCommandKHR.html)
-#[cfg(feature = "VK_KHR_copy_memory_indirect")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkCopyMemoryToImageIndirectCommandKHR {
-  pub srcAddress: VkDeviceAddress,
-  pub bufferRowLength: u32,
-  pub bufferImageHeight: u32,
-  pub imageSubresource: VkImageSubresourceLayers,
-  pub imageOffset: VkOffset3D,
-  pub imageExtent: VkExtent3D,
-}
-#[cfg(feature = "VK_KHR_copy_memory_indirect")]
-unsafe impl Send for VkCopyMemoryToImageIndirectCommandKHR {}
-#[cfg(feature = "VK_KHR_copy_memory_indirect")]
-unsafe impl Sync for VkCopyMemoryToImageIndirectCommandKHR {}
-#[cfg(feature = "VK_KHR_copy_memory_indirect")]
-impl VkCopyMemoryToImageIndirectCommandKHR {
-  pub const DEFAULT: Self = Self {
-    srcAddress: 0,
-    bufferRowLength: 0,
-    bufferImageHeight: 0,
-    imageSubresource: VkImageSubresourceLayers::DEFAULT,
-    imageOffset: VkOffset3D::DEFAULT,
-    imageExtent: VkExtent3D::DEFAULT,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  #[inline]
-  pub const fn with_srcAddress(mut self, val: VkDeviceAddress) -> Self {
-    self.srcAddress = val;
-    self
-  }
-  #[inline]
-  pub const fn with_bufferRowLength(mut self, val: u32) -> Self {
-    self.bufferRowLength = val;
-    self
-  }
-  #[inline]
-  pub const fn with_bufferImageHeight(mut self, val: u32) -> Self {
-    self.bufferImageHeight = val;
-    self
-  }
-  #[inline]
-  pub const fn with_imageSubresource(mut self, val: VkImageSubresourceLayers) -> Self {
-    self.imageSubresource = val;
-    self
-  }
-  #[inline]
-  pub const fn with_imageOffset(mut self, val: VkOffset3D) -> Self {
-    self.imageOffset = val;
-    self
-  }
-  #[inline]
-  pub const fn with_imageExtent(mut self, val: VkExtent3D) -> Self {
-    self.imageExtent = val;
     self
   }
 }
@@ -5458,79 +7322,6 @@ impl<'a> VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR<'a> {
     self
   }
 }
-/// [VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR.html)
-///
-/// *Note: This is a **returned only** struct.*
-///
-/// *Note: This struct has **required limit types**.*
-///
-/// **Extends:** VkPhysicalDeviceProperties2.
-#[cfg(feature = "VK_KHR_copy_memory_indirect")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR<'a> {
-  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_PROPERTIES_KHR
-  pub sType: VkStructureType,
-  /// Optional: true
-  pub pNext: *mut c_void,
-  /// Limit Type: [Bitmask],  No Auto-Validity
-  pub supportedQueues: VkQueueFlags,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
-}
-#[cfg(feature = "VK_KHR_copy_memory_indirect")]
-unsafe impl<'a> Send for VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR<'a> {}
-#[cfg(feature = "VK_KHR_copy_memory_indirect")]
-unsafe impl<'a> Sync for VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR<'a> {}
-#[cfg(all(
-  feature = "VK_KHR_copy_memory_indirect",
-  feature = "VK_BASE_VERSION_1_1"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
-  for VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR<'child>
-{
-}
-#[cfg(feature = "VK_KHR_copy_memory_indirect")]
-impl<'a> VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_PROPERTIES_KHR,
-    pNext: core::ptr::null_mut(),
-    supportedQueues: VkQueueFlagBits(0),
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[inline]
-  pub const fn with_supportedQueues(mut self, val: VkQueueFlags) -> Self {
-    self.supportedQueues = val;
-    self
-  }
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkPhysicalDeviceProperties2<
-    'root,
-    T: VkPNextExtends<VkPhysicalDeviceProperties2<'root>>,
-  >(
-    mut self,
-    val: &'a mut T,
-  ) -> Self {
-    self.pNext = (val as *mut T).cast::<c_void>();
-    self
-  }
-}
 /// [VkStridedDeviceAddressRangeKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkStridedDeviceAddressRangeKHR.html)
 #[cfg(any(
   feature = "VK_KHR_device_address_commands",
@@ -5581,6 +7372,219 @@ impl VkStridedDeviceAddressRangeKHR {
   #[inline]
   pub const fn with_stride(mut self, val: VkDeviceSize) -> Self {
     self.stride = val;
+    self
+  }
+}
+/// [VkCopyMemoryIndirectCommandKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkCopyMemoryIndirectCommandKHR.html)
+#[cfg(any(
+  feature = "VK_KHR_copy_memory_indirect",
+  feature = "VK_NV_copy_memory_indirect"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkCopyMemoryIndirectCommandKHR {
+  pub srcAddress: VkDeviceAddress,
+  pub dstAddress: VkDeviceAddress,
+  pub size: VkDeviceSize,
+}
+#[cfg(any(
+  feature = "VK_KHR_copy_memory_indirect",
+  feature = "VK_NV_copy_memory_indirect"
+))]
+unsafe impl Send for VkCopyMemoryIndirectCommandKHR {}
+#[cfg(any(
+  feature = "VK_KHR_copy_memory_indirect",
+  feature = "VK_NV_copy_memory_indirect"
+))]
+unsafe impl Sync for VkCopyMemoryIndirectCommandKHR {}
+#[cfg(any(
+  feature = "VK_KHR_copy_memory_indirect",
+  feature = "VK_NV_copy_memory_indirect"
+))]
+impl VkCopyMemoryIndirectCommandKHR {
+  pub const DEFAULT: Self = Self {
+    srcAddress: 0,
+    dstAddress: 0,
+    size: 0,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  #[inline]
+  pub const fn with_srcAddress(mut self, val: VkDeviceAddress) -> Self {
+    self.srcAddress = val;
+    self
+  }
+  #[inline]
+  pub const fn with_dstAddress(mut self, val: VkDeviceAddress) -> Self {
+    self.dstAddress = val;
+    self
+  }
+  #[inline]
+  pub const fn with_size(mut self, val: VkDeviceSize) -> Self {
+    self.size = val;
+    self
+  }
+}
+/// [VkCopyMemoryToImageIndirectCommandKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkCopyMemoryToImageIndirectCommandKHR.html)
+#[cfg(any(
+  feature = "VK_KHR_copy_memory_indirect",
+  feature = "VK_NV_copy_memory_indirect"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkCopyMemoryToImageIndirectCommandKHR {
+  pub srcAddress: VkDeviceAddress,
+  pub bufferRowLength: u32,
+  pub bufferImageHeight: u32,
+  pub imageSubresource: VkImageSubresourceLayers,
+  pub imageOffset: VkOffset3D,
+  pub imageExtent: VkExtent3D,
+}
+#[cfg(any(
+  feature = "VK_KHR_copy_memory_indirect",
+  feature = "VK_NV_copy_memory_indirect"
+))]
+unsafe impl Send for VkCopyMemoryToImageIndirectCommandKHR {}
+#[cfg(any(
+  feature = "VK_KHR_copy_memory_indirect",
+  feature = "VK_NV_copy_memory_indirect"
+))]
+unsafe impl Sync for VkCopyMemoryToImageIndirectCommandKHR {}
+#[cfg(any(
+  feature = "VK_KHR_copy_memory_indirect",
+  feature = "VK_NV_copy_memory_indirect"
+))]
+impl VkCopyMemoryToImageIndirectCommandKHR {
+  pub const DEFAULT: Self = Self {
+    srcAddress: 0,
+    bufferRowLength: 0,
+    bufferImageHeight: 0,
+    imageSubresource: VkImageSubresourceLayers::DEFAULT,
+    imageOffset: VkOffset3D::DEFAULT,
+    imageExtent: VkExtent3D::DEFAULT,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  #[inline]
+  pub const fn with_srcAddress(mut self, val: VkDeviceAddress) -> Self {
+    self.srcAddress = val;
+    self
+  }
+  #[inline]
+  pub const fn with_bufferRowLength(mut self, val: u32) -> Self {
+    self.bufferRowLength = val;
+    self
+  }
+  #[inline]
+  pub const fn with_bufferImageHeight(mut self, val: u32) -> Self {
+    self.bufferImageHeight = val;
+    self
+  }
+  #[inline]
+  pub const fn with_imageSubresource(mut self, val: VkImageSubresourceLayers) -> Self {
+    self.imageSubresource = val;
+    self
+  }
+  #[inline]
+  pub const fn with_imageOffset(mut self, val: VkOffset3D) -> Self {
+    self.imageOffset = val;
+    self
+  }
+  #[inline]
+  pub const fn with_imageExtent(mut self, val: VkExtent3D) -> Self {
+    self.imageExtent = val;
+    self
+  }
+}
+/// [VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR.html)
+///
+/// *Note: This is a **returned only** struct.*
+///
+/// *Note: This struct has **required limit types**.*
+///
+/// **Extends:** VkPhysicalDeviceProperties2.
+#[cfg(any(
+  feature = "VK_KHR_copy_memory_indirect",
+  feature = "VK_NV_copy_memory_indirect"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_PROPERTIES_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  /// Limit Type: [Bitmask],  No Auto-Validity
+  pub supportedQueues: VkQueueFlags,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(
+  feature = "VK_KHR_copy_memory_indirect",
+  feature = "VK_NV_copy_memory_indirect"
+))]
+unsafe impl<'a> Send for VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR<'a> {}
+#[cfg(any(
+  feature = "VK_KHR_copy_memory_indirect",
+  feature = "VK_NV_copy_memory_indirect"
+))]
+unsafe impl<'a> Sync for VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR<'a> {}
+#[cfg(all(
+  any(
+    feature = "VK_KHR_copy_memory_indirect",
+    feature = "VK_NV_copy_memory_indirect"
+  ),
+  feature = "VK_BASE_VERSION_1_1"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
+  for VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR<'child>
+{
+}
+#[cfg(any(
+  feature = "VK_KHR_copy_memory_indirect",
+  feature = "VK_NV_copy_memory_indirect"
+))]
+impl<'a> VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_PROPERTIES_KHR,
+    pNext: core::ptr::null_mut(),
+    supportedQueues: VkQueueFlagBits(0),
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_supportedQueues(mut self, val: VkQueueFlags) -> Self {
+    self.supportedQueues = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceProperties2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceProperties2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
     self
   }
 }
@@ -6481,97 +8485,6 @@ impl Default for VkDeferredOperationKHR {
 unsafe impl Send for VkDeferredOperationKHR {}
 #[cfg(feature = "VK_KHR_deferred_host_operations")]
 unsafe impl Sync for VkDeferredOperationKHR {}
-/// [VkPhysicalDeviceDepthClampZeroOneFeaturesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceDepthClampZeroOneFeaturesKHR.html)
-///
-/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
-#[cfg(feature = "VK_KHR_depth_clamp_zero_one")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkPhysicalDeviceDepthClampZeroOneFeaturesKHR<'a> {
-  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_ZERO_ONE_FEATURES_KHR
-  pub sType: VkStructureType,
-  /// Optional: true
-  pub pNext: *mut c_void,
-  pub depthClampZeroOne: VkBool32,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
-}
-#[cfg(feature = "VK_KHR_depth_clamp_zero_one")]
-unsafe impl<'a> Send for VkPhysicalDeviceDepthClampZeroOneFeaturesKHR<'a> {}
-#[cfg(feature = "VK_KHR_depth_clamp_zero_one")]
-unsafe impl<'a> Sync for VkPhysicalDeviceDepthClampZeroOneFeaturesKHR<'a> {}
-#[cfg(all(
-  feature = "VK_KHR_depth_clamp_zero_one",
-  feature = "VK_BASE_VERSION_1_1"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
-  for VkPhysicalDeviceDepthClampZeroOneFeaturesKHR<'child>
-{
-}
-#[cfg(all(
-  feature = "VK_KHR_depth_clamp_zero_one",
-  feature = "VK_BASE_VERSION_1_0"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
-  for VkPhysicalDeviceDepthClampZeroOneFeaturesKHR<'child>
-{
-}
-#[cfg(feature = "VK_KHR_depth_clamp_zero_one")]
-impl<'a> VkPhysicalDeviceDepthClampZeroOneFeaturesKHR<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::PHYSICAL_DEVICE_DEPTH_CLAMP_ZERO_ONE_FEATURES_KHR,
-    pNext: core::ptr::null_mut(),
-    depthClampZeroOne: 0,
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[inline]
-  pub const fn with_depthClampZeroOne(mut self, val: VkBool32) -> Self {
-    self.depthClampZeroOne = val;
-    self
-  }
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
-    'root,
-    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
-  >(
-    mut self,
-    val: &'a mut T,
-  ) -> Self {
-    self.pNext = (val as *mut T).cast::<c_void>();
-    self
-  }
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkDeviceCreateInfo<
-    'root,
-    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
-  >(
-    mut self,
-    val: &'a mut T,
-  ) -> Self {
-    self.pNext = (val as *mut T).cast::<c_void>();
-    self
-  }
-}
 /// [VkResolveModeFlagsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkResolveModeFlagsKHR.html)
 #[cfg(feature = "VK_KHR_depth_stencil_resolve")]
 pub type VkResolveModeFlagsKHR = VkResolveModeFlagBits;
@@ -7031,40 +8944,6 @@ impl<'a> VkDescriptorUpdateTemplateCreateInfoKHR<'a> {
 /// [VkAddressCommandFlagsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkAddressCommandFlagsKHR.html)
 #[cfg(feature = "VK_KHR_device_address_commands")]
 pub type VkAddressCommandFlagsKHR = VkAddressCommandFlagBitsKHR;
-/// [VkDeviceAddressRangeKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkDeviceAddressRangeKHR.html)
-#[cfg(feature = "VK_KHR_device_address_commands")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkDeviceAddressRangeKHR {
-  /// Optional: true
-  pub address: VkDeviceAddress,
-  pub size: VkDeviceSize,
-}
-#[cfg(feature = "VK_KHR_device_address_commands")]
-unsafe impl Send for VkDeviceAddressRangeKHR {}
-#[cfg(feature = "VK_KHR_device_address_commands")]
-unsafe impl Sync for VkDeviceAddressRangeKHR {}
-#[cfg(feature = "VK_KHR_device_address_commands")]
-impl VkDeviceAddressRangeKHR {
-  pub const DEFAULT: Self = Self {
-    address: 0,
-    size: 0,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  #[inline]
-  pub const fn with_address(mut self, val: VkDeviceAddress) -> Self {
-    self.address = val;
-    self
-  }
-  #[inline]
-  pub const fn with_size(mut self, val: VkDeviceSize) -> Self {
-    self.size = val;
-    self
-  }
-}
 /// [VkDeviceMemoryCopyKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkDeviceMemoryCopyKHR.html)
 #[cfg(feature = "VK_KHR_device_address_commands")]
 #[repr(C)]
@@ -8407,7 +10286,7 @@ impl<'a> VkMemoryMarkerInfoAMD<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::MEMORY_MARKER_INFO_AMD,
     pNext: core::ptr::null(),
-    stage: VkPipelineStageFlagBits2(0),
+    stage: 0,
     dstRange: VkDeviceAddressRangeKHR::DEFAULT,
     dstFlags: VkAddressCommandFlagBitsKHR(0),
     marker: 0,
@@ -8464,94 +10343,18 @@ impl<'a> VkMemoryMarkerInfoAMD<'a> {
     self
   }
 }
+/// [VkPipelineStageFlags2KHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPipelineStageFlags2KHR.html)
+#[cfg(any(
+  feature = "VK_KHR_synchronization2",
+  all(
+    feature = "VK_AMD_buffer_marker",
+    feature = "VK_KHR_device_address_commands"
+  )
+))]
+pub type VkPipelineStageFlags2KHR = VkFlags64;
 /// [VkDeviceFaultFlagsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkDeviceFaultFlagsKHR.html)
 #[cfg(feature = "VK_KHR_device_fault")]
 pub type VkDeviceFaultFlagsKHR = VkDeviceFaultFlagBitsKHR;
-/// [VkDeviceFaultAddressInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkDeviceFaultAddressInfoKHR.html)
-///
-/// *Note: This is a **returned only** struct.*
-#[cfg(feature = "VK_KHR_device_fault")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkDeviceFaultAddressInfoKHR {
-  pub addressType: VkDeviceFaultAddressTypeKHR,
-  pub reportedAddress: VkDeviceAddress,
-  pub addressPrecision: VkDeviceSize,
-}
-#[cfg(feature = "VK_KHR_device_fault")]
-unsafe impl Send for VkDeviceFaultAddressInfoKHR {}
-#[cfg(feature = "VK_KHR_device_fault")]
-unsafe impl Sync for VkDeviceFaultAddressInfoKHR {}
-#[cfg(feature = "VK_KHR_device_fault")]
-impl VkDeviceFaultAddressInfoKHR {
-  pub const DEFAULT: Self = Self {
-    addressType: VkDeviceFaultAddressTypeKHR(0),
-    reportedAddress: 0,
-    addressPrecision: 0,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  #[inline]
-  pub const fn with_addressType(mut self, val: VkDeviceFaultAddressTypeKHR) -> Self {
-    self.addressType = val;
-    self
-  }
-  #[inline]
-  pub const fn with_reportedAddress(mut self, val: VkDeviceAddress) -> Self {
-    self.reportedAddress = val;
-    self
-  }
-  #[inline]
-  pub const fn with_addressPrecision(mut self, val: VkDeviceSize) -> Self {
-    self.addressPrecision = val;
-    self
-  }
-}
-/// [VkDeviceFaultVendorInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkDeviceFaultVendorInfoKHR.html)
-///
-/// *Note: This is a **returned only** struct.*
-#[cfg(feature = "VK_KHR_device_fault")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkDeviceFaultVendorInfoKHR {
-  /// Length: null-terminated,  No Auto-Validity
-  pub description: [c_char; VK_MAX_DESCRIPTION_SIZE as usize],
-  pub vendorFaultCode: u64,
-  pub vendorFaultData: u64,
-}
-#[cfg(feature = "VK_KHR_device_fault")]
-unsafe impl Send for VkDeviceFaultVendorInfoKHR {}
-#[cfg(feature = "VK_KHR_device_fault")]
-unsafe impl Sync for VkDeviceFaultVendorInfoKHR {}
-#[cfg(feature = "VK_KHR_device_fault")]
-impl VkDeviceFaultVendorInfoKHR {
-  pub const DEFAULT: Self = Self {
-    description: [0 as c_char; VK_MAX_DESCRIPTION_SIZE as usize],
-    vendorFaultCode: 0,
-    vendorFaultData: 0,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  #[inline]
-  pub const fn with_description(mut self, val: [c_char; VK_MAX_DESCRIPTION_SIZE as usize]) -> Self {
-    self.description = val;
-    self
-  }
-  #[inline]
-  pub const fn with_vendorFaultCode(mut self, val: u64) -> Self {
-    self.vendorFaultCode = val;
-    self
-  }
-  #[inline]
-  pub const fn with_vendorFaultData(mut self, val: u64) -> Self {
-    self.vendorFaultData = val;
-    self
-  }
-}
 /// [VkDeviceFaultInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkDeviceFaultInfoKHR.html)
 ///
 /// *Note: This is a **returned only** struct.*
@@ -8732,105 +10535,6 @@ impl<'a> VkDeviceFaultDebugInfoKHR<'a> {
     val: &'a mut T,
   ) -> Self {
     self.pNext = (val as *mut T).cast::<c_void>();
-    self
-  }
-}
-/// [VkDeviceFaultVendorBinaryHeaderVersionOneKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkDeviceFaultVendorBinaryHeaderVersionOneKHR.html)
-#[cfg(feature = "VK_KHR_device_fault")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkDeviceFaultVendorBinaryHeaderVersionOneKHR {
-  pub headerSize: u32,
-  pub headerVersion: VkDeviceFaultVendorBinaryHeaderVersionKHR,
-  pub vendorID: u32,
-  pub deviceID: u32,
-  pub driverVersion: u32,
-  pub pipelineCacheUUID: [u8; VK_UUID_SIZE as usize],
-  pub applicationNameOffset: u32,
-  pub applicationVersion: u32,
-  pub engineNameOffset: u32,
-  pub engineVersion: u32,
-  pub apiVersion: u32,
-}
-#[cfg(feature = "VK_KHR_device_fault")]
-unsafe impl Send for VkDeviceFaultVendorBinaryHeaderVersionOneKHR {}
-#[cfg(feature = "VK_KHR_device_fault")]
-unsafe impl Sync for VkDeviceFaultVendorBinaryHeaderVersionOneKHR {}
-#[cfg(feature = "VK_KHR_device_fault")]
-impl VkDeviceFaultVendorBinaryHeaderVersionOneKHR {
-  pub const DEFAULT: Self = Self {
-    headerSize: 0,
-    headerVersion: VkDeviceFaultVendorBinaryHeaderVersionKHR(0),
-    vendorID: 0,
-    deviceID: 0,
-    driverVersion: 0,
-    pipelineCacheUUID: [0u8; VK_UUID_SIZE as usize],
-    applicationNameOffset: 0,
-    applicationVersion: 0,
-    engineNameOffset: 0,
-    engineVersion: 0,
-    apiVersion: 0,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  #[inline]
-  pub const fn with_headerSize(mut self, val: u32) -> Self {
-    self.headerSize = val;
-    self
-  }
-  #[inline]
-  pub const fn with_headerVersion(
-    mut self,
-    val: VkDeviceFaultVendorBinaryHeaderVersionKHR,
-  ) -> Self {
-    self.headerVersion = val;
-    self
-  }
-  #[inline]
-  pub const fn with_vendorID(mut self, val: u32) -> Self {
-    self.vendorID = val;
-    self
-  }
-  #[inline]
-  pub const fn with_deviceID(mut self, val: u32) -> Self {
-    self.deviceID = val;
-    self
-  }
-  #[inline]
-  pub const fn with_driverVersion(mut self, val: u32) -> Self {
-    self.driverVersion = val;
-    self
-  }
-  #[inline]
-  pub const fn with_pipelineCacheUUID(mut self, val: [u8; VK_UUID_SIZE as usize]) -> Self {
-    self.pipelineCacheUUID = val;
-    self
-  }
-  #[inline]
-  pub const fn with_applicationNameOffset(mut self, val: u32) -> Self {
-    self.applicationNameOffset = val;
-    self
-  }
-  #[inline]
-  pub const fn with_applicationVersion(mut self, val: u32) -> Self {
-    self.applicationVersion = val;
-    self
-  }
-  #[inline]
-  pub const fn with_engineNameOffset(mut self, val: u32) -> Self {
-    self.engineNameOffset = val;
-    self
-  }
-  #[inline]
-  pub const fn with_engineVersion(mut self, val: u32) -> Self {
-    self.engineVersion = val;
-    self
-  }
-  #[inline]
-  pub const fn with_apiVersion(mut self, val: u32) -> Self {
-    self.apiVersion = val;
     self
   }
 }
@@ -15729,97 +17433,6 @@ impl<'a> VkFormatProperties3KHR<'a> {
     self
   }
 }
-/// [VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR.html)
-///
-/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
-#[cfg(feature = "VK_KHR_fragment_shader_barycentric")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR<'a> {
-  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_KHR
-  pub sType: VkStructureType,
-  /// Optional: true
-  pub pNext: *mut c_void,
-  pub fragmentShaderBarycentric: VkBool32,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
-}
-#[cfg(feature = "VK_KHR_fragment_shader_barycentric")]
-unsafe impl<'a> Send for VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR<'a> {}
-#[cfg(feature = "VK_KHR_fragment_shader_barycentric")]
-unsafe impl<'a> Sync for VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR<'a> {}
-#[cfg(all(
-  feature = "VK_KHR_fragment_shader_barycentric",
-  feature = "VK_BASE_VERSION_1_1"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
-  for VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR<'child>
-{
-}
-#[cfg(all(
-  feature = "VK_KHR_fragment_shader_barycentric",
-  feature = "VK_BASE_VERSION_1_0"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
-  for VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR<'child>
-{
-}
-#[cfg(feature = "VK_KHR_fragment_shader_barycentric")]
-impl<'a> VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_KHR,
-    pNext: core::ptr::null_mut(),
-    fragmentShaderBarycentric: 0,
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[inline]
-  pub const fn with_fragmentShaderBarycentric(mut self, val: VkBool32) -> Self {
-    self.fragmentShaderBarycentric = val;
-    self
-  }
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
-    'root,
-    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
-  >(
-    mut self,
-    val: &'a mut T,
-  ) -> Self {
-    self.pNext = (val as *mut T).cast::<c_void>();
-    self
-  }
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkDeviceCreateInfo<
-    'root,
-    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
-  >(
-    mut self,
-    val: &'a mut T,
-  ) -> Self {
-    self.pNext = (val as *mut T).cast::<c_void>();
-    self
-  }
-}
 /// [VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR.html)
 ///
 /// *Note: This is a **returned only** struct.*
@@ -15905,6 +17518,115 @@ impl<'a> VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR<'a> {
   pub const fn with_pNext_chain_VkPhysicalDeviceProperties2<
     'root,
     T: VkPNextExtends<VkPhysicalDeviceProperties2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+}
+/// [VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR.html)
+///
+/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
+#[cfg(any(
+  feature = "VK_KHR_fragment_shader_barycentric",
+  feature = "VK_NV_fragment_shader_barycentric"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR<'a> {
+  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_KHR
+  pub sType: VkStructureType,
+  /// Optional: true
+  pub pNext: *mut c_void,
+  pub fragmentShaderBarycentric: VkBool32,
+  #[doc(hidden)]
+  pub _marker: core::marker::PhantomData<&'a ()>,
+}
+#[cfg(any(
+  feature = "VK_KHR_fragment_shader_barycentric",
+  feature = "VK_NV_fragment_shader_barycentric"
+))]
+unsafe impl<'a> Send for VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR<'a> {}
+#[cfg(any(
+  feature = "VK_KHR_fragment_shader_barycentric",
+  feature = "VK_NV_fragment_shader_barycentric"
+))]
+unsafe impl<'a> Sync for VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR<'a> {}
+#[cfg(all(
+  any(
+    feature = "VK_KHR_fragment_shader_barycentric",
+    feature = "VK_NV_fragment_shader_barycentric"
+  ),
+  feature = "VK_BASE_VERSION_1_1"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
+  for VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR<'child>
+{
+}
+#[cfg(all(
+  any(
+    feature = "VK_KHR_fragment_shader_barycentric",
+    feature = "VK_NV_fragment_shader_barycentric"
+  ),
+  feature = "VK_BASE_VERSION_1_0"
+))]
+unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
+  for VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR<'child>
+{
+}
+#[cfg(any(
+  feature = "VK_KHR_fragment_shader_barycentric",
+  feature = "VK_NV_fragment_shader_barycentric"
+))]
+impl<'a> VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR<'a> {
+  pub const DEFAULT: Self = Self {
+    sType: VkStructureType::PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_KHR,
+    pNext: core::ptr::null_mut(),
+    fragmentShaderBarycentric: 0,
+    _marker: core::marker::PhantomData,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
+    self.pNext = val;
+    self
+  }
+  #[inline]
+  pub const fn with_fragmentShaderBarycentric(mut self, val: VkBool32) -> Self {
+    self.fragmentShaderBarycentric = val;
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_1")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
+    'root,
+    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
+  >(
+    mut self,
+    val: &'a mut T,
+  ) -> Self {
+    self.pNext = (val as *mut T).cast::<c_void>();
+    self
+  }
+  #[cfg(feature = "VK_BASE_VERSION_1_0")]
+  /// # Safety
+  /// The caller must ensure `val` remains valid and outlives any use of this struct
+  /// instance. The pointer is stored as-is without any lifetime tracking.
+  #[inline]
+  pub const fn with_pNext_chain_VkDeviceCreateInfo<
+    'root,
+    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
   >(
     mut self,
     val: &'a mut T,
@@ -17948,7 +19670,10 @@ impl<'a> VkPhysicalDeviceSurfaceInfo2KHR<'a> {
     self.pNext = (val as *const VkSurfaceFullScreenExclusiveWin32InfoEXT<'child>).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_KHR_surface_maintenance1")]
+  #[cfg(any(
+    feature = "VK_KHR_surface_maintenance1",
+    feature = "VK_EXT_surface_maintenance1"
+  ))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -18143,7 +19868,10 @@ impl<'a> VkSurfaceCapabilities2KHR<'a> {
     self.pNext = (val as *mut VkSurfaceCapabilitiesPresentWait2KHR<'child>).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_KHR_surface_maintenance1")]
+  #[cfg(any(
+    feature = "VK_KHR_surface_maintenance1",
+    feature = "VK_EXT_surface_maintenance1"
+  ))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -18155,7 +19883,10 @@ impl<'a> VkSurfaceCapabilities2KHR<'a> {
     self.pNext = (val as *mut VkSurfacePresentModeCompatibilityKHR<'child>).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_KHR_surface_maintenance1")]
+  #[cfg(any(
+    feature = "VK_KHR_surface_maintenance1",
+    feature = "VK_EXT_surface_maintenance1"
+  ))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -19783,70 +21514,6 @@ impl<'a> VkPhysicalDeviceMaintenance10FeaturesKHR<'a> {
     val: &'a mut T,
   ) -> Self {
     self.pNext = (val as *mut T).cast::<c_void>();
-    self
-  }
-}
-/// [VkRenderingEndInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkRenderingEndInfoKHR.html)
-#[cfg(feature = "VK_KHR_maintenance10")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkRenderingEndInfoKHR<'a> {
-  /// Values: VK_STRUCTURE_TYPE_RENDERING_END_INFO_KHR
-  pub sType: VkStructureType,
-  /// Optional: true
-  pub pNext: *const c_void,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
-}
-#[cfg(feature = "VK_KHR_maintenance10")]
-unsafe impl<'a> Send for VkRenderingEndInfoKHR<'a> {}
-#[cfg(feature = "VK_KHR_maintenance10")]
-unsafe impl<'a> Sync for VkRenderingEndInfoKHR<'a> {}
-#[cfg(feature = "VK_KHR_maintenance10")]
-impl<'a> VkRenderingEndInfoKHR<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::RENDERING_END_INFO_KHR,
-    pNext: core::ptr::null(),
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[cfg(feature = "VK_EXT_fragment_density_map_offset")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_VkRenderPassFragmentDensityMapOffsetEndInfoEXT<'child>(
-    mut self,
-    val: &'a VkRenderPassFragmentDensityMapOffsetEndInfoEXT<'child>,
-  ) -> Self {
-    self.pNext =
-      (val as *const VkRenderPassFragmentDensityMapOffsetEndInfoEXT<'child>).cast::<c_void>();
-    self
-  }
-  #[cfg(feature = "VK_KHR_maintenance10")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkRenderingEndInfoKHR<
-    'root,
-    T: VkPNextExtends<VkRenderingEndInfoKHR<'root>>,
-  >(
-    mut self,
-    val: &'a T,
-  ) -> Self {
-    self.pNext = (val as *const T).cast::<c_void>();
     self
   }
 }
@@ -23917,46 +25584,6 @@ impl VkMicromapUsageKHR {
     self
   }
 }
-/// [VkMicromapTriangleKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkMicromapTriangleKHR.html)
-#[cfg(feature = "VK_KHR_opacity_micromap")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkMicromapTriangleKHR {
-  pub dataOffset: u32,
-  pub subdivisionLevel: u16,
-  pub format: u16,
-}
-#[cfg(feature = "VK_KHR_opacity_micromap")]
-unsafe impl Send for VkMicromapTriangleKHR {}
-#[cfg(feature = "VK_KHR_opacity_micromap")]
-unsafe impl Sync for VkMicromapTriangleKHR {}
-#[cfg(feature = "VK_KHR_opacity_micromap")]
-impl VkMicromapTriangleKHR {
-  pub const DEFAULT: Self = Self {
-    dataOffset: 0,
-    subdivisionLevel: 0,
-    format: 0,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  #[inline]
-  pub const fn with_dataOffset(mut self, val: u32) -> Self {
-    self.dataOffset = val;
-    self
-  }
-  #[inline]
-  pub const fn with_subdivisionLevel(mut self, val: u16) -> Self {
-    self.subdivisionLevel = val;
-    self
-  }
-  #[inline]
-  pub const fn with_format(mut self, val: u16) -> Self {
-    self.format = val;
-    self
-  }
-}
 /// [VkPhysicalDeviceOpacityMicromapFeaturesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceOpacityMicromapFeaturesKHR.html)
 ///
 /// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
@@ -25928,71 +27555,6 @@ impl<'a> VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR<'a> {
     self
   }
 }
-/// [VkPipelineInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPipelineInfoKHR.html)
-#[cfg(feature = "VK_KHR_pipeline_executable_properties")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkPipelineInfoKHR<'a> {
-  /// Values: VK_STRUCTURE_TYPE_PIPELINE_INFO_KHR
-  pub sType: VkStructureType,
-  /// Optional: true
-  pub pNext: *const c_void,
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
-  pub pipeline: VkPipeline,
-  #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
-  pub pipeline: *mut c_void,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
-}
-#[cfg(feature = "VK_KHR_pipeline_executable_properties")]
-unsafe impl<'a> Send for VkPipelineInfoKHR<'a> {}
-#[cfg(feature = "VK_KHR_pipeline_executable_properties")]
-unsafe impl<'a> Sync for VkPipelineInfoKHR<'a> {}
-#[cfg(feature = "VK_KHR_pipeline_executable_properties")]
-impl<'a> VkPipelineInfoKHR<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::PIPELINE_INFO_KHR,
-    pNext: core::ptr::null(),
-    #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
-    pipeline: VkPipeline::DEFAULT,
-    #[cfg(not(feature = "VK_COMPUTE_VERSION_1_0"))]
-    pipeline: core::ptr::null_mut(),
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
-  #[inline]
-  pub const fn with_pipeline(mut self, val: VkPipeline) -> Self {
-    self.pipeline = val;
-    self
-  }
-  #[cfg(feature = "VK_KHR_pipeline_executable_properties")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkPipelineInfoKHR<
-    'root,
-    T: VkPNextExtends<VkPipelineInfoKHR<'root>>,
-  >(
-    mut self,
-    val: &'a T,
-  ) -> Self {
-    self.pNext = (val as *const T).cast::<c_void>();
-    self
-  }
-}
 /// [VkPipelineExecutablePropertiesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPipelineExecutablePropertiesKHR.html)
 ///
 /// *Note: This is a **returned only** struct.*
@@ -26366,7 +27928,10 @@ impl<'a> VkPipelineExecutableInternalRepresentationKHR<'a> {
 /// [VkPipelineLibraryCreateInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPipelineLibraryCreateInfoKHR.html)
 ///
 /// **Extends:** VkGraphicsPipelineCreateInfo.
-#[cfg(feature = "VK_KHR_pipeline_library")]
+#[cfg(any(
+  feature = "VK_KHR_pipeline_library",
+  feature = "VK_KHR_ray_tracing_pipeline"
+))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct VkPipelineLibraryCreateInfoKHR<'a> {
@@ -26381,19 +27946,31 @@ pub struct VkPipelineLibraryCreateInfoKHR<'a> {
   #[doc(hidden)]
   pub _marker: core::marker::PhantomData<&'a ()>,
 }
-#[cfg(feature = "VK_KHR_pipeline_library")]
+#[cfg(any(
+  feature = "VK_KHR_pipeline_library",
+  feature = "VK_KHR_ray_tracing_pipeline"
+))]
 unsafe impl<'a> Send for VkPipelineLibraryCreateInfoKHR<'a> {}
-#[cfg(feature = "VK_KHR_pipeline_library")]
+#[cfg(any(
+  feature = "VK_KHR_pipeline_library",
+  feature = "VK_KHR_ray_tracing_pipeline"
+))]
 unsafe impl<'a> Sync for VkPipelineLibraryCreateInfoKHR<'a> {}
 #[cfg(all(
-  feature = "VK_KHR_pipeline_library",
+  any(
+    feature = "VK_KHR_pipeline_library",
+    feature = "VK_KHR_ray_tracing_pipeline"
+  ),
   feature = "VK_GRAPHICS_VERSION_1_0"
 ))]
 unsafe impl<'child, 'root> VkPNextExtends<VkGraphicsPipelineCreateInfo<'root>>
   for VkPipelineLibraryCreateInfoKHR<'child>
 {
 }
-#[cfg(feature = "VK_KHR_pipeline_library")]
+#[cfg(any(
+  feature = "VK_KHR_pipeline_library",
+  feature = "VK_KHR_ray_tracing_pipeline"
+))]
 impl<'a> VkPipelineLibraryCreateInfoKHR<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::PIPELINE_LIBRARY_CREATE_INFO_KHR,
@@ -26441,97 +28018,6 @@ impl<'a> VkPipelineLibraryCreateInfoKHR<'a> {
     val: &'a T,
   ) -> Self {
     self.pNext = (val as *const T).cast::<c_void>();
-    self
-  }
-}
-/// [VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR.html)
-///
-/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
-#[cfg(feature = "VK_KHR_pipeline_library_group_handles")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR<'a> {
-  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_KHR
-  pub sType: VkStructureType,
-  /// Optional: true,  No Auto-Validity
-  pub pNext: *mut c_void,
-  pub pipelineLibraryGroupHandles: VkBool32,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
-}
-#[cfg(feature = "VK_KHR_pipeline_library_group_handles")]
-unsafe impl<'a> Send for VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR<'a> {}
-#[cfg(feature = "VK_KHR_pipeline_library_group_handles")]
-unsafe impl<'a> Sync for VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR<'a> {}
-#[cfg(all(
-  feature = "VK_KHR_pipeline_library_group_handles",
-  feature = "VK_BASE_VERSION_1_1"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
-  for VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR<'child>
-{
-}
-#[cfg(all(
-  feature = "VK_KHR_pipeline_library_group_handles",
-  feature = "VK_BASE_VERSION_1_0"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
-  for VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR<'child>
-{
-}
-#[cfg(feature = "VK_KHR_pipeline_library_group_handles")]
-impl<'a> VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_KHR,
-    pNext: core::ptr::null_mut(),
-    pipelineLibraryGroupHandles: 0,
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[inline]
-  pub const fn with_pipelineLibraryGroupHandles(mut self, val: VkBool32) -> Self {
-    self.pipelineLibraryGroupHandles = val;
-    self
-  }
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
-    'root,
-    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
-  >(
-    mut self,
-    val: &'a mut T,
-  ) -> Self {
-    self.pNext = (val as *mut T).cast::<c_void>();
-    self
-  }
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkDeviceCreateInfo<
-    'root,
-    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
-  >(
-    mut self,
-    val: &'a mut T,
-  ) -> Self {
-    self.pNext = (val as *mut T).cast::<c_void>();
     self
   }
 }
@@ -27166,97 +28652,6 @@ impl<'a> VkSurfaceCapabilitiesPresentId2KHR<'a> {
   pub const fn with_pNext_chain_VkSurfaceCapabilities2KHR<
     'root,
     T: VkPNextExtends<VkSurfaceCapabilities2KHR<'root>>,
-  >(
-    mut self,
-    val: &'a mut T,
-  ) -> Self {
-    self.pNext = (val as *mut T).cast::<c_void>();
-    self
-  }
-}
-/// [VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR.html)
-///
-/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
-#[cfg(feature = "VK_KHR_present_mode_fifo_latest_ready")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR<'a> {
-  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_KHR
-  pub sType: VkStructureType,
-  /// Optional: true
-  pub pNext: *mut c_void,
-  pub presentModeFifoLatestReady: VkBool32,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
-}
-#[cfg(feature = "VK_KHR_present_mode_fifo_latest_ready")]
-unsafe impl<'a> Send for VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR<'a> {}
-#[cfg(feature = "VK_KHR_present_mode_fifo_latest_ready")]
-unsafe impl<'a> Sync for VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR<'a> {}
-#[cfg(all(
-  feature = "VK_KHR_present_mode_fifo_latest_ready",
-  feature = "VK_BASE_VERSION_1_1"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
-  for VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR<'child>
-{
-}
-#[cfg(all(
-  feature = "VK_KHR_present_mode_fifo_latest_ready",
-  feature = "VK_BASE_VERSION_1_0"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
-  for VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR<'child>
-{
-}
-#[cfg(feature = "VK_KHR_present_mode_fifo_latest_ready")]
-impl<'a> VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_KHR,
-    pNext: core::ptr::null_mut(),
-    presentModeFifoLatestReady: 0,
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[inline]
-  pub const fn with_presentModeFifoLatestReady(mut self, val: VkBool32) -> Self {
-    self.presentModeFifoLatestReady = val;
-    self
-  }
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
-    'root,
-    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
-  >(
-    mut self,
-    val: &'a mut T,
-  ) -> Self {
-    self.pNext = (val as *mut T).cast::<c_void>();
-    self
-  }
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkDeviceCreateInfo<
-    'root,
-    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
   >(
     mut self,
     val: &'a mut T,
@@ -28576,47 +29971,6 @@ impl<'a> VkPhysicalDeviceRayTracingPipelinePropertiesKHR<'a> {
     self
   }
 }
-/// [VkStridedDeviceAddressRegionKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkStridedDeviceAddressRegionKHR.html)
-#[cfg(feature = "VK_KHR_ray_tracing_pipeline")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkStridedDeviceAddressRegionKHR {
-  /// Optional: true
-  pub deviceAddress: VkDeviceAddress,
-  pub stride: VkDeviceSize,
-  pub size: VkDeviceSize,
-}
-#[cfg(feature = "VK_KHR_ray_tracing_pipeline")]
-unsafe impl Send for VkStridedDeviceAddressRegionKHR {}
-#[cfg(feature = "VK_KHR_ray_tracing_pipeline")]
-unsafe impl Sync for VkStridedDeviceAddressRegionKHR {}
-#[cfg(feature = "VK_KHR_ray_tracing_pipeline")]
-impl VkStridedDeviceAddressRegionKHR {
-  pub const DEFAULT: Self = Self {
-    deviceAddress: 0,
-    stride: 0,
-    size: 0,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  #[inline]
-  pub const fn with_deviceAddress(mut self, val: VkDeviceAddress) -> Self {
-    self.deviceAddress = val;
-    self
-  }
-  #[inline]
-  pub const fn with_stride(mut self, val: VkDeviceSize) -> Self {
-    self.stride = val;
-    self
-  }
-  #[inline]
-  pub const fn with_size(mut self, val: VkDeviceSize) -> Self {
-    self.size = val;
-    self
-  }
-}
 /// [VkTraceRaysIndirectCommandKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkTraceRaysIndirectCommandKHR.html)
 #[cfg(feature = "VK_KHR_ray_tracing_pipeline")]
 #[repr(C)]
@@ -28722,6 +30076,59 @@ impl<'a> VkRayTracingPipelineInterfaceCreateInfoKHR<'a> {
     self
   }
 }
+/// [VkStridedDeviceAddressRegionKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkStridedDeviceAddressRegionKHR.html)
+#[cfg(any(
+  feature = "VK_KHR_ray_tracing_pipeline",
+  feature = "VK_NV_cluster_acceleration_structure"
+))]
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct VkStridedDeviceAddressRegionKHR {
+  /// Optional: true
+  pub deviceAddress: VkDeviceAddress,
+  pub stride: VkDeviceSize,
+  pub size: VkDeviceSize,
+}
+#[cfg(any(
+  feature = "VK_KHR_ray_tracing_pipeline",
+  feature = "VK_NV_cluster_acceleration_structure"
+))]
+unsafe impl Send for VkStridedDeviceAddressRegionKHR {}
+#[cfg(any(
+  feature = "VK_KHR_ray_tracing_pipeline",
+  feature = "VK_NV_cluster_acceleration_structure"
+))]
+unsafe impl Sync for VkStridedDeviceAddressRegionKHR {}
+#[cfg(any(
+  feature = "VK_KHR_ray_tracing_pipeline",
+  feature = "VK_NV_cluster_acceleration_structure"
+))]
+impl VkStridedDeviceAddressRegionKHR {
+  pub const DEFAULT: Self = Self {
+    deviceAddress: 0,
+    stride: 0,
+    size: 0,
+  };
+  #[inline]
+  pub const fn new() -> Self {
+    Self::DEFAULT
+  }
+  #[inline]
+  pub const fn with_deviceAddress(mut self, val: VkDeviceAddress) -> Self {
+    self.deviceAddress = val;
+    self
+  }
+  #[inline]
+  pub const fn with_stride(mut self, val: VkDeviceSize) -> Self {
+    self.stride = val;
+    self
+  }
+  #[inline]
+  pub const fn with_size(mut self, val: VkDeviceSize) -> Self {
+    self.size = val;
+    self
+  }
+}
 /// [VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR.html)
 ///
 /// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
@@ -28805,183 +30212,6 @@ impl<'a> VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR<'a> {
   pub const fn with_pNext_chain_VkDeviceCreateInfo<
     'root,
     T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
-  >(
-    mut self,
-    val: &'a mut T,
-  ) -> Self {
-    self.pNext = (val as *mut T).cast::<c_void>();
-    self
-  }
-}
-/// [VkPhysicalDeviceRobustness2FeaturesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceRobustness2FeaturesKHR.html)
-///
-/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
-#[cfg(feature = "VK_KHR_robustness2")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkPhysicalDeviceRobustness2FeaturesKHR<'a> {
-  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_KHR
-  pub sType: VkStructureType,
-  /// Optional: true
-  pub pNext: *mut c_void,
-  pub robustBufferAccess2: VkBool32,
-  pub robustImageAccess2: VkBool32,
-  pub nullDescriptor: VkBool32,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
-}
-#[cfg(feature = "VK_KHR_robustness2")]
-unsafe impl<'a> Send for VkPhysicalDeviceRobustness2FeaturesKHR<'a> {}
-#[cfg(feature = "VK_KHR_robustness2")]
-unsafe impl<'a> Sync for VkPhysicalDeviceRobustness2FeaturesKHR<'a> {}
-#[cfg(all(feature = "VK_KHR_robustness2", feature = "VK_BASE_VERSION_1_1"))]
-unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
-  for VkPhysicalDeviceRobustness2FeaturesKHR<'child>
-{
-}
-#[cfg(all(feature = "VK_KHR_robustness2", feature = "VK_BASE_VERSION_1_0"))]
-unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
-  for VkPhysicalDeviceRobustness2FeaturesKHR<'child>
-{
-}
-#[cfg(feature = "VK_KHR_robustness2")]
-impl<'a> VkPhysicalDeviceRobustness2FeaturesKHR<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_KHR,
-    pNext: core::ptr::null_mut(),
-    robustBufferAccess2: 0,
-    robustImageAccess2: 0,
-    nullDescriptor: 0,
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[inline]
-  pub const fn with_robustBufferAccess2(mut self, val: VkBool32) -> Self {
-    self.robustBufferAccess2 = val;
-    self
-  }
-  #[inline]
-  pub const fn with_robustImageAccess2(mut self, val: VkBool32) -> Self {
-    self.robustImageAccess2 = val;
-    self
-  }
-  #[inline]
-  pub const fn with_nullDescriptor(mut self, val: VkBool32) -> Self {
-    self.nullDescriptor = val;
-    self
-  }
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
-    'root,
-    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
-  >(
-    mut self,
-    val: &'a mut T,
-  ) -> Self {
-    self.pNext = (val as *mut T).cast::<c_void>();
-    self
-  }
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkDeviceCreateInfo<
-    'root,
-    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
-  >(
-    mut self,
-    val: &'a mut T,
-  ) -> Self {
-    self.pNext = (val as *mut T).cast::<c_void>();
-    self
-  }
-}
-/// [VkPhysicalDeviceRobustness2PropertiesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceRobustness2PropertiesKHR.html)
-///
-/// *Note: This is a **returned only** struct.*
-///
-/// *Note: This struct has **required limit types**.*
-///
-/// **Extends:** VkPhysicalDeviceProperties2.
-#[cfg(feature = "VK_KHR_robustness2")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkPhysicalDeviceRobustness2PropertiesKHR<'a> {
-  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_PROPERTIES_KHR
-  pub sType: VkStructureType,
-  /// Optional: true
-  pub pNext: *mut c_void,
-  /// Limit Type: [Min, Pot]
-  pub robustStorageBufferAccessSizeAlignment: VkDeviceSize,
-  /// Limit Type: [Min, Pot]
-  pub robustUniformBufferAccessSizeAlignment: VkDeviceSize,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
-}
-#[cfg(feature = "VK_KHR_robustness2")]
-unsafe impl<'a> Send for VkPhysicalDeviceRobustness2PropertiesKHR<'a> {}
-#[cfg(feature = "VK_KHR_robustness2")]
-unsafe impl<'a> Sync for VkPhysicalDeviceRobustness2PropertiesKHR<'a> {}
-#[cfg(all(feature = "VK_KHR_robustness2", feature = "VK_BASE_VERSION_1_1"))]
-unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceProperties2<'root>>
-  for VkPhysicalDeviceRobustness2PropertiesKHR<'child>
-{
-}
-#[cfg(feature = "VK_KHR_robustness2")]
-impl<'a> VkPhysicalDeviceRobustness2PropertiesKHR<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::PHYSICAL_DEVICE_ROBUSTNESS_2_PROPERTIES_KHR,
-    pNext: core::ptr::null_mut(),
-    robustStorageBufferAccessSizeAlignment: 0,
-    robustUniformBufferAccessSizeAlignment: 0,
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[inline]
-  pub const fn with_robustStorageBufferAccessSizeAlignment(mut self, val: VkDeviceSize) -> Self {
-    self.robustStorageBufferAccessSizeAlignment = val;
-    self
-  }
-  #[inline]
-  pub const fn with_robustUniformBufferAccessSizeAlignment(mut self, val: VkDeviceSize) -> Self {
-    self.robustUniformBufferAccessSizeAlignment = val;
-    self
-  }
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkPhysicalDeviceProperties2<
-    'root,
-    T: VkPNextExtends<VkPhysicalDeviceProperties2<'root>>,
   >(
     mut self,
     val: &'a mut T,
@@ -32457,262 +33687,6 @@ impl VkSurfaceFormatKHR {
     self
   }
 }
-/// [VkPresentScalingFlagsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPresentScalingFlagsKHR.html)
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-pub type VkPresentScalingFlagsKHR = VkPresentScalingFlagBitsKHR;
-/// [VkPresentGravityFlagsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPresentGravityFlagsKHR.html)
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-pub type VkPresentGravityFlagsKHR = VkPresentGravityFlagBitsKHR;
-/// [VkSurfacePresentModeKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkSurfacePresentModeKHR.html)
-///
-/// **Extends:** VkPhysicalDeviceSurfaceInfo2KHR.
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkSurfacePresentModeKHR<'a> {
-  /// Values: VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_KHR
-  pub sType: VkStructureType,
-  /// Optional: true
-  pub pNext: *mut c_void,
-  pub presentMode: VkPresentModeKHR,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-unsafe impl<'a> Send for VkSurfacePresentModeKHR<'a> {}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-unsafe impl<'a> Sync for VkSurfacePresentModeKHR<'a> {}
-#[cfg(all(
-  feature = "VK_KHR_surface_maintenance1",
-  feature = "VK_KHR_get_surface_capabilities2"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceSurfaceInfo2KHR<'root>>
-  for VkSurfacePresentModeKHR<'child>
-{
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl<'a> VkSurfacePresentModeKHR<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::SURFACE_PRESENT_MODE_KHR,
-    pNext: core::ptr::null_mut(),
-    presentMode: VkPresentModeKHR(0),
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[inline]
-  pub const fn with_presentMode(mut self, val: VkPresentModeKHR) -> Self {
-    self.presentMode = val;
-    self
-  }
-  #[cfg(feature = "VK_KHR_get_surface_capabilities2")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkPhysicalDeviceSurfaceInfo2KHR<
-    'root,
-    T: VkPNextExtends<VkPhysicalDeviceSurfaceInfo2KHR<'root>>,
-  >(
-    mut self,
-    val: &'a mut T,
-  ) -> Self {
-    self.pNext = (val as *mut T).cast::<c_void>();
-    self
-  }
-}
-/// [VkSurfacePresentScalingCapabilitiesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkSurfacePresentScalingCapabilitiesKHR.html)
-///
-/// **Extends:** VkSurfaceCapabilities2KHR.
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkSurfacePresentScalingCapabilitiesKHR<'a> {
-  /// Values: VK_STRUCTURE_TYPE_SURFACE_PRESENT_SCALING_CAPABILITIES_KHR
-  pub sType: VkStructureType,
-  /// Optional: true
-  pub pNext: *mut c_void,
-  /// Optional: true
-  pub supportedPresentScaling: VkPresentScalingFlagsKHR,
-  /// Optional: true
-  pub supportedPresentGravityX: VkPresentGravityFlagsKHR,
-  /// Optional: true
-  pub supportedPresentGravityY: VkPresentGravityFlagsKHR,
-  /// Optional: true
-  pub minScaledImageExtent: VkExtent2D,
-  /// Optional: true
-  pub maxScaledImageExtent: VkExtent2D,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-unsafe impl<'a> Send for VkSurfacePresentScalingCapabilitiesKHR<'a> {}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-unsafe impl<'a> Sync for VkSurfacePresentScalingCapabilitiesKHR<'a> {}
-#[cfg(all(
-  feature = "VK_KHR_surface_maintenance1",
-  feature = "VK_KHR_get_surface_capabilities2"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkSurfaceCapabilities2KHR<'root>>
-  for VkSurfacePresentScalingCapabilitiesKHR<'child>
-{
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl<'a> VkSurfacePresentScalingCapabilitiesKHR<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::SURFACE_PRESENT_SCALING_CAPABILITIES_KHR,
-    pNext: core::ptr::null_mut(),
-    supportedPresentScaling: VkPresentScalingFlagBitsKHR(0),
-    supportedPresentGravityX: VkPresentGravityFlagBitsKHR(0),
-    supportedPresentGravityY: VkPresentGravityFlagBitsKHR(0),
-    minScaledImageExtent: VkExtent2D::DEFAULT,
-    maxScaledImageExtent: VkExtent2D::DEFAULT,
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[inline]
-  pub const fn with_supportedPresentScaling(mut self, val: VkPresentScalingFlagsKHR) -> Self {
-    self.supportedPresentScaling = val;
-    self
-  }
-  #[inline]
-  pub const fn with_supportedPresentGravityX(mut self, val: VkPresentGravityFlagsKHR) -> Self {
-    self.supportedPresentGravityX = val;
-    self
-  }
-  #[inline]
-  pub const fn with_supportedPresentGravityY(mut self, val: VkPresentGravityFlagsKHR) -> Self {
-    self.supportedPresentGravityY = val;
-    self
-  }
-  #[inline]
-  pub const fn with_minScaledImageExtent(mut self, val: VkExtent2D) -> Self {
-    self.minScaledImageExtent = val;
-    self
-  }
-  #[inline]
-  pub const fn with_maxScaledImageExtent(mut self, val: VkExtent2D) -> Self {
-    self.maxScaledImageExtent = val;
-    self
-  }
-  #[cfg(feature = "VK_KHR_get_surface_capabilities2")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkSurfaceCapabilities2KHR<
-    'root,
-    T: VkPNextExtends<VkSurfaceCapabilities2KHR<'root>>,
-  >(
-    mut self,
-    val: &'a mut T,
-  ) -> Self {
-    self.pNext = (val as *mut T).cast::<c_void>();
-    self
-  }
-}
-/// [VkSurfacePresentModeCompatibilityKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkSurfacePresentModeCompatibilityKHR.html)
-///
-/// **Extends:** VkSurfaceCapabilities2KHR.
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkSurfacePresentModeCompatibilityKHR<'a> {
-  /// Values: VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_COMPATIBILITY_KHR
-  pub sType: VkStructureType,
-  /// Optional: true
-  pub pNext: *mut c_void,
-  /// Optional: true
-  pub presentModeCount: u32,
-  /// Optional: true,  Length: presentModeCount
-  pub pPresentModes: *mut VkPresentModeKHR,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-unsafe impl<'a> Send for VkSurfacePresentModeCompatibilityKHR<'a> {}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-unsafe impl<'a> Sync for VkSurfacePresentModeCompatibilityKHR<'a> {}
-#[cfg(all(
-  feature = "VK_KHR_surface_maintenance1",
-  feature = "VK_KHR_get_surface_capabilities2"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkSurfaceCapabilities2KHR<'root>>
-  for VkSurfacePresentModeCompatibilityKHR<'child>
-{
-}
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
-impl<'a> VkSurfacePresentModeCompatibilityKHR<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::SURFACE_PRESENT_MODE_COMPATIBILITY_KHR,
-    pNext: core::ptr::null_mut(),
-    presentModeCount: 0,
-    pPresentModes: core::ptr::null_mut(),
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[inline]
-  pub const fn with_presentModeCount(mut self, val: u32) -> Self {
-    self.presentModeCount = val;
-    self
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pPresentModes(mut self, val: &'a mut [VkPresentModeKHR]) -> Self {
-    self.presentModeCount = val.len() as u32;
-    self.pPresentModes = val.as_mut_ptr();
-    self
-  }
-  #[cfg(feature = "VK_KHR_get_surface_capabilities2")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkSurfaceCapabilities2KHR<
-    'root,
-    T: VkPNextExtends<VkSurfaceCapabilities2KHR<'root>>,
-  >(
-    mut self,
-    val: &'a mut T,
-  ) -> Self {
-    self.pNext = (val as *mut T).cast::<c_void>();
-    self
-  }
-}
 /// [VkSurfaceProtectedCapabilitiesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkSurfaceProtectedCapabilitiesKHR.html)
 ///
 /// *Note: This is a **returned only** struct.*
@@ -32786,26 +33760,6 @@ impl<'a> VkSurfaceProtectedCapabilitiesKHR<'a> {
 /// [VkSwapchainCreateFlagsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkSwapchainCreateFlagsKHR.html)
 #[cfg(feature = "VK_KHR_swapchain")]
 pub type VkSwapchainCreateFlagsKHR = VkSwapchainCreateFlagBitsKHR;
-/// [VkSwapchainKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkSwapchainKHR.html)
-#[cfg(feature = "VK_KHR_swapchain")]
-#[repr(transparent)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct VkSwapchainKHR(pub u64);
-#[cfg(feature = "VK_KHR_swapchain")]
-impl VkSwapchainKHR {
-  pub const NULL: Self = Self(0);
-  pub const DEFAULT: Self = Self::NULL;
-}
-#[cfg(feature = "VK_KHR_swapchain")]
-impl Default for VkSwapchainKHR {
-  fn default() -> Self {
-    Self::NULL
-  }
-}
-#[cfg(feature = "VK_KHR_swapchain")]
-unsafe impl Send for VkSwapchainKHR {}
-#[cfg(feature = "VK_KHR_swapchain")]
-unsafe impl Sync for VkSwapchainKHR {}
 /// [VkSwapchainCreateInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkSwapchainCreateInfoKHR.html)
 #[cfg(feature = "VK_KHR_swapchain")]
 #[repr(C)]
@@ -33101,7 +34055,10 @@ impl<'a> VkSwapchainCreateInfoKHR<'a> {
     self.pNext = (val as *const VkSwapchainPresentBarrierCreateInfoNV<'child>).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_KHR_swapchain_maintenance1")]
+  #[cfg(any(
+    feature = "VK_KHR_swapchain_maintenance1",
+    feature = "VK_EXT_swapchain_maintenance1"
+  ))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -33113,7 +34070,10 @@ impl<'a> VkSwapchainCreateInfoKHR<'a> {
     self.pNext = (val as *const VkSwapchainPresentModesCreateInfoKHR<'child>).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_KHR_swapchain_maintenance1")]
+  #[cfg(any(
+    feature = "VK_KHR_swapchain_maintenance1",
+    feature = "VK_EXT_swapchain_maintenance1"
+  ))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -33390,7 +34350,10 @@ impl<'a> VkPresentInfoKHR<'a> {
     self.pNext = (val as *const VkSetPresentConfigNV<'child>).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_KHR_swapchain_maintenance1")]
+  #[cfg(any(
+    feature = "VK_KHR_swapchain_maintenance1",
+    feature = "VK_EXT_swapchain_maintenance1"
+  ))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -33402,7 +34365,10 @@ impl<'a> VkPresentInfoKHR<'a> {
     self.pNext = (val as *const VkSwapchainPresentFenceInfoKHR<'child>).cast::<c_void>();
     self
   }
-  #[cfg(feature = "VK_KHR_swapchain_maintenance1")]
+  #[cfg(any(
+    feature = "VK_KHR_swapchain_maintenance1",
+    feature = "VK_EXT_swapchain_maintenance1"
+  ))]
   /// # Safety
   /// The caller must ensure `val` remains valid and outlives any use of this struct
   /// instance. The pointer is stored as-is without any lifetime tracking.
@@ -33430,505 +34396,29 @@ impl<'a> VkPresentInfoKHR<'a> {
     self
   }
 }
-/// [VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR.html)
-///
-/// **Extends:** VkPhysicalDeviceFeatures2, VkDeviceCreateInfo.
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR<'a> {
-  /// Values: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_KHR
-  pub sType: VkStructureType,
-  /// Optional: true
-  pub pNext: *mut c_void,
-  pub swapchainMaintenance1: VkBool32,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
+/// [VkSwapchainKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkSwapchainKHR.html)
+#[cfg(any(feature = "VK_KHR_swapchain", feature = "VK_NV_low_latency2"))]
+#[repr(transparent)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct VkSwapchainKHR(pub u64);
+#[cfg(any(feature = "VK_KHR_swapchain", feature = "VK_NV_low_latency2"))]
+impl VkSwapchainKHR {
+  pub const NULL: Self = Self(0);
+  pub const DEFAULT: Self = Self::NULL;
 }
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
-unsafe impl<'a> Send for VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR<'a> {}
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
-unsafe impl<'a> Sync for VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR<'a> {}
-#[cfg(all(
-  feature = "VK_KHR_swapchain_maintenance1",
-  feature = "VK_BASE_VERSION_1_1"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>
-  for VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR<'child>
-{
-}
-#[cfg(all(
-  feature = "VK_KHR_swapchain_maintenance1",
-  feature = "VK_BASE_VERSION_1_0"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkDeviceCreateInfo<'root>>
-  for VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR<'child>
-{
-}
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
-impl<'a> VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_KHR,
-    pNext: core::ptr::null_mut(),
-    swapchainMaintenance1: 0,
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *mut c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[inline]
-  pub const fn with_swapchainMaintenance1(mut self, val: VkBool32) -> Self {
-    self.swapchainMaintenance1 = val;
-    self
-  }
-  #[cfg(feature = "VK_BASE_VERSION_1_1")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkPhysicalDeviceFeatures2<
-    'root,
-    T: VkPNextExtends<VkPhysicalDeviceFeatures2<'root>>,
-  >(
-    mut self,
-    val: &'a mut T,
-  ) -> Self {
-    self.pNext = (val as *mut T).cast::<c_void>();
-    self
-  }
-  #[cfg(feature = "VK_BASE_VERSION_1_0")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkDeviceCreateInfo<
-    'root,
-    T: VkPNextExtends<VkDeviceCreateInfo<'root>>,
-  >(
-    mut self,
-    val: &'a mut T,
-  ) -> Self {
-    self.pNext = (val as *mut T).cast::<c_void>();
-    self
+#[cfg(any(feature = "VK_KHR_swapchain", feature = "VK_NV_low_latency2"))]
+impl Default for VkSwapchainKHR {
+  fn default() -> Self {
+    Self::NULL
   }
 }
-/// [VkSwapchainPresentFenceInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkSwapchainPresentFenceInfoKHR.html)
-///
-/// **Extends:** VkPresentInfoKHR.
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkSwapchainPresentFenceInfoKHR<'a> {
-  /// Values: VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_KHR
-  pub sType: VkStructureType,
-  /// Optional: true
-  pub pNext: *const c_void,
-  pub swapchainCount: u32,
-  /// Optional: pointer required, values optional if pointer not null,  Length: swapchainCount
-  pub pFences: *const VkFence,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
-}
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
-unsafe impl<'a> Send for VkSwapchainPresentFenceInfoKHR<'a> {}
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
-unsafe impl<'a> Sync for VkSwapchainPresentFenceInfoKHR<'a> {}
-#[cfg(all(
-  feature = "VK_KHR_swapchain_maintenance1",
-  feature = "VK_KHR_swapchain"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkPresentInfoKHR<'root>>
-  for VkSwapchainPresentFenceInfoKHR<'child>
-{
-}
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
-impl<'a> VkSwapchainPresentFenceInfoKHR<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::SWAPCHAIN_PRESENT_FENCE_INFO_KHR,
-    pNext: core::ptr::null(),
-    swapchainCount: 0,
-    pFences: core::ptr::null(),
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[inline]
-  pub const fn with_swapchainCount(mut self, val: u32) -> Self {
-    self.swapchainCount = val;
-    self
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pFences(mut self, val: &'a [VkFence]) -> Self {
-    self.swapchainCount = val.len() as u32;
-    self.pFences = val.as_ptr();
-    self
-  }
-  #[cfg(feature = "VK_KHR_swapchain")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkPresentInfoKHR<
-    'root,
-    T: VkPNextExtends<VkPresentInfoKHR<'root>>,
-  >(
-    mut self,
-    val: &'a T,
-  ) -> Self {
-    self.pNext = (val as *const T).cast::<c_void>();
-    self
-  }
-}
-/// [VkSwapchainPresentModesCreateInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkSwapchainPresentModesCreateInfoKHR.html)
-///
-/// **Extends:** VkSwapchainCreateInfoKHR.
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkSwapchainPresentModesCreateInfoKHR<'a> {
-  /// Values: VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODES_CREATE_INFO_KHR
-  pub sType: VkStructureType,
-  /// Optional: true
-  pub pNext: *const c_void,
-  pub presentModeCount: u32,
-  /// Length: presentModeCount
-  pub pPresentModes: *const VkPresentModeKHR,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
-}
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
-unsafe impl<'a> Send for VkSwapchainPresentModesCreateInfoKHR<'a> {}
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
-unsafe impl<'a> Sync for VkSwapchainPresentModesCreateInfoKHR<'a> {}
-#[cfg(all(
-  feature = "VK_KHR_swapchain_maintenance1",
-  feature = "VK_KHR_swapchain"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkSwapchainCreateInfoKHR<'root>>
-  for VkSwapchainPresentModesCreateInfoKHR<'child>
-{
-}
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
-impl<'a> VkSwapchainPresentModesCreateInfoKHR<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::SWAPCHAIN_PRESENT_MODES_CREATE_INFO_KHR,
-    pNext: core::ptr::null(),
-    presentModeCount: 0,
-    pPresentModes: core::ptr::null(),
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[inline]
-  pub const fn with_presentModeCount(mut self, val: u32) -> Self {
-    self.presentModeCount = val;
-    self
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pPresentModes(mut self, val: &'a [VkPresentModeKHR]) -> Self {
-    self.presentModeCount = val.len() as u32;
-    self.pPresentModes = val.as_ptr();
-    self
-  }
-  #[cfg(feature = "VK_KHR_swapchain")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkSwapchainCreateInfoKHR<
-    'root,
-    T: VkPNextExtends<VkSwapchainCreateInfoKHR<'root>>,
-  >(
-    mut self,
-    val: &'a T,
-  ) -> Self {
-    self.pNext = (val as *const T).cast::<c_void>();
-    self
-  }
-}
-/// [VkSwapchainPresentModeInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkSwapchainPresentModeInfoKHR.html)
-///
-/// **Extends:** VkPresentInfoKHR.
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkSwapchainPresentModeInfoKHR<'a> {
-  /// Values: VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODE_INFO_KHR
-  pub sType: VkStructureType,
-  /// Optional: true
-  pub pNext: *const c_void,
-  pub swapchainCount: u32,
-  /// Length: swapchainCount
-  pub pPresentModes: *const VkPresentModeKHR,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
-}
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
-unsafe impl<'a> Send for VkSwapchainPresentModeInfoKHR<'a> {}
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
-unsafe impl<'a> Sync for VkSwapchainPresentModeInfoKHR<'a> {}
-#[cfg(all(
-  feature = "VK_KHR_swapchain_maintenance1",
-  feature = "VK_KHR_swapchain"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkPresentInfoKHR<'root>>
-  for VkSwapchainPresentModeInfoKHR<'child>
-{
-}
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
-impl<'a> VkSwapchainPresentModeInfoKHR<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::SWAPCHAIN_PRESENT_MODE_INFO_KHR,
-    pNext: core::ptr::null(),
-    swapchainCount: 0,
-    pPresentModes: core::ptr::null(),
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[inline]
-  pub const fn with_swapchainCount(mut self, val: u32) -> Self {
-    self.swapchainCount = val;
-    self
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pPresentModes(mut self, val: &'a [VkPresentModeKHR]) -> Self {
-    self.swapchainCount = val.len() as u32;
-    self.pPresentModes = val.as_ptr();
-    self
-  }
-  #[cfg(feature = "VK_KHR_swapchain")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkPresentInfoKHR<
-    'root,
-    T: VkPNextExtends<VkPresentInfoKHR<'root>>,
-  >(
-    mut self,
-    val: &'a T,
-  ) -> Self {
-    self.pNext = (val as *const T).cast::<c_void>();
-    self
-  }
-}
-/// [VkSwapchainPresentScalingCreateInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkSwapchainPresentScalingCreateInfoKHR.html)
-///
-/// **Extends:** VkSwapchainCreateInfoKHR.
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkSwapchainPresentScalingCreateInfoKHR<'a> {
-  /// Values: VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_KHR
-  pub sType: VkStructureType,
-  /// Optional: true
-  pub pNext: *const c_void,
-  /// Optional: true
-  pub scalingBehavior: VkPresentScalingFlagsKHR,
-  /// Optional: true
-  pub presentGravityX: VkPresentGravityFlagsKHR,
-  /// Optional: true
-  pub presentGravityY: VkPresentGravityFlagsKHR,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
-}
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
-unsafe impl<'a> Send for VkSwapchainPresentScalingCreateInfoKHR<'a> {}
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
-unsafe impl<'a> Sync for VkSwapchainPresentScalingCreateInfoKHR<'a> {}
-#[cfg(all(
-  feature = "VK_KHR_swapchain_maintenance1",
-  feature = "VK_KHR_swapchain"
-))]
-unsafe impl<'child, 'root> VkPNextExtends<VkSwapchainCreateInfoKHR<'root>>
-  for VkSwapchainPresentScalingCreateInfoKHR<'child>
-{
-}
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
-impl<'a> VkSwapchainPresentScalingCreateInfoKHR<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_KHR,
-    pNext: core::ptr::null(),
-    scalingBehavior: VkPresentScalingFlagBitsKHR(0),
-    presentGravityX: VkPresentGravityFlagBitsKHR(0),
-    presentGravityY: VkPresentGravityFlagBitsKHR(0),
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[inline]
-  pub const fn with_scalingBehavior(mut self, val: VkPresentScalingFlagsKHR) -> Self {
-    self.scalingBehavior = val;
-    self
-  }
-  #[inline]
-  pub const fn with_presentGravityX(mut self, val: VkPresentGravityFlagsKHR) -> Self {
-    self.presentGravityX = val;
-    self
-  }
-  #[inline]
-  pub const fn with_presentGravityY(mut self, val: VkPresentGravityFlagsKHR) -> Self {
-    self.presentGravityY = val;
-    self
-  }
-  #[cfg(feature = "VK_KHR_swapchain")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkSwapchainCreateInfoKHR<
-    'root,
-    T: VkPNextExtends<VkSwapchainCreateInfoKHR<'root>>,
-  >(
-    mut self,
-    val: &'a T,
-  ) -> Self {
-    self.pNext = (val as *const T).cast::<c_void>();
-    self
-  }
-}
-/// [VkReleaseSwapchainImagesInfoKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkReleaseSwapchainImagesInfoKHR.html)
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct VkReleaseSwapchainImagesInfoKHR<'a> {
-  /// Values: VK_STRUCTURE_TYPE_RELEASE_SWAPCHAIN_IMAGES_INFO_KHR
-  pub sType: VkStructureType,
-  /// Optional: true
-  pub pNext: *const c_void,
-  pub swapchain: VkSwapchainKHR,
-  pub imageIndexCount: u32,
-  /// Length: imageIndexCount
-  pub pImageIndices: *const u32,
-  #[doc(hidden)]
-  pub _marker: core::marker::PhantomData<&'a ()>,
-}
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
-unsafe impl<'a> Send for VkReleaseSwapchainImagesInfoKHR<'a> {}
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
-unsafe impl<'a> Sync for VkReleaseSwapchainImagesInfoKHR<'a> {}
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
-impl<'a> VkReleaseSwapchainImagesInfoKHR<'a> {
-  pub const DEFAULT: Self = Self {
-    sType: VkStructureType::RELEASE_SWAPCHAIN_IMAGES_INFO_KHR,
-    pNext: core::ptr::null(),
-    swapchain: VkSwapchainKHR::DEFAULT,
-    imageIndexCount: 0,
-    pImageIndices: core::ptr::null(),
-    _marker: core::marker::PhantomData,
-  };
-  #[inline]
-  pub const fn new() -> Self {
-    Self::DEFAULT
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext(mut self, val: *const c_void) -> Self {
-    self.pNext = val;
-    self
-  }
-  #[inline]
-  pub const fn with_swapchain(mut self, val: VkSwapchainKHR) -> Self {
-    self.swapchain = val;
-    self
-  }
-  #[inline]
-  pub const fn with_imageIndexCount(mut self, val: u32) -> Self {
-    self.imageIndexCount = val;
-    self
-  }
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pImageIndices(mut self, val: &'a [u32]) -> Self {
-    self.imageIndexCount = val.len() as u32;
-    self.pImageIndices = val.as_ptr();
-    self
-  }
-  #[cfg(feature = "VK_KHR_swapchain_maintenance1")]
-  /// # Safety
-  /// The caller must ensure `val` remains valid and outlives any use of this struct
-  /// instance. The pointer is stored as-is without any lifetime tracking.
-  #[inline]
-  pub const fn with_pNext_chain_VkReleaseSwapchainImagesInfoKHR<
-    'root,
-    T: VkPNextExtends<VkReleaseSwapchainImagesInfoKHR<'root>>,
-  >(
-    mut self,
-    val: &'a T,
-  ) -> Self {
-    self.pNext = (val as *const T).cast::<c_void>();
-    self
-  }
-}
+#[cfg(any(feature = "VK_KHR_swapchain", feature = "VK_NV_low_latency2"))]
+unsafe impl Send for VkSwapchainKHR {}
+#[cfg(any(feature = "VK_KHR_swapchain", feature = "VK_NV_low_latency2"))]
+unsafe impl Sync for VkSwapchainKHR {}
 /// [VkAccessFlags2KHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkAccessFlags2KHR.html)
 #[cfg(feature = "VK_KHR_synchronization2")]
 pub type VkAccessFlags2KHR = VkAccessFlagBits2;
-/// [VkPipelineStageFlags2KHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkPipelineStageFlags2KHR.html)
-#[cfg(feature = "VK_KHR_synchronization2")]
-pub type VkPipelineStageFlags2KHR = VkPipelineStageFlagBits2;
 /// [VkSubmitFlagsKHR](https://docs.vulkan.org/refpages/latest/refpages/source/VkSubmitFlagsKHR.html)
 #[cfg(feature = "VK_KHR_synchronization2")]
 pub type VkSubmitFlagsKHR = VkSubmitFlagBits;
@@ -33971,9 +34461,9 @@ impl<'a> VkMemoryBarrier2KHR<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::MEMORY_BARRIER_2_KHR,
     pNext: core::ptr::null(),
-    srcStageMask: VkPipelineStageFlagBits2(0),
+    srcStageMask: 0,
     srcAccessMask: VkAccessFlagBits2(0),
-    dstStageMask: VkPipelineStageFlagBits2(0),
+    dstStageMask: 0,
     dstAccessMask: VkAccessFlagBits2(0),
     _marker: core::marker::PhantomData,
   };
@@ -34060,9 +34550,9 @@ impl<'a> VkImageMemoryBarrier2KHR<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::IMAGE_MEMORY_BARRIER_2_KHR,
     pNext: core::ptr::null(),
-    srcStageMask: VkPipelineStageFlagBits2(0),
+    srcStageMask: 0,
     srcAccessMask: VkAccessFlagBits2(0),
-    dstStageMask: VkPipelineStageFlagBits2(0),
+    dstStageMask: 0,
     dstAccessMask: VkAccessFlagBits2(0),
     oldLayout: VkImageLayout(0),
     newLayout: VkImageLayout(0),
@@ -34184,9 +34674,9 @@ impl<'a> VkBufferMemoryBarrier2KHR<'a> {
   pub const DEFAULT: Self = Self {
     sType: VkStructureType::BUFFER_MEMORY_BARRIER_2_KHR,
     pNext: core::ptr::null(),
-    srcStageMask: VkPipelineStageFlagBits2(0),
+    srcStageMask: 0,
     srcAccessMask: VkAccessFlagBits2(0),
-    dstStageMask: VkPipelineStageFlagBits2(0),
+    dstStageMask: 0,
     dstAccessMask: VkAccessFlagBits2(0),
     srcQueueFamilyIndex: 0,
     dstQueueFamilyIndex: 0,
@@ -34421,7 +34911,7 @@ impl<'a> VkSemaphoreSubmitInfoKHR<'a> {
     pNext: core::ptr::null(),
     semaphore: VkSemaphore::DEFAULT,
     value: 0,
-    stageMask: VkPipelineStageFlagBits2(0),
+    stageMask: 0,
     deviceIndex: 0,
     _marker: core::marker::PhantomData,
   };

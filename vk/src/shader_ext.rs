@@ -14,10 +14,16 @@ use crate::enums::VkResult;
 use crate::types::VkAllocationCallbacks;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkDevice;
-#[cfg(feature = "VK_EXT_shader_object")]
+#[cfg(any(
+  feature = "VK_EXT_shader_object",
+  feature = "VK_EXT_device_generated_commands"
+))]
 use crate::types::VkShaderEXT;
 use core::ffi::{c_char, c_void};
-#[cfg(feature = "VK_EXT_shader_object")]
+#[cfg(any(
+  feature = "VK_EXT_shader_object",
+  feature = "VK_EXT_device_generated_commands"
+))]
 #[derive(Debug, Clone)]
 pub struct ShaderEXTDispatchTable {
   #[cfg(feature = "VK_EXT_shader_object")]
@@ -25,7 +31,10 @@ pub struct ShaderEXTDispatchTable {
   #[cfg(feature = "VK_EXT_shader_object")]
   pub vkGetShaderBinaryDataEXT: Option<PFN_vkGetShaderBinaryDataEXT>,
 }
-#[cfg(feature = "VK_EXT_shader_object")]
+#[cfg(any(
+  feature = "VK_EXT_shader_object",
+  feature = "VK_EXT_device_generated_commands"
+))]
 impl ShaderEXTDispatchTable {
   pub const EMPTY: Self = Self {
     #[cfg(feature = "VK_EXT_shader_object")]
@@ -48,16 +57,28 @@ impl ShaderEXTDispatchTable {
     }
   }
 }
-#[cfg(feature = "VK_EXT_shader_object")]
+#[cfg(any(
+  feature = "VK_EXT_shader_object",
+  feature = "VK_EXT_device_generated_commands"
+))]
 pub struct ShaderEXT<'dev> {
   pub(crate) raw: VkShaderEXT,
   pub(crate) parent: &'dev crate::device::Device<'dev>,
 }
-#[cfg(feature = "VK_EXT_shader_object")]
+#[cfg(any(
+  feature = "VK_EXT_shader_object",
+  feature = "VK_EXT_device_generated_commands"
+))]
 unsafe impl<'dev> Send for ShaderEXT<'dev> {}
-#[cfg(feature = "VK_EXT_shader_object")]
+#[cfg(any(
+  feature = "VK_EXT_shader_object",
+  feature = "VK_EXT_device_generated_commands"
+))]
 unsafe impl<'dev> Sync for ShaderEXT<'dev> {}
-#[cfg(feature = "VK_EXT_shader_object")]
+#[cfg(any(
+  feature = "VK_EXT_shader_object",
+  feature = "VK_EXT_device_generated_commands"
+))]
 impl<'dev> Drop for ShaderEXT<'dev> {
   fn drop(&mut self) {
     if self.raw == VkShaderEXT::NULL {
@@ -72,7 +93,10 @@ impl<'dev> Drop for ShaderEXT<'dev> {
     };
   }
 }
-#[cfg(feature = "VK_EXT_shader_object")]
+#[cfg(any(
+  feature = "VK_EXT_shader_object",
+  feature = "VK_EXT_device_generated_commands"
+))]
 impl<'dev> ShaderEXT<'dev> {
   #[inline(always)]
   pub const fn raw(&self) -> VkShaderEXT {

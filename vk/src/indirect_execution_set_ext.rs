@@ -20,10 +20,7 @@ use crate::types::VkDevice;
 use crate::types::VkIndirectExecutionSetEXT;
 #[cfg(feature = "VK_EXT_device_generated_commands")]
 use crate::types::VkWriteIndirectExecutionSetPipelineEXT;
-#[cfg(all(
-  feature = "VK_EXT_device_generated_commands",
-  feature = "VK_EXT_shader_object"
-))]
+#[cfg(feature = "VK_EXT_device_generated_commands")]
 use crate::types::VkWriteIndirectExecutionSetShaderEXT;
 use core::ffi::{c_char, c_void};
 #[cfg(feature = "VK_EXT_device_generated_commands")]

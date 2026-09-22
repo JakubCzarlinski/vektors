@@ -32,6 +32,14 @@ pub use amd::VkAntiLagPresentationInfoAMD;
   all(
     feature = "VK_AMD_mixed_attachment_samples",
     feature = "VK_KHR_dynamic_rendering"
+  ),
+  all(
+    feature = "VK_NV_framebuffer_mixed_samples",
+    feature = "VK_VERSION_1_3"
+  ),
+  all(
+    feature = "VK_KHR_dynamic_rendering",
+    feature = "VK_NV_framebuffer_mixed_samples"
   )
 ))]
 pub use amd::VkAttachmentSampleCountInfoAMD;
@@ -523,8 +531,6 @@ pub use nv::VkAccelerationStructureMotionInstanceDataNV;
 pub use nv::VkAccelerationStructureMotionInstanceFlagsNV;
 #[cfg(feature = "VK_NV_ray_tracing_motion_blur")]
 pub use nv::VkAccelerationStructureMotionInstanceNV;
-#[cfg(feature = "VK_NV_ray_tracing")]
-pub use nv::VkAccelerationStructureNV;
 #[cfg(feature = "VK_NV_ray_tracing_motion_blur")]
 pub use nv::VkAccelerationStructureSRTMotionInstanceNV;
 #[cfg(feature = "VK_NV_displacement_micromap")]
@@ -1005,7 +1011,10 @@ pub use nv::VkSetPresentConfigNV;
 pub use nv::VkSetStateFlagsIndirectCommandNV;
 #[cfg(feature = "VK_NV_shading_rate_image")]
 pub use nv::VkShadingRatePaletteNV;
-#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_NV_cluster_acceleration_structure",
+  feature = "VK_NV_partitioned_acceleration_structure"
+))]
 pub use nv::VkStridedDeviceAddressNV;
 #[cfg(feature = "VK_NV_present_barrier")]
 pub use nv::VkSurfaceCapabilitiesPresentBarrierNV;

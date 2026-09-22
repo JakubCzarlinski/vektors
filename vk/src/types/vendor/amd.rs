@@ -1385,6 +1385,14 @@ impl<'a> VkDeviceMemoryOverallocationCreateInfoAMD<'a> {
   all(
     feature = "VK_AMD_mixed_attachment_samples",
     feature = "VK_KHR_dynamic_rendering"
+  ),
+  all(
+    feature = "VK_NV_framebuffer_mixed_samples",
+    feature = "VK_VERSION_1_3"
+  ),
+  all(
+    feature = "VK_KHR_dynamic_rendering",
+    feature = "VK_NV_framebuffer_mixed_samples"
   )
 ))]
 #[repr(C)]
@@ -1411,6 +1419,14 @@ pub struct VkAttachmentSampleCountInfoAMD<'a> {
   all(
     feature = "VK_AMD_mixed_attachment_samples",
     feature = "VK_KHR_dynamic_rendering"
+  ),
+  all(
+    feature = "VK_NV_framebuffer_mixed_samples",
+    feature = "VK_VERSION_1_3"
+  ),
+  all(
+    feature = "VK_KHR_dynamic_rendering",
+    feature = "VK_NV_framebuffer_mixed_samples"
   )
 ))]
 unsafe impl<'a> Send for VkAttachmentSampleCountInfoAMD<'a> {}
@@ -1422,6 +1438,14 @@ unsafe impl<'a> Send for VkAttachmentSampleCountInfoAMD<'a> {}
   all(
     feature = "VK_AMD_mixed_attachment_samples",
     feature = "VK_KHR_dynamic_rendering"
+  ),
+  all(
+    feature = "VK_NV_framebuffer_mixed_samples",
+    feature = "VK_VERSION_1_3"
+  ),
+  all(
+    feature = "VK_KHR_dynamic_rendering",
+    feature = "VK_NV_framebuffer_mixed_samples"
   )
 ))]
 unsafe impl<'a> Sync for VkAttachmentSampleCountInfoAMD<'a> {}
@@ -1434,6 +1458,14 @@ unsafe impl<'a> Sync for VkAttachmentSampleCountInfoAMD<'a> {}
     all(
       feature = "VK_AMD_mixed_attachment_samples",
       feature = "VK_KHR_dynamic_rendering"
+    ),
+    all(
+      feature = "VK_NV_framebuffer_mixed_samples",
+      feature = "VK_VERSION_1_3"
+    ),
+    all(
+      feature = "VK_KHR_dynamic_rendering",
+      feature = "VK_NV_framebuffer_mixed_samples"
     )
   ),
   feature = "VK_BASE_VERSION_1_0"
@@ -1451,6 +1483,14 @@ unsafe impl<'child, 'root> VkPNextExtends<VkCommandBufferInheritanceInfo<'root>>
     all(
       feature = "VK_AMD_mixed_attachment_samples",
       feature = "VK_KHR_dynamic_rendering"
+    ),
+    all(
+      feature = "VK_NV_framebuffer_mixed_samples",
+      feature = "VK_VERSION_1_3"
+    ),
+    all(
+      feature = "VK_KHR_dynamic_rendering",
+      feature = "VK_NV_framebuffer_mixed_samples"
     )
   ),
   feature = "VK_GRAPHICS_VERSION_1_0"
@@ -1467,6 +1507,14 @@ unsafe impl<'child, 'root> VkPNextExtends<VkGraphicsPipelineCreateInfo<'root>>
   all(
     feature = "VK_AMD_mixed_attachment_samples",
     feature = "VK_KHR_dynamic_rendering"
+  ),
+  all(
+    feature = "VK_NV_framebuffer_mixed_samples",
+    feature = "VK_VERSION_1_3"
+  ),
+  all(
+    feature = "VK_KHR_dynamic_rendering",
+    feature = "VK_NV_framebuffer_mixed_samples"
   )
 ))]
 impl<'a> VkAttachmentSampleCountInfoAMD<'a> {

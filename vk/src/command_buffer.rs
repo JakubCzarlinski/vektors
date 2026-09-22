@@ -1043,7 +1043,19 @@ use crate::enums::VkFrontFace;
 use crate::enums::VkImageLayout;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkIndexType;
-#[cfg(feature = "VK_EXT_line_rasterization")]
+#[cfg(any(
+  feature = "VK_EXT_line_rasterization",
+  all(feature = "VK_EXT_extended_dynamic_state3", feature = "VK_VERSION_1_4"),
+  all(
+    feature = "VK_EXT_extended_dynamic_state3",
+    feature = "VK_KHR_line_rasterization"
+  ),
+  all(feature = "VK_EXT_shader_object", feature = "VK_VERSION_1_4"),
+  all(
+    feature = "VK_EXT_shader_object",
+    feature = "VK_KHR_line_rasterization"
+  )
+))]
 use crate::enums::VkLineRasterizationModeEXT;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 use crate::enums::VkLogicOp;
@@ -1086,9 +1098,18 @@ use crate::types::VkAccelerationStructureBuildGeometryInfoKHR;
 use crate::types::VkAccelerationStructureBuildRangeInfoKHR;
 #[cfg(feature = "VK_NV_ray_tracing")]
 use crate::types::VkAccelerationStructureInfoNV;
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  all(feature = "VK_EXT_descriptor_buffer", feature = "VK_NV_ray_tracing")
+))]
 use crate::types::VkAccelerationStructureKHR;
-#[cfg(feature = "VK_NV_ray_tracing")]
+#[cfg(any(
+  feature = "VK_NV_ray_tracing",
+  all(
+    feature = "VK_EXT_descriptor_buffer",
+    feature = "VK_KHR_acceleration_structure"
+  )
+))]
 use crate::types::VkAccelerationStructureNV;
 #[cfg(feature = "VK_KHR_device_address_commands")]
 use crate::types::VkAddressCommandFlagsKHR;
@@ -1252,7 +1273,10 @@ use crate::types::VkDescriptorUpdateTemplate;
 use crate::types::VkDevice;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkDeviceAddress;
-#[cfg(feature = "VK_KHR_device_address_commands")]
+#[cfg(any(
+  feature = "VK_KHR_device_address_commands",
+  feature = "VK_EXT_descriptor_heap"
+))]
 use crate::types::VkDeviceAddressRangeKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkDeviceSize;
@@ -1300,7 +1324,10 @@ use crate::types::VkImageSubresourceRange;
 use crate::types::VkImageView;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkMemoryBarrier;
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 use crate::types::VkMemoryDecompressionMethodFlagsEXT;
 #[cfg(all(
   feature = "VK_AMD_buffer_marker",
@@ -1337,7 +1364,13 @@ use crate::types::VkPipelineLayout;
 use crate::types::VkPipelineStageFlags;
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 use crate::types::VkPipelineStageFlags2;
-#[cfg(feature = "VK_KHR_synchronization2")]
+#[cfg(any(
+  feature = "VK_KHR_synchronization2",
+  all(
+    feature = "VK_AMD_buffer_marker",
+    feature = "VK_KHR_device_address_commands"
+  )
+))]
 use crate::types::VkPipelineStageFlags2KHR;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_4")]
 use crate::types::VkPushConstantsInfo;
@@ -1374,7 +1407,10 @@ use crate::types::VkRenderingAttachmentLocationInfo;
 use crate::types::VkRenderingAttachmentLocationInfoKHR;
 #[cfg(feature = "VK_EXT_fragment_density_map_offset")]
 use crate::types::VkRenderingEndInfoEXT;
-#[cfg(feature = "VK_KHR_maintenance10")]
+#[cfg(any(
+  feature = "VK_KHR_maintenance10",
+  feature = "VK_EXT_fragment_density_map_offset"
+))]
 use crate::types::VkRenderingEndInfoKHR;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_3")]
 use crate::types::VkRenderingInfo;
@@ -1397,7 +1433,10 @@ use crate::types::VkSampleLocationsInfoEXT;
 use crate::types::VkSampleMask;
 #[cfg(all(feature = "VK_EXT_descriptor_buffer", feature = "VK_KHR_maintenance6"))]
 use crate::types::VkSetDescriptorBufferOffsetsInfoEXT;
-#[cfg(feature = "VK_EXT_shader_object")]
+#[cfg(any(
+  feature = "VK_EXT_shader_object",
+  feature = "VK_EXT_device_generated_commands"
+))]
 use crate::types::VkShaderEXT;
 #[cfg(feature = "VK_ARM_shader_instrumentation")]
 use crate::types::VkShaderInstrumentationARM;
@@ -1412,7 +1451,10 @@ use crate::types::VkStencilFaceFlags;
   feature = "VK_KHR_copy_memory_indirect"
 ))]
 use crate::types::VkStridedDeviceAddressRangeKHR;
-#[cfg(feature = "VK_KHR_ray_tracing_pipeline")]
+#[cfg(any(
+  feature = "VK_KHR_ray_tracing_pipeline",
+  feature = "VK_NV_cluster_acceleration_structure"
+))]
 use crate::types::VkStridedDeviceAddressRegionKHR;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_2")]
 use crate::types::VkSubpassBeginInfo;

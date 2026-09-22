@@ -147,7 +147,11 @@ use crate::enums::VkBlendFactor;
   feature = "VK_EXT_blend_operation_advanced"
 ))]
 use crate::enums::VkBlendOp;
-#[cfg(feature = "VK_EXT_blend_operation_advanced")]
+#[cfg(any(
+  feature = "VK_EXT_blend_operation_advanced",
+  feature = "VK_EXT_extended_dynamic_state3",
+  feature = "VK_EXT_shader_object"
+))]
 use crate::enums::VkBlendOverlapEXT;
 #[cfg(feature = "VK_QCOM_image_processing2")]
 use crate::enums::VkBlockMatchWindowCompareModeQCOM;
@@ -382,7 +386,7 @@ use crate::enums::VkDeviceFaultAddressTypeKHR;
 use crate::enums::VkDeviceFaultFlagBitsKHR;
 #[cfg(feature = "VK_EXT_device_fault")]
 use crate::enums::VkDeviceFaultVendorBinaryHeaderVersionEXT;
-#[cfg(feature = "VK_KHR_device_fault")]
+#[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
 use crate::enums::VkDeviceFaultVendorBinaryHeaderVersionKHR;
 #[cfg(any(
   all(feature = "VK_KHR_swapchain", feature = "VK_VERSION_1_1"),
@@ -647,7 +651,19 @@ use crate::enums::VkLayeredDriverUnderlyingApiMSFT;
   feature = "VK_KHR_line_rasterization"
 ))]
 use crate::enums::VkLineRasterizationMode;
-#[cfg(feature = "VK_EXT_line_rasterization")]
+#[cfg(any(
+  feature = "VK_EXT_line_rasterization",
+  all(feature = "VK_EXT_extended_dynamic_state3", feature = "VK_VERSION_1_4"),
+  all(
+    feature = "VK_EXT_extended_dynamic_state3",
+    feature = "VK_KHR_line_rasterization"
+  ),
+  all(feature = "VK_EXT_shader_object", feature = "VK_VERSION_1_4"),
+  all(
+    feature = "VK_EXT_shader_object",
+    feature = "VK_KHR_line_rasterization"
+  )
+))]
 use crate::enums::VkLineRasterizationModeEXT;
 #[cfg(feature = "VK_KHR_line_rasterization")]
 use crate::enums::VkLineRasterizationModeKHR;
@@ -662,7 +678,10 @@ use crate::enums::VkLogicOp;
 use crate::enums::VkMemoryAllocateFlagBits;
 #[cfg(feature = "VK_KHR_device_group")]
 use crate::enums::VkMemoryAllocateFlagBitsKHR;
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 use crate::enums::VkMemoryDecompressionMethodFlagBitsEXT;
 #[cfg(feature = "VK_NV_memory_decompression")]
 use crate::enums::VkMemoryDecompressionMethodFlagBitsNV;
@@ -902,13 +921,19 @@ use crate::enums::VkPointClippingBehaviorKHR;
 use crate::enums::VkPolygonMode;
 #[cfg(feature = "VK_EXT_surface_maintenance1")]
 use crate::enums::VkPresentGravityFlagBitsEXT;
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
 use crate::enums::VkPresentGravityFlagBitsKHR;
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(feature = "VK_KHR_surface", feature = "VK_NV_low_latency2"))]
 use crate::enums::VkPresentModeKHR;
 #[cfg(feature = "VK_EXT_surface_maintenance1")]
 use crate::enums::VkPresentScalingFlagBitsEXT;
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
 use crate::enums::VkPresentScalingFlagBitsKHR;
 #[cfg(feature = "VK_EXT_present_timing")]
 use crate::enums::VkPresentStageFlagBitsEXT;
@@ -1152,7 +1177,11 @@ use crate::enums::VkSubpassDescriptionFlagBits;
 use crate::enums::VkSubpassMergeStatusEXT;
 #[cfg(feature = "VK_EXT_display_surface_counter")]
 use crate::enums::VkSurfaceCounterFlagBitsEXT;
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(
+  feature = "VK_KHR_surface",
+  feature = "VK_QCOM_render_pass_transform",
+  feature = "VK_QCOM_rotated_copy_commands"
+))]
 use crate::enums::VkSurfaceTransformFlagBitsKHR;
 #[cfg(feature = "VK_KHR_swapchain")]
 use crate::enums::VkSwapchainCreateFlagBitsKHR;
@@ -1578,7 +1607,10 @@ use crate::types::StdVideoVP9Segmentation;
 use crate::types::StdVideoVP9SegmentationFlags;
 #[cfg(feature = "VK_KHR_xlib_surface")]
 use crate::types::VisualID;
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
 use crate::types::VkAabbPositionsKHR;
 #[cfg(feature = "VK_NV_ray_tracing")]
 use crate::types::VkAabbPositionsNV;
@@ -1631,11 +1663,17 @@ use crate::types::VkAccelerationStructureGeometrySpheresDataNV;
 use crate::types::VkAccelerationStructureGeometryTrianglesDataKHR;
 #[cfg(feature = "VK_NV_ray_tracing")]
 use crate::types::VkAccelerationStructureInfoNV;
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
 use crate::types::VkAccelerationStructureInstanceKHR;
 #[cfg(feature = "VK_NV_ray_tracing")]
 use crate::types::VkAccelerationStructureInstanceNV;
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  all(feature = "VK_EXT_descriptor_buffer", feature = "VK_NV_ray_tracing")
+))]
 use crate::types::VkAccelerationStructureKHR;
 #[cfg(feature = "VK_NV_ray_tracing_motion_blur")]
 use crate::types::VkAccelerationStructureMatrixMotionInstanceNV;
@@ -1651,7 +1689,13 @@ use crate::types::VkAccelerationStructureMotionInstanceDataNV;
 use crate::types::VkAccelerationStructureMotionInstanceFlagsNV;
 #[cfg(feature = "VK_NV_ray_tracing_motion_blur")]
 use crate::types::VkAccelerationStructureMotionInstanceNV;
-#[cfg(feature = "VK_NV_ray_tracing")]
+#[cfg(any(
+  feature = "VK_NV_ray_tracing",
+  all(
+    feature = "VK_EXT_descriptor_buffer",
+    feature = "VK_KHR_acceleration_structure"
+  )
+))]
 use crate::types::VkAccelerationStructureNV;
 #[cfg(feature = "VK_NV_ray_tracing_motion_blur")]
 use crate::types::VkAccelerationStructureSRTMotionInstanceNV;
@@ -1762,6 +1806,14 @@ use crate::types::VkAttachmentReferenceStencilLayoutKHR;
   all(
     feature = "VK_AMD_mixed_attachment_samples",
     feature = "VK_KHR_dynamic_rendering"
+  ),
+  all(
+    feature = "VK_NV_framebuffer_mixed_samples",
+    feature = "VK_VERSION_1_3"
+  ),
+  all(
+    feature = "VK_KHR_dynamic_rendering",
+    feature = "VK_NV_framebuffer_mixed_samples"
   )
 ))]
 use crate::types::VkAttachmentSampleCountInfoAMD;
@@ -1940,7 +1992,10 @@ use crate::types::VkBufferView;
 use crate::types::VkBufferViewCreateFlags;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 use crate::types::VkBufferViewCreateInfo;
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
 use crate::types::VkBuildAccelerationStructureFlagsKHR;
 #[cfg(feature = "VK_NV_ray_tracing")]
 use crate::types::VkBuildAccelerationStructureFlagsNV;
@@ -1952,7 +2007,10 @@ use crate::types::VkBuildPartitionedAccelerationStructureIndirectCommandNV;
 use crate::types::VkBuildPartitionedAccelerationStructureInfoNV;
 #[cfg(feature = "VK_EXT_calibrated_timestamps")]
 use crate::types::VkCalibratedTimestampInfoEXT;
-#[cfg(feature = "VK_KHR_calibrated_timestamps")]
+#[cfg(any(
+  feature = "VK_KHR_calibrated_timestamps",
+  feature = "VK_EXT_calibrated_timestamps"
+))]
 use crate::types::VkCalibratedTimestampInfoKHR;
 #[cfg(any(
   all(
@@ -2144,7 +2202,10 @@ use crate::types::VkCopyImageToImageInfoEXT;
 use crate::types::VkCopyImageToMemoryInfo;
 #[cfg(feature = "VK_EXT_host_image_copy")]
 use crate::types::VkCopyImageToMemoryInfoEXT;
-#[cfg(feature = "VK_KHR_copy_memory_indirect")]
+#[cfg(any(
+  feature = "VK_KHR_copy_memory_indirect",
+  feature = "VK_NV_copy_memory_indirect"
+))]
 use crate::types::VkCopyMemoryIndirectCommandKHR;
 #[cfg(feature = "VK_NV_copy_memory_indirect")]
 use crate::types::VkCopyMemoryIndirectCommandNV;
@@ -2152,7 +2213,10 @@ use crate::types::VkCopyMemoryIndirectCommandNV;
 use crate::types::VkCopyMemoryIndirectInfoKHR;
 #[cfg(feature = "VK_KHR_acceleration_structure")]
 use crate::types::VkCopyMemoryToAccelerationStructureInfoKHR;
-#[cfg(feature = "VK_KHR_copy_memory_indirect")]
+#[cfg(any(
+  feature = "VK_KHR_copy_memory_indirect",
+  feature = "VK_NV_copy_memory_indirect"
+))]
 use crate::types::VkCopyMemoryToImageIndirectCommandKHR;
 #[cfg(feature = "VK_NV_copy_memory_indirect")]
 use crate::types::VkCopyMemoryToImageIndirectCommandNV;
@@ -2452,7 +2516,10 @@ use crate::types::VkDeviceAddressBindingCallbackDataEXT;
 use crate::types::VkDeviceAddressBindingFlagsEXT;
 #[cfg(feature = "VK_EXT_descriptor_heap")]
 use crate::types::VkDeviceAddressRangeEXT;
-#[cfg(feature = "VK_KHR_device_address_commands")]
+#[cfg(any(
+  feature = "VK_KHR_device_address_commands",
+  feature = "VK_EXT_descriptor_heap"
+))]
 use crate::types::VkDeviceAddressRangeKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 use crate::types::VkDeviceBufferMemoryRequirements;
@@ -2472,7 +2539,7 @@ use crate::types::VkDeviceDiagnosticsConfigFlagsNV;
 use crate::types::VkDeviceEventInfoEXT;
 #[cfg(feature = "VK_EXT_device_fault")]
 use crate::types::VkDeviceFaultAddressInfoEXT;
-#[cfg(feature = "VK_KHR_device_fault")]
+#[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
 use crate::types::VkDeviceFaultAddressInfoKHR;
 #[cfg(feature = "VK_EXT_device_fault")]
 use crate::types::VkDeviceFaultCountsEXT;
@@ -2488,11 +2555,11 @@ use crate::types::VkDeviceFaultInfoKHR;
 use crate::types::VkDeviceFaultShaderAbortMessageInfoKHR;
 #[cfg(feature = "VK_EXT_device_fault")]
 use crate::types::VkDeviceFaultVendorBinaryHeaderVersionOneEXT;
-#[cfg(feature = "VK_KHR_device_fault")]
+#[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
 use crate::types::VkDeviceFaultVendorBinaryHeaderVersionOneKHR;
 #[cfg(feature = "VK_EXT_device_fault")]
 use crate::types::VkDeviceFaultVendorInfoEXT;
-#[cfg(feature = "VK_KHR_device_fault")]
+#[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
 use crate::types::VkDeviceFaultVendorInfoKHR;
 #[cfg(all(feature = "VK_BASE_VERSION_1_1", not(feature = "VKSC_VERSION_1_0")))]
 use crate::types::VkDeviceGroupBindSparseInfo;
@@ -2878,7 +2945,16 @@ use crate::types::VkFenceImportFlagsKHR;
 use crate::types::VkFilterCubicImageViewImageFormatPropertiesEXT;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkFlags;
-#[cfg(any(feature = "VK_BASE_VERSION_1_3", feature = "VK_KHR_synchronization2"))]
+#[cfg(any(
+  feature = "VK_BASE_VERSION_1_3",
+  feature = "VK_KHR_synchronization2",
+  feature = "VK_KHR_extended_flags",
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_EXT_descriptor_heap",
+  feature = "VK_ARM_scheduling_controls",
+  feature = "VK_KHR_maintenance8",
+  feature = "VK_NV_memory_decompression"
+))]
 use crate::types::VkFlags64;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::types::VkFormatFeatureFlags;
@@ -2940,11 +3016,17 @@ use crate::types::VkGeneratedCommandsShaderInfoEXT;
 use crate::types::VkGeometryAABBNV;
 #[cfg(feature = "VK_NV_ray_tracing")]
 use crate::types::VkGeometryDataNV;
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
 use crate::types::VkGeometryFlagsKHR;
 #[cfg(feature = "VK_NV_ray_tracing")]
 use crate::types::VkGeometryFlagsNV;
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
 use crate::types::VkGeometryInstanceFlagsKHR;
 #[cfg(feature = "VK_NV_ray_tracing")]
 use crate::types::VkGeometryInstanceFlagsNV;
@@ -3321,7 +3403,10 @@ use crate::types::VkMemoryBarrier2;
 use crate::types::VkMemoryBarrier2KHR;
 #[cfg(feature = "VK_KHR_maintenance8")]
 use crate::types::VkMemoryBarrierAccessFlags3KHR;
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 use crate::types::VkMemoryDecompressionMethodFlagsEXT;
 #[cfg(feature = "VK_NV_memory_decompression")]
 use crate::types::VkMemoryDecompressionMethodFlagsNV;
@@ -3431,7 +3516,10 @@ use crate::types::VkMicromapCreateInfoEXT;
 use crate::types::VkMicromapEXT;
 #[cfg(feature = "VK_EXT_opacity_micromap")]
 use crate::types::VkMicromapTriangleEXT;
-#[cfg(feature = "VK_KHR_opacity_micromap")]
+#[cfg(any(
+  feature = "VK_KHR_opacity_micromap",
+  feature = "VK_EXT_opacity_micromap"
+))]
 use crate::types::VkMicromapTriangleKHR;
 #[cfg(feature = "VK_EXT_opacity_micromap")]
 use crate::types::VkMicromapUsageEXT;
@@ -3460,11 +3548,17 @@ use crate::types::VkMultisampledRenderToSingleSampledInfoEXT;
 use crate::types::VkMultiviewPerViewAttributesInfoNVX;
 #[cfg(feature = "VK_QCOM_multiview_per_view_render_areas")]
 use crate::types::VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM;
-#[cfg(feature = "VK_EXT_mutable_descriptor_type")]
+#[cfg(any(
+  feature = "VK_EXT_mutable_descriptor_type",
+  feature = "VK_VALVE_mutable_descriptor_type"
+))]
 use crate::types::VkMutableDescriptorTypeCreateInfoEXT;
 #[cfg(feature = "VK_VALVE_mutable_descriptor_type")]
 use crate::types::VkMutableDescriptorTypeCreateInfoVALVE;
-#[cfg(feature = "VK_EXT_mutable_descriptor_type")]
+#[cfg(any(
+  feature = "VK_EXT_mutable_descriptor_type",
+  feature = "VK_VALVE_mutable_descriptor_type"
+))]
 use crate::types::VkMutableDescriptorTypeListEXT;
 #[cfg(feature = "VK_VALVE_mutable_descriptor_type")]
 use crate::types::VkMutableDescriptorTypeListVALVE;
@@ -3632,7 +3726,10 @@ use crate::types::VkPhysicalDeviceColorWriteEnableFeaturesEXT;
 use crate::types::VkPhysicalDeviceCommandBufferInheritanceFeaturesNV;
 #[cfg(feature = "VK_NV_compute_occupancy_priority")]
 use crate::types::VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV;
-#[cfg(feature = "VK_KHR_compute_shader_derivatives")]
+#[cfg(any(
+  feature = "VK_KHR_compute_shader_derivatives",
+  feature = "VK_NV_compute_shader_derivatives"
+))]
 use crate::types::VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR;
 #[cfg(feature = "VK_NV_compute_shader_derivatives")]
 use crate::types::VkPhysicalDeviceComputeShaderDerivativesFeaturesNV;
@@ -3670,7 +3767,10 @@ use crate::types::VkPhysicalDeviceCooperativeVectorPropertiesNV;
 use crate::types::VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR;
 #[cfg(feature = "VK_NV_copy_memory_indirect")]
 use crate::types::VkPhysicalDeviceCopyMemoryIndirectFeaturesNV;
-#[cfg(feature = "VK_KHR_copy_memory_indirect")]
+#[cfg(any(
+  feature = "VK_KHR_copy_memory_indirect",
+  feature = "VK_NV_copy_memory_indirect"
+))]
 use crate::types::VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR;
 #[cfg(feature = "VK_NV_copy_memory_indirect")]
 use crate::types::VkPhysicalDeviceCopyMemoryIndirectPropertiesNV;
@@ -3714,7 +3814,10 @@ use crate::types::VkPhysicalDeviceDepthBiasControlFeaturesEXT;
 use crate::types::VkPhysicalDeviceDepthClampControlFeaturesEXT;
 #[cfg(feature = "VK_EXT_depth_clamp_zero_one")]
 use crate::types::VkPhysicalDeviceDepthClampZeroOneFeaturesEXT;
-#[cfg(feature = "VK_KHR_depth_clamp_zero_one")]
+#[cfg(any(
+  feature = "VK_KHR_depth_clamp_zero_one",
+  feature = "VK_EXT_depth_clamp_zero_one"
+))]
 use crate::types::VkPhysicalDeviceDepthClampZeroOneFeaturesKHR;
 #[cfg(feature = "VK_EXT_depth_clip_control")]
 use crate::types::VkPhysicalDeviceDepthClipControlFeaturesEXT;
@@ -3879,17 +3982,26 @@ use crate::types::VkPhysicalDeviceFragmentDensityMapFeaturesEXT;
 use crate::types::VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE;
 #[cfg(feature = "VK_VALVE_fragment_density_map_layered")]
 use crate::types::VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE;
-#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+#[cfg(any(
+  feature = "VK_EXT_fragment_density_map_offset",
+  feature = "VK_QCOM_fragment_density_map_offset"
+))]
 use crate::types::VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT;
 #[cfg(feature = "VK_QCOM_fragment_density_map_offset")]
 use crate::types::VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM;
-#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+#[cfg(any(
+  feature = "VK_EXT_fragment_density_map_offset",
+  feature = "VK_QCOM_fragment_density_map_offset"
+))]
 use crate::types::VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT;
 #[cfg(feature = "VK_QCOM_fragment_density_map_offset")]
 use crate::types::VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM;
 #[cfg(feature = "VK_EXT_fragment_density_map")]
 use crate::types::VkPhysicalDeviceFragmentDensityMapPropertiesEXT;
-#[cfg(feature = "VK_KHR_fragment_shader_barycentric")]
+#[cfg(any(
+  feature = "VK_KHR_fragment_shader_barycentric",
+  feature = "VK_NV_fragment_shader_barycentric"
+))]
 use crate::types::VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR;
 #[cfg(feature = "VK_NV_fragment_shader_barycentric")]
 use crate::types::VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV;
@@ -4100,11 +4212,17 @@ use crate::types::VkPhysicalDeviceMapMemoryPlacedFeaturesEXT;
 use crate::types::VkPhysicalDeviceMapMemoryPlacedPropertiesEXT;
 #[cfg(feature = "VK_EXT_memory_budget")]
 use crate::types::VkPhysicalDeviceMemoryBudgetPropertiesEXT;
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 use crate::types::VkPhysicalDeviceMemoryDecompressionFeaturesEXT;
 #[cfg(feature = "VK_NV_memory_decompression")]
 use crate::types::VkPhysicalDeviceMemoryDecompressionFeaturesNV;
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 use crate::types::VkPhysicalDeviceMemoryDecompressionPropertiesEXT;
 #[cfg(feature = "VK_NV_memory_decompression")]
 use crate::types::VkPhysicalDeviceMemoryDecompressionPropertiesNV;
@@ -4146,7 +4264,10 @@ use crate::types::VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM;
 use crate::types::VkPhysicalDeviceMultiviewProperties;
 #[cfg(feature = "VK_KHR_multiview")]
 use crate::types::VkPhysicalDeviceMultiviewPropertiesKHR;
-#[cfg(feature = "VK_EXT_mutable_descriptor_type")]
+#[cfg(any(
+  feature = "VK_EXT_mutable_descriptor_type",
+  feature = "VK_VALVE_mutable_descriptor_type"
+))]
 use crate::types::VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT;
 #[cfg(feature = "VK_VALVE_mutable_descriptor_type")]
 use crate::types::VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE;
@@ -4200,7 +4321,10 @@ use crate::types::VkPhysicalDevicePipelineCreationCacheControlFeaturesEXT;
 use crate::types::VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR;
 #[cfg(feature = "VK_EXT_pipeline_library_group_handles")]
 use crate::types::VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT;
-#[cfg(feature = "VK_KHR_pipeline_library_group_handles")]
+#[cfg(any(
+  feature = "VK_KHR_pipeline_library_group_handles",
+  feature = "VK_EXT_pipeline_library_group_handles"
+))]
 use crate::types::VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR;
 #[cfg(feature = "VK_ARM_pipeline_opacity_micromap")]
 use crate::types::VkPhysicalDevicePipelineOpacityMicromapFeaturesARM;
@@ -4236,7 +4360,10 @@ use crate::types::VkPhysicalDevicePresentIdFeaturesKHR;
 use crate::types::VkPhysicalDevicePresentMeteringFeaturesNV;
 #[cfg(feature = "VK_EXT_present_mode_fifo_latest_ready")]
 use crate::types::VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT;
-#[cfg(feature = "VK_KHR_present_mode_fifo_latest_ready")]
+#[cfg(any(
+  feature = "VK_KHR_present_mode_fifo_latest_ready",
+  feature = "VK_EXT_present_mode_fifo_latest_ready"
+))]
 use crate::types::VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR;
 #[cfg(feature = "VK_EXT_present_timing")]
 use crate::types::VkPhysicalDevicePresentTimingFeaturesEXT;
@@ -4288,7 +4415,10 @@ use crate::types::VkPhysicalDeviceQueuePerfHintPropertiesQCOM;
 use crate::types::VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT;
 #[cfg(feature = "VK_ARM_rasterization_order_attachment_access")]
 use crate::types::VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesARM;
-#[cfg(feature = "VK_EXT_rasterization_order_attachment_access")]
+#[cfg(any(
+  feature = "VK_EXT_rasterization_order_attachment_access",
+  feature = "VK_ARM_rasterization_order_attachment_access"
+))]
 use crate::types::VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT;
 #[cfg(feature = "VK_NV_raw_access_chains")]
 use crate::types::VkPhysicalDeviceRawAccessChainsFeaturesNV;
@@ -4328,11 +4458,11 @@ use crate::types::VkPhysicalDeviceRenderPassStripedPropertiesARM;
 use crate::types::VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV;
 #[cfg(feature = "VK_EXT_robustness2")]
 use crate::types::VkPhysicalDeviceRobustness2FeaturesEXT;
-#[cfg(feature = "VK_KHR_robustness2")]
+#[cfg(any(feature = "VK_KHR_robustness2", feature = "VK_EXT_robustness2"))]
 use crate::types::VkPhysicalDeviceRobustness2FeaturesKHR;
 #[cfg(feature = "VK_EXT_robustness2")]
 use crate::types::VkPhysicalDeviceRobustness2PropertiesEXT;
-#[cfg(feature = "VK_KHR_robustness2")]
+#[cfg(any(feature = "VK_KHR_robustness2", feature = "VK_EXT_robustness2"))]
 use crate::types::VkPhysicalDeviceRobustness2PropertiesKHR;
 #[cfg(feature = "VK_EXT_sample_locations")]
 use crate::types::VkPhysicalDeviceSampleLocationsPropertiesEXT;
@@ -4533,7 +4663,10 @@ use crate::types::VkPhysicalDeviceSubpassShadingPropertiesHUAWEI;
 use crate::types::VkPhysicalDeviceSurfaceInfo2KHR;
 #[cfg(feature = "VK_EXT_swapchain_maintenance1")]
 use crate::types::VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT;
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
 use crate::types::VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 use crate::types::VkPhysicalDeviceSynchronization2Features;
@@ -4787,7 +4920,10 @@ use crate::types::VkPipelineFragmentShadingRateStateCreateInfoKHR;
 use crate::types::VkPipelineIndirectDeviceAddressInfoNV;
 #[cfg(feature = "VK_EXT_pipeline_properties")]
 use crate::types::VkPipelineInfoEXT;
-#[cfg(feature = "VK_KHR_pipeline_executable_properties")]
+#[cfg(any(
+  feature = "VK_KHR_pipeline_executable_properties",
+  feature = "VK_EXT_pipeline_properties"
+))]
 use crate::types::VkPipelineInfoKHR;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 use crate::types::VkPipelineInputAssemblyStateCreateFlags;
@@ -4799,7 +4935,10 @@ use crate::types::VkPipelineLayout;
 use crate::types::VkPipelineLayoutCreateFlags;
 #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
 use crate::types::VkPipelineLayoutCreateInfo;
-#[cfg(feature = "VK_KHR_pipeline_library")]
+#[cfg(any(
+  feature = "VK_KHR_pipeline_library",
+  feature = "VK_KHR_ray_tracing_pipeline"
+))]
 use crate::types::VkPipelineLibraryCreateInfoKHR;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_0")]
 use crate::types::VkPipelineMultisampleStateCreateFlags;
@@ -4865,7 +5004,13 @@ use crate::types::VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT;
 use crate::types::VkPipelineStageFlags;
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 use crate::types::VkPipelineStageFlags2;
-#[cfg(feature = "VK_KHR_synchronization2")]
+#[cfg(any(
+  feature = "VK_KHR_synchronization2",
+  all(
+    feature = "VK_AMD_buffer_marker",
+    feature = "VK_KHR_device_address_commands"
+  )
+))]
 use crate::types::VkPipelineStageFlags2KHR;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_1")]
 use crate::types::VkPipelineTessellationDomainOriginStateCreateInfo;
@@ -4909,7 +5054,10 @@ use crate::types::VkPipelineViewportWScalingStateCreateInfoNV;
 use crate::types::VkPresentFrameTokenGGP;
 #[cfg(feature = "VK_EXT_surface_maintenance1")]
 use crate::types::VkPresentGravityFlagsEXT;
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
 use crate::types::VkPresentGravityFlagsKHR;
 #[cfg(feature = "VK_KHR_present_id2")]
 use crate::types::VkPresentId2KHR;
@@ -4923,7 +5071,10 @@ use crate::types::VkPresentRegionKHR;
 use crate::types::VkPresentRegionsKHR;
 #[cfg(feature = "VK_EXT_surface_maintenance1")]
 use crate::types::VkPresentScalingFlagsEXT;
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
 use crate::types::VkPresentScalingFlagsKHR;
 #[cfg(feature = "VK_EXT_present_timing")]
 use crate::types::VkPresentStageFlagsEXT;
@@ -5078,7 +5229,10 @@ use crate::types::VkRefreshObjectListKHR;
 use crate::types::VkReleaseCapturedPipelineDataInfoKHR;
 #[cfg(feature = "VK_EXT_swapchain_maintenance1")]
 use crate::types::VkReleaseSwapchainImagesInfoEXT;
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
 use crate::types::VkReleaseSwapchainImagesInfoKHR;
 #[cfg(feature = "VK_NV_external_memory_rdma")]
 use crate::types::VkRemoteAddressNV;
@@ -5106,7 +5260,10 @@ use crate::types::VkRenderPassCreationFeedbackCreateInfoEXT;
 use crate::types::VkRenderPassCreationFeedbackInfoEXT;
 #[cfg(feature = "VK_EXT_fragment_density_map")]
 use crate::types::VkRenderPassFragmentDensityMapCreateInfoEXT;
-#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+#[cfg(any(
+  feature = "VK_EXT_fragment_density_map_offset",
+  feature = "VK_QCOM_fragment_density_map_offset"
+))]
 use crate::types::VkRenderPassFragmentDensityMapOffsetEndInfoEXT;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_1")]
 use crate::types::VkRenderPassInputAttachmentAspectCreateInfo;
@@ -5152,7 +5309,10 @@ use crate::types::VkRenderingAttachmentLocationInfo;
 use crate::types::VkRenderingAttachmentLocationInfoKHR;
 #[cfg(feature = "VK_EXT_fragment_density_map_offset")]
 use crate::types::VkRenderingEndInfoEXT;
-#[cfg(feature = "VK_KHR_maintenance10")]
+#[cfg(any(
+  feature = "VK_KHR_maintenance10",
+  feature = "VK_EXT_fragment_density_map_offset"
+))]
 use crate::types::VkRenderingEndInfoKHR;
 #[cfg(feature = "VK_GRAPHICS_VERSION_1_3")]
 use crate::types::VkRenderingFlags;
@@ -5327,7 +5487,10 @@ use crate::types::VkShaderCreateFlagsEXT;
 use crate::types::VkShaderCreateInfoEXT;
 #[cfg(feature = "VK_EXT_descriptor_heap")]
 use crate::types::VkShaderDescriptorSetAndBindingMappingInfoEXT;
-#[cfg(feature = "VK_EXT_shader_object")]
+#[cfg(any(
+  feature = "VK_EXT_shader_object",
+  feature = "VK_EXT_device_generated_commands"
+))]
 use crate::types::VkShaderEXT;
 #[cfg(feature = "VK_ARM_shader_instrumentation")]
 use crate::types::VkShaderInstrumentationARM;
@@ -5412,14 +5575,20 @@ use crate::types::VkStencilOpState;
 use crate::types::VkStreamDescriptorSurfaceCreateFlagsGGP;
 #[cfg(feature = "VK_GGP_stream_descriptor_surface")]
 use crate::types::VkStreamDescriptorSurfaceCreateInfoGGP;
-#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_NV_cluster_acceleration_structure",
+  feature = "VK_NV_partitioned_acceleration_structure"
+))]
 use crate::types::VkStridedDeviceAddressNV;
 #[cfg(any(
   feature = "VK_KHR_device_address_commands",
   feature = "VK_KHR_copy_memory_indirect"
 ))]
 use crate::types::VkStridedDeviceAddressRangeKHR;
-#[cfg(feature = "VK_KHR_ray_tracing_pipeline")]
+#[cfg(any(
+  feature = "VK_KHR_ray_tracing_pipeline",
+  feature = "VK_NV_cluster_acceleration_structure"
+))]
 use crate::types::VkStridedDeviceAddressRegionKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_1")]
 use crate::types::VkSubgroupFeatureFlags;
@@ -5522,15 +5691,24 @@ use crate::types::VkSurfaceFullScreenExclusiveWin32InfoEXT;
 use crate::types::VkSurfaceKHR;
 #[cfg(feature = "VK_EXT_surface_maintenance1")]
 use crate::types::VkSurfacePresentModeCompatibilityEXT;
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
 use crate::types::VkSurfacePresentModeCompatibilityKHR;
 #[cfg(feature = "VK_EXT_surface_maintenance1")]
 use crate::types::VkSurfacePresentModeEXT;
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
 use crate::types::VkSurfacePresentModeKHR;
 #[cfg(feature = "VK_EXT_surface_maintenance1")]
 use crate::types::VkSurfacePresentScalingCapabilitiesEXT;
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
 use crate::types::VkSurfacePresentScalingCapabilitiesKHR;
 #[cfg(feature = "VK_KHR_surface_protected_capabilities")]
 use crate::types::VkSurfaceProtectedCapabilitiesKHR;
@@ -5548,7 +5726,7 @@ use crate::types::VkSwapchainCreateInfoKHR;
 use crate::types::VkSwapchainDisplayNativeHdrCreateInfoAMD;
 #[cfg(feature = "VK_EXT_multisampled_render_to_swapchain")]
 use crate::types::VkSwapchainFlagsSurfaceCapabilitiesEXT;
-#[cfg(feature = "VK_KHR_swapchain")]
+#[cfg(any(feature = "VK_KHR_swapchain", feature = "VK_NV_low_latency2"))]
 use crate::types::VkSwapchainKHR;
 #[cfg(feature = "VK_NV_low_latency2")]
 use crate::types::VkSwapchainLatencyCreateInfoNV;
@@ -5556,19 +5734,31 @@ use crate::types::VkSwapchainLatencyCreateInfoNV;
 use crate::types::VkSwapchainPresentBarrierCreateInfoNV;
 #[cfg(feature = "VK_EXT_swapchain_maintenance1")]
 use crate::types::VkSwapchainPresentFenceInfoEXT;
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
 use crate::types::VkSwapchainPresentFenceInfoKHR;
 #[cfg(feature = "VK_EXT_swapchain_maintenance1")]
 use crate::types::VkSwapchainPresentModeInfoEXT;
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
 use crate::types::VkSwapchainPresentModeInfoKHR;
 #[cfg(feature = "VK_EXT_swapchain_maintenance1")]
 use crate::types::VkSwapchainPresentModesCreateInfoEXT;
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
 use crate::types::VkSwapchainPresentModesCreateInfoKHR;
 #[cfg(feature = "VK_EXT_swapchain_maintenance1")]
 use crate::types::VkSwapchainPresentScalingCreateInfoEXT;
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
 use crate::types::VkSwapchainPresentScalingCreateInfoKHR;
 #[cfg(feature = "VK_EXT_present_timing")]
 use crate::types::VkSwapchainTimeDomainPropertiesEXT;
@@ -5644,7 +5834,10 @@ use crate::types::VkToolPurposeFlagsEXT;
 use crate::types::VkTraceRaysIndirectCommand2KHR;
 #[cfg(feature = "VK_KHR_ray_tracing_pipeline")]
 use crate::types::VkTraceRaysIndirectCommandKHR;
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
 use crate::types::VkTransformMatrixKHR;
 #[cfg(feature = "VK_NV_ray_tracing")]
 use crate::types::VkTransformMatrixNV;
@@ -6042,10 +6235,7 @@ use crate::types::VkWriteDescriptorSetPartitionedAccelerationStructureNV;
 use crate::types::VkWriteDescriptorSetTensorARM;
 #[cfg(feature = "VK_EXT_device_generated_commands")]
 use crate::types::VkWriteIndirectExecutionSetPipelineEXT;
-#[cfg(all(
-  feature = "VK_EXT_device_generated_commands",
-  feature = "VK_EXT_shader_object"
-))]
+#[cfg(feature = "VK_EXT_device_generated_commands")]
 use crate::types::VkWriteIndirectExecutionSetShaderEXT;
 #[cfg(feature = "VK_EXT_hdr_metadata")]
 use crate::types::VkXYColorEXT;

@@ -236,7 +236,7 @@ use crate::enums::VkImageTiling;
 use crate::enums::VkImageType;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkObjectType;
-#[cfg(feature = "VK_KHR_surface")]
+#[cfg(any(feature = "VK_KHR_surface", feature = "VK_NV_low_latency2"))]
 use crate::enums::VkPresentModeKHR;
 #[cfg(feature = "VK_BASE_VERSION_1_0")]
 use crate::enums::VkResult;
@@ -1787,10 +1787,19 @@ impl<'inst> PhysicalDevice<'inst> {
       raw,
       instance: self.instance,
       table: DeviceDispatchTable::load(load_lambda),
-      #[cfg(feature = "VK_KHR_acceleration_structure")]
+      #[cfg(any(
+        feature = "VK_KHR_acceleration_structure",
+        all(feature = "VK_EXT_descriptor_buffer", feature = "VK_NV_ray_tracing")
+      ))]
       acceleration_structure_khr_table:
         crate::acceleration_structure_khr::AccelerationStructureKHRDispatchTable::load(load_lambda),
-      #[cfg(feature = "VK_NV_ray_tracing")]
+      #[cfg(any(
+        feature = "VK_NV_ray_tracing",
+        all(
+          feature = "VK_EXT_descriptor_buffer",
+          feature = "VK_KHR_acceleration_structure"
+        )
+      ))]
       acceleration_structure_nv_table:
         crate::acceleration_structure_nv::AccelerationStructureNVDispatchTable::load(load_lambda),
       #[cfg(feature = "VK_BASE_VERSION_1_0")]
@@ -1916,14 +1925,17 @@ impl<'inst> PhysicalDevice<'inst> {
       #[cfg(feature = "VK_NV_external_sci_sync2")]
       semaphore_sci_sync_pool_nv_table:
         crate::semaphore_sci_sync_pool_nv::SemaphoreSciSyncPoolNVDispatchTable::load(load_lambda),
-      #[cfg(feature = "VK_EXT_shader_object")]
+      #[cfg(any(
+        feature = "VK_EXT_shader_object",
+        feature = "VK_EXT_device_generated_commands"
+      ))]
       shader_ext_table: crate::shader_ext::ShaderEXTDispatchTable::load(load_lambda),
       #[cfg(feature = "VK_ARM_shader_instrumentation")]
       shader_instrumentation_arm_table:
         crate::shader_instrumentation_arm::ShaderInstrumentationARMDispatchTable::load(load_lambda),
       #[cfg(feature = "VK_COMPUTE_VERSION_1_0")]
       shader_module_table: crate::shader_module::ShaderModuleDispatchTable::load(load_lambda),
-      #[cfg(feature = "VK_KHR_swapchain")]
+      #[cfg(any(feature = "VK_KHR_swapchain", feature = "VK_NV_low_latency2"))]
       swapchain_khr_table: crate::swapchain_khr::SwapchainKHRDispatchTable::load(load_lambda),
       #[cfg(any(feature = "VK_EXT_descriptor_heap", feature = "VK_ARM_tensors"))]
       tensor_arm_table: crate::tensor_arm::TensorARMDispatchTable::load(load_lambda),

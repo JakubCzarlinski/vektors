@@ -431,7 +431,16 @@ pub use base_1_3::VkDeviceBufferMemoryRequirements;
 pub use base_1_3::VkDeviceImageMemoryRequirements;
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 pub use base_1_3::VkDevicePrivateDataCreateInfo;
-#[cfg(any(feature = "VK_BASE_VERSION_1_3", feature = "VK_KHR_synchronization2"))]
+#[cfg(any(
+  feature = "VK_BASE_VERSION_1_3",
+  feature = "VK_KHR_synchronization2",
+  feature = "VK_KHR_extended_flags",
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_EXT_descriptor_heap",
+  feature = "VK_ARM_scheduling_controls",
+  feature = "VK_KHR_maintenance8",
+  feature = "VK_NV_memory_decompression"
+))]
 pub use base_1_3::VkFlags64;
 #[cfg(feature = "VK_BASE_VERSION_1_3")]
 pub use base_1_3::VkFormatFeatureFlags2;
@@ -783,6 +792,14 @@ pub use ext::RROutput;
   all(feature = "VK_EXT_descriptor_buffer", feature = "VK_NV_ray_tracing")
 ))]
 pub use ext::VkAccelerationStructureCaptureDescriptorDataInfoEXT;
+#[cfg(any(
+  feature = "VK_NV_ray_tracing",
+  all(
+    feature = "VK_EXT_descriptor_buffer",
+    feature = "VK_KHR_acceleration_structure"
+  )
+))]
+pub use ext::VkAccelerationStructureNV;
 #[cfg(feature = "VK_EXT_opacity_micromap")]
 pub use ext::VkAccelerationStructureTrianglesOpacityMicromapEXT;
 #[cfg(feature = "VK_EXT_application_parameters")]
@@ -1145,7 +1162,10 @@ pub use ext::VkIndirectExecutionSetShaderLayoutInfoEXT;
 pub use ext::VkLayerSettingEXT;
 #[cfg(feature = "VK_EXT_layer_settings")]
 pub use ext::VkLayerSettingsCreateInfoEXT;
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 pub use ext::VkMemoryDecompressionMethodFlagsEXT;
 #[cfg(feature = "VK_EXT_external_memory_metal")]
 pub use ext::VkMemoryGetMetalHandleInfoEXT;
@@ -1187,9 +1207,15 @@ pub use ext::VkMultiDrawInfoEXT;
 pub use ext::VkMultisamplePropertiesEXT;
 #[cfg(feature = "VK_EXT_multisampled_render_to_single_sampled")]
 pub use ext::VkMultisampledRenderToSingleSampledInfoEXT;
-#[cfg(feature = "VK_EXT_mutable_descriptor_type")]
+#[cfg(any(
+  feature = "VK_EXT_mutable_descriptor_type",
+  feature = "VK_VALVE_mutable_descriptor_type"
+))]
 pub use ext::VkMutableDescriptorTypeCreateInfoEXT;
-#[cfg(feature = "VK_EXT_mutable_descriptor_type")]
+#[cfg(any(
+  feature = "VK_EXT_mutable_descriptor_type",
+  feature = "VK_VALVE_mutable_descriptor_type"
+))]
 pub use ext::VkMutableDescriptorTypeListEXT;
 #[cfg(feature = "VK_EXT_descriptor_heap")]
 pub use ext::VkOpaqueCaptureDataCreateInfoEXT;
@@ -1298,9 +1324,15 @@ pub use ext::VkPhysicalDeviceFragmentDensityMap2FeaturesEXT;
 pub use ext::VkPhysicalDeviceFragmentDensityMap2PropertiesEXT;
 #[cfg(feature = "VK_EXT_fragment_density_map")]
 pub use ext::VkPhysicalDeviceFragmentDensityMapFeaturesEXT;
-#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+#[cfg(any(
+  feature = "VK_EXT_fragment_density_map_offset",
+  feature = "VK_QCOM_fragment_density_map_offset"
+))]
 pub use ext::VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT;
-#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+#[cfg(any(
+  feature = "VK_EXT_fragment_density_map_offset",
+  feature = "VK_QCOM_fragment_density_map_offset"
+))]
 pub use ext::VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT;
 #[cfg(feature = "VK_EXT_fragment_density_map")]
 pub use ext::VkPhysicalDeviceFragmentDensityMapPropertiesEXT;
@@ -1360,9 +1392,15 @@ pub use ext::VkPhysicalDeviceMapMemoryPlacedFeaturesEXT;
 pub use ext::VkPhysicalDeviceMapMemoryPlacedPropertiesEXT;
 #[cfg(feature = "VK_EXT_memory_budget")]
 pub use ext::VkPhysicalDeviceMemoryBudgetPropertiesEXT;
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 pub use ext::VkPhysicalDeviceMemoryDecompressionFeaturesEXT;
-#[cfg(feature = "VK_EXT_memory_decompression")]
+#[cfg(any(
+  feature = "VK_EXT_memory_decompression",
+  feature = "VK_NV_memory_decompression"
+))]
 pub use ext::VkPhysicalDeviceMemoryDecompressionPropertiesEXT;
 #[cfg(feature = "VK_EXT_memory_priority")]
 pub use ext::VkPhysicalDeviceMemoryPriorityFeaturesEXT;
@@ -1378,7 +1416,10 @@ pub use ext::VkPhysicalDeviceMultiDrawPropertiesEXT;
 pub use ext::VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT;
 #[cfg(feature = "VK_EXT_multisampled_render_to_swapchain")]
 pub use ext::VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT;
-#[cfg(feature = "VK_EXT_mutable_descriptor_type")]
+#[cfg(any(
+  feature = "VK_EXT_mutable_descriptor_type",
+  feature = "VK_VALVE_mutable_descriptor_type"
+))]
 pub use ext::VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT;
 #[cfg(feature = "VK_EXT_nested_command_buffer")]
 pub use ext::VkPhysicalDeviceNestedCommandBufferFeaturesEXT;
@@ -1424,7 +1465,10 @@ pub use ext::VkPhysicalDeviceProvokingVertexFeaturesEXT;
 pub use ext::VkPhysicalDeviceProvokingVertexPropertiesEXT;
 #[cfg(feature = "VK_EXT_rgba10x6_formats")]
 pub use ext::VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT;
-#[cfg(feature = "VK_EXT_rasterization_order_attachment_access")]
+#[cfg(any(
+  feature = "VK_EXT_rasterization_order_attachment_access",
+  feature = "VK_ARM_rasterization_order_attachment_access"
+))]
 pub use ext::VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT;
 #[cfg(feature = "VK_EXT_ray_tracing_invocation_reorder")]
 pub use ext::VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT;
@@ -1600,7 +1644,10 @@ pub use ext::VkRenderPassCreationFeedbackCreateInfoEXT;
 pub use ext::VkRenderPassCreationFeedbackInfoEXT;
 #[cfg(feature = "VK_EXT_fragment_density_map")]
 pub use ext::VkRenderPassFragmentDensityMapCreateInfoEXT;
-#[cfg(feature = "VK_EXT_fragment_density_map_offset")]
+#[cfg(any(
+  feature = "VK_EXT_fragment_density_map_offset",
+  feature = "VK_QCOM_fragment_density_map_offset"
+))]
 pub use ext::VkRenderPassFragmentDensityMapOffsetEndInfoEXT;
 #[cfg(feature = "VK_EXT_sample_locations")]
 pub use ext::VkRenderPassSampleLocationsBeginInfoEXT;
@@ -1645,7 +1692,10 @@ pub use ext::VkShaderCreateFlagsEXT;
 pub use ext::VkShaderCreateInfoEXT;
 #[cfg(feature = "VK_EXT_descriptor_heap")]
 pub use ext::VkShaderDescriptorSetAndBindingMappingInfoEXT;
-#[cfg(feature = "VK_EXT_shader_object")]
+#[cfg(any(
+  feature = "VK_EXT_shader_object",
+  feature = "VK_EXT_device_generated_commands"
+))]
 pub use ext::VkShaderEXT;
 #[cfg(feature = "VK_EXT_shader_module_identifier")]
 pub use ext::VkShaderModuleIdentifierEXT;
@@ -1744,10 +1794,7 @@ pub use ext::VkVertexInputBindingDivisorDescriptionEXT;
 pub use ext::VkWriteDescriptorSetInlineUniformBlockEXT;
 #[cfg(feature = "VK_EXT_device_generated_commands")]
 pub use ext::VkWriteIndirectExecutionSetPipelineEXT;
-#[cfg(all(
-  feature = "VK_EXT_device_generated_commands",
-  feature = "VK_EXT_shader_object"
-))]
+#[cfg(feature = "VK_EXT_device_generated_commands")]
 pub use ext::VkWriteIndirectExecutionSetShaderEXT;
 #[cfg(feature = "VK_EXT_hdr_metadata")]
 pub use ext::VkXYColorEXT;
@@ -2178,7 +2225,10 @@ pub use khr::StdVideoVP9Segmentation;
 pub use khr::StdVideoVP9SegmentationFlags;
 #[cfg(feature = "VK_KHR_xlib_surface")]
 pub use khr::VisualID;
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
 pub use khr::VkAabbPositionsKHR;
 #[cfg(feature = "VK_KHR_acceleration_structure")]
 pub use khr::VkAccelerationStructureBuildGeometryInfoKHR;
@@ -2209,9 +2259,15 @@ pub use khr::VkAccelerationStructureGeometryKHR;
 pub use khr::VkAccelerationStructureGeometryMicromapDataKHR;
 #[cfg(feature = "VK_KHR_acceleration_structure")]
 pub use khr::VkAccelerationStructureGeometryTrianglesDataKHR;
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
 pub use khr::VkAccelerationStructureInstanceKHR;
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  all(feature = "VK_EXT_descriptor_buffer", feature = "VK_NV_ray_tracing")
+))]
 pub use khr::VkAccelerationStructureKHR;
 #[cfg(feature = "VK_KHR_opacity_micromap")]
 pub use khr::VkAccelerationStructureTrianglesOpacityMicromapKHR;
@@ -2309,9 +2365,15 @@ pub use khr::VkBufferOpaqueCaptureAddressCreateInfoKHR;
 pub use khr::VkBufferUsageFlags2CreateInfoKHR;
 #[cfg(any(feature = "VK_KHR_maintenance5", feature = "VK_KHR_extended_flags"))]
 pub use khr::VkBufferUsageFlags2KHR;
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
 pub use khr::VkBuildAccelerationStructureFlagsKHR;
-#[cfg(feature = "VK_KHR_calibrated_timestamps")]
+#[cfg(any(
+  feature = "VK_KHR_calibrated_timestamps",
+  feature = "VK_EXT_calibrated_timestamps"
+))]
 pub use khr::VkCalibratedTimestampInfoKHR;
 #[cfg(feature = "VK_KHR_dynamic_rendering")]
 pub use khr::VkCommandBufferInheritanceRenderingInfoKHR;
@@ -2346,13 +2408,19 @@ pub use khr::VkCopyDeviceMemoryInfoKHR;
 pub use khr::VkCopyImageInfo2KHR;
 #[cfg(feature = "VK_KHR_copy_commands2")]
 pub use khr::VkCopyImageToBufferInfo2KHR;
-#[cfg(feature = "VK_KHR_copy_memory_indirect")]
+#[cfg(any(
+  feature = "VK_KHR_copy_memory_indirect",
+  feature = "VK_NV_copy_memory_indirect"
+))]
 pub use khr::VkCopyMemoryIndirectCommandKHR;
 #[cfg(feature = "VK_KHR_copy_memory_indirect")]
 pub use khr::VkCopyMemoryIndirectInfoKHR;
 #[cfg(feature = "VK_KHR_acceleration_structure")]
 pub use khr::VkCopyMemoryToAccelerationStructureInfoKHR;
-#[cfg(feature = "VK_KHR_copy_memory_indirect")]
+#[cfg(any(
+  feature = "VK_KHR_copy_memory_indirect",
+  feature = "VK_NV_copy_memory_indirect"
+))]
 pub use khr::VkCopyMemoryToImageIndirectCommandKHR;
 #[cfg(feature = "VK_KHR_copy_memory_indirect")]
 pub use khr::VkCopyMemoryToImageIndirectInfoKHR;
@@ -2384,11 +2452,14 @@ pub use khr::VkDescriptorUpdateTemplateEntryKHR;
   not(feature = "VKSC_VERSION_1_0")
 ))]
 pub use khr::VkDescriptorUpdateTemplateKHR;
-#[cfg(feature = "VK_KHR_device_address_commands")]
+#[cfg(any(
+  feature = "VK_KHR_device_address_commands",
+  feature = "VK_EXT_descriptor_heap"
+))]
 pub use khr::VkDeviceAddressRangeKHR;
 #[cfg(feature = "VK_KHR_maintenance4")]
 pub use khr::VkDeviceBufferMemoryRequirementsKHR;
-#[cfg(feature = "VK_KHR_device_fault")]
+#[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
 pub use khr::VkDeviceFaultAddressInfoKHR;
 #[cfg(feature = "VK_KHR_device_fault")]
 pub use khr::VkDeviceFaultDebugInfoKHR;
@@ -2398,9 +2469,9 @@ pub use khr::VkDeviceFaultFlagsKHR;
 pub use khr::VkDeviceFaultInfoKHR;
 #[cfg(feature = "VK_KHR_shader_abort")]
 pub use khr::VkDeviceFaultShaderAbortMessageInfoKHR;
-#[cfg(feature = "VK_KHR_device_fault")]
+#[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
 pub use khr::VkDeviceFaultVendorBinaryHeaderVersionOneKHR;
-#[cfg(feature = "VK_KHR_device_fault")]
+#[cfg(any(feature = "VK_KHR_device_fault", feature = "VK_EXT_device_fault"))]
 pub use khr::VkDeviceFaultVendorInfoKHR;
 #[cfg(all(feature = "VK_KHR_device_group", not(feature = "VKSC_VERSION_1_0")))]
 pub use khr::VkDeviceGroupBindSparseInfoKHR;
@@ -2558,9 +2629,15 @@ pub use khr::VkFragmentShadingRateAttachmentInfoKHR;
 pub use khr::VkFramebufferAttachmentImageInfoKHR;
 #[cfg(feature = "VK_KHR_imageless_framebuffer")]
 pub use khr::VkFramebufferAttachmentsCreateInfoKHR;
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
 pub use khr::VkGeometryFlagsKHR;
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
 pub use khr::VkGeometryInstanceFlagsKHR;
 #[cfg(feature = "VK_KHR_copy_commands2")]
 pub use khr::VkImageBlit2KHR;
@@ -2666,7 +2743,10 @@ pub use khr::VkMemoryUnmapFlagsKHR;
 pub use khr::VkMemoryUnmapInfoKHR;
 #[cfg(feature = "VK_KHR_external_memory_win32")]
 pub use khr::VkMemoryWin32HandlePropertiesKHR;
-#[cfg(feature = "VK_KHR_opacity_micromap")]
+#[cfg(any(
+  feature = "VK_KHR_opacity_micromap",
+  feature = "VK_EXT_opacity_micromap"
+))]
 pub use khr::VkMicromapTriangleKHR;
 #[cfg(feature = "VK_KHR_opacity_micromap")]
 pub use khr::VkMicromapUsageKHR;
@@ -2694,7 +2774,10 @@ pub use khr::VkPhysicalDeviceAccelerationStructureFeaturesKHR;
 pub use khr::VkPhysicalDeviceAccelerationStructurePropertiesKHR;
 #[cfg(feature = "VK_KHR_buffer_device_address")]
 pub use khr::VkPhysicalDeviceBufferDeviceAddressFeaturesKHR;
-#[cfg(feature = "VK_KHR_compute_shader_derivatives")]
+#[cfg(any(
+  feature = "VK_KHR_compute_shader_derivatives",
+  feature = "VK_NV_compute_shader_derivatives"
+))]
 pub use khr::VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR;
 #[cfg(feature = "VK_KHR_compute_shader_derivatives")]
 pub use khr::VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR;
@@ -2704,9 +2787,15 @@ pub use khr::VkPhysicalDeviceCooperativeMatrixFeaturesKHR;
 pub use khr::VkPhysicalDeviceCooperativeMatrixPropertiesKHR;
 #[cfg(feature = "VK_KHR_copy_memory_indirect")]
 pub use khr::VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR;
-#[cfg(feature = "VK_KHR_copy_memory_indirect")]
+#[cfg(any(
+  feature = "VK_KHR_copy_memory_indirect",
+  feature = "VK_NV_copy_memory_indirect"
+))]
 pub use khr::VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR;
-#[cfg(feature = "VK_KHR_depth_clamp_zero_one")]
+#[cfg(any(
+  feature = "VK_KHR_depth_clamp_zero_one",
+  feature = "VK_EXT_depth_clamp_zero_one"
+))]
 pub use khr::VkPhysicalDeviceDepthClampZeroOneFeaturesKHR;
 #[cfg(feature = "VK_KHR_depth_stencil_resolve")]
 pub use khr::VkPhysicalDeviceDepthStencilResolvePropertiesKHR;
@@ -2738,7 +2827,10 @@ pub use khr::VkPhysicalDeviceFeatures2KHR;
 pub use khr::VkPhysicalDeviceFloat16Int8FeaturesKHR;
 #[cfg(feature = "VK_KHR_shader_float_controls")]
 pub use khr::VkPhysicalDeviceFloatControlsPropertiesKHR;
-#[cfg(feature = "VK_KHR_fragment_shader_barycentric")]
+#[cfg(any(
+  feature = "VK_KHR_fragment_shader_barycentric",
+  feature = "VK_NV_fragment_shader_barycentric"
+))]
 pub use khr::VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR;
 #[cfg(all(
   feature = "VK_EXT_provoking_vertex",
@@ -2829,7 +2921,10 @@ pub use khr::VkPhysicalDevicePipelineBinaryFeaturesKHR;
 pub use khr::VkPhysicalDevicePipelineBinaryPropertiesKHR;
 #[cfg(feature = "VK_KHR_pipeline_executable_properties")]
 pub use khr::VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR;
-#[cfg(feature = "VK_KHR_pipeline_library_group_handles")]
+#[cfg(any(
+  feature = "VK_KHR_pipeline_library_group_handles",
+  feature = "VK_EXT_pipeline_library_group_handles"
+))]
 pub use khr::VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesKHR;
 #[cfg(feature = "VK_KHR_maintenance2")]
 pub use khr::VkPhysicalDevicePointClippingPropertiesKHR;
@@ -2841,7 +2936,10 @@ pub use khr::VkPhysicalDevicePortabilitySubsetPropertiesKHR;
 pub use khr::VkPhysicalDevicePresentId2FeaturesKHR;
 #[cfg(feature = "VK_KHR_present_id")]
 pub use khr::VkPhysicalDevicePresentIdFeaturesKHR;
-#[cfg(feature = "VK_KHR_present_mode_fifo_latest_ready")]
+#[cfg(any(
+  feature = "VK_KHR_present_mode_fifo_latest_ready",
+  feature = "VK_EXT_present_mode_fifo_latest_ready"
+))]
 pub use khr::VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR;
 #[cfg(feature = "VK_KHR_present_wait2")]
 pub use khr::VkPhysicalDevicePresentWait2FeaturesKHR;
@@ -2861,9 +2959,9 @@ pub use khr::VkPhysicalDeviceRayTracingPipelineFeaturesKHR;
 pub use khr::VkPhysicalDeviceRayTracingPipelinePropertiesKHR;
 #[cfg(feature = "VK_KHR_ray_tracing_position_fetch")]
 pub use khr::VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR;
-#[cfg(feature = "VK_KHR_robustness2")]
+#[cfg(any(feature = "VK_KHR_robustness2", feature = "VK_EXT_robustness2"))]
 pub use khr::VkPhysicalDeviceRobustness2FeaturesKHR;
-#[cfg(feature = "VK_KHR_robustness2")]
+#[cfg(any(feature = "VK_KHR_robustness2", feature = "VK_EXT_robustness2"))]
 pub use khr::VkPhysicalDeviceRobustness2PropertiesKHR;
 #[cfg(feature = "VK_KHR_sampler_ycbcr_conversion")]
 pub use khr::VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR;
@@ -2916,7 +3014,10 @@ pub use khr::VkPhysicalDeviceShaderUntypedPointersFeaturesKHR;
 pub use khr::VkPhysicalDeviceSparseImageFormatInfo2KHR;
 #[cfg(feature = "VK_KHR_get_surface_capabilities2")]
 pub use khr::VkPhysicalDeviceSurfaceInfo2KHR;
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
 pub use khr::VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR;
 #[cfg(feature = "VK_KHR_synchronization2")]
 pub use khr::VkPhysicalDeviceSynchronization2FeaturesKHR;
@@ -2994,21 +3095,36 @@ pub use khr::VkPipelineExecutableStatisticKHR;
 pub use khr::VkPipelineExecutableStatisticValueKHR;
 #[cfg(feature = "VK_KHR_fragment_shading_rate")]
 pub use khr::VkPipelineFragmentShadingRateStateCreateInfoKHR;
-#[cfg(feature = "VK_KHR_pipeline_executable_properties")]
+#[cfg(any(
+  feature = "VK_KHR_pipeline_executable_properties",
+  feature = "VK_EXT_pipeline_properties"
+))]
 pub use khr::VkPipelineInfoKHR;
-#[cfg(feature = "VK_KHR_pipeline_library")]
+#[cfg(any(
+  feature = "VK_KHR_pipeline_library",
+  feature = "VK_KHR_ray_tracing_pipeline"
+))]
 pub use khr::VkPipelineLibraryCreateInfoKHR;
 #[cfg(feature = "VK_KHR_line_rasterization")]
 pub use khr::VkPipelineRasterizationLineStateCreateInfoKHR;
 #[cfg(feature = "VK_KHR_dynamic_rendering")]
 pub use khr::VkPipelineRenderingCreateInfoKHR;
-#[cfg(feature = "VK_KHR_synchronization2")]
+#[cfg(any(
+  feature = "VK_KHR_synchronization2",
+  all(
+    feature = "VK_AMD_buffer_marker",
+    feature = "VK_KHR_device_address_commands"
+  )
+))]
 pub use khr::VkPipelineStageFlags2KHR;
 #[cfg(feature = "VK_KHR_maintenance2")]
 pub use khr::VkPipelineTessellationDomainOriginStateCreateInfoKHR;
 #[cfg(feature = "VK_KHR_vertex_attribute_divisor")]
 pub use khr::VkPipelineVertexInputDivisorStateCreateInfoKHR;
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
 pub use khr::VkPresentGravityFlagsKHR;
 #[cfg(feature = "VK_KHR_present_id2")]
 pub use khr::VkPresentId2KHR;
@@ -3020,7 +3136,10 @@ pub use khr::VkPresentInfoKHR;
 pub use khr::VkPresentRegionKHR;
 #[cfg(feature = "VK_KHR_incremental_present")]
 pub use khr::VkPresentRegionsKHR;
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
 pub use khr::VkPresentScalingFlagsKHR;
 #[cfg(feature = "VK_KHR_present_wait2")]
 pub use khr::VkPresentWait2InfoKHR;
@@ -3067,7 +3186,10 @@ pub use khr::VkRefreshObjectKHR;
 pub use khr::VkRefreshObjectListKHR;
 #[cfg(feature = "VK_KHR_pipeline_binary")]
 pub use khr::VkReleaseCapturedPipelineDataInfoKHR;
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
 pub use khr::VkReleaseSwapchainImagesInfoKHR;
 #[cfg(feature = "VK_KHR_imageless_framebuffer")]
 pub use khr::VkRenderPassAttachmentBeginInfoKHR;
@@ -3087,7 +3209,10 @@ pub use khr::VkRenderingAttachmentFlagsKHR;
 pub use khr::VkRenderingAttachmentInfoKHR;
 #[cfg(feature = "VK_KHR_dynamic_rendering_local_read")]
 pub use khr::VkRenderingAttachmentLocationInfoKHR;
-#[cfg(feature = "VK_KHR_maintenance10")]
+#[cfg(any(
+  feature = "VK_KHR_maintenance10",
+  feature = "VK_EXT_fragment_density_map_offset"
+))]
 pub use khr::VkRenderingEndInfoKHR;
 #[cfg(feature = "VK_KHR_dynamic_rendering")]
 pub use khr::VkRenderingFlagsKHR;
@@ -3162,7 +3287,10 @@ pub use khr::VkSparseImageMemoryRequirements2KHR;
   feature = "VK_KHR_copy_memory_indirect"
 ))]
 pub use khr::VkStridedDeviceAddressRangeKHR;
-#[cfg(feature = "VK_KHR_ray_tracing_pipeline")]
+#[cfg(any(
+  feature = "VK_KHR_ray_tracing_pipeline",
+  feature = "VK_NV_cluster_acceleration_structure"
+))]
 pub use khr::VkStridedDeviceAddressRegionKHR;
 #[cfg(feature = "VK_KHR_synchronization2")]
 pub use khr::VkSubmitFlagsKHR;
@@ -3194,11 +3322,20 @@ pub use khr::VkSurfaceFormat2KHR;
 pub use khr::VkSurfaceFormatKHR;
 #[cfg(feature = "VK_KHR_surface")]
 pub use khr::VkSurfaceKHR;
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
 pub use khr::VkSurfacePresentModeCompatibilityKHR;
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
 pub use khr::VkSurfacePresentModeKHR;
-#[cfg(feature = "VK_KHR_surface_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_surface_maintenance1",
+  feature = "VK_EXT_surface_maintenance1"
+))]
 pub use khr::VkSurfacePresentScalingCapabilitiesKHR;
 #[cfg(feature = "VK_KHR_surface_protected_capabilities")]
 pub use khr::VkSurfaceProtectedCapabilitiesKHR;
@@ -3208,15 +3345,27 @@ pub use khr::VkSurfaceTransformFlagsKHR;
 pub use khr::VkSwapchainCreateFlagsKHR;
 #[cfg(feature = "VK_KHR_swapchain")]
 pub use khr::VkSwapchainCreateInfoKHR;
-#[cfg(feature = "VK_KHR_swapchain")]
+#[cfg(any(feature = "VK_KHR_swapchain", feature = "VK_NV_low_latency2"))]
 pub use khr::VkSwapchainKHR;
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
 pub use khr::VkSwapchainPresentFenceInfoKHR;
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
 pub use khr::VkSwapchainPresentModeInfoKHR;
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
 pub use khr::VkSwapchainPresentModesCreateInfoKHR;
-#[cfg(feature = "VK_KHR_swapchain_maintenance1")]
+#[cfg(any(
+  feature = "VK_KHR_swapchain_maintenance1",
+  feature = "VK_EXT_swapchain_maintenance1"
+))]
 pub use khr::VkSwapchainPresentScalingCreateInfoKHR;
 #[cfg(feature = "VK_KHR_timeline_semaphore")]
 pub use khr::VkTimelineSemaphoreSubmitInfoKHR;
@@ -3227,7 +3376,10 @@ pub use khr::VkTimelineSemaphoreSubmitInfoKHR;
 pub use khr::VkTraceRaysIndirectCommand2KHR;
 #[cfg(feature = "VK_KHR_ray_tracing_pipeline")]
 pub use khr::VkTraceRaysIndirectCommandKHR;
-#[cfg(feature = "VK_KHR_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_KHR_acceleration_structure",
+  feature = "VK_NV_ray_tracing"
+))]
 pub use khr::VkTransformMatrixKHR;
 #[cfg(feature = "VK_KHR_vertex_attribute_divisor")]
 pub use khr::VkVertexInputBindingDivisorDescriptionKHR;
@@ -3634,8 +3786,6 @@ pub use vendor::VkAccelerationStructureMotionInstanceDataNV;
 pub use vendor::VkAccelerationStructureMotionInstanceFlagsNV;
 #[cfg(feature = "VK_NV_ray_tracing_motion_blur")]
 pub use vendor::VkAccelerationStructureMotionInstanceNV;
-#[cfg(feature = "VK_NV_ray_tracing")]
-pub use vendor::VkAccelerationStructureNV;
 #[cfg(feature = "VK_NV_ray_tracing_motion_blur")]
 pub use vendor::VkAccelerationStructureSRTMotionInstanceNV;
 #[cfg(feature = "VK_NV_displacement_micromap")]
@@ -3673,6 +3823,14 @@ pub use vendor::VkAntiLagPresentationInfoAMD;
   all(
     feature = "VK_AMD_mixed_attachment_samples",
     feature = "VK_KHR_dynamic_rendering"
+  ),
+  all(
+    feature = "VK_NV_framebuffer_mixed_samples",
+    feature = "VK_VERSION_1_3"
+  ),
+  all(
+    feature = "VK_KHR_dynamic_rendering",
+    feature = "VK_NV_framebuffer_mixed_samples"
   )
 ))]
 pub use vendor::VkAttachmentSampleCountInfoAMD;
@@ -4691,7 +4849,10 @@ pub use vendor::VkShadingRatePaletteNV;
 pub use vendor::VkStreamDescriptorSurfaceCreateFlagsGGP;
 #[cfg(feature = "VK_GGP_stream_descriptor_surface")]
 pub use vendor::VkStreamDescriptorSurfaceCreateInfoGGP;
-#[cfg(feature = "VK_NV_cluster_acceleration_structure")]
+#[cfg(any(
+  feature = "VK_NV_cluster_acceleration_structure",
+  feature = "VK_NV_partitioned_acceleration_structure"
+))]
 pub use vendor::VkStridedDeviceAddressNV;
 #[cfg(feature = "VK_QCOM_fragment_density_map_offset")]
 pub use vendor::VkSubpassFragmentDensityMapOffsetEndInfoQCOM;
